@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: food-delivery-backend-env
+  namespace: food-delivery
+type: Opaque
+stringData:
+  FOOD_DELIVERY_APP_ENV: "Production"
+  FOOD_DELIVERY_POSTGRES_URL: "postgres://postgres:postgres@postgresql.food-delivery.svc.cluster.local:5432/food_delivery?sslmode=disable"
+  FOOD_DELIVERY_REDIS_ADDR: "redis-master.food-delivery.svc.cluster.local:6379"
+  FOOD_DELIVERY_NATS_URL: "nats://nats.messaging.svc.cluster.local:4222"
+  FOOD_DELIVERY_NATS_STREAM: "food-delivery"
+  FOOD_DELIVERY_OTLP_ENDPOINT: "http://otel-collector.monitoring.svc.cluster.local:4317"
