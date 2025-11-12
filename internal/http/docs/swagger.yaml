@@ -1,0 +1,574 @@
+basePath: /api
+definitions:
+  github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse:
+    properties:
+      error:
+        example: Unauthorized
+        type: string
+      message:
+        example: invalid credentials
+        type: string
+    type: object
+  github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission:
+    enum:
+    - orders:view
+    - orders:manage
+    - profile:update
+    - preferences:update
+    - loyalty:view
+    - loyalty:redeem
+    - notifications:manage
+    - riders:onboard
+    - staff:invite
+    - admin:manage
+    type: string
+    x-enum-varnames:
+    - PermissionOrdersView
+    - PermissionOrdersManage
+    - PermissionProfileUpdate
+    - PermissionPreferencesUpdate
+    - PermissionLoyaltyView
+    - PermissionLoyaltyRedeem
+    - PermissionNotifications
+    - PermissionRidersOnboard
+    - PermissionStaffInvite
+    - PermissionAdminManage
+  github_com_bengobox_food-delivery-backend_internal_modules_identity.Role:
+    enum:
+    - customer
+    - rider
+    - staff
+    - admin
+    - superadmin
+    type: string
+    x-enum-varnames:
+    - RoleCustomer
+    - RoleRider
+    - RoleStaff
+    - RoleAdmin
+    - RoleSuperAdmin
+  internal_http_handlers.livenessResponse:
+    properties:
+      service:
+        example: food-delivery-backend
+        type: string
+      status:
+        example: ok
+        type: string
+    type: object
+  internal_http_handlers.readinessResponse:
+    properties:
+      dependencies:
+        additionalProperties:
+          type: string
+        type: object
+      status:
+        example: OK
+        type: string
+    type: object
+  internal_http_handlers_identity.AuthResponsePayload:
+    properties:
+      session:
+        $ref: '#/definitions/internal_http_handlers_identity.SessionResponsePayload'
+      user:
+        $ref: '#/definitions/internal_http_handlers_identity.UserResponsePayload'
+    type: object
+  internal_http_handlers_identity.GoogleCompleteRequest:
+    properties:
+      code:
+        example: auth-code
+        type: string
+      state:
+        example: superadmin
+        type: string
+    type: object
+  internal_http_handlers_identity.GoogleOAuthURLResponse:
+    properties:
+      url:
+        type: string
+    type: object
+  internal_http_handlers_identity.GoogleStartRequest:
+    properties:
+      redirectUri:
+        example: http://localhost:3000/auth/callback
+        type: string
+      role:
+        example: superadmin
+        type: string
+    type: object
+  internal_http_handlers_identity.LoginRequest:
+    properties:
+      email:
+        example: superadmin@urbancafe.biz
+        type: string
+      password:
+        example: ChangeMe123!
+        type: string
+      role:
+        example: superadmin
+        type: string
+    type: object
+  internal_http_handlers_identity.NotificationPreferenceInput:
+    properties:
+      email:
+        example: true
+        type: boolean
+      push:
+        example: true
+        type: boolean
+      sms:
+        example: false
+        type: boolean
+    type: object
+  internal_http_handlers_identity.OperationStatusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  internal_http_handlers_identity.OrderSummaryResponse:
+    properties:
+      eta:
+        type: string
+      id:
+        type: string
+      placedAt:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    type: object
+  internal_http_handlers_identity.RefreshRequest:
+    properties:
+      refreshToken:
+        example: refresh-token
+        type: string
+    type: object
+  internal_http_handlers_identity.SessionResponsePayload:
+    properties:
+      accessToken:
+        type: string
+      expiresAt:
+        type: string
+      refreshToken:
+        type: string
+      sessionId:
+        type: string
+    type: object
+  internal_http_handlers_identity.UpdatePreferencesRequest:
+    properties:
+      language:
+        example: en
+        type: string
+      notifications:
+        $ref: '#/definitions/internal_http_handlers_identity.NotificationPreferenceInput'
+      theme:
+        example: dark
+        type: string
+    type: object
+  internal_http_handlers_identity.UpdateProfileRequest:
+    properties:
+      avatarUrl:
+        example: https://cdn.example.com/avatar.png
+        type: string
+      fullName:
+        example: Super Admin
+        type: string
+      phone:
+        example: "+254700000000"
+        type: string
+    type: object
+  internal_http_handlers_identity.UpdateSecurityRequest:
+    properties:
+      disableTwoFactor:
+        type: boolean
+      enableTwoFactor:
+        type: boolean
+    type: object
+  internal_http_handlers_identity.UserPreferencesResponse:
+    properties:
+      language:
+        type: string
+      notifications:
+        $ref: '#/definitions/internal_http_handlers_identity.NotificationPreferenceInput'
+      theme:
+        type: string
+    type: object
+  internal_http_handlers_identity.UserResponsePayload:
+    properties:
+      availableCoupons:
+        type: integer
+      avatarUrl:
+        type: string
+      backupCodesEnabled:
+        type: boolean
+      createdAt:
+        type: string
+      defaultLocationLabel:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      lastLoginAt:
+        type: string
+      loyaltyPoints:
+        type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission'
+        type: array
+      phone:
+        type: string
+      preferences:
+        $ref: '#/definitions/internal_http_handlers_identity.UserPreferencesResponse'
+      roles:
+        items:
+          $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Role'
+        type: array
+      twoFactorEnabled:
+        type: boolean
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: HTTP API for the BengoBox food delivery backend service.
+  title: Food Delivery Backend API
+  version: 0.1.0
+paths:
+  /healthz:
+    get:
+      description: Returns OK when the API process is healthy.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers.livenessResponse'
+      summary: Service liveness probe
+      tags:
+      - Health
+  /metrics:
+    get:
+      description: Exposes Prometheus metrics in the text format.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Prometheus metrics payload
+          schema:
+            type: string
+      summary: Prometheus metrics
+      tags:
+      - Health
+  /v1/auth/google/complete:
+    post:
+      consumes:
+      - application/json
+      description: Exchanges the Google authorization code for tokens, creates a user
+        if required, and issues session credentials.
+      parameters:
+      - description: Google OAuth completion request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.GoogleCompleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      summary: Complete Google OAuth sign-in
+      tags:
+      - Auth
+  /v1/auth/google/start:
+    post:
+      consumes:
+      - application/json
+      description: Generates a Google OAuth consent URL for the requested role.
+      parameters:
+      - description: Google OAuth start request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.GoogleStartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.GoogleOAuthURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      summary: Start Google OAuth sign-in
+      tags:
+      - Auth
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with email/password credentials and issues
+        session tokens scoped to the selected role.
+      parameters:
+      - description: Login request payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      summary: Sign in with email and password
+      tags:
+      - Auth
+  /v1/auth/logout:
+    post:
+      description: Revokes the active session belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.OperationStatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Sign out the current session
+      tags:
+      - Auth
+  /v1/auth/me:
+    get:
+      description: Returns the authenticated user's profile, preferences, and current
+        session metadata.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current authenticated user
+      tags:
+      - Auth
+  /v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Issues a fresh access token and refresh token pair using a valid
+        refresh token.
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      summary: Refresh session tokens
+      tags:
+      - Auth
+  /v1/customers/orders/summary:
+    get:
+      description: Returns a collection of recent order summaries for the authenticated
+        customer.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_http_handlers_identity.OrderSummaryResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List customer order summaries
+      tags:
+      - Customers
+  /v1/status:
+    get:
+      description: Checks connectivity to Postgres, Redis, and NATS (if configured).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers.readinessResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/internal_http_handlers.readinessResponse'
+      summary: Readiness probe
+      tags:
+      - Health
+  /v1/users/preferences:
+    patch:
+      consumes:
+      - application/json
+      description: Allows authenticated users to update theme, language, and notification
+        preferences.
+      parameters:
+      - description: Preferences update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.UpdatePreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user preferences
+      tags:
+      - Users
+  /v1/users/profile:
+    patch:
+      consumes:
+      - application/json
+      description: Allows authenticated users to update their profile fields.
+      parameters:
+      - description: Profile update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update profile information
+      tags:
+      - Users
+  /v1/users/security:
+    post:
+      consumes:
+      - application/json
+      description: Enables or disables two-factor authentication for the authenticated
+        user.
+      parameters:
+      - description: Security update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_identity.UpdateSecurityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update account security settings
+      tags:
+      - Users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

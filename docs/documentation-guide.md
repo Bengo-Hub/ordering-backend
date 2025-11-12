@@ -14,5 +14,6 @@ This guide maps the Markdown files maintained for the Food Delivery backend repo
 | [`docs/development-workflow.md`](development-workflow.md) | Local setup, branch strategy, CI/CD stages |
 | [`docs/testing-strategy.md`](testing-strategy.md) | Testing pyramid, tooling, and automation |
 | [`docs/api-contracts.md`](api-contracts.md) | Upcoming API and event contract guidelines |
+| [`docs/erd.md`](erd.md) | Entity relationship model and database reference |
 
 Update this index whenever documentation is added or reorganised.

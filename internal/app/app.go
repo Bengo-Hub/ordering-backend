@@ -2,16 +2,23 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/food-delivery-backend/internal/config"
+	"github.com/bengobox/food-delivery-backend/internal/ent"
 	handlers "github.com/bengobox/food-delivery-backend/internal/http/handlers"
+	identityhandler "github.com/bengobox/food-delivery-backend/internal/http/handlers/identity"
 	httprouter "github.com/bengobox/food-delivery-backend/internal/http/router"
+	"github.com/bengobox/food-delivery-backend/internal/modules/identity"
 	"github.com/bengobox/food-delivery-backend/internal/platform/cache"
 	"github.com/bengobox/food-delivery-backend/internal/platform/database"
 	"github.com/bengobox/food-delivery-backend/internal/platform/events"
@@ -25,6 +32,7 @@ type App struct {
 	db         dbCloser
 	cache      cacheCloser
 	events     eventCloser
+	orm        *ent.Client
 }
 
 type dbCloser interface {
@@ -66,7 +74,30 @@ func New(ctx context.Context) (*App, error) {
 	}
 
 	healthHandler := handlers.NewHealthHandler(log, dbPool, redisClient, natsConn)
-	router := httprouter.New(log, healthHandler)
+
+	sqlDB, err := sql.Open("pgx", cfg.Postgres.URL)
+	if err != nil {
+		return nil, fmt.Errorf("app: ent driver init: %w", err)
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
+	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
+	ormClient := ent.NewClient(ent.Driver(drv))
+	if err := ormClient.Schema.Create(ctx); err != nil {
+		return nil, fmt.Errorf("app: ent schema create: %w", err)
+	}
+
+	identityRepo := identity.NewEntRepository(ormClient)
+	identitySvc, err := identity.NewService(identityRepo, cfg.Auth, log)
+	if err != nil {
+		return nil, fmt.Errorf("app: identity service init: %w", err)
+	}
+	identityHandler := identityhandler.New(log, identitySvc)
+	authenticator := identityhandler.NewAuthenticator(log, identitySvc)
+
+	router := httprouter.New(log, healthHandler, identityHandler, authenticator)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
@@ -84,6 +115,7 @@ func New(ctx context.Context) (*App, error) {
 		db:         dbPool,
 		cache:      redisClient,
 		events:     natsConn,
+		orm:        ormClient,
 	}, nil
 }
 
@@ -131,6 +163,12 @@ func (a *App) Close() {
 
 	if a.db != nil {
 		a.db.Close()
+	}
+
+	if a.orm != nil {
+		if err := a.orm.Close(); err != nil {
+			a.log.Warn("failed to close ent client", zap.Error(err))
+		}
 	}
 
 	a.log.Sync() //nolint:errcheck // ignore sync error

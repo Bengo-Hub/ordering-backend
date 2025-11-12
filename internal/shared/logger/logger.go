@@ -8,19 +8,19 @@ import (
 // New creates a zap.Logger configured for the environment.
 func New(env string) (*zap.Logger, error) {
 	cfg := zap.Config{
-		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zapcore.InfoLevel),
-		Development:      env == "development",
-		DisableCaller:    false,
+		Encoding:          "json",
+		Level:             zap.NewAtomicLevelAt(zapcore.InfoLevel),
+		Development:       env == "development",
+		DisableCaller:     false,
 		DisableStacktrace: env != "development",
 		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey: "message",
-			LevelKey:   "level",
-			TimeKey:    "timestamp",
-			NameKey:    "logger",
-			CallerKey:  "caller",
+			MessageKey:    "message",
+			LevelKey:      "level",
+			TimeKey:       "timestamp",
+			NameKey:       "logger",
+			CallerKey:     "caller",
 			StacktraceKey: "stack",
-			LineEnding: zapcore.DefaultLineEnding,
+			LineEnding:    zapcore.DefaultLineEnding,
 			EncodeLevel: func(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 				enc.AppendString(l.String())
 			},

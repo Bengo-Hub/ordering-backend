@@ -14,9 +14,54 @@ Go-based service that orchestrates ordering, logistics, payments, and cafe opera
 
 ```bash
 cp config/app.env.example .env # populate with credentials
-make tidy
-make run
+make tidy # go mod tidy
+make run # go run ./cmd/api
 ```
+
+> **Windows without GNU Make:** From PowerShell, you can run the same steps manually:
+> ```powershell
+> cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+> go mod tidy
+> go run ./cmd/api
+> ```
+> Use `Ctrl+C` in that terminal to stop the server. If you accidentally leave it running in the background, terminate it with:
+> ```powershell
+> Get-Process go | Where-Object { $_.Path -like "*food-delivery-backend*" } | Stop-Process
+> ```
+> Restarting the server simply means re-running `go run ./cmd/api` in the foreground.
+
+### API Documentation
+
+- Swagger UI: http://localhost:4000/swagger/index.html
+- Regenerate the OpenAPI spec after updating handler annotations:
+  ```powershell
+  cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+  swag init -g cmd/api/main.go -o internal/http/docs
+  ```
+
+### Database Migrations & Seeding
+
+```powershell
+cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+
+# Apply schema migrations (Ent-managed)
+go run ./cmd/migrate
+
+# Seed baseline tenant, roles, permissions, and super admin
+go run ./cmd/seed
+```
+
+> macOS/Linux equivalent:
+> ```bash
+> cd ~/Projects/BengoBox/FoodDelivery/food-delivery-backend
+> go run ./cmd/migrate
+> go run ./cmd/seed
+> ```
+
+See [`docs/erd.md`](docs/erd.md) for a detailed entity relationship overview backing these migrations. Default bootstrap credentials:
+
+- Email: `superadmin@urbancafe.example`
+- Password: `ChangeMe123!` (update immediately after first login)
 
 Port mapping:
 

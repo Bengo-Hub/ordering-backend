@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -34,15 +33,40 @@ func NewHealthHandler(log *zap.Logger, db dbPinger, cache *redis.Client, eventNC
 	}
 }
 
+// livenessResponse models the JSON payload returned by the liveness probe.
+type livenessResponse struct {
+	Status  string `json:"status" example:"ok"`
+	Service string `json:"service" example:"food-delivery-backend"`
+}
+
+// readinessResponse models the JSON payload returned by the readiness probe.
+type readinessResponse struct {
+	Status       string            `json:"status" example:"OK"`
+	Dependencies map[string]string `json:"dependencies"`
+}
+
 // Liveness returns the service status without touching external deps.
+// @Summary Service liveness probe
+// @Description Returns OK when the API process is healthy.
+// @Tags Health
+// @Produce json
+// @Success 200 {object} livenessResponse
+// @Router /healthz [get]
 func (h *HealthHandler) Liveness(w http.ResponseWriter, r *http.Request) {
-	respondJSON(w, http.StatusOK, map[string]string{
-		"status": "ok",
+	RespondJSON(w, http.StatusOK, map[string]string{
+		"status":  "ok",
 		"service": "food-delivery-backend",
 	})
 }
 
 // Status checks critical dependencies to determine readiness.
+// @Summary Readiness probe
+// @Description Checks connectivity to Postgres, Redis, and NATS (if configured).
+// @Tags Health
+// @Produce json
+// @Success 200 {object} readinessResponse
+// @Failure 503 {object} readinessResponse
+// @Router /v1/status [get]
 func (h *HealthHandler) Status(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()
@@ -70,22 +94,19 @@ func (h *HealthHandler) Status(w http.ResponseWriter, r *http.Request) {
 		status = http.StatusServiceUnavailable
 	}
 
-	respondJSON(w, status, map[string]any{
+	RespondJSON(w, status, map[string]any{
 		"status":       http.StatusText(status),
 		"dependencies": issues,
 	})
 }
 
 // Metrics exposes Prometheus metrics.
+// @Summary Prometheus metrics
+// @Description Exposes Prometheus metrics in the text format.
+// @Tags Health
+// @Produce plain
+// @Success 200 {string} string "Prometheus metrics payload"
+// @Router /metrics [get]
 func (h *HealthHandler) Metrics(w http.ResponseWriter, r *http.Request) {
 	promhttp.Handler().ServeHTTP(w, r)
-}
-
-func respondJSON(w http.ResponseWriter, status int, payload any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(payload); err != nil {
-		// fall back to plain text if JSON encoding fails
-		_, _ = w.Write([]byte(`{"status":"serialization_error"}`))
-	}
 }

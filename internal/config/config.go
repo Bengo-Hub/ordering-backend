@@ -18,6 +18,7 @@ type Config struct {
 	Redis     RedisConfig
 	Events    EventsConfig
 	Telemetry TelemetryConfig
+	Auth      AuthConfig
 }
 
 type AppConfig struct {
@@ -55,6 +56,17 @@ type EventsConfig struct {
 
 type TelemetryConfig struct {
 	OTLPEndpoint string `envconfig:"OTLP_ENDPOINT"`
+}
+
+type AuthConfig struct {
+	AccessTokenSecret  string        `envconfig:"AUTH_ACCESS_TOKEN_SECRET" default:"dev-access-secret-change-me"`
+	RefreshTokenSecret string        `envconfig:"AUTH_REFRESH_TOKEN_SECRET" default:"dev-refresh-secret-change-me"`
+	AccessTokenTTL     time.Duration `envconfig:"AUTH_ACCESS_TOKEN_TTL" default:"15m"`
+	RefreshTokenTTL    time.Duration `envconfig:"AUTH_REFRESH_TOKEN_TTL" default:"720h"`
+	GoogleClientID     string        `envconfig:"AUTH_GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
+	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"http://localhost:3000/auth/callback"`
+	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Urban Cafe Delivery"`
 }
 
 // Load reads configuration from environment variables and optional .env files.
