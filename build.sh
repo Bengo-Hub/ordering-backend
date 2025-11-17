@@ -14,12 +14,15 @@ success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-APP_NAME=${APP_NAME:-"food-delivery-backend"}
-NAMESPACE=${NAMESPACE:-"food-delivery"}
-ENV_SECRET_NAME=${ENV_SECRET_NAME:-"food-delivery-backend-env"}
+APP_NAME=${APP_NAME:-"cafe-backend"}
+NAMESPACE=${NAMESPACE:-"cafe"}
+ENV_SECRET_NAME=${ENV_SECRET_NAME:-"cafe-backend-env"}
 DEPLOY=${DEPLOY:-true}
 SETUP_DATABASES=${SETUP_DATABASES:-true}
 DB_TYPES=${DB_TYPES:-postgres,redis}
+# Per-service database configuration
+SERVICE_DB_NAME=${SERVICE_DB_NAME:-cafe}
+SERVICE_DB_USER=${SERVICE_DB_USER:-cafe_user}
 
 REGISTRY_SERVER=${REGISTRY_SERVER:-docker.io}
 REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE:-codevertex}
@@ -94,13 +97,43 @@ if [[ -n ${REGISTRY_USERNAME:-} && -n ${REGISTRY_PASSWORD:-} ]]; then
     --dry-run=client -o yaml | kubectl apply -f - || warn "registry secret creation failed"
 fi
 
+# Create per-service database if SETUP_DATABASES is enabled
+if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
+  # Wait for PostgreSQL to be ready in infra namespace
+  if kubectl -n infra get statefulset postgresql >/dev/null 2>&1; then
+    log "Waiting for PostgreSQL to be ready..."
+    kubectl -n infra rollout status statefulset/postgresql --timeout=180s || warn "PostgreSQL not fully ready"
+    
+    # Create service database using devops-k8s script
+    if [[ -d "$DEVOPS_DIR" ]] || [[ -n "${DEVOPS_REPO:-}" ]]; then
+      # Ensure devops repo is cloned
+      if [[ ! -d "$DEVOPS_DIR" ]]; then
+        TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
+        CLONE_URL="https://github.com/${DEVOPS_REPO}.git"
+        [[ -n $TOKEN ]] && CLONE_URL="https://x-access-token:${TOKEN}@github.com/${DEVOPS_REPO}.git"
+        git clone "$CLONE_URL" "$DEVOPS_DIR" || { warn "Unable to clone devops repo for database setup"; }
+      fi
+      
+      if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/create-service-database.sh" ]]; then
+        log "Creating database '${SERVICE_DB_NAME}' for service ${APP_NAME}..."
+        SERVICE_DB_NAME="$SERVICE_DB_NAME" \
+        APP_NAME="$APP_NAME" \
+        NAMESPACE="$NAMESPACE" \
+        bash "$DEVOPS_DIR/scripts/create-service-database.sh" || warn "Database creation failed or already exists"
+      fi
+    fi
+  else
+    warn "PostgreSQL not found in infra namespace - skipping database creation"
+  fi
+fi
+
 if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
   warn "Secret $ENV_SECRET_NAME not found - creating placeholder"
   kubectl -n "$NAMESPACE" create secret generic "$ENV_SECRET_NAME" \
-    --from-literal=FOOD_DELIVERY_APP_ENV=production \
-    --from-literal=FOOD_DELIVERY_POSTGRES_URL="postgres://postgres:postgres@postgresql.infra.svc.cluster.local:5432/food_delivery?sslmode=disable" \
-    --from-literal=FOOD_DELIVERY_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
-    --from-literal=FOOD_DELIVERY_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" || true
+    --from-literal=CAFE_APP_ENV=production \
+    --from-literal=CAFE_POSTGRES_URL="postgresql://${SERVICE_DB_USER}:PASSWORD@postgresql.infra.svc.cluster.local:5432/${SERVICE_DB_NAME}?sslmode=disable" \
+    --from-literal=CAFE_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
+    --from-literal=CAFE_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" || true
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
