@@ -98,8 +98,8 @@ if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
   warn "Secret $ENV_SECRET_NAME not found - creating placeholder"
   kubectl -n "$NAMESPACE" create secret generic "$ENV_SECRET_NAME" \
     --from-literal=FOOD_DELIVERY_APP_ENV=production \
-    --from-literal=FOOD_DELIVERY_POSTGRES_URL="postgres://postgres:postgres@postgresql.food-delivery.svc.cluster.local:5432/food_delivery?sslmode=disable" \
-    --from-literal=FOOD_DELIVERY_REDIS_ADDR="redis-master.food-delivery.svc.cluster.local:6379" \
+    --from-literal=FOOD_DELIVERY_POSTGRES_URL="postgres://postgres:postgres@postgresql.infra.svc.cluster.local:5432/food_delivery?sslmode=disable" \
+    --from-literal=FOOD_DELIVERY_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
     --from-literal=FOOD_DELIVERY_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" || true
 fi
 
