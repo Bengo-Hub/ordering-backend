@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Changed
 - Standardized Swagger documentation path to `/v1/docs` (previously `/swagger/*`)
 - Updated Swagger specifications to support both HTTP and HTTPS schemes
+- Replaced `http-swagger` with custom Swagger handler that embeds OpenAPI spec and provides protocol-aware URL detection for HTTPS compatibility
+- Swagger UI now displays standard header with Explore button and URL input field
+- Fixed Swagger security annotations to use lowercase `bearerAuth` (previously `BearerAuth`) for SSO authentication
 
 ### Added
 - Initial Go service scaffolding with configuration, logging, health endpoints, and documentation

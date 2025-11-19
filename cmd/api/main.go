@@ -15,10 +15,11 @@ import (
 // @version 0.1.0
 // @description HTTP API for the BengoBox food delivery backend service.
 // @BasePath /api/v1
-// @Schemes http
-// @securityDefinitions.apikey BearerAuth
+// @schemes http https
+// @securityDefinitions.apikey bearerAuth
 // @in header
 // @name Authorization
+// @description JWT token from auth-service. Format: Bearer {token}
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

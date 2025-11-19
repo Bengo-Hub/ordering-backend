@@ -182,7 +182,7 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Summary Sign out the current session
 // @Description Revokes the active session belonging to the authenticated user.
 // @Tags Auth
-// @Security BearerAuth
+// @Security bearerAuth
 // @Produce json
 // @Success 200 {object} OperationStatusResponse
 // @Failure 401 {object} handlers.ErrorResponse
@@ -212,7 +212,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 // @Summary Get current authenticated user
 // @Description Returns the authenticated user's profile, preferences, and current session metadata.
 // @Tags Auth
-// @Security BearerAuth
+// @Security bearerAuth
 // @Produce json
 // @Success 200 {object} AuthResponsePayload
 // @Failure 401 {object} handlers.ErrorResponse
@@ -231,7 +231,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 // @Summary Update profile information
 // @Description Allows authenticated users to update their profile fields.
 // @Tags Users
-// @Security BearerAuth
+// @Security bearerAuth
 // @Accept json
 // @Produce json
 // @Param payload body UpdateProfileRequest true "Profile update payload"
@@ -269,7 +269,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 // @Summary Update user preferences
 // @Description Allows authenticated users to update theme, language, and notification preferences.
 // @Tags Users
-// @Security BearerAuth
+// @Security bearerAuth
 // @Accept json
 // @Produce json
 // @Param payload body UpdatePreferencesRequest true "Preferences update payload"
@@ -316,7 +316,7 @@ func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 // @Summary Update account security settings
 // @Description Enables or disables two-factor authentication for the authenticated user.
 // @Tags Users
-// @Security BearerAuth
+// @Security bearerAuth
 // @Accept json
 // @Produce json
 // @Param payload body UpdateSecurityRequest true "Security update payload"
@@ -353,7 +353,7 @@ func (h *Handler) UpdateSecurity(w http.ResponseWriter, r *http.Request) {
 // @Summary List customer order summaries
 // @Description Returns a collection of recent order summaries for the authenticated customer.
 // @Tags Customers
-// @Security BearerAuth
+// @Security bearerAuth
 // @Produce json
 // @Success 200 {array} OrderSummaryResponse
 // @Failure 401 {object} handlers.ErrorResponse

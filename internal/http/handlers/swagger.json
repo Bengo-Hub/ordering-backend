@@ -1,0 +1,863 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "HTTP API for the BengoBox food delivery backend service.",
+        "title": "Food Delivery Backend API",
+        "contact": {},
+        "version": "0.1.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/healthz": {
+            "get": {
+                "description": "Returns OK when the API process is healthy.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Service liveness probe",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers.livenessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "description": "Exposes Prometheus metrics in the text format.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Prometheus metrics",
+                "responses": {
+                    "200": {
+                        "description": "Prometheus metrics payload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/google/complete": {
+            "post": {
+                "description": "Exchanges the Google authorization code for tokens, creates a user if required, and issues session credentials.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Complete Google OAuth sign-in",
+                "parameters": [
+                    {
+                        "description": "Google OAuth completion request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleCompleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/google/start": {
+            "post": {
+                "description": "Generates a Google OAuth consent URL for the requested role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Start Google OAuth sign-in",
+                "parameters": [
+                    {
+                        "description": "Google OAuth start request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleStartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleOAuthURLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/login": {
+            "post": {
+                "description": "Authenticates a user with email/password credentials and issues session tokens scoped to the selected role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign in with email and password",
+                "parameters": [
+                    {
+                        "description": "Login request payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revokes the active session belonging to the authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign out the current session",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.OperationStatusResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the authenticated user's profile, preferences, and current session metadata.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get current authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/refresh": {
+            "post": {
+                "description": "Issues a fresh access token and refresh token pair using a valid refresh token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh session tokens",
+                "parameters": [
+                    {
+                        "description": "Refresh token request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.RefreshRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/customers/orders/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a collection of recent order summaries for the authenticated customer.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "List customer order summaries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_http_handlers_identity.OrderSummaryResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/status": {
+            "get": {
+                "description": "Checks connectivity to Postgres, Redis, and NATS (if configured).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Readiness probe",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/preferences": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows authenticated users to update theme, language, and notification preferences.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user preferences",
+                "parameters": [
+                    {
+                        "description": "Preferences update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.UpdatePreferencesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/profile": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows authenticated users to update their profile fields.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update profile information",
+                "parameters": [
+                    {
+                        "description": "Profile update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.UpdateProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/security": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Enables or disables two-factor authentication for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update account security settings",
+                "parameters": [
+                    {
+                        "description": "Security update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.UpdateSecurityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid credentials"
+                }
+            }
+        },
+        "github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission": {
+            "type": "string",
+            "enum": [
+                "orders:view",
+                "orders:manage",
+                "profile:update",
+                "preferences:update",
+                "loyalty:view",
+                "loyalty:redeem",
+                "notifications:manage",
+                "riders:onboard",
+                "staff:invite",
+                "admin:manage"
+            ],
+            "x-enum-varnames": [
+                "PermissionOrdersView",
+                "PermissionOrdersManage",
+                "PermissionProfileUpdate",
+                "PermissionPreferencesUpdate",
+                "PermissionLoyaltyView",
+                "PermissionLoyaltyRedeem",
+                "PermissionNotifications",
+                "PermissionRidersOnboard",
+                "PermissionStaffInvite",
+                "PermissionAdminManage"
+            ]
+        },
+        "github_com_bengobox_food-delivery-backend_internal_modules_identity.Role": {
+            "type": "string",
+            "enum": [
+                "customer",
+                "rider",
+                "staff",
+                "admin",
+                "superadmin"
+            ],
+            "x-enum-varnames": [
+                "RoleCustomer",
+                "RoleRider",
+                "RoleStaff",
+                "RoleAdmin",
+                "RoleSuperAdmin"
+            ]
+        },
+        "internal_http_handlers.livenessResponse": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "example": "food-delivery-backend"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "internal_http_handlers.readinessResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "internal_http_handlers_identity.AuthResponsePayload": {
+            "type": "object",
+            "properties": {
+                "session": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.SessionResponsePayload"
+                },
+                "user": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.UserResponsePayload"
+                }
+            }
+        },
+        "internal_http_handlers_identity.GoogleCompleteRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "auth-code"
+                },
+                "state": {
+                    "type": "string",
+                    "example": "superadmin"
+                }
+            }
+        },
+        "internal_http_handlers_identity.GoogleOAuthURLResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.GoogleStartRequest": {
+            "type": "object",
+            "properties": {
+                "redirectUri": {
+                    "type": "string",
+                    "example": "http://localhost:3000/auth/callback"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "superadmin"
+                }
+            }
+        },
+        "internal_http_handlers_identity.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "superadmin@urbancafe.biz"
+                },
+                "password": {
+                    "type": "string",
+                        "example": "ChangeMe123!"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "superadmin"
+                }
+            }
+        },
+        "internal_http_handlers_identity.NotificationPreferenceInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "push": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "sms": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "internal_http_handlers_identity.OperationStatusResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.OrderSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "eta": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "placedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_http_handlers_identity.RefreshRequest": {
+            "type": "object",
+            "properties": {
+                "refreshToken": {
+                    "type": "string",
+                    "example": "refresh-token"
+                }
+            }
+        },
+        "internal_http_handlers_identity.SessionResponsePayload": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UpdatePreferencesRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "notifications": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "dark"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string",
+                    "example": "https://cdn.example.com/avatar.png"
+                },
+                "fullName": {
+                    "type": "string",
+                    "example": "Super Admin"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+254743793939"
+                },
+                "tenantSlug": {
+                    "type": "string",
+                    "example": "urbancafe"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UpdateSecurityRequest": {
+            "type": "object",
+            "properties": {
+                "disableTwoFactor": {
+                    "type": "boolean"
+                },
+                "enableTwoFactor": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UserPreferencesResponse": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "notifications": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                },
+                "theme": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UserResponsePayload": {
+            "type": "object",
+            "properties": {
+                "availableCoupons": {
+                    "type": "integer"
+                },
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "backupCodesEnabled": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "defaultLocationLabel": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastLoginAt": {
+                    "type": "string"
+                },
+                "loyaltyPoints": {
+                    "type": "integer"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission"
+                    }
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "preferences": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.UserPreferencesResponse"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Role"
+                    }
+                },
+                "twoFactorEnabled": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

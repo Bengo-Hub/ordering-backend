@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 
 	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
@@ -36,11 +35,14 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
-	r.Get("/v1/docs/*", httpSwagger.WrapHandler)
+	r.Get("/v1/docs/*", handlers.SwaggerUI)
 
 	// Domain routes will be mounted on /api/v1.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
+			// Serve OpenAPI spec (public, no auth required)
+			v1.Get("/openapi.json", handlers.OpenAPIJSON)
+			
 			v1.Get("/status", healthHandler.Status)
 			
 			// Apply auth-service middleware to protected routes if configured
