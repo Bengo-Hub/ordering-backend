@@ -111,7 +111,13 @@ func New(ctx context.Context) (*App, error) {
 		authConfig.RefreshInterval = cfg.Auth.JWKSRefreshInterval
 		validator, err := authclient.NewValidator(authConfig)
 		if err != nil {
-			log.Warn("auth validator init failed, continuing without auth-service", zap.Error(err))
+			return nil, fmt.Errorf("auth validator init: %w", err)
+		}
+
+		// Initialize API key validator if enabled
+		if cfg.Auth.EnableAPIKeyAuth {
+			apiKeyValidator := authclient.NewAPIKeyValidator(cfg.Auth.ServiceURL, nil)
+			authMiddleware = authclient.NewAuthMiddlewareWithAPIKey(validator, apiKeyValidator)
 		} else {
 			authMiddleware = authclient.NewAuthMiddleware(validator)
 		}
