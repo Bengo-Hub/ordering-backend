@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/food-delivery-backend/internal/ent/device"
+	"github.com/bengobox/cafe-backend/internal/ent/device"
 	"github.com/google/uuid"
 )
 

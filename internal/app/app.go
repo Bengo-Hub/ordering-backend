@@ -13,16 +13,17 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/food-delivery-backend/internal/config"
-	"github.com/bengobox/food-delivery-backend/internal/ent"
-	handlers "github.com/bengobox/food-delivery-backend/internal/http/handlers"
-	identityhandler "github.com/bengobox/food-delivery-backend/internal/http/handlers/identity"
-	httprouter "github.com/bengobox/food-delivery-backend/internal/http/router"
-	"github.com/bengobox/food-delivery-backend/internal/modules/identity"
-	"github.com/bengobox/food-delivery-backend/internal/platform/cache"
-	"github.com/bengobox/food-delivery-backend/internal/platform/database"
-	"github.com/bengobox/food-delivery-backend/internal/platform/events"
-	"github.com/bengobox/food-delivery-backend/internal/shared/logger"
+	authclient "github.com/Bengo-Hub/shared-auth-client"
+	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/cafe-backend/internal/ent"
+	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
+	identityhandler "github.com/bengobox/cafe-backend/internal/http/handlers/identity"
+	httprouter "github.com/bengobox/cafe-backend/internal/http/router"
+	"github.com/bengobox/cafe-backend/internal/modules/identity"
+	"github.com/bengobox/cafe-backend/internal/platform/cache"
+	"github.com/bengobox/cafe-backend/internal/platform/database"
+	"github.com/bengobox/cafe-backend/internal/platform/events"
+	"github.com/bengobox/cafe-backend/internal/shared/logger"
 )
 
 type App struct {
@@ -97,7 +98,26 @@ func New(ctx context.Context) (*App, error) {
 	identityHandler := identityhandler.New(log, identitySvc)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc)
 
-	router := httprouter.New(log, healthHandler, identityHandler, authenticator)
+	// Initialize auth-service JWT validator
+	var authMiddleware *authclient.AuthMiddleware
+	if cfg.Auth.ServiceURL != "" {
+		jwksURL := fmt.Sprintf("%s/api/v1/.well-known/jwks.json", cfg.Auth.ServiceURL)
+		authConfig := authclient.DefaultConfig(
+			jwksURL,
+			cfg.Auth.Issuer,
+			cfg.Auth.Audience,
+		)
+		authConfig.CacheTTL = cfg.Auth.JWKSCacheTTL
+		authConfig.RefreshInterval = cfg.Auth.JWKSRefreshInterval
+		validator, err := authclient.NewValidator(authConfig)
+		if err != nil {
+			log.Warn("auth validator init failed, continuing without auth-service", zap.Error(err))
+		} else {
+			authMiddleware = authclient.NewAuthMiddleware(validator)
+		}
+	}
+
+	router := httprouter.New(log, healthHandler, identityHandler, authenticator, authMiddleware)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

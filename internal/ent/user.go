@@ -10,12 +10,12 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/food-delivery-backend/internal/ent/riderprofile"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenant"
-	"github.com/bengobox/food-delivery-backend/internal/ent/twofactorsetting"
-	"github.com/bengobox/food-delivery-backend/internal/ent/user"
-	"github.com/bengobox/food-delivery-backend/internal/ent/userpreference"
-	"github.com/bengobox/food-delivery-backend/internal/ent/userprofile"
+	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
+	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
 	"github.com/google/uuid"
 )
 

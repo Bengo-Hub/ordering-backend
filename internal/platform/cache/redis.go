@@ -6,7 +6,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/bengobox/food-delivery-backend/internal/config"
+	"github.com/bengobox/cafe-backend/internal/config"
 )
 
 // NewClient builds a Redis client for caching and rate limiting.

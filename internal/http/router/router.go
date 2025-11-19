@@ -9,13 +9,14 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 
-	handlers "github.com/bengobox/food-delivery-backend/internal/http/handlers"
-	identityhandler "github.com/bengobox/food-delivery-backend/internal/http/handlers/identity"
-	sharedmw "github.com/bengobox/food-delivery-backend/internal/shared/middleware"
+	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
+	identityhandler "github.com/bengobox/cafe-backend/internal/http/handlers/identity"
+	sharedmw "github.com/bengobox/cafe-backend/internal/shared/middleware"
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 )
 
 // New constructs the chi router with global middleware and base routes.
-func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, authenticator *identityhandler.Authenticator) http.Handler {
+func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -35,12 +36,19 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.Get("/v1/docs/*", httpSwagger.WrapHandler)
 
 	// Domain routes will be mounted on /api/v1.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
 			v1.Get("/status", healthHandler.Status)
+			
+			// Apply auth-service middleware to protected routes if configured
+			// Legacy authenticator can still be used for backward compatibility
+			if authMiddleware != nil {
+				v1.Use(authMiddleware.RequireAuth)
+			}
+			
 			if identityHandler != nil && authenticator != nil {
 				identityHandler.Register(v1, authenticator)
 			}

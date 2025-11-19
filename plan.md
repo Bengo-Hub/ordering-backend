@@ -1,13 +1,14 @@
-# Food Delivery Backend Delivery Plan
+# Cafe Backend Delivery Plan
 
 ## Vision & Context
-- Build a resilient, Busia-first logistics platform that powers customer ordering, cafe operations, rider fulfilment, and supervisory analytics across web and mobile clients.
+- Build a resilient, Busia-first cafe platform that powers customer ordering, cafe operations, and supervisory analytics across web and mobile clients.
 - Reuse insights from `Urban Loft Logistics App` proposal and `Urban Cafe Food Delivery System Inception Report` to align with localized branding, dual-language support, and multi-channel payments.
 - Backend orchestrates ordering, payments, loyalty, promotions, and notification flows while exposing consistent APIs to internal clients and partner microservices (`notifications-app`, `treasury-app`).
+- **Entity Ownership**: This service owns cafe-specific entities: cafe orders, menu items (references inventory SKUs), cart, loyalty points, and cafe promotions. **Cafe does NOT own**: riders/drivers/fleets (queries logistics-service), catalog items (references inventory-service), payment processing (uses treasury-app), inventory balances (queries inventory-service), users (references auth-service via `user_id`). See `docs/cross-service-entity-ownership.md` for complete ownership matrix.
 
 ## Technical Foundations
 - **Core Stack:** Go 1.22+, Clean/Hexagonal architecture, chi HTTP router, OpenAPI-first contracts, gRPC (ConnectRPC) gateway for high-throughput integrations.
-- **Service Layout:** Multi-module Go project with explicit domain packages (`auth`, `catalog`, `orders`, `riders`, `cafes`, `payments`, `reports`, `notifications`). Use dependency inversion (interfaces + adapters) to keep domain logic isolated.
+- **Service Layout:** Multi-module Go project with explicit domain packages (`auth`, `catalog`, `orders`, `cafes`, `payments`, `reports`, `notifications`). **Note: `riders` package removed—all rider/fleet/driver logic is centralized in `logistics-service`.** Use dependency inversion (interfaces + adapters) to keep domain logic isolated.
 - **Data Layer:** PostgreSQL (pgx/v5) with Ent ORM (schema-as-code migrations), Redis for caching and ephemeral state, Event backbone via NATS JetStream or Kafka, S3-compatible storage for media assets.
 - **Deployment:** Containerised with multi-stage Docker builds, Helm charts, GitHub Actions CI/CD, ArgoCD for GitOps, Terraform modules for infrastructure.
 - **Realtime Transport:** Server-Sent Events/WebSockets via chi middleware with Redis Pub/Sub fan-out; eventual migration to gRPC streams.
@@ -18,7 +19,7 @@
    - Multi-tenant cafe support, RBAC (customer, rider, cafe staff, super admin) using a shared `tenant_slug` and outlet registry consistent with `auth-service`, `logistics-service`, `inventory-service`, and `pos-service`.
    - OAuth2/OIDC via external IdP, phone-based OTP fallback using notifications service, with token issuance owned by `auth-service` and this backend consuming claims (no duplicate identity storage).
    - Device/session management, refresh tokens, two-factor auth (TOTP/SMS) and backup codes rely on `auth-service`; only tenant-level preferences are cached locally.
-   - Rider KYC verification flow emits onboarding events to `logistics-service`, which remains the source of truth for rider profiles, documents, and status transitions. If the tenant/outlet metadata has not yet been replicated, a discovery webhook is sent to `logistics-service` before the rider record is persisted.
+   - Rider onboarding/KYC flows: Frontend captures rider forms and calls `logistics-service` APIs directly (`POST /v1/{tenant}/fleet-members`). This backend does not store rider data—only references returned from logistics-service. If tenant/outlet metadata is missing, logistics-service triggers discovery webhook to auth-service.
    - During login, `auth-service` emits tenant/outlet discovery callbacks so this backend can hydrate metadata prior to handling user-specific workflows.
    - Tenant sync events are persisted locally (`tenant_sync_events`) to fan-out webhook notifications to logistics, inventory, POS, treasury, and notifications services—ensuring downstream services receive canonical tenant/outlet data without polling.
    - _Progress:_ Sprint 0 delivered in-memory RBAC + OAuth2 flows with JWT sessions, profile/preferences/security endpoints, and customer order summaries (now aligned to the shared identity architecture).
@@ -42,11 +43,14 @@
    - Abstract POS integration service supporting cafe/bar, ecommerce, kitchen, and general POS scenarios with unified order ingest.
    - Sync adapters for external POS microservice (catalog sync, ticket import, settlement exports) gated by subscription entitlements.
    - Treasury + notifications hooks to reflect POS settlement events, low-stock alerts, and reconciliation discrepancies.
-7. **Fulfilment & Logistics (Priority 4)**
-   - Rider onboarding forms captured in frontend are forwarded here and synchronised with `logistics-service` under the same tenant/outlet identifiers; this backend stores only rider references.
-   - Live tracking updates, delivery confirmation codes/photo proof, fallback manual assignment now consume task/rider streams produced by `logistics-service`.
-   - Enforce rider verification states (pending, active, suspended) using data fetched from `logistics-service`.
-   - Emits payout and performance events to `treasury-app`, consumes delivery notifications from `notifications-app`, enriches ETAs with external mapping APIs, and hands off routing to `logistics-service` for multi-leg orchestration without duplicating rider or route tables.
+7. **Order Fulfilment & Logistics Integration (Priority 4)**
+   - **All logistics, rider, driver, fleet, and delivery task logic is centralized in `logistics-service`. This backend only consumes logistics APIs and events.**
+   - Order readiness: When order is ready for delivery, emit `cafe.order.ready` webhook to `logistics-service` or call `POST /v1/{tenant}/tasks` to create delivery task.
+   - Task status consumption: Subscribe to `logistics.task.assigned`, `logistics.task.completed`, `logistics.route.updated` events to update order status in UI.
+   - Rider references: Query `logistics-service` APIs (`GET /v1/{tenant}/fleet-members`) to display rider info; never store rider profiles locally.
+   - Live tracking: Consume WebSocket/SSE streams from `logistics-service` for real-time driver location and ETA updates.
+   - Proof of delivery: Receive `logistics.task.completed` events with PoD artifacts (signature, photo, OTP) to mark orders as delivered.
+   - Payout events: Emit rider performance metrics to `treasury-app` for payout calculations (logistics-service handles actual payout orchestration).
 8. **Cafe Operations (Priority 4)**
    - Kitchen display queue, prep status transitions, stock-out workflows, substitution handling.
    - Shift schedules, capacity throttling, SLA monitoring.
@@ -69,6 +73,7 @@
 - **Scalability:** Stateless HTTP layer, background workers via NATS/Redis streams, sharded database readiness.
 - **Brand & System configuration:** Persist tenant-specific look & feel settings (colors, typography, logos) plus API credentials, webhook endpoints, and feature toggles exposed through admin APIs consumed by frontend clients; share outlet metadata with `pos-service`, `inventory-service`, and `logistics-service` instead of duplicating tables.
 - **Identity Federation:** All inbound requests validated against `auth-service` tokens (JWKS cache, audience checks) with fallbacks for introspection; MFA enforcement respected per-tenant policy.
+- **Auth-Service SSO Integration:** ✅ **COMPLETED** - Integrated `shared/auth-client` v0.1.0 library for production-ready JWT validation using JWKS from auth-service. All protected `/api/v1` routes require valid Bearer tokens. Swagger documentation updated with BearerAuth security definition. Legacy authenticator remains for backward compatibility during migration. **Deployment:** Uses monorepo `replace` directives with versioned dependency (`v0.1.0`). Go workspace (`go.work`) handles local development automatically. Each service has independent DevOps workflows and can be deployed separately while sharing the auth library. See `shared/auth-client/DEPLOYMENT.md` and `shared/auth-client/TAGGING.md` for details.
 - **Data modelling:** Ent schemas act as the single source of truth for database structure, enabling declarative migrations and type-safe repositories across modules. Tenant/outlet discovery webhooks ensure downstream services are up to date before domain records are written.
 
 ## External Integrations & Dependencies
@@ -116,9 +121,12 @@
    - Cart service, checkout workflow, promo engine MVP, order state machine, idempotent order creation.
 5. **Sprint 4 – Payments Core (Weeks 8-9)**
    - Treasury integration (MPesa C2B/STK), payment webhook processing, reconciliation logs, retry policies.
-6. **Sprint 5 – Fulfilment & Dispatch (Weeks 10-11)**
-   - Rider onboarding, availability, dispatch algorithm v1, WebSocket/SSE updates, cafe kitchen queue linkage.
-   - Enforce rider status from KYC service before dispatching tasks; expose verification APIs to client apps.
+6. **Sprint 5 – Order Fulfilment & Logistics Integration (Weeks 10-11)**
+   - Integrate with `logistics-service` for task creation: emit `cafe.order.ready` webhook or call task creation API when orders are ready.
+   - Consume logistics events: subscribe to `logistics.task.*` events to update order status in real-time.
+   - WebSocket/SSE client: connect to logistics-service streams for live driver tracking and ETA updates.
+   - Rider status queries: call logistics-service APIs to check rider availability/verification before displaying in UI.
+   - Cafe kitchen queue linkage: sync order prep status with logistics task assignment timing.
 7. **Sprint 6 – Notifications & Ops (Weeks 12-13)**
    - Event pipeline to `notifications-app`, SLA monitoring, issue escalation, support endpoints.
 8. **Sprint 7 – Analytics, Compliance & Hardening (Weeks 14-15)**
@@ -139,8 +147,8 @@
 
 ## Runtime Ports & Environments
 - **Local development:** backend runs on port **4000**, with `treasury-app` on **4001** and `notifications-app` on **4002** to simplify side-by-side testing.
-- **Cloud deployment:** all backend services listen on **port 4000** for consistency behind ingress controllers. Environment variables (`FOOD_DELIVERY_HTTP_PORT`, `TREASURY_HTTP_PORT`, `NOTIFICATIONS_HTTP_PORT`) drive the override during deployment.
+- **Cloud deployment:** all backend services listen on **port 4000** for consistency behind ingress controllers. Environment variables (`CAFE_HTTP_PORT`, `TREASURY_HTTP_PORT`, `NOTIFICATIONS_HTTP_PORT`) drive the override during deployment.
 
 ---
-**Next Steps:** Align with frontend, notifications, and treasury teams on API contracts; finalize sprint staffing; set up shared Postman/Stoplight collections; prepare Go service templates for new domain modules. Prioritise rider KYC service schema, look & feel configuration APIs, and authentication flows that unblock newly added frontend onboarding surfaces.
+**Next Steps:** Align with frontend, notifications, treasury, and logistics on API contracts; finalize sprint staffing; set up shared Postman/Stoplight collections; prepare Go service templates for new domain modules. Prioritise look & feel configuration APIs and authentication flows that unblock newly added frontend onboarding surfaces. **Note: All rider/fleet/driver logic is handled by `logistics-service`—this backend only consumes logistics APIs.**
 

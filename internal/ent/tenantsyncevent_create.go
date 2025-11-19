@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenant"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
 	"github.com/google/uuid"
 )
 

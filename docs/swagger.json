@@ -1,7 +1,6 @@
 {
     "schemes": [
-        "http",
-        "https"
+        "http"
     ],
     "swagger": "2.0",
     "info": {
@@ -26,7 +25,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers.livenessResponse"
+                            "$ref": "#/definitions/handlers.livenessResponse"
                         }
                     }
                 }
@@ -72,7 +71,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleCompleteRequest"
+                            "$ref": "#/definitions/identityhandler.GoogleCompleteRequest"
                         }
                     }
                 ],
@@ -80,25 +79,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -124,7 +123,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleStartRequest"
+                            "$ref": "#/definitions/identityhandler.GoogleStartRequest"
                         }
                     }
                 ],
@@ -132,13 +131,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.GoogleOAuthURLResponse"
+                            "$ref": "#/definitions/identityhandler.GoogleOAuthURLResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -164,7 +163,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.LoginRequest"
+                            "$ref": "#/definitions/identityhandler.LoginRequest"
                         }
                     }
                 ],
@@ -172,19 +171,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -209,13 +208,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.OperationStatusResponse"
+                            "$ref": "#/definitions/identityhandler.OperationStatusResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -240,13 +239,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -272,7 +271,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.RefreshRequest"
+                            "$ref": "#/definitions/identityhandler.RefreshRequest"
                         }
                     }
                 ],
@@ -280,19 +279,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -319,14 +318,14 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_http_handlers_identity.OrderSummaryResponse"
+                                "$ref": "#/definitions/identityhandler.OrderSummaryResponse"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -346,13 +345,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
+                            "$ref": "#/definitions/handlers.readinessResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
+                            "$ref": "#/definitions/handlers.readinessResponse"
                         }
                     }
                 }
@@ -383,7 +382,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.UpdatePreferencesRequest"
+                            "$ref": "#/definitions/identityhandler.UpdatePreferencesRequest"
                         }
                     }
                 ],
@@ -391,19 +390,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -434,7 +433,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.UpdateProfileRequest"
+                            "$ref": "#/definitions/identityhandler.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -442,19 +441,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -485,7 +484,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.UpdateSecurityRequest"
+                            "$ref": "#/definitions/identityhandler.UpdateSecurityRequest"
                         }
                     }
                 ],
@@ -493,19 +492,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
+                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -513,7 +512,7 @@
         }
     },
     "definitions": {
-        "github_com_bengobox_food-delivery-backend_internal_http_handlers.ErrorResponse": {
+        "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
@@ -526,7 +525,35 @@
                 }
             }
         },
-        "github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission": {
+        "handlers.livenessResponse": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "example": "food-delivery-backend"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "handlers.readinessResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "identity.Permission": {
             "type": "string",
             "enum": [
                 "orders:view",
@@ -553,7 +580,7 @@
                 "PermissionAdminManage"
             ]
         },
-        "github_com_bengobox_food-delivery-backend_internal_modules_identity.Role": {
+        "identity.Role": {
             "type": "string",
             "enum": [
                 "customer",
@@ -570,46 +597,18 @@
                 "RoleSuperAdmin"
             ]
         },
-        "internal_http_handlers.livenessResponse": {
-            "type": "object",
-            "properties": {
-                "service": {
-                    "type": "string",
-                    "example": "food-delivery-backend"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                }
-            }
-        },
-        "internal_http_handlers.readinessResponse": {
-            "type": "object",
-            "properties": {
-                "dependencies": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "OK"
-                }
-            }
-        },
-        "internal_http_handlers_identity.AuthResponsePayload": {
+        "identityhandler.AuthResponsePayload": {
             "type": "object",
             "properties": {
                 "session": {
-                    "$ref": "#/definitions/internal_http_handlers_identity.SessionResponsePayload"
+                    "$ref": "#/definitions/identityhandler.SessionResponsePayload"
                 },
                 "user": {
-                    "$ref": "#/definitions/internal_http_handlers_identity.UserResponsePayload"
+                    "$ref": "#/definitions/identityhandler.UserResponsePayload"
                 }
             }
         },
-        "internal_http_handlers_identity.GoogleCompleteRequest": {
+        "identityhandler.GoogleCompleteRequest": {
             "type": "object",
             "properties": {
                 "code": {
@@ -618,11 +617,11 @@
                 },
                 "state": {
                     "type": "string",
-                    "example": "superadmin"
+                    "example": "customer"
                 }
             }
         },
-        "internal_http_handlers_identity.GoogleOAuthURLResponse": {
+        "identityhandler.GoogleOAuthURLResponse": {
             "type": "object",
             "properties": {
                 "url": {
@@ -630,7 +629,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.GoogleStartRequest": {
+        "identityhandler.GoogleStartRequest": {
             "type": "object",
             "properties": {
                 "redirectUri": {
@@ -639,28 +638,28 @@
                 },
                 "role": {
                     "type": "string",
-                    "example": "superadmin"
+                    "example": "customer"
                 }
             }
         },
-        "internal_http_handlers_identity.LoginRequest": {
+        "identityhandler.LoginRequest": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string",
-                    "example": "superadmin@urbancafe.biz"
+                    "example": "customer@demo.com"
                 },
                 "password": {
                     "type": "string",
-                        "example": "ChangeMe123!"
+                    "example": "demo1234"
                 },
                 "role": {
                     "type": "string",
-                    "example": "superadmin"
+                    "example": "customer"
                 }
             }
         },
-        "internal_http_handlers_identity.NotificationPreferenceInput": {
+        "identityhandler.NotificationPreferenceInput": {
             "type": "object",
             "properties": {
                 "email": {
@@ -677,7 +676,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.OperationStatusResponse": {
+        "identityhandler.OperationStatusResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -685,7 +684,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.OrderSummaryResponse": {
+        "identityhandler.OrderSummaryResponse": {
             "type": "object",
             "properties": {
                 "eta": {
@@ -705,7 +704,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.RefreshRequest": {
+        "identityhandler.RefreshRequest": {
             "type": "object",
             "properties": {
                 "refreshToken": {
@@ -714,7 +713,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.SessionResponsePayload": {
+        "identityhandler.SessionResponsePayload": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -731,7 +730,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.UpdatePreferencesRequest": {
+        "identityhandler.UpdatePreferencesRequest": {
             "type": "object",
             "properties": {
                 "language": {
@@ -739,7 +738,7 @@
                     "example": "en"
                 },
                 "notifications": {
-                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                    "$ref": "#/definitions/identityhandler.NotificationPreferenceInput"
                 },
                 "theme": {
                     "type": "string",
@@ -747,7 +746,7 @@
                 }
             }
         },
-        "internal_http_handlers_identity.UpdateProfileRequest": {
+        "identityhandler.UpdateProfileRequest": {
             "type": "object",
             "properties": {
                 "avatarUrl": {
@@ -756,19 +755,15 @@
                 },
                 "fullName": {
                     "type": "string",
-                    "example": "Super Admin"
+                    "example": "Urban Café Guest"
                 },
                 "phone": {
                     "type": "string",
-                    "example": "+254743793939"
-                },
-                "tenantSlug": {
-                    "type": "string",
-                    "example": "urbancafe"
+                    "example": "+254700000000"
                 }
             }
         },
-        "internal_http_handlers_identity.UpdateSecurityRequest": {
+        "identityhandler.UpdateSecurityRequest": {
             "type": "object",
             "properties": {
                 "disableTwoFactor": {
@@ -779,21 +774,21 @@
                 }
             }
         },
-        "internal_http_handlers_identity.UserPreferencesResponse": {
+        "identityhandler.UserPreferencesResponse": {
             "type": "object",
             "properties": {
                 "language": {
                     "type": "string"
                 },
                 "notifications": {
-                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                    "$ref": "#/definitions/identityhandler.NotificationPreferenceInput"
                 },
                 "theme": {
                     "type": "string"
                 }
             }
         },
-        "internal_http_handlers_identity.UserResponsePayload": {
+        "identityhandler.UserResponsePayload": {
             "type": "object",
             "properties": {
                 "availableCoupons": {
@@ -829,19 +824,19 @@
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Permission"
+                        "$ref": "#/definitions/identity.Permission"
                     }
                 },
                 "phone": {
                     "type": "string"
                 },
                 "preferences": {
-                    "$ref": "#/definitions/internal_http_handlers_identity.UserPreferencesResponse"
+                    "$ref": "#/definitions/identityhandler.UserPreferencesResponse"
                 },
                 "roles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_bengobox_food-delivery-backend_internal_modules_identity.Role"
+                        "$ref": "#/definitions/identity.Role"
                     }
                 },
                 "twoFactorEnabled": {

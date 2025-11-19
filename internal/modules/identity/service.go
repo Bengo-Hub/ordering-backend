@@ -15,7 +15,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
-	"github.com/bengobox/food-delivery-backend/internal/config"
+	"github.com/bengobox/cafe-backend/internal/config"
 )
 
 // Service coordinates identity workflows across persistence and token services.

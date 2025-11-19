@@ -11,8 +11,8 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/bengobox/food-delivery-backend/internal/config"
-	"github.com/bengobox/food-delivery-backend/internal/ent"
+	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/cafe-backend/internal/ent"
 )
 
 func main() {

@@ -36,7 +36,7 @@ func NewHealthHandler(log *zap.Logger, db dbPinger, cache *redis.Client, eventNC
 // livenessResponse models the JSON payload returned by the liveness probe.
 type livenessResponse struct {
 	Status  string `json:"status" example:"ok"`
-	Service string `json:"service" example:"food-delivery-backend"`
+	Service string `json:"service" example:"cafe-backend"`
 }
 
 // readinessResponse models the JSON payload returned by the readiness probe.
@@ -55,7 +55,7 @@ type readinessResponse struct {
 func (h *HealthHandler) Liveness(w http.ResponseWriter, r *http.Request) {
 	RespondJSON(w, http.StatusOK, map[string]string{
 		"status":  "ok",
-		"service": "food-delivery-backend",
+		"service": "cafe-backend",
 	})
 }
 
@@ -66,7 +66,7 @@ func (h *HealthHandler) Liveness(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {object} readinessResponse
 // @Failure 503 {object} readinessResponse
-// @Router /v1/status [get]
+// @Router /status [get]
 func (h *HealthHandler) Status(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()

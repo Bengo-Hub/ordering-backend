@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Changed
+- Standardized Swagger documentation path to `/v1/docs` (previously `/swagger/*`)
+- Updated Swagger specifications to support both HTTP and HTTPS schemes
+
 ### Added
 - Initial Go service scaffolding with configuration, logging, health endpoints, and documentation
 - Delivery plan updates covering rider KYC verification service, look & feel configuration APIs, and task gating based on verification status.
@@ -17,6 +21,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Delivery plan expansion for subscription/licensing, POS integrations, and system configuration surfaces aligning with inception/proposal documents.
 - ERD updates outlining subscription plans, tenant subscriptions, POS integration tables, backup jobs, and integration settings to guide upcoming schema work.
 - Tenant sync event pipeline (`tenant_sync_events` Ent schema) to broadcast webhook discovery payloads to logistics, inventory, POS, notifications, and treasury services.
+- **Auth-Service SSO Integration:** Integrated `shared/auth-client` v0.1.0 library for production-ready JWT validation using JWKS from auth-service. All protected `/api/v1` routes require valid Bearer tokens. Swagger documentation updated with BearerAuth security definition. Uses monorepo `replace` directives with versioned dependency. See `shared/auth-client/DEPLOYMENT.md` and `shared/auth-client/TAGGING.md` for details.
 
 ### Changed
 - Migration workflow supports full schema resets via `FOOD_DELIVERY_RESET_DB=true`; seed command now enqueues tenant discovery events after inserting bootstrap data.
+- Updated all module references from `github.com/bengobox/food-delivery-backend` to `github.com/bengobox/cafe-backend` for consistency.
+- Replaced local `replace` directive with Go workspace (`go.work`) for local development; production deployments use private Go module approach.

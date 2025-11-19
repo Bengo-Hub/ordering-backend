@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/food-delivery-backend/internal/ent/predicate"
-	"github.com/bengobox/food-delivery-backend/internal/ent/riderdocument"
-	"github.com/bengobox/food-delivery-backend/internal/ent/riderprofile"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenant"
-	"github.com/bengobox/food-delivery-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent/predicate"
+	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
+	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
 

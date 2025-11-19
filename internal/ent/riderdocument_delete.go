@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/food-delivery-backend/internal/ent/predicate"
-	"github.com/bengobox/food-delivery-backend/internal/ent/riderdocument"
+	"github.com/bengobox/cafe-backend/internal/ent/predicate"
+	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
 )
 
 // RiderDocumentDelete is the builder for deleting a RiderDocument entity.

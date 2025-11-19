@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/food-delivery-backend/internal/ent/predicate"
-	"github.com/bengobox/food-delivery-backend/internal/ent/role"
+	"github.com/bengobox/cafe-backend/internal/ent/predicate"
+	"github.com/bengobox/cafe-backend/internal/ent/role"
 )
 
 // RoleDelete is the builder for deleting a Role entity.

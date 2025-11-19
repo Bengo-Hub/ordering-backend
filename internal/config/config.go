@@ -8,9 +8,9 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-const namespace = "FOOD_DELIVERY"
+const namespace = "CAFE"
 
-// Config captures environment configuration for the Food Delivery backend.
+// Config captures environment configuration for the Cafe backend.
 type Config struct {
 	App       AppConfig
 	HTTP      HTTPConfig
@@ -22,7 +22,7 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name    string `envconfig:"APP_NAME" default:"food-delivery-backend"`
+	Name    string `envconfig:"APP_NAME" default:"cafe-backend"`
 	Env     string `envconfig:"APP_ENV" default:"development"`
 	Version string `envconfig:"APP_VERSION" default:"0.1.0"`
 }
@@ -36,7 +36,7 @@ type HTTPConfig struct {
 }
 
 type PostgresConfig struct {
-	URL             string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/food_delivery?sslmode=disable"`
+	URL             string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/cafe?sslmode=disable"`
 	MaxOpenConns    int           `envconfig:"POSTGRES_MAX_OPEN_CONNS" default:"20"`
 	MaxIdleConns    int           `envconfig:"POSTGRES_MAX_IDLE_CONNS" default:"10"`
 	ConnMaxLifetime time.Duration `envconfig:"POSTGRES_CONN_MAX_LIFETIME" default:"30m"`
@@ -51,7 +51,7 @@ type RedisConfig struct {
 
 type EventsConfig struct {
 	NATSURL    string `envconfig:"NATS_URL" default:"nats://localhost:4222"`
-	StreamName string `envconfig:"NATS_STREAM" default:"food-delivery"`
+	StreamName string `envconfig:"NATS_STREAM" default:"cafe"`
 }
 
 type TelemetryConfig struct {
@@ -59,6 +59,15 @@ type TelemetryConfig struct {
 }
 
 type AuthConfig struct {
+	// Auth-service SSO integration
+	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://auth.codevertex.local:4101"`
+	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://auth.codevertex.local:4101"`
+	Audience            string        `envconfig:"AUTH_AUDIENCE" default:"bengobox"`
+	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://auth.codevertex.local:4101/api/v1/.well-known/jwks.json"`
+	JWKSCacheTTL        time.Duration `envconfig:"AUTH_JWKS_CACHE_TTL" default:"3600s"`
+	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
+
+	// Legacy config (deprecated - use auth-service instead)
 	AccessTokenSecret  string        `envconfig:"AUTH_ACCESS_TOKEN_SECRET" default:"dev-access-secret-change-me"`
 	RefreshTokenSecret string        `envconfig:"AUTH_REFRESH_TOKEN_SECRET" default:"dev-refresh-secret-change-me"`
 	AccessTokenTTL     time.Duration `envconfig:"AUTH_ACCESS_TOKEN_TTL" default:"15m"`

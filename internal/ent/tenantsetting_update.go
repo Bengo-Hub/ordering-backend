@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/food-delivery-backend/internal/ent/predicate"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenant"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/predicate"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
 	"github.com/google/uuid"
 )
 

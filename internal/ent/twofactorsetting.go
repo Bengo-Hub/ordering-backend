@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/food-delivery-backend/internal/ent/twofactorsetting"
-	"github.com/bengobox/food-delivery-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/user"
 )
 
 // TwoFactorSetting is the model entity for the TwoFactorSetting schema.

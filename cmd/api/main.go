@@ -6,15 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/bengobox/food-delivery-backend/internal/http/docs"
+	_ "github.com/bengobox/cafe-backend/internal/http/docs"
 
-	"github.com/bengobox/food-delivery-backend/internal/app"
+	"github.com/bengobox/cafe-backend/internal/app"
 )
 
-// @title Food Delivery Backend API
+// @title Cafe Backend API
 // @version 0.1.0
 // @description HTTP API for the BengoBox food delivery backend service.
-// @BasePath /api
+// @BasePath /api/v1
 // @Schemes http
 // @securityDefinitions.apikey BearerAuth
 // @in header

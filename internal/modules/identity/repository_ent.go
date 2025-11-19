@@ -9,10 +9,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/bengobox/food-delivery-backend/internal/ent"
-	"github.com/bengobox/food-delivery-backend/internal/ent/session"
-	"github.com/bengobox/food-delivery-backend/internal/ent/twofactorsetting"
-	"github.com/bengobox/food-delivery-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent"
+	"github.com/bengobox/cafe-backend/internal/ent/session"
+	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/user"
 )
 
 // EntRepository implements the Repository interface using Ent as the persistence layer.

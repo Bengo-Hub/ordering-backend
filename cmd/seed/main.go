@@ -12,13 +12,13 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/bengobox/food-delivery-backend/internal/config"
-	"github.com/bengobox/food-delivery-backend/internal/ent"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenant"
-	"github.com/bengobox/food-delivery-backend/internal/ent/tenantsetting"
-	"github.com/bengobox/food-delivery-backend/internal/ent/user"
-	"github.com/bengobox/food-delivery-backend/internal/ent/userpreference"
-	"github.com/bengobox/food-delivery-backend/internal/ent/userprofile"
+	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/cafe-backend/internal/ent"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
+	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
 )
 
 var tenantSyncDestinations = []string{
@@ -549,5 +549,5 @@ func upsertUserProfile(ctx context.Context, tx *ent.Tx, userID uuid.UUID) error 
 }
 
 func permissionUUID(code string) uuid.UUID {
-	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:food-delivery:permission:"+code))
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:permission:"+code))
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/food-delivery-backend/internal/http/handlers"
-	"github.com/bengobox/food-delivery-backend/internal/modules/identity"
+	"github.com/bengobox/cafe-backend/internal/http/handlers"
+	"github.com/bengobox/cafe-backend/internal/modules/identity"
 )
 
 // Authenticator provides middleware helpers for RBAC-protected routes.

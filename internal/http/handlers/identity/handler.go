@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/food-delivery-backend/internal/http/handlers"
-	"github.com/bengobox/food-delivery-backend/internal/modules/identity"
+	"github.com/bengobox/cafe-backend/internal/http/handlers"
+	"github.com/bengobox/cafe-backend/internal/modules/identity"
 )
 
 // Handler exposes identity-related HTTP endpoints.
@@ -64,7 +64,7 @@ func (h *Handler) Register(r chi.Router, auth *Authenticator) {
 // @Success 200 {object} AuthResponsePayload
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/auth/login [post]
+// @Router /auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -96,7 +96,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 // @Param payload body GoogleStartRequest true "Google OAuth start request"
 // @Success 200 {object} GoogleOAuthURLResponse
 // @Failure 400 {object} handlers.ErrorResponse
-// @Router /v1/auth/google/start [post]
+// @Router /auth/google/start [post]
 func (h *Handler) BeginGoogleOAuth(w http.ResponseWriter, r *http.Request) {
 	var req GoogleStartRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -125,7 +125,7 @@ func (h *Handler) BeginGoogleOAuth(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
 // @Failure 403 {object} handlers.ErrorResponse
-// @Router /v1/auth/google/complete [post]
+// @Router /auth/google/complete [post]
 func (h *Handler) CompleteGoogleOAuth(w http.ResponseWriter, r *http.Request) {
 	var req GoogleCompleteRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -157,7 +157,7 @@ func (h *Handler) CompleteGoogleOAuth(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} AuthResponsePayload
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/auth/refresh [post]
+// @Router /auth/refresh [post]
 func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req RefreshRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -186,7 +186,7 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {object} OperationStatusResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/auth/logout [post]
+// @Router /auth/logout [post]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := identity.ClaimsFromContext(r.Context())
 	if !ok {
@@ -216,7 +216,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {object} AuthResponsePayload
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/auth/me [get]
+// @Router /auth/me [get]
 func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	user, ok := identity.UserFromContext(r.Context())
 	if !ok {
@@ -238,7 +238,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} AuthResponsePayload
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/users/profile [patch]
+// @Router /users/profile [patch]
 func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var req UpdateProfileRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -276,7 +276,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} AuthResponsePayload
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/users/preferences [patch]
+// @Router /users/preferences [patch]
 func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 	var req UpdatePreferencesRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -323,7 +323,7 @@ func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} AuthResponsePayload
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/users/security [post]
+// @Router /users/security [post]
 func (h *Handler) UpdateSecurity(w http.ResponseWriter, r *http.Request) {
 	var req UpdateSecurityRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -357,7 +357,7 @@ func (h *Handler) UpdateSecurity(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {array} OrderSummaryResponse
 // @Failure 401 {object} handlers.ErrorResponse
-// @Router /v1/customers/orders/summary [get]
+// @Router /customers/orders/summary [get]
 func (h *Handler) ListOrderSummary(w http.ResponseWriter, r *http.Request) {
 	userID := identity.MustUserID(r.Context())
 	if userID == uuid.Nil {
