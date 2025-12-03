@@ -6,10 +6,12 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/app ./cmd/api
+RUN CGO_ENABLED=0 go build -o /out/seed ./cmd/seed
 
 FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 COPY --from=builder /out/app /app/service
+COPY --from=builder /out/seed /app/seed
 USER nonroot:nonroot
 EXPOSE 4000
 ENV PORT=4000
