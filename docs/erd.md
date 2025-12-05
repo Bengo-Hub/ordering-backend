@@ -17,18 +17,25 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 
 | Table | Key Columns | Purpose / Relationships |
 |-------|-------------|-------------------------|
-| `tenants` | `id`, `slug`, `name`, `status`, `created_at`, `updated_at` | Master record for each organisation (e.g. Urban Café HQ); `slug` shared across all Go microservices for multi-tenant routing. |
+| `tenants` | `id`, `slug`, `name`, `status`, `created_at`, `updated_at` | Master record for each organisation (e.g. Urban Café HQ); `slug` shared across all Go microservices for multi-tenant routing. Default tenant slug is `urban-cafe`. |
 | `tenant_settings` | `tenant_id (PK)`, `brand_palette`, `locales`, `features`, `updated_at` | JSON configuration (colors, localisation, feature toggles, default integration settings). |
-| `users` | `id`, `tenant_id`, `email`, `password_hash`, `full_name`, `phone`, `status`, `primary_role`, `last_login_at`, `created_at`, `updated_at` | Core user profile. Unique `(tenant_id, email)`. |
+| `users` | `id`, `tenant_id`, `auth_service_user_id` (UUID, UNIQUE, FK reference to auth-service), `email`, `password_hash` (deprecated - auth handled by auth-service), `full_name`, `phone`, `status`, `primary_role`, `sync_status`, `sync_at`, `last_login_at`, `created_at`, `updated_at` | Core user profile. `auth_service_user_id` references auth-service user. Identity data (email, phone, status) synced from auth-service. Unique `(tenant_id, email)` and `auth_service_user_id`. |
 | `user_profiles` | `user_id (PK)`, `avatar_url`, `bio`, `preferences_json` | Extended profile metadata. |
 | `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Canonical role catalogue (`customer`, `rider`, `staff`, `admin`, `superadmin`). |
 | `permissions` | `code (PK)`, `name`, `module`, `description` | Fine-grained permission catalogue. |
 | `role_permissions` | `(role_code, permission_code) PK` | Many-to-many link for capability matrix. |
 | `user_roles` | `(user_id, role_code) PK`, `assigned_by`, `assigned_at` | User role assignments. |
-| `sessions` | — | Session and MFA artefacts now live in `auth-service`; the food-delivery backend validates tokens via JWKS and introspection (no local tables). |
-| `user_preferences` | `user_id (PK)`, `theme`, `language`, `notify_email`, `notify_sms`, `notify_push`, `timezone`, `created_at`, `updated_at` | Personalisation settings retained for local UX while identity data comes from `auth-service`. |
-| _Logistics Integration_ | — | Rider profiles, documents, availability, and compliance live in `logistics-service`. Food delivery stores only references (`rider_user_id`, `rider_slug`) in order/task tables to avoid duplication. |
-| _SSO Integration_ | — | Authentication and token issuance are delegated to `auth-service` (OIDC authority). Local tables store domain-specific extensions (profiles, rider KYC) while trust is established via JWT claims from `auth-service`. |
+| `sessions` | — | **DEPRECATED**: Session and MFA artefacts live in `auth-service`. Cafe backend validates tokens via JWKS from auth-service (`https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json`). Local session table exists for migration compatibility but is not used in production. |
+| `user_preferences` | `user_id (PK)`, `theme`, `language`, `notify_email`, `notify_sms`, `notify_push`, `timezone`, `created_at`, `updated_at` | Personalisation settings retained for local UX. Identity data (email, phone, status) synced from auth-service via `auth.user.*` events. |
+| _Logistics Integration_ | — | **IMPORTANT**: Rider profiles, documents, availability, fleet management, and delivery task logic are centralized in `logistics-service`. Cafe backend stores only `rider_id` references in `order_assignments` table. All rider/fleet/driver data queries go directly to logistics-service APIs.  
+**Rider Creation**: Before creating a rider, check tenant has logistics service enabled. Options: (1) Push to logistics-service API `POST /v1/{tenant}/fleet-members`, or (2) Redirect to logistics-service UI for self-onboarding. Riders authenticate via auth-service (SSO), logistics-service stores all rider data.  
+**Tenant Service Availability**: Check tenant subscription plan features before creating/referencing data in any service (logistics, inventory, POS, treasury, notifications). |
+| _SSO Integration_ | — | **Production Auth-Service**: `https://sso.codevertexitsolutions.com/`  
+Authentication and token issuance delegated to auth-service (OIDC authority). All login/registration requests proxy to auth-service. Local tables store domain-specific extensions (profiles, preferences, cafe roles, loyalty points) while trust is established via JWT claims from auth-service.  
+**User Sync**: `auth_service_user_id` field references auth-service user. Sync via events: `auth.user.created`, `auth.user.updated`, `auth.user.deactivated`.  
+**Superuser Handling**: Superusers from auth-service bypass all RBAC/permission checks.  
+**Service-to-Service**: API key authentication for inter-service communication. |
+| _Note on Rider Entities_ | — | **REMOVED**: Ent schemas for `riderprofile` and `riderdocument` have been deleted. All rider data belongs to `logistics-service`. Cafe backend should only store `rider_id` references when linking orders to delivery tasks. |
 
 ## Catalog & Menu Management
 
@@ -65,7 +72,7 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 | `orders` | `id`, `tenant_id`, `cafe_id`, `customer_id`, `cart_id`, `status`, `payment_status`, `currency`, `subtotal`, `discount_total`, `tax_total`, `delivery_fee`, `tip_total`, `grand_total`, `loyalty_points_earned`, `loyalty_points_redeemed`, `delivery_address_id`, `instructions`, `channel`, `source`, `placed_at`, `ready_at`, `delivered_at`, `cancelled_at`, `cancellation_reason`, `metadata`, `created_at`, `updated_at` | Canonical order record. |
 | `order_items` | `id`, `order_id`, `menu_item_id`, `variant_id`, `name_snapshot`, `quantity`, `unit_price`, `total_price`, `notes`, `metadata` | Order line items (with snapshot of product info). |
 | `order_events` | `id`, `order_id`, `event_type`, `payload`, `actor_user_id`, `occurred_at` | Audit events (status changes, notifications). |
-| `order_assignments` | `id`, `order_id`, `rider_id`, `status`, `assigned_at`, `accepted_at`, `picked_up_at`, `completed_at`, `rejected_reason`, `metadata` | Rider dispatch workflow. |
+| `order_assignments` | `id`, `order_id`, `rider_id`, `status`, `assigned_at`, `accepted_at`, `picked_up_at`, `completed_at`, `rejected_reason`, `metadata` | Rider dispatch workflow. **Note**: `rider_id` is a reference to logistics-service fleet member ID, not a foreign key. All rider data is owned by logistics-service. |
 | `delivery_windows` | `id`, `order_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff` | Time commitments. |
 | `promo_codes` | `id`, `tenant_id`, `code`, `description`, `discount_type`, `discount_value`, `max_uses`, `usage_count`, `min_subtotal`, `starts_at`, `ends_at`, `metadata`, `created_at`, `updated_at` | Promotion catalogue. |
 | `promo_redemptions` | `id`, `promo_code_id`, `order_id`, `user_id`, `redeemed_at`, `discount_amount` | Historical redemptions. |
@@ -101,7 +108,7 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
 | `delivery_windows` | `id`, `order_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff` | Customer-facing ETA commitments sourced from logistics task updates. |
-| _Logistics Integration_ | — | Rider rosters, shifts, telemetry, proof-of-delivery assets, and dispatch rules remain in `logistics-service`; this backend stores only task references (`logistics_task_id`) and consumes their APIs/events using the shared tenant/outlet identifiers. |
+| _Logistics Integration_ | — | **Entity Ownership**: All rider, driver, fleet, delivery task, shift, telemetry, proof-of-delivery, and dispatch rule data is owned by `logistics-service`. Cafe backend stores only task references (`logistics_task_id`) and `rider_id` references in `order_assignments`. All rider/fleet queries must go to logistics-service APIs (`GET /v1/{tenant}/fleet-members`, `GET /v1/{tenant}/tasks`). |
 
 ## Cafe Operations
 
@@ -162,7 +169,7 @@ The database structure is defined via Ent schemas—the Go source of truth that 
   - `orders.customer_id -> users.id`
   - `order_items.order_id -> orders.id`
   - `menu_items.category_id -> menu_categories.id`
-  - `order_assignments.rider_id -> rider_profiles.user_id`
+  - `order_assignments.rider_id` - Reference to logistics-service fleet member ID (NOT a foreign key, rider data owned by logistics-service)
   - `payments.payment_intent_id -> payment_intents.id`
   - `support_ticket_events.ticket_id -> support_tickets.id`
 - Tenant/outlet discovery relies on webhook flows captured in `tenant_sync_events`, ensuring downstream services are provisioned before related domain records are written (no polling needed).
@@ -175,9 +182,13 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 
 ## Seed Data Overview
 
+- **Default Tenant**: `urban-cafe` (slug) - "Urban Café" (name)
 - System roles: `customer`, `rider`, `staff`, `admin`, `superadmin`.
 - Permissions grouped by module (auth, catalog, orders, payments, logistics, operations, notifications, analytics, support).
 - Default super admin account seeded for bootstrap with full permission set, scoped to the primary tenant.
+- **Demo Admin User**: `demo@urban-cafe.com` (password: `password123`, role: `admin`) - seeded idempotently via `cmd/seed/main.go`.
+
+**Note**: All users created from the cafe service default to the `urban-cafe` tenant unless a custom `tenant_slug` is provided. When creating a tenant for urban-cafe, the tenant_slug should be `urban-cafe` and used when creating users unless custom value supplied.
 
 Refer to `cmd/seed` for the initial data set and execution instructions in `README.md`.
 

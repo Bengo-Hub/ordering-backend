@@ -10,6 +10,9 @@ import (
 
 const namespace = "CAFE"
 
+// DefaultTenantSlug is the default tenant slug for the cafe service.
+const DefaultTenantSlug = "urban-cafe"
+
 // Config captures environment configuration for the Cafe backend.
 type Config struct {
 	App       AppConfig
@@ -59,11 +62,11 @@ type TelemetryConfig struct {
 }
 
 type AuthConfig struct {
-	// Auth-service SSO integration
-	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://auth.codevertex.local:4101"`
-	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://auth.codevertex.local:4101"`
+	// Auth-service SSO integration (Production: https://sso.codevertexitsolutions.com/)
+	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://sso.codevertexitsolutions.com"`
+	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://auth.bengobox.local"`
 	Audience            string        `envconfig:"AUTH_AUDIENCE" default:"codevertex"`
-	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://auth.codevertex.local:4101/api/v1/.well-known/jwks.json"`
+	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"`
 	JWKSCacheTTL        time.Duration `envconfig:"AUTH_JWKS_CACHE_TTL" default:"3600s"`
 	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
 	EnableAPIKeyAuth    bool          `envconfig:"AUTH_ENABLE_API_KEY_AUTH" default:"true"`

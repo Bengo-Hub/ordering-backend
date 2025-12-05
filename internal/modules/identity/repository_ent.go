@@ -9,10 +9,14 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/bengobox/cafe-backend/internal/config"
 	"github.com/bengobox/cafe-backend/internal/ent"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
+	"github.com/bengobox/cafe-backend/internal/ent/tenant"
 	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/cafe-backend/internal/ent/user"
+	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
+	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
 )
 
 // EntRepository implements the Repository interface using Ent as the persistence layer.
@@ -80,6 +84,18 @@ func (r *EntRepository) UpdateUser(ctx context.Context, usr *User) error {
 	tz := determineTimezone(usr)
 	metadata["timezone"] = tz
 
+	// Store auth_service_user_id and sync fields in metadata temporarily
+	// TODO: After Ent regeneration, use SetAuthServiceUserID, SetSyncStatus, SetSyncAt
+	if usr.AuthServiceUserID != nil {
+		metadata["auth_service_user_id"] = usr.AuthServiceUserID.String()
+	}
+	if usr.SyncStatus != "" {
+		metadata["sync_status"] = usr.SyncStatus
+	}
+	if usr.SyncAt != nil {
+		metadata["sync_at"] = usr.SyncAt.Format(time.RFC3339)
+	}
+
 	_, err := r.client.User.UpdateOneID(usr.ID).
 		SetFullName(usr.FullName).
 		SetStatus(usr.Status).
@@ -129,6 +145,25 @@ func (r *EntRepository) FindUserByEmail(ctx context.Context, email string) (*Use
 	return mapEntUser(u), nil
 }
 
+// FindUserByAuthServiceID fetches a user by auth-service user ID.
+func (r *EntRepository) FindUserByAuthServiceID(ctx context.Context, authServiceUserID uuid.UUID) (*User, error) {
+	u, err := r.client.User.
+		Query().
+		Where(user.AuthServiceUserIDEQ(authServiceUserID)).
+		WithTenant().
+		WithRoles().
+		WithPreferences().
+		WithProfile().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrUserNotFound
+		}
+		return nil, fmt.Errorf("identity: find user by auth-service ID: %w", err)
+	}
+	return mapEntUser(u), nil
+}
+
 // FindUserByID fetches a user by identifier.
 func (r *EntRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	u, err := r.client.User.
@@ -173,6 +208,34 @@ func (r *EntRepository) ListUsers(ctx context.Context) ([]*User, error) {
 	return out, nil
 }
 
+// FindTenantBySlug finds a tenant by its slug.
+func (r *EntRepository) FindTenantBySlug(ctx context.Context, slug string) (*Tenant, error) {
+	tenantEntity, err := r.client.Tenant.Query().
+		Where(tenant.SlugEQ(slug)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("identity: tenant not found: %s", slug)
+		}
+		return nil, fmt.Errorf("identity: find tenant by slug: %w", err)
+	}
+
+	metadata := make(map[string]interface{})
+	if tenantEntity.Metadata != nil {
+		metadata = tenantEntity.Metadata
+	}
+
+	return &Tenant{
+		ID:           tenantEntity.ID,
+		Slug:         tenantEntity.Slug,
+		Name:         tenantEntity.Name,
+		Status:       tenantEntity.Status,
+		ContactEmail: tenantEntity.ContactEmail,
+		ContactPhone: tenantEntity.ContactPhone,
+		Metadata:     metadata,
+	}, nil
+}
+
 // CreateSession persists a new refresh session.
 func (r *EntRepository) CreateSession(ctx context.Context, s *Session) error {
 	if s == nil {
@@ -184,24 +247,37 @@ func (r *EntRepository) CreateSession(ctx context.Context, s *Session) error {
 		return userTenantErr
 	}
 
-	builder := r.client.Session.
-		Create().
-		SetID(s.ID).
+	// Upsert session: try update first, then create if not exists
+	_, err := r.client.Session.UpdateOneID(s.ID).
 		SetTenantID(tenantID).
 		SetUserID(s.UserID).
 		SetRefreshTokenHash(s.RefreshToken).
 		SetNillableUserAgent(optionalString(s.UserAgent)).
 		SetNillableIPAddress(optionalString(s.IP)).
-		SetExpiresAt(s.ExpiresAt).
-		SetCreatedAt(s.CreatedAt).
 		SetUpdatedAt(s.UpdatedAt).
-		SetNillableRevokedAt(s.RevokedAt)
-
-	if err := builder.
-		OnConflict().
-		UpdateNewValues().
-		Exec(ctx); err != nil {
-		return fmt.Errorf("identity: create session: %w", err)
+		SetNillableRevokedAt(s.RevokedAt).
+		Save(ctx)
+	if err != nil {
+		// If not found, create new
+		if ent.IsNotFound(err) {
+			if err := r.client.Session.
+				Create().
+				SetID(s.ID).
+				SetTenantID(tenantID).
+				SetUserID(s.UserID).
+				SetRefreshTokenHash(s.RefreshToken).
+				SetNillableUserAgent(optionalString(s.UserAgent)).
+				SetNillableIPAddress(optionalString(s.IP)).
+				SetExpiresAt(s.ExpiresAt).
+				SetCreatedAt(s.CreatedAt).
+				SetUpdatedAt(s.UpdatedAt).
+				SetNillableRevokedAt(s.RevokedAt).
+				Exec(ctx); err != nil {
+				return fmt.Errorf("identity: create session: %w", err)
+			}
+		} else {
+			return fmt.Errorf("identity: update session: %w", err)
+		}
 	}
 
 	return nil
@@ -326,18 +402,39 @@ func (r *EntRepository) syncUserPreferences(ctx context.Context, userID uuid.UUI
 		tz = defaultTimezone
 	}
 
-	return r.client.UserPreference.
-		Create().
-		SetUserID(userID).
-		SetTheme(theme).
-		SetLanguage(lang).
-		SetNotifyEmail(prefs.Notifications.Email).
-		SetNotifySms(prefs.Notifications.SMS).
-		SetNotifyPush(prefs.Notifications.Push).
-		SetTimezone(tz).
-		OnConflict().
-		UpdateNewValues().
-		Exec(ctx)
+	// Upsert user preference: try to find and update, then create if not exists
+	pref, err := r.client.UserPreference.Query().
+		Where(userpreference.HasUserWith(user.IDEQ(userID))).
+		Only(ctx)
+	if err == nil && pref != nil {
+		// Update existing
+		_, err = r.client.UserPreference.UpdateOneID(pref.ID).
+			SetTheme(theme).
+			SetLanguage(lang).
+			SetNotifyEmail(prefs.Notifications.Email).
+			SetNotifySms(prefs.Notifications.SMS).
+			SetNotifyPush(prefs.Notifications.Push).
+			SetTimezone(tz).
+			Save(ctx)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Create new
+		if err := r.client.UserPreference.
+			Create().
+			SetUserID(userID).
+			SetTheme(theme).
+			SetLanguage(lang).
+			SetNotifyEmail(prefs.Notifications.Email).
+			SetNotifySms(prefs.Notifications.SMS).
+			SetNotifyPush(prefs.Notifications.Push).
+			SetTimezone(tz).
+			Exec(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *EntRepository) syncTwoFactor(ctx context.Context, userID uuid.UUID, usr *User) error {
@@ -351,15 +448,30 @@ func (r *EntRepository) syncTwoFactor(ctx context.Context, userID uuid.UUID, usr
 		return nil
 	}
 
-	return r.client.TwoFactorSetting.
-		Create().
-		SetUserID(userID).
+	// Upsert two-factor setting: try update first, then create if not exists
+	_, err := r.client.TwoFactorSetting.Update().
+		Where(twofactorsetting.HasUserWith(user.IDEQ(userID))).
 		SetEnabled(usr.TwoFactorEnabled).
 		SetMethod("totp").
 		SetSecret(usr.TwoFactorSecret).
-		OnConflict().
-		UpdateNewValues().
-		Exec(ctx)
+		Save(ctx)
+	if err != nil {
+		// If not found, create new
+		if ent.IsNotFound(err) {
+			if err := r.client.TwoFactorSetting.
+				Create().
+				SetUserID(userID).
+				SetEnabled(usr.TwoFactorEnabled).
+				SetMethod("totp").
+				SetSecret(usr.TwoFactorSecret).
+				Exec(ctx); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *EntRepository) lookupTenantForUser(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
@@ -419,9 +531,21 @@ func mapEntUser(u *ent.User) *User {
 		twoFactorSecret = tf.Secret
 	}
 
+	// Use direct field access from regenerated Ent code
+	var authServiceUserID *uuid.UUID
+	if u.AuthServiceUserID != uuid.Nil {
+		authServiceUserID = &u.AuthServiceUserID
+	}
+	syncStatus := u.SyncStatus
+	var syncAt *time.Time
+	if !u.SyncAt.IsZero() {
+		syncAt = &u.SyncAt
+	}
+
 	return &User{
 		ID:                   u.ID,
 		TenantID:             u.TenantID.String(),
+		AuthServiceUserID:    authServiceUserID,
 		Email:                u.Email,
 		PasswordHash:         u.PasswordHash,
 		FullName:             u.FullName,
@@ -436,6 +560,8 @@ func mapEntUser(u *ent.User) *User {
 		TwoFactorSecret:      twoFactorSecret,
 		BackupCodes:          backupCodes,
 		Preferences:          prefs,
+		SyncStatus:           syncStatus,
+		SyncAt:               syncAt,
 		LastLoginAt:          optionalTime(u.LastLoginAt),
 		CreatedAt:            u.CreatedAt,
 		UpdatedAt:            u.UpdatedAt,
@@ -459,37 +585,69 @@ func mapEntSession(s *ent.Session) *Session {
 }
 
 func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
+	// Use default tenant slug if not provided
 	if tenantID == "" {
-		return errors.New("identity: tenant id required")
+		tenantID = config.DefaultTenantSlug
 	}
-	id, err := uuid.Parse(tenantID)
-	if err != nil {
-		return fmt.Errorf("identity: invalid tenant id %q: %w", tenantID, err)
+
+	// Try to find tenant by slug first
+	tenantEntity, err := tx.Tenant.Query().
+		Where(tenant.SlugEQ(tenantID)).
+		Only(ctx)
+	if err == nil && tenantEntity != nil {
+		// Tenant exists, use its ID
+		return enqueueTenantSyncEvents(ctx, tx, tenantEntity.ID, tenantID)
 	}
-	if err := tx.Tenant.
+
+	// Tenant doesn't exist, create it
+	id := uuid.New()
+	err = tx.Tenant.
 		Create().
 		SetID(id).
 		SetSlug(tenantID).
-		SetName("Tenant " + tenantID).
-		OnConflict().
-		DoNothing().
-		Exec(ctx); err != nil {
-		return err
+		SetName("Urban Café").
+		SetStatus("active").
+		SetContactEmail("support@urbancafe.com").
+		SetContactPhone("+254700000000").
+		Exec(ctx)
+	if err != nil {
+		// Check if it's a unique constraint violation (tenant already exists)
+		if !strings.Contains(err.Error(), "duplicate key") && !strings.Contains(err.Error(), "UNIQUE constraint") {
+			return err
+		}
+		// Tenant already exists, that's fine - try to get it
+		tenantEntity, err := tx.Tenant.Query().
+			Where(tenant.SlugEQ(tenantID)).
+			Only(ctx)
+		if err != nil {
+			return fmt.Errorf("identity: get tenant by slug: %w", err)
+		}
+		return enqueueTenantSyncEvents(ctx, tx, tenantEntity.ID, tenantID)
 	}
 	return enqueueTenantSyncEvents(ctx, tx, id, tenantID)
 }
 
 func upsertRoles(ctx context.Context, tx *ent.Tx, roles []Role) error {
 	for _, role := range roles {
-		if err := tx.Role.
-			Create().
-			SetID(string(role)).
+		// Upsert role: try update first, then create if not exists
+		_, err := tx.Role.UpdateOneID(string(role)).
 			SetName(string(role)).
 			SetDescription("").
-			OnConflict().
-			UpdateNewValues().
-			Exec(ctx); err != nil {
-			return fmt.Errorf("identity: upsert role %s: %w", role, err)
+			Save(ctx)
+		if err != nil {
+			// If not found, create new
+			if ent.IsNotFound(err) {
+				if err := tx.Role.
+					Create().
+					SetID(string(role)).
+					SetName(string(role)).
+					SetDescription("").
+					Exec(ctx); err != nil {
+					return fmt.Errorf("identity: create role %s: %w", role, err)
+				}
+			} else {
+				return fmt.Errorf("identity: upsert role %s: %w", role, err)
+			}
 		}
 	}
 	return nil
@@ -536,16 +694,71 @@ func upsertUser(ctx context.Context, client *ent.Client, usr *User) error {
 		SetUpdatedAt(usr.UpdatedAt).
 		SetNillableLastLoginAt(usr.LastLoginAt)
 
+	// Set auth-service fields directly (after Ent regeneration)
+	if usr.AuthServiceUserID != nil {
+		builder.SetAuthServiceUserID(*usr.AuthServiceUserID)
+	}
+	if usr.SyncStatus != "" {
+		builder.SetSyncStatus(usr.SyncStatus)
+	}
+	if usr.SyncAt != nil {
+		builder.SetSyncAt(*usr.SyncAt)
+	}
+
 	roleIDs := make([]string, 0, len(usr.Roles))
 	for _, role := range usr.Roles {
 		roleIDs = append(roleIDs, string(role))
 	}
 	builder.AddRoleIDs(roleIDs...)
 
-	if err := builder.OnConflict().
-		UpdateNewValues().
-		Exec(ctx); err != nil {
-		return fmt.Errorf("identity: upsert user: %w", err)
+	// Upsert user: try update first, then create if not exists
+	_, err = client.User.UpdateOneID(usr.ID).
+		SetTenantID(tenantUUID).
+		SetEmail(usr.Email).
+		SetNillablePasswordHash(optionalString(usr.PasswordHash)).
+		SetFullName(usr.FullName).
+		SetNillablePhone(optionalString(usr.Phone)).
+		SetStatus(usr.Status).
+		SetLocale(locale).
+		SetTimezone(tz).
+		SetMetadata(metadata).
+		SetUpdatedAt(usr.UpdatedAt).
+		SetNillableLastLoginAt(usr.LastLoginAt).
+		Save(ctx)
+	if err != nil {
+		// If not found, create new
+		if ent.IsNotFound(err) {
+			// Set auth-service fields directly
+			if usr.AuthServiceUserID != nil {
+				builder.SetAuthServiceUserID(*usr.AuthServiceUserID)
+			}
+			if usr.SyncStatus != "" {
+				builder.SetSyncStatus(usr.SyncStatus)
+			}
+			if usr.SyncAt != nil {
+				builder.SetSyncAt(*usr.SyncAt)
+			}
+			if err := builder.Exec(ctx); err != nil {
+				return fmt.Errorf("identity: create user: %w", err)
+			}
+		} else {
+			return fmt.Errorf("identity: update user: %w", err)
+		}
+	} else {
+		// Update auth-service fields if user exists
+		updateBuilder := client.User.UpdateOneID(usr.ID)
+		if usr.AuthServiceUserID != nil {
+			updateBuilder.SetAuthServiceUserID(*usr.AuthServiceUserID)
+		}
+		if usr.SyncStatus != "" {
+			updateBuilder.SetSyncStatus(usr.SyncStatus)
+		}
+		if usr.SyncAt != nil {
+			updateBuilder.SetSyncAt(*usr.SyncAt)
+		}
+		if _, err := updateBuilder.Save(ctx); err != nil {
+			return fmt.Errorf("identity: update user auth fields: %w", err)
+		}
 	}
 
 	repo := NewEntRepository(client)
@@ -561,26 +774,43 @@ func upsertUser(ctx context.Context, client *ent.Client, usr *User) error {
 		usr.Preferences.Notifications.SMS ||
 		usr.Preferences.Notifications.Push
 	if usr.AvatarURL != "" || hasNotifications {
-		if err := client.UserProfile.
-			Create().
-			SetUserID(usr.ID).
-			SetAvatarURL(usr.AvatarURL).
-			OnConflict().
-			UpdateNewValues().
-			Exec(ctx); err != nil {
-			return fmt.Errorf("identity: upsert profile: %w", err)
+		// Upsert user profile: try to find and update, then create if not exists
+		profile, err := client.UserProfile.Query().
+			Where(userprofile.HasUserWith(user.IDEQ(usr.ID))).
+			Only(ctx)
+		if err == nil && profile != nil {
+			// Update existing
+			_, err = client.UserProfile.UpdateOneID(profile.ID).
+				SetAvatarURL(usr.AvatarURL).
+				Save(ctx)
+			if err != nil {
+				return fmt.Errorf("identity: update profile: %w", err)
+			}
+		} else {
+			// Create new
+			if err := client.UserProfile.
+				Create().
+				SetUserID(usr.ID).
+				SetAvatarURL(usr.AvatarURL).
+				Exec(ctx); err != nil {
+				return fmt.Errorf("identity: create profile: %w", err)
+			}
 		}
 	}
 
 	for _, code := range usr.BackupCodes {
-		if err := client.BackupCode.
+		// Try to create backup code, ignore if already exists
+		err := client.BackupCode.
 			Create().
 			SetUserID(usr.ID).
 			SetCodeHash(code).
-			OnConflict().
-			DoNothing().
-			Exec(ctx); err != nil {
-			return fmt.Errorf("identity: upsert backup code: %w", err)
+			Exec(ctx)
+		if err != nil {
+			// Check if it's a unique constraint violation (code already exists)
+			if !strings.Contains(err.Error(), "duplicate key") && !strings.Contains(err.Error(), "UNIQUE constraint") {
+				return fmt.Errorf("identity: create backup code: %w", err)
+			}
+			// Code already exists, that's fine
 		}
 	}
 
@@ -629,16 +859,20 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 		"tenant_slug": tenantSlug,
 	}
 	for _, destination := range tenantSyncDestinations {
-		if err := tx.TenantSyncEvent.
+		// Try to create, ignore if already exists (duplicate key error)
+		err := tx.TenantSyncEvent.
 			Create().
 			SetTenantID(tenantID).
 			SetTenantSlug(tenantSlug).
 			SetDestinationService(destination).
 			SetPayload(payload).
-			OnConflictColumns("tenant_id", "destination_service").
-			UpdateNewValues().
-			Exec(ctx); err != nil {
-			return fmt.Errorf("identity: enqueue tenant sync event for %s: %w", destination, err)
+			Exec(ctx)
+		if err != nil {
+			// Check if it's a unique constraint violation (event already exists)
+			if !strings.Contains(err.Error(), "duplicate key") && !strings.Contains(err.Error(), "UNIQUE constraint") {
+				return fmt.Errorf("identity: enqueue tenant sync event for %s: %w", destination, err)
+			}
+			// Event already exists, that's fine
 		}
 	}
 	return nil

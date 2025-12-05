@@ -61,6 +61,11 @@ func TenantID(v uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTenantID, v))
 }
 
+// AuthServiceUserID applies equality check predicate on the "auth_service_user_id" field. It's identical to AuthServiceUserIDEQ.
+func AuthServiceUserID(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAuthServiceUserID, v))
+}
+
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldEmail, v))
@@ -69,6 +74,16 @@ func Email(v string) predicate.User {
 // PasswordHash applies equality check predicate on the "password_hash" field. It's identical to PasswordHashEQ.
 func PasswordHash(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPasswordHash, v))
+}
+
+// SyncStatus applies equality check predicate on the "sync_status" field. It's identical to SyncStatusEQ.
+func SyncStatus(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSyncStatus, v))
+}
+
+// SyncAt applies equality check predicate on the "sync_at" field. It's identical to SyncAtEQ.
+func SyncAt(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSyncAt, v))
 }
 
 // FullName applies equality check predicate on the "full_name" field. It's identical to FullNameEQ.
@@ -134,6 +149,56 @@ func TenantIDIn(vs ...uuid.UUID) predicate.User {
 // TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
 func TenantIDNotIn(vs ...uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// AuthServiceUserIDEQ applies the EQ predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDEQ(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDNEQ applies the NEQ predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDNEQ(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDIn applies the In predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDIn(vs ...uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldIn(FieldAuthServiceUserID, vs...))
+}
+
+// AuthServiceUserIDNotIn applies the NotIn predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDNotIn(vs ...uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldAuthServiceUserID, vs...))
+}
+
+// AuthServiceUserIDGT applies the GT predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDGT(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldGT(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDGTE applies the GTE predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDGTE(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDLT applies the LT predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDLT(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldLT(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDLTE applies the LTE predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDLTE(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldAuthServiceUserID, v))
+}
+
+// AuthServiceUserIDIsNil applies the IsNil predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldAuthServiceUserID))
+}
+
+// AuthServiceUserIDNotNil applies the NotNil predicate on the "auth_service_user_id" field.
+func AuthServiceUserIDNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldAuthServiceUserID))
 }
 
 // EmailEQ applies the EQ predicate on the "email" field.
@@ -274,6 +339,121 @@ func PasswordHashEqualFold(v string) predicate.User {
 // PasswordHashContainsFold applies the ContainsFold predicate on the "password_hash" field.
 func PasswordHashContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldPasswordHash, v))
+}
+
+// SyncStatusEQ applies the EQ predicate on the "sync_status" field.
+func SyncStatusEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSyncStatus, v))
+}
+
+// SyncStatusNEQ applies the NEQ predicate on the "sync_status" field.
+func SyncStatusNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldSyncStatus, v))
+}
+
+// SyncStatusIn applies the In predicate on the "sync_status" field.
+func SyncStatusIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldSyncStatus, vs...))
+}
+
+// SyncStatusNotIn applies the NotIn predicate on the "sync_status" field.
+func SyncStatusNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldSyncStatus, vs...))
+}
+
+// SyncStatusGT applies the GT predicate on the "sync_status" field.
+func SyncStatusGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldSyncStatus, v))
+}
+
+// SyncStatusGTE applies the GTE predicate on the "sync_status" field.
+func SyncStatusGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldSyncStatus, v))
+}
+
+// SyncStatusLT applies the LT predicate on the "sync_status" field.
+func SyncStatusLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldSyncStatus, v))
+}
+
+// SyncStatusLTE applies the LTE predicate on the "sync_status" field.
+func SyncStatusLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldSyncStatus, v))
+}
+
+// SyncStatusContains applies the Contains predicate on the "sync_status" field.
+func SyncStatusContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldSyncStatus, v))
+}
+
+// SyncStatusHasPrefix applies the HasPrefix predicate on the "sync_status" field.
+func SyncStatusHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldSyncStatus, v))
+}
+
+// SyncStatusHasSuffix applies the HasSuffix predicate on the "sync_status" field.
+func SyncStatusHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldSyncStatus, v))
+}
+
+// SyncStatusEqualFold applies the EqualFold predicate on the "sync_status" field.
+func SyncStatusEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldSyncStatus, v))
+}
+
+// SyncStatusContainsFold applies the ContainsFold predicate on the "sync_status" field.
+func SyncStatusContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldSyncStatus, v))
+}
+
+// SyncAtEQ applies the EQ predicate on the "sync_at" field.
+func SyncAtEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSyncAt, v))
+}
+
+// SyncAtNEQ applies the NEQ predicate on the "sync_at" field.
+func SyncAtNEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldSyncAt, v))
+}
+
+// SyncAtIn applies the In predicate on the "sync_at" field.
+func SyncAtIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldIn(FieldSyncAt, vs...))
+}
+
+// SyncAtNotIn applies the NotIn predicate on the "sync_at" field.
+func SyncAtNotIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldSyncAt, vs...))
+}
+
+// SyncAtGT applies the GT predicate on the "sync_at" field.
+func SyncAtGT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGT(FieldSyncAt, v))
+}
+
+// SyncAtGTE applies the GTE predicate on the "sync_at" field.
+func SyncAtGTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldSyncAt, v))
+}
+
+// SyncAtLT applies the LT predicate on the "sync_at" field.
+func SyncAtLT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLT(FieldSyncAt, v))
+}
+
+// SyncAtLTE applies the LTE predicate on the "sync_at" field.
+func SyncAtLTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldSyncAt, v))
+}
+
+// SyncAtIsNil applies the IsNil predicate on the "sync_at" field.
+func SyncAtIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldSyncAt))
+}
+
+// SyncAtNotNil applies the NotNil predicate on the "sync_at" field.
+func SyncAtNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldSyncAt))
 }
 
 // FullNameEQ applies the EQ predicate on the "full_name" field.
@@ -1015,52 +1195,6 @@ func HasProfile() predicate.User {
 func HasProfileWith(preds ...predicate.UserProfile) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newProfileStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasRiderProfile applies the HasEdge predicate on the "rider_profile" edge.
-func HasRiderProfile() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, RiderProfileTable, RiderProfileColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRiderProfileWith applies the HasEdge predicate on the "rider_profile" edge with a given conditions (other predicates).
-func HasRiderProfileWith(preds ...predicate.RiderProfile) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newRiderProfileStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasReviewedDocuments applies the HasEdge predicate on the "reviewed_documents" edge.
-func HasReviewedDocuments() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, ReviewedDocumentsTable, ReviewedDocumentsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasReviewedDocumentsWith applies the HasEdge predicate on the "reviewed_documents" edge with a given conditions (other predicates).
-func HasReviewedDocumentsWith(preds ...predicate.RiderDocument) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newReviewedDocumentsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

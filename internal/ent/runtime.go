@@ -9,8 +9,6 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent/device"
 	"github.com/bengobox/cafe-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/cafe-backend/internal/ent/permission"
-	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/role"
 	"github.com/bengobox/cafe-backend/internal/ent/schema"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
@@ -104,62 +102,6 @@ func init() {
 	permissionDescID := permissionFields[0].Descriptor()
 	// permission.DefaultID holds the default value on creation for the id field.
 	permission.DefaultID = permissionDescID.Default.(func() uuid.UUID)
-	riderdocumentFields := schema.RiderDocument{}.Fields()
-	_ = riderdocumentFields
-	// riderdocumentDescDocumentType is the schema descriptor for document_type field.
-	riderdocumentDescDocumentType := riderdocumentFields[1].Descriptor()
-	// riderdocument.DocumentTypeValidator is a validator for the "document_type" field. It is called by the builders before save.
-	riderdocument.DocumentTypeValidator = riderdocumentDescDocumentType.Validators[0].(func(string) error)
-	// riderdocumentDescFileURL is the schema descriptor for file_url field.
-	riderdocumentDescFileURL := riderdocumentFields[2].Descriptor()
-	// riderdocument.FileURLValidator is a validator for the "file_url" field. It is called by the builders before save.
-	riderdocument.FileURLValidator = riderdocumentDescFileURL.Validators[0].(func(string) error)
-	// riderdocumentDescStatus is the schema descriptor for status field.
-	riderdocumentDescStatus := riderdocumentFields[3].Descriptor()
-	// riderdocument.DefaultStatus holds the default value on creation for the status field.
-	riderdocument.DefaultStatus = riderdocumentDescStatus.Default.(string)
-	// riderdocumentDescMetadata is the schema descriptor for metadata field.
-	riderdocumentDescMetadata := riderdocumentFields[6].Descriptor()
-	// riderdocument.DefaultMetadata holds the default value on creation for the metadata field.
-	riderdocument.DefaultMetadata = riderdocumentDescMetadata.Default.(map[string]interface{})
-	// riderdocumentDescCreatedAt is the schema descriptor for created_at field.
-	riderdocumentDescCreatedAt := riderdocumentFields[7].Descriptor()
-	// riderdocument.DefaultCreatedAt holds the default value on creation for the created_at field.
-	riderdocument.DefaultCreatedAt = riderdocumentDescCreatedAt.Default.(func() time.Time)
-	// riderdocumentDescUpdatedAt is the schema descriptor for updated_at field.
-	riderdocumentDescUpdatedAt := riderdocumentFields[8].Descriptor()
-	// riderdocument.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	riderdocument.DefaultUpdatedAt = riderdocumentDescUpdatedAt.Default.(func() time.Time)
-	// riderdocument.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	riderdocument.UpdateDefaultUpdatedAt = riderdocumentDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// riderdocumentDescID is the schema descriptor for id field.
-	riderdocumentDescID := riderdocumentFields[0].Descriptor()
-	// riderdocument.DefaultID holds the default value on creation for the id field.
-	riderdocument.DefaultID = riderdocumentDescID.Default.(func() uuid.UUID)
-	riderprofileFields := schema.RiderProfile{}.Fields()
-	_ = riderprofileFields
-	// riderprofileDescStatus is the schema descriptor for status field.
-	riderprofileDescStatus := riderprofileFields[3].Descriptor()
-	// riderprofile.DefaultStatus holds the default value on creation for the status field.
-	riderprofile.DefaultStatus = riderprofileDescStatus.Default.(string)
-	// riderprofileDescRating is the schema descriptor for rating field.
-	riderprofileDescRating := riderprofileFields[4].Descriptor()
-	// riderprofile.DefaultRating holds the default value on creation for the rating field.
-	riderprofile.DefaultRating = riderprofileDescRating.Default.(float64)
-	// riderprofileDescMetadata is the schema descriptor for metadata field.
-	riderprofileDescMetadata := riderprofileFields[7].Descriptor()
-	// riderprofile.DefaultMetadata holds the default value on creation for the metadata field.
-	riderprofile.DefaultMetadata = riderprofileDescMetadata.Default.(map[string]interface{})
-	// riderprofileDescCreatedAt is the schema descriptor for created_at field.
-	riderprofileDescCreatedAt := riderprofileFields[8].Descriptor()
-	// riderprofile.DefaultCreatedAt holds the default value on creation for the created_at field.
-	riderprofile.DefaultCreatedAt = riderprofileDescCreatedAt.Default.(func() time.Time)
-	// riderprofileDescUpdatedAt is the schema descriptor for updated_at field.
-	riderprofileDescUpdatedAt := riderprofileFields[9].Descriptor()
-	// riderprofile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	riderprofile.DefaultUpdatedAt = riderprofileDescUpdatedAt.Default.(func() time.Time)
-	// riderprofile.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	riderprofile.UpdateDefaultUpdatedAt = riderprofileDescUpdatedAt.UpdateDefault.(func() time.Time)
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
 	// roleDescName is the schema descriptor for name field.
@@ -323,35 +265,39 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[2].Descriptor()
+	userDescEmail := userFields[3].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescSyncStatus is the schema descriptor for sync_status field.
+	userDescSyncStatus := userFields[5].Descriptor()
+	// user.DefaultSyncStatus holds the default value on creation for the sync_status field.
+	user.DefaultSyncStatus = userDescSyncStatus.Default.(string)
 	// userDescFullName is the schema descriptor for full_name field.
-	userDescFullName := userFields[4].Descriptor()
+	userDescFullName := userFields[7].Descriptor()
 	// user.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
 	user.FullNameValidator = userDescFullName.Validators[0].(func(string) error)
 	// userDescStatus is the schema descriptor for status field.
-	userDescStatus := userFields[6].Descriptor()
+	userDescStatus := userFields[9].Descriptor()
 	// user.DefaultStatus holds the default value on creation for the status field.
 	user.DefaultStatus = userDescStatus.Default.(string)
 	// userDescLocale is the schema descriptor for locale field.
-	userDescLocale := userFields[8].Descriptor()
+	userDescLocale := userFields[11].Descriptor()
 	// user.DefaultLocale holds the default value on creation for the locale field.
 	user.DefaultLocale = userDescLocale.Default.(string)
 	// userDescTimezone is the schema descriptor for timezone field.
-	userDescTimezone := userFields[9].Descriptor()
+	userDescTimezone := userFields[12].Descriptor()
 	// user.DefaultTimezone holds the default value on creation for the timezone field.
 	user.DefaultTimezone = userDescTimezone.Default.(string)
 	// userDescMetadata is the schema descriptor for metadata field.
-	userDescMetadata := userFields[11].Descriptor()
+	userDescMetadata := userFields[14].Descriptor()
 	// user.DefaultMetadata holds the default value on creation for the metadata field.
 	user.DefaultMetadata = userDescMetadata.Default.(map[string]interface{})
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[12].Descriptor()
+	userDescCreatedAt := userFields[15].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[13].Descriptor()
+	userDescUpdatedAt := userFields[16].Descriptor()
 	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

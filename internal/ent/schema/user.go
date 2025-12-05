@@ -21,10 +21,21 @@ func (User) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 		field.UUID("tenant_id", uuid.UUID{}),
+		field.UUID("auth_service_user_id", uuid.UUID{}).
+			Optional().
+			Unique().
+			Comment("Reference to auth-service user. Identity data synced from auth-service."),
 		field.String("email").
 			NotEmpty(),
 		field.String("password_hash").
-			Optional(),
+			Optional().
+			Comment("Deprecated: Password handled by auth-service. Kept for migration compatibility."),
+		field.String("sync_status").
+			Default("pending").
+			Comment("Sync status with auth-service: pending, synced, failed"),
+		field.Time("sync_at").
+			Optional().
+			Comment("Last sync timestamp with auth-service"),
 		field.String("full_name").
 			NotEmpty(),
 		field.String("phone").
@@ -69,8 +80,9 @@ func (User) Edges() []ent.Edge {
 			Ref("user"),
 		edge.To("preferences", UserPreference.Type).Unique(),
 		edge.To("profile", UserProfile.Type).Unique(),
-		edge.To("rider_profile", RiderProfile.Type).Unique(),
-		edge.To("reviewed_documents", RiderDocument.Type),
+		// DEPRECATED: Rider profile edges - all rider data owned by logistics-service
+		// edge.To("rider_profile", RiderProfile.Type).Unique(),
+		// edge.To("reviewed_documents", RiderDocument.Type),
 	}
 }
 

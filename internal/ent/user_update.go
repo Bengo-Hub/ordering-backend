@@ -15,8 +15,6 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent/device"
 	"github.com/bengobox/cafe-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/role"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
@@ -54,6 +52,26 @@ func (uu *UserUpdate) SetNillableTenantID(u *uuid.UUID) *UserUpdate {
 	return uu
 }
 
+// SetAuthServiceUserID sets the "auth_service_user_id" field.
+func (uu *UserUpdate) SetAuthServiceUserID(u uuid.UUID) *UserUpdate {
+	uu.mutation.SetAuthServiceUserID(u)
+	return uu
+}
+
+// SetNillableAuthServiceUserID sets the "auth_service_user_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAuthServiceUserID(u *uuid.UUID) *UserUpdate {
+	if u != nil {
+		uu.SetAuthServiceUserID(*u)
+	}
+	return uu
+}
+
+// ClearAuthServiceUserID clears the value of the "auth_service_user_id" field.
+func (uu *UserUpdate) ClearAuthServiceUserID() *UserUpdate {
+	uu.mutation.ClearAuthServiceUserID()
+	return uu
+}
+
 // SetEmail sets the "email" field.
 func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 	uu.mutation.SetEmail(s)
@@ -85,6 +103,40 @@ func (uu *UserUpdate) SetNillablePasswordHash(s *string) *UserUpdate {
 // ClearPasswordHash clears the value of the "password_hash" field.
 func (uu *UserUpdate) ClearPasswordHash() *UserUpdate {
 	uu.mutation.ClearPasswordHash()
+	return uu
+}
+
+// SetSyncStatus sets the "sync_status" field.
+func (uu *UserUpdate) SetSyncStatus(s string) *UserUpdate {
+	uu.mutation.SetSyncStatus(s)
+	return uu
+}
+
+// SetNillableSyncStatus sets the "sync_status" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableSyncStatus(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetSyncStatus(*s)
+	}
+	return uu
+}
+
+// SetSyncAt sets the "sync_at" field.
+func (uu *UserUpdate) SetSyncAt(t time.Time) *UserUpdate {
+	uu.mutation.SetSyncAt(t)
+	return uu
+}
+
+// SetNillableSyncAt sets the "sync_at" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableSyncAt(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetSyncAt(*t)
+	}
+	return uu
+}
+
+// ClearSyncAt clears the value of the "sync_at" field.
+func (uu *UserUpdate) ClearSyncAt() *UserUpdate {
+	uu.mutation.ClearSyncAt()
 	return uu
 }
 
@@ -353,40 +405,6 @@ func (uu *UserUpdate) SetProfile(u *UserProfile) *UserUpdate {
 	return uu.SetProfileID(u.ID)
 }
 
-// SetRiderProfileID sets the "rider_profile" edge to the RiderProfile entity by ID.
-func (uu *UserUpdate) SetRiderProfileID(id int) *UserUpdate {
-	uu.mutation.SetRiderProfileID(id)
-	return uu
-}
-
-// SetNillableRiderProfileID sets the "rider_profile" edge to the RiderProfile entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableRiderProfileID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetRiderProfileID(*id)
-	}
-	return uu
-}
-
-// SetRiderProfile sets the "rider_profile" edge to the RiderProfile entity.
-func (uu *UserUpdate) SetRiderProfile(r *RiderProfile) *UserUpdate {
-	return uu.SetRiderProfileID(r.ID)
-}
-
-// AddReviewedDocumentIDs adds the "reviewed_documents" edge to the RiderDocument entity by IDs.
-func (uu *UserUpdate) AddReviewedDocumentIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddReviewedDocumentIDs(ids...)
-	return uu
-}
-
-// AddReviewedDocuments adds the "reviewed_documents" edges to the RiderDocument entity.
-func (uu *UserUpdate) AddReviewedDocuments(r ...*RiderDocument) *UserUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return uu.AddReviewedDocumentIDs(ids...)
-}
-
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -521,33 +539,6 @@ func (uu *UserUpdate) ClearProfile() *UserUpdate {
 	return uu
 }
 
-// ClearRiderProfile clears the "rider_profile" edge to the RiderProfile entity.
-func (uu *UserUpdate) ClearRiderProfile() *UserUpdate {
-	uu.mutation.ClearRiderProfile()
-	return uu
-}
-
-// ClearReviewedDocuments clears all "reviewed_documents" edges to the RiderDocument entity.
-func (uu *UserUpdate) ClearReviewedDocuments() *UserUpdate {
-	uu.mutation.ClearReviewedDocuments()
-	return uu
-}
-
-// RemoveReviewedDocumentIDs removes the "reviewed_documents" edge to RiderDocument entities by IDs.
-func (uu *UserUpdate) RemoveReviewedDocumentIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveReviewedDocumentIDs(ids...)
-	return uu
-}
-
-// RemoveReviewedDocuments removes "reviewed_documents" edges to RiderDocument entities.
-func (uu *UserUpdate) RemoveReviewedDocuments(r ...*RiderDocument) *UserUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return uu.RemoveReviewedDocumentIDs(ids...)
-}
-
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
 	uu.defaults()
@@ -614,6 +605,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := uu.mutation.AuthServiceUserID(); ok {
+		_spec.SetField(user.FieldAuthServiceUserID, field.TypeUUID, value)
+	}
+	if uu.mutation.AuthServiceUserIDCleared() {
+		_spec.ClearField(user.FieldAuthServiceUserID, field.TypeUUID)
+	}
 	if value, ok := uu.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
@@ -622,6 +619,15 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.PasswordHashCleared() {
 		_spec.ClearField(user.FieldPasswordHash, field.TypeString)
+	}
+	if value, ok := uu.mutation.SyncStatus(); ok {
+		_spec.SetField(user.FieldSyncStatus, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.SyncAt(); ok {
+		_spec.SetField(user.FieldSyncAt, field.TypeTime, value)
+	}
+	if uu.mutation.SyncAtCleared() {
+		_spec.ClearField(user.FieldSyncAt, field.TypeTime)
 	}
 	if value, ok := uu.mutation.FullName(); ok {
 		_spec.SetField(user.FieldFullName, field.TypeString, value)
@@ -1000,80 +1006,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.RiderProfileCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RiderProfileTable,
-			Columns: []string{user.RiderProfileColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RiderProfileIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RiderProfileTable,
-			Columns: []string{user.RiderProfileColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.ReviewedDocumentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedReviewedDocumentsIDs(); len(nodes) > 0 && !uu.mutation.ReviewedDocumentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.ReviewedDocumentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -1108,6 +1040,26 @@ func (uuo *UserUpdateOne) SetNillableTenantID(u *uuid.UUID) *UserUpdateOne {
 	return uuo
 }
 
+// SetAuthServiceUserID sets the "auth_service_user_id" field.
+func (uuo *UserUpdateOne) SetAuthServiceUserID(u uuid.UUID) *UserUpdateOne {
+	uuo.mutation.SetAuthServiceUserID(u)
+	return uuo
+}
+
+// SetNillableAuthServiceUserID sets the "auth_service_user_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAuthServiceUserID(u *uuid.UUID) *UserUpdateOne {
+	if u != nil {
+		uuo.SetAuthServiceUserID(*u)
+	}
+	return uuo
+}
+
+// ClearAuthServiceUserID clears the value of the "auth_service_user_id" field.
+func (uuo *UserUpdateOne) ClearAuthServiceUserID() *UserUpdateOne {
+	uuo.mutation.ClearAuthServiceUserID()
+	return uuo
+}
+
 // SetEmail sets the "email" field.
 func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 	uuo.mutation.SetEmail(s)
@@ -1139,6 +1091,40 @@ func (uuo *UserUpdateOne) SetNillablePasswordHash(s *string) *UserUpdateOne {
 // ClearPasswordHash clears the value of the "password_hash" field.
 func (uuo *UserUpdateOne) ClearPasswordHash() *UserUpdateOne {
 	uuo.mutation.ClearPasswordHash()
+	return uuo
+}
+
+// SetSyncStatus sets the "sync_status" field.
+func (uuo *UserUpdateOne) SetSyncStatus(s string) *UserUpdateOne {
+	uuo.mutation.SetSyncStatus(s)
+	return uuo
+}
+
+// SetNillableSyncStatus sets the "sync_status" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableSyncStatus(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetSyncStatus(*s)
+	}
+	return uuo
+}
+
+// SetSyncAt sets the "sync_at" field.
+func (uuo *UserUpdateOne) SetSyncAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetSyncAt(t)
+	return uuo
+}
+
+// SetNillableSyncAt sets the "sync_at" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableSyncAt(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetSyncAt(*t)
+	}
+	return uuo
+}
+
+// ClearSyncAt clears the value of the "sync_at" field.
+func (uuo *UserUpdateOne) ClearSyncAt() *UserUpdateOne {
+	uuo.mutation.ClearSyncAt()
 	return uuo
 }
 
@@ -1407,40 +1393,6 @@ func (uuo *UserUpdateOne) SetProfile(u *UserProfile) *UserUpdateOne {
 	return uuo.SetProfileID(u.ID)
 }
 
-// SetRiderProfileID sets the "rider_profile" edge to the RiderProfile entity by ID.
-func (uuo *UserUpdateOne) SetRiderProfileID(id int) *UserUpdateOne {
-	uuo.mutation.SetRiderProfileID(id)
-	return uuo
-}
-
-// SetNillableRiderProfileID sets the "rider_profile" edge to the RiderProfile entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableRiderProfileID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetRiderProfileID(*id)
-	}
-	return uuo
-}
-
-// SetRiderProfile sets the "rider_profile" edge to the RiderProfile entity.
-func (uuo *UserUpdateOne) SetRiderProfile(r *RiderProfile) *UserUpdateOne {
-	return uuo.SetRiderProfileID(r.ID)
-}
-
-// AddReviewedDocumentIDs adds the "reviewed_documents" edge to the RiderDocument entity by IDs.
-func (uuo *UserUpdateOne) AddReviewedDocumentIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddReviewedDocumentIDs(ids...)
-	return uuo
-}
-
-// AddReviewedDocuments adds the "reviewed_documents" edges to the RiderDocument entity.
-func (uuo *UserUpdateOne) AddReviewedDocuments(r ...*RiderDocument) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return uuo.AddReviewedDocumentIDs(ids...)
-}
-
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -1575,33 +1527,6 @@ func (uuo *UserUpdateOne) ClearProfile() *UserUpdateOne {
 	return uuo
 }
 
-// ClearRiderProfile clears the "rider_profile" edge to the RiderProfile entity.
-func (uuo *UserUpdateOne) ClearRiderProfile() *UserUpdateOne {
-	uuo.mutation.ClearRiderProfile()
-	return uuo
-}
-
-// ClearReviewedDocuments clears all "reviewed_documents" edges to the RiderDocument entity.
-func (uuo *UserUpdateOne) ClearReviewedDocuments() *UserUpdateOne {
-	uuo.mutation.ClearReviewedDocuments()
-	return uuo
-}
-
-// RemoveReviewedDocumentIDs removes the "reviewed_documents" edge to RiderDocument entities by IDs.
-func (uuo *UserUpdateOne) RemoveReviewedDocumentIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveReviewedDocumentIDs(ids...)
-	return uuo
-}
-
-// RemoveReviewedDocuments removes "reviewed_documents" edges to RiderDocument entities.
-func (uuo *UserUpdateOne) RemoveReviewedDocuments(r ...*RiderDocument) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return uuo.RemoveReviewedDocumentIDs(ids...)
-}
-
 // Where appends a list predicates to the UserUpdate builder.
 func (uuo *UserUpdateOne) Where(ps ...predicate.User) *UserUpdateOne {
 	uuo.mutation.Where(ps...)
@@ -1698,6 +1623,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
+	if value, ok := uuo.mutation.AuthServiceUserID(); ok {
+		_spec.SetField(user.FieldAuthServiceUserID, field.TypeUUID, value)
+	}
+	if uuo.mutation.AuthServiceUserIDCleared() {
+		_spec.ClearField(user.FieldAuthServiceUserID, field.TypeUUID)
+	}
 	if value, ok := uuo.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
@@ -1706,6 +1637,15 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.PasswordHashCleared() {
 		_spec.ClearField(user.FieldPasswordHash, field.TypeString)
+	}
+	if value, ok := uuo.mutation.SyncStatus(); ok {
+		_spec.SetField(user.FieldSyncStatus, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.SyncAt(); ok {
+		_spec.SetField(user.FieldSyncAt, field.TypeTime, value)
+	}
+	if uuo.mutation.SyncAtCleared() {
+		_spec.ClearField(user.FieldSyncAt, field.TypeTime)
 	}
 	if value, ok := uuo.mutation.FullName(); ok {
 		_spec.SetField(user.FieldFullName, field.TypeString, value)
@@ -2077,80 +2017,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.RiderProfileCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RiderProfileTable,
-			Columns: []string{user.RiderProfileColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RiderProfileIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.RiderProfileTable,
-			Columns: []string{user.RiderProfileColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.ReviewedDocumentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedReviewedDocumentsIDs(); len(nodes) > 0 && !uuo.mutation.ReviewedDocumentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.ReviewedDocumentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ReviewedDocumentsTable,
-			Columns: user.ReviewedDocumentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderdocument.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

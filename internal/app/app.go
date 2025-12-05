@@ -90,15 +90,19 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("app: ent schema create: %w", err)
 	}
 
+	// Note: Seeding should be done manually via 'go run cmd/seed/main.go' after migrations
+	// This ensures roles, permissions, tenant, and demo user are always available
+	// The seed command is idempotent and can be run multiple times safely
+	log.Info("app: migrations completed - run 'go run cmd/seed/main.go' to seed initial data (idempotent)")
+
 	identityRepo := identity.NewEntRepository(ormClient)
 	identitySvc, err := identity.NewService(identityRepo, cfg.Auth, log)
 	if err != nil {
 		return nil, fmt.Errorf("app: identity service init: %w", err)
 	}
-	identityHandler := identityhandler.New(log, identitySvc)
-	authenticator := identityhandler.NewAuthenticator(log, identitySvc)
 
 	// Initialize auth-service JWT validator
+	var validator *authclient.Validator
 	var authMiddleware *authclient.AuthMiddleware
 	if cfg.Auth.ServiceURL != "" {
 		jwksURL := fmt.Sprintf("%s/api/v1/.well-known/jwks.json", cfg.Auth.ServiceURL)
@@ -109,7 +113,7 @@ func New(ctx context.Context) (*App, error) {
 		)
 		authConfig.CacheTTL = cfg.Auth.JWKSCacheTTL
 		authConfig.RefreshInterval = cfg.Auth.JWKSRefreshInterval
-		validator, err := authclient.NewValidator(authConfig)
+		validator, err = authclient.NewValidator(authConfig)
 		if err != nil {
 			return nil, fmt.Errorf("auth validator init: %w", err)
 		}
@@ -121,7 +125,18 @@ func New(ctx context.Context) (*App, error) {
 		} else {
 			authMiddleware = authclient.NewAuthMiddleware(validator)
 		}
+
+		// Subscribe to auth-service events for user sync
+		if natsConn != nil {
+			eventHandler := identity.NewEventHandler(identitySvc, log)
+			if err := eventHandler.SubscribeToAuthEvents(natsConn); err != nil {
+				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
+			}
+		}
 	}
+
+	identityHandler := identityhandler.New(log, identitySvc)
+	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
 	router := httprouter.New(log, healthHandler, identityHandler, authenticator, authMiddleware)
 

@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
 	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/cafe-backend/internal/ent/user"
@@ -26,10 +25,16 @@ type User struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// TenantID holds the value of the "tenant_id" field.
 	TenantID uuid.UUID `json:"tenant_id,omitempty"`
+	// Reference to auth-service user. Identity data synced from auth-service.
+	AuthServiceUserID uuid.UUID `json:"auth_service_user_id,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// PasswordHash holds the value of the "password_hash" field.
+	// Deprecated: Password handled by auth-service. Kept for migration compatibility.
 	PasswordHash string `json:"password_hash,omitempty"`
+	// Sync status with auth-service: pending, synced, failed
+	SyncStatus string `json:"sync_status,omitempty"`
+	// Last sync timestamp with auth-service
+	SyncAt time.Time `json:"sync_at,omitempty"`
 	// FullName holds the value of the "full_name" field.
 	FullName string `json:"full_name,omitempty"`
 	// Phone holds the value of the "phone" field.
@@ -77,13 +82,9 @@ type UserEdges struct {
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	// Profile holds the value of the profile edge.
 	Profile *UserProfile `json:"profile,omitempty"`
-	// RiderProfile holds the value of the rider_profile edge.
-	RiderProfile *RiderProfile `json:"rider_profile,omitempty"`
-	// ReviewedDocuments holds the value of the reviewed_documents edge.
-	ReviewedDocuments []*RiderDocument `json:"reviewed_documents,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [11]bool
+	loadedTypes [9]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -175,26 +176,6 @@ func (e UserEdges) ProfileOrErr() (*UserProfile, error) {
 	return nil, &NotLoadedError{edge: "profile"}
 }
 
-// RiderProfileOrErr returns the RiderProfile value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) RiderProfileOrErr() (*RiderProfile, error) {
-	if e.RiderProfile != nil {
-		return e.RiderProfile, nil
-	} else if e.loadedTypes[9] {
-		return nil, &NotFoundError{label: riderprofile.Label}
-	}
-	return nil, &NotLoadedError{edge: "rider_profile"}
-}
-
-// ReviewedDocumentsOrErr returns the ReviewedDocuments value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) ReviewedDocumentsOrErr() ([]*RiderDocument, error) {
-	if e.loadedTypes[10] {
-		return e.ReviewedDocuments, nil
-	}
-	return nil, &NotLoadedError{edge: "reviewed_documents"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -202,11 +183,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldMetadata:
 			values[i] = new([]byte)
-		case user.FieldEmail, user.FieldPasswordHash, user.FieldFullName, user.FieldPhone, user.FieldStatus, user.FieldPrimaryRole, user.FieldLocale, user.FieldTimezone:
+		case user.FieldEmail, user.FieldPasswordHash, user.FieldSyncStatus, user.FieldFullName, user.FieldPhone, user.FieldStatus, user.FieldPrimaryRole, user.FieldLocale, user.FieldTimezone:
 			values[i] = new(sql.NullString)
-		case user.FieldLastLoginAt, user.FieldCreatedAt, user.FieldUpdatedAt:
+		case user.FieldSyncAt, user.FieldLastLoginAt, user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case user.FieldID, user.FieldTenantID:
+		case user.FieldID, user.FieldTenantID, user.FieldAuthServiceUserID:
 			values[i] = new(uuid.UUID)
 		case user.ForeignKeys[0]: // two_factor_setting_user
 			values[i] = new(sql.NullInt64)
@@ -237,6 +218,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				u.TenantID = *value
 			}
+		case user.FieldAuthServiceUserID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field auth_service_user_id", values[i])
+			} else if value != nil {
+				u.AuthServiceUserID = *value
+			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
@@ -248,6 +235,18 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
 			} else if value.Valid {
 				u.PasswordHash = value.String
+			}
+		case user.FieldSyncStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sync_status", values[i])
+			} else if value.Valid {
+				u.SyncStatus = value.String
+			}
+		case user.FieldSyncAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field sync_at", values[i])
+			} else if value.Valid {
+				u.SyncAt = value.Time
 			}
 		case user.FieldFullName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -376,16 +375,6 @@ func (u *User) QueryProfile() *UserProfileQuery {
 	return NewUserClient(u.config).QueryProfile(u)
 }
 
-// QueryRiderProfile queries the "rider_profile" edge of the User entity.
-func (u *User) QueryRiderProfile() *RiderProfileQuery {
-	return NewUserClient(u.config).QueryRiderProfile(u)
-}
-
-// QueryReviewedDocuments queries the "reviewed_documents" edge of the User entity.
-func (u *User) QueryReviewedDocuments() *RiderDocumentQuery {
-	return NewUserClient(u.config).QueryReviewedDocuments(u)
-}
-
 // Update returns a builder for updating this User.
 // Note that you need to call User.Unwrap() before calling this method if this User
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -412,11 +401,20 @@ func (u *User) String() string {
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", u.TenantID))
 	builder.WriteString(", ")
+	builder.WriteString("auth_service_user_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.AuthServiceUserID))
+	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=")
 	builder.WriteString(u.PasswordHash)
+	builder.WriteString(", ")
+	builder.WriteString("sync_status=")
+	builder.WriteString(u.SyncStatus)
+	builder.WriteString(", ")
+	builder.WriteString("sync_at=")
+	builder.WriteString(u.SyncAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("full_name=")
 	builder.WriteString(u.FullName)

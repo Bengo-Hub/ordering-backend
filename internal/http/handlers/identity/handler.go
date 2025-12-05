@@ -3,6 +3,7 @@ package identityhandler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -34,6 +35,7 @@ func New(log *zap.Logger, service *identity.Service) *Handler {
 func (h *Handler) Register(r chi.Router, auth *Authenticator) {
 	r.Route("/auth", func(authRouter chi.Router) {
 		authRouter.Post("/login", h.Login)
+		authRouter.Post("/register", h.HandleRegister)
 		authRouter.Post("/google/start", h.BeginGoogleOAuth)
 		authRouter.Post("/google/complete", h.CompleteGoogleOAuth)
 
@@ -78,13 +80,46 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		IP:        clientIP(r),
 	}
 
-	result, err := h.service.LoginWithEmail(r.Context(), req.Email, req.Password, role, meta)
+	result, err := h.service.LoginWithEmail(r.Context(), req.Email, req.Password, req.TenantSlug, role, meta)
 	if err != nil {
 		h.handleError(w, err)
 		return
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, toAuthResponsePayload(result))
+}
+
+// HandleRegister creates a new user account via auth-service.
+// @Summary Register a new user
+// @Description Creates a new user account via auth-service and issues session tokens.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param payload body RegisterRequest true "Registration request payload"
+// @Success 201 {object} AuthResponsePayload
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Router /auth/register [post]
+func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	var req RegisterRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	meta := identity.RequestMeta{
+		UserAgent: r.UserAgent(),
+		IP:        clientIP(r),
+	}
+
+	result, err := h.service.RegisterWithEmail(r.Context(), req.Email, req.Password, req.TenantSlug, req.Profile, meta)
+	if err != nil {
+		h.log.Error("Registration failed", zap.Error(err), zap.String("email", req.Email))
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusCreated, toAuthResponsePayload(result))
 }
 
 // BeginGoogleOAuth starts the Google OAuth workflow.
@@ -386,7 +421,15 @@ func (h *Handler) ListOrderSummary(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) handleError(w http.ResponseWriter, err error) {
-	h.log.Warn("identity request failed", zap.Error(err))
+	h.log.Error("identity request failed", zap.Error(err), zap.String("error_type", fmt.Sprintf("%T", err)))
+
+	// Extract more detailed error message if available
+	errorMsg := err.Error()
+	if strings.Contains(errorMsg, "auth-service") {
+		// For auth-service errors, include more context
+		h.log.Error("auth-service error details", zap.String("full_error", errorMsg))
+	}
+
 	switch {
 	case errors.Is(err, identity.ErrInvalidCredentials):
 		handlers.RespondError(w, http.StatusUnauthorized, "invalid credentials")
@@ -395,7 +438,8 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 	case errors.Is(err, identity.ErrUserNotFound):
 		handlers.RespondError(w, http.StatusNotFound, "user not found")
 	default:
-		handlers.RespondError(w, http.StatusInternalServerError, "internal error")
+		// Include error message in response for debugging (in development)
+		handlers.RespondError(w, http.StatusInternalServerError, errorMsg)
 	}
 }
 
@@ -453,9 +497,18 @@ func (h *Handler) respondWithCurrentSession(w http.ResponseWriter, r *http.Reque
 
 // LoginRequest models email/password authentication input.
 type LoginRequest struct {
-	Email    string `json:"email" example:"customer@demo.com"`
-	Password string `json:"password" example:"demo1234"`
-	Role     string `json:"role" example:"customer"`
+	Email      string `json:"email" example:"customer@demo.com"`
+	Password   string `json:"password" example:"demo1234"`
+	Role       string `json:"role" example:"customer"`
+	TenantSlug string `json:"tenant_slug" example:"urban-cafe"` // Defaults to "urban-cafe" if not provided
+}
+
+// RegisterRequest models user registration input.
+type RegisterRequest struct {
+	Email      string                 `json:"email" example:"newuser@urban-cafe.com"`
+	Password   string                 `json:"password" example:"SecurePassword123!"`
+	TenantSlug string                 `json:"tenant_slug" example:"urban-cafe"` // Defaults to "urban-cafe" if not provided
+	Profile    map[string]interface{} `json:"profile,omitempty"`                // Optional profile data
 }
 
 // GoogleStartRequest starts the OAuth workflow.

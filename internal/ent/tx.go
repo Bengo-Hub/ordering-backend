@@ -20,10 +20,6 @@ type Tx struct {
 	OAuthAccount *OAuthAccountClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
-	// RiderDocument is the client for interacting with the RiderDocument builders.
-	RiderDocument *RiderDocumentClient
-	// RiderProfile is the client for interacting with the RiderProfile builders.
-	RiderProfile *RiderProfileClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Session is the client for interacting with the Session builders.
@@ -177,8 +173,6 @@ func (tx *Tx) init() {
 	tx.Device = NewDeviceClient(tx.config)
 	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
-	tx.RiderDocument = NewRiderDocumentClient(tx.config)
-	tx.RiderProfile = NewRiderProfileClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)

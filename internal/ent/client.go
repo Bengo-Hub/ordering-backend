@@ -20,8 +20,6 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent/device"
 	"github.com/bengobox/cafe-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/cafe-backend/internal/ent/permission"
-	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/role"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
@@ -46,10 +44,6 @@ type Client struct {
 	OAuthAccount *OAuthAccountClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
-	// RiderDocument is the client for interacting with the RiderDocument builders.
-	RiderDocument *RiderDocumentClient
-	// RiderProfile is the client for interacting with the RiderProfile builders.
-	RiderProfile *RiderProfileClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Session is the client for interacting with the Session builders.
@@ -83,8 +77,6 @@ func (c *Client) init() {
 	c.Device = NewDeviceClient(c.config)
 	c.OAuthAccount = NewOAuthAccountClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
-	c.RiderDocument = NewRiderDocumentClient(c.config)
-	c.RiderProfile = NewRiderProfileClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Session = NewSessionClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
@@ -190,8 +182,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Device:           NewDeviceClient(cfg),
 		OAuthAccount:     NewOAuthAccountClient(cfg),
 		Permission:       NewPermissionClient(cfg),
-		RiderDocument:    NewRiderDocumentClient(cfg),
-		RiderProfile:     NewRiderProfileClient(cfg),
 		Role:             NewRoleClient(cfg),
 		Session:          NewSessionClient(cfg),
 		Tenant:           NewTenantClient(cfg),
@@ -224,8 +214,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Device:           NewDeviceClient(cfg),
 		OAuthAccount:     NewOAuthAccountClient(cfg),
 		Permission:       NewPermissionClient(cfg),
-		RiderDocument:    NewRiderDocumentClient(cfg),
-		RiderProfile:     NewRiderProfileClient(cfg),
 		Role:             NewRoleClient(cfg),
 		Session:          NewSessionClient(cfg),
 		Tenant:           NewTenantClient(cfg),
@@ -264,9 +252,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.RiderDocument,
-		c.RiderProfile, c.Role, c.Session, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
+		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.Role, c.Session,
+		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.TwoFactorSetting, c.User,
+		c.UserPreference, c.UserProfile,
 	} {
 		n.Use(hooks...)
 	}
@@ -276,9 +264,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.RiderDocument,
-		c.RiderProfile, c.Role, c.Session, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
+		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.Role, c.Session,
+		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.TwoFactorSetting, c.User,
+		c.UserPreference, c.UserProfile,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -295,10 +283,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OAuthAccount.mutate(ctx, m)
 	case *PermissionMutation:
 		return c.Permission.mutate(ctx, m)
-	case *RiderDocumentMutation:
-		return c.RiderDocument.mutate(ctx, m)
-	case *RiderProfileMutation:
-		return c.RiderProfile.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *SessionMutation:
@@ -918,352 +902,6 @@ func (c *PermissionClient) mutate(ctx context.Context, m *PermissionMutation) (V
 	}
 }
 
-// RiderDocumentClient is a client for the RiderDocument schema.
-type RiderDocumentClient struct {
-	config
-}
-
-// NewRiderDocumentClient returns a client for the RiderDocument from the given config.
-func NewRiderDocumentClient(c config) *RiderDocumentClient {
-	return &RiderDocumentClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `riderdocument.Hooks(f(g(h())))`.
-func (c *RiderDocumentClient) Use(hooks ...Hook) {
-	c.hooks.RiderDocument = append(c.hooks.RiderDocument, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `riderdocument.Intercept(f(g(h())))`.
-func (c *RiderDocumentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.RiderDocument = append(c.inters.RiderDocument, interceptors...)
-}
-
-// Create returns a builder for creating a RiderDocument entity.
-func (c *RiderDocumentClient) Create() *RiderDocumentCreate {
-	mutation := newRiderDocumentMutation(c.config, OpCreate)
-	return &RiderDocumentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of RiderDocument entities.
-func (c *RiderDocumentClient) CreateBulk(builders ...*RiderDocumentCreate) *RiderDocumentCreateBulk {
-	return &RiderDocumentCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *RiderDocumentClient) MapCreateBulk(slice any, setFunc func(*RiderDocumentCreate, int)) *RiderDocumentCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &RiderDocumentCreateBulk{err: fmt.Errorf("calling to RiderDocumentClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*RiderDocumentCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &RiderDocumentCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for RiderDocument.
-func (c *RiderDocumentClient) Update() *RiderDocumentUpdate {
-	mutation := newRiderDocumentMutation(c.config, OpUpdate)
-	return &RiderDocumentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *RiderDocumentClient) UpdateOne(rd *RiderDocument) *RiderDocumentUpdateOne {
-	mutation := newRiderDocumentMutation(c.config, OpUpdateOne, withRiderDocument(rd))
-	return &RiderDocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *RiderDocumentClient) UpdateOneID(id uuid.UUID) *RiderDocumentUpdateOne {
-	mutation := newRiderDocumentMutation(c.config, OpUpdateOne, withRiderDocumentID(id))
-	return &RiderDocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for RiderDocument.
-func (c *RiderDocumentClient) Delete() *RiderDocumentDelete {
-	mutation := newRiderDocumentMutation(c.config, OpDelete)
-	return &RiderDocumentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *RiderDocumentClient) DeleteOne(rd *RiderDocument) *RiderDocumentDeleteOne {
-	return c.DeleteOneID(rd.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *RiderDocumentClient) DeleteOneID(id uuid.UUID) *RiderDocumentDeleteOne {
-	builder := c.Delete().Where(riderdocument.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &RiderDocumentDeleteOne{builder}
-}
-
-// Query returns a query builder for RiderDocument.
-func (c *RiderDocumentClient) Query() *RiderDocumentQuery {
-	return &RiderDocumentQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeRiderDocument},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a RiderDocument entity by its id.
-func (c *RiderDocumentClient) Get(ctx context.Context, id uuid.UUID) (*RiderDocument, error) {
-	return c.Query().Where(riderdocument.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *RiderDocumentClient) GetX(ctx context.Context, id uuid.UUID) *RiderDocument {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryRider queries the rider edge of a RiderDocument.
-func (c *RiderDocumentClient) QueryRider(rd *RiderDocument) *RiderProfileQuery {
-	query := (&RiderProfileClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rd.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(riderdocument.Table, riderdocument.FieldID, id),
-			sqlgraph.To(riderprofile.Table, riderprofile.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, riderdocument.RiderTable, riderdocument.RiderPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(rd.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryReviewer queries the reviewer edge of a RiderDocument.
-func (c *RiderDocumentClient) QueryReviewer(rd *RiderDocument) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rd.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(riderdocument.Table, riderdocument.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, riderdocument.ReviewerTable, riderdocument.ReviewerPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(rd.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *RiderDocumentClient) Hooks() []Hook {
-	return c.hooks.RiderDocument
-}
-
-// Interceptors returns the client interceptors.
-func (c *RiderDocumentClient) Interceptors() []Interceptor {
-	return c.inters.RiderDocument
-}
-
-func (c *RiderDocumentClient) mutate(ctx context.Context, m *RiderDocumentMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&RiderDocumentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&RiderDocumentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&RiderDocumentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&RiderDocumentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown RiderDocument mutation op: %q", m.Op())
-	}
-}
-
-// RiderProfileClient is a client for the RiderProfile schema.
-type RiderProfileClient struct {
-	config
-}
-
-// NewRiderProfileClient returns a client for the RiderProfile from the given config.
-func NewRiderProfileClient(c config) *RiderProfileClient {
-	return &RiderProfileClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `riderprofile.Hooks(f(g(h())))`.
-func (c *RiderProfileClient) Use(hooks ...Hook) {
-	c.hooks.RiderProfile = append(c.hooks.RiderProfile, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `riderprofile.Intercept(f(g(h())))`.
-func (c *RiderProfileClient) Intercept(interceptors ...Interceptor) {
-	c.inters.RiderProfile = append(c.inters.RiderProfile, interceptors...)
-}
-
-// Create returns a builder for creating a RiderProfile entity.
-func (c *RiderProfileClient) Create() *RiderProfileCreate {
-	mutation := newRiderProfileMutation(c.config, OpCreate)
-	return &RiderProfileCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of RiderProfile entities.
-func (c *RiderProfileClient) CreateBulk(builders ...*RiderProfileCreate) *RiderProfileCreateBulk {
-	return &RiderProfileCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *RiderProfileClient) MapCreateBulk(slice any, setFunc func(*RiderProfileCreate, int)) *RiderProfileCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &RiderProfileCreateBulk{err: fmt.Errorf("calling to RiderProfileClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*RiderProfileCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &RiderProfileCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for RiderProfile.
-func (c *RiderProfileClient) Update() *RiderProfileUpdate {
-	mutation := newRiderProfileMutation(c.config, OpUpdate)
-	return &RiderProfileUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *RiderProfileClient) UpdateOne(rp *RiderProfile) *RiderProfileUpdateOne {
-	mutation := newRiderProfileMutation(c.config, OpUpdateOne, withRiderProfile(rp))
-	return &RiderProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *RiderProfileClient) UpdateOneID(id int) *RiderProfileUpdateOne {
-	mutation := newRiderProfileMutation(c.config, OpUpdateOne, withRiderProfileID(id))
-	return &RiderProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for RiderProfile.
-func (c *RiderProfileClient) Delete() *RiderProfileDelete {
-	mutation := newRiderProfileMutation(c.config, OpDelete)
-	return &RiderProfileDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *RiderProfileClient) DeleteOne(rp *RiderProfile) *RiderProfileDeleteOne {
-	return c.DeleteOneID(rp.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *RiderProfileClient) DeleteOneID(id int) *RiderProfileDeleteOne {
-	builder := c.Delete().Where(riderprofile.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &RiderProfileDeleteOne{builder}
-}
-
-// Query returns a query builder for RiderProfile.
-func (c *RiderProfileClient) Query() *RiderProfileQuery {
-	return &RiderProfileQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeRiderProfile},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a RiderProfile entity by its id.
-func (c *RiderProfileClient) Get(ctx context.Context, id int) (*RiderProfile, error) {
-	return c.Query().Where(riderprofile.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *RiderProfileClient) GetX(ctx context.Context, id int) *RiderProfile {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a RiderProfile.
-func (c *RiderProfileClient) QueryUser(rp *RiderProfile) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(riderprofile.Table, riderprofile.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, riderprofile.UserTable, riderprofile.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(rp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTenant queries the tenant edge of a RiderProfile.
-func (c *RiderProfileClient) QueryTenant(rp *RiderProfile) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(riderprofile.Table, riderprofile.FieldID, id),
-			sqlgraph.To(tenant.Table, tenant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, riderprofile.TenantTable, riderprofile.TenantPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(rp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDocuments queries the documents edge of a RiderProfile.
-func (c *RiderProfileClient) QueryDocuments(rp *RiderProfile) *RiderDocumentQuery {
-	query := (&RiderDocumentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(riderprofile.Table, riderprofile.FieldID, id),
-			sqlgraph.To(riderdocument.Table, riderdocument.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, riderprofile.DocumentsTable, riderprofile.DocumentsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(rp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *RiderProfileClient) Hooks() []Hook {
-	return c.hooks.RiderProfile
-}
-
-// Interceptors returns the client interceptors.
-func (c *RiderProfileClient) Interceptors() []Interceptor {
-	return c.inters.RiderProfile
-}
-
-func (c *RiderProfileClient) mutate(ctx context.Context, m *RiderProfileMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&RiderProfileCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&RiderProfileUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&RiderProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&RiderProfileDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown RiderProfile mutation op: %q", m.Op())
-	}
-}
-
 // RoleClient is a client for the Role schema.
 type RoleClient struct {
 	config
@@ -1743,22 +1381,6 @@ func (c *TenantClient) QuerySessions(t *Tenant) *SessionQuery {
 			sqlgraph.From(tenant.Table, tenant.FieldID, id),
 			sqlgraph.To(session.Table, session.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, tenant.SessionsTable, tenant.SessionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryRiderProfiles queries the rider_profiles edge of a Tenant.
-func (c *TenantClient) QueryRiderProfiles(t *Tenant) *RiderProfileQuery {
-	query := (&RiderProfileClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(tenant.Table, tenant.FieldID, id),
-			sqlgraph.To(riderprofile.Table, riderprofile.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, tenant.RiderProfilesTable, tenant.RiderProfilesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -2506,38 +2128,6 @@ func (c *UserClient) QueryProfile(u *User) *UserProfileQuery {
 	return query
 }
 
-// QueryRiderProfile queries the rider_profile edge of a User.
-func (c *UserClient) QueryRiderProfile(u *User) *RiderProfileQuery {
-	query := (&RiderProfileClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(riderprofile.Table, riderprofile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.RiderProfileTable, user.RiderProfileColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryReviewedDocuments queries the reviewed_documents edge of a User.
-func (c *UserClient) QueryReviewedDocuments(u *User) *RiderDocumentQuery {
-	query := (&RiderDocumentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(riderdocument.Table, riderdocument.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.ReviewedDocumentsTable, user.ReviewedDocumentsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -2864,13 +2454,13 @@ func (c *UserProfileClient) mutate(ctx context.Context, m *UserProfileMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BackupCode, Device, OAuthAccount, Permission, RiderDocument, RiderProfile, Role,
-		Session, Tenant, TenantSetting, TenantSyncEvent, TwoFactorSetting, User,
-		UserPreference, UserProfile []ent.Hook
+		BackupCode, Device, OAuthAccount, Permission, Role, Session, Tenant,
+		TenantSetting, TenantSyncEvent, TwoFactorSetting, User, UserPreference,
+		UserProfile []ent.Hook
 	}
 	inters struct {
-		BackupCode, Device, OAuthAccount, Permission, RiderDocument, RiderProfile, Role,
-		Session, Tenant, TenantSetting, TenantSyncEvent, TwoFactorSetting, User,
-		UserPreference, UserProfile []ent.Interceptor
+		BackupCode, Device, OAuthAccount, Permission, Role, Session, Tenant,
+		TenantSetting, TenantSyncEvent, TwoFactorSetting, User, UserPreference,
+		UserProfile []ent.Interceptor
 	}
 )

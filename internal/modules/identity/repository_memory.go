@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -10,20 +11,24 @@ import (
 
 // MemoryRepository provides an in-memory Repository implementation.
 type MemoryRepository struct {
-	users        map[uuid.UUID]*User
-	usersByEmail map[string]*User
-	sessions     map[uuid.UUID]*Session
-	orders       map[uuid.UUID][]*OrderSummary
-	mu           sync.RWMutex
+	users                map[uuid.UUID]*User
+	usersByEmail         map[string]*User
+	usersByAuthServiceID map[uuid.UUID]*User
+	tenants              map[string]*Tenant
+	sessions             map[uuid.UUID]*Session
+	orders               map[uuid.UUID][]*OrderSummary
+	mu                   sync.RWMutex
 }
 
 // NewMemoryRepository constructs an empty repository.
 func NewMemoryRepository() *MemoryRepository {
 	return &MemoryRepository{
-		users:        make(map[uuid.UUID]*User),
-		usersByEmail: make(map[string]*User),
-		sessions:     make(map[uuid.UUID]*Session),
-		orders:       make(map[uuid.UUID][]*OrderSummary),
+		users:                make(map[uuid.UUID]*User),
+		usersByEmail:         make(map[string]*User),
+		usersByAuthServiceID: make(map[uuid.UUID]*User),
+		tenants:              make(map[string]*Tenant),
+		sessions:             make(map[uuid.UUID]*Session),
+		orders:               make(map[uuid.UUID][]*OrderSummary),
 	}
 }
 
@@ -36,6 +41,9 @@ func (r *MemoryRepository) Seed(_ context.Context, users []*User, sessions []*Se
 		u := *user
 		r.users[u.ID] = &u
 		r.usersByEmail[normalizeEmail(u.Email)] = &u
+		if u.AuthServiceUserID != nil {
+			r.usersByAuthServiceID[*u.AuthServiceUserID] = &u
+		}
 	}
 
 	for _, session := range sessions {
@@ -64,6 +72,9 @@ func (r *MemoryRepository) CreateUser(_ context.Context, user *User) error {
 	cpy := *user
 	r.users[cpy.ID] = &cpy
 	r.usersByEmail[normalizeEmail(cpy.Email)] = &cpy
+	if cpy.AuthServiceUserID != nil {
+		r.usersByAuthServiceID[*cpy.AuthServiceUserID] = &cpy
+	}
 	return nil
 }
 
@@ -78,6 +89,9 @@ func (r *MemoryRepository) UpdateUser(_ context.Context, user *User) error {
 	cpy := *user
 	r.users[cpy.ID] = &cpy
 	r.usersByEmail[normalizeEmail(cpy.Email)] = &cpy
+	if cpy.AuthServiceUserID != nil {
+		r.usersByAuthServiceID[*cpy.AuthServiceUserID] = &cpy
+	}
 	return nil
 }
 
@@ -100,6 +114,19 @@ func (r *MemoryRepository) FindUserByID(_ context.Context, id uuid.UUID) (*User,
 	defer r.mu.RUnlock()
 
 	user, ok := r.users[id]
+	if !ok {
+		return nil, ErrUserNotFound
+	}
+	cpy := *user
+	return &cpy, nil
+}
+
+// FindUserByAuthServiceID returns a user by auth-service user ID.
+func (r *MemoryRepository) FindUserByAuthServiceID(_ context.Context, authServiceUserID uuid.UUID) (*User, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	user, ok := r.usersByAuthServiceID[authServiceUserID]
 	if !ok {
 		return nil, ErrUserNotFound
 	}
@@ -214,6 +241,19 @@ func (r *MemoryRepository) ListOrdersByUser(_ context.Context, userID uuid.UUID)
 		result = append(result, &cpy)
 	}
 	return result, nil
+}
+
+// FindTenantBySlug finds a tenant by its slug.
+func (r *MemoryRepository) FindTenantBySlug(_ context.Context, slug string) (*Tenant, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	tenant, ok := r.tenants[slug]
+	if !ok {
+		return nil, fmt.Errorf("identity: tenant not found: %s", slug)
+	}
+	cpy := *tenant
+	return &cpy, nil
 }
 
 func normalizeEmail(email string) string {

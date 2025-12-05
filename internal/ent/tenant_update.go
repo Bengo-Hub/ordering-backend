@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
 	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
@@ -177,21 +176,6 @@ func (tu *TenantUpdate) AddSessions(s ...*Session) *TenantUpdate {
 	return tu.AddSessionIDs(ids...)
 }
 
-// AddRiderProfileIDs adds the "rider_profiles" edge to the RiderProfile entity by IDs.
-func (tu *TenantUpdate) AddRiderProfileIDs(ids ...int) *TenantUpdate {
-	tu.mutation.AddRiderProfileIDs(ids...)
-	return tu
-}
-
-// AddRiderProfiles adds the "rider_profiles" edges to the RiderProfile entity.
-func (tu *TenantUpdate) AddRiderProfiles(r ...*RiderProfile) *TenantUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return tu.AddRiderProfileIDs(ids...)
-}
-
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by IDs.
 func (tu *TenantUpdate) AddSyncEventIDs(ids ...uuid.UUID) *TenantUpdate {
 	tu.mutation.AddSyncEventIDs(ids...)
@@ -258,27 +242,6 @@ func (tu *TenantUpdate) RemoveSessions(s ...*Session) *TenantUpdate {
 		ids[i] = s[i].ID
 	}
 	return tu.RemoveSessionIDs(ids...)
-}
-
-// ClearRiderProfiles clears all "rider_profiles" edges to the RiderProfile entity.
-func (tu *TenantUpdate) ClearRiderProfiles() *TenantUpdate {
-	tu.mutation.ClearRiderProfiles()
-	return tu
-}
-
-// RemoveRiderProfileIDs removes the "rider_profiles" edge to RiderProfile entities by IDs.
-func (tu *TenantUpdate) RemoveRiderProfileIDs(ids ...int) *TenantUpdate {
-	tu.mutation.RemoveRiderProfileIDs(ids...)
-	return tu
-}
-
-// RemoveRiderProfiles removes "rider_profiles" edges to RiderProfile entities.
-func (tu *TenantUpdate) RemoveRiderProfiles(r ...*RiderProfile) *TenantUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return tu.RemoveRiderProfileIDs(ids...)
 }
 
 // ClearSyncEvents clears all "sync_events" edges to the TenantSyncEvent entity.
@@ -511,51 +474,6 @@ func (tu *TenantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tu.mutation.RiderProfilesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.RemovedRiderProfilesIDs(); len(nodes) > 0 && !tu.mutation.RiderProfilesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.RiderProfilesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if tu.mutation.SyncEventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -764,21 +682,6 @@ func (tuo *TenantUpdateOne) AddSessions(s ...*Session) *TenantUpdateOne {
 	return tuo.AddSessionIDs(ids...)
 }
 
-// AddRiderProfileIDs adds the "rider_profiles" edge to the RiderProfile entity by IDs.
-func (tuo *TenantUpdateOne) AddRiderProfileIDs(ids ...int) *TenantUpdateOne {
-	tuo.mutation.AddRiderProfileIDs(ids...)
-	return tuo
-}
-
-// AddRiderProfiles adds the "rider_profiles" edges to the RiderProfile entity.
-func (tuo *TenantUpdateOne) AddRiderProfiles(r ...*RiderProfile) *TenantUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return tuo.AddRiderProfileIDs(ids...)
-}
-
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by IDs.
 func (tuo *TenantUpdateOne) AddSyncEventIDs(ids ...uuid.UUID) *TenantUpdateOne {
 	tuo.mutation.AddSyncEventIDs(ids...)
@@ -845,27 +748,6 @@ func (tuo *TenantUpdateOne) RemoveSessions(s ...*Session) *TenantUpdateOne {
 		ids[i] = s[i].ID
 	}
 	return tuo.RemoveSessionIDs(ids...)
-}
-
-// ClearRiderProfiles clears all "rider_profiles" edges to the RiderProfile entity.
-func (tuo *TenantUpdateOne) ClearRiderProfiles() *TenantUpdateOne {
-	tuo.mutation.ClearRiderProfiles()
-	return tuo
-}
-
-// RemoveRiderProfileIDs removes the "rider_profiles" edge to RiderProfile entities by IDs.
-func (tuo *TenantUpdateOne) RemoveRiderProfileIDs(ids ...int) *TenantUpdateOne {
-	tuo.mutation.RemoveRiderProfileIDs(ids...)
-	return tuo
-}
-
-// RemoveRiderProfiles removes "rider_profiles" edges to RiderProfile entities.
-func (tuo *TenantUpdateOne) RemoveRiderProfiles(r ...*RiderProfile) *TenantUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return tuo.RemoveRiderProfileIDs(ids...)
 }
 
 // ClearSyncEvents clears all "sync_events" edges to the TenantSyncEvent entity.
@@ -1121,51 +1003,6 @@ func (tuo *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if tuo.mutation.RiderProfilesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.RemovedRiderProfilesIDs(); len(nodes) > 0 && !tuo.mutation.RiderProfilesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.RiderProfilesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   tenant.RiderProfilesTable,
-			Columns: tenant.RiderProfilesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(riderprofile.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

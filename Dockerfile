@@ -5,12 +5,15 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o /out/app ./cmd/api
-RUN CGO_ENABLED=0 go build -o /out/seed ./cmd/seed
+# Build all binaries: api, migrate, and seed
+RUN CGO_ENABLED=0 go build -o /out/app ./cmd/api && \
+    CGO_ENABLED=0 go build -o /out/migrate ./cmd/migrate && \
+    CGO_ENABLED=0 go build -o /out/seed ./cmd/seed
 
 FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 COPY --from=builder /out/app /app/service
+COPY --from=builder /out/migrate /app/migrate
 COPY --from=builder /out/seed /app/seed
 USER nonroot:nonroot
 EXPOSE 4000

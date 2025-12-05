@@ -2,16 +2,17 @@ package router
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/cafe-backend/internal/http/handlers/identity"
 	sharedmw "github.com/bengobox/cafe-backend/internal/shared/middleware"
-	authclient "github.com/Bengo-Hub/shared-auth-client"
 )
 
 // New constructs the chi router with global middleware and base routes.
@@ -40,17 +41,30 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 	// Domain routes will be mounted on /api/v1.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
+			// Apply auth-service middleware to protected routes only (excluding /auth/*)
+			// Note: This middleware validates JWT tokens from auth-service
+			// Individual routes can still use authenticator.RequireAuth for additional RBAC checks
+			if authMiddleware != nil {
+				v1.Use(func(next http.Handler) http.Handler {
+					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						// Skip auth middleware for /auth/* routes
+						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") {
+							next.ServeHTTP(w, r)
+							return
+						}
+						// Apply auth middleware for all other routes
+						authMiddleware.RequireAuth(next).ServeHTTP(w, r)
+					})
+				})
+			}
+
 			// Serve OpenAPI spec (public, no auth required)
 			v1.Get("/openapi.json", handlers.OpenAPIJSON)
-			
+
 			v1.Get("/status", healthHandler.Status)
-			
-			// Apply auth-service middleware to protected routes if configured
-			// Legacy authenticator can still be used for backward compatibility
-			if authMiddleware != nil {
-				v1.Use(authMiddleware.RequireAuth)
-			}
-			
+
+			// Register identity routes (auth endpoints are public)
+			// Auth endpoints (/auth/*) are registered without auth middleware
 			if identityHandler != nil && authenticator != nil {
 				identityHandler.Register(v1, authenticator)
 			}

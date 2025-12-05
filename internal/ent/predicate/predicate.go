@@ -18,12 +18,6 @@ type OAuthAccount func(*sql.Selector)
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
 
-// RiderDocument is the predicate function for riderdocument builders.
-type RiderDocument func(*sql.Selector)
-
-// RiderProfile is the predicate function for riderprofile builders.
-type RiderProfile func(*sql.Selector)
-
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
 

@@ -16,8 +16,6 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent/device"
 	"github.com/bengobox/cafe-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/cafe-backend/internal/ent/permission"
-	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/role"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
@@ -91,8 +89,6 @@ func checkColumn(table, column string) error {
 			device.Table:           device.ValidColumn,
 			oauthaccount.Table:     oauthaccount.ValidColumn,
 			permission.Table:       permission.ValidColumn,
-			riderdocument.Table:    riderdocument.ValidColumn,
-			riderprofile.Table:     riderprofile.ValidColumn,
 			role.Table:             role.ValidColumn,
 			session.Table:          session.ValidColumn,
 			tenant.Table:           tenant.ValidColumn,

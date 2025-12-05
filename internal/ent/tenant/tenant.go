@@ -37,8 +37,6 @@ const (
 	EdgeUsers = "users"
 	// EdgeSessions holds the string denoting the sessions edge name in mutations.
 	EdgeSessions = "sessions"
-	// EdgeRiderProfiles holds the string denoting the rider_profiles edge name in mutations.
-	EdgeRiderProfiles = "rider_profiles"
 	// EdgeSyncEvents holds the string denoting the sync_events edge name in mutations.
 	EdgeSyncEvents = "sync_events"
 	// Table holds the table name of the tenant in the database.
@@ -64,11 +62,6 @@ const (
 	SessionsInverseTable = "sessions"
 	// SessionsColumn is the table column denoting the sessions relation/edge.
 	SessionsColumn = "tenant_id"
-	// RiderProfilesTable is the table that holds the rider_profiles relation/edge. The primary key declared below.
-	RiderProfilesTable = "tenant_rider_profiles"
-	// RiderProfilesInverseTable is the table name for the RiderProfile entity.
-	// It exists in this package in order to avoid circular dependency with the "riderprofile" package.
-	RiderProfilesInverseTable = "rider_profiles"
 	// SyncEventsTable is the table that holds the sync_events relation/edge.
 	SyncEventsTable = "tenant_sync_events"
 	// SyncEventsInverseTable is the table name for the TenantSyncEvent entity.
@@ -90,12 +83,6 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
-
-var (
-	// RiderProfilesPrimaryKey and RiderProfilesColumn2 are the table columns denoting the
-	// primary key for the rider_profiles relation (M2M).
-	RiderProfilesPrimaryKey = []string{"tenant_id", "rider_profile_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -204,20 +191,6 @@ func BySessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByRiderProfilesCount orders the results by rider_profiles count.
-func ByRiderProfilesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newRiderProfilesStep(), opts...)
-	}
-}
-
-// ByRiderProfiles orders the results by rider_profiles terms.
-func ByRiderProfiles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRiderProfilesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // BySyncEventsCount orders the results by sync_events count.
 func BySyncEventsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -250,13 +223,6 @@ func newSessionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SessionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SessionsTable, SessionsColumn),
-	)
-}
-func newRiderProfilesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RiderProfilesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, RiderProfilesTable, RiderProfilesPrimaryKey...),
 	)
 }
 func newSyncEventsStep() *sqlgraph.Step {

@@ -16,8 +16,6 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/cafe-backend/internal/ent/permission"
 	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/riderdocument"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/role"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
@@ -43,8 +41,6 @@ const (
 	TypeDevice           = "Device"
 	TypeOAuthAccount     = "OAuthAccount"
 	TypePermission       = "Permission"
-	TypeRiderDocument    = "RiderDocument"
-	TypeRiderProfile     = "RiderProfile"
 	TypeRole             = "Role"
 	TypeSession          = "Session"
 	TypeTenant           = "Tenant"
@@ -2895,2114 +2891,6 @@ func (m *PermissionMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Permission edge %s", name)
 }
 
-// RiderDocumentMutation represents an operation that mutates the RiderDocument nodes in the graph.
-type RiderDocumentMutation struct {
-	config
-	op              Op
-	typ             string
-	id              *uuid.UUID
-	document_type   *string
-	file_url        *string
-	status          *string
-	expires_at      *time.Time
-	verified_at     *time.Time
-	metadata        *map[string]interface{}
-	created_at      *time.Time
-	updated_at      *time.Time
-	clearedFields   map[string]struct{}
-	rider           map[int]struct{}
-	removedrider    map[int]struct{}
-	clearedrider    bool
-	reviewer        map[uuid.UUID]struct{}
-	removedreviewer map[uuid.UUID]struct{}
-	clearedreviewer bool
-	done            bool
-	oldValue        func(context.Context) (*RiderDocument, error)
-	predicates      []predicate.RiderDocument
-}
-
-var _ ent.Mutation = (*RiderDocumentMutation)(nil)
-
-// riderdocumentOption allows management of the mutation configuration using functional options.
-type riderdocumentOption func(*RiderDocumentMutation)
-
-// newRiderDocumentMutation creates new mutation for the RiderDocument entity.
-func newRiderDocumentMutation(c config, op Op, opts ...riderdocumentOption) *RiderDocumentMutation {
-	m := &RiderDocumentMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeRiderDocument,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withRiderDocumentID sets the ID field of the mutation.
-func withRiderDocumentID(id uuid.UUID) riderdocumentOption {
-	return func(m *RiderDocumentMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *RiderDocument
-		)
-		m.oldValue = func(ctx context.Context) (*RiderDocument, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().RiderDocument.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withRiderDocument sets the old RiderDocument of the mutation.
-func withRiderDocument(node *RiderDocument) riderdocumentOption {
-	return func(m *RiderDocumentMutation) {
-		m.oldValue = func(context.Context) (*RiderDocument, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m RiderDocumentMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m RiderDocumentMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of RiderDocument entities.
-func (m *RiderDocumentMutation) SetID(id uuid.UUID) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *RiderDocumentMutation) ID() (id uuid.UUID, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *RiderDocumentMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []uuid.UUID{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().RiderDocument.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetDocumentType sets the "document_type" field.
-func (m *RiderDocumentMutation) SetDocumentType(s string) {
-	m.document_type = &s
-}
-
-// DocumentType returns the value of the "document_type" field in the mutation.
-func (m *RiderDocumentMutation) DocumentType() (r string, exists bool) {
-	v := m.document_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDocumentType returns the old "document_type" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldDocumentType(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDocumentType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDocumentType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDocumentType: %w", err)
-	}
-	return oldValue.DocumentType, nil
-}
-
-// ResetDocumentType resets all changes to the "document_type" field.
-func (m *RiderDocumentMutation) ResetDocumentType() {
-	m.document_type = nil
-}
-
-// SetFileURL sets the "file_url" field.
-func (m *RiderDocumentMutation) SetFileURL(s string) {
-	m.file_url = &s
-}
-
-// FileURL returns the value of the "file_url" field in the mutation.
-func (m *RiderDocumentMutation) FileURL() (r string, exists bool) {
-	v := m.file_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldFileURL returns the old "file_url" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldFileURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFileURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFileURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFileURL: %w", err)
-	}
-	return oldValue.FileURL, nil
-}
-
-// ResetFileURL resets all changes to the "file_url" field.
-func (m *RiderDocumentMutation) ResetFileURL() {
-	m.file_url = nil
-}
-
-// SetStatus sets the "status" field.
-func (m *RiderDocumentMutation) SetStatus(s string) {
-	m.status = &s
-}
-
-// Status returns the value of the "status" field in the mutation.
-func (m *RiderDocumentMutation) Status() (r string, exists bool) {
-	v := m.status
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStatus returns the old "status" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldStatus(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
-	}
-	return oldValue.Status, nil
-}
-
-// ResetStatus resets all changes to the "status" field.
-func (m *RiderDocumentMutation) ResetStatus() {
-	m.status = nil
-}
-
-// SetExpiresAt sets the "expires_at" field.
-func (m *RiderDocumentMutation) SetExpiresAt(t time.Time) {
-	m.expires_at = &t
-}
-
-// ExpiresAt returns the value of the "expires_at" field in the mutation.
-func (m *RiderDocumentMutation) ExpiresAt() (r time.Time, exists bool) {
-	v := m.expires_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldExpiresAt returns the old "expires_at" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
-	}
-	return oldValue.ExpiresAt, nil
-}
-
-// ClearExpiresAt clears the value of the "expires_at" field.
-func (m *RiderDocumentMutation) ClearExpiresAt() {
-	m.expires_at = nil
-	m.clearedFields[riderdocument.FieldExpiresAt] = struct{}{}
-}
-
-// ExpiresAtCleared returns if the "expires_at" field was cleared in this mutation.
-func (m *RiderDocumentMutation) ExpiresAtCleared() bool {
-	_, ok := m.clearedFields[riderdocument.FieldExpiresAt]
-	return ok
-}
-
-// ResetExpiresAt resets all changes to the "expires_at" field.
-func (m *RiderDocumentMutation) ResetExpiresAt() {
-	m.expires_at = nil
-	delete(m.clearedFields, riderdocument.FieldExpiresAt)
-}
-
-// SetVerifiedAt sets the "verified_at" field.
-func (m *RiderDocumentMutation) SetVerifiedAt(t time.Time) {
-	m.verified_at = &t
-}
-
-// VerifiedAt returns the value of the "verified_at" field in the mutation.
-func (m *RiderDocumentMutation) VerifiedAt() (r time.Time, exists bool) {
-	v := m.verified_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldVerifiedAt returns the old "verified_at" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldVerifiedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldVerifiedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldVerifiedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldVerifiedAt: %w", err)
-	}
-	return oldValue.VerifiedAt, nil
-}
-
-// ClearVerifiedAt clears the value of the "verified_at" field.
-func (m *RiderDocumentMutation) ClearVerifiedAt() {
-	m.verified_at = nil
-	m.clearedFields[riderdocument.FieldVerifiedAt] = struct{}{}
-}
-
-// VerifiedAtCleared returns if the "verified_at" field was cleared in this mutation.
-func (m *RiderDocumentMutation) VerifiedAtCleared() bool {
-	_, ok := m.clearedFields[riderdocument.FieldVerifiedAt]
-	return ok
-}
-
-// ResetVerifiedAt resets all changes to the "verified_at" field.
-func (m *RiderDocumentMutation) ResetVerifiedAt() {
-	m.verified_at = nil
-	delete(m.clearedFields, riderdocument.FieldVerifiedAt)
-}
-
-// SetMetadata sets the "metadata" field.
-func (m *RiderDocumentMutation) SetMetadata(value map[string]interface{}) {
-	m.metadata = &value
-}
-
-// Metadata returns the value of the "metadata" field in the mutation.
-func (m *RiderDocumentMutation) Metadata() (r map[string]interface{}, exists bool) {
-	v := m.metadata
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMetadata returns the old "metadata" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMetadata requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
-	}
-	return oldValue.Metadata, nil
-}
-
-// ResetMetadata resets all changes to the "metadata" field.
-func (m *RiderDocumentMutation) ResetMetadata() {
-	m.metadata = nil
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *RiderDocumentMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *RiderDocumentMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *RiderDocumentMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *RiderDocumentMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *RiderDocumentMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the RiderDocument entity.
-// If the RiderDocument object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderDocumentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *RiderDocumentMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// AddRiderIDs adds the "rider" edge to the RiderProfile entity by ids.
-func (m *RiderDocumentMutation) AddRiderIDs(ids ...int) {
-	if m.rider == nil {
-		m.rider = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.rider[ids[i]] = struct{}{}
-	}
-}
-
-// ClearRider clears the "rider" edge to the RiderProfile entity.
-func (m *RiderDocumentMutation) ClearRider() {
-	m.clearedrider = true
-}
-
-// RiderCleared reports if the "rider" edge to the RiderProfile entity was cleared.
-func (m *RiderDocumentMutation) RiderCleared() bool {
-	return m.clearedrider
-}
-
-// RemoveRiderIDs removes the "rider" edge to the RiderProfile entity by IDs.
-func (m *RiderDocumentMutation) RemoveRiderIDs(ids ...int) {
-	if m.removedrider == nil {
-		m.removedrider = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.rider, ids[i])
-		m.removedrider[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedRider returns the removed IDs of the "rider" edge to the RiderProfile entity.
-func (m *RiderDocumentMutation) RemovedRiderIDs() (ids []int) {
-	for id := range m.removedrider {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// RiderIDs returns the "rider" edge IDs in the mutation.
-func (m *RiderDocumentMutation) RiderIDs() (ids []int) {
-	for id := range m.rider {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetRider resets all changes to the "rider" edge.
-func (m *RiderDocumentMutation) ResetRider() {
-	m.rider = nil
-	m.clearedrider = false
-	m.removedrider = nil
-}
-
-// AddReviewerIDs adds the "reviewer" edge to the User entity by ids.
-func (m *RiderDocumentMutation) AddReviewerIDs(ids ...uuid.UUID) {
-	if m.reviewer == nil {
-		m.reviewer = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.reviewer[ids[i]] = struct{}{}
-	}
-}
-
-// ClearReviewer clears the "reviewer" edge to the User entity.
-func (m *RiderDocumentMutation) ClearReviewer() {
-	m.clearedreviewer = true
-}
-
-// ReviewerCleared reports if the "reviewer" edge to the User entity was cleared.
-func (m *RiderDocumentMutation) ReviewerCleared() bool {
-	return m.clearedreviewer
-}
-
-// RemoveReviewerIDs removes the "reviewer" edge to the User entity by IDs.
-func (m *RiderDocumentMutation) RemoveReviewerIDs(ids ...uuid.UUID) {
-	if m.removedreviewer == nil {
-		m.removedreviewer = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.reviewer, ids[i])
-		m.removedreviewer[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedReviewer returns the removed IDs of the "reviewer" edge to the User entity.
-func (m *RiderDocumentMutation) RemovedReviewerIDs() (ids []uuid.UUID) {
-	for id := range m.removedreviewer {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ReviewerIDs returns the "reviewer" edge IDs in the mutation.
-func (m *RiderDocumentMutation) ReviewerIDs() (ids []uuid.UUID) {
-	for id := range m.reviewer {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetReviewer resets all changes to the "reviewer" edge.
-func (m *RiderDocumentMutation) ResetReviewer() {
-	m.reviewer = nil
-	m.clearedreviewer = false
-	m.removedreviewer = nil
-}
-
-// Where appends a list predicates to the RiderDocumentMutation builder.
-func (m *RiderDocumentMutation) Where(ps ...predicate.RiderDocument) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the RiderDocumentMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *RiderDocumentMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.RiderDocument, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *RiderDocumentMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *RiderDocumentMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (RiderDocument).
-func (m *RiderDocumentMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *RiderDocumentMutation) Fields() []string {
-	fields := make([]string, 0, 8)
-	if m.document_type != nil {
-		fields = append(fields, riderdocument.FieldDocumentType)
-	}
-	if m.file_url != nil {
-		fields = append(fields, riderdocument.FieldFileURL)
-	}
-	if m.status != nil {
-		fields = append(fields, riderdocument.FieldStatus)
-	}
-	if m.expires_at != nil {
-		fields = append(fields, riderdocument.FieldExpiresAt)
-	}
-	if m.verified_at != nil {
-		fields = append(fields, riderdocument.FieldVerifiedAt)
-	}
-	if m.metadata != nil {
-		fields = append(fields, riderdocument.FieldMetadata)
-	}
-	if m.created_at != nil {
-		fields = append(fields, riderdocument.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, riderdocument.FieldUpdatedAt)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *RiderDocumentMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case riderdocument.FieldDocumentType:
-		return m.DocumentType()
-	case riderdocument.FieldFileURL:
-		return m.FileURL()
-	case riderdocument.FieldStatus:
-		return m.Status()
-	case riderdocument.FieldExpiresAt:
-		return m.ExpiresAt()
-	case riderdocument.FieldVerifiedAt:
-		return m.VerifiedAt()
-	case riderdocument.FieldMetadata:
-		return m.Metadata()
-	case riderdocument.FieldCreatedAt:
-		return m.CreatedAt()
-	case riderdocument.FieldUpdatedAt:
-		return m.UpdatedAt()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *RiderDocumentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case riderdocument.FieldDocumentType:
-		return m.OldDocumentType(ctx)
-	case riderdocument.FieldFileURL:
-		return m.OldFileURL(ctx)
-	case riderdocument.FieldStatus:
-		return m.OldStatus(ctx)
-	case riderdocument.FieldExpiresAt:
-		return m.OldExpiresAt(ctx)
-	case riderdocument.FieldVerifiedAt:
-		return m.OldVerifiedAt(ctx)
-	case riderdocument.FieldMetadata:
-		return m.OldMetadata(ctx)
-	case riderdocument.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case riderdocument.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	}
-	return nil, fmt.Errorf("unknown RiderDocument field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *RiderDocumentMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case riderdocument.FieldDocumentType:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDocumentType(v)
-		return nil
-	case riderdocument.FieldFileURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetFileURL(v)
-		return nil
-	case riderdocument.FieldStatus:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStatus(v)
-		return nil
-	case riderdocument.FieldExpiresAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExpiresAt(v)
-		return nil
-	case riderdocument.FieldVerifiedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetVerifiedAt(v)
-		return nil
-	case riderdocument.FieldMetadata:
-		v, ok := value.(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMetadata(v)
-		return nil
-	case riderdocument.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case riderdocument.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	}
-	return fmt.Errorf("unknown RiderDocument field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *RiderDocumentMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *RiderDocumentMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *RiderDocumentMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown RiderDocument numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *RiderDocumentMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(riderdocument.FieldExpiresAt) {
-		fields = append(fields, riderdocument.FieldExpiresAt)
-	}
-	if m.FieldCleared(riderdocument.FieldVerifiedAt) {
-		fields = append(fields, riderdocument.FieldVerifiedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *RiderDocumentMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *RiderDocumentMutation) ClearField(name string) error {
-	switch name {
-	case riderdocument.FieldExpiresAt:
-		m.ClearExpiresAt()
-		return nil
-	case riderdocument.FieldVerifiedAt:
-		m.ClearVerifiedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderDocument nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *RiderDocumentMutation) ResetField(name string) error {
-	switch name {
-	case riderdocument.FieldDocumentType:
-		m.ResetDocumentType()
-		return nil
-	case riderdocument.FieldFileURL:
-		m.ResetFileURL()
-		return nil
-	case riderdocument.FieldStatus:
-		m.ResetStatus()
-		return nil
-	case riderdocument.FieldExpiresAt:
-		m.ResetExpiresAt()
-		return nil
-	case riderdocument.FieldVerifiedAt:
-		m.ResetVerifiedAt()
-		return nil
-	case riderdocument.FieldMetadata:
-		m.ResetMetadata()
-		return nil
-	case riderdocument.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case riderdocument.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderDocument field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *RiderDocumentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.rider != nil {
-		edges = append(edges, riderdocument.EdgeRider)
-	}
-	if m.reviewer != nil {
-		edges = append(edges, riderdocument.EdgeReviewer)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *RiderDocumentMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case riderdocument.EdgeRider:
-		ids := make([]ent.Value, 0, len(m.rider))
-		for id := range m.rider {
-			ids = append(ids, id)
-		}
-		return ids
-	case riderdocument.EdgeReviewer:
-		ids := make([]ent.Value, 0, len(m.reviewer))
-		for id := range m.reviewer {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *RiderDocumentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.removedrider != nil {
-		edges = append(edges, riderdocument.EdgeRider)
-	}
-	if m.removedreviewer != nil {
-		edges = append(edges, riderdocument.EdgeReviewer)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *RiderDocumentMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case riderdocument.EdgeRider:
-		ids := make([]ent.Value, 0, len(m.removedrider))
-		for id := range m.removedrider {
-			ids = append(ids, id)
-		}
-		return ids
-	case riderdocument.EdgeReviewer:
-		ids := make([]ent.Value, 0, len(m.removedreviewer))
-		for id := range m.removedreviewer {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *RiderDocumentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedrider {
-		edges = append(edges, riderdocument.EdgeRider)
-	}
-	if m.clearedreviewer {
-		edges = append(edges, riderdocument.EdgeReviewer)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *RiderDocumentMutation) EdgeCleared(name string) bool {
-	switch name {
-	case riderdocument.EdgeRider:
-		return m.clearedrider
-	case riderdocument.EdgeReviewer:
-		return m.clearedreviewer
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *RiderDocumentMutation) ClearEdge(name string) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown RiderDocument unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *RiderDocumentMutation) ResetEdge(name string) error {
-	switch name {
-	case riderdocument.EdgeRider:
-		m.ResetRider()
-		return nil
-	case riderdocument.EdgeReviewer:
-		m.ResetReviewer()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderDocument edge %s", name)
-}
-
-// RiderProfileMutation represents an operation that mutates the RiderProfile nodes in the graph.
-type RiderProfileMutation struct {
-	config
-	op               Op
-	typ              string
-	id               *int
-	national_id      *string
-	license_number   *string
-	vehicle_type     *string
-	status           *string
-	rating           *float64
-	addrating        *float64
-	onboarded_at     *time.Time
-	suspended_at     *time.Time
-	metadata         *map[string]interface{}
-	created_at       *time.Time
-	updated_at       *time.Time
-	clearedFields    map[string]struct{}
-	user             *uuid.UUID
-	cleareduser      bool
-	tenant           map[uuid.UUID]struct{}
-	removedtenant    map[uuid.UUID]struct{}
-	clearedtenant    bool
-	documents        map[uuid.UUID]struct{}
-	removeddocuments map[uuid.UUID]struct{}
-	cleareddocuments bool
-	done             bool
-	oldValue         func(context.Context) (*RiderProfile, error)
-	predicates       []predicate.RiderProfile
-}
-
-var _ ent.Mutation = (*RiderProfileMutation)(nil)
-
-// riderprofileOption allows management of the mutation configuration using functional options.
-type riderprofileOption func(*RiderProfileMutation)
-
-// newRiderProfileMutation creates new mutation for the RiderProfile entity.
-func newRiderProfileMutation(c config, op Op, opts ...riderprofileOption) *RiderProfileMutation {
-	m := &RiderProfileMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeRiderProfile,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withRiderProfileID sets the ID field of the mutation.
-func withRiderProfileID(id int) riderprofileOption {
-	return func(m *RiderProfileMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *RiderProfile
-		)
-		m.oldValue = func(ctx context.Context) (*RiderProfile, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().RiderProfile.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withRiderProfile sets the old RiderProfile of the mutation.
-func withRiderProfile(node *RiderProfile) riderprofileOption {
-	return func(m *RiderProfileMutation) {
-		m.oldValue = func(context.Context) (*RiderProfile, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m RiderProfileMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m RiderProfileMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *RiderProfileMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *RiderProfileMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().RiderProfile.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetNationalID sets the "national_id" field.
-func (m *RiderProfileMutation) SetNationalID(s string) {
-	m.national_id = &s
-}
-
-// NationalID returns the value of the "national_id" field in the mutation.
-func (m *RiderProfileMutation) NationalID() (r string, exists bool) {
-	v := m.national_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldNationalID returns the old "national_id" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldNationalID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldNationalID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldNationalID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldNationalID: %w", err)
-	}
-	return oldValue.NationalID, nil
-}
-
-// ClearNationalID clears the value of the "national_id" field.
-func (m *RiderProfileMutation) ClearNationalID() {
-	m.national_id = nil
-	m.clearedFields[riderprofile.FieldNationalID] = struct{}{}
-}
-
-// NationalIDCleared returns if the "national_id" field was cleared in this mutation.
-func (m *RiderProfileMutation) NationalIDCleared() bool {
-	_, ok := m.clearedFields[riderprofile.FieldNationalID]
-	return ok
-}
-
-// ResetNationalID resets all changes to the "national_id" field.
-func (m *RiderProfileMutation) ResetNationalID() {
-	m.national_id = nil
-	delete(m.clearedFields, riderprofile.FieldNationalID)
-}
-
-// SetLicenseNumber sets the "license_number" field.
-func (m *RiderProfileMutation) SetLicenseNumber(s string) {
-	m.license_number = &s
-}
-
-// LicenseNumber returns the value of the "license_number" field in the mutation.
-func (m *RiderProfileMutation) LicenseNumber() (r string, exists bool) {
-	v := m.license_number
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLicenseNumber returns the old "license_number" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldLicenseNumber(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLicenseNumber is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLicenseNumber requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLicenseNumber: %w", err)
-	}
-	return oldValue.LicenseNumber, nil
-}
-
-// ClearLicenseNumber clears the value of the "license_number" field.
-func (m *RiderProfileMutation) ClearLicenseNumber() {
-	m.license_number = nil
-	m.clearedFields[riderprofile.FieldLicenseNumber] = struct{}{}
-}
-
-// LicenseNumberCleared returns if the "license_number" field was cleared in this mutation.
-func (m *RiderProfileMutation) LicenseNumberCleared() bool {
-	_, ok := m.clearedFields[riderprofile.FieldLicenseNumber]
-	return ok
-}
-
-// ResetLicenseNumber resets all changes to the "license_number" field.
-func (m *RiderProfileMutation) ResetLicenseNumber() {
-	m.license_number = nil
-	delete(m.clearedFields, riderprofile.FieldLicenseNumber)
-}
-
-// SetVehicleType sets the "vehicle_type" field.
-func (m *RiderProfileMutation) SetVehicleType(s string) {
-	m.vehicle_type = &s
-}
-
-// VehicleType returns the value of the "vehicle_type" field in the mutation.
-func (m *RiderProfileMutation) VehicleType() (r string, exists bool) {
-	v := m.vehicle_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldVehicleType returns the old "vehicle_type" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldVehicleType(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldVehicleType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldVehicleType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldVehicleType: %w", err)
-	}
-	return oldValue.VehicleType, nil
-}
-
-// ClearVehicleType clears the value of the "vehicle_type" field.
-func (m *RiderProfileMutation) ClearVehicleType() {
-	m.vehicle_type = nil
-	m.clearedFields[riderprofile.FieldVehicleType] = struct{}{}
-}
-
-// VehicleTypeCleared returns if the "vehicle_type" field was cleared in this mutation.
-func (m *RiderProfileMutation) VehicleTypeCleared() bool {
-	_, ok := m.clearedFields[riderprofile.FieldVehicleType]
-	return ok
-}
-
-// ResetVehicleType resets all changes to the "vehicle_type" field.
-func (m *RiderProfileMutation) ResetVehicleType() {
-	m.vehicle_type = nil
-	delete(m.clearedFields, riderprofile.FieldVehicleType)
-}
-
-// SetStatus sets the "status" field.
-func (m *RiderProfileMutation) SetStatus(s string) {
-	m.status = &s
-}
-
-// Status returns the value of the "status" field in the mutation.
-func (m *RiderProfileMutation) Status() (r string, exists bool) {
-	v := m.status
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStatus returns the old "status" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldStatus(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
-	}
-	return oldValue.Status, nil
-}
-
-// ResetStatus resets all changes to the "status" field.
-func (m *RiderProfileMutation) ResetStatus() {
-	m.status = nil
-}
-
-// SetRating sets the "rating" field.
-func (m *RiderProfileMutation) SetRating(f float64) {
-	m.rating = &f
-	m.addrating = nil
-}
-
-// Rating returns the value of the "rating" field in the mutation.
-func (m *RiderProfileMutation) Rating() (r float64, exists bool) {
-	v := m.rating
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRating returns the old "rating" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldRating(ctx context.Context) (v float64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRating is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRating requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRating: %w", err)
-	}
-	return oldValue.Rating, nil
-}
-
-// AddRating adds f to the "rating" field.
-func (m *RiderProfileMutation) AddRating(f float64) {
-	if m.addrating != nil {
-		*m.addrating += f
-	} else {
-		m.addrating = &f
-	}
-}
-
-// AddedRating returns the value that was added to the "rating" field in this mutation.
-func (m *RiderProfileMutation) AddedRating() (r float64, exists bool) {
-	v := m.addrating
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetRating resets all changes to the "rating" field.
-func (m *RiderProfileMutation) ResetRating() {
-	m.rating = nil
-	m.addrating = nil
-}
-
-// SetOnboardedAt sets the "onboarded_at" field.
-func (m *RiderProfileMutation) SetOnboardedAt(t time.Time) {
-	m.onboarded_at = &t
-}
-
-// OnboardedAt returns the value of the "onboarded_at" field in the mutation.
-func (m *RiderProfileMutation) OnboardedAt() (r time.Time, exists bool) {
-	v := m.onboarded_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOnboardedAt returns the old "onboarded_at" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldOnboardedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOnboardedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOnboardedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOnboardedAt: %w", err)
-	}
-	return oldValue.OnboardedAt, nil
-}
-
-// ClearOnboardedAt clears the value of the "onboarded_at" field.
-func (m *RiderProfileMutation) ClearOnboardedAt() {
-	m.onboarded_at = nil
-	m.clearedFields[riderprofile.FieldOnboardedAt] = struct{}{}
-}
-
-// OnboardedAtCleared returns if the "onboarded_at" field was cleared in this mutation.
-func (m *RiderProfileMutation) OnboardedAtCleared() bool {
-	_, ok := m.clearedFields[riderprofile.FieldOnboardedAt]
-	return ok
-}
-
-// ResetOnboardedAt resets all changes to the "onboarded_at" field.
-func (m *RiderProfileMutation) ResetOnboardedAt() {
-	m.onboarded_at = nil
-	delete(m.clearedFields, riderprofile.FieldOnboardedAt)
-}
-
-// SetSuspendedAt sets the "suspended_at" field.
-func (m *RiderProfileMutation) SetSuspendedAt(t time.Time) {
-	m.suspended_at = &t
-}
-
-// SuspendedAt returns the value of the "suspended_at" field in the mutation.
-func (m *RiderProfileMutation) SuspendedAt() (r time.Time, exists bool) {
-	v := m.suspended_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSuspendedAt returns the old "suspended_at" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldSuspendedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSuspendedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSuspendedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSuspendedAt: %w", err)
-	}
-	return oldValue.SuspendedAt, nil
-}
-
-// ClearSuspendedAt clears the value of the "suspended_at" field.
-func (m *RiderProfileMutation) ClearSuspendedAt() {
-	m.suspended_at = nil
-	m.clearedFields[riderprofile.FieldSuspendedAt] = struct{}{}
-}
-
-// SuspendedAtCleared returns if the "suspended_at" field was cleared in this mutation.
-func (m *RiderProfileMutation) SuspendedAtCleared() bool {
-	_, ok := m.clearedFields[riderprofile.FieldSuspendedAt]
-	return ok
-}
-
-// ResetSuspendedAt resets all changes to the "suspended_at" field.
-func (m *RiderProfileMutation) ResetSuspendedAt() {
-	m.suspended_at = nil
-	delete(m.clearedFields, riderprofile.FieldSuspendedAt)
-}
-
-// SetMetadata sets the "metadata" field.
-func (m *RiderProfileMutation) SetMetadata(value map[string]interface{}) {
-	m.metadata = &value
-}
-
-// Metadata returns the value of the "metadata" field in the mutation.
-func (m *RiderProfileMutation) Metadata() (r map[string]interface{}, exists bool) {
-	v := m.metadata
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMetadata returns the old "metadata" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMetadata requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
-	}
-	return oldValue.Metadata, nil
-}
-
-// ResetMetadata resets all changes to the "metadata" field.
-func (m *RiderProfileMutation) ResetMetadata() {
-	m.metadata = nil
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *RiderProfileMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *RiderProfileMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *RiderProfileMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *RiderProfileMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *RiderProfileMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the RiderProfile entity.
-// If the RiderProfile object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RiderProfileMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *RiderProfileMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *RiderProfileMutation) SetUserID(id uuid.UUID) {
-	m.user = &id
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (m *RiderProfileMutation) ClearUser() {
-	m.cleareduser = true
-}
-
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *RiderProfileMutation) UserCleared() bool {
-	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *RiderProfileMutation) UserID() (id uuid.UUID, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
-}
-
-// UserIDs returns the "user" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *RiderProfileMutation) UserIDs() (ids []uuid.UUID) {
-	if id := m.user; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetUser resets all changes to the "user" edge.
-func (m *RiderProfileMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
-}
-
-// AddTenantIDs adds the "tenant" edge to the Tenant entity by ids.
-func (m *RiderProfileMutation) AddTenantIDs(ids ...uuid.UUID) {
-	if m.tenant == nil {
-		m.tenant = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.tenant[ids[i]] = struct{}{}
-	}
-}
-
-// ClearTenant clears the "tenant" edge to the Tenant entity.
-func (m *RiderProfileMutation) ClearTenant() {
-	m.clearedtenant = true
-}
-
-// TenantCleared reports if the "tenant" edge to the Tenant entity was cleared.
-func (m *RiderProfileMutation) TenantCleared() bool {
-	return m.clearedtenant
-}
-
-// RemoveTenantIDs removes the "tenant" edge to the Tenant entity by IDs.
-func (m *RiderProfileMutation) RemoveTenantIDs(ids ...uuid.UUID) {
-	if m.removedtenant == nil {
-		m.removedtenant = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.tenant, ids[i])
-		m.removedtenant[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedTenant returns the removed IDs of the "tenant" edge to the Tenant entity.
-func (m *RiderProfileMutation) RemovedTenantIDs() (ids []uuid.UUID) {
-	for id := range m.removedtenant {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// TenantIDs returns the "tenant" edge IDs in the mutation.
-func (m *RiderProfileMutation) TenantIDs() (ids []uuid.UUID) {
-	for id := range m.tenant {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetTenant resets all changes to the "tenant" edge.
-func (m *RiderProfileMutation) ResetTenant() {
-	m.tenant = nil
-	m.clearedtenant = false
-	m.removedtenant = nil
-}
-
-// AddDocumentIDs adds the "documents" edge to the RiderDocument entity by ids.
-func (m *RiderProfileMutation) AddDocumentIDs(ids ...uuid.UUID) {
-	if m.documents == nil {
-		m.documents = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.documents[ids[i]] = struct{}{}
-	}
-}
-
-// ClearDocuments clears the "documents" edge to the RiderDocument entity.
-func (m *RiderProfileMutation) ClearDocuments() {
-	m.cleareddocuments = true
-}
-
-// DocumentsCleared reports if the "documents" edge to the RiderDocument entity was cleared.
-func (m *RiderProfileMutation) DocumentsCleared() bool {
-	return m.cleareddocuments
-}
-
-// RemoveDocumentIDs removes the "documents" edge to the RiderDocument entity by IDs.
-func (m *RiderProfileMutation) RemoveDocumentIDs(ids ...uuid.UUID) {
-	if m.removeddocuments == nil {
-		m.removeddocuments = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.documents, ids[i])
-		m.removeddocuments[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedDocuments returns the removed IDs of the "documents" edge to the RiderDocument entity.
-func (m *RiderProfileMutation) RemovedDocumentsIDs() (ids []uuid.UUID) {
-	for id := range m.removeddocuments {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// DocumentsIDs returns the "documents" edge IDs in the mutation.
-func (m *RiderProfileMutation) DocumentsIDs() (ids []uuid.UUID) {
-	for id := range m.documents {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetDocuments resets all changes to the "documents" edge.
-func (m *RiderProfileMutation) ResetDocuments() {
-	m.documents = nil
-	m.cleareddocuments = false
-	m.removeddocuments = nil
-}
-
-// Where appends a list predicates to the RiderProfileMutation builder.
-func (m *RiderProfileMutation) Where(ps ...predicate.RiderProfile) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the RiderProfileMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *RiderProfileMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.RiderProfile, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *RiderProfileMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *RiderProfileMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (RiderProfile).
-func (m *RiderProfileMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *RiderProfileMutation) Fields() []string {
-	fields := make([]string, 0, 10)
-	if m.national_id != nil {
-		fields = append(fields, riderprofile.FieldNationalID)
-	}
-	if m.license_number != nil {
-		fields = append(fields, riderprofile.FieldLicenseNumber)
-	}
-	if m.vehicle_type != nil {
-		fields = append(fields, riderprofile.FieldVehicleType)
-	}
-	if m.status != nil {
-		fields = append(fields, riderprofile.FieldStatus)
-	}
-	if m.rating != nil {
-		fields = append(fields, riderprofile.FieldRating)
-	}
-	if m.onboarded_at != nil {
-		fields = append(fields, riderprofile.FieldOnboardedAt)
-	}
-	if m.suspended_at != nil {
-		fields = append(fields, riderprofile.FieldSuspendedAt)
-	}
-	if m.metadata != nil {
-		fields = append(fields, riderprofile.FieldMetadata)
-	}
-	if m.created_at != nil {
-		fields = append(fields, riderprofile.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, riderprofile.FieldUpdatedAt)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *RiderProfileMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case riderprofile.FieldNationalID:
-		return m.NationalID()
-	case riderprofile.FieldLicenseNumber:
-		return m.LicenseNumber()
-	case riderprofile.FieldVehicleType:
-		return m.VehicleType()
-	case riderprofile.FieldStatus:
-		return m.Status()
-	case riderprofile.FieldRating:
-		return m.Rating()
-	case riderprofile.FieldOnboardedAt:
-		return m.OnboardedAt()
-	case riderprofile.FieldSuspendedAt:
-		return m.SuspendedAt()
-	case riderprofile.FieldMetadata:
-		return m.Metadata()
-	case riderprofile.FieldCreatedAt:
-		return m.CreatedAt()
-	case riderprofile.FieldUpdatedAt:
-		return m.UpdatedAt()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *RiderProfileMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case riderprofile.FieldNationalID:
-		return m.OldNationalID(ctx)
-	case riderprofile.FieldLicenseNumber:
-		return m.OldLicenseNumber(ctx)
-	case riderprofile.FieldVehicleType:
-		return m.OldVehicleType(ctx)
-	case riderprofile.FieldStatus:
-		return m.OldStatus(ctx)
-	case riderprofile.FieldRating:
-		return m.OldRating(ctx)
-	case riderprofile.FieldOnboardedAt:
-		return m.OldOnboardedAt(ctx)
-	case riderprofile.FieldSuspendedAt:
-		return m.OldSuspendedAt(ctx)
-	case riderprofile.FieldMetadata:
-		return m.OldMetadata(ctx)
-	case riderprofile.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case riderprofile.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	}
-	return nil, fmt.Errorf("unknown RiderProfile field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *RiderProfileMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case riderprofile.FieldNationalID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetNationalID(v)
-		return nil
-	case riderprofile.FieldLicenseNumber:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLicenseNumber(v)
-		return nil
-	case riderprofile.FieldVehicleType:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetVehicleType(v)
-		return nil
-	case riderprofile.FieldStatus:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStatus(v)
-		return nil
-	case riderprofile.FieldRating:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRating(v)
-		return nil
-	case riderprofile.FieldOnboardedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOnboardedAt(v)
-		return nil
-	case riderprofile.FieldSuspendedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSuspendedAt(v)
-		return nil
-	case riderprofile.FieldMetadata:
-		v, ok := value.(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMetadata(v)
-		return nil
-	case riderprofile.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case riderprofile.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *RiderProfileMutation) AddedFields() []string {
-	var fields []string
-	if m.addrating != nil {
-		fields = append(fields, riderprofile.FieldRating)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *RiderProfileMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case riderprofile.FieldRating:
-		return m.AddedRating()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *RiderProfileMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case riderprofile.FieldRating:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddRating(v)
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *RiderProfileMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(riderprofile.FieldNationalID) {
-		fields = append(fields, riderprofile.FieldNationalID)
-	}
-	if m.FieldCleared(riderprofile.FieldLicenseNumber) {
-		fields = append(fields, riderprofile.FieldLicenseNumber)
-	}
-	if m.FieldCleared(riderprofile.FieldVehicleType) {
-		fields = append(fields, riderprofile.FieldVehicleType)
-	}
-	if m.FieldCleared(riderprofile.FieldOnboardedAt) {
-		fields = append(fields, riderprofile.FieldOnboardedAt)
-	}
-	if m.FieldCleared(riderprofile.FieldSuspendedAt) {
-		fields = append(fields, riderprofile.FieldSuspendedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *RiderProfileMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *RiderProfileMutation) ClearField(name string) error {
-	switch name {
-	case riderprofile.FieldNationalID:
-		m.ClearNationalID()
-		return nil
-	case riderprofile.FieldLicenseNumber:
-		m.ClearLicenseNumber()
-		return nil
-	case riderprofile.FieldVehicleType:
-		m.ClearVehicleType()
-		return nil
-	case riderprofile.FieldOnboardedAt:
-		m.ClearOnboardedAt()
-		return nil
-	case riderprofile.FieldSuspendedAt:
-		m.ClearSuspendedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *RiderProfileMutation) ResetField(name string) error {
-	switch name {
-	case riderprofile.FieldNationalID:
-		m.ResetNationalID()
-		return nil
-	case riderprofile.FieldLicenseNumber:
-		m.ResetLicenseNumber()
-		return nil
-	case riderprofile.FieldVehicleType:
-		m.ResetVehicleType()
-		return nil
-	case riderprofile.FieldStatus:
-		m.ResetStatus()
-		return nil
-	case riderprofile.FieldRating:
-		m.ResetRating()
-		return nil
-	case riderprofile.FieldOnboardedAt:
-		m.ResetOnboardedAt()
-		return nil
-	case riderprofile.FieldSuspendedAt:
-		m.ResetSuspendedAt()
-		return nil
-	case riderprofile.FieldMetadata:
-		m.ResetMetadata()
-		return nil
-	case riderprofile.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case riderprofile.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *RiderProfileMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.user != nil {
-		edges = append(edges, riderprofile.EdgeUser)
-	}
-	if m.tenant != nil {
-		edges = append(edges, riderprofile.EdgeTenant)
-	}
-	if m.documents != nil {
-		edges = append(edges, riderprofile.EdgeDocuments)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *RiderProfileMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case riderprofile.EdgeUser:
-		if id := m.user; id != nil {
-			return []ent.Value{*id}
-		}
-	case riderprofile.EdgeTenant:
-		ids := make([]ent.Value, 0, len(m.tenant))
-		for id := range m.tenant {
-			ids = append(ids, id)
-		}
-		return ids
-	case riderprofile.EdgeDocuments:
-		ids := make([]ent.Value, 0, len(m.documents))
-		for id := range m.documents {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *RiderProfileMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.removedtenant != nil {
-		edges = append(edges, riderprofile.EdgeTenant)
-	}
-	if m.removeddocuments != nil {
-		edges = append(edges, riderprofile.EdgeDocuments)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *RiderProfileMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case riderprofile.EdgeTenant:
-		ids := make([]ent.Value, 0, len(m.removedtenant))
-		for id := range m.removedtenant {
-			ids = append(ids, id)
-		}
-		return ids
-	case riderprofile.EdgeDocuments:
-		ids := make([]ent.Value, 0, len(m.removeddocuments))
-		for id := range m.removeddocuments {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *RiderProfileMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.cleareduser {
-		edges = append(edges, riderprofile.EdgeUser)
-	}
-	if m.clearedtenant {
-		edges = append(edges, riderprofile.EdgeTenant)
-	}
-	if m.cleareddocuments {
-		edges = append(edges, riderprofile.EdgeDocuments)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *RiderProfileMutation) EdgeCleared(name string) bool {
-	switch name {
-	case riderprofile.EdgeUser:
-		return m.cleareduser
-	case riderprofile.EdgeTenant:
-		return m.clearedtenant
-	case riderprofile.EdgeDocuments:
-		return m.cleareddocuments
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *RiderProfileMutation) ClearEdge(name string) error {
-	switch name {
-	case riderprofile.EdgeUser:
-		m.ClearUser()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *RiderProfileMutation) ResetEdge(name string) error {
-	switch name {
-	case riderprofile.EdgeUser:
-		m.ResetUser()
-		return nil
-	case riderprofile.EdgeTenant:
-		m.ResetTenant()
-		return nil
-	case riderprofile.EdgeDocuments:
-		m.ResetDocuments()
-		return nil
-	}
-	return fmt.Errorf("unknown RiderProfile edge %s", name)
-}
-
 // RoleMutation represents an operation that mutates the Role nodes in the graph.
 type RoleMutation struct {
 	config
@@ -6803,35 +4691,32 @@ func (m *SessionMutation) ResetEdge(name string) error {
 // TenantMutation represents an operation that mutates the Tenant nodes in the graph.
 type TenantMutation struct {
 	config
-	op                    Op
-	typ                   string
-	id                    *uuid.UUID
-	slug                  *string
-	name                  *string
-	status                *string
-	contact_email         *string
-	contact_phone         *string
-	metadata              *map[string]interface{}
-	created_at            *time.Time
-	updated_at            *time.Time
-	clearedFields         map[string]struct{}
-	settings              *int
-	clearedsettings       bool
-	users                 map[uuid.UUID]struct{}
-	removedusers          map[uuid.UUID]struct{}
-	clearedusers          bool
-	sessions              map[uuid.UUID]struct{}
-	removedsessions       map[uuid.UUID]struct{}
-	clearedsessions       bool
-	rider_profiles        map[int]struct{}
-	removedrider_profiles map[int]struct{}
-	clearedrider_profiles bool
-	sync_events           map[uuid.UUID]struct{}
-	removedsync_events    map[uuid.UUID]struct{}
-	clearedsync_events    bool
-	done                  bool
-	oldValue              func(context.Context) (*Tenant, error)
-	predicates            []predicate.Tenant
+	op                 Op
+	typ                string
+	id                 *uuid.UUID
+	slug               *string
+	name               *string
+	status             *string
+	contact_email      *string
+	contact_phone      *string
+	metadata           *map[string]interface{}
+	created_at         *time.Time
+	updated_at         *time.Time
+	clearedFields      map[string]struct{}
+	settings           *int
+	clearedsettings    bool
+	users              map[uuid.UUID]struct{}
+	removedusers       map[uuid.UUID]struct{}
+	clearedusers       bool
+	sessions           map[uuid.UUID]struct{}
+	removedsessions    map[uuid.UUID]struct{}
+	clearedsessions    bool
+	sync_events        map[uuid.UUID]struct{}
+	removedsync_events map[uuid.UUID]struct{}
+	clearedsync_events bool
+	done               bool
+	oldValue           func(context.Context) (*Tenant, error)
+	predicates         []predicate.Tenant
 }
 
 var _ ent.Mutation = (*TenantMutation)(nil)
@@ -7399,60 +5284,6 @@ func (m *TenantMutation) ResetSessions() {
 	m.removedsessions = nil
 }
 
-// AddRiderProfileIDs adds the "rider_profiles" edge to the RiderProfile entity by ids.
-func (m *TenantMutation) AddRiderProfileIDs(ids ...int) {
-	if m.rider_profiles == nil {
-		m.rider_profiles = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.rider_profiles[ids[i]] = struct{}{}
-	}
-}
-
-// ClearRiderProfiles clears the "rider_profiles" edge to the RiderProfile entity.
-func (m *TenantMutation) ClearRiderProfiles() {
-	m.clearedrider_profiles = true
-}
-
-// RiderProfilesCleared reports if the "rider_profiles" edge to the RiderProfile entity was cleared.
-func (m *TenantMutation) RiderProfilesCleared() bool {
-	return m.clearedrider_profiles
-}
-
-// RemoveRiderProfileIDs removes the "rider_profiles" edge to the RiderProfile entity by IDs.
-func (m *TenantMutation) RemoveRiderProfileIDs(ids ...int) {
-	if m.removedrider_profiles == nil {
-		m.removedrider_profiles = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.rider_profiles, ids[i])
-		m.removedrider_profiles[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedRiderProfiles returns the removed IDs of the "rider_profiles" edge to the RiderProfile entity.
-func (m *TenantMutation) RemovedRiderProfilesIDs() (ids []int) {
-	for id := range m.removedrider_profiles {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// RiderProfilesIDs returns the "rider_profiles" edge IDs in the mutation.
-func (m *TenantMutation) RiderProfilesIDs() (ids []int) {
-	for id := range m.rider_profiles {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetRiderProfiles resets all changes to the "rider_profiles" edge.
-func (m *TenantMutation) ResetRiderProfiles() {
-	m.rider_profiles = nil
-	m.clearedrider_profiles = false
-	m.removedrider_profiles = nil
-}
-
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by ids.
 func (m *TenantMutation) AddSyncEventIDs(ids ...uuid.UUID) {
 	if m.sync_events == nil {
@@ -7774,7 +5605,7 @@ func (m *TenantMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TenantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.settings != nil {
 		edges = append(edges, tenant.EdgeSettings)
 	}
@@ -7783,9 +5614,6 @@ func (m *TenantMutation) AddedEdges() []string {
 	}
 	if m.sessions != nil {
 		edges = append(edges, tenant.EdgeSessions)
-	}
-	if m.rider_profiles != nil {
-		edges = append(edges, tenant.EdgeRiderProfiles)
 	}
 	if m.sync_events != nil {
 		edges = append(edges, tenant.EdgeSyncEvents)
@@ -7813,12 +5641,6 @@ func (m *TenantMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case tenant.EdgeRiderProfiles:
-		ids := make([]ent.Value, 0, len(m.rider_profiles))
-		for id := range m.rider_profiles {
-			ids = append(ids, id)
-		}
-		return ids
 	case tenant.EdgeSyncEvents:
 		ids := make([]ent.Value, 0, len(m.sync_events))
 		for id := range m.sync_events {
@@ -7831,15 +5653,12 @@ func (m *TenantMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TenantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.removedusers != nil {
 		edges = append(edges, tenant.EdgeUsers)
 	}
 	if m.removedsessions != nil {
 		edges = append(edges, tenant.EdgeSessions)
-	}
-	if m.removedrider_profiles != nil {
-		edges = append(edges, tenant.EdgeRiderProfiles)
 	}
 	if m.removedsync_events != nil {
 		edges = append(edges, tenant.EdgeSyncEvents)
@@ -7863,12 +5682,6 @@ func (m *TenantMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case tenant.EdgeRiderProfiles:
-		ids := make([]ent.Value, 0, len(m.removedrider_profiles))
-		for id := range m.removedrider_profiles {
-			ids = append(ids, id)
-		}
-		return ids
 	case tenant.EdgeSyncEvents:
 		ids := make([]ent.Value, 0, len(m.removedsync_events))
 		for id := range m.removedsync_events {
@@ -7881,7 +5694,7 @@ func (m *TenantMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TenantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.clearedsettings {
 		edges = append(edges, tenant.EdgeSettings)
 	}
@@ -7890,9 +5703,6 @@ func (m *TenantMutation) ClearedEdges() []string {
 	}
 	if m.clearedsessions {
 		edges = append(edges, tenant.EdgeSessions)
-	}
-	if m.clearedrider_profiles {
-		edges = append(edges, tenant.EdgeRiderProfiles)
 	}
 	if m.clearedsync_events {
 		edges = append(edges, tenant.EdgeSyncEvents)
@@ -7910,8 +5720,6 @@ func (m *TenantMutation) EdgeCleared(name string) bool {
 		return m.clearedusers
 	case tenant.EdgeSessions:
 		return m.clearedsessions
-	case tenant.EdgeRiderProfiles:
-		return m.clearedrider_profiles
 	case tenant.EdgeSyncEvents:
 		return m.clearedsync_events
 	}
@@ -7941,9 +5749,6 @@ func (m *TenantMutation) ResetEdge(name string) error {
 		return nil
 	case tenant.EdgeSessions:
 		m.ResetSessions()
-		return nil
-	case tenant.EdgeRiderProfiles:
-		m.ResetRiderProfiles()
 		return nil
 	case tenant.EdgeSyncEvents:
 		m.ResetSyncEvents()
@@ -10163,8 +7968,11 @@ type UserMutation struct {
 	op                         Op
 	typ                        string
 	id                         *uuid.UUID
+	auth_service_user_id       *uuid.UUID
 	email                      *string
 	password_hash              *string
+	sync_status                *string
+	sync_at                    *time.Time
 	full_name                  *string
 	phone                      *string
 	status                     *string
@@ -10199,11 +8007,6 @@ type UserMutation struct {
 	clearedpreferences         bool
 	profile                    *int
 	clearedprofile             bool
-	rider_profile              *int
-	clearedrider_profile       bool
-	reviewed_documents         map[uuid.UUID]struct{}
-	removedreviewed_documents  map[uuid.UUID]struct{}
-	clearedreviewed_documents  bool
 	done                       bool
 	oldValue                   func(context.Context) (*User, error)
 	predicates                 []predicate.User
@@ -10349,6 +8152,55 @@ func (m *UserMutation) ResetTenantID() {
 	m.tenant = nil
 }
 
+// SetAuthServiceUserID sets the "auth_service_user_id" field.
+func (m *UserMutation) SetAuthServiceUserID(u uuid.UUID) {
+	m.auth_service_user_id = &u
+}
+
+// AuthServiceUserID returns the value of the "auth_service_user_id" field in the mutation.
+func (m *UserMutation) AuthServiceUserID() (r uuid.UUID, exists bool) {
+	v := m.auth_service_user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAuthServiceUserID returns the old "auth_service_user_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAuthServiceUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAuthServiceUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAuthServiceUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAuthServiceUserID: %w", err)
+	}
+	return oldValue.AuthServiceUserID, nil
+}
+
+// ClearAuthServiceUserID clears the value of the "auth_service_user_id" field.
+func (m *UserMutation) ClearAuthServiceUserID() {
+	m.auth_service_user_id = nil
+	m.clearedFields[user.FieldAuthServiceUserID] = struct{}{}
+}
+
+// AuthServiceUserIDCleared returns if the "auth_service_user_id" field was cleared in this mutation.
+func (m *UserMutation) AuthServiceUserIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldAuthServiceUserID]
+	return ok
+}
+
+// ResetAuthServiceUserID resets all changes to the "auth_service_user_id" field.
+func (m *UserMutation) ResetAuthServiceUserID() {
+	m.auth_service_user_id = nil
+	delete(m.clearedFields, user.FieldAuthServiceUserID)
+}
+
 // SetEmail sets the "email" field.
 func (m *UserMutation) SetEmail(s string) {
 	m.email = &s
@@ -10432,6 +8284,91 @@ func (m *UserMutation) PasswordHashCleared() bool {
 func (m *UserMutation) ResetPasswordHash() {
 	m.password_hash = nil
 	delete(m.clearedFields, user.FieldPasswordHash)
+}
+
+// SetSyncStatus sets the "sync_status" field.
+func (m *UserMutation) SetSyncStatus(s string) {
+	m.sync_status = &s
+}
+
+// SyncStatus returns the value of the "sync_status" field in the mutation.
+func (m *UserMutation) SyncStatus() (r string, exists bool) {
+	v := m.sync_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncStatus returns the old "sync_status" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldSyncStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncStatus: %w", err)
+	}
+	return oldValue.SyncStatus, nil
+}
+
+// ResetSyncStatus resets all changes to the "sync_status" field.
+func (m *UserMutation) ResetSyncStatus() {
+	m.sync_status = nil
+}
+
+// SetSyncAt sets the "sync_at" field.
+func (m *UserMutation) SetSyncAt(t time.Time) {
+	m.sync_at = &t
+}
+
+// SyncAt returns the value of the "sync_at" field in the mutation.
+func (m *UserMutation) SyncAt() (r time.Time, exists bool) {
+	v := m.sync_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncAt returns the old "sync_at" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldSyncAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncAt: %w", err)
+	}
+	return oldValue.SyncAt, nil
+}
+
+// ClearSyncAt clears the value of the "sync_at" field.
+func (m *UserMutation) ClearSyncAt() {
+	m.sync_at = nil
+	m.clearedFields[user.FieldSyncAt] = struct{}{}
+}
+
+// SyncAtCleared returns if the "sync_at" field was cleared in this mutation.
+func (m *UserMutation) SyncAtCleared() bool {
+	_, ok := m.clearedFields[user.FieldSyncAt]
+	return ok
+}
+
+// ResetSyncAt resets all changes to the "sync_at" field.
+func (m *UserMutation) ResetSyncAt() {
+	m.sync_at = nil
+	delete(m.clearedFields, user.FieldSyncAt)
 }
 
 // SetFullName sets the "full_name" field.
@@ -11247,99 +9184,6 @@ func (m *UserMutation) ResetProfile() {
 	m.clearedprofile = false
 }
 
-// SetRiderProfileID sets the "rider_profile" edge to the RiderProfile entity by id.
-func (m *UserMutation) SetRiderProfileID(id int) {
-	m.rider_profile = &id
-}
-
-// ClearRiderProfile clears the "rider_profile" edge to the RiderProfile entity.
-func (m *UserMutation) ClearRiderProfile() {
-	m.clearedrider_profile = true
-}
-
-// RiderProfileCleared reports if the "rider_profile" edge to the RiderProfile entity was cleared.
-func (m *UserMutation) RiderProfileCleared() bool {
-	return m.clearedrider_profile
-}
-
-// RiderProfileID returns the "rider_profile" edge ID in the mutation.
-func (m *UserMutation) RiderProfileID() (id int, exists bool) {
-	if m.rider_profile != nil {
-		return *m.rider_profile, true
-	}
-	return
-}
-
-// RiderProfileIDs returns the "rider_profile" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// RiderProfileID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) RiderProfileIDs() (ids []int) {
-	if id := m.rider_profile; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetRiderProfile resets all changes to the "rider_profile" edge.
-func (m *UserMutation) ResetRiderProfile() {
-	m.rider_profile = nil
-	m.clearedrider_profile = false
-}
-
-// AddReviewedDocumentIDs adds the "reviewed_documents" edge to the RiderDocument entity by ids.
-func (m *UserMutation) AddReviewedDocumentIDs(ids ...uuid.UUID) {
-	if m.reviewed_documents == nil {
-		m.reviewed_documents = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.reviewed_documents[ids[i]] = struct{}{}
-	}
-}
-
-// ClearReviewedDocuments clears the "reviewed_documents" edge to the RiderDocument entity.
-func (m *UserMutation) ClearReviewedDocuments() {
-	m.clearedreviewed_documents = true
-}
-
-// ReviewedDocumentsCleared reports if the "reviewed_documents" edge to the RiderDocument entity was cleared.
-func (m *UserMutation) ReviewedDocumentsCleared() bool {
-	return m.clearedreviewed_documents
-}
-
-// RemoveReviewedDocumentIDs removes the "reviewed_documents" edge to the RiderDocument entity by IDs.
-func (m *UserMutation) RemoveReviewedDocumentIDs(ids ...uuid.UUID) {
-	if m.removedreviewed_documents == nil {
-		m.removedreviewed_documents = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.reviewed_documents, ids[i])
-		m.removedreviewed_documents[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedReviewedDocuments returns the removed IDs of the "reviewed_documents" edge to the RiderDocument entity.
-func (m *UserMutation) RemovedReviewedDocumentsIDs() (ids []uuid.UUID) {
-	for id := range m.removedreviewed_documents {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ReviewedDocumentsIDs returns the "reviewed_documents" edge IDs in the mutation.
-func (m *UserMutation) ReviewedDocumentsIDs() (ids []uuid.UUID) {
-	for id := range m.reviewed_documents {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetReviewedDocuments resets all changes to the "reviewed_documents" edge.
-func (m *UserMutation) ResetReviewedDocuments() {
-	m.reviewed_documents = nil
-	m.clearedreviewed_documents = false
-	m.removedreviewed_documents = nil
-}
-
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -11374,15 +9218,24 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 16)
 	if m.tenant != nil {
 		fields = append(fields, user.FieldTenantID)
+	}
+	if m.auth_service_user_id != nil {
+		fields = append(fields, user.FieldAuthServiceUserID)
 	}
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
 	if m.password_hash != nil {
 		fields = append(fields, user.FieldPasswordHash)
+	}
+	if m.sync_status != nil {
+		fields = append(fields, user.FieldSyncStatus)
+	}
+	if m.sync_at != nil {
+		fields = append(fields, user.FieldSyncAt)
 	}
 	if m.full_name != nil {
 		fields = append(fields, user.FieldFullName)
@@ -11424,10 +9277,16 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldTenantID:
 		return m.TenantID()
+	case user.FieldAuthServiceUserID:
+		return m.AuthServiceUserID()
 	case user.FieldEmail:
 		return m.Email()
 	case user.FieldPasswordHash:
 		return m.PasswordHash()
+	case user.FieldSyncStatus:
+		return m.SyncStatus()
+	case user.FieldSyncAt:
+		return m.SyncAt()
 	case user.FieldFullName:
 		return m.FullName()
 	case user.FieldPhone:
@@ -11459,10 +9318,16 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case user.FieldTenantID:
 		return m.OldTenantID(ctx)
+	case user.FieldAuthServiceUserID:
+		return m.OldAuthServiceUserID(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
 	case user.FieldPasswordHash:
 		return m.OldPasswordHash(ctx)
+	case user.FieldSyncStatus:
+		return m.OldSyncStatus(ctx)
+	case user.FieldSyncAt:
+		return m.OldSyncAt(ctx)
 	case user.FieldFullName:
 		return m.OldFullName(ctx)
 	case user.FieldPhone:
@@ -11499,6 +9364,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTenantID(v)
 		return nil
+	case user.FieldAuthServiceUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAuthServiceUserID(v)
+		return nil
 	case user.FieldEmail:
 		v, ok := value.(string)
 		if !ok {
@@ -11512,6 +9384,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPasswordHash(v)
+		return nil
+	case user.FieldSyncStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncStatus(v)
+		return nil
+	case user.FieldSyncAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncAt(v)
 		return nil
 	case user.FieldFullName:
 		v, ok := value.(string)
@@ -11613,8 +9499,14 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(user.FieldAuthServiceUserID) {
+		fields = append(fields, user.FieldAuthServiceUserID)
+	}
 	if m.FieldCleared(user.FieldPasswordHash) {
 		fields = append(fields, user.FieldPasswordHash)
+	}
+	if m.FieldCleared(user.FieldSyncAt) {
+		fields = append(fields, user.FieldSyncAt)
 	}
 	if m.FieldCleared(user.FieldPhone) {
 		fields = append(fields, user.FieldPhone)
@@ -11639,8 +9531,14 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	switch name {
+	case user.FieldAuthServiceUserID:
+		m.ClearAuthServiceUserID()
+		return nil
 	case user.FieldPasswordHash:
 		m.ClearPasswordHash()
+		return nil
+	case user.FieldSyncAt:
+		m.ClearSyncAt()
 		return nil
 	case user.FieldPhone:
 		m.ClearPhone()
@@ -11662,11 +9560,20 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldTenantID:
 		m.ResetTenantID()
 		return nil
+	case user.FieldAuthServiceUserID:
+		m.ResetAuthServiceUserID()
+		return nil
 	case user.FieldEmail:
 		m.ResetEmail()
 		return nil
 	case user.FieldPasswordHash:
 		m.ResetPasswordHash()
+		return nil
+	case user.FieldSyncStatus:
+		m.ResetSyncStatus()
+		return nil
+	case user.FieldSyncAt:
+		m.ResetSyncAt()
 		return nil
 	case user.FieldFullName:
 		m.ResetFullName()
@@ -11704,7 +9611,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 11)
+	edges := make([]string, 0, 9)
 	if m.tenant != nil {
 		edges = append(edges, user.EdgeTenant)
 	}
@@ -11731,12 +9638,6 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.profile != nil {
 		edges = append(edges, user.EdgeProfile)
-	}
-	if m.rider_profile != nil {
-		edges = append(edges, user.EdgeRiderProfile)
-	}
-	if m.reviewed_documents != nil {
-		edges = append(edges, user.EdgeReviewedDocuments)
 	}
 	return edges
 }
@@ -11791,23 +9692,13 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 		if id := m.profile; id != nil {
 			return []ent.Value{*id}
 		}
-	case user.EdgeRiderProfile:
-		if id := m.rider_profile; id != nil {
-			return []ent.Value{*id}
-		}
-	case user.EdgeReviewedDocuments:
-		ids := make([]ent.Value, 0, len(m.reviewed_documents))
-		for id := range m.reviewed_documents {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 11)
+	edges := make([]string, 0, 9)
 	if m.removedroles != nil {
 		edges = append(edges, user.EdgeRoles)
 	}
@@ -11822,9 +9713,6 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedbackup_codes != nil {
 		edges = append(edges, user.EdgeBackupCodes)
-	}
-	if m.removedreviewed_documents != nil {
-		edges = append(edges, user.EdgeReviewedDocuments)
 	}
 	return edges
 }
@@ -11863,19 +9751,13 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeReviewedDocuments:
-		ids := make([]ent.Value, 0, len(m.removedreviewed_documents))
-		for id := range m.removedreviewed_documents {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 11)
+	edges := make([]string, 0, 9)
 	if m.clearedtenant {
 		edges = append(edges, user.EdgeTenant)
 	}
@@ -11903,12 +9785,6 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedprofile {
 		edges = append(edges, user.EdgeProfile)
 	}
-	if m.clearedrider_profile {
-		edges = append(edges, user.EdgeRiderProfile)
-	}
-	if m.clearedreviewed_documents {
-		edges = append(edges, user.EdgeReviewedDocuments)
-	}
 	return edges
 }
 
@@ -11934,10 +9810,6 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedpreferences
 	case user.EdgeProfile:
 		return m.clearedprofile
-	case user.EdgeRiderProfile:
-		return m.clearedrider_profile
-	case user.EdgeReviewedDocuments:
-		return m.clearedreviewed_documents
 	}
 	return false
 }
@@ -11957,9 +9829,6 @@ func (m *UserMutation) ClearEdge(name string) error {
 		return nil
 	case user.EdgeProfile:
 		m.ClearProfile()
-		return nil
-	case user.EdgeRiderProfile:
-		m.ClearRiderProfile()
 		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
@@ -11995,12 +9864,6 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeProfile:
 		m.ResetProfile()
-		return nil
-	case user.EdgeRiderProfile:
-		m.ResetRiderProfile()
-		return nil
-	case user.EdgeReviewedDocuments:
-		m.ResetReviewedDocuments()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

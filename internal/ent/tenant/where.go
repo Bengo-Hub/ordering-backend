@@ -585,29 +585,6 @@ func HasSessionsWith(preds ...predicate.Session) predicate.Tenant {
 	})
 }
 
-// HasRiderProfiles applies the HasEdge predicate on the "rider_profiles" edge.
-func HasRiderProfiles() predicate.Tenant {
-	return predicate.Tenant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, RiderProfilesTable, RiderProfilesPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRiderProfilesWith applies the HasEdge predicate on the "rider_profiles" edge with a given conditions (other predicates).
-func HasRiderProfilesWith(preds ...predicate.RiderProfile) predicate.Tenant {
-	return predicate.Tenant(func(s *sql.Selector) {
-		step := newRiderProfilesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasSyncEvents applies the HasEdge predicate on the "sync_events" edge.
 func HasSyncEvents() predicate.Tenant {
 	return predicate.Tenant(func(s *sql.Selector) {

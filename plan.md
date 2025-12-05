@@ -1,154 +1,435 @@
-# Cafe Backend Delivery Plan
+# Cafe Backend - Implementation Plan
 
-## Vision & Context
-- Build a resilient, Busia-first cafe platform that powers customer ordering, cafe operations, and supervisory analytics across web and mobile clients.
-- Reuse insights from `Urban Loft Logistics App` proposal and `Urban Cafe Food Delivery System Inception Report` to align with localized branding, dual-language support, and multi-channel payments.
-- Backend orchestrates ordering, payments, loyalty, promotions, and notification flows while exposing consistent APIs to internal clients and partner microservices (`notifications-app`, `treasury-app`).
-- **Entity Ownership**: This service owns cafe-specific entities: cafe orders, menu items (references inventory SKUs), cart, loyalty points, and cafe promotions. **Cafe does NOT own**: riders/drivers/fleets (queries logistics-service), catalog items (references inventory-service), payment processing (uses treasury-app), inventory balances (queries inventory-service), users (references auth-service via `user_id`). See `docs/cross-service-entity-ownership.md` for complete ownership matrix.
+## Executive Summary
 
-## Technical Foundations
-- **Core Stack:** Go 1.22+, Clean/Hexagonal architecture, chi HTTP router, OpenAPI-first contracts, gRPC (ConnectRPC) gateway for high-throughput integrations.
-- **Service Layout:** Multi-module Go project with explicit domain packages (`auth`, `catalog`, `orders`, `cafes`, `payments`, `reports`, `notifications`). **Note: `riders` package removed—all rider/fleet/driver logic is centralized in `logistics-service`.** Use dependency inversion (interfaces + adapters) to keep domain logic isolated.
-- **Data Layer:** PostgreSQL (pgx/v5) with Ent ORM (schema-as-code migrations), Redis for caching and ephemeral state, Event backbone via NATS JetStream or Kafka, S3-compatible storage for media assets.
-- **Deployment:** Containerised with multi-stage Docker builds, Helm charts, GitHub Actions CI/CD, ArgoCD for GitOps, Terraform modules for infrastructure.
-- **Realtime Transport:** Server-Sent Events/WebSockets via chi middleware with Redis Pub/Sub fan-out; eventual migration to gRPC streams.
-- **Observability:** OpenTelemetry instrumentation, Prometheus metrics, structured logging with zap, distributed tracing via Tempo/Jaeger.
+**System Purpose**: Cloud-hosted cafe platform enabling customer ordering, cafe operations, and supervisory analytics. The service orchestrates ordering, payments, loyalty, promotions, and notification flows while exposing consistent APIs to internal clients and partner microservices.
 
-## Domain Modules & Feature Scope
-1. **Identity & Access Management (Priority 1)**
-   - Multi-tenant cafe support, RBAC (customer, rider, cafe staff, super admin) using a shared `tenant_slug` and outlet registry consistent with `auth-service`, `logistics-service`, `inventory-service`, and `pos-service`.
-   - OAuth2/OIDC via external IdP, phone-based OTP fallback using notifications service, with token issuance owned by `auth-service` and this backend consuming claims (no duplicate identity storage).
-   - Device/session management, refresh tokens, two-factor auth (TOTP/SMS) and backup codes rely on `auth-service`; only tenant-level preferences are cached locally.
-   - Rider onboarding/KYC flows: Frontend captures rider forms and calls `logistics-service` APIs directly (`POST /v1/{tenant}/fleet-members`). This backend does not store rider data—only references returned from logistics-service. If tenant/outlet metadata is missing, logistics-service triggers discovery webhook to auth-service.
-   - During login, `auth-service` emits tenant/outlet discovery callbacks so this backend can hydrate metadata prior to handling user-specific workflows.
-   - Tenant sync events are persisted locally (`tenant_sync_events`) to fan-out webhook notifications to logistics, inventory, POS, treasury, and notifications services—ensuring downstream services receive canonical tenant/outlet data without polling.
-   - _Progress:_ Sprint 0 delivered in-memory RBAC + OAuth2 flows with JWT sessions, profile/preferences/security endpoints, and customer order summaries (now aligned to the shared identity architecture).
-2. **Catalog & Menu Management (Priority 2)**
-   - Menu categories, items, pricing, availability scheduling, dietary tags.
-   - Image CDN integration, translation metadata (EN/SW) for localization.
-3. **Subscription & Licensing (Priority 2)**
-   - Tiered plan catalogue (Starter/Growth/Professional) with feature toggles for loyalty, multi-outlet, POS access, and support levels.
-   - Tenant subscription lifecycle: trials, activation, proration, overage tracking (extra riders/orders), and in-app upgrade/downgrade workflows.
-   - License renewal automation: billing schedules, reminders via `notifications-app`, integration with `treasury-app` for invoicing and receipting.
-   - Entitlements service exposing runtime feature flags (e.g. POS integration, advanced analytics) consumed by frontend/admin clients.
-4. **Ordering & Checkout (Priority 3)**
-   - Cart persistence, guest checkout, promo code validation, loyalty engine (points accrual/redemption).
-   - Address management, geocoding, delivery instructions, order orchestration state machine.
-5. **Payments & Treasury Integration (Priority 3)**
-   - MPesa STK Push (C2B), MPesa Express, card tokenization via treasury service (Stripe, PayPal).
-   - Refunds, payouts (B2C), supplier settlements (B2B) using treasury event API.
-   - Reconciliation jobs, idempotent transaction handling, audit trails.
-   - Federated with `treasury-app` for ledgering, invoicing, payout orchestration, and financial compliance exports.
-6. **POS & External Sales Integrations (Priority 3)**
-   - Abstract POS integration service supporting cafe/bar, ecommerce, kitchen, and general POS scenarios with unified order ingest.
-   - Sync adapters for external POS microservice (catalog sync, ticket import, settlement exports) gated by subscription entitlements.
-   - Treasury + notifications hooks to reflect POS settlement events, low-stock alerts, and reconciliation discrepancies.
-7. **Order Fulfilment & Logistics Integration (Priority 4)**
-   - **All logistics, rider, driver, fleet, and delivery task logic is centralized in `logistics-service`. This backend only consumes logistics APIs and events.**
-   - Order readiness: When order is ready for delivery, emit `cafe.order.ready` webhook to `logistics-service` or call `POST /v1/{tenant}/tasks` to create delivery task.
-   - Task status consumption: Subscribe to `logistics.task.assigned`, `logistics.task.completed`, `logistics.route.updated` events to update order status in UI.
-   - Rider references: Query `logistics-service` APIs (`GET /v1/{tenant}/fleet-members`) to display rider info; never store rider profiles locally.
-   - Live tracking: Consume WebSocket/SSE streams from `logistics-service` for real-time driver location and ETA updates.
-   - Proof of delivery: Receive `logistics.task.completed` events with PoD artifacts (signature, photo, OTP) to mark orders as delivered.
-   - Payout events: Emit rider performance metrics to `treasury-app` for payout calculations (logistics-service handles actual payout orchestration).
-8. **Cafe Operations (Priority 4)**
-   - Kitchen display queue, prep status transitions, stock-out workflows, substitution handling.
-   - Shift schedules, capacity throttling, SLA monitoring.
-9. **Notifications & Engagement (Priority 5)**
-   - Event bridge to `notifications-app` for email/SMS/push; templated events (order placed, driver assigned, delivery complete, loyalty balance).
-   - Marketing campaigns, segmented broadcasts, fallback SMS when push fails.
-   - Backend persists audience preferences while `notifications-app` handles channel delivery guarantees, template rendering, and audit trails.
-10. **Analytics & Reporting (Priority 6)**
-   - Operational dashboards (orders, revenue, rider performance), exportable CSV/PDF.
-   - Real-time incident alerts (unassigned orders, delayed deliveries).
-11. **Support & Compliance (Priority 6)**
-   - Customer support ticketing hooks, GDPR/Kenya DPA data subject requests (export/delete).
-   - Activity logging, configurable retention policies.
+**Key Capabilities**:
+- Multi-tenant cafe support with outlet management
+- Menu catalog with localization (EN/SW)
+- Order management with state machine
+- Cart and checkout workflows
+- Loyalty points accrual and redemption
+- Promo code engine
+- Kitchen display queue
+- Subscription and licensing management
+- Integration with treasury, logistics, notifications, inventory, and POS services
 
-## Cross-Cutting Concerns
-- **Testing:** Go test suites with table-driven tests, Testcontainers for integration, Pact for contract tests, k6 for performance.
-- **Observability:** Structured logging (zap), tracing via OpenTelemetry, metrics exported via Prometheus.
-- **Security:** OWASP ASVS baseline, TLS everywhere, secrets via Vault/Parameter Store, rate limiting & anomaly detection middleware.
-- **Localization:** Tenant-aware locale headers translating menu/catalog content.
-- **Scalability:** Stateless HTTP layer, background workers via NATS/Redis streams, sharded database readiness.
-- **Brand & System configuration:** Persist tenant-specific look & feel settings (colors, typography, logos) plus API credentials, webhook endpoints, and feature toggles exposed through admin APIs consumed by frontend clients; share outlet metadata with `pos-service`, `inventory-service`, and `logistics-service` instead of duplicating tables.
-- **Identity Federation:** All inbound requests validated against `auth-service` tokens (JWKS cache, audience checks) with fallbacks for introspection; MFA enforcement respected per-tenant policy.
-- **Auth-Service SSO Integration:** ✅ **COMPLETED** - Integrated `shared/auth-client` v0.1.0 library for production-ready JWT validation using JWKS from auth-service. All protected `/api/v1` routes require valid Bearer tokens. Swagger documentation updated with BearerAuth security definition. Legacy authenticator remains for backward compatibility during migration. **Deployment:** Uses monorepo `replace` directives with versioned dependency (`v0.1.0`). Go workspace (`go.work`) handles local development automatically. Each service has independent DevOps workflows and can be deployed separately while sharing the auth library. See `shared/auth-client/DEPLOYMENT.md` and `shared/auth-client/TAGGING.md` for details.
-- **Data modelling:** Ent schemas act as the single source of truth for database structure, enabling declarative migrations and type-safe repositories across modules. Tenant/outlet discovery webhooks ensure downstream services are up to date before domain records are written.
+**Entity Ownership**: This service owns cafe-specific entities: cafe orders, menu items (references inventory SKUs), cart, loyalty points, and cafe promotions. 
 
-## External Integrations & Dependencies
-- **`notifications-app`:** Event-driven integration (NATS JetStream or HTTP webhooks) with retries, template catalogue sync, opt-out management.
-- **`treasury-app`:** Secure REST/gRPC channel for collection/disbursement flows; webhook listeners for payment status, reconciliation scheduler.
-- **`pos-gateway` (external microservice):** Bidirectional sync for POS orders, menu updates, and settlement summaries; per-tenant credential management aligned with subscription entitlements.
-- **`logistics-service`:** Dispatch requests, rider onboarding, route status callbacks, proof-of-delivery ingestion, and marketplace carrier coordination. All interactions use the shared tenant/outlet registry to prevent divergent data.
-- **`inventory-service`:** Stock availability, reservation, and recipe consumption events to drive menu status and fulfilment eligibility.
-- **`auth-service`:** OIDC authority for all user/staff/admin identities; provides JWT validation, tenant membership claims, and MFA enforcement for backend APIs.
-- **Mapping & Geo Services:** Mapbox or Google Maps for geocoding, distance matrix, route ETA.
-- **Identity Providers:** OAuth2 for Google/Microsoft, SMS OTP via notifications service.
-- **Webhook Fabric:** All inter-service integrations (treasury settlements, logistics tasks, inventory signals, tenant/outlet discovery) are implemented via callbacks/webhooks with retry policies—polling is avoided to maintain consistency.
+**Cafe does NOT own**:
+- **Riders/drivers/fleets**: All rider, driver, fleet, delivery task, shift, and telemetry data is owned by `logistics-service`. Cafe backend stores only `rider_id` references in `order_assignments` table. All rider/fleet queries must go to logistics-service APIs. **Rider creation**: Check tenant has logistics service enabled, then either push to logistics-service API or redirect to logistics-service UI.
+- **Catalog items**: References inventory-service SKUs, no duplication. **Inventory operations**: Check tenant has inventory service enabled before creating/updating items.
+- **Payment processing**: Uses treasury-app for all payment operations. **Payment operations**: Check tenant has treasury service enabled before processing payments.
+- **Inventory balances**: Queries inventory-service, no local stock data
+- **Users**: References auth-service via `auth_service_user_id` field, local table stores only cafe-specific extensions (preferences, cafe roles, loyalty points). Identity data synced from auth-service via events.
 
-## Data Management
-- PostgreSQL schemas managed via migrations (Atlas/Goose), adhering to multi-tenant constraints.
-- Outbox pattern for reliable domain events. CDC streaming for analytics warehouse (future).
-- Redis for cached menus, session tokens, rate limiting counters.
-- Backup & retention strategy (daily snapshots, PITR), encryption at rest & in transit. Surface backup jobs and restore requests through admin settings.
-- Subscription ledger stored in PostgreSQL with historical invoices, renewal schedules, and feature entitlement snapshots.
-
-## API & Protocol Strategy
-- REST-first with versioned routes (`/v1/{tenant}/orders`), documented via OpenAPI.
-- gRPC (ConnectRPC) for high-throughput internal service communication.
-- Webhooks for payment/notification callbacks, tenant/outlet discovery, logistics task status, and treasury settlements; SSE/WebSockets for live tracking.
-- Idempotency keys, correlation IDs, and distributed tracing context propagation.
-
-## Compliance & Risk Controls
-- Align with Kenya Data Protection Act: explicit consent flows, user data export/delete endpoints, audit logging.
-- PCI scope reduction by delegating card handling to treasury providers.
-- Fraud prevention: velocity checks, device fingerprinting, anomaly scoring.
-- Disaster recovery playbook, RTO/RPO targets (<1 hour).
-
-## Sprint Roadmap (Priority-Ordered)
-1. **Sprint 0 – Foundation (Week 1)**
-   - Go project scaffolding, CI/CD pipeline, configuration management, observability baseline.
-   - Identity bootstrap: deliver RBAC roles/permissions, OAuth2 (Google) initiation & callback, JWT access/refresh session management, profile/preferences/security endpoints, and customer order summaries powering Sprint 0 dashboards. _Status: ✅ Completed (Nov 2025)._
-   - Define domain models, ERD, API guidelines, service interface contracts.
-2. **Sprint 1 – Identity & Access Hardening (Weeks 2-3)**
-   - Persist identity data to Postgres via Ent repositories (users, sessions, tokens), enforce tenant scoping, device management, invitation workflows, and audit log baseline.
-   - Kick off rider verification service design (document schema, review workflow) to unblock frontend onboarding flows.
-   - Deliver initial subscription entitlement service scaffolding to gate RBAC/feature access and align JWT claims with `auth-service` contracts.
-3. **Sprint 2 – Catalog & Localization (Weeks 4-5)**
-   - Menu CRUD, category hierarchy, image handling, localization fields, public menu API.
-4. **Sprint 3 – Orders & Cart (Weeks 6-7)**
-   - Cart service, checkout workflow, promo engine MVP, order state machine, idempotent order creation.
-5. **Sprint 4 – Payments Core (Weeks 8-9)**
-   - Treasury integration (MPesa C2B/STK), payment webhook processing, reconciliation logs, retry policies.
-6. **Sprint 5 – Order Fulfilment & Logistics Integration (Weeks 10-11)**
-   - Integrate with `logistics-service` for task creation: emit `cafe.order.ready` webhook or call task creation API when orders are ready.
-   - Consume logistics events: subscribe to `logistics.task.*` events to update order status in real-time.
-   - WebSocket/SSE client: connect to logistics-service streams for live driver tracking and ETA updates.
-   - Rider status queries: call logistics-service APIs to check rider availability/verification before displaying in UI.
-   - Cafe kitchen queue linkage: sync order prep status with logistics task assignment timing.
-7. **Sprint 6 – Notifications & Ops (Weeks 12-13)**
-   - Event pipeline to `notifications-app`, SLA monitoring, issue escalation, support endpoints.
-8. **Sprint 7 – Analytics, Compliance & Hardening (Weeks 14-15)**
-   - Reporting endpoints, data export/delete tooling, performance tuning, penetration testing, release readiness.
-   - Harden subscription invoicing, renewal reminders, and overage metering in tandem with analytics exports.
-9. **Sprint 8 – Launch & Handover (Week 16)**
-   - Production deployment, chaos drills, documentation handover, post-launch monitoring & backlog triage.
-
-## Backlog & Future Enhancements
-- AI-assisted order recommendations (collaborative filtering) via separate service.
-- Dynamic pricing & surge controls, rider incentive programs, multi-cafe marketplace support.
-- Inventory management integration, POS sync, franchise reporting, and advanced revenue share calculations.
-- Tenant theming service (look & feel) with audit trail and preview endpoints for admin UI.
-
-## Non-Functional Goals
-- Availability 99.95%, financial accuracy with ACID guarantees, P99 latency < 800ms for payment initiation.
-- Tenant isolation verified through automated security tests, configurable data residency by organisation, and branch-level segregation policies.
-
-## Runtime Ports & Environments
-- **Local development:** backend runs on port **4000**, with `treasury-app` on **4001** and `notifications-app` on **4002** to simplify side-by-side testing.
-- **Cloud deployment:** all backend services listen on **port 4000** for consistency behind ingress controllers. Environment variables (`CAFE_HTTP_PORT`, `TREASURY_HTTP_PORT`, `NOTIFICATIONS_HTTP_PORT`) drive the override during deployment.
+**Cross-Service Data Ownership Pattern**:
+- Each service owns and manages all data related to its domain
+- Other services reference data via IDs and tenant mapping
+- Before creating/referencing data in another service:
+  1. Check tenant has that service enabled in their subscription plan
+  2. Verify tenant exists in target service (if tenant-specific)
+  3. Either push data via API or redirect to target service UI
+  4. Store only reference IDs locally, never duplicate data
 
 ---
-**Next Steps:** Align with frontend, notifications, treasury, and logistics on API contracts; finalize sprint staffing; set up shared Postman/Stoplight collections; prepare Go service templates for new domain modules. Prioritise look & feel configuration APIs and authentication flows that unblock newly added frontend onboarding surfaces. **Note: All rider/fleet/driver logic is handled by `logistics-service`—this backend only consumes logistics APIs.**
 
+## Technology Stack
+
+### Core Framework
+- **Language**: Go 1.22+
+- **Architecture**: Clean/Hexagonal architecture
+- **HTTP Router**: chi
+- **API Documentation**: OpenAPI-first contracts
+- **gRPC**: ConnectRPC gateway for high-throughput integrations
+
+### Data & Caching
+- **Primary Database**: PostgreSQL 16+ (pgx/v5) with Ent ORM
+- **Caching**: Redis 7+ for caching and ephemeral state
+- **Message Broker**: NATS JetStream or Kafka for event backbone
+- **Storage**: S3-compatible storage for media assets
+
+### Supporting Libraries
+- **ORM**: Ent (schema-as-code migrations)
+- **Validation**: Custom validators
+- **Resilience**: Circuit breaker patterns, retry policies
+- **Logging**: zap (structured logging)
+- **Tracing**: OpenTelemetry instrumentation
+- **Metrics**: Prometheus
+
+### DevOps & Observability
+- **Containerization**: Multi-stage Docker builds
+- **Orchestration**: Kubernetes (via centralized devops-k8s)
+- **CI/CD**: GitHub Actions → ArgoCD
+- **Monitoring**: Prometheus + Grafana, OpenTelemetry
+- **APM**: Jaeger distributed tracing
+
+---
+
+## Domain Modules & Features
+
+### 1. Identity & Access Management
+
+**Cafe-Specific Features**:
+- Multi-tenant cafe support with RBAC (customer, rider, cafe staff, admin, superadmin)
+- Tenant-level preferences and settings
+- User profile extensions (cafe-specific preferences)
+- Device/session management (references auth-service)
+
+**Entities Owned**:
+- `tenants` - Cafe organization records (synced from auth-service via events)
+- `tenant_settings` - Brand palette, locales, feature toggles
+- `users` - Local user table with `auth_service_user_id` reference to auth-service user
+  - Stores cafe-specific data: preferences, cafe roles, loyalty points, rider profiles
+  - Identity data (email, phone, status) synced from auth-service
+  - Sync status tracked via `sync_status` and `sync_at` fields
+- `user_profiles` - Extended profile metadata (cafe-specific)
+- `user_preferences` - Cafe-specific preferences (theme, language, notifications)
+- `roles` - Cafe-specific role catalogue (`customer`, `rider`, `staff`, `admin`)
+- `permissions` - Fine-grained permission catalogue
+- `role_permissions` - Role-permission mappings
+- `user_roles` - User role assignments (cafe-specific roles, merged with auth-service roles from JWT)
+
+**Default Tenant**: The cafe service uses `urban-cafe` as the default tenant slug. All users created without a custom tenant_slug will be assigned to the `urban-cafe` tenant. The tenant is created with slug `urban-cafe` during seeding.
+
+**Integration Points**:
+- **auth-service** (Production: `https://sso.codevertexitsolutions.com/`):
+  - **Authentication**: All login/registration requests proxy to auth-service `/api/v1/auth/login` and `/api/v1/auth/register`
+  - **Default Tenant**: If `tenant_slug` is not provided in login/registration requests, defaults to `urban-cafe`
+  - **JWT Validation**: Token validation via JWKS (`/api/v1/.well-known/jwks.json`) using `shared/auth-client` library
+  - **User Identity Sync**: Local user table stores `auth_service_user_id` reference to auth-service user
+  - **User Events**: Consume `auth.user.created`, `auth.user.updated`, `auth.user.deactivated` events to sync user data
+  - **Tenant Events**: Consume `auth.tenant.created`, `auth.tenant.updated`, `auth.outlet.created` events
+  - **Superuser Handling**: Superusers from auth-service bypass all RBAC/permission checks across all services
+  - **MFA Enforcement**: MFA state managed by auth-service, cafe backend respects MFA requirements
+  - **Service-to-Service Auth**: API key authentication for service-to-service calls
+  - **Tenant Auto-Discovery**: When a user attempts to register/login with a `tenant_slug` that doesn't exist in auth-service, the cafe service automatically pulls full tenant details from the local database and creates the tenant in auth-service with the **same UUID and slug** before proceeding. This ensures tenant IDs match across all services. This is a public operation (no authentication required) and works for all billing plans (free or paid), unlike other services that may require proper billing plans before tenant sync.
+- **Tenant Sync**: Webhook events to logistics, inventory, POS, treasury, notifications services (these services may require proper billing plans before tenant sync)
+
+### 2. Catalog & Menu Management
+
+**Cafe-Specific Features**:
+- Menu categories and hierarchy
+- Menu items with variants (size, flavor)
+- Pricing and availability scheduling
+- Dietary tags (vegan, gluten-free, etc.)
+- Image CDN integration
+- Translation metadata (EN/SW) for localization
+- Menu item schedules (time-based availability)
+
+**Entities Owned**:
+- `cafes` - Individual outlets under a tenant
+- `menu_categories` - Category hierarchy
+- `menu_items` - Products available for ordering
+- `menu_item_variants` - Size/flavor variants
+- `menu_item_translations` - Localized copy
+- `dietary_tags` - Dietary information tags
+- `menu_item_dietary_tags` - Many-to-many link
+- `menu_item_assets` - Additional media/CDN assets
+- `menu_item_schedules` - Availability windows
+
+**Integration Points**:
+- **inventory-service**: Stock availability queries (references inventory SKUs, no duplication)
+- **POS Service**: Menu sync for external POS systems
+
+### 3. Subscription & Licensing
+
+**Cafe-Specific Features**:
+- Tiered plan catalogue (Starter/Growth/Professional)
+- Feature toggles (loyalty, multi-outlet, POS access, support levels)
+- Tenant subscription lifecycle (trials, activation, proration, overage tracking)
+- License renewal automation
+- Entitlements service for runtime feature flags
+
+**Entities Owned**:
+- `subscription_plans` - Plan catalogue
+- `subscription_features` - Feature entitlements
+- `tenant_subscriptions` - Active subscription state
+- `subscription_invoices` - Billing history
+- `subscription_usages` - Aggregated usage for overage fees
+- `license_renewals` - Renewal activity log
+
+**Integration Points**:
+- **treasury-app**: Invoicing and receipting
+- **notifications-app**: Renewal reminders
+
+### 4. Ordering & Checkout
+
+**Cafe-Specific Features**:
+- Cart persistence
+- Guest checkout support
+- Promo code validation
+- Loyalty engine (points accrual/redemption)
+- Address management
+- Geocoding and delivery instructions
+- Order orchestration state machine
+
+**Entities Owned**:
+- `customer_addresses` - Saved delivery addresses
+- `carts` - Active shopping carts
+- `cart_items` - Line items within a cart
+- `orders` - Canonical order record
+- `order_items` - Order line items (with snapshot)
+- `order_events` - Audit events
+- `order_assignments` - Rider dispatch workflow (references logistics-service)
+- `delivery_windows` - Time commitments
+- `promo_codes` - Promotion catalogue
+- `promo_redemptions` - Historical redemptions
+- `loyalty_accounts` - Customer loyalty balances
+- `loyalty_transactions` - Earn/burn ledger
+
+**Integration Points**:
+- **logistics-service**: 
+  - Delivery task creation: `POST /v1/{tenant}/tasks` or emit `cafe.order.ready` event
+  - Rider queries: `GET /v1/{tenant}/fleet-members` (all rider data from logistics-service)
+  - Task status: Subscribe to `logistics.task.*` events
+  - Live tracking: WebSocket/SSE streams from logistics-service
+  - **Important**: Cafe backend stores only `rider_id` references, never rider profiles or fleet data
+- **inventory-service**: Stock availability queries (references inventory SKUs, no duplication)
+- **treasury-app**: Payment processing (payment intents, webhooks, refunds)
+
+### 5. Payments & Treasury Integration
+
+**Cafe-Specific Features**:
+- Payment method tokenization
+- Payment intent management
+- Refund processing
+- Payout tracking (riders/cafes)
+- Settlement reconciliation
+
+**Entities Owned**:
+- `payment_methods` - Tokenized payment instruments
+- `payment_intents` - In-flight payment attempts
+- `payments` - Finalized payment records
+- `refunds` - Refund transactions
+- `payouts` - Payouts to riders/cafes (references treasury-app)
+- `settlements` - Periodic accounting for cafes
+- `treasury_events` - Webhook ingestion for treasury systems
+
+**Integration Points**:
+- **treasury-app**: Payment processing, ledgering, invoicing, payout orchestration, financial compliance exports
+- **M-Pesa**: STK Push (C2B), Express payments via treasury-app
+
+### 6. POS & External Sales Integrations
+
+**Cafe-Specific Features**:
+- Abstract POS integration service
+- Sync adapters for external POS microservice
+- Catalog sync, ticket import, settlement exports
+- Connection health monitoring
+
+**Entities Owned**:
+- `pos_providers` - Registry of supported POS ecosystems
+- `pos_connections` - Tenant-specific credentials
+- `pos_locations` - Mapping between POS outlets and cafes
+- `pos_sync_jobs` - Audit of imports/exports
+- `pos_order_links` - Bridge table linking internal orders to external POS
+
+**Integration Points**:
+- **pos-service**: POS device/session data (references only)
+- **treasury-app**: Settlement reconciliation
+- **notifications-app**: Operational alerts
+
+### 7. Order Fulfilment & Logistics Integration
+
+**Cafe-Specific Features**:
+- Order readiness notification
+- Task status consumption
+- Rider reference queries
+- Live tracking integration
+- Proof of delivery handling
+
+**Entities Owned**:
+- `order_assignments` - Rider dispatch workflow (stores only `rider_id` reference from logistics-service)
+- `delivery_windows` - ETA commitments sourced from logistics task updates
+
+**Integration Points**:
+- **logistics-service**: All rider, driver, fleet, and delivery task logic centralized here
+  - Task creation: `POST /v1/{tenant}/tasks` or emit `cafe.order.ready` webhook
+  - Task status: Subscribe to `logistics.task.*` events
+  - Rider queries: `GET /v1/{tenant}/fleet-members`
+  - Live tracking: WebSocket/SSE streams from logistics-service
+  - Proof of delivery: Receive `logistics.task.completed` events
+
+**Note**: Cafe backend does NOT store rider profiles, fleet data, or delivery task details. Only references.
+
+### 8. Cafe Operations
+
+**Cafe-Specific Features**:
+- Kitchen display queue
+- Prep status transitions
+- Stock-out workflows
+- Substitution handling
+- Shift schedules
+- Capacity throttling
+- SLA monitoring
+
+**Entities Owned**:
+- `kitchen_tickets` - Kitchen production tracking
+- `ticket_events` - Ticket workflow history
+- `capacity_rules` - Throttling controls
+- `shift_schedules` - Staff rostering
+
+**Integration Points**:
+- **inventory-service**: Stock availability queries (no duplication)
+
+### 9. Notifications & Engagement
+
+**Cafe-Specific Features**:
+- Event bridge to notifications-app
+- Templated events (order placed, driver assigned, delivery complete, loyalty balance)
+- Marketing campaigns
+- Segmented broadcasts
+
+**Entities Owned**:
+- `notification_templates` - Messaging templates (cafe-specific)
+- `notification_events` - Pending notifications for async dispatch
+- `notification_subscriptions` - Opt-in/opt-out preferences
+
+**Integration Points**:
+- **notifications-app**: Channel delivery guarantees, template rendering, audit trails
+
+### 10. Analytics & Reporting
+
+**Cafe-Specific Features**:
+- Operational dashboards (orders, revenue, rider performance)
+- Exportable CSV/PDF reports
+- Real-time incident alerts
+
+**Entities Owned**:
+- `report_jobs` - Long-running analytics jobs/exports
+
+**Integration Points**:
+- **Apache Superset**: BI dashboards and analytics (see `docs/superset-integration.md`)
+
+### 11. Support & Compliance
+
+**Cafe-Specific Features**:
+- Customer support ticketing
+- GDPR/Kenya DPA data subject requests
+- Activity logging
+- Configurable retention policies
+
+**Entities Owned**:
+- `support_tickets` - Support case management
+- `support_ticket_events` - Ticket history
+- `audit_logs` - Compliance logging
+- `data_subject_requests` - GDPR/DPA workflows
+- `backup_jobs` - Scheduled backups
+- `backup_restores` - Restore activity
+- `security_policies` - Tenant-configurable security posture
+
+---
+
+## Cross-Cutting Concerns
+
+### Testing
+- Go test suites with table-driven tests
+- Testcontainers for integration testing
+- Pact for contract tests
+- k6 for performance testing
+
+### Observability
+- Structured logging (zap)
+- Tracing via OpenTelemetry
+- Metrics exported via Prometheus
+- Distributed tracing via Tempo/Jaeger
+
+### Security
+- OWASP ASVS baseline
+- TLS everywhere
+- Secrets via Vault/Parameter Store
+- Rate limiting & anomaly detection middleware
+- **Authentication**: All authentication delegated to auth-service (`https://sso.codevertexitsolutions.com/`)
+  - Login/registration proxy to auth-service endpoints
+  - JWT validation via JWKS using `shared/auth-client` library
+  - Superuser detection from JWT claims with RBAC bypass
+  - Service-to-service authentication via API keys
+
+### Localization
+- Tenant-aware locale headers
+- Menu/catalog content translation (EN/SW)
+
+### Scalability
+- Stateless HTTP layer
+- Background workers via NATS/Redis streams
+- Sharded database readiness
+
+### Brand & System Configuration
+- Tenant-specific look & feel settings (colors, typography, logos)
+- API credentials, webhook endpoints, feature toggles
+- Shared outlet metadata with pos-service, inventory-service, logistics-service
+
+### Data Modelling
+- Ent schemas as single source of truth
+- Tenant/outlet discovery webhooks
+- Outbox pattern for reliable domain events
+
+---
+
+## API & Protocol Strategy
+
+- **REST-first**: Versioned routes (`/api/v1/{tenant}/orders`), documented via OpenAPI
+- **gRPC**: ConnectRPC for high-throughput internal service communication
+- **Webhooks**: Payment/notification callbacks, tenant/outlet discovery, logistics task status, treasury settlements
+- **SSE/WebSockets**: Live tracking updates
+- **Idempotency**: Keys, correlation IDs, distributed tracing context propagation
+
+---
+
+## Compliance & Risk Controls
+
+- Align with Kenya Data Protection Act: explicit consent flows, user data export/delete endpoints, audit logging
+- PCI scope reduction by delegating card handling to treasury providers
+- Fraud prevention: velocity checks, device fingerprinting, anomaly scoring
+- Disaster recovery playbook, RTO/RPO targets (<1 hour)
+
+---
+
+## Sprint Delivery Plan
+
+See `docs/sprints/` folder for detailed sprint plans:
+- Sprint 0: Foundation ✅ **Completed** (Nov 2025)
+- Sprint 1: Identity & Access Hardening 🚧 **Partially Implemented** (identity persistence done, device/invitations/audit pending)
+- Sprint 2: Catalog & Localization ⏳ **Not Started**
+- Sprint 3: Orders & Cart ⏳ **Not Started**
+- Sprint 4: Payments Core ⏳ **Not Started**
+- Sprint 5: Order Fulfilment & Logistics Integration ⏳ **Not Started**
+- Sprint 6: Notifications & Ops ⏳ **Not Started**
+- Sprint 7: Analytics, Compliance & Hardening ⏳ **Not Started**
+- Sprint 8: Launch & Handover ⏳ **Not Started**
+
+## Current Implementation Status
+
+**Implemented Modules:**
+- ✅ Identity & Access Management (OAuth2, JWT, user profiles, preferences, RBAC)
+- ✅ Basic tenant support (tenant entity exists, scoping not fully enforced)
+- ✅ Session management (database persistence)
+- ✅ Health checks and observability baseline
+
+**Not Yet Implemented:**
+- ❌ Catalog & Menu Management
+- ❌ Ordering & Checkout
+- ❌ Payments Integration
+- ❌ Logistics Integration (delivery task creation)
+- ❌ Notifications Integration
+- ❌ Analytics & Reporting
+- ❌ Subscription Management
+- ❌ POS Integration
+
+---
+
+## Runtime Ports & Environments
+
+- **Local development**: Backend runs on port **4000**, with `treasury-app` on **4001** and `notifications-app` on **4002**
+- **Cloud deployment**: All backend services listen on **port 4000** for consistency behind ingress controllers
+
+---
+
+## References
+
+- [Integration Guide](docs/integrations.md)
+- [Entity Relationship Diagram](docs/erd.md)
+- [Superset Integration](docs/superset-integration.md)
+- [Sprint Plans](docs/sprints/)

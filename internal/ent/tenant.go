@@ -50,13 +50,11 @@ type TenantEdges struct {
 	Users []*User `json:"users,omitempty"`
 	// Sessions holds the value of the sessions edge.
 	Sessions []*Session `json:"sessions,omitempty"`
-	// RiderProfiles holds the value of the rider_profiles edge.
-	RiderProfiles []*RiderProfile `json:"rider_profiles,omitempty"`
 	// SyncEvents holds the value of the sync_events edge.
 	SyncEvents []*TenantSyncEvent `json:"sync_events,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [4]bool
 }
 
 // SettingsOrErr returns the Settings value or an error if the edge
@@ -88,19 +86,10 @@ func (e TenantEdges) SessionsOrErr() ([]*Session, error) {
 	return nil, &NotLoadedError{edge: "sessions"}
 }
 
-// RiderProfilesOrErr returns the RiderProfiles value or an error if the edge
-// was not loaded in eager-loading.
-func (e TenantEdges) RiderProfilesOrErr() ([]*RiderProfile, error) {
-	if e.loadedTypes[3] {
-		return e.RiderProfiles, nil
-	}
-	return nil, &NotLoadedError{edge: "rider_profiles"}
-}
-
 // SyncEventsOrErr returns the SyncEvents value or an error if the edge
 // was not loaded in eager-loading.
 func (e TenantEdges) SyncEventsOrErr() ([]*TenantSyncEvent, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[3] {
 		return e.SyncEvents, nil
 	}
 	return nil, &NotLoadedError{edge: "sync_events"}
@@ -216,11 +205,6 @@ func (t *Tenant) QueryUsers() *UserQuery {
 // QuerySessions queries the "sessions" edge of the Tenant entity.
 func (t *Tenant) QuerySessions() *SessionQuery {
 	return NewTenantClient(t.config).QuerySessions(t)
-}
-
-// QueryRiderProfiles queries the "rider_profiles" edge of the Tenant entity.
-func (t *Tenant) QueryRiderProfiles() *RiderProfileQuery {
-	return NewTenantClient(t.config).QueryRiderProfiles(t)
 }
 
 // QuerySyncEvents queries the "sync_events" edge of the Tenant entity.

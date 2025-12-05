@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"entgo.io/ent/dialect"
@@ -16,6 +17,7 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
 	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
 	"github.com/bengobox/cafe-backend/internal/ent/user"
 	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
 	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
@@ -106,6 +108,82 @@ func runSeed(ctx context.Context, client *ent.Client) (err error) {
 		return err
 	}
 
+	// Seed demo admin user
+	if err = seedDemoUser(ctx, tx, tenantUUID, now); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// seedDemoUser creates the demo admin user (idempotent).
+func seedDemoUser(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, now time.Time) error {
+	const (
+		demoEmail    = "demo@urban-cafe.com"
+		demoPassword = "password123"
+		demoFullName = "Demo Admin"
+		status       = "active"
+		locale       = "en"
+		timezone     = "Africa/Nairobi"
+		primaryRole  = "admin"
+	)
+	demoUserID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:user:"+demoEmail))
+	demoPasswordHash := "$2a$10$c1SpaELSb9xPUIoFQ8np.OYphHWIBxkPdm9Su.52eCeEet0VM8Q2G" // bcrypt("password123")
+	demoRoleIDs := []string{"admin"}
+	metadata := map[string]any{
+		"timezone": timezone,
+	}
+
+	_, err := tx.User.Get(ctx, demoUserID)
+	switch {
+	case ent.IsNotFound(err):
+		_, createErr := tx.User.Create().
+			SetID(demoUserID).
+			SetTenantID(tenantID).
+			SetEmail(demoEmail).
+			SetPasswordHash(demoPasswordHash).
+			SetFullName(demoFullName).
+			SetStatus(status).
+			SetLocale(locale).
+			SetTimezone(timezone).
+			SetMetadata(metadata).
+			SetPrimaryRole(primaryRole).
+			SetCreatedAt(now).
+			SetUpdatedAt(now).
+			AddRoleIDs(demoRoleIDs...).
+			Save(ctx)
+		if createErr != nil {
+			return fmt.Errorf("create demo admin: %w", createErr)
+		}
+	case err != nil:
+		return fmt.Errorf("lookup demo admin: %w", err)
+	default:
+		_, updateErr := tx.User.UpdateOneID(demoUserID).
+			SetTenantID(tenantID).
+			SetEmail(demoEmail).
+			SetPasswordHash(demoPasswordHash).
+			SetFullName(demoFullName).
+			SetStatus(status).
+			SetLocale(locale).
+			SetTimezone(timezone).
+			SetMetadata(metadata).
+			SetPrimaryRole(primaryRole).
+			SetUpdatedAt(now).
+			ClearRoles().
+			AddRoleIDs(demoRoleIDs...).
+			Save(ctx)
+		if updateErr != nil {
+			return fmt.Errorf("update demo admin: %w", updateErr)
+		}
+	}
+
+	// Create preferences and profile for demo user
+	if err := upsertUserPreference(ctx, tx, demoUserID, timezone); err != nil {
+		return fmt.Errorf("create demo user preference: %w", err)
+	}
+	if err := upsertUserProfile(ctx, tx, demoUserID); err != nil {
+		return fmt.Errorf("create demo user profile: %w", err)
+	}
 	return nil
 }
 
@@ -400,16 +478,38 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 		"tenant_slug": tenantSlug,
 	}
 	for _, destination := range tenantSyncDestinations {
-		if err := tx.TenantSyncEvent.
+		// Check if event already exists first
+		existing, err := tx.TenantSyncEvent.Query().
+			Where(
+				tenantsyncevent.TenantIDEQ(tenantID),
+				tenantsyncevent.DestinationServiceEQ(destination),
+			).
+			Only(ctx)
+		if err == nil && existing != nil {
+			// Event already exists, update payload only (tenant_slug is immutable)
+			_, updateErr := tx.TenantSyncEvent.UpdateOneID(existing.ID).
+				SetPayload(payload).
+				Save(ctx)
+			if updateErr != nil {
+				return fmt.Errorf("update tenant sync event for %s: %w", destination, updateErr)
+			}
+			continue
+		}
+
+		// Event doesn't exist, create it (ignore if it already exists due to race condition)
+		_, createErr := tx.TenantSyncEvent.
 			Create().
 			SetTenantID(tenantID).
 			SetTenantSlug(tenantSlug).
 			SetDestinationService(destination).
 			SetPayload(payload).
-			OnConflictColumns("tenant_id", "destination_service").
-			UpdateNewValues().
-			Exec(ctx); err != nil {
-			return fmt.Errorf("enqueue tenant sync event for %s: %w", destination, err)
+			Save(ctx)
+		if createErr != nil {
+			// Check if it's a unique constraint violation (event already exists)
+			if !strings.Contains(createErr.Error(), "duplicate key") && !strings.Contains(createErr.Error(), "UNIQUE constraint") {
+				return fmt.Errorf("enqueue tenant sync event for %s: %w", destination, createErr)
+			}
+			// Event already exists (race condition), that's fine - continue
 		}
 	}
 	return nil

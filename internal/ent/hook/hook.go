@@ -57,30 +57,6 @@ func (f PermissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PermissionMutation", m)
 }
 
-// The RiderDocumentFunc type is an adapter to allow the use of ordinary
-// function as RiderDocument mutator.
-type RiderDocumentFunc func(context.Context, *ent.RiderDocumentMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f RiderDocumentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.RiderDocumentMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RiderDocumentMutation", m)
-}
-
-// The RiderProfileFunc type is an adapter to allow the use of ordinary
-// function as RiderProfile mutator.
-type RiderProfileFunc func(context.Context, *ent.RiderProfileMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f RiderProfileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.RiderProfileMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RiderProfileMutation", m)
-}
-
 // The RoleFunc type is an adapter to allow the use of ordinary
 // function as Role mutator.
 type RoleFunc func(context.Context, *ent.RoleMutation) (ent.Value, error)

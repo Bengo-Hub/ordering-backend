@@ -93,8 +93,9 @@ type Preferences struct {
 type User struct {
 	ID                   uuid.UUID              `json:"id"`
 	TenantID             string                 `json:"tenantId"`
+	AuthServiceUserID    *uuid.UUID             `json:"authServiceUserId,omitempty"` // Reference to auth-service user
 	Email                string                 `json:"email"`
-	PasswordHash         string                 `json:"-"`
+	PasswordHash         string                 `json:"-"` // Deprecated: Password handled by auth-service
 	FullName             string                 `json:"fullName"`
 	Phone                string                 `json:"phone"`
 	AvatarURL            string                 `json:"avatarUrl"`
@@ -107,6 +108,8 @@ type User struct {
 	TwoFactorSecret      string                 `json:"-"`
 	BackupCodes          []string               `json:"-"`
 	Preferences          Preferences            `json:"preferences"`
+	SyncStatus           string                 `json:"syncStatus,omitempty"` // pending, synced, failed
+	SyncAt               *time.Time             `json:"syncAt,omitempty"`
 	LastLoginAt          *time.Time             `json:"lastLoginAt"`
 	CreatedAt            time.Time              `json:"createdAt"`
 	UpdatedAt            time.Time              `json:"updatedAt"`

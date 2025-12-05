@@ -49,7 +49,8 @@ func (Tenant) Edges() []ent.Edge {
 			Unique(),
 		edge.To("users", User.Type),
 		edge.To("sessions", Session.Type),
-		edge.To("rider_profiles", RiderProfile.Type),
+		// DEPRECATED: Rider profiles edge - all rider data owned by logistics-service
+		// edge.To("rider_profiles", RiderProfile.Type),
 		edge.To("sync_events", TenantSyncEvent.Type),
 	}
 }

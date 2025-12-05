@@ -17,10 +17,16 @@ const (
 	FieldID = "id"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
 	FieldTenantID = "tenant_id"
+	// FieldAuthServiceUserID holds the string denoting the auth_service_user_id field in the database.
+	FieldAuthServiceUserID = "auth_service_user_id"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
+	// FieldSyncStatus holds the string denoting the sync_status field in the database.
+	FieldSyncStatus = "sync_status"
+	// FieldSyncAt holds the string denoting the sync_at field in the database.
+	FieldSyncAt = "sync_at"
 	// FieldFullName holds the string denoting the full_name field in the database.
 	FieldFullName = "full_name"
 	// FieldPhone holds the string denoting the phone field in the database.
@@ -59,10 +65,6 @@ const (
 	EdgePreferences = "preferences"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
-	// EdgeRiderProfile holds the string denoting the rider_profile edge name in mutations.
-	EdgeRiderProfile = "rider_profile"
-	// EdgeReviewedDocuments holds the string denoting the reviewed_documents edge name in mutations.
-	EdgeReviewedDocuments = "reviewed_documents"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -124,26 +126,17 @@ const (
 	ProfileInverseTable = "user_profiles"
 	// ProfileColumn is the table column denoting the profile relation/edge.
 	ProfileColumn = "user_profile"
-	// RiderProfileTable is the table that holds the rider_profile relation/edge.
-	RiderProfileTable = "rider_profiles"
-	// RiderProfileInverseTable is the table name for the RiderProfile entity.
-	// It exists in this package in order to avoid circular dependency with the "riderprofile" package.
-	RiderProfileInverseTable = "rider_profiles"
-	// RiderProfileColumn is the table column denoting the rider_profile relation/edge.
-	RiderProfileColumn = "user_rider_profile"
-	// ReviewedDocumentsTable is the table that holds the reviewed_documents relation/edge. The primary key declared below.
-	ReviewedDocumentsTable = "user_reviewed_documents"
-	// ReviewedDocumentsInverseTable is the table name for the RiderDocument entity.
-	// It exists in this package in order to avoid circular dependency with the "riderdocument" package.
-	ReviewedDocumentsInverseTable = "rider_documents"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
 	FieldTenantID,
+	FieldAuthServiceUserID,
 	FieldEmail,
 	FieldPasswordHash,
+	FieldSyncStatus,
+	FieldSyncAt,
 	FieldFullName,
 	FieldPhone,
 	FieldStatus,
@@ -169,9 +162,6 @@ var (
 	// DevicesPrimaryKey and DevicesColumn2 are the table columns denoting the
 	// primary key for the devices relation (M2M).
 	DevicesPrimaryKey = []string{"user_id", "device_id"}
-	// ReviewedDocumentsPrimaryKey and ReviewedDocumentsColumn2 are the table columns denoting the
-	// primary key for the reviewed_documents relation (M2M).
-	ReviewedDocumentsPrimaryKey = []string{"user_id", "rider_document_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -192,6 +182,8 @@ func ValidColumn(column string) bool {
 var (
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
+	// DefaultSyncStatus holds the default value on creation for the "sync_status" field.
+	DefaultSyncStatus string
 	// FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
 	FullNameValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
@@ -225,6 +217,11 @@ func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
+// ByAuthServiceUserID orders the results by the auth_service_user_id field.
+func ByAuthServiceUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAuthServiceUserID, opts...).ToFunc()
+}
+
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
@@ -233,6 +230,16 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByPasswordHash orders the results by the password_hash field.
 func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
+}
+
+// BySyncStatus orders the results by the sync_status field.
+func BySyncStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSyncStatus, opts...).ToFunc()
+}
+
+// BySyncAt orders the results by the sync_at field.
+func BySyncAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSyncAt, opts...).ToFunc()
 }
 
 // ByFullName orders the results by the full_name field.
@@ -377,27 +384,6 @@ func ByProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProfileStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByRiderProfileField orders the results by rider_profile field.
-func ByRiderProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRiderProfileStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByReviewedDocumentsCount orders the results by reviewed_documents count.
-func ByReviewedDocumentsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newReviewedDocumentsStep(), opts...)
-	}
-}
-
-// ByReviewedDocuments orders the results by reviewed_documents terms.
-func ByReviewedDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newReviewedDocumentsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newTenantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -459,19 +445,5 @@ func newProfileStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProfileInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, ProfileTable, ProfileColumn),
-	)
-}
-func newRiderProfileStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RiderProfileInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, RiderProfileTable, RiderProfileColumn),
-	)
-}
-func newReviewedDocumentsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ReviewedDocumentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, ReviewedDocumentsTable, ReviewedDocumentsPrimaryKey...),
 	)
 }

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
@@ -21,7 +20,6 @@ type TenantSettingCreate struct {
 	config
 	mutation *TenantSettingMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetBrandPalette sets the "brand_palette" field.
@@ -184,7 +182,6 @@ func (tsc *TenantSettingCreate) createSpec() (*TenantSetting, *sqlgraph.CreateSp
 		_node = &TenantSetting{config: tsc.config}
 		_spec = sqlgraph.NewCreateSpec(tenantsetting.Table, sqlgraph.NewFieldSpec(tenantsetting.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = tsc.conflict
 	if value, ok := tsc.mutation.BrandPalette(); ok {
 		_spec.SetField(tenantsetting.FieldBrandPalette, field.TypeJSON, value)
 		_node.BrandPalette = value
@@ -225,243 +222,11 @@ func (tsc *TenantSettingCreate) createSpec() (*TenantSetting, *sqlgraph.CreateSp
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.TenantSetting.Create().
-//		SetBrandPalette(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.TenantSettingUpsert) {
-//			SetBrandPalette(v+v).
-//		}).
-//		Exec(ctx)
-func (tsc *TenantSettingCreate) OnConflict(opts ...sql.ConflictOption) *TenantSettingUpsertOne {
-	tsc.conflict = opts
-	return &TenantSettingUpsertOne{
-		create: tsc,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (tsc *TenantSettingCreate) OnConflictColumns(columns ...string) *TenantSettingUpsertOne {
-	tsc.conflict = append(tsc.conflict, sql.ConflictColumns(columns...))
-	return &TenantSettingUpsertOne{
-		create: tsc,
-	}
-}
-
-type (
-	// TenantSettingUpsertOne is the builder for "upsert"-ing
-	//  one TenantSetting node.
-	TenantSettingUpsertOne struct {
-		create *TenantSettingCreate
-	}
-
-	// TenantSettingUpsert is the "OnConflict" setter.
-	TenantSettingUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetBrandPalette sets the "brand_palette" field.
-func (u *TenantSettingUpsert) SetBrandPalette(v map[string]interface{}) *TenantSettingUpsert {
-	u.Set(tenantsetting.FieldBrandPalette, v)
-	return u
-}
-
-// UpdateBrandPalette sets the "brand_palette" field to the value that was provided on create.
-func (u *TenantSettingUpsert) UpdateBrandPalette() *TenantSettingUpsert {
-	u.SetExcluded(tenantsetting.FieldBrandPalette)
-	return u
-}
-
-// SetLocales sets the "locales" field.
-func (u *TenantSettingUpsert) SetLocales(v []string) *TenantSettingUpsert {
-	u.Set(tenantsetting.FieldLocales, v)
-	return u
-}
-
-// UpdateLocales sets the "locales" field to the value that was provided on create.
-func (u *TenantSettingUpsert) UpdateLocales() *TenantSettingUpsert {
-	u.SetExcluded(tenantsetting.FieldLocales)
-	return u
-}
-
-// SetFeatures sets the "features" field.
-func (u *TenantSettingUpsert) SetFeatures(v map[string]interface{}) *TenantSettingUpsert {
-	u.Set(tenantsetting.FieldFeatures, v)
-	return u
-}
-
-// UpdateFeatures sets the "features" field to the value that was provided on create.
-func (u *TenantSettingUpsert) UpdateFeatures() *TenantSettingUpsert {
-	u.SetExcluded(tenantsetting.FieldFeatures)
-	return u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (u *TenantSettingUpsert) SetUpdatedAt(v time.Time) *TenantSettingUpsert {
-	u.Set(tenantsetting.FieldUpdatedAt, v)
-	return u
-}
-
-// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *TenantSettingUpsert) UpdateUpdatedAt() *TenantSettingUpsert {
-	u.SetExcluded(tenantsetting.FieldUpdatedAt)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
-// Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//		).
-//		Exec(ctx)
-func (u *TenantSettingUpsertOne) UpdateNewValues() *TenantSettingUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.CreatedAt(); exists {
-			s.SetIgnore(tenantsetting.FieldCreatedAt)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *TenantSettingUpsertOne) Ignore() *TenantSettingUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *TenantSettingUpsertOne) DoNothing() *TenantSettingUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the TenantSettingCreate.OnConflict
-// documentation for more info.
-func (u *TenantSettingUpsertOne) Update(set func(*TenantSettingUpsert)) *TenantSettingUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&TenantSettingUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetBrandPalette sets the "brand_palette" field.
-func (u *TenantSettingUpsertOne) SetBrandPalette(v map[string]interface{}) *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetBrandPalette(v)
-	})
-}
-
-// UpdateBrandPalette sets the "brand_palette" field to the value that was provided on create.
-func (u *TenantSettingUpsertOne) UpdateBrandPalette() *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateBrandPalette()
-	})
-}
-
-// SetLocales sets the "locales" field.
-func (u *TenantSettingUpsertOne) SetLocales(v []string) *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetLocales(v)
-	})
-}
-
-// UpdateLocales sets the "locales" field to the value that was provided on create.
-func (u *TenantSettingUpsertOne) UpdateLocales() *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateLocales()
-	})
-}
-
-// SetFeatures sets the "features" field.
-func (u *TenantSettingUpsertOne) SetFeatures(v map[string]interface{}) *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetFeatures(v)
-	})
-}
-
-// UpdateFeatures sets the "features" field to the value that was provided on create.
-func (u *TenantSettingUpsertOne) UpdateFeatures() *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateFeatures()
-	})
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (u *TenantSettingUpsertOne) SetUpdatedAt(v time.Time) *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetUpdatedAt(v)
-	})
-}
-
-// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *TenantSettingUpsertOne) UpdateUpdatedAt() *TenantSettingUpsertOne {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateUpdatedAt()
-	})
-}
-
-// Exec executes the query.
-func (u *TenantSettingUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for TenantSettingCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *TenantSettingUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *TenantSettingUpsertOne) ID(ctx context.Context) (id int, err error) {
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *TenantSettingUpsertOne) IDX(ctx context.Context) int {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // TenantSettingCreateBulk is the builder for creating many TenantSetting entities in bulk.
 type TenantSettingCreateBulk struct {
 	config
 	err      error
 	builders []*TenantSettingCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the TenantSetting entities in the database.
@@ -491,7 +256,6 @@ func (tscb *TenantSettingCreateBulk) Save(ctx context.Context) ([]*TenantSetting
 					_, err = mutators[i+1].Mutate(root, tscb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = tscb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, tscb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -542,173 +306,6 @@ func (tscb *TenantSettingCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (tscb *TenantSettingCreateBulk) ExecX(ctx context.Context) {
 	if err := tscb.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.TenantSetting.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.TenantSettingUpsert) {
-//			SetBrandPalette(v+v).
-//		}).
-//		Exec(ctx)
-func (tscb *TenantSettingCreateBulk) OnConflict(opts ...sql.ConflictOption) *TenantSettingUpsertBulk {
-	tscb.conflict = opts
-	return &TenantSettingUpsertBulk{
-		create: tscb,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (tscb *TenantSettingCreateBulk) OnConflictColumns(columns ...string) *TenantSettingUpsertBulk {
-	tscb.conflict = append(tscb.conflict, sql.ConflictColumns(columns...))
-	return &TenantSettingUpsertBulk{
-		create: tscb,
-	}
-}
-
-// TenantSettingUpsertBulk is the builder for "upsert"-ing
-// a bulk of TenantSetting nodes.
-type TenantSettingUpsertBulk struct {
-	create *TenantSettingCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//		).
-//		Exec(ctx)
-func (u *TenantSettingUpsertBulk) UpdateNewValues() *TenantSettingUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.CreatedAt(); exists {
-				s.SetIgnore(tenantsetting.FieldCreatedAt)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.TenantSetting.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *TenantSettingUpsertBulk) Ignore() *TenantSettingUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *TenantSettingUpsertBulk) DoNothing() *TenantSettingUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the TenantSettingCreateBulk.OnConflict
-// documentation for more info.
-func (u *TenantSettingUpsertBulk) Update(set func(*TenantSettingUpsert)) *TenantSettingUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&TenantSettingUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetBrandPalette sets the "brand_palette" field.
-func (u *TenantSettingUpsertBulk) SetBrandPalette(v map[string]interface{}) *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetBrandPalette(v)
-	})
-}
-
-// UpdateBrandPalette sets the "brand_palette" field to the value that was provided on create.
-func (u *TenantSettingUpsertBulk) UpdateBrandPalette() *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateBrandPalette()
-	})
-}
-
-// SetLocales sets the "locales" field.
-func (u *TenantSettingUpsertBulk) SetLocales(v []string) *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetLocales(v)
-	})
-}
-
-// UpdateLocales sets the "locales" field to the value that was provided on create.
-func (u *TenantSettingUpsertBulk) UpdateLocales() *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateLocales()
-	})
-}
-
-// SetFeatures sets the "features" field.
-func (u *TenantSettingUpsertBulk) SetFeatures(v map[string]interface{}) *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetFeatures(v)
-	})
-}
-
-// UpdateFeatures sets the "features" field to the value that was provided on create.
-func (u *TenantSettingUpsertBulk) UpdateFeatures() *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateFeatures()
-	})
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (u *TenantSettingUpsertBulk) SetUpdatedAt(v time.Time) *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.SetUpdatedAt(v)
-	})
-}
-
-// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *TenantSettingUpsertBulk) UpdateUpdatedAt() *TenantSettingUpsertBulk {
-	return u.Update(func(s *TenantSettingUpsert) {
-		s.UpdateUpdatedAt()
-	})
-}
-
-// Exec executes the query.
-func (u *TenantSettingUpsertBulk) Exec(ctx context.Context) error {
-	if u.create.err != nil {
-		return u.create.err
-	}
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TenantSettingCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for TenantSettingCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *TenantSettingUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

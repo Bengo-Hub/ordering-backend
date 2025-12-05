@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/riderprofile"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
 	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
@@ -24,15 +23,14 @@ import (
 // TenantQuery is the builder for querying Tenant entities.
 type TenantQuery struct {
 	config
-	ctx               *QueryContext
-	order             []tenant.OrderOption
-	inters            []Interceptor
-	predicates        []predicate.Tenant
-	withSettings      *TenantSettingQuery
-	withUsers         *UserQuery
-	withSessions      *SessionQuery
-	withRiderProfiles *RiderProfileQuery
-	withSyncEvents    *TenantSyncEventQuery
+	ctx            *QueryContext
+	order          []tenant.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.Tenant
+	withSettings   *TenantSettingQuery
+	withUsers      *UserQuery
+	withSessions   *SessionQuery
+	withSyncEvents *TenantSyncEventQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -128,28 +126,6 @@ func (tq *TenantQuery) QuerySessions() *SessionQuery {
 			sqlgraph.From(tenant.Table, tenant.FieldID, selector),
 			sqlgraph.To(session.Table, session.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, tenant.SessionsTable, tenant.SessionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryRiderProfiles chains the current query on the "rider_profiles" edge.
-func (tq *TenantQuery) QueryRiderProfiles() *RiderProfileQuery {
-	query := (&RiderProfileClient{config: tq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := tq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(tenant.Table, tenant.FieldID, selector),
-			sqlgraph.To(riderprofile.Table, riderprofile.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, tenant.RiderProfilesTable, tenant.RiderProfilesPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -366,16 +342,15 @@ func (tq *TenantQuery) Clone() *TenantQuery {
 		return nil
 	}
 	return &TenantQuery{
-		config:            tq.config,
-		ctx:               tq.ctx.Clone(),
-		order:             append([]tenant.OrderOption{}, tq.order...),
-		inters:            append([]Interceptor{}, tq.inters...),
-		predicates:        append([]predicate.Tenant{}, tq.predicates...),
-		withSettings:      tq.withSettings.Clone(),
-		withUsers:         tq.withUsers.Clone(),
-		withSessions:      tq.withSessions.Clone(),
-		withRiderProfiles: tq.withRiderProfiles.Clone(),
-		withSyncEvents:    tq.withSyncEvents.Clone(),
+		config:         tq.config,
+		ctx:            tq.ctx.Clone(),
+		order:          append([]tenant.OrderOption{}, tq.order...),
+		inters:         append([]Interceptor{}, tq.inters...),
+		predicates:     append([]predicate.Tenant{}, tq.predicates...),
+		withSettings:   tq.withSettings.Clone(),
+		withUsers:      tq.withUsers.Clone(),
+		withSessions:   tq.withSessions.Clone(),
+		withSyncEvents: tq.withSyncEvents.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
@@ -412,17 +387,6 @@ func (tq *TenantQuery) WithSessions(opts ...func(*SessionQuery)) *TenantQuery {
 		opt(query)
 	}
 	tq.withSessions = query
-	return tq
-}
-
-// WithRiderProfiles tells the query-builder to eager-load the nodes that are connected to
-// the "rider_profiles" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TenantQuery) WithRiderProfiles(opts ...func(*RiderProfileQuery)) *TenantQuery {
-	query := (&RiderProfileClient{config: tq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	tq.withRiderProfiles = query
 	return tq
 }
 
@@ -515,11 +479,10 @@ func (tq *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenan
 	var (
 		nodes       = []*Tenant{}
 		_spec       = tq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [4]bool{
 			tq.withSettings != nil,
 			tq.withUsers != nil,
 			tq.withSessions != nil,
-			tq.withRiderProfiles != nil,
 			tq.withSyncEvents != nil,
 		}
 	)
@@ -558,13 +521,6 @@ func (tq *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenan
 		if err := tq.loadSessions(ctx, query, nodes,
 			func(n *Tenant) { n.Edges.Sessions = []*Session{} },
 			func(n *Tenant, e *Session) { n.Edges.Sessions = append(n.Edges.Sessions, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := tq.withRiderProfiles; query != nil {
-		if err := tq.loadRiderProfiles(ctx, query, nodes,
-			func(n *Tenant) { n.Edges.RiderProfiles = []*RiderProfile{} },
-			func(n *Tenant, e *RiderProfile) { n.Edges.RiderProfiles = append(n.Edges.RiderProfiles, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -664,67 +620,6 @@ func (tq *TenantQuery) loadSessions(ctx context.Context, query *SessionQuery, no
 			return fmt.Errorf(`unexpected referenced foreign-key "tenant_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
-	}
-	return nil
-}
-func (tq *TenantQuery) loadRiderProfiles(ctx context.Context, query *RiderProfileQuery, nodes []*Tenant, init func(*Tenant), assign func(*Tenant, *RiderProfile)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*Tenant)
-	nids := make(map[int]map[*Tenant]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(tenant.RiderProfilesTable)
-		s.Join(joinT).On(s.C(riderprofile.FieldID), joinT.C(tenant.RiderProfilesPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(tenant.RiderProfilesPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(tenant.RiderProfilesPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*Tenant]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*RiderProfile](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "rider_profiles" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
 	}
 	return nil
 }

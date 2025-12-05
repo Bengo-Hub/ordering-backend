@@ -95,60 +95,6 @@ var (
 		Columns:    PermissionsColumns,
 		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
 	}
-	// RiderDocumentsColumns holds the columns for the "rider_documents" table.
-	RiderDocumentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "document_type", Type: field.TypeString},
-		{Name: "file_url", Type: field.TypeString},
-		{Name: "status", Type: field.TypeString, Default: "pending"},
-		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
-		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
-		{Name: "metadata", Type: field.TypeJSON},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-	}
-	// RiderDocumentsTable holds the schema information for the "rider_documents" table.
-	RiderDocumentsTable = &schema.Table{
-		Name:       "rider_documents",
-		Columns:    RiderDocumentsColumns,
-		PrimaryKey: []*schema.Column{RiderDocumentsColumns[0]},
-	}
-	// RiderProfilesColumns holds the columns for the "rider_profiles" table.
-	RiderProfilesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "national_id", Type: field.TypeString, Nullable: true},
-		{Name: "license_number", Type: field.TypeString, Nullable: true},
-		{Name: "vehicle_type", Type: field.TypeString, Nullable: true},
-		{Name: "status", Type: field.TypeString, Default: "pending"},
-		{Name: "rating", Type: field.TypeFloat64, Default: 5},
-		{Name: "onboarded_at", Type: field.TypeTime, Nullable: true},
-		{Name: "suspended_at", Type: field.TypeTime, Nullable: true},
-		{Name: "metadata", Type: field.TypeJSON},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "user_rider_profile", Type: field.TypeUUID, Unique: true},
-	}
-	// RiderProfilesTable holds the schema information for the "rider_profiles" table.
-	RiderProfilesTable = &schema.Table{
-		Name:       "rider_profiles",
-		Columns:    RiderProfilesColumns,
-		PrimaryKey: []*schema.Column{RiderProfilesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "rider_profiles_users_rider_profile",
-				Columns:    []*schema.Column{RiderProfilesColumns[11]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "riderprofile_license_number",
-				Unique:  true,
-				Columns: []*schema.Column{RiderProfilesColumns[2]},
-			},
-		},
-	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -294,8 +240,11 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "auth_service_user_id", Type: field.TypeUUID, Unique: true, Nullable: true},
 		{Name: "email", Type: field.TypeString},
 		{Name: "password_hash", Type: field.TypeString, Nullable: true},
+		{Name: "sync_status", Type: field.TypeString, Default: "pending"},
+		{Name: "sync_at", Type: field.TypeTime, Nullable: true},
 		{Name: "full_name", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "status", Type: field.TypeString, Default: "active"},
@@ -317,13 +266,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_tenants_users",
-				Columns:    []*schema.Column{UsersColumns[13]},
+				Columns:    []*schema.Column{UsersColumns[16]},
 				RefColumns: []*schema.Column{TenantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "users_two_factor_settings_user",
-				Columns:    []*schema.Column{UsersColumns[14]},
+				Columns:    []*schema.Column{UsersColumns[17]},
 				RefColumns: []*schema.Column{TwoFactorSettingsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -380,31 +329,6 @@ var (
 			},
 		},
 	}
-	// RiderProfileDocumentsColumns holds the columns for the "rider_profile_documents" table.
-	RiderProfileDocumentsColumns = []*schema.Column{
-		{Name: "rider_profile_id", Type: field.TypeInt},
-		{Name: "rider_document_id", Type: field.TypeUUID},
-	}
-	// RiderProfileDocumentsTable holds the schema information for the "rider_profile_documents" table.
-	RiderProfileDocumentsTable = &schema.Table{
-		Name:       "rider_profile_documents",
-		Columns:    RiderProfileDocumentsColumns,
-		PrimaryKey: []*schema.Column{RiderProfileDocumentsColumns[0], RiderProfileDocumentsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "rider_profile_documents_rider_profile_id",
-				Columns:    []*schema.Column{RiderProfileDocumentsColumns[0]},
-				RefColumns: []*schema.Column{RiderProfilesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "rider_profile_documents_rider_document_id",
-				Columns:    []*schema.Column{RiderProfileDocumentsColumns[1]},
-				RefColumns: []*schema.Column{RiderDocumentsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeString},
@@ -426,31 +350,6 @@ var (
 				Symbol:     "role_permissions_permission_id",
 				Columns:    []*schema.Column{RolePermissionsColumns[1]},
 				RefColumns: []*schema.Column{PermissionsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
-	// TenantRiderProfilesColumns holds the columns for the "tenant_rider_profiles" table.
-	TenantRiderProfilesColumns = []*schema.Column{
-		{Name: "tenant_id", Type: field.TypeUUID},
-		{Name: "rider_profile_id", Type: field.TypeInt},
-	}
-	// TenantRiderProfilesTable holds the schema information for the "tenant_rider_profiles" table.
-	TenantRiderProfilesTable = &schema.Table{
-		Name:       "tenant_rider_profiles",
-		Columns:    TenantRiderProfilesColumns,
-		PrimaryKey: []*schema.Column{TenantRiderProfilesColumns[0], TenantRiderProfilesColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "tenant_rider_profiles_tenant_id",
-				Columns:    []*schema.Column{TenantRiderProfilesColumns[0]},
-				RefColumns: []*schema.Column{TenantsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "tenant_rider_profiles_rider_profile_id",
-				Columns:    []*schema.Column{TenantRiderProfilesColumns[1]},
-				RefColumns: []*schema.Column{RiderProfilesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -505,39 +404,12 @@ var (
 			},
 		},
 	}
-	// UserReviewedDocumentsColumns holds the columns for the "user_reviewed_documents" table.
-	UserReviewedDocumentsColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "rider_document_id", Type: field.TypeUUID},
-	}
-	// UserReviewedDocumentsTable holds the schema information for the "user_reviewed_documents" table.
-	UserReviewedDocumentsTable = &schema.Table{
-		Name:       "user_reviewed_documents",
-		Columns:    UserReviewedDocumentsColumns,
-		PrimaryKey: []*schema.Column{UserReviewedDocumentsColumns[0], UserReviewedDocumentsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_reviewed_documents_user_id",
-				Columns:    []*schema.Column{UserReviewedDocumentsColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_reviewed_documents_rider_document_id",
-				Columns:    []*schema.Column{UserReviewedDocumentsColumns[1]},
-				RefColumns: []*schema.Column{RiderDocumentsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BackupCodesTable,
 		DevicesTable,
 		OauthAccountsTable,
 		PermissionsTable,
-		RiderDocumentsTable,
-		RiderProfilesTable,
 		RolesTable,
 		SessionsTable,
 		TenantsTable,
@@ -547,19 +419,15 @@ var (
 		UsersTable,
 		UserPreferencesTable,
 		UserProfilesTable,
-		RiderProfileDocumentsTable,
 		RolePermissionsTable,
-		TenantRiderProfilesTable,
 		UserRolesTable,
 		UserDevicesTable,
-		UserReviewedDocumentsTable,
 	}
 )
 
 func init() {
 	BackupCodesTable.ForeignKeys[0].RefTable = UsersTable
 	OauthAccountsTable.ForeignKeys[0].RefTable = UsersTable
-	RiderProfilesTable.ForeignKeys[0].RefTable = UsersTable
 	SessionsTable.ForeignKeys[0].RefTable = TenantsTable
 	SessionsTable.ForeignKeys[1].RefTable = UsersTable
 	TenantSettingsTable.ForeignKeys[0].RefTable = TenantsTable
@@ -568,16 +436,10 @@ func init() {
 	UsersTable.ForeignKeys[1].RefTable = TwoFactorSettingsTable
 	UserPreferencesTable.ForeignKeys[0].RefTable = UsersTable
 	UserProfilesTable.ForeignKeys[0].RefTable = UsersTable
-	RiderProfileDocumentsTable.ForeignKeys[0].RefTable = RiderProfilesTable
-	RiderProfileDocumentsTable.ForeignKeys[1].RefTable = RiderDocumentsTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
-	TenantRiderProfilesTable.ForeignKeys[0].RefTable = TenantsTable
-	TenantRiderProfilesTable.ForeignKeys[1].RefTable = RiderProfilesTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 	UserDevicesTable.ForeignKeys[0].RefTable = UsersTable
 	UserDevicesTable.ForeignKeys[1].RefTable = DevicesTable
-	UserReviewedDocumentsTable.ForeignKeys[0].RefTable = UsersTable
-	UserReviewedDocumentsTable.ForeignKeys[1].RefTable = RiderDocumentsTable
 }
