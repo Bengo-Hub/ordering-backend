@@ -26,12 +26,12 @@ jobs:
           echo "DEPLOY=true" >> $GITHUB_ENV
           echo "SETUP_DATABASES=true" >> $GITHUB_ENV
           echo "DB_TYPES=postgres,redis" >> $GITHUB_ENV
-          echo "NAMESPACE=food-delivery" >> $GITHUB_ENV
-          echo "ENV_SECRET_NAME=food-delivery-backend-env" >> $GITHUB_ENV
+          echo "NAMESPACE=cafe" >> $GITHUB_ENV
+          echo "ENV_SECRET_NAME=cafe-backend-env" >> $GITHUB_ENV
           echo "REGISTRY_SERVER=docker.io" >> $GITHUB_ENV
           echo "REGISTRY_NAMESPACE=codevertex" >> $GITHUB_ENV
-          echo "VALUES_FILE_PATH=apps/food-delivery-backend/values.yaml" >> $GITHUB_ENV
-          echo "APP_NAME=food-delivery-backend" >> $GITHUB_ENV
+          echo "VALUES_FILE_PATH=apps/cafe-backend/values.yaml" >> $GITHUB_ENV
+          echo "APP_NAME=cafe-backend" >> $GITHUB_ENV
 
       - name: Run production deployment
         env:
@@ -45,13 +45,13 @@ jobs:
           DEPLOY: true
           SETUP_DATABASES: true
           DB_TYPES: postgres,redis
-          NAMESPACE: food-delivery
-          ENV_SECRET_NAME: food-delivery-backend-env
+          NAMESPACE: cafe
+          ENV_SECRET_NAME: cafe-backend-env
           REGISTRY_SERVER: docker.io
           REGISTRY_NAMESPACE: codevertex
-          VALUES_FILE_PATH: apps/food-delivery-backend/values.yaml
-          APP_NAME: food-delivery-backend
-          GIT_USER: ${{ secrets.GIT_USER || 'Food Delivery Bot' }}
+          VALUES_FILE_PATH: apps/cafe-backend/values.yaml
+          APP_NAME: cafe-backend
+          GIT_USER: ${{ secrets.GIT_USER || 'Cafe Bot' }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@bengobox.com' }}
         run: |
           chmod +x build.sh
@@ -66,7 +66,7 @@ jobs:
           REGISTRY_NAMESPACE: codevertex
         run: |
           set -e
-          IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/food-delivery-backend"
+          IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/cafe-backend"
           SHORT_SHA=${GITHUB_SHA::8}
           echo "Tagging ${IMAGE_REPO}:${SHORT_SHA} as :latest"
           echo "$REGISTRY_PASSWORD" | docker login "$REGISTRY_SERVER" -u "$REGISTRY_USERNAME" --password-stdin
@@ -78,8 +78,8 @@ jobs:
         if: success()
         env:
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG }}
-          NS: food-delivery
-          APP_NAME: food-delivery-backend
+          NS: cafe
+          APP_NAME: cafe-backend
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
             echo "⏭️ Skipping ArgoCD check - no KUBE_CONFIG available"
@@ -106,7 +106,7 @@ jobs:
         if: success()
         env:
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG }}
-          NS: food-delivery
+          NS: cafe
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
             echo "⏭️ Skipping health check - no KUBE_CONFIG available"
@@ -117,8 +117,8 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
-          if kubectl get deployment food-delivery-backend-app -n ${NS} >/dev/null 2>&1; then
-            kubectl rollout status deployment/food-delivery-backend-app -n ${NS} --timeout=300s
+          if kubectl get deployment cafe-backend-app -n ${NS} >/dev/null 2>&1; then
+            kubectl rollout status deployment/cafe-backend-app -n ${NS} --timeout=300s
             HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'food-delivery' || true)
             if [ -n "$HOSTS" ]; then
               for H in $HOSTS; do
