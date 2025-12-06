@@ -677,6 +677,7 @@ func (s *Service) updateUserFromAuthService(ctx context.Context, user *User, aut
 	user.SyncAt = &now
 	user.SyncStatus = "synced"
 	user.UpdatedAt = now
+	user.LastLoginAt = &now // Track last login timestamp
 
 	if err := s.repo.UpdateUser(ctx, user); err != nil {
 		return nil, fmt.Errorf("identity: update user from auth-service: %w", err)
