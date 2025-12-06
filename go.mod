@@ -2,13 +2,12 @@ module github.com/bengobox/cafe-backend
 
 go 1.24.0
 
-// NOTE: When shared-auth-client is published to GitHub, remove the replace directive below
-// and ensure the version in require matches the published version
-replace github.com/Bengo-Hub/shared-auth-client => ../../shared/auth-client
+// Map module path to correct GitHub repository
+replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-client v0.1.2
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/Bengo-Hub/shared-auth-client v0.1.1
+	github.com/Bengo-Hub/shared-auth-client v0.1.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
