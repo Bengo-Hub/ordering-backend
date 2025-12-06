@@ -16,7 +16,7 @@ import (
 )
 
 // New constructs the chi router with global middleware and base routes.
-func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware) http.Handler {
+func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware, allowedOrigins []string) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -26,7 +26,7 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 	r.Use(sharedmw.Logging(log))
 	r.Use(sharedmw.Recover(log))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"},
 		ExposedHeaders:   []string{"Link"},

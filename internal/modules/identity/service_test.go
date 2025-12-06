@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/cafe-backend/internal/config"
 )
 
@@ -15,17 +16,17 @@ func TestService_LoginWithEmail(t *testing.T) {
 	// Skip this test for now as it requires proper auth-service mocking
 	// This should be tested as an integration test with a real or mocked auth-service
 	t.Skip("Skipping TestService_LoginWithEmail - requires auth-service mocking or integration test setup")
-	
+
 	tests := []struct {
-		name           string
-		email          string
-		password       string
-		tenantSlug     string
-		role           Role
-		setupRepo      func() *MemoryRepository
-		setupAuthClient func() *AuthServiceClient
-		wantErr        bool
-		validateResult func(t *testing.T, result *AuthResult, err error)
+		name            string
+		email           string
+		password        string
+		tenantSlug      string
+		role            Role
+		setupRepo       func() *MemoryRepository
+		setupAuthClient func() *authclient.Client
+		wantErr         bool
+		validateResult  func(t *testing.T, result *AuthResult, err error)
 	}{
 		{
 			name:       "successful login with auth-service",
@@ -36,7 +37,7 @@ func TestService_LoginWithEmail(t *testing.T) {
 			setupRepo: func() *MemoryRepository {
 				return NewMemoryRepository()
 			},
-			setupAuthClient: func() *AuthServiceClient {
+			setupAuthClient: func() *authclient.Client {
 				// This will be mocked in actual implementation
 				return nil
 			},
@@ -64,9 +65,9 @@ func TestService_LoginWithEmail(t *testing.T) {
 			logger := zap.NewNop()
 
 			authCfg := config.AuthConfig{
-				ServiceURL:      "https://sso.codevertexitsolutions.com",
-				Issuer:          "https://auth.bengobox.local",
-				Audience:        "urban-cafe",
+				ServiceURL:        "https://sso.codevertexitsolutions.com",
+				Issuer:            "https://auth.bengobox.local",
+				Audience:          "urban-cafe",
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 
@@ -267,4 +268,3 @@ func TestService_GetUser(t *testing.T) {
 		})
 	}
 }
-

@@ -256,6 +256,34 @@ func (r *MemoryRepository) FindTenantBySlug(_ context.Context, slug string) (*Te
 	return &cpy, nil
 }
 
+// FindTenantByID finds a tenant by its ID.
+func (r *MemoryRepository) FindTenantByID(_ context.Context, id uuid.UUID) (*Tenant, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	for _, tenant := range r.tenants {
+		if tenant.ID == id {
+			cpy := *tenant
+			return &cpy, nil
+		}
+	}
+	return nil, fmt.Errorf("identity: tenant not found: %s", id)
+}
+
+// UpsertTenant creates or updates a tenant.
+func (r *MemoryRepository) UpsertTenant(_ context.Context, t *Tenant) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if t == nil {
+		return fmt.Errorf("identity: nil tenant upsert")
+	}
+
+	cpy := *t
+	r.tenants[t.Slug] = &cpy
+	return nil
+}
+
 func normalizeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
 }

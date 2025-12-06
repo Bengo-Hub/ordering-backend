@@ -72,7 +72,7 @@
 ### 1. Identity & Access Management
 
 **Cafe-Specific Features**:
-- Multi-tenant cafe support with RBAC (customer, rider, cafe staff, admin, superadmin)
+- Multi-tenant cafe support with RBAC (customer, rider, cafe staff, admin, superuser)
 - Tenant-level preferences and settings
 - User profile extensions (cafe-specific preferences)
 - Device/session management (references auth-service)
@@ -403,7 +403,7 @@ See `docs/sprints/` folder for detailed sprint plans:
 ## Current Implementation Status
 
 **Implemented Modules:**
-- ✅ Identity & Access Management (OAuth2, JWT, user profiles, preferences, RBAC)
+- ✅ Identity & Access Management (OAuth2, JWT, user profiles, preferences, RBAC, Google SSO Sync)
 - ✅ Basic tenant support (tenant entity exists, scoping not fully enforced)
 - ✅ Session management (database persistence)
 - ✅ Health checks and observability baseline
@@ -433,3 +433,6 @@ See `docs/sprints/` folder for detailed sprint plans:
 - [Entity Relationship Diagram](docs/erd.md)
 - [Superset Integration](docs/superset-integration.md)
 - [Sprint Plans](docs/sprints/)
+
+## Google Auth Sync Workflow
+For Google OAuth, the `cafe-backend` handles the callback, exchanges the code for a token/profile, and then **synchronously calls auth-service** (`SyncUser` endpoint) to ensure the user identity exists in the central auth system. The local `users` table is then updated/created with the `auth_service_user_id`.

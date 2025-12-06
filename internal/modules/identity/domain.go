@@ -14,23 +14,37 @@ const (
 	RoleRider      Role = "rider"
 	RoleStaff      Role = "staff"
 	RoleAdmin      Role = "admin"
-	RoleSuperAdmin Role = "superadmin"
+	RoleSuperAdmin Role = "superuser"
 )
 
 // Permission captures fine-grained feature access across the platform.
 type Permission string
 
 const (
-	PermissionOrdersView        Permission = "orders:view"
-	PermissionOrdersManage      Permission = "orders:manage"
-	PermissionProfileUpdate     Permission = "profile:update"
-	PermissionPreferencesUpdate Permission = "preferences:update"
-	PermissionLoyaltyView       Permission = "loyalty:view"
-	PermissionLoyaltyRedeem     Permission = "loyalty:redeem"
-	PermissionNotifications     Permission = "notifications:manage"
-	PermissionRidersOnboard     Permission = "riders:onboard"
-	PermissionStaffInvite       Permission = "staff:invite"
-	PermissionAdminManage       Permission = "admin:manage"
+	PermissionOrdersView          Permission = "orders:view"
+	PermissionOrdersManage        Permission = "orders:manage"
+	PermissionOrdersRefund        Permission = "orders:refund"
+	PermissionProfileUpdate       Permission = "profile:update"
+	PermissionPreferencesUpdate   Permission = "preferences:update"
+	PermissionLoyaltyView         Permission = "loyalty:view"
+	PermissionLoyaltyRedeem       Permission = "loyalty:redeem"
+	PermissionCatalogView         Permission = "catalog:view"
+	PermissionCatalogManage       Permission = "catalog:manage"
+	PermissionPaymentsView        Permission = "payments:view"
+	PermissionPaymentsManage      Permission = "payments:manage"
+	PermissionLogisticsView       Permission = "logistics:view"
+	PermissionLogisticsDispatch   Permission = "logistics:dispatch"
+	PermissionOperationsKitchen   Permission = "operations:kitchen"
+	PermissionOperationsInventory Permission = "operations:inventory"
+	PermissionNotificationsView   Permission = "notifications:view"
+	PermissionNotificationsManage Permission = "notifications:manage"
+	PermissionAnalyticsView       Permission = "analytics:view"
+	PermissionAnalyticsExport     Permission = "analytics:export"
+	PermissionSupportView         Permission = "support:view"
+	PermissionSupportManage       Permission = "support:manage"
+	PermissionRidersOnboard       Permission = "riders:onboard" // Kept for backward compatibility if used elsewhere
+	PermissionStaffInvite         Permission = "staff:invite"   // Kept for backward compatibility if used elsewhere
+	PermissionAdminManage         Permission = "admin:manage"
 )
 
 // DefaultPermissions returns the permissions granted to the supplied role.
@@ -56,23 +70,80 @@ func DefaultPermissions(role Role) []Permission {
 			PermissionOrdersManage,
 			PermissionProfileUpdate,
 			PermissionPreferencesUpdate,
-			PermissionNotifications,
+			PermissionNotificationsView,
 			PermissionRidersOnboard,
 		}
-	case RoleAdmin, RoleSuperAdmin:
+	case RoleSuperAdmin:
 		return []Permission{
 			PermissionOrdersView,
 			PermissionOrdersManage,
+			PermissionOrdersRefund,
+			PermissionCatalogView,
+			PermissionCatalogManage,
+			PermissionPaymentsView,
+			PermissionPaymentsManage,
+			PermissionLogisticsView,
+			PermissionLogisticsDispatch,
+			PermissionOperationsKitchen,
+			PermissionOperationsInventory,
+			PermissionNotificationsView,
+			PermissionNotificationsManage,
+			PermissionAnalyticsView,
+			PermissionAnalyticsExport,
+			PermissionSupportView,
+			PermissionSupportManage,
+			PermissionAdminManage,
 			PermissionProfileUpdate,
 			PermissionPreferencesUpdate,
-			PermissionNotifications,
+			PermissionLoyaltyView,
+			PermissionLoyaltyRedeem,
 			PermissionRidersOnboard,
 			PermissionStaffInvite,
+		}
+	case RoleAdmin:
+		return []Permission{
+			PermissionOrdersView,
+			PermissionOrdersManage,
+			PermissionOrdersRefund,
+			PermissionCatalogView,
+			PermissionCatalogManage,
+			PermissionPaymentsView,
+			PermissionPaymentsManage,
+			PermissionLogisticsView,
+			PermissionLogisticsDispatch,
+			PermissionOperationsKitchen,
+			PermissionOperationsInventory,
+			PermissionNotificationsView,
+			PermissionNotificationsManage,
+			PermissionAnalyticsView,
+			PermissionAnalyticsExport,
+			PermissionSupportView,
+			PermissionSupportManage,
 			PermissionAdminManage,
+			PermissionRidersOnboard,
+			PermissionStaffInvite,
 		}
 	default:
-		return nil
+		return []Permission{}
 	}
+}
+
+// ConsolidatePermissions calculates the union of permissions for a list of roles.
+func ConsolidatePermissions(roles []Role) []Permission {
+	permMap := make(map[Permission]bool)
+	for _, r := range roles {
+		for _, p := range DefaultPermissions(r) {
+			permMap[p] = true
+		}
+	}
+	var perms []Permission
+	for p := range permMap {
+		perms = append(perms, p)
+	}
+	if perms == nil {
+		return []Permission{}
+	}
+	return perms
 }
 
 // NotificationPreferences captures messaging channels enabled by the user.

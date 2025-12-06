@@ -113,6 +113,7 @@ func New(ctx context.Context) (*App, error) {
 		)
 		authConfig.CacheTTL = cfg.Auth.JWKSCacheTTL
 		authConfig.RefreshInterval = cfg.Auth.JWKSRefreshInterval
+		authConfig.RedisClient = redisClient
 		validator, err = authclient.NewValidator(authConfig)
 		if err != nil {
 			return nil, fmt.Errorf("auth validator init: %w", err)
@@ -138,7 +139,7 @@ func New(ctx context.Context) (*App, error) {
 	identityHandler := identityhandler.New(log, identitySvc)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
-	router := httprouter.New(log, healthHandler, identityHandler, authenticator, authMiddleware)
+	router := httprouter.New(log, healthHandler, identityHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

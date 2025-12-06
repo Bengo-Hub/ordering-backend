@@ -21,7 +21,7 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 | `tenant_settings` | `tenant_id (PK)`, `brand_palette`, `locales`, `features`, `updated_at` | JSON configuration (colors, localisation, feature toggles, default integration settings). |
 | `users` | `id`, `tenant_id`, `auth_service_user_id` (UUID, UNIQUE, FK reference to auth-service), `email`, `password_hash` (deprecated - auth handled by auth-service), `full_name`, `phone`, `status`, `primary_role`, `sync_status`, `sync_at`, `last_login_at`, `created_at`, `updated_at` | Core user profile. `auth_service_user_id` references auth-service user. Identity data (email, phone, status) synced from auth-service. Unique `(tenant_id, email)` and `auth_service_user_id`. |
 | `user_profiles` | `user_id (PK)`, `avatar_url`, `bio`, `preferences_json` | Extended profile metadata. |
-| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Canonical role catalogue (`customer`, `rider`, `staff`, `admin`, `superadmin`). |
+| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Canonical role catalogue (`customer`, `rider`, `staff`, `admin`, `superuser`). |
 | `permissions` | `code (PK)`, `name`, `module`, `description` | Fine-grained permission catalogue. |
 | `role_permissions` | `(role_code, permission_code) PK` | Many-to-many link for capability matrix. |
 | `user_roles` | `(user_id, role_code) PK`, `assigned_by`, `assigned_at` | User role assignments. |
@@ -183,7 +183,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 ## Seed Data Overview
 
 - **Default Tenant**: `urban-cafe` (slug) - "Urban Café" (name)
-- System roles: `customer`, `rider`, `staff`, `admin`, `superadmin`.
+- System roles: `customer`, `rider`, `staff`, `admin`, `superuser`.
 - Permissions grouped by module (auth, catalog, orders, payments, logistics, operations, notifications, analytics, support).
 - Default super admin account seeded for bootstrap with full permission set, scoped to the primary tenant.
 - **Demo Admin User**: `demo@urban-cafe.com` (password: `password123`, role: `admin`) - seeded idempotently via `cmd/seed/main.go`.

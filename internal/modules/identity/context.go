@@ -47,8 +47,12 @@ func SessionFromContext(ctx context.Context) (*Session, bool) {
 	return session, ok
 }
 
-// MustUserID extracts user ID from claims in context.
+// MustUserID extracts user ID from context (via User object or Claims).
 func MustUserID(ctx context.Context) uuid.UUID {
+	if user, ok := UserFromContext(ctx); ok {
+		return user.ID
+	}
+
 	claims, _ := ClaimsFromContext(ctx)
 	if claims == nil {
 		return uuid.Nil

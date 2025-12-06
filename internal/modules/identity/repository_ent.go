@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/cafe-backend/internal/ent"
 	"github.com/bengobox/cafe-backend/internal/ent/session"
 	"github.com/bengobox/cafe-backend/internal/ent/tenant"
+	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
 	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/cafe-backend/internal/ent/user"
 	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
@@ -234,6 +235,70 @@ func (r *EntRepository) FindTenantBySlug(ctx context.Context, slug string) (*Ten
 		ContactPhone: tenantEntity.ContactPhone,
 		Metadata:     metadata,
 	}, nil
+}
+
+// FindTenantByID finds a tenant by its ID.
+func (r *EntRepository) FindTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error) {
+	tenantEntity, err := r.client.Tenant.Get(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("identity: tenant not found: %s", id)
+		}
+		return nil, fmt.Errorf("identity: find tenant by id: %w", err)
+	}
+
+	metadata := make(map[string]interface{})
+	if tenantEntity.Metadata != nil {
+		metadata = tenantEntity.Metadata
+	}
+
+	return &Tenant{
+		ID:           tenantEntity.ID,
+		Slug:         tenantEntity.Slug,
+		Name:         tenantEntity.Name,
+		Status:       tenantEntity.Status,
+		ContactEmail: tenantEntity.ContactEmail,
+		ContactPhone: tenantEntity.ContactPhone,
+		Metadata:     metadata,
+	}, nil
+}
+
+// UpsertTenant creates or updates a tenant.
+func (r *EntRepository) UpsertTenant(ctx context.Context, t *Tenant) error {
+	if t == nil {
+		return errors.New("identity: nil tenant upsert")
+	}
+
+	// Try to update existing tenant by ID
+	err := r.client.Tenant.UpdateOneID(t.ID).
+		SetSlug(t.Slug).
+		SetName(t.Name).
+		SetStatus(t.Status).
+		SetContactEmail(t.ContactEmail).
+		SetContactPhone(t.ContactPhone).
+		SetMetadata(t.Metadata).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// Create new tenant
+			err = r.client.Tenant.Create().
+				SetID(t.ID).
+				SetSlug(t.Slug).
+				SetName(t.Name).
+				SetStatus(t.Status).
+				SetContactEmail(t.ContactEmail).
+				SetContactPhone(t.ContactPhone).
+				SetMetadata(t.Metadata).
+				Exec(ctx)
+			if err != nil {
+				return fmt.Errorf("identity: create tenant: %w", err)
+			}
+		} else {
+			return fmt.Errorf("identity: update tenant: %w", err)
+		}
+	}
+	return nil
 }
 
 // CreateSession persists a new refresh session.
@@ -859,8 +924,23 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 		"tenant_slug": tenantSlug,
 	}
 	for _, destination := range tenantSyncDestinations {
-		// Try to create, ignore if already exists (duplicate key error)
-		err := tx.TenantSyncEvent.
+		// Check if event already exists to avoid aborting the transaction on duplicate key error
+		exists, err := tx.TenantSyncEvent.Query().
+			Where(
+				tenantsyncevent.TenantIDEQ(tenantID),
+				tenantsyncevent.DestinationServiceEQ(destination),
+			).
+			Exist(ctx)
+		if err != nil {
+			return fmt.Errorf("identity: check existing tenant sync event: %w", err)
+		}
+
+		if exists {
+			continue // Skip if already exists
+		}
+
+		// Create
+		err = tx.TenantSyncEvent.
 			Create().
 			SetTenantID(tenantID).
 			SetTenantSlug(tenantSlug).
@@ -868,11 +948,11 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 			SetPayload(payload).
 			Exec(ctx)
 		if err != nil {
-			// Check if it's a unique constraint violation (event already exists)
-			if !strings.Contains(err.Error(), "duplicate key") && !strings.Contains(err.Error(), "UNIQUE constraint") {
-				return fmt.Errorf("identity: enqueue tenant sync event for %s: %w", destination, err)
-			}
-			// Event already exists, that's fine
+			// Even with the check, there's a tiny race condition, but inside a transaction it might be safer?
+			// Actually, if we are inside a serializable transaction, we are good.
+			// But if Exec fails now, it WILL abort the transaction.
+			// However, since we checked first, it's unlikely to fail unless parallel tx commits first.
+			return fmt.Errorf("identity: enqueue tenant sync event for %s: %w", destination, err)
 		}
 	}
 	return nil

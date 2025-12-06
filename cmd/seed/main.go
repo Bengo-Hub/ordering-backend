@@ -262,7 +262,7 @@ func seedRoles(ctx context.Context, tx *ent.Tx) error {
 		{"rider", "Rider", "Delivery rider", "tenant"},
 		{"staff", "Staff", "Cafe staff/admin user", "tenant"},
 		{"admin", "Admin", "Tenant administrator", "tenant"},
-		{"superadmin", "Super Admin", "Platform super administrator", "global"},
+		{"superuser", "Super User", "Platform super administrator", "global"},
 	}
 
 	for _, r := range roles {
@@ -342,7 +342,7 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 			"support:manage",
 			"admin:manage",
 		},
-		"superadmin": {
+		"superuser": {
 			"orders:view",
 			"orders:manage",
 			"orders:refund",
@@ -517,14 +517,14 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 
 func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID, passwordHash string, now time.Time) error {
 	const (
-		email       = "superadmin@urbancafe.com"
+		email       = "superuser@urbancafe.com"
 		fullName    = "Super Admin"
 		status      = "active"
 		locale      = "en"
 		timezone    = "Africa/Nairobi"
-		primaryRole = "superadmin"
+		primaryRole = "superuser"
 	)
-	roleIDs := []string{"superadmin", "admin"}
+	roleIDs := []string{"superuser", "admin"}
 	metadata := map[string]any{
 		"timezone": timezone,
 	}

@@ -60,7 +60,7 @@ go run ./cmd/seed
 
 See [`docs/erd.md`](docs/erd.md) for a detailed entity relationship overview backing these migrations. Default bootstrap credentials:
 
-- Email: `superadmin@urbancafe.example`
+- Email: `superuser@urbancafe.example`
 - Password: `ChangeMe123!` (update immediately after first login)
 
 Port mapping:

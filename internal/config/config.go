@@ -31,11 +31,12 @@ type AppConfig struct {
 }
 
 type HTTPConfig struct {
-	Host         string        `envconfig:"HTTP_HOST" default:"0.0.0.0"`
-	Port         int           `envconfig:"HTTP_PORT" default:"4000"`
-	ReadTimeout  time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
-	WriteTimeout time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
-	IdleTimeout  time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
+	Host           string        `envconfig:"HTTP_HOST" default:"0.0.0.0"`
+	Port           int           `envconfig:"HTTP_PORT" default:"4000"`
+	ReadTimeout    time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
+	WriteTimeout   time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
+	IdleTimeout    time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
+	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"http://localhost:3000"`
 }
 
 type PostgresConfig struct {
@@ -53,7 +54,7 @@ type RedisConfig struct {
 }
 
 type EventsConfig struct {
-	NATSURL    string `envconfig:"NATS_URL" default:"nats://localhost:4222"`
+	NATSURL    string `envconfig:"NATS_URL" default:"nats://127.0.0.1:4222"`
 	StreamName string `envconfig:"NATS_STREAM" default:"cafe"`
 }
 
@@ -64,12 +65,13 @@ type TelemetryConfig struct {
 type AuthConfig struct {
 	// Auth-service SSO integration (Production: https://sso.codevertexitsolutions.com/)
 	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://sso.codevertexitsolutions.com"`
-	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://auth.bengobox.local"`
+	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://sso.codevertexitsolutions.com"`
 	Audience            string        `envconfig:"AUTH_AUDIENCE" default:"codevertex"`
 	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"`
 	JWKSCacheTTL        time.Duration `envconfig:"AUTH_JWKS_CACHE_TTL" default:"3600s"`
 	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
 	EnableAPIKeyAuth    bool          `envconfig:"AUTH_ENABLE_API_KEY_AUTH" default:"true"`
+	AuthServiceAPIKey   string        `envconfig:"AUTH_SERVICE_API_KEY"`
 
 	// Legacy config (deprecated - use auth-service instead)
 	AccessTokenSecret  string        `envconfig:"AUTH_ACCESS_TOKEN_SECRET" default:"dev-access-secret-change-me"`

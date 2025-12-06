@@ -93,6 +93,7 @@ This document provides detailed integration information for all external service
   - On `auth.user.created` event: Create local user with defaults
   - On `auth.user.updated` event: Update identity fields
   - On login: Verify sync status, update if needed
+  - **On Google OAuth**: `cafe-backend` fetches Google profile -> calls `auth-service` SyncUser (`POST /api/v1/users/sync`) -> updates local user with returned `auth_service_user_id`.
 
 **Superuser Handling**:
 - Superusers from auth-service (role: `superuser`) bypass all RBAC/permission checks

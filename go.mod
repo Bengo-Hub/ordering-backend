@@ -8,7 +8,7 @@ replace github.com/Bengo-Hub/shared-auth-client => ../../shared/auth-client
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/Bengo-Hub/shared-auth-client v0.1.0
+	github.com/Bengo-Hub/shared-auth-client v0.1.1
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -18,9 +18,9 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/nats-io/nats.go v1.33.1
 	github.com/prometheus/client_golang v1.20.4
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.17.2
 	github.com/swaggo/swag v1.16.6
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	golang.org/x/crypto v0.41.0
 	golang.org/x/oauth2 v0.33.0
 )

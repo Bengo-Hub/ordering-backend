@@ -8,13 +8,13 @@ import (
 
 // Tenant represents a tenant entity from the database.
 type Tenant struct {
-	ID          uuid.UUID
-	Slug        string
-	Name        string
-	Status      string
+	ID           uuid.UUID
+	Slug         string
+	Name         string
+	Status       string
 	ContactEmail string
 	ContactPhone string
-	Metadata    map[string]interface{}
+	Metadata     map[string]interface{}
 }
 
 // Repository abstracts persistence for identity entities.
@@ -27,6 +27,8 @@ type Repository interface {
 	ListUsers(ctx context.Context) ([]*User, error)
 
 	FindTenantBySlug(ctx context.Context, slug string) (*Tenant, error)
+	FindTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
+	UpsertTenant(ctx context.Context, tenant *Tenant) error
 
 	CreateSession(ctx context.Context, session *Session) error
 	UpdateSession(ctx context.Context, session *Session) error

@@ -25,6 +25,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - ERD updates outlining subscription plans, tenant subscriptions, POS integration tables, backup jobs, and integration settings to guide upcoming schema work.
 - Tenant sync event pipeline (`tenant_sync_events` Ent schema) to broadcast webhook discovery payloads to logistics, inventory, POS, notifications, and treasury services.
 - **Auth-Service SSO Integration:** Integrated `shared/auth-client` v0.1.0 library for production-ready JWT validation using JWKS from auth-service. All protected `/api/v1` routes require valid Bearer tokens. Swagger documentation updated with BearerAuth security definition. Uses monorepo `replace` directives with versioned dependency. See `shared/auth-client/DEPLOYMENT.md` and `shared/auth-client/TAGGING.md` for details.
+- **Google OAuth Integration:** Added Google OAuth SSO sync workflow. Backend fetches Google profile and synchronously calls auth-service `SyncUser` endpoint to create/update user identity. Users are redirected to profile completion if critical information (phone) is missing. Frontend includes "Continue with Google" buttons for customers and riders.
+
+### Fixed
+- Backend transaction abortion error during tenant sync seed data (fixed in `repository_ent.go`)
+- Frontend role type mismatch by standardizing to `superuser` across all components
 
 ### Changed
 - Migration workflow supports full schema resets via `FOOD_DELIVERY_RESET_DB=true`; seed command now enqueues tenant discovery events after inserting bootstrap data.

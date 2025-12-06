@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/google/uuid"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"go.uber.org/zap"
 
+	"github.com/bengobox/cafe-backend/internal/config"
 	"github.com/bengobox/cafe-backend/internal/modules/identity"
 )
 
@@ -119,4 +119,3 @@ func TestAuthenticator_RequireRoles_WithSuperuser(t *testing.T) {
 		})
 	}
 }
-
