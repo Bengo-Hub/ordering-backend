@@ -59,8 +59,9 @@ success "Prerequisite checks passed"
 log "Running Trivy filesystem scan"
 trivy fs . --exit-code "$TRIVY_ECODE" --format table --skip-dirs vendor || true
 
-log "Building Docker image"
-DOCKER_BUILDKIT=1 docker build . -t "${IMAGE_REPO}:${GIT_COMMIT_ID}"
+log "Building Docker image from monorepo root context"
+# Build from monorepo root to include shared/auth-client
+DOCKER_BUILDKIT=1 docker build ../.. -f Dockerfile -t "${IMAGE_REPO}:${GIT_COMMIT_ID}"
 success "Docker build complete"
 
 if [[ ${DEPLOY} != "true" ]]; then
