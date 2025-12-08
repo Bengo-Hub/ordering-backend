@@ -9,8 +9,8 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/cafe-backend/internal/config"
-	"github.com/bengobox/cafe-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
 )
 
 func TestIsSuperuser(t *testing.T) {

@@ -8,8 +8,8 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/cafe-backend/internal/http/handlers"
-	"github.com/bengobox/cafe-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/http/handlers"
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
 )
 
 // Authenticator provides middleware helpers for RBAC-protected routes.

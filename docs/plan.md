@@ -1,28 +1,34 @@
-# Cafe Backend - Implementation Plan
+# Ordering Service - Implementation Plan
 
 ## Executive Summary
 
-**System Purpose**: Cloud-hosted cafe platform enabling customer ordering, cafe operations, and supervisory analytics. The service orchestrates ordering, payments, loyalty, promotions, and notification flows while exposing consistent APIs to internal clients and partner microservices.
+**System Purpose**: Multi-business online ordering platform for **DELIVERY/SHIPPING ORDERS ONLY**. Supports various business types (food delivery, grocery, retail, pharmacy, e-commerce) with configurable workflows, flexible catalog management, and seamless integration with logistics, treasury, inventory, and auth services.
 
 **Key Capabilities**:
-- Multi-tenant cafe support with outlet management
-- Menu catalog with localization (EN/SW)
-- Order management with state machine
-- Cart and checkout workflows
-- Loyalty points accrual and redemption
-- Promo code engine
-- Kitchen display queue
-- Subscription and licensing management
-- Integration with treasury, logistics, notifications, inventory, and POS services
+- Multi-business type support (food, retail, grocery, pharmacy, flowers, electronics, etc.)
+- Online order placement and tracking (delivery to customer location)
+- Flexible catalog with item modifiers and variants (size, dosage, color, pack size)
+- Multiple delivery options (ASAP, scheduled, dropoff methods, contact preferences)
+- Group ordering (office lunches, shared carts, split payments)
+- Zone-based delivery availability with geocoding
+- Payment processing integration (M-Pesa, cards, wallets, cash on delivery)
+- Real-time order tracking and delivery notifications
+- Multi-tenant with outlet-specific catalogs and pricing
+- Promo codes and loyalty rewards
 
-**Entity Ownership**: This service owns cafe-specific entities: cafe orders, menu items (references inventory SKUs), cart, loyalty points, and cafe promotions. 
+**Entity Ownership**: This service owns **online delivery/shipping orders ONLY**: shopping cart, online catalog (references inventory SKUs), online orders, delivery addresses, promo codes, loyalty accounts, group orders. 
 
-**Cafe does NOT own**:
-- **Riders/drivers/fleets**: All rider, driver, fleet, delivery task, shift, and telemetry data is owned by `logistics-service`. Cafe backend stores only `rider_id` references in `order_assignments` table. All rider/fleet queries must go to logistics-service APIs. **Rider creation**: Check tenant has logistics service enabled, then either push to logistics-service API or redirect to logistics-service UI.
-- **Catalog items**: References inventory-service SKUs, no duplication. **Inventory operations**: Check tenant has inventory service enabled before creating/updating items.
-- **Payment processing**: Uses treasury-app for all payment operations. **Payment operations**: Check tenant has treasury service enabled before processing payments.
-- **Inventory balances**: Queries inventory-service, no local stock data
-- **Users**: References auth-service via `auth_service_user_id` field, local table stores only cafe-specific extensions (preferences, cafe roles, loyalty points). Identity data synced from auth-service via events.
+**Ordering Service does NOT own** (delegated to other services):
+- ❌ **Over-the-counter orders** (walk-in customers) → **POS Service**
+- ❌ **Pickup orders** (customer picks up from store) → **POS Service**
+- ❌ **Dine-in orders** (table service, restaurant orders) → **POS Service**
+- ❌ **Cash drawer management** → **POS Service**
+- ❌ **Kitchen ticket printing** → **POS Service**
+- ❌ **POS terminal operations** → **POS Service**
+- ❌ **Riders/drivers/fleets**: All rider, driver, fleet, delivery task, shift, and telemetry data owned by `logistics-service`. Ordering service stores only `rider_id` references. All rider/fleet queries go to logistics-service APIs.
+- ❌ **Inventory balances**: All stock data owned by `inventory-service`. Ordering service only references via `inventory_sku`. Stock checks and reservations via inventory-service APIs.
+- ❌ **Payment processing**: All payment operations owned by `treasury-service`. Ordering service creates payment intents and receives confirmation webhooks.
+- ❌ **Users/tenants/outlets**: All identity data owned by `auth-service`. Ordering service references via `user_id`, `tenant_id`, `outlet_id`. User data synced via events.
 
 **Cross-Service Data Ownership Pattern**:
 - Each service owns and manages all data related to its domain
@@ -107,16 +113,19 @@
   - **Tenant Auto-Discovery**: When a user attempts to register/login with a `tenant_slug` that doesn't exist in auth-service, the cafe service automatically pulls full tenant details from the local database and creates the tenant in auth-service with the **same UUID and slug** before proceeding. This ensures tenant IDs match across all services. This is a public operation (no authentication required) and works for all billing plans (free or paid), unlike other services that may require proper billing plans before tenant sync.
 - **Tenant Sync**: Webhook events to logistics, inventory, POS, treasury, notifications services (these services may require proper billing plans before tenant sync)
 
-### 2. Catalog & Menu Management
+### 2. Catalog & Item Management
 
-**Cafe-Specific Features**:
-- Menu categories and hierarchy
-- Menu items with variants (size, flavor)
-- Pricing and availability scheduling
-- Dietary tags (vegan, gluten-free, etc.)
-- Image CDN integration
-- Translation metadata (EN/SW) for localization
-- Menu item schedules (time-based availability)
+**Multi-Business Features**:
+- Flexible item types (meal, product, medication, service, subscription)
+- Item variants (size, color, dosage, pack size) - configurable per business type
+- Add-ons and modifiers (extra cheese for food, gift wrapping for retail, consultation for pharmacy)
+- Category hierarchy (unlimited nesting)
+- Pricing models (outlet-specific, time-based, volume-based)
+- Multi-image support with CDN integration
+- Tag system (dietary, features, occasions, compliance)
+- Availability scheduling (time-based, outlet-specific, stock-based)
+- Age-restricted items (pharmacy, alcohol)
+- Prescription-required items (pharmacy)
 
 **Entities Owned**:
 - `cafes` - Individual outlets under a tenant
@@ -133,37 +142,43 @@
 - **inventory-service**: Stock availability queries (references inventory SKUs, no duplication)
 - **POS Service**: Menu sync for external POS systems
 
-### 3. Subscription & Licensing
+### 9. Group Orders
 
-**Cafe-Specific Features**:
-- Tiered plan catalogue (Starter/Growth/Professional)
-- Feature toggles (loyalty, multi-outlet, POS access, support levels)
-- Tenant subscription lifecycle (trials, activation, proration, overage tracking)
-- License renewal automation
-- Entitlements service for runtime feature flags
+**Collaborative Ordering Features**:
+- Group session creation with shareable links
+- Multi-participant cart (no login required for participants)
+- Organizer controls (edit, remove items, finalize)
+- Deadline enforcement
+- Split payment options (equal split, by-item, custom contributions)
+- Group chat/notes
 
 **Entities Owned**:
-- `subscription_plans` - Plan catalogue
-- `subscription_features` - Feature entitlements
-- `tenant_subscriptions` - Active subscription state
-- `subscription_invoices` - Billing history
-- `subscription_usages` - Aggregated usage for overage fees
-- `license_renewals` - Renewal activity log
+- `group_orders` - Group ordering sessions
+- `group_participants` - Participant tracking
+- `group_contributions` - Payment split records
 
-**Integration Points**:
-- **treasury-app**: Invoicing and receipting
-- **notifications-app**: Renewal reminders
+**Use Cases**: Office lunches, party catering, household grocery pooling, event supplies
 
 ### 4. Ordering & Checkout
 
-**Cafe-Specific Features**:
-- Cart persistence
-- Guest checkout support
-- Promo code validation
-- Loyalty engine (points accrual/redemption)
-- Address management
-- Geocoding and delivery instructions
-- Order orchestration state machine
+**Online Ordering Features** (Delivery/Shipping Only):
+- Shopping cart persistence (Redis-cached, PostgreSQL fallback)
+- Guest checkout support with cart merging
+- Real-time stock validation via inventory-service
+- Multiple delivery options:
+  - ASAP delivery (ETA from logistics-service)
+  - Scheduled delivery (date/time picker)
+  - Delivery windows (2-hour slots for grocery)
+- Contact preferences (call, text, meet at door, leave at door)
+- Dropoff options (hand to me, leave at door, curbside, meet outside)
+- Special delivery instructions (free-text)
+- Address management with geocoding
+- Zone-based delivery availability checks
+- Promo code validation and redemption
+- Loyalty points accrual and redemption
+- Group ordering (shared cart, split payments)
+- Payment method selection (M-Pesa, cards, cash on delivery, wallet)
+- Order orchestration state machine (pending → confirmed → preparing → en_route → delivered)
 
 **Entities Owned**:
 - `customer_addresses` - Saved delivery addresses
@@ -191,12 +206,13 @@
 
 ### 5. Payments & Treasury Integration
 
-**Cafe-Specific Features**:
-- Payment method tokenization
-- Payment intent management
-- Refund processing
-- Payout tracking (riders/cafes)
-- Settlement reconciliation
+**Online Payment Features**:
+- Multiple payment methods (M-Pesa, credit/debit cards, digital wallets, cash on delivery)
+- Saved payment methods with tokenization
+- Payment intent creation via treasury-service
+- Payment confirmation webhooks
+- Refund processing for cancelled/returned orders
+- Split payments for group orders
 
 **Entities Owned**:
 - `payment_methods` - Tokenized payment instruments
@@ -211,34 +227,17 @@
 - **treasury-app**: Payment processing, ledgering, invoicing, payout orchestration, financial compliance exports
 - **M-Pesa**: STK Push (C2B), Express payments via treasury-app
 
-### 6. POS & External Sales Integrations
 
-**Cafe-Specific Features**:
-- Abstract POS integration service
-- Sync adapters for external POS microservice
-- Catalog sync, ticket import, settlement exports
-- Connection health monitoring
 
-**Entities Owned**:
-- `pos_providers` - Registry of supported POS ecosystems
-- `pos_connections` - Tenant-specific credentials
-- `pos_locations` - Mapping between POS outlets and cafes
-- `pos_sync_jobs` - Audit of imports/exports
-- `pos_order_links` - Bridge table linking internal orders to external POS
+### 6. Order Fulfilment & Logistics Integration
 
-**Integration Points**:
-- **pos-service**: POS device/session data (references only)
-- **treasury-app**: Settlement reconciliation
-- **notifications-app**: Operational alerts
-
-### 7. Order Fulfilment & Logistics Integration
-
-**Cafe-Specific Features**:
-- Order readiness notification
-- Task status consumption
-- Rider reference queries
-- Live tracking integration
+**Online Delivery Features**:
+- Delivery task creation when order is ready
+- Rider assignment tracking (references only)
+- Real-time delivery tracking (WebSocket/SSE streams)
+- Delivery ETA updates
 - Proof of delivery handling
+- Customer notifications (rider assigned, en route, arriving, delivered)
 
 **Entities Owned**:
 - `order_assignments` - Rider dispatch workflow (stores only `rider_id` reference from logistics-service)
@@ -254,33 +253,17 @@
 
 **Note**: Cafe backend does NOT store rider profiles, fleet data, or delivery task details. Only references.
 
-### 8. Cafe Operations
 
-**Cafe-Specific Features**:
-- Kitchen display queue
-- Prep status transitions
-- Stock-out workflows
-- Substitution handling
-- Shift schedules
-- Capacity throttling
-- SLA monitoring
 
-**Entities Owned**:
-- `kitchen_tickets` - Kitchen production tracking
-- `ticket_events` - Ticket workflow history
-- `capacity_rules` - Throttling controls
-- `shift_schedules` - Staff rostering
+### 7. Notifications & Customer Engagement
 
-**Integration Points**:
-- **inventory-service**: Stock availability queries (no duplication)
-
-### 9. Notifications & Engagement
-
-**Cafe-Specific Features**:
-- Event bridge to notifications-app
-- Templated events (order placed, driver assigned, delivery complete, loyalty balance)
-- Marketing campaigns
-- Segmented broadcasts
+**Online Ordering Notifications**:
+- Order status change notifications (push, SMS, email)
+- Delivery tracking updates (rider assigned, en route, arriving)
+- Promo code and loyalty alerts
+- Marketing campaigns and offers
+- Order reminders (scheduled orders)
+- Feedback requests post-delivery
 
 **Entities Owned**:
 - `notification_templates` - Messaging templates (cafe-specific)
@@ -290,12 +273,15 @@
 **Integration Points**:
 - **notifications-app**: Channel delivery guarantees, template rendering, audit trails
 
-### 10. Analytics & Reporting
+### 8. Analytics & Reporting
 
-**Cafe-Specific Features**:
-- Operational dashboards (orders, revenue, rider performance)
-- Exportable CSV/PDF reports
-- Real-time incident alerts
+**Operational Dashboards**:
+- Order volume and trends
+- Revenue analytics
+- Customer behavior (repeat orders, cart abandonment)
+- Delivery performance metrics
+- Popular items and categories
+- Promo code effectiveness
 
 **Entities Owned**:
 - `report_jobs` - Long-running analytics jobs/exports
@@ -390,33 +376,42 @@
 ## Sprint Delivery Plan
 
 See `docs/sprints/` folder for detailed sprint plans:
-- Sprint 0: Foundation ✅ **Completed** (Nov 2025)
-- Sprint 1: Identity & Access Hardening 🚧 **Partially Implemented** (identity persistence done, device/invitations/audit pending)
-- Sprint 2: Catalog & Localization ⏳ **Not Started**
-- Sprint 3: Orders & Cart ⏳ **Not Started**
-- Sprint 4: Payments Core ⏳ **Not Started**
-- Sprint 5: Order Fulfilment & Logistics Integration ⏳ **Not Started**
-- Sprint 6: Notifications & Ops ⏳ **Not Started**
-- Sprint 7: Analytics, Compliance & Hardening ⏳ **Not Started**
-- Sprint 8: Launch & Handover ⏳ **Not Started**
+- Sprint 0: Foundation ✅ **Completed** (Foundation, database, auth integration)
+- Sprint 1: Business Configuration 🚧 **In Progress** (Multi-business type support, workflow templates)
+- Sprint 2: Flexible Catalog ⏳ **Planned** (Item types, variants, modifiers, categories)
+- Sprint 3: Shopping Cart ⏳ **Planned** (Cart persistence, Redis caching, real-time calculations)
+- Sprint 4: Delivery Options ⏳ **Planned** (Zones, scheduling, dropoff methods, availability checks)
+- Sprint 5: Order Management ⏳ **Planned** (Order placement, state machine, tracking)
+- Sprint 6: Group Orders ⏳ **Planned** (Collaborative ordering, split payments)
+- Sprint 7: Payments Integration ⏳ **Planned** (Treasury integration, payment methods, webhooks)
+- Sprint 8: Logistics Integration ⏳ **Planned** (Delivery tasks, live tracking, POD)
+- Sprint 9: Promo & Loyalty ⏳ **Planned** (Promo codes, loyalty points, rewards)
+- Sprint 10: Notifications ⏳ **Planned** (Order status notifications, marketing)
+- Sprint 11: Analytics & PWA ⏳ **Planned** (Dashboards, Ordering PWA development)
+- Sprint 12: Launch & Hardening ⏳ **Planned** (Load testing, security audit, production deployment)
 
 ## Current Implementation Status
 
 **Implemented Modules:**
-- ✅ Identity & Access Management (OAuth2, JWT, user profiles, preferences, RBAC, Google SSO Sync)
-- ✅ Basic tenant support (tenant entity exists, scoping not fully enforced)
-- ✅ Session management (database persistence)
-- ✅ Health checks and observability baseline
+- ✅ Foundation (server bootstrap, health checks, observability baseline)
+- ✅ Auth integration (JWT validation via auth-service, session management)
+- ✅ Basic multi-tenancy support
+
+**In Progress:**
+- 🚧 Business configuration module
+- 🚧 Flexible catalog schema design
 
 **Not Yet Implemented:**
-- ❌ Catalog & Menu Management
-- ❌ Ordering & Checkout
-- ❌ Payments Integration
-- ❌ Logistics Integration (delivery task creation)
-- ❌ Notifications Integration
-- ❌ Analytics & Reporting
-- ❌ Subscription Management
-- ❌ POS Integration
+- ❌ Shopping cart
+- ❌ Delivery options and zone management
+- ❌ Order management and state machine
+- ❌ Group ordering
+- ❌ Payments integration (treasury-service)
+- ❌ Logistics integration (delivery tasks, tracking)
+- ❌ Promo codes and loyalty
+- ❌ Notifications integration
+- ❌ Analytics and reporting
+- ❌ Ordering PWA frontend
 
 ---
 

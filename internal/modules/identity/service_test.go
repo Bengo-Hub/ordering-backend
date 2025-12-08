@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
-	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/config"
 )
 
 func TestService_LoginWithEmail(t *testing.T) {

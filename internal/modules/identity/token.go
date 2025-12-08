@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
-	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/config"
 )
 
 // Claims represents the JWT payload embedded in access tokens.

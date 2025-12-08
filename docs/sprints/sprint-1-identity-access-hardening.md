@@ -282,8 +282,8 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 **Partially Implemented:**
 - ⚠️ **OAuth2 (Google)**: Still uses local OAuth flow (needs migration to auth-service OAuth)
-- ⚠️ **User Sync via Events**: User sync on login works, but event listeners for `auth.user.*` events not yet implemented
-- ⚠️ **Superuser Handling**: Superuser detection logic not yet implemented in RBAC middleware
+- ✅ **User Sync via Events**: Event listeners for `auth.user.*` events implemented in `internal/modules/identity/events.go` and wired in `app.go`
+- ⚠️ **Superuser Handling**: Superuser detection logic partially implemented - need to verify HasScope("superuser") in all permission checks
 
 **Not Implemented:**
 - ❌ Device management (device registration, tracking, revocation)

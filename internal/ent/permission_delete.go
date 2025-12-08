@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/permission"
-	"github.com/bengobox/cafe-backend/internal/ent/predicate"
+	"github.com/bengobox/ordering-backend/internal/ent/permission"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 )
 
 // PermissionDelete is the builder for deleting a Permission entity.

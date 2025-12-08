@@ -1,7 +1,7 @@
-# Food Delivery Backend – Entity Relationship Overview
+# Ordering Service – Entity Relationship Overview
 
-This document provides a textual ERD for the Urban Café food delivery platform.  
-The schema is organised by domain module. Each table lists its key columns, types, and core relationships.  
+This document provides a textual ERD for the BengoBox Ordering Service (online delivery orders only).  
+The schema supports multiple business types (food, retail, grocery, pharmacy, etc.) with flexible catalog, multi-delivery options, and group ordering.  
 The database structure is defined via Ent schemas—the Go source of truth that powers code generation and migrations.
 
 > **Conventions**
@@ -51,16 +51,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `menu_item_assets` | `id`, `menu_item_id`, `asset_type`, `url`, `metadata`, `created_at` | Additional media / CDN assets. |
 | `menu_item_schedules` | `id`, `menu_item_id`, `day_of_week`, `time_start`, `time_end`, `created_at` | Availability windows. |
 
-## Subscription & Licensing
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `subscription_plans` | `id`, `code`, `name`, `billing_cycle`, `base_fee`, `currency`, `max_orders_per_day`, `max_riders`, `includes_pos`, `includes_loyalty`, `metadata`, `created_at`, `updated_at` | Authoritative catalogue for Starter/Growth/Professional tiers as defined in the proposal/inception documents. |
-| `subscription_features` | `id`, `plan_id`, `feature_code`, `limits_json`, `created_at`, `updated_at` | Normalised feature entitlements (e.g. notifications, multi-outlet, POS connectors). |
-| `tenant_subscriptions` | `id`, `tenant_id`, `plan_id`, `status`, `trial_ends_at`, `current_period_start`, `current_period_end`, `cancel_at_period_end`, `created_at`, `updated_at` | Active subscription state per tenant. |
-| `subscription_invoices` | `id`, `tenant_subscription_id`, `external_reference`, `amount_due`, `amount_paid`, `currency`, `status`, `issued_at`, `due_at`, `paid_at`, `metadata` | Billing history, tying into `treasury-app` for collection. |
-| `subscription_usages` | `id`, `tenant_subscription_id`, `usage_window_start`, `usage_window_end`, `orders_count`, `riders_count`, `overage_amount`, `computed_at`, `metadata` | Aggregated usage to drive overage fees and upgrade recommendations. |
-| `license_renewals` | `id`, `tenant_subscription_id`, `renewal_type`, `triggered_by`, `renewed_at`, `next_renewal_at`, `status`, `notification_status`, `metadata` | Renewal activity log with hooks to `notifications-app` for reminders. |
 
 ## Ordering & Checkout
 
@@ -79,6 +70,23 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `loyalty_accounts` | `id`, `tenant_id`, `user_id`, `balance_points`, `tier`, `lifetime_points`, `created_at`, `updated_at` | Customer loyalty balances. |
 | `loyalty_transactions` | `id`, `account_id`, `order_id`, `points`, `transaction_type`, `description`, `occurred_at`, `metadata` | Earn/burn ledger. |
 
+## Group Orders
+
+| Table | Key Columns | Description |
+|-------|-------------|-------------|
+| `group_orders` | `id`, `tenant_id`, `organizer_id`, `cafe_id`, `share_link`, `share_code`, `status`, `deadline`, `max_participants`, `split_method`, `delivery_address_id`, `created_at`, `updated_at`, `finalized_at` | Group ordering sessions for collaborative orders (office lunches, events). `split_method` can be 'equal', 'by_item', or 'custom'. |
+| `group_participants` | `id`, `group_order_id`, `user_id`, `participant_name`, `status`, `joined_at`, `items_count`, `contribution_amount` | Tracks participants in a group order. Guest participants can join using only a name (no user_id required). |
+| `group_contributions` | `id`, `group_order_id`, `participant_id`, `order_id`, `amount`, `payment_status`, `paid_at` | Individual payment contributions for group order split. Links to individual orders or payment records. |
+
+## Delivery Zones & Availability
+
+| Table | Key Columns | Description |
+|-------|-------------|-------------|
+| `delivery_zones` | `id`, `tenant_id`, `cafe_id`, `name`, `zone_polygon`, `delivery_fee`, `minimum_order`, `estimated_time_minutes`, `is_active`, `created_at`, `updated_at` | Geographic zones for delivery service areas. `zone_polygon` stored as PostGIS geometry (GeoJSON polygon). Different fees and minimums per zone. |
+| `zone_schedules` | `id`, `zone_id`, `day_of_week`, `time_start`, `time_end`, `is_available` | Time-based availability for delivery zones (e.g., lunch hours only, closed Sundays). |
+| `availability_checks` | `id`, `tenant_id`, `latitude`, `longitude`, `zone_id`, `is_serviceable`, `checked_at`, `user_id`, `session_id` | Audit log of delivery availability checks for analytics and zone expansion planning. |
+| `zone_waitlists` | `id`, `tenant_id`, `email`, `phone`, `address`, `latitude`, `longitude`, `subscribed_at`, `notified_at` | Waitlist for customers in areas not yet serviced. Used to prioritize zone expansion. |
+
 ## Payments & Treasury
 
 | Table | Key Columns | Description |
@@ -92,16 +100,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `treasury_events` | `id`, `external_id`, `event_type`, `payload`, `received_at`, `processed_at`, `status`, `error_message` | Webhook ingestion for treasury systems. |
 | _External Integration_ | — | The tables above synchronise with `treasury-app` for ledgering, billing documents, payout approvals, and financial reconciliation. |
 
-## POS & External Sales Integrations
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `pos_providers` | `id`, `code`, `name`, `api_base_url`, `metadata`, `created_at`, `updated_at` | Registry of supported POS ecosystems (cafe/bar, ecommerce, kitchen, universal). |
-| `pos_connections` | `id`, `tenant_id`, `provider_id`, `status`, `api_key`, `api_secret`, `webhook_secret`, `last_synced_at`, `metadata`, `created_at`, `updated_at` | Tenant-specific credentials and connection health for the external POS microservice. |
-| `pos_locations` | `id`, `pos_connection_id`, `external_location_id`, `cafe_id`, `name`, `address_json`, `timezone`, `metadata`, `created_at`, `updated_at` | Mapping between POS outlets and Urban Cafe sites. |
-| `pos_sync_jobs` | `id`, `pos_connection_id`, `sync_type`, `status`, `started_at`, `finished_at`, `items_processed`, `error_message`, `metadata` | Audit of imports (orders, menu items) and exports (settlements) flowing through the POS gateway. |
-| `pos_order_links` | `id`, `order_id`, `pos_connection_id`, `external_order_id`, `synced_at`, `sync_status`, `metadata` | Bridge table linking internal orders to external POS reference IDs. |
-| _External Integration_ | — | POS integrations are proxied through `pos-service`, which owns POS device/session data. Backend stores only linkage metadata and coordinates with `treasury-app` for settlement reconciliation and `notifications-app` for operational alerts. |
 
 ## Fulfilment & Logistics
 
@@ -110,15 +109,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `delivery_windows` | `id`, `order_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff` | Customer-facing ETA commitments sourced from logistics task updates. |
 | _Logistics Integration_ | — | **Entity Ownership**: All rider, driver, fleet, delivery task, shift, telemetry, proof-of-delivery, and dispatch rule data is owned by `logistics-service`. Cafe backend stores only task references (`logistics_task_id`) and `rider_id` references in `order_assignments`. All rider/fleet queries must go to logistics-service APIs (`GET /v1/{tenant}/fleet-members`, `GET /v1/{tenant}/tasks`). |
 
-## Cafe Operations
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `kitchen_tickets` | `id`, `order_id`, `cafe_id`, `status`, `prep_station`, `priority`, `opened_at`, `ready_at`, `closed_at`, `metadata` | Kitchen production tracking. |
-| `ticket_events` | `id`, `ticket_id`, `event_type`, `payload`, `actor_user_id`, `occurred_at` | Ticket workflow history. |
-| `capacity_rules` | `id`, `tenant_id`, `cafe_id`, `max_concurrent_orders`, `time_window_minutes`, `is_active`, `created_at`, `updated_at` | Throttling controls. |
-| `shift_schedules` | `id`, `tenant_id`, `cafe_id`, `role`, `starts_at`, `ends_at`, `assigned_user_id`, `status`, `notes` | Staff rostering. |
-| _Inventory Interface_ | — | Inventory balances, adjustments, and BOM consumption are sourced from `inventory-service` APIs rather than duplicated tables. Materialised views (`inventory_item_snapshots`) can be created for reporting without owning the canonical data. |
 
 ## Notifications & Engagement
 
@@ -182,13 +173,13 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 
 ## Seed Data Overview
 
-- **Default Tenant**: `urban-cafe` (slug) - "Urban Café" (name)
+- **Demo Tenant**: `demo-tenant` (slug) - "Demo Tenant" (name) - for development/testing only
 - System roles: `customer`, `rider`, `staff`, `admin`, `superuser`.
 - Permissions grouped by module (auth, catalog, orders, payments, logistics, operations, notifications, analytics, support).
-- Default super admin account seeded for bootstrap with full permission set, scoped to the primary tenant.
-- **Demo Admin User**: `demo@urban-cafe.com` (password: `password123`, role: `admin`) - seeded idempotently via `cmd/seed/main.go`.
+- Default super admin account seeded for bootstrap with full permission set, scoped to the demo tenant.
+- **Demo Users**: Seeded idempotently via `cmd/seed/main.go` for testing purposes.
 
-**Note**: All users created from the cafe service default to the `urban-cafe` tenant unless a custom `tenant_slug` is provided. When creating a tenant for urban-cafe, the tenant_slug should be `urban-cafe` and used when creating users unless custom value supplied.
+**Note**: In production, tenants are created through normal registration flows. The seed data is provided for development/testing purposes only. All authentication operations require a `tenant_slug` parameter - there is no default tenant.
 
 Refer to `cmd/seed` for the initial data set and execution instructions in `README.md`.
 

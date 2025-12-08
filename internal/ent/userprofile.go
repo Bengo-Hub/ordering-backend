@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/cafe-backend/internal/ent/user"
-	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
 	"github.com/google/uuid"
 )
 

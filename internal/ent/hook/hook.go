@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bengobox/cafe-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent"
 )
 
 // The BackupCodeFunc type is an adapter to allow the use of ordinary

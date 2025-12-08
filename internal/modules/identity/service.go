@@ -16,10 +16,10 @@ import (
 	"golang.org/x/oauth2/google"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
-	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/config"
 )
 
-// DefaultTenantSlug is the default tenant slug for the cafe service.
+// DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
 // This matches config.DefaultTenantSlug but is defined here to avoid circular dependencies.
 const DefaultTenantSlug = config.DefaultTenantSlug
 
@@ -218,7 +218,7 @@ func (s *Service) loginViaAuthService(ctx context.Context, email, password, tena
 	// Extract roles from auth-service user (if available)
 	rolesFromAuth := extractRolesFromAuthServiceUser(authResp.User, email)
 	if len(rolesFromAuth) > 0 {
-		// Merge with cafe-specific roles
+		// Merge with ordering-specific roles
 		user.Roles = mergeRoles(user.Roles, rolesFromAuth)
 		user.Permissions = ConsolidatePermissions(user.Roles)
 
@@ -303,14 +303,15 @@ func (s *Service) ensureTenantInAuthService(ctx context.Context, tenantSlug stri
 			zap.Error(err),
 			zap.String("tenant_slug", tenantSlug))
 
-		tenantName := "Urban Café"
-		contactEmail := "support@urbancafe.com"
-		contactPhone := "+254700000000"
+		tenantName := ""
+		contactEmail := ""
+		contactPhone := ""
 		tenantID := uuid.New() // Generate new UUID if tenant doesn't exist locally
 
-		if tenantSlug == DefaultTenantSlug {
-			tenantName = "Urban Café"
-			contactEmail = "support@urbancafe.com"
+		if tenantSlug == "" {
+			// No default tenant - use generic values
+			tenantName = "Ordering Platform"
+			contactEmail = "support@codevertexitsolutions.com"
 			contactPhone = "+254700000000"
 		} else {
 			// For other tenants, derive name from slug
@@ -331,7 +332,7 @@ func (s *Service) ensureTenantInAuthService(ctx context.Context, tenantSlug stri
 			ContactEmail: contactEmail,
 			ContactPhone: contactPhone,
 			Metadata: map[string]interface{}{
-				"source":       "cafe-service",
+				"source":       "ordering-service",
 				"auto_created": true,
 			},
 		}
@@ -364,7 +365,7 @@ func (s *Service) ensureTenantInAuthService(ctx context.Context, tenantSlug stri
 	if createReq.Metadata == nil {
 		createReq.Metadata = make(map[string]interface{})
 	}
-	createReq.Metadata["source"] = "cafe-service"
+	createReq.Metadata["source"] = "ordering-service"
 	createReq.Metadata["auto_created"] = true
 	createReq.Metadata["synced_at"] = s.now().Format(time.RFC3339)
 
@@ -521,7 +522,7 @@ func (s *Service) RegisterWithEmail(ctx context.Context, email, password, tenant
 	// Extract roles from auth-service user (if available)
 	rolesFromAuth := extractRolesFromAuthServiceUser(authResp.User, email)
 	if len(rolesFromAuth) > 0 {
-		// Merge with cafe-specific roles
+		// Merge with ordering-specific roles
 		user.Roles = mergeRoles(user.Roles, rolesFromAuth)
 		user.Permissions = ConsolidatePermissions(user.Roles)
 
@@ -592,7 +593,7 @@ func (s *Service) syncUserFromAuthService(ctx context.Context, authServiceUserID
 			// Try to get tenant slug from authUserData or auth-service
 			// For now, we'll try to use the tenantID as slug if not found, or "unknown"
 			// But wait, CreateUser in EntRepository actually upserts the tenant!
-			// See d:/Projects/BengoBox/Cafe/cafe-backend/internal/modules/identity/repository_ent.go:46 -> upsertTenant
+			// Upsert tenant in local database (see repository_ent.go -> upsertTenant)
 
 			// The issue is that upsertTenant in EntRepository (line 587) takes a string `tenantID` which it treats as a SLUG if it's not a UUID?
 			// No, line 664: tenantUUID, err := uuid.Parse(usr.TenantID)
@@ -760,7 +761,7 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 	if rolesData, ok := authUserData["roles"].([]interface{}); ok {
 		for _, r := range rolesData {
 			if roleStr, ok := r.(string); ok {
-				// Map auth-service roles to cafe roles
+				// Map auth-service roles to ordering service roles
 				switch roleStr {
 				case "superuser":
 					roles = append(roles, RoleSuperAdmin)
@@ -897,10 +898,14 @@ func (s *Service) syncGoogleUserToAuthService(ctx context.Context, profile googl
 		return nil, fmt.Errorf("identity: auth-service not configured")
 	}
 
-	// 1. Check/Ensure Tenant Exists
-	tenantSlug := DefaultTenantSlug
+	// 1. Check/Ensure Tenant Exists (tenant_slug should be provided by caller)
+	// If not provided, tenant auto-discovery will attempt to create tenant from slug
+	if tenantSlug == "" {
+		return nil, fmt.Errorf("identity: tenant_slug is required for Google OAuth login")
+	}
 	if err := s.ensureTenantInAuthService(ctx, tenantSlug); err != nil {
 		s.logger.Warn("Tenant sync failed during Google login", zap.Error(err))
+		// Don't fail - tenant may be auto-created
 	}
 
 	// 2. Sync User to Auth Service
@@ -916,7 +921,7 @@ func (s *Service) syncGoogleUserToAuthService(ctx context.Context, profile googl
 			"source":      "google_oauth",
 			"signup_type": "sso",
 		},
-		Service: "cafe-backend",
+		Service: "ordering-backend",
 	}
 
 	syncResp, err := s.authServiceClient.SyncUser(ctx, req, s.authServiceAPIKey)
@@ -1178,7 +1183,7 @@ func (s *Service) createGoogleUser(ctx context.Context, profile googleProfile, r
 
 	user := &User{
 		ID:               uuid.New(),
-		TenantID:         "urban-cafe",
+		TenantID:         "", // Will be set from tenant context
 		Email:            strings.ToLower(profile.Email),
 		FullName:         profile.Name,
 		AvatarURL:        profile.Picture,
@@ -1216,10 +1221,10 @@ func (s *Service) seedDemoData(ctx context.Context) error {
 		role     Role
 		fullName string
 	}{
-		{"customer@demo.com", "demo1234", RoleCustomer, "Urban Café Guest"},
+		{"customer@demo.com", "demo1234", RoleCustomer, "Demo Customer"},
 		{"rider@demo.com", "demo1234", RoleRider, "Swift Rider"},
-		{"staff@demo.com", "demo1234", RoleStaff, "Cafe Staff"},
-		{"admin@demo.com", "demo1234", RoleAdmin, "Cafe Admin"},
+		{"staff@demo.com", "demo1234", RoleStaff, "Ordering Staff"},
+		{"admin@demo.com", "demo1234", RoleAdmin, "Ordering Admin"},
 	}
 
 	now := s.now()
@@ -1233,7 +1238,7 @@ func (s *Service) seedDemoData(ctx context.Context) error {
 		userID := uuid.New()
 		user := &User{
 			ID:                   userID,
-			TenantID:             "urban-cafe",
+			TenantID:             "", // Demo users will need tenant context from request
 			Email:                strings.ToLower(demo.email),
 			PasswordHash:         string(hash),
 			FullName:             demo.fullName,

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/bengobox/cafe-backend/internal/ent/role"
+	"github.com/bengobox/ordering-backend/internal/ent/role"
 )
 
 // Role is the model entity for the Role schema.

@@ -9,15 +9,15 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/bengobox/cafe-backend/internal/config"
-	"github.com/bengobox/cafe-backend/internal/ent"
-	"github.com/bengobox/cafe-backend/internal/ent/session"
-	"github.com/bengobox/cafe-backend/internal/ent/tenant"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
-	"github.com/bengobox/cafe-backend/internal/ent/twofactorsetting"
-	"github.com/bengobox/cafe-backend/internal/ent/user"
-	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
-	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
+	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
 )
 
 // EntRepository implements the Repository interface using Ent as the persistence layer.
@@ -670,9 +670,9 @@ func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 		Create().
 		SetID(id).
 		SetSlug(tenantID).
-		SetName("Urban Café").
+		SetName("Ordering Platform").
 		SetStatus("active").
-		SetContactEmail("support@urbancafe.com").
+		SetContactEmail("support@codevertexitsolutions.com").
 		SetContactPhone("+254700000000").
 		Exec(ctx)
 	if err != nil {

@@ -13,14 +13,14 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/bengobox/cafe-backend/internal/config"
-	"github.com/bengobox/cafe-backend/internal/ent"
-	"github.com/bengobox/cafe-backend/internal/ent/tenant"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
-	"github.com/bengobox/cafe-backend/internal/ent/user"
-	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
-	"github.com/bengobox/cafe-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
+	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
 )
 
 var tenantSyncDestinations = []string{
@@ -393,11 +393,14 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 }
 
 func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
+	// Note: Seed data should be tenant-agnostic. 
+	// In production, tenants are created through normal registration flows.
+	// This seed function is kept for demo/development purposes only.
 	const (
-		slug   = "urban-cafe"
-		name   = "Urban Café"
+		slug   = "demo-tenant"  // Generic demo tenant
+		name   = "Demo Tenant"
 		status = "active"
-		email  = "support@urbancafe.com"
+		email  = "support@codevertexitsolutions.com"
 		phone  = "+254700000000"
 	)
 

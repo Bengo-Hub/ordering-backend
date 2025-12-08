@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/bengobox/cafe-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent"
 	// required by schema hooks.
-	_ "github.com/bengobox/cafe-backend/internal/ent/runtime"
+	_ "github.com/bengobox/ordering-backend/internal/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/bengobox/cafe-backend/internal/ent/migrate"
+	"github.com/bengobox/ordering-backend/internal/ent/migrate"
 )
 
 type (

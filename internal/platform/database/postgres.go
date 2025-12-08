@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/config"
 )
 
 // NewPool constructs a PostgreSQL connection pool based on runtime configuration.

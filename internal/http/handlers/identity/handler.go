@@ -13,8 +13,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/bengobox/cafe-backend/internal/http/handlers"
-	"github.com/bengobox/cafe-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/http/handlers"
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
 )
 
 // Handler exposes identity-related HTTP endpoints.

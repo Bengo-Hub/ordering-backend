@@ -1,8 +1,47 @@
-# Food Delivery Backend
+# Ordering Service Backend
 
-Go-based service that orchestrates ordering, logistics, payments, and cafe operations for the BengoBox Urban Café ecosystem. Built with clean architecture, contract-first APIs, and event-driven integrations with treasury and notifications services.
+**Multi-Business Online Ordering Platform** - Go-based service for **ONLINE DELIVERY/SHIPPING ORDERS ONLY**. Supports multiple business types (food delivery, retail, grocery, pharmacy, e-commerce) with configurable workflows, flexible catalog management, and seamless integration with logistics, treasury, inventory, and auth services.
+
+**Note**: This service handles **online orders for delivery/shipping only**. Walk-in customers, dine-in orders, pickup orders, and POS terminal operations are handled by the **POS Service**.
+
+## Scope
+
+**What This Service Handles**:
+- ✅ **Online orders for delivery/shipping** (customers ordering via web/mobile for delivery to their location)
+- ✅ Customer shopping cart management with flexible item modifiers
+- ✅ Online catalog/menu display with multi-business type support
+- ✅ Order tracking and real-time delivery updates
+- ✅ Integration with Logistics Service for delivery task creation
+- ✅ Integration with Treasury Service for online payments (M-Pesa, cards)
+- ✅ Scheduled orders and ASAP delivery
+- ✅ Group ordering (office lunches, shared carts)
+- ✅ Multi-tenant with outlet-specific catalogs
+
+**What This Service Does NOT Handle** (delegated to other services):
+- ❌ Over-the-counter orders (walk-in customers) → **POS Service**
+- ❌ Pickup orders (customer picks up from store) → **POS Service**
+- ❌ Dine-in orders (table service, restaurant orders) → **POS Service**
+- ❌ Cash drawer management → **POS Service**
+- ❌ Kitchen ticket printing → **POS Service**
+- ❌ Point-of-sale terminal operations → **POS Service**
+
+**Frontend**: Integrates with **Ordering PWA** (Progressive Web App) for customer-facing online ordering.
+
+## Multi-Business Type Support
+
+This service is configurable to support various business types beyond food delivery:
+
+| Business Type | Order Items | Delivery Options | Special Features |
+|---------------|-------------|------------------|------------------|
+| **Food Delivery** | Meals, beverages | ASAP, scheduled | Item modifiers (size, extras), group orders |
+| **Grocery** | Food items, household | Scheduled windows | Substitution preferences, bulk orders |
+| **Retail** | Products, apparel | Same-day/next-day | Size/color variants, gift wrapping |
+| **Pharmacy** | Medications, OTC | Priority/standard | Prescription upload, age verification |
+| **Flowers** | Bouquets, arrangements | Scheduled delivery | Personalized messages, occasion-based |
+| **Electronics** | Devices, accessories | Express/standard | Warranty options, installation services |
 
 ## Stack Overview
+
 
 - **Language:** Go 1.22+
 - **HTTP:** chi router, structured middleware, OpenAPI-first endpoints

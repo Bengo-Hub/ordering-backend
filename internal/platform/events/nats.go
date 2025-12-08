@@ -5,7 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/bengobox/cafe-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/config"
 )
 
 // Connect establishes a NATS connection with sane defaults.

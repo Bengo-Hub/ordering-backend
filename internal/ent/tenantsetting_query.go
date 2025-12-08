@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/tenant"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/google/uuid"
 )
 

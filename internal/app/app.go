@@ -14,16 +14,16 @@ import (
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
-	"github.com/bengobox/cafe-backend/internal/config"
-	"github.com/bengobox/cafe-backend/internal/ent"
-	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
-	identityhandler "github.com/bengobox/cafe-backend/internal/http/handlers/identity"
-	httprouter "github.com/bengobox/cafe-backend/internal/http/router"
-	"github.com/bengobox/cafe-backend/internal/modules/identity"
-	"github.com/bengobox/cafe-backend/internal/platform/cache"
-	"github.com/bengobox/cafe-backend/internal/platform/database"
-	"github.com/bengobox/cafe-backend/internal/platform/events"
-	"github.com/bengobox/cafe-backend/internal/shared/logger"
+	"github.com/bengobox/ordering-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/ent"
+	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/platform/cache"
+	"github.com/bengobox/ordering-backend/internal/platform/database"
+	"github.com/bengobox/ordering-backend/internal/platform/events"
+	"github.com/bengobox/ordering-backend/internal/shared/logger"
 )
 
 type App struct {

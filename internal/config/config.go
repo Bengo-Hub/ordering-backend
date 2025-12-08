@@ -8,12 +8,12 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-const namespace = "CAFE"
+const namespace = "ORDERING"
 
-// DefaultTenantSlug is the default tenant slug for the cafe service.
-const DefaultTenantSlug = "urban-cafe"
+// DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
+const DefaultTenantSlug = ""
 
-// Config captures environment configuration for the Cafe backend.
+// Config captures environment configuration for the Ordering service backend.
 type Config struct {
 	App       AppConfig
 	HTTP      HTTPConfig
@@ -25,7 +25,7 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name    string `envconfig:"APP_NAME" default:"cafe-backend"`
+	Name    string `envconfig:"APP_NAME" default:"ordering-backend"`
 	Env     string `envconfig:"APP_ENV" default:"development"`
 	Version string `envconfig:"APP_VERSION" default:"0.1.0"`
 }
@@ -40,7 +40,7 @@ type HTTPConfig struct {
 }
 
 type PostgresConfig struct {
-	URL             string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/cafe?sslmode=disable"`
+	URL             string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/ordering-service?sslmode=disable"`
 	MaxOpenConns    int           `envconfig:"POSTGRES_MAX_OPEN_CONNS" default:"20"`
 	MaxIdleConns    int           `envconfig:"POSTGRES_MAX_IDLE_CONNS" default:"10"`
 	ConnMaxLifetime time.Duration `envconfig:"POSTGRES_CONN_MAX_LIFETIME" default:"30m"`
@@ -55,7 +55,7 @@ type RedisConfig struct {
 
 type EventsConfig struct {
 	NATSURL    string `envconfig:"NATS_URL" default:"nats://127.0.0.1:4222"`
-	StreamName string `envconfig:"NATS_STREAM" default:"cafe"`
+	StreamName string `envconfig:"NATS_STREAM" default:"ordering"`
 }
 
 type TelemetryConfig struct {
@@ -81,7 +81,7 @@ type AuthConfig struct {
 	GoogleClientID     string        `envconfig:"AUTH_GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
 	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"http://localhost:3000/auth/callback"`
-	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Urban Cafe Delivery"`
+	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Ordering Platform"`
 }
 
 // Load reads configuration from environment variables and optional .env files.

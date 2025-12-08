@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/permission"
-	"github.com/bengobox/cafe-backend/internal/ent/predicate"
-	"github.com/bengobox/cafe-backend/internal/ent/role"
+	"github.com/bengobox/ordering-backend/internal/ent/permission"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
+	"github.com/bengobox/ordering-backend/internal/ent/role"
 )
 
 // PermissionUpdate is the builder for updating Permission entities.

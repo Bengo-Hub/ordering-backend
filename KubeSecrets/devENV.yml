@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: cafe-backend-env
-  namespace: cafe
+  name: ordering-backend-env
+  namespace: ordering
 type: Opaque
 stringData:
-  CAFE_APP_ENV: "Production"
-  CAFE_POSTGRES_URL: "postgres://postgres:postgres@postgresql.cafe.svc.cluster.local:5432/cafe?sslmode=disable"
-  CAFE_REDIS_ADDR: "redis-master.cafe.svc.cluster.local:6379"
-  CAFE_NATS_URL: "nats://nats.messaging.svc.cluster.local:4222"
-  CAFE_NATS_STREAM: "cafe"
-  CAFE_OTLP_ENDPOINT: "http://otel-collector.monitoring.svc.cluster.local:4317"
-  CAFE_AUTH_SERVICE_URL: "https://sso.codevertexitsolutions.com"
-  CAFE_AUTH_ISSUER: "https://auth.bengobox.local"
-  CAFE_AUTH_AUDIENCE: "codevertex"
-  CAFE_AUTH_JWKS_URL: "https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"
-  CAFE_AUTH_ENABLE_API_KEY_AUTH: "true"
+  ORDERING_APP_ENV: "Production"
+  ORDERING_POSTGRES_URL: "postgres://postgres:postgres@postgresql.ordering.svc.cluster.local:5432/ordering?sslmode=disable"
+  ORDERING_REDIS_ADDR: "redis-master.ordering.svc.cluster.local:6379"
+  ORDERING_NATS_URL: "nats://nats.messaging.svc.cluster.local:4222"
+  ORDERING_NATS_STREAM: "ordering"
+  ORDERING_OTLP_ENDPOINT: "http://otel-collector.monitoring.svc.cluster.local:4317"
+  ORDERING_AUTH_SERVICE_URL: "https://sso.codevertexitsolutions.com"
+  ORDERING_AUTH_ISSUER: "https://sso.codevertexitsolutions.com"
+  ORDERING_AUTH_AUDIENCE: "codevertex"
+  ORDERING_AUTH_JWKS_URL: "https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"
+  ORDERING_AUTH_ENABLE_API_KEY_AUTH: "true"

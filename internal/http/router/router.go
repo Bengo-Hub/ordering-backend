@@ -10,9 +10,9 @@ import (
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
-	handlers "github.com/bengobox/cafe-backend/internal/http/handlers"
-	identityhandler "github.com/bengobox/cafe-backend/internal/http/handlers/identity"
-	sharedmw "github.com/bengobox/cafe-backend/internal/shared/middleware"
+	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	sharedmw "github.com/bengobox/ordering-backend/internal/shared/middleware"
 )
 
 // New constructs the chi router with global middleware and base routes.

@@ -8,13 +8,15 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/session"
-	"github.com/bengobox/cafe-backend/internal/ent/tenant"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsetting"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
-	"github.com/bengobox/cafe-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
 
@@ -23,6 +25,7 @@ type TenantCreate struct {
 	config
 	mutation *TenantMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetSlug sets the "slug" field.
@@ -309,6 +312,7 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		_node = &Tenant{config: tc.config}
 		_spec = sqlgraph.NewCreateSpec(tenant.Table, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = tc.conflict
 	if id, ok := tc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -412,11 +416,358 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Tenant.Create().
+//		SetSlug(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TenantUpsert) {
+//			SetSlug(v+v).
+//		}).
+//		Exec(ctx)
+func (tc *TenantCreate) OnConflict(opts ...sql.ConflictOption) *TenantUpsertOne {
+	tc.conflict = opts
+	return &TenantUpsertOne{
+		create: tc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tc *TenantCreate) OnConflictColumns(columns ...string) *TenantUpsertOne {
+	tc.conflict = append(tc.conflict, sql.ConflictColumns(columns...))
+	return &TenantUpsertOne{
+		create: tc,
+	}
+}
+
+type (
+	// TenantUpsertOne is the builder for "upsert"-ing
+	//  one Tenant node.
+	TenantUpsertOne struct {
+		create *TenantCreate
+	}
+
+	// TenantUpsert is the "OnConflict" setter.
+	TenantUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsert) SetSlug(v string) *TenantUpsert {
+	u.Set(tenant.FieldSlug, v)
+	return u
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSlug() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSlug)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *TenantUpsert) SetName(v string) *TenantUpsert {
+	u.Set(tenant.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateName() *TenantUpsert {
+	u.SetExcluded(tenant.FieldName)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantUpsert) SetStatus(v string) *TenantUpsert {
+	u.Set(tenant.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateStatus() *TenantUpsert {
+	u.SetExcluded(tenant.FieldStatus)
+	return u
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (u *TenantUpsert) SetContactEmail(v string) *TenantUpsert {
+	u.Set(tenant.FieldContactEmail, v)
+	return u
+}
+
+// UpdateContactEmail sets the "contact_email" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateContactEmail() *TenantUpsert {
+	u.SetExcluded(tenant.FieldContactEmail)
+	return u
+}
+
+// ClearContactEmail clears the value of the "contact_email" field.
+func (u *TenantUpsert) ClearContactEmail() *TenantUpsert {
+	u.SetNull(tenant.FieldContactEmail)
+	return u
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (u *TenantUpsert) SetContactPhone(v string) *TenantUpsert {
+	u.Set(tenant.FieldContactPhone, v)
+	return u
+}
+
+// UpdateContactPhone sets the "contact_phone" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateContactPhone() *TenantUpsert {
+	u.SetExcluded(tenant.FieldContactPhone)
+	return u
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *TenantUpsert) ClearContactPhone() *TenantUpsert {
+	u.SetNull(tenant.FieldContactPhone)
+	return u
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *TenantUpsert) SetMetadata(v map[string]interface{}) *TenantUpsert {
+	u.Set(tenant.FieldMetadata, v)
+	return u
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateMetadata() *TenantUpsert {
+	u.SetExcluded(tenant.FieldMetadata)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantUpsert) SetUpdatedAt(v time.Time) *TenantUpsert {
+	u.Set(tenant.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateUpdatedAt() *TenantUpsert {
+	u.SetExcluded(tenant.FieldUpdatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tenant.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TenantUpsertOne) UpdateNewValues() *TenantUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(tenant.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(tenant.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TenantUpsertOne) Ignore() *TenantUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TenantUpsertOne) DoNothing() *TenantUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TenantCreate.OnConflict
+// documentation for more info.
+func (u *TenantUpsertOne) Update(set func(*TenantUpsert)) *TenantUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TenantUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsertOne) SetSlug(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSlug() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *TenantUpsertOne) SetName(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateName() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantUpsertOne) SetStatus(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateStatus() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (u *TenantUpsertOne) SetContactEmail(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetContactEmail(v)
+	})
+}
+
+// UpdateContactEmail sets the "contact_email" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateContactEmail() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateContactEmail()
+	})
+}
+
+// ClearContactEmail clears the value of the "contact_email" field.
+func (u *TenantUpsertOne) ClearContactEmail() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearContactEmail()
+	})
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (u *TenantUpsertOne) SetContactPhone(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetContactPhone(v)
+	})
+}
+
+// UpdateContactPhone sets the "contact_phone" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateContactPhone() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateContactPhone()
+	})
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *TenantUpsertOne) ClearContactPhone() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearContactPhone()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *TenantUpsertOne) SetMetadata(v map[string]interface{}) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateMetadata() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantUpsertOne) SetUpdatedAt(v time.Time) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateUpdatedAt() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *TenantUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TenantCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TenantUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TenantUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: TenantUpsertOne.ID is not supported by MySQL driver. Use TenantUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TenantUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TenantCreateBulk is the builder for creating many Tenant entities in bulk.
 type TenantCreateBulk struct {
 	config
 	err      error
 	builders []*TenantCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Tenant entities in the database.
@@ -446,6 +797,7 @@ func (tcb *TenantCreateBulk) Save(ctx context.Context) ([]*Tenant, error) {
 					_, err = mutators[i+1].Mutate(root, tcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = tcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, tcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -492,6 +844,235 @@ func (tcb *TenantCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (tcb *TenantCreateBulk) ExecX(ctx context.Context) {
 	if err := tcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Tenant.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TenantUpsert) {
+//			SetSlug(v+v).
+//		}).
+//		Exec(ctx)
+func (tcb *TenantCreateBulk) OnConflict(opts ...sql.ConflictOption) *TenantUpsertBulk {
+	tcb.conflict = opts
+	return &TenantUpsertBulk{
+		create: tcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tcb *TenantCreateBulk) OnConflictColumns(columns ...string) *TenantUpsertBulk {
+	tcb.conflict = append(tcb.conflict, sql.ConflictColumns(columns...))
+	return &TenantUpsertBulk{
+		create: tcb,
+	}
+}
+
+// TenantUpsertBulk is the builder for "upsert"-ing
+// a bulk of Tenant nodes.
+type TenantUpsertBulk struct {
+	create *TenantCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tenant.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TenantUpsertBulk) UpdateNewValues() *TenantUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(tenant.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(tenant.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Tenant.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TenantUpsertBulk) Ignore() *TenantUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TenantUpsertBulk) DoNothing() *TenantUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TenantCreateBulk.OnConflict
+// documentation for more info.
+func (u *TenantUpsertBulk) Update(set func(*TenantUpsert)) *TenantUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TenantUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsertBulk) SetSlug(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSlug() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *TenantUpsertBulk) SetName(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateName() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantUpsertBulk) SetStatus(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateStatus() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetContactEmail sets the "contact_email" field.
+func (u *TenantUpsertBulk) SetContactEmail(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetContactEmail(v)
+	})
+}
+
+// UpdateContactEmail sets the "contact_email" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateContactEmail() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateContactEmail()
+	})
+}
+
+// ClearContactEmail clears the value of the "contact_email" field.
+func (u *TenantUpsertBulk) ClearContactEmail() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearContactEmail()
+	})
+}
+
+// SetContactPhone sets the "contact_phone" field.
+func (u *TenantUpsertBulk) SetContactPhone(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetContactPhone(v)
+	})
+}
+
+// UpdateContactPhone sets the "contact_phone" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateContactPhone() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateContactPhone()
+	})
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *TenantUpsertBulk) ClearContactPhone() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearContactPhone()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *TenantUpsertBulk) SetMetadata(v map[string]interface{}) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateMetadata() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantUpsertBulk) SetUpdatedAt(v time.Time) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateUpdatedAt() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *TenantUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TenantCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TenantCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TenantUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

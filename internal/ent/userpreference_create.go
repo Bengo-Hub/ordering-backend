@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/user"
-	"github.com/bengobox/cafe-backend/internal/ent/userpreference"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,7 @@ type UserPreferenceCreate struct {
 	config
 	mutation *UserPreferenceMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetTheme sets the "theme" field.
@@ -274,6 +276,7 @@ func (upc *UserPreferenceCreate) createSpec() (*UserPreference, *sqlgraph.Create
 		_node = &UserPreference{config: upc.config}
 		_spec = sqlgraph.NewCreateSpec(userpreference.Table, sqlgraph.NewFieldSpec(userpreference.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = upc.conflict
 	if value, ok := upc.mutation.Theme(); ok {
 		_spec.SetField(userpreference.FieldTheme, field.TypeString, value)
 		_node.Theme = value
@@ -326,11 +329,321 @@ func (upc *UserPreferenceCreate) createSpec() (*UserPreference, *sqlgraph.Create
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UserPreference.Create().
+//		SetTheme(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UserPreferenceUpsert) {
+//			SetTheme(v+v).
+//		}).
+//		Exec(ctx)
+func (upc *UserPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertOne {
+	upc.conflict = opts
+	return &UserPreferenceUpsertOne{
+		create: upc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (upc *UserPreferenceCreate) OnConflictColumns(columns ...string) *UserPreferenceUpsertOne {
+	upc.conflict = append(upc.conflict, sql.ConflictColumns(columns...))
+	return &UserPreferenceUpsertOne{
+		create: upc,
+	}
+}
+
+type (
+	// UserPreferenceUpsertOne is the builder for "upsert"-ing
+	//  one UserPreference node.
+	UserPreferenceUpsertOne struct {
+		create *UserPreferenceCreate
+	}
+
+	// UserPreferenceUpsert is the "OnConflict" setter.
+	UserPreferenceUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetTheme sets the "theme" field.
+func (u *UserPreferenceUpsert) SetTheme(v string) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldTheme, v)
+	return u
+}
+
+// UpdateTheme sets the "theme" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateTheme() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldTheme)
+	return u
+}
+
+// SetLanguage sets the "language" field.
+func (u *UserPreferenceUpsert) SetLanguage(v string) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldLanguage, v)
+	return u
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateLanguage() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldLanguage)
+	return u
+}
+
+// SetNotifyEmail sets the "notify_email" field.
+func (u *UserPreferenceUpsert) SetNotifyEmail(v bool) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldNotifyEmail, v)
+	return u
+}
+
+// UpdateNotifyEmail sets the "notify_email" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateNotifyEmail() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldNotifyEmail)
+	return u
+}
+
+// SetNotifySms sets the "notify_sms" field.
+func (u *UserPreferenceUpsert) SetNotifySms(v bool) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldNotifySms, v)
+	return u
+}
+
+// UpdateNotifySms sets the "notify_sms" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateNotifySms() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldNotifySms)
+	return u
+}
+
+// SetNotifyPush sets the "notify_push" field.
+func (u *UserPreferenceUpsert) SetNotifyPush(v bool) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldNotifyPush, v)
+	return u
+}
+
+// UpdateNotifyPush sets the "notify_push" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateNotifyPush() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldNotifyPush)
+	return u
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *UserPreferenceUpsert) SetTimezone(v string) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldTimezone, v)
+	return u
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateTimezone() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldTimezone)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserPreferenceUpsert) SetUpdatedAt(v time.Time) *UserPreferenceUpsert {
+	u.Set(userpreference.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserPreferenceUpsert) UpdateUpdatedAt() *UserPreferenceUpsert {
+	u.SetExcluded(userpreference.FieldUpdatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *UserPreferenceUpsertOne) UpdateNewValues() *UserPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(userpreference.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *UserPreferenceUpsertOne) Ignore() *UserPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UserPreferenceUpsertOne) DoNothing() *UserPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UserPreferenceCreate.OnConflict
+// documentation for more info.
+func (u *UserPreferenceUpsertOne) Update(set func(*UserPreferenceUpsert)) *UserPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UserPreferenceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTheme sets the "theme" field.
+func (u *UserPreferenceUpsertOne) SetTheme(v string) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetTheme(v)
+	})
+}
+
+// UpdateTheme sets the "theme" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateTheme() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateTheme()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *UserPreferenceUpsertOne) SetLanguage(v string) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateLanguage() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// SetNotifyEmail sets the "notify_email" field.
+func (u *UserPreferenceUpsertOne) SetNotifyEmail(v bool) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifyEmail(v)
+	})
+}
+
+// UpdateNotifyEmail sets the "notify_email" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateNotifyEmail() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifyEmail()
+	})
+}
+
+// SetNotifySms sets the "notify_sms" field.
+func (u *UserPreferenceUpsertOne) SetNotifySms(v bool) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifySms(v)
+	})
+}
+
+// UpdateNotifySms sets the "notify_sms" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateNotifySms() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifySms()
+	})
+}
+
+// SetNotifyPush sets the "notify_push" field.
+func (u *UserPreferenceUpsertOne) SetNotifyPush(v bool) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifyPush(v)
+	})
+}
+
+// UpdateNotifyPush sets the "notify_push" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateNotifyPush() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifyPush()
+	})
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *UserPreferenceUpsertOne) SetTimezone(v string) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetTimezone(v)
+	})
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateTimezone() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateTimezone()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserPreferenceUpsertOne) SetUpdatedAt(v time.Time) *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserPreferenceUpsertOne) UpdateUpdatedAt() *UserPreferenceUpsertOne {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *UserPreferenceUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UserPreferenceCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UserPreferenceUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *UserPreferenceUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *UserPreferenceUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // UserPreferenceCreateBulk is the builder for creating many UserPreference entities in bulk.
 type UserPreferenceCreateBulk struct {
 	config
 	err      error
 	builders []*UserPreferenceCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the UserPreference entities in the database.
@@ -360,6 +673,7 @@ func (upcb *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreferen
 					_, err = mutators[i+1].Mutate(root, upcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = upcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, upcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -410,6 +724,215 @@ func (upcb *UserPreferenceCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (upcb *UserPreferenceCreateBulk) ExecX(ctx context.Context) {
 	if err := upcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UserPreference.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UserPreferenceUpsert) {
+//			SetTheme(v+v).
+//		}).
+//		Exec(ctx)
+func (upcb *UserPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertBulk {
+	upcb.conflict = opts
+	return &UserPreferenceUpsertBulk{
+		create: upcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (upcb *UserPreferenceCreateBulk) OnConflictColumns(columns ...string) *UserPreferenceUpsertBulk {
+	upcb.conflict = append(upcb.conflict, sql.ConflictColumns(columns...))
+	return &UserPreferenceUpsertBulk{
+		create: upcb,
+	}
+}
+
+// UserPreferenceUpsertBulk is the builder for "upsert"-ing
+// a bulk of UserPreference nodes.
+type UserPreferenceUpsertBulk struct {
+	create *UserPreferenceCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *UserPreferenceUpsertBulk) UpdateNewValues() *UserPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(userpreference.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UserPreference.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *UserPreferenceUpsertBulk) Ignore() *UserPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UserPreferenceUpsertBulk) DoNothing() *UserPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UserPreferenceCreateBulk.OnConflict
+// documentation for more info.
+func (u *UserPreferenceUpsertBulk) Update(set func(*UserPreferenceUpsert)) *UserPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UserPreferenceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTheme sets the "theme" field.
+func (u *UserPreferenceUpsertBulk) SetTheme(v string) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetTheme(v)
+	})
+}
+
+// UpdateTheme sets the "theme" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateTheme() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateTheme()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *UserPreferenceUpsertBulk) SetLanguage(v string) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateLanguage() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// SetNotifyEmail sets the "notify_email" field.
+func (u *UserPreferenceUpsertBulk) SetNotifyEmail(v bool) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifyEmail(v)
+	})
+}
+
+// UpdateNotifyEmail sets the "notify_email" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateNotifyEmail() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifyEmail()
+	})
+}
+
+// SetNotifySms sets the "notify_sms" field.
+func (u *UserPreferenceUpsertBulk) SetNotifySms(v bool) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifySms(v)
+	})
+}
+
+// UpdateNotifySms sets the "notify_sms" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateNotifySms() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifySms()
+	})
+}
+
+// SetNotifyPush sets the "notify_push" field.
+func (u *UserPreferenceUpsertBulk) SetNotifyPush(v bool) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetNotifyPush(v)
+	})
+}
+
+// UpdateNotifyPush sets the "notify_push" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateNotifyPush() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateNotifyPush()
+	})
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *UserPreferenceUpsertBulk) SetTimezone(v string) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetTimezone(v)
+	})
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateTimezone() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateTimezone()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserPreferenceUpsertBulk) SetUpdatedAt(v time.Time) *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserPreferenceUpsertBulk) UpdateUpdatedAt() *UserPreferenceUpsertBulk {
+	return u.Update(func(s *UserPreferenceUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *UserPreferenceUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the UserPreferenceCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UserPreferenceCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UserPreferenceUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

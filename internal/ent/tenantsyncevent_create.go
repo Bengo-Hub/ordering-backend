@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/cafe-backend/internal/ent/tenant"
-	"github.com/bengobox/cafe-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +22,7 @@ type TenantSyncEventCreate struct {
 	config
 	mutation *TenantSyncEventMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetTenantID sets the "tenant_id" field.
@@ -266,6 +269,7 @@ func (tsec *TenantSyncEventCreate) createSpec() (*TenantSyncEvent, *sqlgraph.Cre
 		_node = &TenantSyncEvent{config: tsec.config}
 		_spec = sqlgraph.NewCreateSpec(tenantsyncevent.Table, sqlgraph.NewFieldSpec(tenantsyncevent.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = tsec.conflict
 	if id, ok := tsec.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -322,11 +326,361 @@ func (tsec *TenantSyncEventCreate) createSpec() (*TenantSyncEvent, *sqlgraph.Cre
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TenantSyncEvent.Create().
+//		SetTenantID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TenantSyncEventUpsert) {
+//			SetTenantID(v+v).
+//		}).
+//		Exec(ctx)
+func (tsec *TenantSyncEventCreate) OnConflict(opts ...sql.ConflictOption) *TenantSyncEventUpsertOne {
+	tsec.conflict = opts
+	return &TenantSyncEventUpsertOne{
+		create: tsec,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tsec *TenantSyncEventCreate) OnConflictColumns(columns ...string) *TenantSyncEventUpsertOne {
+	tsec.conflict = append(tsec.conflict, sql.ConflictColumns(columns...))
+	return &TenantSyncEventUpsertOne{
+		create: tsec,
+	}
+}
+
+type (
+	// TenantSyncEventUpsertOne is the builder for "upsert"-ing
+	//  one TenantSyncEvent node.
+	TenantSyncEventUpsertOne struct {
+		create *TenantSyncEventCreate
+	}
+
+	// TenantSyncEventUpsert is the "OnConflict" setter.
+	TenantSyncEventUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetTenantID sets the "tenant_id" field.
+func (u *TenantSyncEventUpsert) SetTenantID(v uuid.UUID) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldTenantID, v)
+	return u
+}
+
+// UpdateTenantID sets the "tenant_id" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateTenantID() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldTenantID)
+	return u
+}
+
+// SetDestinationService sets the "destination_service" field.
+func (u *TenantSyncEventUpsert) SetDestinationService(v string) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldDestinationService, v)
+	return u
+}
+
+// UpdateDestinationService sets the "destination_service" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateDestinationService() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldDestinationService)
+	return u
+}
+
+// SetPayload sets the "payload" field.
+func (u *TenantSyncEventUpsert) SetPayload(v map[string]interface{}) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldPayload, v)
+	return u
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdatePayload() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldPayload)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantSyncEventUpsert) SetStatus(v string) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateStatus() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldStatus)
+	return u
+}
+
+// SetAttempts sets the "attempts" field.
+func (u *TenantSyncEventUpsert) SetAttempts(v int) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldAttempts, v)
+	return u
+}
+
+// UpdateAttempts sets the "attempts" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateAttempts() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldAttempts)
+	return u
+}
+
+// AddAttempts adds v to the "attempts" field.
+func (u *TenantSyncEventUpsert) AddAttempts(v int) *TenantSyncEventUpsert {
+	u.Add(tenantsyncevent.FieldAttempts, v)
+	return u
+}
+
+// SetSyncedAt sets the "synced_at" field.
+func (u *TenantSyncEventUpsert) SetSyncedAt(v time.Time) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldSyncedAt, v)
+	return u
+}
+
+// UpdateSyncedAt sets the "synced_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateSyncedAt() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldSyncedAt)
+	return u
+}
+
+// ClearSyncedAt clears the value of the "synced_at" field.
+func (u *TenantSyncEventUpsert) ClearSyncedAt() *TenantSyncEventUpsert {
+	u.SetNull(tenantsyncevent.FieldSyncedAt)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantSyncEventUpsert) SetUpdatedAt(v time.Time) *TenantSyncEventUpsert {
+	u.Set(tenantsyncevent.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsert) UpdateUpdatedAt() *TenantSyncEventUpsert {
+	u.SetExcluded(tenantsyncevent.FieldUpdatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tenantsyncevent.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TenantSyncEventUpsertOne) UpdateNewValues() *TenantSyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(tenantsyncevent.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantSlug(); exists {
+			s.SetIgnore(tenantsyncevent.FieldTenantSlug)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(tenantsyncevent.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TenantSyncEventUpsertOne) Ignore() *TenantSyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TenantSyncEventUpsertOne) DoNothing() *TenantSyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TenantSyncEventCreate.OnConflict
+// documentation for more info.
+func (u *TenantSyncEventUpsertOne) Update(set func(*TenantSyncEventUpsert)) *TenantSyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TenantSyncEventUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (u *TenantSyncEventUpsertOne) SetTenantID(v uuid.UUID) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetTenantID(v)
+	})
+}
+
+// UpdateTenantID sets the "tenant_id" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateTenantID() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateTenantID()
+	})
+}
+
+// SetDestinationService sets the "destination_service" field.
+func (u *TenantSyncEventUpsertOne) SetDestinationService(v string) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetDestinationService(v)
+	})
+}
+
+// UpdateDestinationService sets the "destination_service" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateDestinationService() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateDestinationService()
+	})
+}
+
+// SetPayload sets the "payload" field.
+func (u *TenantSyncEventUpsertOne) SetPayload(v map[string]interface{}) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetPayload(v)
+	})
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdatePayload() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdatePayload()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantSyncEventUpsertOne) SetStatus(v string) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateStatus() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetAttempts sets the "attempts" field.
+func (u *TenantSyncEventUpsertOne) SetAttempts(v int) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetAttempts(v)
+	})
+}
+
+// AddAttempts adds v to the "attempts" field.
+func (u *TenantSyncEventUpsertOne) AddAttempts(v int) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.AddAttempts(v)
+	})
+}
+
+// UpdateAttempts sets the "attempts" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateAttempts() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateAttempts()
+	})
+}
+
+// SetSyncedAt sets the "synced_at" field.
+func (u *TenantSyncEventUpsertOne) SetSyncedAt(v time.Time) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetSyncedAt(v)
+	})
+}
+
+// UpdateSyncedAt sets the "synced_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateSyncedAt() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateSyncedAt()
+	})
+}
+
+// ClearSyncedAt clears the value of the "synced_at" field.
+func (u *TenantSyncEventUpsertOne) ClearSyncedAt() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.ClearSyncedAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantSyncEventUpsertOne) SetUpdatedAt(v time.Time) *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertOne) UpdateUpdatedAt() *TenantSyncEventUpsertOne {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *TenantSyncEventUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TenantSyncEventCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TenantSyncEventUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TenantSyncEventUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: TenantSyncEventUpsertOne.ID is not supported by MySQL driver. Use TenantSyncEventUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TenantSyncEventUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TenantSyncEventCreateBulk is the builder for creating many TenantSyncEvent entities in bulk.
 type TenantSyncEventCreateBulk struct {
 	config
 	err      error
 	builders []*TenantSyncEventCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the TenantSyncEvent entities in the database.
@@ -356,6 +710,7 @@ func (tsecb *TenantSyncEventCreateBulk) Save(ctx context.Context) ([]*TenantSync
 					_, err = mutators[i+1].Mutate(root, tsecb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = tsecb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, tsecb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -402,6 +757,238 @@ func (tsecb *TenantSyncEventCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (tsecb *TenantSyncEventCreateBulk) ExecX(ctx context.Context) {
 	if err := tsecb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TenantSyncEvent.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TenantSyncEventUpsert) {
+//			SetTenantID(v+v).
+//		}).
+//		Exec(ctx)
+func (tsecb *TenantSyncEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *TenantSyncEventUpsertBulk {
+	tsecb.conflict = opts
+	return &TenantSyncEventUpsertBulk{
+		create: tsecb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tsecb *TenantSyncEventCreateBulk) OnConflictColumns(columns ...string) *TenantSyncEventUpsertBulk {
+	tsecb.conflict = append(tsecb.conflict, sql.ConflictColumns(columns...))
+	return &TenantSyncEventUpsertBulk{
+		create: tsecb,
+	}
+}
+
+// TenantSyncEventUpsertBulk is the builder for "upsert"-ing
+// a bulk of TenantSyncEvent nodes.
+type TenantSyncEventUpsertBulk struct {
+	create *TenantSyncEventCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tenantsyncevent.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TenantSyncEventUpsertBulk) UpdateNewValues() *TenantSyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(tenantsyncevent.FieldID)
+			}
+			if _, exists := b.mutation.TenantSlug(); exists {
+				s.SetIgnore(tenantsyncevent.FieldTenantSlug)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(tenantsyncevent.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TenantSyncEvent.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TenantSyncEventUpsertBulk) Ignore() *TenantSyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TenantSyncEventUpsertBulk) DoNothing() *TenantSyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TenantSyncEventCreateBulk.OnConflict
+// documentation for more info.
+func (u *TenantSyncEventUpsertBulk) Update(set func(*TenantSyncEventUpsert)) *TenantSyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TenantSyncEventUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (u *TenantSyncEventUpsertBulk) SetTenantID(v uuid.UUID) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetTenantID(v)
+	})
+}
+
+// UpdateTenantID sets the "tenant_id" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateTenantID() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateTenantID()
+	})
+}
+
+// SetDestinationService sets the "destination_service" field.
+func (u *TenantSyncEventUpsertBulk) SetDestinationService(v string) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetDestinationService(v)
+	})
+}
+
+// UpdateDestinationService sets the "destination_service" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateDestinationService() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateDestinationService()
+	})
+}
+
+// SetPayload sets the "payload" field.
+func (u *TenantSyncEventUpsertBulk) SetPayload(v map[string]interface{}) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetPayload(v)
+	})
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdatePayload() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdatePayload()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TenantSyncEventUpsertBulk) SetStatus(v string) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateStatus() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetAttempts sets the "attempts" field.
+func (u *TenantSyncEventUpsertBulk) SetAttempts(v int) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetAttempts(v)
+	})
+}
+
+// AddAttempts adds v to the "attempts" field.
+func (u *TenantSyncEventUpsertBulk) AddAttempts(v int) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.AddAttempts(v)
+	})
+}
+
+// UpdateAttempts sets the "attempts" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateAttempts() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateAttempts()
+	})
+}
+
+// SetSyncedAt sets the "synced_at" field.
+func (u *TenantSyncEventUpsertBulk) SetSyncedAt(v time.Time) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetSyncedAt(v)
+	})
+}
+
+// UpdateSyncedAt sets the "synced_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateSyncedAt() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateSyncedAt()
+	})
+}
+
+// ClearSyncedAt clears the value of the "synced_at" field.
+func (u *TenantSyncEventUpsertBulk) ClearSyncedAt() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.ClearSyncedAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TenantSyncEventUpsertBulk) SetUpdatedAt(v time.Time) *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TenantSyncEventUpsertBulk) UpdateUpdatedAt() *TenantSyncEventUpsertBulk {
+	return u.Update(func(s *TenantSyncEventUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *TenantSyncEventUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TenantSyncEventCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TenantSyncEventCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TenantSyncEventUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

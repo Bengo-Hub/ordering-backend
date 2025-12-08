@@ -1,8 +1,8 @@
-# Cafe Backend - Integration Guide
+# Ordering Backend - Integration Guide
 
 ## Overview
 
-This document provides detailed integration information for all external services and systems integrated with the Cafe backend, including internal BengoBox microservices and external third-party services.
+This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal BengoBox microservices and external third-party services.
 
 ---
 
@@ -26,7 +26,7 @@ This document provides detailed integration information for all external service
 
 **Production URL**: `https://sso.codevertexitsolutions.com/`
 
-**Default Tenant**: The cafe service uses `urban-cafe` as the default tenant slug. All users created without a custom `tenant_slug` will be assigned to the `urban-cafe` tenant. The tenant is created with slug `urban-cafe` during seeding.
+**Default Tenant**: The ordering service uses `urban-cafe` as the default tenant slug. All users created without a custom `tenant_slug` will be assigned to the `urban-cafe` tenant. The tenant is created with slug `urban-cafe` during seeding.
 
 **Use Cases**:
 - User authentication and authorization (all login/registration proxied to auth-service)
@@ -48,7 +48,7 @@ This document provides detailed integration information for all external service
   - All protected `/api/v1` routes require valid Bearer tokens from auth-service
 - **User Sync**: Local user table stores `auth_service_user_id` reference
   - Identity data (email, phone, status) synced from auth-service via events
-  - Cafe-specific data (preferences, cafe roles, loyalty points) stored locally
+  - Ordering-specific data (preferences, loyalty points) stored locally
   - Sync status tracked via `sync_status` and `sync_at` fields
 
 **REST API Usage**:
@@ -64,7 +64,7 @@ This document provides detailed integration information for all external service
 - `auth.user.created` - Create local user with app-specific defaults, store `auth_service_user_id`
 - `auth.user.updated` - Update local user identity fields (email, phone, status)
 - `auth.user.deactivated` - Deactivate local user
-- `auth.tenant.created` - Initialize tenant in cafe system
+- `auth.tenant.created` - Initialize tenant in ordering system
 - `auth.tenant.updated` - Update tenant metadata
 - `auth.tenant.synced` - Sync tenant metadata
 - `auth.outlet.created` - Create outlet reference
@@ -84,7 +84,7 @@ This document provides detailed integration information for all external service
 **User Synchronization**:
 - Local `users` table stores:
   - `auth_service_user_id` (UUID, UNIQUE) - Reference to auth-service user
-  - Cafe-specific data: preferences, cafe roles (`customer`, `rider`, `staff`, `admin`), loyalty points, rider profiles
+  - Ordering-specific data: preferences, loyalty points, rider profiles
   - Sync metadata: `sync_status`, `sync_at`
 - Identity data synced from auth-service:
   - Email, phone, status, last_login_at
@@ -108,12 +108,12 @@ This document provides detailed integration information for all external service
 - API key validation via auth-service endpoints
 
 **Tenant Handling**:
-- Default tenant: `urban-cafe` (used if `tenant_slug` not provided in login/registration)
-- All requests can include `tenant_slug` parameter for login/registration (defaults to `urban-cafe` if omitted)
+- Tenant slug is required for all authentication operations (no default tenant)
+- All requests must include `tenant_slug` parameter for login/registration
 - Tenant ID extracted from JWT claims (`tenant_id` field)
 - Multi-tenant isolation enforced via tenant_id in all queries
 - Tenant metadata synced from auth-service via events
-- When creating a tenant for urban-cafe, the tenant_slug should be `urban-cafe` and used when creating users unless custom value supplied
+- Tenant auto-discovery: If tenant doesn't exist in auth-service, it's automatically created from local database
 
 **Tenant Auto-Discovery and Sync**:
 - **Auto-Discovery**: When a user attempts to register or login with a `tenant_slug` that doesn't exist in auth-service, the cafe service automatically pulls full tenant details from the local database and creates the tenant in auth-service with the **same UUID and slug** before proceeding with the authentication operation.
@@ -325,31 +325,26 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 ### POS Service
 
-**Integration Type**: REST API + Events (NATS)
+**Integration Type**: Events (NATS) - Minimal integration
 
-**Use Cases**:
-- POS outlet mapping
-- Menu sync to POS systems
-- Order import from POS
-- Settlement reconciliation
+**Scope Clarification**: 
+- **POS Service Handles**: Over-the-counter orders (walk-in customers), pickup orders, dine-in orders, kitchen tickets, cash management
+- **Ordering Service Handles**: Online delivery orders only
+- **Integration Point**: Customer places online order for pickup → order transitions from ordering-service to POS-service for fulfillment
 
-**REST API Usage**:
-- `POST /api/v1/pos/connections` - Create POS connection
-- `GET /api/v1/pos/connections/{id}/sync` - Trigger menu sync
-- `GET /api/v1/pos/orders` - Import orders from POS
-- `GET /api/v1/pos/settlements` - Get settlement data
+**Use Cases for Ordering Service**:
+- Catalog sync (catalog changes published, POS subscribes)
+- Online-for-pickup orders (created in ordering-service, fulfilled by POS-service)
 
-**Events Consumed**:
-- `pos.order.imported` - Process imported order
-- `pos.settlement.completed` - Process settlement
+**Events Published by Ordering Service**:
+- `ordering.catalog.updated` - Notify POS of menu changes (for catalog consistency)
+- `ordering.order.for_pickup` - Online order placed for pickup (POS takes over fulfillment)
 
-**Events Published**:
-- `cafe.menu.updated` - Trigger POS menu sync
-- `cafe.order.created` - Sync order to POS (if applicable)
+**Events Consumed from POS**:
+- `pos.order.ready` - Pickup order ready for customer (if initiated from ordering)
+- `pos.pickup.completed` - Customer picked up order (close ordering record)
 
-**Configuration**:
-- POS service base URL: `POS_SERVICE_BASE_URL` (environment variable)
-- POS provider credentials: Stored encrypted (Tier 1)
+**Note**: Direct POS operations (cash drawers, kitchen tickets, table management) are NOT in ordering-service scope. Those belong entirely to POS-service.
 
 ---
 
