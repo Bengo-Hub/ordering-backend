@@ -1,7 +1,32 @@
 # Sprint 2 - Catalog & Localization
 
-**Duration**: Weeks 4-5  
-**Status**: ⏳ Not Started
+**Duration**: Weeks 4-5
+**Status**: 🚧 In Progress (January 2026)
+
+---
+
+## Sprint Progress (Updated January 2026)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Ent schema: MenuCategory | ✅ Complete | `internal/ent/schema/menucategory.go` |
+| Ent schema: MenuItem | ✅ Complete | `internal/ent/schema/menuitem.go` |
+| Ent schema: MenuItemVariant | ✅ Complete | `internal/ent/schema/menuitemvariant.go` |
+| Ent schema: MenuItemTranslation | ✅ Complete | `internal/ent/schema/menuitemtranslation.go` |
+| Ent schema: DietaryTag | ✅ Complete | `internal/ent/schema/dietarytag.go` |
+| Ent schema: MenuItemAsset | ✅ Complete | `internal/ent/schema/menuitemasset.go` |
+| Ent schema: MenuItemSchedule | ✅ Complete | `internal/ent/schema/menuitemschedule.go` |
+| Run Ent code generation | ⏳ Pending | `go generate ./ent` |
+| Run database migrations | ⏳ Pending | Apply Ent migrations |
+| Category CRUD endpoints | ⏳ Pending | |
+| Menu item CRUD endpoints | ⏳ Pending | |
+| Public menu API | ⏳ Pending | |
+| Localization support | ⏳ Pending | |
+
+**Next Steps**:
+1. Run `go generate ./ent` to generate Ent code
+2. Create database migrations
+3. Implement catalog module services and handlers
 
 ---
 

@@ -294,6 +294,33 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 ---
 
+## Current Sprint Status Summary (January 2026)
+
+**Overall Progress**: ~70% Complete
+
+| Task | Status | Priority | Notes |
+|------|--------|----------|-------|
+| User persistence via Ent | ✅ Complete | Critical | Working |
+| Auth-service login integration | ✅ Complete | Critical | Login/registration proxy working |
+| JWT token validation | ✅ Complete | Critical | Using shared-auth-client |
+| User sync on login | ✅ Complete | Critical | auth_service_user_id stored |
+| Tenant slug handling | ✅ Complete | Critical | Required for all auth operations |
+| User profile management | ✅ Complete | High | Cafe-specific data |
+| Basic RBAC | ✅ Complete | High | Roles and permissions |
+| Event listeners | ✅ Complete | High | auth.user.* events consumed |
+| OAuth2 migration | ⚠️ Partial | Medium | Local OAuth needs migration |
+| Device management | ❌ Not Started | Low | Defer to post-MVP |
+| Invitation workflows | ❌ Not Started | Medium | Defer to post-MVP |
+| Audit logging | ❌ Not Started | Medium | Defer to post-MVP |
+| Subscription entitlements | ❌ Not Started | High | Needed for feature gates |
+
+**Recommendation**: Proceed to Sprint 2 (Catalog & Localization) as the core auth/RBAC is functional. Device management, invitations, and audit logging can be added incrementally post-MVP.
+
+**Blocking Items for Sprint 2**:
+- None - Sprint 1 core deliverables are complete
+
+---
+
 ## Dependencies
 
 - Ent ORM migrations
