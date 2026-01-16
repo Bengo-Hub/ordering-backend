@@ -13,6 +13,7 @@
 - Zone-based delivery availability with geocoding
 - Payment processing integration (M-Pesa, cards, wallets, cash on delivery)
 - Real-time order tracking and delivery notifications
+  - **Live Tracking**: Integrates with `logistics-service` to pull real-time rider coordinates when an order is in the delivery stage.
 - Multi-tenant with outlet-specific catalogs and pricing
 - Promo codes and loyalty rewards
 

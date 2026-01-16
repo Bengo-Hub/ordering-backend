@@ -53,6 +53,8 @@ jobs:
           APP_NAME: cafe-backend
           GIT_USER: ${{ secrets.GIT_USER || 'Cafe Bot' }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@bengobox.com' }}
+          # Database passwords from shared infrastructure
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
           chmod +x build.sh
           ./build.sh

@@ -127,15 +127,18 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   else
     warn "PostgreSQL not found in infra namespace - skipping database creation"
   fi
-fi
-
-if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
-  warn "Secret $ENV_SECRET_NAME not found - creating placeholder"
-  kubectl -n "$NAMESPACE" create secret generic "$ENV_SECRET_NAME" \
-    --from-literal=CAFE_APP_ENV=production \
-    --from-literal=CAFE_POSTGRES_URL="postgresql://${SERVICE_DB_USER}:PASSWORD@postgresql.infra.svc.cluster.local:5432/${SERVICE_DB_NAME}?sslmode=disable" \
-    --from-literal=CAFE_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
-    --from-literal=CAFE_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" || true
+  
+  log_info "Setting up environment secrets from existing databases"
+  if [[ -f "scripts/setup_env_secrets.sh" ]]; then
+    chmod +x scripts/setup_env_secrets.sh
+    VALIDATION_OUTPUT=$(./scripts/setup_env_secrets.sh) || { log_error "Environment secret setup failed"; exit 1; }
+    log_success "Environment secrets configured successfully"
+  else
+    log_error "scripts/setup_env_secrets.sh not found"
+    exit 1
+  fi
+else
+  warn "No KUBE_CONFIG available - skipping database and secret setup"
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
