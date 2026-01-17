@@ -20,7 +20,7 @@
 | Ent schema: LoyaltyAccount | ✅ Complete | `internal/ent/schema/loyaltyaccount.go` |
 | Ent schema: LoyaltyTransaction | ✅ Complete | `internal/ent/schema/loyaltytransaction.go` |
 | User schema edges updated | ✅ Complete | Added carts, orders, addresses, loyalty_account edges |
-| Run Ent code generation | ⏳ Pending | `go generate ./ent` |
+| Run Ent code generation | ✅ Complete | `go generate ./internal/ent` |
 | Cart service implementation | ⏳ Pending | |
 | Cart HTTP handlers | ⏳ Pending | |
 | Order service implementation | ⏳ Pending | |
@@ -29,10 +29,10 @@
 | PromoCode validation | ⏳ Pending | |
 
 **Next Steps**:
-1. Run `go generate ./ent` to generate Ent code
-2. Implement Cart module (service, repository, handlers)
-3. Implement Order module with state machine
-4. Implement checkout workflow
+1. Implement Cart module (service, repository, handlers)
+2. Implement Order module with state machine
+3. Implement checkout workflow
+4. Implement PromoCode validation service
 
 ---
 

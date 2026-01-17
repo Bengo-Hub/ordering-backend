@@ -4,12 +4,14 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
@@ -19,11 +21,12 @@ import (
 // MenuItemVariantQuery is the builder for querying MenuItemVariant entities.
 type MenuItemVariantQuery struct {
 	config
-	ctx          *QueryContext
-	order        []menuitemvariant.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.MenuItemVariant
-	withMenuItem *MenuItemQuery
+	ctx           *QueryContext
+	order         []menuitemvariant.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.MenuItemVariant
+	withMenuItem  *MenuItemQuery
+	withCartItems *CartItemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +78,28 @@ func (mivq *MenuItemVariantQuery) QueryMenuItem() *MenuItemQuery {
 			sqlgraph.From(menuitemvariant.Table, menuitemvariant.FieldID, selector),
 			sqlgraph.To(menuitem.Table, menuitem.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, menuitemvariant.MenuItemTable, menuitemvariant.MenuItemColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mivq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCartItems chains the current query on the "cart_items" edge.
+func (mivq *MenuItemVariantQuery) QueryCartItems() *CartItemQuery {
+	query := (&CartItemClient{config: mivq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mivq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mivq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitemvariant.Table, menuitemvariant.FieldID, selector),
+			sqlgraph.To(cartitem.Table, cartitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitemvariant.CartItemsTable, menuitemvariant.CartItemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mivq.driver.Dialect(), step)
 		return fromU, nil
@@ -269,12 +294,13 @@ func (mivq *MenuItemVariantQuery) Clone() *MenuItemVariantQuery {
 		return nil
 	}
 	return &MenuItemVariantQuery{
-		config:       mivq.config,
-		ctx:          mivq.ctx.Clone(),
-		order:        append([]menuitemvariant.OrderOption{}, mivq.order...),
-		inters:       append([]Interceptor{}, mivq.inters...),
-		predicates:   append([]predicate.MenuItemVariant{}, mivq.predicates...),
-		withMenuItem: mivq.withMenuItem.Clone(),
+		config:        mivq.config,
+		ctx:           mivq.ctx.Clone(),
+		order:         append([]menuitemvariant.OrderOption{}, mivq.order...),
+		inters:        append([]Interceptor{}, mivq.inters...),
+		predicates:    append([]predicate.MenuItemVariant{}, mivq.predicates...),
+		withMenuItem:  mivq.withMenuItem.Clone(),
+		withCartItems: mivq.withCartItems.Clone(),
 		// clone intermediate query.
 		sql:  mivq.sql.Clone(),
 		path: mivq.path,
@@ -289,6 +315,17 @@ func (mivq *MenuItemVariantQuery) WithMenuItem(opts ...func(*MenuItemQuery)) *Me
 		opt(query)
 	}
 	mivq.withMenuItem = query
+	return mivq
+}
+
+// WithCartItems tells the query-builder to eager-load the nodes that are connected to
+// the "cart_items" edge. The optional arguments are used to configure the query builder of the edge.
+func (mivq *MenuItemVariantQuery) WithCartItems(opts ...func(*CartItemQuery)) *MenuItemVariantQuery {
+	query := (&CartItemClient{config: mivq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mivq.withCartItems = query
 	return mivq
 }
 
@@ -370,8 +407,9 @@ func (mivq *MenuItemVariantQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	var (
 		nodes       = []*MenuItemVariant{}
 		_spec       = mivq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			mivq.withMenuItem != nil,
+			mivq.withCartItems != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -395,6 +433,13 @@ func (mivq *MenuItemVariantQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	if query := mivq.withMenuItem; query != nil {
 		if err := mivq.loadMenuItem(ctx, query, nodes, nil,
 			func(n *MenuItemVariant, e *MenuItem) { n.Edges.MenuItem = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mivq.withCartItems; query != nil {
+		if err := mivq.loadCartItems(ctx, query, nodes,
+			func(n *MenuItemVariant) { n.Edges.CartItems = []*CartItem{} },
+			func(n *MenuItemVariant, e *CartItem) { n.Edges.CartItems = append(n.Edges.CartItems, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -427,6 +472,39 @@ func (mivq *MenuItemVariantQuery) loadMenuItem(ctx context.Context, query *MenuI
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (mivq *MenuItemVariantQuery) loadCartItems(ctx context.Context, query *CartItemQuery, nodes []*MenuItemVariant, init func(*MenuItemVariant), assign func(*MenuItemVariant, *CartItem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*MenuItemVariant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(cartitem.FieldVariantID)
+	}
+	query.Where(predicate.CartItem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(menuitemvariant.CartItemsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.VariantID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "variant_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "variant_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

@@ -21,6 +21,42 @@ func (f BackupCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BackupCodeMutation", m)
 }
 
+// The CartFunc type is an adapter to allow the use of ordinary
+// function as Cart mutator.
+type CartFunc func(context.Context, *ent.CartMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CartFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CartMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CartMutation", m)
+}
+
+// The CartItemFunc type is an adapter to allow the use of ordinary
+// function as CartItem mutator.
+type CartItemFunc func(context.Context, *ent.CartItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CartItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CartItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CartItemMutation", m)
+}
+
+// The CustomerAddressFunc type is an adapter to allow the use of ordinary
+// function as CustomerAddress mutator.
+type CustomerAddressFunc func(context.Context, *ent.CustomerAddressMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CustomerAddressFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CustomerAddressMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CustomerAddressMutation", m)
+}
+
 // The DeviceFunc type is an adapter to allow the use of ordinary
 // function as Device mutator.
 type DeviceFunc func(context.Context, *ent.DeviceMutation) (ent.Value, error)
@@ -43,6 +79,30 @@ func (f DietaryTagFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DietaryTagMutation", m)
+}
+
+// The LoyaltyAccountFunc type is an adapter to allow the use of ordinary
+// function as LoyaltyAccount mutator.
+type LoyaltyAccountFunc func(context.Context, *ent.LoyaltyAccountMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoyaltyAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LoyaltyAccountMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LoyaltyAccountMutation", m)
+}
+
+// The LoyaltyTransactionFunc type is an adapter to allow the use of ordinary
+// function as LoyaltyTransaction mutator.
+type LoyaltyTransactionFunc func(context.Context, *ent.LoyaltyTransactionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoyaltyTransactionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LoyaltyTransactionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LoyaltyTransactionMutation", m)
 }
 
 // The MenuCategoryFunc type is an adapter to allow the use of ordinary
@@ -129,6 +189,42 @@ func (f OAuthAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OAuthAccountMutation", m)
 }
 
+// The OrderFunc type is an adapter to allow the use of ordinary
+// function as Order mutator.
+type OrderFunc func(context.Context, *ent.OrderMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderMutation", m)
+}
+
+// The OrderEventFunc type is an adapter to allow the use of ordinary
+// function as OrderEvent mutator.
+type OrderEventFunc func(context.Context, *ent.OrderEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderEventMutation", m)
+}
+
+// The OrderItemFunc type is an adapter to allow the use of ordinary
+// function as OrderItem mutator.
+type OrderItemFunc func(context.Context, *ent.OrderItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderItemMutation", m)
+}
+
 // The PermissionFunc type is an adapter to allow the use of ordinary
 // function as Permission mutator.
 type PermissionFunc func(context.Context, *ent.PermissionMutation) (ent.Value, error)
@@ -139,6 +235,30 @@ func (f PermissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PermissionMutation", m)
+}
+
+// The PromoCodeFunc type is an adapter to allow the use of ordinary
+// function as PromoCode mutator.
+type PromoCodeFunc func(context.Context, *ent.PromoCodeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PromoCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PromoCodeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PromoCodeMutation", m)
+}
+
+// The PromoRedemptionFunc type is an adapter to allow the use of ordinary
+// function as PromoRedemption mutator.
+type PromoRedemptionFunc func(context.Context, *ent.PromoRedemptionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PromoRedemptionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PromoRedemptionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PromoRedemptionMutation", m)
 }
 
 // The RoleFunc type is an adapter to allow the use of ordinary

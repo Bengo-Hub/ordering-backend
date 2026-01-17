@@ -6,8 +6,13 @@ import (
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
+	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
+	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
@@ -15,7 +20,12 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
+	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
+	"github.com/bengobox/ordering-backend/internal/ent/promocode"
+	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/schema"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
@@ -47,6 +57,152 @@ func init() {
 	backupcodeDescID := backupcodeFields[0].Descriptor()
 	// backupcode.DefaultID holds the default value on creation for the id field.
 	backupcode.DefaultID = backupcodeDescID.Default.(func() uuid.UUID)
+	cartFields := schema.Cart{}.Fields()
+	_ = cartFields
+	// cartDescSessionID is the schema descriptor for session_id field.
+	cartDescSessionID := cartFields[4].Descriptor()
+	// cart.SessionIDValidator is a validator for the "session_id" field. It is called by the builders before save.
+	cart.SessionIDValidator = cartDescSessionID.Validators[0].(func(string) error)
+	// cartDescCurrency is the schema descriptor for currency field.
+	cartDescCurrency := cartFields[6].Descriptor()
+	// cart.DefaultCurrency holds the default value on creation for the currency field.
+	cart.DefaultCurrency = cartDescCurrency.Default.(string)
+	// cart.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
+	cart.CurrencyValidator = cartDescCurrency.Validators[0].(func(string) error)
+	// cartDescSubtotal is the schema descriptor for subtotal field.
+	cartDescSubtotal := cartFields[7].Descriptor()
+	// cart.DefaultSubtotal holds the default value on creation for the subtotal field.
+	cart.DefaultSubtotal = cartDescSubtotal.Default.(float64)
+	// cartDescDiscountTotal is the schema descriptor for discount_total field.
+	cartDescDiscountTotal := cartFields[8].Descriptor()
+	// cart.DefaultDiscountTotal holds the default value on creation for the discount_total field.
+	cart.DefaultDiscountTotal = cartDescDiscountTotal.Default.(float64)
+	// cartDescTaxTotal is the schema descriptor for tax_total field.
+	cartDescTaxTotal := cartFields[9].Descriptor()
+	// cart.DefaultTaxTotal holds the default value on creation for the tax_total field.
+	cart.DefaultTaxTotal = cartDescTaxTotal.Default.(float64)
+	// cartDescDeliveryFee is the schema descriptor for delivery_fee field.
+	cartDescDeliveryFee := cartFields[10].Descriptor()
+	// cart.DefaultDeliveryFee holds the default value on creation for the delivery_fee field.
+	cart.DefaultDeliveryFee = cartDescDeliveryFee.Default.(float64)
+	// cartDescLoyaltyPointsRedeemed is the schema descriptor for loyalty_points_redeemed field.
+	cartDescLoyaltyPointsRedeemed := cartFields[11].Descriptor()
+	// cart.DefaultLoyaltyPointsRedeemed holds the default value on creation for the loyalty_points_redeemed field.
+	cart.DefaultLoyaltyPointsRedeemed = cartDescLoyaltyPointsRedeemed.Default.(int)
+	// cartDescCreatedAt is the schema descriptor for created_at field.
+	cartDescCreatedAt := cartFields[14].Descriptor()
+	// cart.DefaultCreatedAt holds the default value on creation for the created_at field.
+	cart.DefaultCreatedAt = cartDescCreatedAt.Default.(func() time.Time)
+	// cartDescUpdatedAt is the schema descriptor for updated_at field.
+	cartDescUpdatedAt := cartFields[15].Descriptor()
+	// cart.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	cart.DefaultUpdatedAt = cartDescUpdatedAt.Default.(func() time.Time)
+	// cart.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	cart.UpdateDefaultUpdatedAt = cartDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// cartDescID is the schema descriptor for id field.
+	cartDescID := cartFields[0].Descriptor()
+	// cart.DefaultID holds the default value on creation for the id field.
+	cart.DefaultID = cartDescID.Default.(func() uuid.UUID)
+	cartitemFields := schema.CartItem{}.Fields()
+	_ = cartitemFields
+	// cartitemDescNameSnapshot is the schema descriptor for name_snapshot field.
+	cartitemDescNameSnapshot := cartitemFields[4].Descriptor()
+	// cartitem.NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
+	cartitem.NameSnapshotValidator = cartitemDescNameSnapshot.Validators[0].(func(string) error)
+	// cartitemDescVariantNameSnapshot is the schema descriptor for variant_name_snapshot field.
+	cartitemDescVariantNameSnapshot := cartitemFields[5].Descriptor()
+	// cartitem.VariantNameSnapshotValidator is a validator for the "variant_name_snapshot" field. It is called by the builders before save.
+	cartitem.VariantNameSnapshotValidator = cartitemDescVariantNameSnapshot.Validators[0].(func(string) error)
+	// cartitemDescQuantity is the schema descriptor for quantity field.
+	cartitemDescQuantity := cartitemFields[6].Descriptor()
+	// cartitem.DefaultQuantity holds the default value on creation for the quantity field.
+	cartitem.DefaultQuantity = cartitemDescQuantity.Default.(int)
+	// cartitem.QuantityValidator is a validator for the "quantity" field. It is called by the builders before save.
+	cartitem.QuantityValidator = cartitemDescQuantity.Validators[0].(func(int) error)
+	// cartitemDescUnitPrice is the schema descriptor for unit_price field.
+	cartitemDescUnitPrice := cartitemFields[7].Descriptor()
+	// cartitem.UnitPriceValidator is a validator for the "unit_price" field. It is called by the builders before save.
+	cartitem.UnitPriceValidator = cartitemDescUnitPrice.Validators[0].(func(float64) error)
+	// cartitemDescCreatedAt is the schema descriptor for created_at field.
+	cartitemDescCreatedAt := cartitemFields[12].Descriptor()
+	// cartitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	cartitem.DefaultCreatedAt = cartitemDescCreatedAt.Default.(func() time.Time)
+	// cartitemDescUpdatedAt is the schema descriptor for updated_at field.
+	cartitemDescUpdatedAt := cartitemFields[13].Descriptor()
+	// cartitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	cartitem.DefaultUpdatedAt = cartitemDescUpdatedAt.Default.(func() time.Time)
+	// cartitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	cartitem.UpdateDefaultUpdatedAt = cartitemDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// cartitemDescID is the schema descriptor for id field.
+	cartitemDescID := cartitemFields[0].Descriptor()
+	// cartitem.DefaultID holds the default value on creation for the id field.
+	cartitem.DefaultID = cartitemDescID.Default.(func() uuid.UUID)
+	customeraddressFields := schema.CustomerAddress{}.Fields()
+	_ = customeraddressFields
+	// customeraddressDescLabel is the schema descriptor for label field.
+	customeraddressDescLabel := customeraddressFields[3].Descriptor()
+	// customeraddress.LabelValidator is a validator for the "label" field. It is called by the builders before save.
+	customeraddress.LabelValidator = customeraddressDescLabel.Validators[0].(func(string) error)
+	// customeraddressDescAddressLine1 is the schema descriptor for address_line1 field.
+	customeraddressDescAddressLine1 := customeraddressFields[4].Descriptor()
+	// customeraddress.AddressLine1Validator is a validator for the "address_line1" field. It is called by the builders before save.
+	customeraddress.AddressLine1Validator = customeraddressDescAddressLine1.Validators[0].(func(string) error)
+	// customeraddressDescAddressLine2 is the schema descriptor for address_line2 field.
+	customeraddressDescAddressLine2 := customeraddressFields[5].Descriptor()
+	// customeraddress.AddressLine2Validator is a validator for the "address_line2" field. It is called by the builders before save.
+	customeraddress.AddressLine2Validator = customeraddressDescAddressLine2.Validators[0].(func(string) error)
+	// customeraddressDescCity is the schema descriptor for city field.
+	customeraddressDescCity := customeraddressFields[6].Descriptor()
+	// customeraddress.CityValidator is a validator for the "city" field. It is called by the builders before save.
+	customeraddress.CityValidator = customeraddressDescCity.Validators[0].(func(string) error)
+	// customeraddressDescCounty is the schema descriptor for county field.
+	customeraddressDescCounty := customeraddressFields[7].Descriptor()
+	// customeraddress.CountyValidator is a validator for the "county" field. It is called by the builders before save.
+	customeraddress.CountyValidator = customeraddressDescCounty.Validators[0].(func(string) error)
+	// customeraddressDescPostalCode is the schema descriptor for postal_code field.
+	customeraddressDescPostalCode := customeraddressFields[8].Descriptor()
+	// customeraddress.PostalCodeValidator is a validator for the "postal_code" field. It is called by the builders before save.
+	customeraddress.PostalCodeValidator = customeraddressDescPostalCode.Validators[0].(func(string) error)
+	// customeraddressDescCountry is the schema descriptor for country field.
+	customeraddressDescCountry := customeraddressFields[9].Descriptor()
+	// customeraddress.DefaultCountry holds the default value on creation for the country field.
+	customeraddress.DefaultCountry = customeraddressDescCountry.Default.(string)
+	// customeraddress.CountryValidator is a validator for the "country" field. It is called by the builders before save.
+	customeraddress.CountryValidator = customeraddressDescCountry.Validators[0].(func(string) error)
+	// customeraddressDescPlusCode is the schema descriptor for plus_code field.
+	customeraddressDescPlusCode := customeraddressFields[12].Descriptor()
+	// customeraddress.PlusCodeValidator is a validator for the "plus_code" field. It is called by the builders before save.
+	customeraddress.PlusCodeValidator = customeraddressDescPlusCode.Validators[0].(func(string) error)
+	// customeraddressDescContactName is the schema descriptor for contact_name field.
+	customeraddressDescContactName := customeraddressFields[14].Descriptor()
+	// customeraddress.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
+	customeraddress.ContactNameValidator = customeraddressDescContactName.Validators[0].(func(string) error)
+	// customeraddressDescContactPhone is the schema descriptor for contact_phone field.
+	customeraddressDescContactPhone := customeraddressFields[15].Descriptor()
+	// customeraddress.ContactPhoneValidator is a validator for the "contact_phone" field. It is called by the builders before save.
+	customeraddress.ContactPhoneValidator = customeraddressDescContactPhone.Validators[0].(func(string) error)
+	// customeraddressDescIsDefault is the schema descriptor for is_default field.
+	customeraddressDescIsDefault := customeraddressFields[16].Descriptor()
+	// customeraddress.DefaultIsDefault holds the default value on creation for the is_default field.
+	customeraddress.DefaultIsDefault = customeraddressDescIsDefault.Default.(bool)
+	// customeraddressDescIsVerified is the schema descriptor for is_verified field.
+	customeraddressDescIsVerified := customeraddressFields[17].Descriptor()
+	// customeraddress.DefaultIsVerified holds the default value on creation for the is_verified field.
+	customeraddress.DefaultIsVerified = customeraddressDescIsVerified.Default.(bool)
+	// customeraddressDescCreatedAt is the schema descriptor for created_at field.
+	customeraddressDescCreatedAt := customeraddressFields[18].Descriptor()
+	// customeraddress.DefaultCreatedAt holds the default value on creation for the created_at field.
+	customeraddress.DefaultCreatedAt = customeraddressDescCreatedAt.Default.(func() time.Time)
+	// customeraddressDescUpdatedAt is the schema descriptor for updated_at field.
+	customeraddressDescUpdatedAt := customeraddressFields[19].Descriptor()
+	// customeraddress.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	customeraddress.DefaultUpdatedAt = customeraddressDescUpdatedAt.Default.(func() time.Time)
+	// customeraddress.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	customeraddress.UpdateDefaultUpdatedAt = customeraddressDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// customeraddressDescID is the schema descriptor for id field.
+	customeraddressDescID := customeraddressFields[0].Descriptor()
+	// customeraddress.DefaultID holds the default value on creation for the id field.
+	customeraddress.DefaultID = customeraddressDescID.Default.(func() uuid.UUID)
 	deviceFields := schema.Device{}.Fields()
 	_ = deviceFields
 	// deviceDescCreatedAt is the schema descriptor for created_at field.
@@ -103,6 +259,52 @@ func init() {
 	dietarytagDescCreatedAt := dietarytagFields[4].Descriptor()
 	// dietarytag.DefaultCreatedAt holds the default value on creation for the created_at field.
 	dietarytag.DefaultCreatedAt = dietarytagDescCreatedAt.Default.(func() time.Time)
+	loyaltyaccountFields := schema.LoyaltyAccount{}.Fields()
+	_ = loyaltyaccountFields
+	// loyaltyaccountDescBalancePoints is the schema descriptor for balance_points field.
+	loyaltyaccountDescBalancePoints := loyaltyaccountFields[3].Descriptor()
+	// loyaltyaccount.DefaultBalancePoints holds the default value on creation for the balance_points field.
+	loyaltyaccount.DefaultBalancePoints = loyaltyaccountDescBalancePoints.Default.(int)
+	// loyaltyaccountDescLifetimePoints is the schema descriptor for lifetime_points field.
+	loyaltyaccountDescLifetimePoints := loyaltyaccountFields[4].Descriptor()
+	// loyaltyaccount.DefaultLifetimePoints holds the default value on creation for the lifetime_points field.
+	loyaltyaccount.DefaultLifetimePoints = loyaltyaccountDescLifetimePoints.Default.(int)
+	// loyaltyaccountDescRedeemedPoints is the schema descriptor for redeemed_points field.
+	loyaltyaccountDescRedeemedPoints := loyaltyaccountFields[5].Descriptor()
+	// loyaltyaccount.DefaultRedeemedPoints holds the default value on creation for the redeemed_points field.
+	loyaltyaccount.DefaultRedeemedPoints = loyaltyaccountDescRedeemedPoints.Default.(int)
+	// loyaltyaccountDescTierProgress is the schema descriptor for tier_progress field.
+	loyaltyaccountDescTierProgress := loyaltyaccountFields[7].Descriptor()
+	// loyaltyaccount.DefaultTierProgress holds the default value on creation for the tier_progress field.
+	loyaltyaccount.DefaultTierProgress = loyaltyaccountDescTierProgress.Default.(int)
+	// loyaltyaccountDescCreatedAt is the schema descriptor for created_at field.
+	loyaltyaccountDescCreatedAt := loyaltyaccountFields[9].Descriptor()
+	// loyaltyaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	loyaltyaccount.DefaultCreatedAt = loyaltyaccountDescCreatedAt.Default.(func() time.Time)
+	// loyaltyaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	loyaltyaccountDescUpdatedAt := loyaltyaccountFields[10].Descriptor()
+	// loyaltyaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	loyaltyaccount.DefaultUpdatedAt = loyaltyaccountDescUpdatedAt.Default.(func() time.Time)
+	// loyaltyaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	loyaltyaccount.UpdateDefaultUpdatedAt = loyaltyaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// loyaltyaccountDescID is the schema descriptor for id field.
+	loyaltyaccountDescID := loyaltyaccountFields[0].Descriptor()
+	// loyaltyaccount.DefaultID holds the default value on creation for the id field.
+	loyaltyaccount.DefaultID = loyaltyaccountDescID.Default.(func() uuid.UUID)
+	loyaltytransactionFields := schema.LoyaltyTransaction{}.Fields()
+	_ = loyaltytransactionFields
+	// loyaltytransactionDescReference is the schema descriptor for reference field.
+	loyaltytransactionDescReference := loyaltytransactionFields[7].Descriptor()
+	// loyaltytransaction.ReferenceValidator is a validator for the "reference" field. It is called by the builders before save.
+	loyaltytransaction.ReferenceValidator = loyaltytransactionDescReference.Validators[0].(func(string) error)
+	// loyaltytransactionDescOccurredAt is the schema descriptor for occurred_at field.
+	loyaltytransactionDescOccurredAt := loyaltytransactionFields[9].Descriptor()
+	// loyaltytransaction.DefaultOccurredAt holds the default value on creation for the occurred_at field.
+	loyaltytransaction.DefaultOccurredAt = loyaltytransactionDescOccurredAt.Default.(func() time.Time)
+	// loyaltytransactionDescID is the schema descriptor for id field.
+	loyaltytransactionDescID := loyaltytransactionFields[0].Descriptor()
+	// loyaltytransaction.DefaultID holds the default value on creation for the id field.
+	loyaltytransaction.DefaultID = loyaltytransactionDescID.Default.(func() uuid.UUID)
 	menucategoryFields := schema.MenuCategory{}.Fields()
 	_ = menucategoryFields
 	// menucategoryDescName is the schema descriptor for name field.
@@ -453,6 +655,120 @@ func init() {
 	oauthaccountDescID := oauthaccountFields[0].Descriptor()
 	// oauthaccount.DefaultID holds the default value on creation for the id field.
 	oauthaccount.DefaultID = oauthaccountDescID.Default.(func() uuid.UUID)
+	orderFields := schema.Order{}.Fields()
+	_ = orderFields
+	// orderDescOrderNumber is the schema descriptor for order_number field.
+	orderDescOrderNumber := orderFields[5].Descriptor()
+	// order.OrderNumberValidator is a validator for the "order_number" field. It is called by the builders before save.
+	order.OrderNumberValidator = orderDescOrderNumber.Validators[0].(func(string) error)
+	// orderDescCurrency is the schema descriptor for currency field.
+	orderDescCurrency := orderFields[8].Descriptor()
+	// order.DefaultCurrency holds the default value on creation for the currency field.
+	order.DefaultCurrency = orderDescCurrency.Default.(string)
+	// order.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
+	order.CurrencyValidator = orderDescCurrency.Validators[0].(func(string) error)
+	// orderDescDiscountTotal is the schema descriptor for discount_total field.
+	orderDescDiscountTotal := orderFields[10].Descriptor()
+	// order.DefaultDiscountTotal holds the default value on creation for the discount_total field.
+	order.DefaultDiscountTotal = orderDescDiscountTotal.Default.(float64)
+	// orderDescTaxTotal is the schema descriptor for tax_total field.
+	orderDescTaxTotal := orderFields[11].Descriptor()
+	// order.DefaultTaxTotal holds the default value on creation for the tax_total field.
+	order.DefaultTaxTotal = orderDescTaxTotal.Default.(float64)
+	// orderDescDeliveryFee is the schema descriptor for delivery_fee field.
+	orderDescDeliveryFee := orderFields[12].Descriptor()
+	// order.DefaultDeliveryFee holds the default value on creation for the delivery_fee field.
+	order.DefaultDeliveryFee = orderDescDeliveryFee.Default.(float64)
+	// orderDescTipTotal is the schema descriptor for tip_total field.
+	orderDescTipTotal := orderFields[13].Descriptor()
+	// order.DefaultTipTotal holds the default value on creation for the tip_total field.
+	order.DefaultTipTotal = orderDescTipTotal.Default.(float64)
+	// orderDescLoyaltyPointsEarned is the schema descriptor for loyalty_points_earned field.
+	orderDescLoyaltyPointsEarned := orderFields[15].Descriptor()
+	// order.DefaultLoyaltyPointsEarned holds the default value on creation for the loyalty_points_earned field.
+	order.DefaultLoyaltyPointsEarned = orderDescLoyaltyPointsEarned.Default.(int)
+	// orderDescLoyaltyPointsRedeemed is the schema descriptor for loyalty_points_redeemed field.
+	orderDescLoyaltyPointsRedeemed := orderFields[16].Descriptor()
+	// order.DefaultLoyaltyPointsRedeemed holds the default value on creation for the loyalty_points_redeemed field.
+	order.DefaultLoyaltyPointsRedeemed = orderDescLoyaltyPointsRedeemed.Default.(int)
+	// orderDescSource is the schema descriptor for source field.
+	orderDescSource := orderFields[21].Descriptor()
+	// order.SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	order.SourceValidator = orderDescSource.Validators[0].(func(string) error)
+	// orderDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	orderDescIdempotencyKey := orderFields[22].Descriptor()
+	// order.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	order.IdempotencyKeyValidator = orderDescIdempotencyKey.Validators[0].(func(string) error)
+	// orderDescCreatedAt is the schema descriptor for created_at field.
+	orderDescCreatedAt := orderFields[31].Descriptor()
+	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
+	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	// orderDescUpdatedAt is the schema descriptor for updated_at field.
+	orderDescUpdatedAt := orderFields[32].Descriptor()
+	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
+	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderDescID is the schema descriptor for id field.
+	orderDescID := orderFields[0].Descriptor()
+	// order.DefaultID holds the default value on creation for the id field.
+	order.DefaultID = orderDescID.Default.(func() uuid.UUID)
+	ordereventFields := schema.OrderEvent{}.Fields()
+	_ = ordereventFields
+	// ordereventDescEventType is the schema descriptor for event_type field.
+	ordereventDescEventType := ordereventFields[2].Descriptor()
+	// orderevent.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
+	orderevent.EventTypeValidator = ordereventDescEventType.Validators[0].(func(string) error)
+	// ordereventDescFromStatus is the schema descriptor for from_status field.
+	ordereventDescFromStatus := ordereventFields[3].Descriptor()
+	// orderevent.FromStatusValidator is a validator for the "from_status" field. It is called by the builders before save.
+	orderevent.FromStatusValidator = ordereventDescFromStatus.Validators[0].(func(string) error)
+	// ordereventDescToStatus is the schema descriptor for to_status field.
+	ordereventDescToStatus := ordereventFields[4].Descriptor()
+	// orderevent.ToStatusValidator is a validator for the "to_status" field. It is called by the builders before save.
+	orderevent.ToStatusValidator = ordereventDescToStatus.Validators[0].(func(string) error)
+	// ordereventDescActorType is the schema descriptor for actor_type field.
+	ordereventDescActorType := ordereventFields[7].Descriptor()
+	// orderevent.ActorTypeValidator is a validator for the "actor_type" field. It is called by the builders before save.
+	orderevent.ActorTypeValidator = ordereventDescActorType.Validators[0].(func(string) error)
+	// ordereventDescIPAddress is the schema descriptor for ip_address field.
+	ordereventDescIPAddress := ordereventFields[8].Descriptor()
+	// orderevent.IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
+	orderevent.IPAddressValidator = ordereventDescIPAddress.Validators[0].(func(string) error)
+	// ordereventDescOccurredAt is the schema descriptor for occurred_at field.
+	ordereventDescOccurredAt := ordereventFields[9].Descriptor()
+	// orderevent.DefaultOccurredAt holds the default value on creation for the occurred_at field.
+	orderevent.DefaultOccurredAt = ordereventDescOccurredAt.Default.(func() time.Time)
+	// ordereventDescID is the schema descriptor for id field.
+	ordereventDescID := ordereventFields[0].Descriptor()
+	// orderevent.DefaultID holds the default value on creation for the id field.
+	orderevent.DefaultID = ordereventDescID.Default.(func() uuid.UUID)
+	orderitemFields := schema.OrderItem{}.Fields()
+	_ = orderitemFields
+	// orderitemDescNameSnapshot is the schema descriptor for name_snapshot field.
+	orderitemDescNameSnapshot := orderitemFields[4].Descriptor()
+	// orderitem.NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
+	orderitem.NameSnapshotValidator = orderitemDescNameSnapshot.Validators[0].(func(string) error)
+	// orderitemDescVariantNameSnapshot is the schema descriptor for variant_name_snapshot field.
+	orderitemDescVariantNameSnapshot := orderitemFields[5].Descriptor()
+	// orderitem.VariantNameSnapshotValidator is a validator for the "variant_name_snapshot" field. It is called by the builders before save.
+	orderitem.VariantNameSnapshotValidator = orderitemDescVariantNameSnapshot.Validators[0].(func(string) error)
+	// orderitemDescQuantity is the schema descriptor for quantity field.
+	orderitemDescQuantity := orderitemFields[6].Descriptor()
+	// orderitem.QuantityValidator is a validator for the "quantity" field. It is called by the builders before save.
+	orderitem.QuantityValidator = orderitemDescQuantity.Validators[0].(func(int) error)
+	// orderitemDescUnitPrice is the schema descriptor for unit_price field.
+	orderitemDescUnitPrice := orderitemFields[7].Descriptor()
+	// orderitem.UnitPriceValidator is a validator for the "unit_price" field. It is called by the builders before save.
+	orderitem.UnitPriceValidator = orderitemDescUnitPrice.Validators[0].(func(float64) error)
+	// orderitemDescCreatedAt is the schema descriptor for created_at field.
+	orderitemDescCreatedAt := orderitemFields[12].Descriptor()
+	// orderitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	orderitem.DefaultCreatedAt = orderitemDescCreatedAt.Default.(func() time.Time)
+	// orderitemDescID is the schema descriptor for id field.
+	orderitemDescID := orderitemFields[0].Descriptor()
+	// orderitem.DefaultID holds the default value on creation for the id field.
+	orderitem.DefaultID = orderitemDescID.Default.(func() uuid.UUID)
 	permissionFields := schema.Permission{}.Fields()
 	_ = permissionFields
 	// permissionDescName is the schema descriptor for name field.
@@ -477,6 +793,56 @@ func init() {
 	permissionDescID := permissionFields[0].Descriptor()
 	// permission.DefaultID holds the default value on creation for the id field.
 	permission.DefaultID = permissionDescID.Default.(func() uuid.UUID)
+	promocodeFields := schema.PromoCode{}.Fields()
+	_ = promocodeFields
+	// promocodeDescCode is the schema descriptor for code field.
+	promocodeDescCode := promocodeFields[3].Descriptor()
+	// promocode.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	promocode.CodeValidator = promocodeDescCode.Validators[0].(func(string) error)
+	// promocodeDescName is the schema descriptor for name field.
+	promocodeDescName := promocodeFields[4].Descriptor()
+	// promocode.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	promocode.NameValidator = promocodeDescName.Validators[0].(func(string) error)
+	// promocodeDescMinSubtotal is the schema descriptor for min_subtotal field.
+	promocodeDescMinSubtotal := promocodeFields[9].Descriptor()
+	// promocode.DefaultMinSubtotal holds the default value on creation for the min_subtotal field.
+	promocode.DefaultMinSubtotal = promocodeDescMinSubtotal.Default.(float64)
+	// promocodeDescUsageCount is the schema descriptor for usage_count field.
+	promocodeDescUsageCount := promocodeFields[12].Descriptor()
+	// promocode.DefaultUsageCount holds the default value on creation for the usage_count field.
+	promocode.DefaultUsageCount = promocodeDescUsageCount.Default.(int)
+	// promocodeDescIsActive is the schema descriptor for is_active field.
+	promocodeDescIsActive := promocodeFields[13].Descriptor()
+	// promocode.DefaultIsActive holds the default value on creation for the is_active field.
+	promocode.DefaultIsActive = promocodeDescIsActive.Default.(bool)
+	// promocodeDescFirstOrderOnly is the schema descriptor for first_order_only field.
+	promocodeDescFirstOrderOnly := promocodeFields[14].Descriptor()
+	// promocode.DefaultFirstOrderOnly holds the default value on creation for the first_order_only field.
+	promocode.DefaultFirstOrderOnly = promocodeDescFirstOrderOnly.Default.(bool)
+	// promocodeDescCreatedAt is the schema descriptor for created_at field.
+	promocodeDescCreatedAt := promocodeFields[20].Descriptor()
+	// promocode.DefaultCreatedAt holds the default value on creation for the created_at field.
+	promocode.DefaultCreatedAt = promocodeDescCreatedAt.Default.(func() time.Time)
+	// promocodeDescUpdatedAt is the schema descriptor for updated_at field.
+	promocodeDescUpdatedAt := promocodeFields[21].Descriptor()
+	// promocode.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	promocode.DefaultUpdatedAt = promocodeDescUpdatedAt.Default.(func() time.Time)
+	// promocode.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	promocode.UpdateDefaultUpdatedAt = promocodeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// promocodeDescID is the schema descriptor for id field.
+	promocodeDescID := promocodeFields[0].Descriptor()
+	// promocode.DefaultID holds the default value on creation for the id field.
+	promocode.DefaultID = promocodeDescID.Default.(func() uuid.UUID)
+	promoredemptionFields := schema.PromoRedemption{}.Fields()
+	_ = promoredemptionFields
+	// promoredemptionDescRedeemedAt is the schema descriptor for redeemed_at field.
+	promoredemptionDescRedeemedAt := promoredemptionFields[5].Descriptor()
+	// promoredemption.DefaultRedeemedAt holds the default value on creation for the redeemed_at field.
+	promoredemption.DefaultRedeemedAt = promoredemptionDescRedeemedAt.Default.(func() time.Time)
+	// promoredemptionDescID is the schema descriptor for id field.
+	promoredemptionDescID := promoredemptionFields[0].Descriptor()
+	// promoredemption.DefaultID holds the default value on creation for the id field.
+	promoredemption.DefaultID = promoredemptionDescID.Default.(func() uuid.UUID)
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
 	// roleDescName is the schema descriptor for name field.

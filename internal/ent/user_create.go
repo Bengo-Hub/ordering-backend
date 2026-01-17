@@ -13,8 +13,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
+	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
@@ -376,6 +380,70 @@ func (uc *UserCreate) SetProfile(u *UserProfile) *UserCreate {
 	return uc.SetProfileID(u.ID)
 }
 
+// AddCartIDs adds the "carts" edge to the Cart entity by IDs.
+func (uc *UserCreate) AddCartIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddCartIDs(ids...)
+	return uc
+}
+
+// AddCarts adds the "carts" edges to the Cart entity.
+func (uc *UserCreate) AddCarts(c ...*Cart) *UserCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCartIDs(ids...)
+}
+
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (uc *UserCreate) AddOrderIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddOrderIDs(ids...)
+	return uc
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (uc *UserCreate) AddOrders(o ...*Order) *UserCreate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return uc.AddOrderIDs(ids...)
+}
+
+// AddAddressIDs adds the "addresses" edge to the CustomerAddress entity by IDs.
+func (uc *UserCreate) AddAddressIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddAddressIDs(ids...)
+	return uc
+}
+
+// AddAddresses adds the "addresses" edges to the CustomerAddress entity.
+func (uc *UserCreate) AddAddresses(c ...*CustomerAddress) *UserCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddAddressIDs(ids...)
+}
+
+// SetLoyaltyAccountID sets the "loyalty_account" edge to the LoyaltyAccount entity by ID.
+func (uc *UserCreate) SetLoyaltyAccountID(id uuid.UUID) *UserCreate {
+	uc.mutation.SetLoyaltyAccountID(id)
+	return uc
+}
+
+// SetNillableLoyaltyAccountID sets the "loyalty_account" edge to the LoyaltyAccount entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableLoyaltyAccountID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		uc = uc.SetLoyaltyAccountID(*id)
+	}
+	return uc
+}
+
+// SetLoyaltyAccount sets the "loyalty_account" edge to the LoyaltyAccount entity.
+func (uc *UserCreate) SetLoyaltyAccount(l *LoyaltyAccount) *UserCreate {
+	return uc.SetLoyaltyAccountID(l.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -725,6 +793,70 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userprofile.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CartsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OrdersTable,
+			Columns: []string{user.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.AddressesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AddressesTable,
+			Columns: []string{user.AddressesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(customeraddress.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.LoyaltyAccountIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.LoyaltyAccountTable,
+			Columns: []string{user.LoyaltyAccountColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

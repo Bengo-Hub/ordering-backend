@@ -57,6 +57,8 @@ const (
 	EdgeAssets = "assets"
 	// EdgeSchedules holds the string denoting the schedules edge name in mutations.
 	EdgeSchedules = "schedules"
+	// EdgeCartItems holds the string denoting the cart_items edge name in mutations.
+	EdgeCartItems = "cart_items"
 	// Table holds the table name of the menuitem in the database.
 	Table = "menu_items"
 	// CategoryTable is the table that holds the category relation/edge.
@@ -99,6 +101,13 @@ const (
 	SchedulesInverseTable = "menu_item_schedules"
 	// SchedulesColumn is the table column denoting the schedules relation/edge.
 	SchedulesColumn = "menu_item_id"
+	// CartItemsTable is the table that holds the cart_items relation/edge.
+	CartItemsTable = "cart_items"
+	// CartItemsInverseTable is the table name for the CartItem entity.
+	// It exists in this package in order to avoid circular dependency with the "cartitem" package.
+	CartItemsInverseTable = "cart_items"
+	// CartItemsColumn is the table column denoting the cart_items relation/edge.
+	CartItemsColumn = "menu_item_id"
 )
 
 // Columns holds all SQL columns for menuitem fields.
@@ -318,6 +327,20 @@ func BySchedules(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSchedulesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByCartItemsCount orders the results by cart_items count.
+func ByCartItemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCartItemsStep(), opts...)
+	}
+}
+
+// ByCartItems orders the results by cart_items terms.
+func ByCartItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCartItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCategoryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -358,5 +381,12 @@ func newSchedulesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SchedulesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SchedulesTable, SchedulesColumn),
+	)
+}
+func newCartItemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CartItemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CartItemsTable, CartItemsColumn),
 	)
 }

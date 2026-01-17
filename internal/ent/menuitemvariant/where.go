@@ -449,6 +449,29 @@ func HasMenuItemWith(preds ...predicate.MenuItem) predicate.MenuItemVariant {
 	})
 }
 
+// HasCartItems applies the HasEdge predicate on the "cart_items" edge.
+func HasCartItems() predicate.MenuItemVariant {
+	return predicate.MenuItemVariant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CartItemsTable, CartItemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCartItemsWith applies the HasEdge predicate on the "cart_items" edge with a given conditions (other predicates).
+func HasCartItemsWith(preds ...predicate.CartItem) predicate.MenuItemVariant {
+	return predicate.MenuItemVariant(func(s *sql.Selector) {
+		step := newCartItemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.MenuItemVariant) predicate.MenuItemVariant {
 	return predicate.MenuItemVariant(sql.AndPredicates(predicates...))

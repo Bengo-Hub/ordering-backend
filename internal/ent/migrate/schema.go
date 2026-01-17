@@ -3,6 +3,7 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
@@ -27,6 +28,181 @@ var (
 				Columns:    []*schema.Column{BackupCodesColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// CartsColumns holds the columns for the "carts" table.
+	CartsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "cafe_id", Type: field.TypeUUID},
+		{Name: "session_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "checked_out", "abandoned", "expired"}, Default: "active"},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "subtotal", Type: field.TypeFloat64, Default: 0},
+		{Name: "discount_total", Type: field.TypeFloat64, Default: 0},
+		{Name: "tax_total", Type: field.TypeFloat64, Default: 0},
+		{Name: "delivery_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "loyalty_points_redeemed", Type: field.TypeInt, Default: 0},
+		{Name: "promo_code_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// CartsTable holds the schema information for the "carts" table.
+	CartsTable = &schema.Table{
+		Name:       "carts",
+		Columns:    CartsColumns,
+		PrimaryKey: []*schema.Column{CartsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "carts_users_carts",
+				Columns:    []*schema.Column{CartsColumns[15]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cart_tenant_id_user_id_status",
+				Unique:  true,
+				Columns: []*schema.Column{CartsColumns[1], CartsColumns[15], CartsColumns[4]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'active' AND user_id IS NOT NULL",
+				},
+			},
+			{
+				Name:    "cart_tenant_id_session_id_status",
+				Unique:  true,
+				Columns: []*schema.Column{CartsColumns[1], CartsColumns[3], CartsColumns[4]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'active' AND session_id IS NOT NULL",
+				},
+			},
+			{
+				Name:    "cart_status",
+				Unique:  false,
+				Columns: []*schema.Column{CartsColumns[4]},
+			},
+			{
+				Name:    "cart_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{CartsColumns[12]},
+			},
+		},
+	}
+	// CartItemsColumns holds the columns for the "cart_items" table.
+	CartItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "name_snapshot", Type: field.TypeString, Size: 255},
+		{Name: "variant_name_snapshot", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "quantity", Type: field.TypeInt, Default: 1},
+		{Name: "unit_price", Type: field.TypeFloat64},
+		{Name: "total_price", Type: field.TypeFloat64},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "modifiers", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "cart_id", Type: field.TypeUUID},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+		{Name: "variant_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// CartItemsTable holds the schema information for the "cart_items" table.
+	CartItemsTable = &schema.Table{
+		Name:       "cart_items",
+		Columns:    CartItemsColumns,
+		PrimaryKey: []*schema.Column{CartItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "cart_items_carts_items",
+				Columns:    []*schema.Column{CartItemsColumns[11]},
+				RefColumns: []*schema.Column{CartsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "cart_items_menu_items_cart_items",
+				Columns:    []*schema.Column{CartItemsColumns[12]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "cart_items_menu_item_variants_cart_items",
+				Columns:    []*schema.Column{CartItemsColumns[13]},
+				RefColumns: []*schema.Column{MenuItemVariantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cartitem_cart_id",
+				Unique:  false,
+				Columns: []*schema.Column{CartItemsColumns[11]},
+			},
+			{
+				Name:    "cartitem_menu_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{CartItemsColumns[12]},
+			},
+			{
+				Name:    "cartitem_cart_id_menu_item_id_variant_id",
+				Unique:  true,
+				Columns: []*schema.Column{CartItemsColumns[11], CartItemsColumns[12], CartItemsColumns[13]},
+			},
+		},
+	}
+	// CustomerAddressesColumns holds the columns for the "customer_addresses" table.
+	CustomerAddressesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "label", Type: field.TypeString, Size: 100},
+		{Name: "address_line1", Type: field.TypeString, Size: 255},
+		{Name: "address_line2", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "city", Type: field.TypeString, Size: 100},
+		{Name: "county", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "postal_code", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "country", Type: field.TypeString, Size: 2, Default: "KE"},
+		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "plus_code", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "instructions", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "contact_name", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "contact_phone", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "is_verified", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// CustomerAddressesTable holds the schema information for the "customer_addresses" table.
+	CustomerAddressesTable = &schema.Table{
+		Name:       "customer_addresses",
+		Columns:    CustomerAddressesColumns,
+		PrimaryKey: []*schema.Column{CustomerAddressesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "customer_addresses_users_addresses",
+				Columns:    []*schema.Column{CustomerAddressesColumns[19]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "customeraddress_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{CustomerAddressesColumns[1], CustomerAddressesColumns[19]},
+			},
+			{
+				Name:    "customeraddress_user_id_is_default",
+				Unique:  false,
+				Columns: []*schema.Column{CustomerAddressesColumns[19], CustomerAddressesColumns[15]},
+			},
+			{
+				Name:    "customeraddress_latitude_longitude",
+				Unique:  false,
+				Columns: []*schema.Column{CustomerAddressesColumns[9], CustomerAddressesColumns[10]},
 			},
 		},
 	}
@@ -59,6 +235,95 @@ var (
 		Name:       "dietary_tags",
 		Columns:    DietaryTagsColumns,
 		PrimaryKey: []*schema.Column{DietaryTagsColumns[0]},
+	}
+	// LoyaltyAccountsColumns holds the columns for the "loyalty_accounts" table.
+	LoyaltyAccountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "balance_points", Type: field.TypeInt, Default: 0},
+		{Name: "lifetime_points", Type: field.TypeInt, Default: 0},
+		{Name: "redeemed_points", Type: field.TypeInt, Default: 0},
+		{Name: "tier", Type: field.TypeEnum, Enums: []string{"bronze", "silver", "gold", "platinum"}, Default: "bronze"},
+		{Name: "tier_progress", Type: field.TypeInt, Default: 0},
+		{Name: "tier_expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUUID, Unique: true},
+	}
+	// LoyaltyAccountsTable holds the schema information for the "loyalty_accounts" table.
+	LoyaltyAccountsTable = &schema.Table{
+		Name:       "loyalty_accounts",
+		Columns:    LoyaltyAccountsColumns,
+		PrimaryKey: []*schema.Column{LoyaltyAccountsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "loyalty_accounts_users_loyalty_account",
+				Columns:    []*schema.Column{LoyaltyAccountsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "loyaltyaccount_tenant_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{LoyaltyAccountsColumns[1], LoyaltyAccountsColumns[10]},
+			},
+			{
+				Name:    "loyaltyaccount_tier",
+				Unique:  false,
+				Columns: []*schema.Column{LoyaltyAccountsColumns[5]},
+			},
+		},
+	}
+	// LoyaltyTransactionsColumns holds the columns for the "loyalty_transactions" table.
+	LoyaltyTransactionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "points", Type: field.TypeInt},
+		{Name: "balance_after", Type: field.TypeInt},
+		{Name: "transaction_type", Type: field.TypeEnum, Enums: []string{"earned", "redeemed", "expired", "adjusted", "bonus", "referral"}},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "reference", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "account_id", Type: field.TypeUUID},
+	}
+	// LoyaltyTransactionsTable holds the schema information for the "loyalty_transactions" table.
+	LoyaltyTransactionsTable = &schema.Table{
+		Name:       "loyalty_transactions",
+		Columns:    LoyaltyTransactionsColumns,
+		PrimaryKey: []*schema.Column{LoyaltyTransactionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "loyalty_transactions_loyalty_accounts_transactions",
+				Columns:    []*schema.Column{LoyaltyTransactionsColumns[9]},
+				RefColumns: []*schema.Column{LoyaltyAccountsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "loyaltytransaction_account_id",
+				Unique:  false,
+				Columns: []*schema.Column{LoyaltyTransactionsColumns[9]},
+			},
+			{
+				Name:    "loyaltytransaction_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{LoyaltyTransactionsColumns[1]},
+			},
+			{
+				Name:    "loyaltytransaction_transaction_type",
+				Unique:  false,
+				Columns: []*schema.Column{LoyaltyTransactionsColumns[4]},
+			},
+			{
+				Name:    "loyaltytransaction_occurred_at",
+				Unique:  false,
+				Columns: []*schema.Column{LoyaltyTransactionsColumns[8]},
+			},
+		},
 	}
 	// MenuCategoriesColumns holds the columns for the "menu_categories" table.
 	MenuCategoriesColumns = []*schema.Column{
@@ -345,6 +610,188 @@ var (
 			},
 		},
 	}
+	// OrdersColumns holds the columns for the "orders" table.
+	OrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "cafe_id", Type: field.TypeUUID},
+		{Name: "cart_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "order_number", Type: field.TypeString, Size: 50},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded"}, Default: "pending"},
+		{Name: "payment_status", Type: field.TypeEnum, Enums: []string{"pending", "authorized", "paid", "failed", "refunded", "partially_refunded"}, Default: "pending"},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "subtotal", Type: field.TypeFloat64},
+		{Name: "discount_total", Type: field.TypeFloat64, Default: 0},
+		{Name: "tax_total", Type: field.TypeFloat64, Default: 0},
+		{Name: "delivery_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "tip_total", Type: field.TypeFloat64, Default: 0},
+		{Name: "grand_total", Type: field.TypeFloat64},
+		{Name: "loyalty_points_earned", Type: field.TypeInt, Default: 0},
+		{Name: "loyalty_points_redeemed", Type: field.TypeInt, Default: 0},
+		{Name: "promo_code_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "instructions", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"web", "mobile_app", "kiosk", "phone", "api"}, Default: "web"},
+		{Name: "source", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "placed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "confirmed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "ready_at", Type: field.TypeTime, Nullable: true},
+		{Name: "delivered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "delivery_address_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "customer_id", Type: field.TypeUUID},
+	}
+	// OrdersTable holds the schema information for the "orders" table.
+	OrdersTable = &schema.Table{
+		Name:       "orders",
+		Columns:    OrdersColumns,
+		PrimaryKey: []*schema.Column{OrdersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "orders_customer_addresses_orders",
+				Columns:    []*schema.Column{OrdersColumns[31]},
+				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "orders_users_orders",
+				Columns:    []*schema.Column{OrdersColumns[32]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "order_tenant_id_cafe_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[2]},
+			},
+			{
+				Name:    "order_tenant_id_customer_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[32]},
+			},
+			{
+				Name:    "order_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5]},
+			},
+			{
+				Name:    "order_order_number",
+				Unique:  true,
+				Columns: []*schema.Column{OrdersColumns[4]},
+			},
+			{
+				Name:    "order_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{OrdersColumns[20]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "idempotency_key IS NOT NULL",
+				},
+			},
+			{
+				Name:    "order_placed_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[21]},
+			},
+			{
+				Name:    "order_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[29]},
+			},
+		},
+	}
+	// OrderEventsColumns holds the columns for the "order_events" table.
+	OrderEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "event_type", Type: field.TypeString, Size: 100},
+		{Name: "from_status", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "to_status", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "payload", Type: field.TypeJSON, Nullable: true},
+		{Name: "actor_user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "actor_type", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Size: 45},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "order_id", Type: field.TypeUUID},
+	}
+	// OrderEventsTable holds the schema information for the "order_events" table.
+	OrderEventsTable = &schema.Table{
+		Name:       "order_events",
+		Columns:    OrderEventsColumns,
+		PrimaryKey: []*schema.Column{OrderEventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "order_events_orders_events",
+				Columns:    []*schema.Column{OrderEventsColumns[9]},
+				RefColumns: []*schema.Column{OrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orderevent_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderEventsColumns[9]},
+			},
+			{
+				Name:    "orderevent_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{OrderEventsColumns[1]},
+			},
+			{
+				Name:    "orderevent_occurred_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrderEventsColumns[8]},
+			},
+		},
+	}
+	// OrderItemsColumns holds the columns for the "order_items" table.
+	OrderItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+		{Name: "variant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "name_snapshot", Type: field.TypeString, Size: 255},
+		{Name: "variant_name_snapshot", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "quantity", Type: field.TypeInt},
+		{Name: "unit_price", Type: field.TypeFloat64},
+		{Name: "total_price", Type: field.TypeFloat64},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "modifiers", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "order_id", Type: field.TypeUUID},
+	}
+	// OrderItemsTable holds the schema information for the "order_items" table.
+	OrderItemsTable = &schema.Table{
+		Name:       "order_items",
+		Columns:    OrderItemsColumns,
+		PrimaryKey: []*schema.Column{OrderItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "order_items_orders_items",
+				Columns:    []*schema.Column{OrderItemsColumns[12]},
+				RefColumns: []*schema.Column{OrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orderitem_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderItemsColumns[12]},
+			},
+			{
+				Name:    "orderitem_menu_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderItemsColumns[1]},
+			},
+		},
+	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -359,6 +806,99 @@ var (
 		Name:       "permissions",
 		Columns:    PermissionsColumns,
 		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+	}
+	// PromoCodesColumns holds the columns for the "promo_codes" table.
+	PromoCodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "cafe_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "code", Type: field.TypeString, Size: 50},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "discount_type", Type: field.TypeEnum, Enums: []string{"percentage", "fixed_amount", "free_delivery", "free_item"}},
+		{Name: "discount_value", Type: field.TypeFloat64},
+		{Name: "max_discount_amount", Type: field.TypeFloat64, Nullable: true},
+		{Name: "min_subtotal", Type: field.TypeFloat64, Default: 0},
+		{Name: "max_uses", Type: field.TypeInt, Nullable: true},
+		{Name: "max_uses_per_user", Type: field.TypeInt, Nullable: true},
+		{Name: "usage_count", Type: field.TypeInt, Default: 0},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "first_order_only", Type: field.TypeBool, Default: false},
+		{Name: "starts_at", Type: field.TypeTime, Nullable: true},
+		{Name: "ends_at", Type: field.TypeTime, Nullable: true},
+		{Name: "eligible_categories", Type: field.TypeJSON, Nullable: true},
+		{Name: "eligible_items", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PromoCodesTable holds the schema information for the "promo_codes" table.
+	PromoCodesTable = &schema.Table{
+		Name:       "promo_codes",
+		Columns:    PromoCodesColumns,
+		PrimaryKey: []*schema.Column{PromoCodesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "promocode_tenant_id_code",
+				Unique:  true,
+				Columns: []*schema.Column{PromoCodesColumns[1], PromoCodesColumns[3]},
+			},
+			{
+				Name:    "promocode_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{PromoCodesColumns[13]},
+			},
+			{
+				Name:    "promocode_starts_at_ends_at",
+				Unique:  false,
+				Columns: []*schema.Column{PromoCodesColumns[15], PromoCodesColumns[16]},
+			},
+		},
+	}
+	// PromoRedemptionsColumns holds the columns for the "promo_redemptions" table.
+	PromoRedemptionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "discount_amount", Type: field.TypeFloat64},
+		{Name: "redeemed_at", Type: field.TypeTime},
+		{Name: "promo_code_id", Type: field.TypeUUID},
+	}
+	// PromoRedemptionsTable holds the schema information for the "promo_redemptions" table.
+	PromoRedemptionsTable = &schema.Table{
+		Name:       "promo_redemptions",
+		Columns:    PromoRedemptionsColumns,
+		PrimaryKey: []*schema.Column{PromoRedemptionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "promo_redemptions_promo_codes_redemptions",
+				Columns:    []*schema.Column{PromoRedemptionsColumns[5]},
+				RefColumns: []*schema.Column{PromoCodesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "promoredemption_promo_code_id",
+				Unique:  false,
+				Columns: []*schema.Column{PromoRedemptionsColumns[5]},
+			},
+			{
+				Name:    "promoredemption_order_id",
+				Unique:  true,
+				Columns: []*schema.Column{PromoRedemptionsColumns[1]},
+			},
+			{
+				Name:    "promoredemption_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{PromoRedemptionsColumns[2]},
+			},
+			{
+				Name:    "promoredemption_promo_code_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{PromoRedemptionsColumns[5], PromoRedemptionsColumns[2]},
+			},
+		},
 	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
@@ -697,8 +1237,13 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BackupCodesTable,
+		CartsTable,
+		CartItemsTable,
+		CustomerAddressesTable,
 		DevicesTable,
 		DietaryTagsTable,
+		LoyaltyAccountsTable,
+		LoyaltyTransactionsTable,
 		MenuCategoriesTable,
 		MenuItemsTable,
 		MenuItemAssetsTable,
@@ -706,7 +1251,12 @@ var (
 		MenuItemTranslationsTable,
 		MenuItemVariantsTable,
 		OauthAccountsTable,
+		OrdersTable,
+		OrderEventsTable,
+		OrderItemsTable,
 		PermissionsTable,
+		PromoCodesTable,
+		PromoRedemptionsTable,
 		RolesTable,
 		SessionsTable,
 		TenantsTable,
@@ -725,6 +1275,16 @@ var (
 
 func init() {
 	BackupCodesTable.ForeignKeys[0].RefTable = UsersTable
+	CartsTable.ForeignKeys[0].RefTable = UsersTable
+	CartsTable.Annotation = &entsql.Annotation{
+		Table: "carts",
+	}
+	CartItemsTable.ForeignKeys[0].RefTable = CartsTable
+	CartItemsTable.ForeignKeys[1].RefTable = MenuItemsTable
+	CartItemsTable.ForeignKeys[2].RefTable = MenuItemVariantsTable
+	CustomerAddressesTable.ForeignKeys[0].RefTable = UsersTable
+	LoyaltyAccountsTable.ForeignKeys[0].RefTable = UsersTable
+	LoyaltyTransactionsTable.ForeignKeys[0].RefTable = LoyaltyAccountsTable
 	MenuCategoriesTable.ForeignKeys[0].RefTable = MenuCategoriesTable
 	MenuItemsTable.ForeignKeys[0].RefTable = MenuCategoriesTable
 	MenuItemAssetsTable.ForeignKeys[0].RefTable = MenuItemsTable
@@ -732,6 +1292,14 @@ func init() {
 	MenuItemTranslationsTable.ForeignKeys[0].RefTable = MenuItemsTable
 	MenuItemVariantsTable.ForeignKeys[0].RefTable = MenuItemsTable
 	OauthAccountsTable.ForeignKeys[0].RefTable = UsersTable
+	OrdersTable.ForeignKeys[0].RefTable = CustomerAddressesTable
+	OrdersTable.ForeignKeys[1].RefTable = UsersTable
+	OrdersTable.Annotation = &entsql.Annotation{
+		Table: "orders",
+	}
+	OrderEventsTable.ForeignKeys[0].RefTable = OrdersTable
+	OrderItemsTable.ForeignKeys[0].RefTable = OrdersTable
+	PromoRedemptionsTable.ForeignKeys[0].RefTable = PromoCodesTable
 	SessionsTable.ForeignKeys[0].RefTable = TenantsTable
 	SessionsTable.ForeignKeys[1].RefTable = UsersTable
 	TenantSettingsTable.ForeignKeys[0].RefTable = TenantsTable

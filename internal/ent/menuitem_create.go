@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
@@ -284,6 +285,21 @@ func (mic *MenuItemCreate) AddSchedules(m ...*MenuItemSchedule) *MenuItemCreate 
 		ids[i] = m[i].ID
 	}
 	return mic.AddScheduleIDs(ids...)
+}
+
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (mic *MenuItemCreate) AddCartItemIDs(ids ...uuid.UUID) *MenuItemCreate {
+	mic.mutation.AddCartItemIDs(ids...)
+	return mic
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (mic *MenuItemCreate) AddCartItems(c ...*CartItem) *MenuItemCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mic.AddCartItemIDs(ids...)
 }
 
 // Mutation returns the MenuItemMutation object of the builder.
@@ -589,6 +605,22 @@ func (mic *MenuItemCreate) createSpec() (*MenuItem, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menuitemschedule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mic.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -65,6 +65,14 @@ const (
 	EdgePreferences = "preferences"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
+	// EdgeCarts holds the string denoting the carts edge name in mutations.
+	EdgeCarts = "carts"
+	// EdgeOrders holds the string denoting the orders edge name in mutations.
+	EdgeOrders = "orders"
+	// EdgeAddresses holds the string denoting the addresses edge name in mutations.
+	EdgeAddresses = "addresses"
+	// EdgeLoyaltyAccount holds the string denoting the loyalty_account edge name in mutations.
+	EdgeLoyaltyAccount = "loyalty_account"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -126,6 +134,34 @@ const (
 	ProfileInverseTable = "user_profiles"
 	// ProfileColumn is the table column denoting the profile relation/edge.
 	ProfileColumn = "user_profile"
+	// CartsTable is the table that holds the carts relation/edge.
+	CartsTable = "carts"
+	// CartsInverseTable is the table name for the Cart entity.
+	// It exists in this package in order to avoid circular dependency with the "cart" package.
+	CartsInverseTable = "carts"
+	// CartsColumn is the table column denoting the carts relation/edge.
+	CartsColumn = "user_id"
+	// OrdersTable is the table that holds the orders relation/edge.
+	OrdersTable = "orders"
+	// OrdersInverseTable is the table name for the Order entity.
+	// It exists in this package in order to avoid circular dependency with the "order" package.
+	OrdersInverseTable = "orders"
+	// OrdersColumn is the table column denoting the orders relation/edge.
+	OrdersColumn = "customer_id"
+	// AddressesTable is the table that holds the addresses relation/edge.
+	AddressesTable = "customer_addresses"
+	// AddressesInverseTable is the table name for the CustomerAddress entity.
+	// It exists in this package in order to avoid circular dependency with the "customeraddress" package.
+	AddressesInverseTable = "customer_addresses"
+	// AddressesColumn is the table column denoting the addresses relation/edge.
+	AddressesColumn = "user_id"
+	// LoyaltyAccountTable is the table that holds the loyalty_account relation/edge.
+	LoyaltyAccountTable = "loyalty_accounts"
+	// LoyaltyAccountInverseTable is the table name for the LoyaltyAccount entity.
+	// It exists in this package in order to avoid circular dependency with the "loyaltyaccount" package.
+	LoyaltyAccountInverseTable = "loyalty_accounts"
+	// LoyaltyAccountColumn is the table column denoting the loyalty_account relation/edge.
+	LoyaltyAccountColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -384,6 +420,55 @@ func ByProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProfileStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByCartsCount orders the results by carts count.
+func ByCartsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCartsStep(), opts...)
+	}
+}
+
+// ByCarts orders the results by carts terms.
+func ByCarts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCartsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByOrdersCount orders the results by orders count.
+func ByOrdersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOrdersStep(), opts...)
+	}
+}
+
+// ByOrders orders the results by orders terms.
+func ByOrders(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrdersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAddressesCount orders the results by addresses count.
+func ByAddressesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAddressesStep(), opts...)
+	}
+}
+
+// ByAddresses orders the results by addresses terms.
+func ByAddresses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAddressesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByLoyaltyAccountField orders the results by loyalty_account field.
+func ByLoyaltyAccountField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLoyaltyAccountStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newTenantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -445,5 +530,33 @@ func newProfileStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProfileInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, ProfileTable, ProfileColumn),
+	)
+}
+func newCartsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CartsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CartsTable, CartsColumn),
+	)
+}
+func newOrdersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OrdersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
+	)
+}
+func newAddressesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AddressesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AddressesTable, AddressesColumn),
+	)
+}
+func newLoyaltyAccountStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LoyaltyAccountInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, LoyaltyAccountTable, LoyaltyAccountColumn),
 	)
 }

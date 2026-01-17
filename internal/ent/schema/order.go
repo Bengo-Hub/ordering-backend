@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
@@ -137,6 +139,15 @@ func (Order) Edges() []ent.Edge {
 	}
 }
 
+// Annotations of the Order.
+func (Order) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{
+			Table: "orders",
+		},
+	}
+}
+
 // Indexes of the Order.
 func (Order) Indexes() []ent.Index {
 	return []ent.Index{
@@ -145,9 +156,12 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("tenant_id", "status"),
 		index.Fields("order_number").
 			Unique(),
+		// Partial unique index: unique idempotency key when set
 		index.Fields("idempotency_key").
-			Unique().
-			Where("idempotency_key IS NOT NULL"),
+			Annotations(entsql.IndexAnnotation{
+				Where: "idempotency_key IS NOT NULL",
+			}).
+			Unique(),
 		index.Fields("placed_at"),
 		index.Fields("created_at"),
 	}

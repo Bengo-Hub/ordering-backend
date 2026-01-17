@@ -12,8 +12,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
+	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
@@ -41,6 +45,10 @@ type UserQuery struct {
 	withBackupCodes       *BackupCodeQuery
 	withPreferences       *UserPreferenceQuery
 	withProfile           *UserProfileQuery
+	withCarts             *CartQuery
+	withOrders            *OrderQuery
+	withAddresses         *CustomerAddressQuery
+	withLoyaltyAccount    *LoyaltyAccountQuery
 	withFKs               bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -276,6 +284,94 @@ func (uq *UserQuery) QueryProfile() *UserProfileQuery {
 	return query
 }
 
+// QueryCarts chains the current query on the "carts" edge.
+func (uq *UserQuery) QueryCarts() *CartQuery {
+	query := (&CartClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(cart.Table, cart.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CartsTable, user.CartsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOrders chains the current query on the "orders" edge.
+func (uq *UserQuery) QueryOrders() *OrderQuery {
+	query := (&OrderClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(order.Table, order.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OrdersTable, user.OrdersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAddresses chains the current query on the "addresses" edge.
+func (uq *UserQuery) QueryAddresses() *CustomerAddressQuery {
+	query := (&CustomerAddressClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(customeraddress.Table, customeraddress.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AddressesTable, user.AddressesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryLoyaltyAccount chains the current query on the "loyalty_account" edge.
+func (uq *UserQuery) QueryLoyaltyAccount() *LoyaltyAccountQuery {
+	query := (&LoyaltyAccountClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(loyaltyaccount.Table, loyaltyaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.LoyaltyAccountTable, user.LoyaltyAccountColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first User entity from the query.
 // Returns a *NotFoundError when no User was found.
 func (uq *UserQuery) First(ctx context.Context) (*User, error) {
@@ -477,6 +573,10 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withBackupCodes:       uq.withBackupCodes.Clone(),
 		withPreferences:       uq.withPreferences.Clone(),
 		withProfile:           uq.withProfile.Clone(),
+		withCarts:             uq.withCarts.Clone(),
+		withOrders:            uq.withOrders.Clone(),
+		withAddresses:         uq.withAddresses.Clone(),
+		withLoyaltyAccount:    uq.withLoyaltyAccount.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -582,6 +682,50 @@ func (uq *UserQuery) WithProfile(opts ...func(*UserProfileQuery)) *UserQuery {
 	return uq
 }
 
+// WithCarts tells the query-builder to eager-load the nodes that are connected to
+// the "carts" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithCarts(opts ...func(*CartQuery)) *UserQuery {
+	query := (&CartClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withCarts = query
+	return uq
+}
+
+// WithOrders tells the query-builder to eager-load the nodes that are connected to
+// the "orders" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithOrders(opts ...func(*OrderQuery)) *UserQuery {
+	query := (&OrderClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withOrders = query
+	return uq
+}
+
+// WithAddresses tells the query-builder to eager-load the nodes that are connected to
+// the "addresses" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithAddresses(opts ...func(*CustomerAddressQuery)) *UserQuery {
+	query := (&CustomerAddressClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withAddresses = query
+	return uq
+}
+
+// WithLoyaltyAccount tells the query-builder to eager-load the nodes that are connected to
+// the "loyalty_account" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithLoyaltyAccount(opts ...func(*LoyaltyAccountQuery)) *UserQuery {
+	query := (&LoyaltyAccountClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withLoyaltyAccount = query
+	return uq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -661,7 +805,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		nodes       = []*User{}
 		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [13]bool{
 			uq.withTenant != nil,
 			uq.withRoles != nil,
 			uq.withSessions != nil,
@@ -671,6 +815,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			uq.withBackupCodes != nil,
 			uq.withPreferences != nil,
 			uq.withProfile != nil,
+			uq.withCarts != nil,
+			uq.withOrders != nil,
+			uq.withAddresses != nil,
+			uq.withLoyaltyAccount != nil,
 		}
 	)
 	if uq.withTwoFactorSettings != nil {
@@ -753,6 +901,33 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if query := uq.withProfile; query != nil {
 		if err := uq.loadProfile(ctx, query, nodes, nil,
 			func(n *User, e *UserProfile) { n.Edges.Profile = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withCarts; query != nil {
+		if err := uq.loadCarts(ctx, query, nodes,
+			func(n *User) { n.Edges.Carts = []*Cart{} },
+			func(n *User, e *Cart) { n.Edges.Carts = append(n.Edges.Carts, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withOrders; query != nil {
+		if err := uq.loadOrders(ctx, query, nodes,
+			func(n *User) { n.Edges.Orders = []*Order{} },
+			func(n *User, e *Order) { n.Edges.Orders = append(n.Edges.Orders, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withAddresses; query != nil {
+		if err := uq.loadAddresses(ctx, query, nodes,
+			func(n *User) { n.Edges.Addresses = []*CustomerAddress{} },
+			func(n *User, e *CustomerAddress) { n.Edges.Addresses = append(n.Edges.Addresses, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withLoyaltyAccount; query != nil {
+		if err := uq.loadLoyaltyAccount(ctx, query, nodes, nil,
+			func(n *User, e *LoyaltyAccount) { n.Edges.LoyaltyAccount = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -1085,6 +1260,126 @@ func (uq *UserQuery) loadProfile(ctx context.Context, query *UserProfileQuery, n
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_profile" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadCarts(ctx context.Context, query *CartQuery, nodes []*User, init func(*User), assign func(*User, *Cart)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(cart.FieldUserID)
+	}
+	query.Where(predicate.Cart(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.CartsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes []*User, init func(*User), assign func(*User, *Order)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(order.FieldCustomerID)
+	}
+	query.Where(predicate.Order(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.OrdersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CustomerID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "customer_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadAddresses(ctx context.Context, query *CustomerAddressQuery, nodes []*User, init func(*User), assign func(*User, *CustomerAddress)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(customeraddress.FieldUserID)
+	}
+	query.Where(predicate.CustomerAddress(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AddressesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadLoyaltyAccount(ctx context.Context, query *LoyaltyAccountQuery, nodes []*User, init func(*User), assign func(*User, *LoyaltyAccount)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(loyaltyaccount.FieldUserID)
+	}
+	query.Where(predicate.LoyaltyAccount(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.LoyaltyAccountColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

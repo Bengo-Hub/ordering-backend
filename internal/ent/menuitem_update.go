@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
@@ -346,6 +347,21 @@ func (miu *MenuItemUpdate) AddSchedules(m ...*MenuItemSchedule) *MenuItemUpdate 
 	return miu.AddScheduleIDs(ids...)
 }
 
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (miu *MenuItemUpdate) AddCartItemIDs(ids ...uuid.UUID) *MenuItemUpdate {
+	miu.mutation.AddCartItemIDs(ids...)
+	return miu
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (miu *MenuItemUpdate) AddCartItems(c ...*CartItem) *MenuItemUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return miu.AddCartItemIDs(ids...)
+}
+
 // Mutation returns the MenuItemMutation object of the builder.
 func (miu *MenuItemUpdate) Mutation() *MenuItemMutation {
 	return miu.mutation
@@ -460,6 +476,27 @@ func (miu *MenuItemUpdate) RemoveSchedules(m ...*MenuItemSchedule) *MenuItemUpda
 		ids[i] = m[i].ID
 	}
 	return miu.RemoveScheduleIDs(ids...)
+}
+
+// ClearCartItems clears all "cart_items" edges to the CartItem entity.
+func (miu *MenuItemUpdate) ClearCartItems() *MenuItemUpdate {
+	miu.mutation.ClearCartItems()
+	return miu
+}
+
+// RemoveCartItemIDs removes the "cart_items" edge to CartItem entities by IDs.
+func (miu *MenuItemUpdate) RemoveCartItemIDs(ids ...uuid.UUID) *MenuItemUpdate {
+	miu.mutation.RemoveCartItemIDs(ids...)
+	return miu
+}
+
+// RemoveCartItems removes "cart_items" edges to CartItem entities.
+func (miu *MenuItemUpdate) RemoveCartItems(c ...*CartItem) *MenuItemUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return miu.RemoveCartItemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -860,6 +897,51 @@ func (miu *MenuItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if miu.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := miu.mutation.RemovedCartItemsIDs(); len(nodes) > 0 && !miu.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := miu.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, miu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{menuitem.Label}
@@ -1191,6 +1273,21 @@ func (miuo *MenuItemUpdateOne) AddSchedules(m ...*MenuItemSchedule) *MenuItemUpd
 	return miuo.AddScheduleIDs(ids...)
 }
 
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (miuo *MenuItemUpdateOne) AddCartItemIDs(ids ...uuid.UUID) *MenuItemUpdateOne {
+	miuo.mutation.AddCartItemIDs(ids...)
+	return miuo
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (miuo *MenuItemUpdateOne) AddCartItems(c ...*CartItem) *MenuItemUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return miuo.AddCartItemIDs(ids...)
+}
+
 // Mutation returns the MenuItemMutation object of the builder.
 func (miuo *MenuItemUpdateOne) Mutation() *MenuItemMutation {
 	return miuo.mutation
@@ -1305,6 +1402,27 @@ func (miuo *MenuItemUpdateOne) RemoveSchedules(m ...*MenuItemSchedule) *MenuItem
 		ids[i] = m[i].ID
 	}
 	return miuo.RemoveScheduleIDs(ids...)
+}
+
+// ClearCartItems clears all "cart_items" edges to the CartItem entity.
+func (miuo *MenuItemUpdateOne) ClearCartItems() *MenuItemUpdateOne {
+	miuo.mutation.ClearCartItems()
+	return miuo
+}
+
+// RemoveCartItemIDs removes the "cart_items" edge to CartItem entities by IDs.
+func (miuo *MenuItemUpdateOne) RemoveCartItemIDs(ids ...uuid.UUID) *MenuItemUpdateOne {
+	miuo.mutation.RemoveCartItemIDs(ids...)
+	return miuo
+}
+
+// RemoveCartItems removes "cart_items" edges to CartItem entities.
+func (miuo *MenuItemUpdateOne) RemoveCartItems(c ...*CartItem) *MenuItemUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return miuo.RemoveCartItemIDs(ids...)
 }
 
 // Where appends a list predicates to the MenuItemUpdate builder.
@@ -1728,6 +1846,51 @@ func (miuo *MenuItemUpdateOne) sqlSave(ctx context.Context) (_node *MenuItem, er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menuitemschedule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if miuo.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := miuo.mutation.RemovedCartItemsIDs(); len(nodes) > 0 && !miuo.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := miuo.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitem.CartItemsTable,
+			Columns: []string{menuitem.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

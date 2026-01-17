@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
@@ -145,6 +146,21 @@ func (mivu *MenuItemVariantUpdate) SetMenuItem(m *MenuItem) *MenuItemVariantUpda
 	return mivu.SetMenuItemID(m.ID)
 }
 
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (mivu *MenuItemVariantUpdate) AddCartItemIDs(ids ...uuid.UUID) *MenuItemVariantUpdate {
+	mivu.mutation.AddCartItemIDs(ids...)
+	return mivu
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (mivu *MenuItemVariantUpdate) AddCartItems(c ...*CartItem) *MenuItemVariantUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mivu.AddCartItemIDs(ids...)
+}
+
 // Mutation returns the MenuItemVariantMutation object of the builder.
 func (mivu *MenuItemVariantUpdate) Mutation() *MenuItemVariantMutation {
 	return mivu.mutation
@@ -154,6 +170,27 @@ func (mivu *MenuItemVariantUpdate) Mutation() *MenuItemVariantMutation {
 func (mivu *MenuItemVariantUpdate) ClearMenuItem() *MenuItemVariantUpdate {
 	mivu.mutation.ClearMenuItem()
 	return mivu
+}
+
+// ClearCartItems clears all "cart_items" edges to the CartItem entity.
+func (mivu *MenuItemVariantUpdate) ClearCartItems() *MenuItemVariantUpdate {
+	mivu.mutation.ClearCartItems()
+	return mivu
+}
+
+// RemoveCartItemIDs removes the "cart_items" edge to CartItem entities by IDs.
+func (mivu *MenuItemVariantUpdate) RemoveCartItemIDs(ids ...uuid.UUID) *MenuItemVariantUpdate {
+	mivu.mutation.RemoveCartItemIDs(ids...)
+	return mivu
+}
+
+// RemoveCartItems removes "cart_items" edges to CartItem entities.
+func (mivu *MenuItemVariantUpdate) RemoveCartItems(c ...*CartItem) *MenuItemVariantUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mivu.RemoveCartItemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -271,6 +308,51 @@ func (mivu *MenuItemVariantUpdate) sqlSave(ctx context.Context) (n int, err erro
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mivu.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mivu.mutation.RemovedCartItemsIDs(); len(nodes) > 0 && !mivu.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mivu.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -413,6 +495,21 @@ func (mivuo *MenuItemVariantUpdateOne) SetMenuItem(m *MenuItem) *MenuItemVariant
 	return mivuo.SetMenuItemID(m.ID)
 }
 
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (mivuo *MenuItemVariantUpdateOne) AddCartItemIDs(ids ...uuid.UUID) *MenuItemVariantUpdateOne {
+	mivuo.mutation.AddCartItemIDs(ids...)
+	return mivuo
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (mivuo *MenuItemVariantUpdateOne) AddCartItems(c ...*CartItem) *MenuItemVariantUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mivuo.AddCartItemIDs(ids...)
+}
+
 // Mutation returns the MenuItemVariantMutation object of the builder.
 func (mivuo *MenuItemVariantUpdateOne) Mutation() *MenuItemVariantMutation {
 	return mivuo.mutation
@@ -422,6 +519,27 @@ func (mivuo *MenuItemVariantUpdateOne) Mutation() *MenuItemVariantMutation {
 func (mivuo *MenuItemVariantUpdateOne) ClearMenuItem() *MenuItemVariantUpdateOne {
 	mivuo.mutation.ClearMenuItem()
 	return mivuo
+}
+
+// ClearCartItems clears all "cart_items" edges to the CartItem entity.
+func (mivuo *MenuItemVariantUpdateOne) ClearCartItems() *MenuItemVariantUpdateOne {
+	mivuo.mutation.ClearCartItems()
+	return mivuo
+}
+
+// RemoveCartItemIDs removes the "cart_items" edge to CartItem entities by IDs.
+func (mivuo *MenuItemVariantUpdateOne) RemoveCartItemIDs(ids ...uuid.UUID) *MenuItemVariantUpdateOne {
+	mivuo.mutation.RemoveCartItemIDs(ids...)
+	return mivuo
+}
+
+// RemoveCartItems removes "cart_items" edges to CartItem entities.
+func (mivuo *MenuItemVariantUpdateOne) RemoveCartItems(c ...*CartItem) *MenuItemVariantUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mivuo.RemoveCartItemIDs(ids...)
 }
 
 // Where appends a list predicates to the MenuItemVariantUpdate builder.
@@ -569,6 +687,51 @@ func (mivuo *MenuItemVariantUpdateOne) sqlSave(ctx context.Context) (_node *Menu
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mivuo.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mivuo.mutation.RemovedCartItemsIDs(); len(nodes) > 0 && !mivuo.mutation.CartItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mivuo.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

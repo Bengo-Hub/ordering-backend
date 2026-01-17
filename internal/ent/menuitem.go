@@ -70,9 +70,11 @@ type MenuItemEdges struct {
 	Assets []*MenuItemAsset `json:"assets,omitempty"`
 	// Schedules holds the value of the schedules edge.
 	Schedules []*MenuItemSchedule `json:"schedules,omitempty"`
+	// CartItems holds the value of the cart_items edge.
+	CartItems []*CartItem `json:"cart_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // CategoryOrErr returns the Category value or an error if the edge
@@ -129,6 +131,15 @@ func (e MenuItemEdges) SchedulesOrErr() ([]*MenuItemSchedule, error) {
 		return e.Schedules, nil
 	}
 	return nil, &NotLoadedError{edge: "schedules"}
+}
+
+// CartItemsOrErr returns the CartItems value or an error if the edge
+// was not loaded in eager-loading.
+func (e MenuItemEdges) CartItemsOrErr() ([]*CartItem, error) {
+	if e.loadedTypes[6] {
+		return e.CartItems, nil
+	}
+	return nil, &NotLoadedError{edge: "cart_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -305,6 +316,11 @@ func (mi *MenuItem) QueryAssets() *MenuItemAssetQuery {
 // QuerySchedules queries the "schedules" edge of the MenuItem entity.
 func (mi *MenuItem) QuerySchedules() *MenuItemScheduleQuery {
 	return NewMenuItemClient(mi.config).QuerySchedules(mi)
+}
+
+// QueryCartItems queries the "cart_items" edge of the MenuItem entity.
+func (mi *MenuItem) QueryCartItems() *CartItemQuery {
+	return NewMenuItemClient(mi.config).QueryCartItems(mi)
 }
 
 // Update returns a builder for updating this MenuItem.

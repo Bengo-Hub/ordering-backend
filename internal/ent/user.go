@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
@@ -82,9 +83,17 @@ type UserEdges struct {
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	// Profile holds the value of the profile edge.
 	Profile *UserProfile `json:"profile,omitempty"`
+	// Carts holds the value of the carts edge.
+	Carts []*Cart `json:"carts,omitempty"`
+	// Orders holds the value of the orders edge.
+	Orders []*Order `json:"orders,omitempty"`
+	// Addresses holds the value of the addresses edge.
+	Addresses []*CustomerAddress `json:"addresses,omitempty"`
+	// LoyaltyAccount holds the value of the loyalty_account edge.
+	LoyaltyAccount *LoyaltyAccount `json:"loyalty_account,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [13]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -174,6 +183,44 @@ func (e UserEdges) ProfileOrErr() (*UserProfile, error) {
 		return nil, &NotFoundError{label: userprofile.Label}
 	}
 	return nil, &NotLoadedError{edge: "profile"}
+}
+
+// CartsOrErr returns the Carts value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CartsOrErr() ([]*Cart, error) {
+	if e.loadedTypes[9] {
+		return e.Carts, nil
+	}
+	return nil, &NotLoadedError{edge: "carts"}
+}
+
+// OrdersOrErr returns the Orders value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) OrdersOrErr() ([]*Order, error) {
+	if e.loadedTypes[10] {
+		return e.Orders, nil
+	}
+	return nil, &NotLoadedError{edge: "orders"}
+}
+
+// AddressesOrErr returns the Addresses value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AddressesOrErr() ([]*CustomerAddress, error) {
+	if e.loadedTypes[11] {
+		return e.Addresses, nil
+	}
+	return nil, &NotLoadedError{edge: "addresses"}
+}
+
+// LoyaltyAccountOrErr returns the LoyaltyAccount value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) LoyaltyAccountOrErr() (*LoyaltyAccount, error) {
+	if e.LoyaltyAccount != nil {
+		return e.LoyaltyAccount, nil
+	} else if e.loadedTypes[12] {
+		return nil, &NotFoundError{label: loyaltyaccount.Label}
+	}
+	return nil, &NotLoadedError{edge: "loyalty_account"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -373,6 +420,26 @@ func (u *User) QueryPreferences() *UserPreferenceQuery {
 // QueryProfile queries the "profile" edge of the User entity.
 func (u *User) QueryProfile() *UserProfileQuery {
 	return NewUserClient(u.config).QueryProfile(u)
+}
+
+// QueryCarts queries the "carts" edge of the User entity.
+func (u *User) QueryCarts() *CartQuery {
+	return NewUserClient(u.config).QueryCarts(u)
+}
+
+// QueryOrders queries the "orders" edge of the User entity.
+func (u *User) QueryOrders() *OrderQuery {
+	return NewUserClient(u.config).QueryOrders(u)
+}
+
+// QueryAddresses queries the "addresses" edge of the User entity.
+func (u *User) QueryAddresses() *CustomerAddressQuery {
+	return NewUserClient(u.config).QueryAddresses(u)
+}
+
+// QueryLoyaltyAccount queries the "loyalty_account" edge of the User entity.
+func (u *User) QueryLoyaltyAccount() *LoyaltyAccountQuery {
+	return NewUserClient(u.config).QueryLoyaltyAccount(u)
 }
 
 // Update returns a builder for updating this User.

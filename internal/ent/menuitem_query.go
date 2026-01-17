@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
@@ -35,6 +36,7 @@ type MenuItemQuery struct {
 	withDietaryTags  *DietaryTagQuery
 	withAssets       *MenuItemAssetQuery
 	withSchedules    *MenuItemScheduleQuery
+	withCartItems    *CartItemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -196,6 +198,28 @@ func (miq *MenuItemQuery) QuerySchedules() *MenuItemScheduleQuery {
 			sqlgraph.From(menuitem.Table, menuitem.FieldID, selector),
 			sqlgraph.To(menuitemschedule.Table, menuitemschedule.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.SchedulesTable, menuitem.SchedulesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(miq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCartItems chains the current query on the "cart_items" edge.
+func (miq *MenuItemQuery) QueryCartItems() *CartItemQuery {
+	query := (&CartItemClient{config: miq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := miq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := miq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, selector),
+			sqlgraph.To(cartitem.Table, cartitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.CartItemsTable, menuitem.CartItemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(miq.driver.Dialect(), step)
 		return fromU, nil
@@ -401,6 +425,7 @@ func (miq *MenuItemQuery) Clone() *MenuItemQuery {
 		withDietaryTags:  miq.withDietaryTags.Clone(),
 		withAssets:       miq.withAssets.Clone(),
 		withSchedules:    miq.withSchedules.Clone(),
+		withCartItems:    miq.withCartItems.Clone(),
 		// clone intermediate query.
 		sql:  miq.sql.Clone(),
 		path: miq.path,
@@ -470,6 +495,17 @@ func (miq *MenuItemQuery) WithSchedules(opts ...func(*MenuItemScheduleQuery)) *M
 		opt(query)
 	}
 	miq.withSchedules = query
+	return miq
+}
+
+// WithCartItems tells the query-builder to eager-load the nodes that are connected to
+// the "cart_items" edge. The optional arguments are used to configure the query builder of the edge.
+func (miq *MenuItemQuery) WithCartItems(opts ...func(*CartItemQuery)) *MenuItemQuery {
+	query := (&CartItemClient{config: miq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	miq.withCartItems = query
 	return miq
 }
 
@@ -551,13 +587,14 @@ func (miq *MenuItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Me
 	var (
 		nodes       = []*MenuItem{}
 		_spec       = miq.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [7]bool{
 			miq.withCategory != nil,
 			miq.withVariants != nil,
 			miq.withTranslations != nil,
 			miq.withDietaryTags != nil,
 			miq.withAssets != nil,
 			miq.withSchedules != nil,
+			miq.withCartItems != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -616,6 +653,13 @@ func (miq *MenuItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Me
 		if err := miq.loadSchedules(ctx, query, nodes,
 			func(n *MenuItem) { n.Edges.Schedules = []*MenuItemSchedule{} },
 			func(n *MenuItem, e *MenuItemSchedule) { n.Edges.Schedules = append(n.Edges.Schedules, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := miq.withCartItems; query != nil {
+		if err := miq.loadCartItems(ctx, query, nodes,
+			func(n *MenuItem) { n.Edges.CartItems = []*CartItem{} },
+			func(n *MenuItem, e *CartItem) { n.Edges.CartItems = append(n.Edges.CartItems, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -817,6 +861,36 @@ func (miq *MenuItemQuery) loadSchedules(ctx context.Context, query *MenuItemSche
 	}
 	query.Where(predicate.MenuItemSchedule(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(menuitem.SchedulesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MenuItemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "menu_item_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (miq *MenuItemQuery) loadCartItems(ctx context.Context, query *CartItemQuery, nodes []*MenuItem, init func(*MenuItem), assign func(*MenuItem, *CartItem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*MenuItem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(cartitem.FieldMenuItemID)
+	}
+	query.Where(predicate.CartItem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(menuitem.CartItemsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

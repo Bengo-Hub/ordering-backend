@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/google/uuid"
@@ -138,6 +139,21 @@ func (mivc *MenuItemVariantCreate) SetNillableID(u *uuid.UUID) *MenuItemVariantC
 // SetMenuItem sets the "menu_item" edge to the MenuItem entity.
 func (mivc *MenuItemVariantCreate) SetMenuItem(m *MenuItem) *MenuItemVariantCreate {
 	return mivc.SetMenuItemID(m.ID)
+}
+
+// AddCartItemIDs adds the "cart_items" edge to the CartItem entity by IDs.
+func (mivc *MenuItemVariantCreate) AddCartItemIDs(ids ...uuid.UUID) *MenuItemVariantCreate {
+	mivc.mutation.AddCartItemIDs(ids...)
+	return mivc
+}
+
+// AddCartItems adds the "cart_items" edges to the CartItem entity.
+func (mivc *MenuItemVariantCreate) AddCartItems(c ...*CartItem) *MenuItemVariantCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mivc.AddCartItemIDs(ids...)
 }
 
 // Mutation returns the MenuItemVariantMutation object of the builder.
@@ -316,6 +332,22 @@ func (mivc *MenuItemVariantCreate) createSpec() (*MenuItemVariant, *sqlgraph.Cre
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MenuItemID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mivc.mutation.CartItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   menuitemvariant.CartItemsTable,
+			Columns: []string{menuitemvariant.CartItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

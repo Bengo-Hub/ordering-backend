@@ -45,9 +45,11 @@ type MenuItemVariant struct {
 type MenuItemVariantEdges struct {
 	// MenuItem holds the value of the menu_item edge.
 	MenuItem *MenuItem `json:"menu_item,omitempty"`
+	// CartItems holds the value of the cart_items edge.
+	CartItems []*CartItem `json:"cart_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MenuItemOrErr returns the MenuItem value or an error if the edge
@@ -59,6 +61,15 @@ func (e MenuItemVariantEdges) MenuItemOrErr() (*MenuItem, error) {
 		return nil, &NotFoundError{label: menuitem.Label}
 	}
 	return nil, &NotLoadedError{edge: "menu_item"}
+}
+
+// CartItemsOrErr returns the CartItems value or an error if the edge
+// was not loaded in eager-loading.
+func (e MenuItemVariantEdges) CartItemsOrErr() ([]*CartItem, error) {
+	if e.loadedTypes[1] {
+		return e.CartItems, nil
+	}
+	return nil, &NotLoadedError{edge: "cart_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -163,6 +174,11 @@ func (miv *MenuItemVariant) Value(name string) (ent.Value, error) {
 // QueryMenuItem queries the "menu_item" edge of the MenuItemVariant entity.
 func (miv *MenuItemVariant) QueryMenuItem() *MenuItemQuery {
 	return NewMenuItemVariantClient(miv.config).QueryMenuItem(miv)
+}
+
+// QueryCartItems queries the "cart_items" edge of the MenuItemVariant entity.
+func (miv *MenuItemVariant) QueryCartItems() *CartItemQuery {
+	return NewMenuItemVariantClient(miv.config).QueryCartItems(miv)
 }
 
 // Update returns a builder for updating this MenuItemVariant.

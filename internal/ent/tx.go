@@ -14,10 +14,20 @@ type Tx struct {
 	config
 	// BackupCode is the client for interacting with the BackupCode builders.
 	BackupCode *BackupCodeClient
+	// Cart is the client for interacting with the Cart builders.
+	Cart *CartClient
+	// CartItem is the client for interacting with the CartItem builders.
+	CartItem *CartItemClient
+	// CustomerAddress is the client for interacting with the CustomerAddress builders.
+	CustomerAddress *CustomerAddressClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
 	// DietaryTag is the client for interacting with the DietaryTag builders.
 	DietaryTag *DietaryTagClient
+	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
+	LoyaltyAccount *LoyaltyAccountClient
+	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
+	LoyaltyTransaction *LoyaltyTransactionClient
 	// MenuCategory is the client for interacting with the MenuCategory builders.
 	MenuCategory *MenuCategoryClient
 	// MenuItem is the client for interacting with the MenuItem builders.
@@ -32,8 +42,18 @@ type Tx struct {
 	MenuItemVariant *MenuItemVariantClient
 	// OAuthAccount is the client for interacting with the OAuthAccount builders.
 	OAuthAccount *OAuthAccountClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
+	// OrderEvent is the client for interacting with the OrderEvent builders.
+	OrderEvent *OrderEventClient
+	// OrderItem is the client for interacting with the OrderItem builders.
+	OrderItem *OrderItemClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
+	// PromoCode is the client for interacting with the PromoCode builders.
+	PromoCode *PromoCodeClient
+	// PromoRedemption is the client for interacting with the PromoRedemption builders.
+	PromoRedemption *PromoRedemptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Session is the client for interacting with the Session builders.
@@ -184,8 +204,13 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.BackupCode = NewBackupCodeClient(tx.config)
+	tx.Cart = NewCartClient(tx.config)
+	tx.CartItem = NewCartItemClient(tx.config)
+	tx.CustomerAddress = NewCustomerAddressClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.DietaryTag = NewDietaryTagClient(tx.config)
+	tx.LoyaltyAccount = NewLoyaltyAccountClient(tx.config)
+	tx.LoyaltyTransaction = NewLoyaltyTransactionClient(tx.config)
 	tx.MenuCategory = NewMenuCategoryClient(tx.config)
 	tx.MenuItem = NewMenuItemClient(tx.config)
 	tx.MenuItemAsset = NewMenuItemAssetClient(tx.config)
@@ -193,7 +218,12 @@ func (tx *Tx) init() {
 	tx.MenuItemTranslation = NewMenuItemTranslationClient(tx.config)
 	tx.MenuItemVariant = NewMenuItemVariantClient(tx.config)
 	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
+	tx.Order = NewOrderClient(tx.config)
+	tx.OrderEvent = NewOrderEventClient(tx.config)
+	tx.OrderItem = NewOrderItemClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
+	tx.PromoCode = NewPromoCodeClient(tx.config)
+	tx.PromoRedemption = NewPromoRedemptionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)

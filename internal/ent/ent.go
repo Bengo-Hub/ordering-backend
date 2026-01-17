@@ -13,8 +13,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
+	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
+	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
@@ -22,7 +27,12 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
+	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
+	"github.com/bengobox/ordering-backend/internal/ent/promocode"
+	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
@@ -93,8 +103,13 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			backupcode.Table:          backupcode.ValidColumn,
+			cart.Table:                cart.ValidColumn,
+			cartitem.Table:            cartitem.ValidColumn,
+			customeraddress.Table:     customeraddress.ValidColumn,
 			device.Table:              device.ValidColumn,
 			dietarytag.Table:          dietarytag.ValidColumn,
+			loyaltyaccount.Table:      loyaltyaccount.ValidColumn,
+			loyaltytransaction.Table:  loyaltytransaction.ValidColumn,
 			menucategory.Table:        menucategory.ValidColumn,
 			menuitem.Table:            menuitem.ValidColumn,
 			menuitemasset.Table:       menuitemasset.ValidColumn,
@@ -102,7 +117,12 @@ func checkColumn(table, column string) error {
 			menuitemtranslation.Table: menuitemtranslation.ValidColumn,
 			menuitemvariant.Table:     menuitemvariant.ValidColumn,
 			oauthaccount.Table:        oauthaccount.ValidColumn,
+			order.Table:               order.ValidColumn,
+			orderevent.Table:          orderevent.ValidColumn,
+			orderitem.Table:           orderitem.ValidColumn,
 			permission.Table:          permission.ValidColumn,
+			promocode.Table:           promocode.ValidColumn,
+			promoredemption.Table:     promoredemption.ValidColumn,
 			role.Table:                role.ValidColumn,
 			session.Table:             session.ValidColumn,
 			tenant.Table:              tenant.ValidColumn,

@@ -949,6 +949,29 @@ func HasSchedulesWith(preds ...predicate.MenuItemSchedule) predicate.MenuItem {
 	})
 }
 
+// HasCartItems applies the HasEdge predicate on the "cart_items" edge.
+func HasCartItems() predicate.MenuItem {
+	return predicate.MenuItem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CartItemsTable, CartItemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCartItemsWith applies the HasEdge predicate on the "cart_items" edge with a given conditions (other predicates).
+func HasCartItemsWith(preds ...predicate.CartItem) predicate.MenuItem {
+	return predicate.MenuItem(func(s *sql.Selector) {
+		step := newCartItemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.MenuItem) predicate.MenuItem {
 	return predicate.MenuItem(sql.AndPredicates(predicates...))

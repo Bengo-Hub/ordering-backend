@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
@@ -82,15 +84,30 @@ func (Cart) Edges() []ent.Edge {
 	}
 }
 
+// Annotations of the Cart.
+func (Cart) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{
+			Table: "carts",
+		},
+	}
+}
+
 // Indexes of the Cart.
 func (Cart) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "user_id").
-			Unique().
-			Where("status = 'active' AND user_id IS NOT NULL"),
-		index.Fields("tenant_id", "session_id").
-			Unique().
-			Where("status = 'active' AND session_id IS NOT NULL"),
+		// Partial unique index: one active cart per user per tenant
+		index.Fields("tenant_id", "user_id", "status").
+			Annotations(entsql.IndexAnnotation{
+				Where: "status = 'active' AND user_id IS NOT NULL",
+			}).
+			Unique(),
+		// Partial unique index: one active cart per session per tenant
+		index.Fields("tenant_id", "session_id", "status").
+			Annotations(entsql.IndexAnnotation{
+				Where: "status = 'active' AND session_id IS NOT NULL",
+			}).
+			Unique(),
 		index.Fields("status"),
 		index.Fields("expires_at"),
 	}
