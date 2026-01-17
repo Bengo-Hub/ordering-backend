@@ -14,8 +14,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/payment"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
@@ -464,6 +467,51 @@ func (oc *OrderCreate) AddEvents(o ...*OrderEvent) *OrderCreate {
 	return oc.AddEventIDs(ids...)
 }
 
+// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
+func (oc *OrderCreate) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderCreate {
+	oc.mutation.AddPaymentIntentIDs(ids...)
+	return oc
+}
+
+// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
+func (oc *OrderCreate) AddPaymentIntents(p ...*PaymentIntent) *OrderCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return oc.AddPaymentIntentIDs(ids...)
+}
+
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (oc *OrderCreate) AddPaymentIDs(ids ...uuid.UUID) *OrderCreate {
+	oc.mutation.AddPaymentIDs(ids...)
+	return oc
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (oc *OrderCreate) AddPayments(p ...*Payment) *OrderCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return oc.AddPaymentIDs(ids...)
+}
+
+// AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
+func (oc *OrderCreate) AddAssignmentIDs(ids ...uuid.UUID) *OrderCreate {
+	oc.mutation.AddAssignmentIDs(ids...)
+	return oc
+}
+
+// AddAssignments adds the "assignments" edges to the OrderAssignment entity.
+func (oc *OrderCreate) AddAssignments(o ...*OrderAssignment) *OrderCreate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return oc.AddAssignmentIDs(ids...)
+}
+
 // SetCustomer sets the "customer" edge to the User entity.
 func (oc *OrderCreate) SetCustomer(u *User) *OrderCreate {
 	return oc.SetCustomerID(u.ID)
@@ -838,6 +886,54 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.AssignmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -22,6 +22,8 @@ type Config struct {
 	Events    EventsConfig
 	Telemetry TelemetryConfig
 	Auth      AuthConfig
+	Treasury  TreasuryConfig
+	Logistics LogisticsConfig
 }
 
 type AppConfig struct {
@@ -82,6 +84,29 @@ type AuthConfig struct {
 	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
 	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"http://localhost:3000/auth/callback"`
 	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Ordering Platform"`
+}
+
+type TreasuryConfig struct {
+	// Treasury service URL
+	ServiceURL     string        `envconfig:"TREASURY_SERVICE_URL" default:"http://localhost:4001"`
+	APIKey         string        `envconfig:"TREASURY_API_KEY"`
+	WebhookSecret  string        `envconfig:"TREASURY_WEBHOOK_SECRET"`
+	RequestTimeout time.Duration `envconfig:"TREASURY_REQUEST_TIMEOUT" default:"30s"`
+
+	// M-Pesa configuration (via treasury service)
+	MpesaEnabled         bool   `envconfig:"MPESA_ENABLED" default:"true"`
+	MpesaCallbackBaseURL string `envconfig:"MPESA_CALLBACK_BASE_URL" default:"http://localhost:4000/api/v1/webhooks/mpesa"`
+}
+
+type LogisticsConfig struct {
+	// Logistics service URL
+	ServiceURL     string        `envconfig:"LOGISTICS_SERVICE_URL" default:"http://localhost:4005"`
+	APIKey         string        `envconfig:"LOGISTICS_API_KEY"`
+	WebhookSecret  string        `envconfig:"LOGISTICS_WEBHOOK_SECRET"`
+	RequestTimeout time.Duration `envconfig:"LOGISTICS_REQUEST_TIMEOUT" default:"30s"`
+
+	// WebSocket configuration for live tracking
+	WebSocketURL string `envconfig:"LOGISTICS_WEBSOCKET_URL" default:"ws://localhost:4005/ws"`
 }
 
 // Load reads configuration from environment variables and optional .env files.

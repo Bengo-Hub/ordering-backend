@@ -18,6 +18,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
@@ -473,6 +474,21 @@ func (uu *UserUpdate) SetLoyaltyAccount(l *LoyaltyAccount) *UserUpdate {
 	return uu.SetLoyaltyAccountID(l.ID)
 }
 
+// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
+func (uu *UserUpdate) AddPaymentMethodIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddPaymentMethodIDs(ids...)
+	return uu
+}
+
+// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
+func (uu *UserUpdate) AddPaymentMethods(p ...*PaymentMethod) *UserUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.AddPaymentMethodIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -674,6 +690,27 @@ func (uu *UserUpdate) RemoveAddresses(c ...*CustomerAddress) *UserUpdate {
 func (uu *UserUpdate) ClearLoyaltyAccount() *UserUpdate {
 	uu.mutation.ClearLoyaltyAccount()
 	return uu
+}
+
+// ClearPaymentMethods clears all "payment_methods" edges to the PaymentMethod entity.
+func (uu *UserUpdate) ClearPaymentMethods() *UserUpdate {
+	uu.mutation.ClearPaymentMethods()
+	return uu
+}
+
+// RemovePaymentMethodIDs removes the "payment_methods" edge to PaymentMethod entities by IDs.
+func (uu *UserUpdate) RemovePaymentMethodIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemovePaymentMethodIDs(ids...)
+	return uu
+}
+
+// RemovePaymentMethods removes "payment_methods" edges to PaymentMethod entities.
+func (uu *UserUpdate) RemovePaymentMethods(p ...*PaymentMethod) *UserUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.RemovePaymentMethodIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1307,6 +1344,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.PaymentMethodsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedPaymentMethodsIDs(); len(nodes) > 0 && !uu.mutation.PaymentMethodsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -1758,6 +1840,21 @@ func (uuo *UserUpdateOne) SetLoyaltyAccount(l *LoyaltyAccount) *UserUpdateOne {
 	return uuo.SetLoyaltyAccountID(l.ID)
 }
 
+// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
+func (uuo *UserUpdateOne) AddPaymentMethodIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddPaymentMethodIDs(ids...)
+	return uuo
+}
+
+// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
+func (uuo *UserUpdateOne) AddPaymentMethods(p ...*PaymentMethod) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.AddPaymentMethodIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -1959,6 +2056,27 @@ func (uuo *UserUpdateOne) RemoveAddresses(c ...*CustomerAddress) *UserUpdateOne 
 func (uuo *UserUpdateOne) ClearLoyaltyAccount() *UserUpdateOne {
 	uuo.mutation.ClearLoyaltyAccount()
 	return uuo
+}
+
+// ClearPaymentMethods clears all "payment_methods" edges to the PaymentMethod entity.
+func (uuo *UserUpdateOne) ClearPaymentMethods() *UserUpdateOne {
+	uuo.mutation.ClearPaymentMethods()
+	return uuo
+}
+
+// RemovePaymentMethodIDs removes the "payment_methods" edge to PaymentMethod entities by IDs.
+func (uuo *UserUpdateOne) RemovePaymentMethodIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemovePaymentMethodIDs(ids...)
+	return uuo
+}
+
+// RemovePaymentMethods removes "payment_methods" edges to PaymentMethod entities.
+func (uuo *UserUpdateOne) RemovePaymentMethods(p ...*PaymentMethod) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.RemovePaymentMethodIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2615,6 +2733,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.PaymentMethodsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedPaymentMethodsIDs(); len(nodes) > 0 && !uuo.mutation.PaymentMethodsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

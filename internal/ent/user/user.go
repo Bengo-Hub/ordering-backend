@@ -73,6 +73,8 @@ const (
 	EdgeAddresses = "addresses"
 	// EdgeLoyaltyAccount holds the string denoting the loyalty_account edge name in mutations.
 	EdgeLoyaltyAccount = "loyalty_account"
+	// EdgePaymentMethods holds the string denoting the payment_methods edge name in mutations.
+	EdgePaymentMethods = "payment_methods"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -162,6 +164,13 @@ const (
 	LoyaltyAccountInverseTable = "loyalty_accounts"
 	// LoyaltyAccountColumn is the table column denoting the loyalty_account relation/edge.
 	LoyaltyAccountColumn = "user_id"
+	// PaymentMethodsTable is the table that holds the payment_methods relation/edge.
+	PaymentMethodsTable = "payment_methods"
+	// PaymentMethodsInverseTable is the table name for the PaymentMethod entity.
+	// It exists in this package in order to avoid circular dependency with the "paymentmethod" package.
+	PaymentMethodsInverseTable = "payment_methods"
+	// PaymentMethodsColumn is the table column denoting the payment_methods relation/edge.
+	PaymentMethodsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -469,6 +478,20 @@ func ByLoyaltyAccountField(field string, opts ...sql.OrderTermOption) OrderOptio
 		sqlgraph.OrderByNeighborTerms(s, newLoyaltyAccountStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByPaymentMethodsCount orders the results by payment_methods count.
+func ByPaymentMethodsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPaymentMethodsStep(), opts...)
+	}
+}
+
+// ByPaymentMethods orders the results by payment_methods terms.
+func ByPaymentMethods(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPaymentMethodsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newTenantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -558,5 +581,12 @@ func newLoyaltyAccountStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LoyaltyAccountInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, LoyaltyAccountTable, LoyaltyAccountColumn),
+	)
+}
+func newPaymentMethodsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PaymentMethodsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PaymentMethodsTable, PaymentMethodsColumn),
 	)
 }

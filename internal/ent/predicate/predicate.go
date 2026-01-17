@@ -18,11 +18,17 @@ type CartItem func(*sql.Selector)
 // CustomerAddress is the predicate function for customeraddress builders.
 type CustomerAddress func(*sql.Selector)
 
+// DeliveryWindow is the predicate function for deliverywindow builders.
+type DeliveryWindow func(*sql.Selector)
+
 // Device is the predicate function for device builders.
 type Device func(*sql.Selector)
 
 // DietaryTag is the predicate function for dietarytag builders.
 type DietaryTag func(*sql.Selector)
+
+// LogisticsEvent is the predicate function for logisticsevent builders.
+type LogisticsEvent func(*sql.Selector)
 
 // LoyaltyAccount is the predicate function for loyaltyaccount builders.
 type LoyaltyAccount func(*sql.Selector)
@@ -54,11 +60,23 @@ type OAuthAccount func(*sql.Selector)
 // Order is the predicate function for order builders.
 type Order func(*sql.Selector)
 
+// OrderAssignment is the predicate function for orderassignment builders.
+type OrderAssignment func(*sql.Selector)
+
 // OrderEvent is the predicate function for orderevent builders.
 type OrderEvent func(*sql.Selector)
 
 // OrderItem is the predicate function for orderitem builders.
 type OrderItem func(*sql.Selector)
+
+// Payment is the predicate function for payment builders.
+type Payment func(*sql.Selector)
+
+// PaymentIntent is the predicate function for paymentintent builders.
+type PaymentIntent func(*sql.Selector)
+
+// PaymentMethod is the predicate function for paymentmethod builders.
+type PaymentMethod func(*sql.Selector)
 
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
@@ -68,6 +86,12 @@ type PromoCode func(*sql.Selector)
 
 // PromoRedemption is the predicate function for promoredemption builders.
 type PromoRedemption func(*sql.Selector)
+
+// ProofOfDelivery is the predicate function for proofofdelivery builders.
+type ProofOfDelivery func(*sql.Selector)
+
+// Refund is the predicate function for refund builders.
+type Refund func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
@@ -83,6 +107,9 @@ type TenantSetting func(*sql.Selector)
 
 // TenantSyncEvent is the predicate function for tenantsyncevent builders.
 type TenantSyncEvent func(*sql.Selector)
+
+// TreasuryEvent is the predicate function for treasuryevent builders.
+type TreasuryEvent func(*sql.Selector)
 
 // TwoFactorSetting is the predicate function for twofactorsetting builders.
 type TwoFactorSetting func(*sql.Selector)

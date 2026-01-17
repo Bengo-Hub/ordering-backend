@@ -19,6 +19,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
@@ -444,6 +445,21 @@ func (uc *UserCreate) SetLoyaltyAccount(l *LoyaltyAccount) *UserCreate {
 	return uc.SetLoyaltyAccountID(l.ID)
 }
 
+// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
+func (uc *UserCreate) AddPaymentMethodIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddPaymentMethodIDs(ids...)
+	return uc
+}
+
+// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
+func (uc *UserCreate) AddPaymentMethods(p ...*PaymentMethod) *UserCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPaymentMethodIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -857,6 +873,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentMethodsTable,
+			Columns: []string{user.PaymentMethodsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

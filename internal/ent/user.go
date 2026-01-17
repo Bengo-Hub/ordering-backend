@@ -91,9 +91,11 @@ type UserEdges struct {
 	Addresses []*CustomerAddress `json:"addresses,omitempty"`
 	// LoyaltyAccount holds the value of the loyalty_account edge.
 	LoyaltyAccount *LoyaltyAccount `json:"loyalty_account,omitempty"`
+	// PaymentMethods holds the value of the payment_methods edge.
+	PaymentMethods []*PaymentMethod `json:"payment_methods,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [13]bool
+	loadedTypes [14]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -221,6 +223,15 @@ func (e UserEdges) LoyaltyAccountOrErr() (*LoyaltyAccount, error) {
 		return nil, &NotFoundError{label: loyaltyaccount.Label}
 	}
 	return nil, &NotLoadedError{edge: "loyalty_account"}
+}
+
+// PaymentMethodsOrErr returns the PaymentMethods value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PaymentMethodsOrErr() ([]*PaymentMethod, error) {
+	if e.loadedTypes[13] {
+		return e.PaymentMethods, nil
+	}
+	return nil, &NotLoadedError{edge: "payment_methods"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -440,6 +451,11 @@ func (u *User) QueryAddresses() *CustomerAddressQuery {
 // QueryLoyaltyAccount queries the "loyalty_account" edge of the User entity.
 func (u *User) QueryLoyaltyAccount() *LoyaltyAccountQuery {
 	return NewUserClient(u.config).QueryLoyaltyAccount(u)
+}
+
+// QueryPaymentMethods queries the "payment_methods" edge of the User entity.
+func (u *User) QueryPaymentMethods() *PaymentMethodQuery {
+	return NewUserClient(u.config).QueryPaymentMethods(u)
 }
 
 // Update returns a builder for updating this User.

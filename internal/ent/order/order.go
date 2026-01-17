@@ -84,6 +84,12 @@ const (
 	EdgeItems = "items"
 	// EdgeEvents holds the string denoting the events edge name in mutations.
 	EdgeEvents = "events"
+	// EdgePaymentIntents holds the string denoting the payment_intents edge name in mutations.
+	EdgePaymentIntents = "payment_intents"
+	// EdgePayments holds the string denoting the payments edge name in mutations.
+	EdgePayments = "payments"
+	// EdgeAssignments holds the string denoting the assignments edge name in mutations.
+	EdgeAssignments = "assignments"
 	// EdgeCustomer holds the string denoting the customer edge name in mutations.
 	EdgeCustomer = "customer"
 	// EdgeDeliveryAddress holds the string denoting the delivery_address edge name in mutations.
@@ -104,6 +110,27 @@ const (
 	EventsInverseTable = "order_events"
 	// EventsColumn is the table column denoting the events relation/edge.
 	EventsColumn = "order_id"
+	// PaymentIntentsTable is the table that holds the payment_intents relation/edge.
+	PaymentIntentsTable = "payment_intents"
+	// PaymentIntentsInverseTable is the table name for the PaymentIntent entity.
+	// It exists in this package in order to avoid circular dependency with the "paymentintent" package.
+	PaymentIntentsInverseTable = "payment_intents"
+	// PaymentIntentsColumn is the table column denoting the payment_intents relation/edge.
+	PaymentIntentsColumn = "order_id"
+	// PaymentsTable is the table that holds the payments relation/edge.
+	PaymentsTable = "payments"
+	// PaymentsInverseTable is the table name for the Payment entity.
+	// It exists in this package in order to avoid circular dependency with the "payment" package.
+	PaymentsInverseTable = "payments"
+	// PaymentsColumn is the table column denoting the payments relation/edge.
+	PaymentsColumn = "order_id"
+	// AssignmentsTable is the table that holds the assignments relation/edge.
+	AssignmentsTable = "order_assignments"
+	// AssignmentsInverseTable is the table name for the OrderAssignment entity.
+	// It exists in this package in order to avoid circular dependency with the "orderassignment" package.
+	AssignmentsInverseTable = "order_assignments"
+	// AssignmentsColumn is the table column denoting the assignments relation/edge.
+	AssignmentsColumn = "order_id"
 	// CustomerTable is the table that holds the customer relation/edge.
 	CustomerTable = "orders"
 	// CustomerInverseTable is the table name for the User entity.
@@ -483,6 +510,48 @@ func ByEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByPaymentIntentsCount orders the results by payment_intents count.
+func ByPaymentIntentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPaymentIntentsStep(), opts...)
+	}
+}
+
+// ByPaymentIntents orders the results by payment_intents terms.
+func ByPaymentIntents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPaymentIntentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByPaymentsCount orders the results by payments count.
+func ByPaymentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPaymentsStep(), opts...)
+	}
+}
+
+// ByPayments orders the results by payments terms.
+func ByPayments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPaymentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAssignmentsCount orders the results by assignments count.
+func ByAssignmentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAssignmentsStep(), opts...)
+	}
+}
+
+// ByAssignments orders the results by assignments terms.
+func ByAssignments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAssignmentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByCustomerField orders the results by customer field.
 func ByCustomerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -508,6 +577,27 @@ func newEventsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(EventsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, EventsTable, EventsColumn),
+	)
+}
+func newPaymentIntentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PaymentIntentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PaymentIntentsTable, PaymentIntentsColumn),
+	)
+}
+func newPaymentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PaymentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PaymentsTable, PaymentsColumn),
+	)
+}
+func newAssignmentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AssignmentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AssignmentsTable, AssignmentsColumn),
 	)
 }
 func newCustomerStep() *sqlgraph.Step {

@@ -13,8 +13,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/payment"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
@@ -29,6 +32,9 @@ type OrderQuery struct {
 	predicates          []predicate.Order
 	withItems           *OrderItemQuery
 	withEvents          *OrderEventQuery
+	withPaymentIntents  *PaymentIntentQuery
+	withPayments        *PaymentQuery
+	withAssignments     *OrderAssignmentQuery
 	withCustomer        *UserQuery
 	withDeliveryAddress *CustomerAddressQuery
 	// intermediate query (i.e. traversal path).
@@ -104,6 +110,72 @@ func (oq *OrderQuery) QueryEvents() *OrderEventQuery {
 			sqlgraph.From(order.Table, order.FieldID, selector),
 			sqlgraph.To(orderevent.Table, orderevent.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, order.EventsTable, order.EventsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPaymentIntents chains the current query on the "payment_intents" edge.
+func (oq *OrderQuery) QueryPaymentIntents() *PaymentIntentQuery {
+	query := (&PaymentIntentClient{config: oq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := oq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := oq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, selector),
+			sqlgraph.To(paymentintent.Table, paymentintent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, order.PaymentIntentsTable, order.PaymentIntentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPayments chains the current query on the "payments" edge.
+func (oq *OrderQuery) QueryPayments() *PaymentQuery {
+	query := (&PaymentClient{config: oq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := oq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := oq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, selector),
+			sqlgraph.To(payment.Table, payment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, order.PaymentsTable, order.PaymentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAssignments chains the current query on the "assignments" edge.
+func (oq *OrderQuery) QueryAssignments() *OrderAssignmentQuery {
+	query := (&OrderAssignmentClient{config: oq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := oq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := oq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, selector),
+			sqlgraph.To(orderassignment.Table, orderassignment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, order.AssignmentsTable, order.AssignmentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,6 +421,9 @@ func (oq *OrderQuery) Clone() *OrderQuery {
 		predicates:          append([]predicate.Order{}, oq.predicates...),
 		withItems:           oq.withItems.Clone(),
 		withEvents:          oq.withEvents.Clone(),
+		withPaymentIntents:  oq.withPaymentIntents.Clone(),
+		withPayments:        oq.withPayments.Clone(),
+		withAssignments:     oq.withAssignments.Clone(),
 		withCustomer:        oq.withCustomer.Clone(),
 		withDeliveryAddress: oq.withDeliveryAddress.Clone(),
 		// clone intermediate query.
@@ -376,6 +451,39 @@ func (oq *OrderQuery) WithEvents(opts ...func(*OrderEventQuery)) *OrderQuery {
 		opt(query)
 	}
 	oq.withEvents = query
+	return oq
+}
+
+// WithPaymentIntents tells the query-builder to eager-load the nodes that are connected to
+// the "payment_intents" edge. The optional arguments are used to configure the query builder of the edge.
+func (oq *OrderQuery) WithPaymentIntents(opts ...func(*PaymentIntentQuery)) *OrderQuery {
+	query := (&PaymentIntentClient{config: oq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	oq.withPaymentIntents = query
+	return oq
+}
+
+// WithPayments tells the query-builder to eager-load the nodes that are connected to
+// the "payments" edge. The optional arguments are used to configure the query builder of the edge.
+func (oq *OrderQuery) WithPayments(opts ...func(*PaymentQuery)) *OrderQuery {
+	query := (&PaymentClient{config: oq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	oq.withPayments = query
+	return oq
+}
+
+// WithAssignments tells the query-builder to eager-load the nodes that are connected to
+// the "assignments" edge. The optional arguments are used to configure the query builder of the edge.
+func (oq *OrderQuery) WithAssignments(opts ...func(*OrderAssignmentQuery)) *OrderQuery {
+	query := (&OrderAssignmentClient{config: oq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	oq.withAssignments = query
 	return oq
 }
 
@@ -479,9 +587,12 @@ func (oq *OrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Order,
 	var (
 		nodes       = []*Order{}
 		_spec       = oq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [7]bool{
 			oq.withItems != nil,
 			oq.withEvents != nil,
+			oq.withPaymentIntents != nil,
+			oq.withPayments != nil,
+			oq.withAssignments != nil,
 			oq.withCustomer != nil,
 			oq.withDeliveryAddress != nil,
 		}
@@ -515,6 +626,27 @@ func (oq *OrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Order,
 		if err := oq.loadEvents(ctx, query, nodes,
 			func(n *Order) { n.Edges.Events = []*OrderEvent{} },
 			func(n *Order, e *OrderEvent) { n.Edges.Events = append(n.Edges.Events, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := oq.withPaymentIntents; query != nil {
+		if err := oq.loadPaymentIntents(ctx, query, nodes,
+			func(n *Order) { n.Edges.PaymentIntents = []*PaymentIntent{} },
+			func(n *Order, e *PaymentIntent) { n.Edges.PaymentIntents = append(n.Edges.PaymentIntents, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := oq.withPayments; query != nil {
+		if err := oq.loadPayments(ctx, query, nodes,
+			func(n *Order) { n.Edges.Payments = []*Payment{} },
+			func(n *Order, e *Payment) { n.Edges.Payments = append(n.Edges.Payments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := oq.withAssignments; query != nil {
+		if err := oq.loadAssignments(ctx, query, nodes,
+			func(n *Order) { n.Edges.Assignments = []*OrderAssignment{} },
+			func(n *Order, e *OrderAssignment) { n.Edges.Assignments = append(n.Edges.Assignments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -578,6 +710,96 @@ func (oq *OrderQuery) loadEvents(ctx context.Context, query *OrderEventQuery, no
 	}
 	query.Where(predicate.OrderEvent(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(order.EventsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.OrderID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "order_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (oq *OrderQuery) loadPaymentIntents(ctx context.Context, query *PaymentIntentQuery, nodes []*Order, init func(*Order), assign func(*Order, *PaymentIntent)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Order)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(paymentintent.FieldOrderID)
+	}
+	query.Where(predicate.PaymentIntent(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(order.PaymentIntentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.OrderID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "order_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (oq *OrderQuery) loadPayments(ctx context.Context, query *PaymentQuery, nodes []*Order, init func(*Order), assign func(*Order, *Payment)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Order)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(payment.FieldOrderID)
+	}
+	query.Where(predicate.Payment(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(order.PaymentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.OrderID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "order_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (oq *OrderQuery) loadAssignments(ctx context.Context, query *OrderAssignmentQuery, nodes []*Order, init func(*Order), assign func(*Order, *OrderAssignment)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Order)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(orderassignment.FieldOrderID)
+	}
+	query.Where(predicate.OrderAssignment(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(order.AssignmentsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

@@ -127,6 +127,9 @@ func (Order) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("items", OrderItem.Type),
 		edge.To("events", OrderEvent.Type),
+		edge.To("payment_intents", PaymentIntent.Type),
+		edge.To("payments", Payment.Type),
+		edge.To("assignments", OrderAssignment.Type),
 		edge.From("customer", User.Type).
 			Ref("orders").
 			Field("customer_id").

@@ -206,6 +206,60 @@ var (
 			},
 		},
 	}
+	// DeliveryWindowsColumns holds the columns for the "delivery_windows" table.
+	DeliveryWindowsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "eta_start", Type: field.TypeTime},
+		{Name: "eta_end", Type: field.TypeTime},
+		{Name: "eta_minutes", Type: field.TypeInt, Nullable: true},
+		{Name: "distance_km", Type: field.TypeFloat64, Nullable: true},
+		{Name: "actual_arrival", Type: field.TypeTime, Nullable: true},
+		{Name: "actual_dropoff", Type: field.TypeTime, Nullable: true},
+		{Name: "source", Type: field.TypeString, Size: 50, Default: "logistics"},
+		{Name: "is_current", Type: field.TypeBool, Default: true},
+		{Name: "route_info", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "assignment_id", Type: field.TypeUUID},
+	}
+	// DeliveryWindowsTable holds the schema information for the "delivery_windows" table.
+	DeliveryWindowsTable = &schema.Table{
+		Name:       "delivery_windows",
+		Columns:    DeliveryWindowsColumns,
+		PrimaryKey: []*schema.Column{DeliveryWindowsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "delivery_windows_order_assignments_delivery_windows",
+				Columns:    []*schema.Column{DeliveryWindowsColumns[14]},
+				RefColumns: []*schema.Column{OrderAssignmentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deliverywindow_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryWindowsColumns[1], DeliveryWindowsColumns[2]},
+			},
+			{
+				Name:    "deliverywindow_assignment_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryWindowsColumns[14]},
+			},
+			{
+				Name:    "deliverywindow_is_current",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryWindowsColumns[10]},
+			},
+			{
+				Name:    "deliverywindow_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryWindowsColumns[12]},
+			},
+		},
+	}
 	// DevicesColumns holds the columns for the "devices" table.
 	DevicesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -235,6 +289,74 @@ var (
 		Name:       "dietary_tags",
 		Columns:    DietaryTagsColumns,
 		PrimaryKey: []*schema.Column{DietaryTagsColumns[0]},
+	}
+	// LogisticsEventsColumns holds the columns for the "logistics_events" table.
+	LogisticsEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "external_id", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "event_type", Type: field.TypeEnum, Enums: []string{"task_created", "task_assigned", "task_accepted", "task_rejected", "task_en_route_pickup", "task_arrived_pickup", "task_picked_up", "task_en_route_dropoff", "task_arrived_dropoff", "task_completed", "task_cancelled", "task_failed", "route_updated", "eta_updated", "location_updated", "pod_submitted", "pod_verified", "rider_unavailable", "reassignment_needed"}},
+		{Name: "order_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "assignment_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "logistics_task_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "rider_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "payload", Type: field.TypeJSON},
+		{Name: "headers", Type: field.TypeJSON, Nullable: true},
+		{Name: "signature", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "signature_valid", Type: field.TypeBool, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "processing", "processed", "failed", "skipped"}, Default: "pending"},
+		{Name: "retry_count", Type: field.TypeInt, Default: 0},
+		{Name: "last_retry_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Size: 45},
+		{Name: "received_at", Type: field.TypeTime},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// LogisticsEventsTable holds the schema information for the "logistics_events" table.
+	LogisticsEventsTable = &schema.Table{
+		Name:       "logistics_events",
+		Columns:    LogisticsEventsColumns,
+		PrimaryKey: []*schema.Column{LogisticsEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "logisticsevent_tenant_id_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[1], LogisticsEventsColumns[3]},
+			},
+			{
+				Name:    "logisticsevent_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[4]},
+			},
+			{
+				Name:    "logisticsevent_assignment_id",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[5]},
+			},
+			{
+				Name:    "logisticsevent_logistics_task_id",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[6]},
+			},
+			{
+				Name:    "logisticsevent_status",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[12]},
+			},
+			{
+				Name:    "logisticsevent_received_at",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[18]},
+			},
+			{
+				Name:    "logisticsevent_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{LogisticsEventsColumns[20]},
+			},
+		},
 	}
 	// LoyaltyAccountsColumns holds the columns for the "loyalty_accounts" table.
 	LoyaltyAccountsColumns = []*schema.Column{
@@ -706,6 +828,70 @@ var (
 			},
 		},
 	}
+	// OrderAssignmentsColumns holds the columns for the "order_assignments" table.
+	OrderAssignmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "logistics_task_id", Type: field.TypeString, Size: 255},
+		{Name: "rider_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "assigned", "accepted", "en_route_pickup", "arrived_pickup", "picked_up", "en_route_dropoff", "arrived_dropoff", "completed", "cancelled", "failed"}, Default: "pending"},
+		{Name: "priority", Type: field.TypeEnum, Enums: []string{"low", "normal", "high", "urgent"}, Default: "normal"},
+		{Name: "special_instructions", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "rejection_reason", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "failure_reason", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "attempt_count", Type: field.TypeInt, Default: 1},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "assigned_at", Type: field.TypeTime, Nullable: true},
+		{Name: "accepted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "picked_up_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "order_id", Type: field.TypeUUID},
+	}
+	// OrderAssignmentsTable holds the schema information for the "order_assignments" table.
+	OrderAssignmentsTable = &schema.Table{
+		Name:       "order_assignments",
+		Columns:    OrderAssignmentsColumns,
+		PrimaryKey: []*schema.Column{OrderAssignmentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "order_assignments_orders_assignments",
+				Columns:    []*schema.Column{OrderAssignmentsColumns[19]},
+				RefColumns: []*schema.Column{OrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orderassignment_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderAssignmentsColumns[1], OrderAssignmentsColumns[19]},
+			},
+			{
+				Name:    "orderassignment_logistics_task_id",
+				Unique:  true,
+				Columns: []*schema.Column{OrderAssignmentsColumns[2]},
+			},
+			{
+				Name:    "orderassignment_rider_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderAssignmentsColumns[3]},
+			},
+			{
+				Name:    "orderassignment_status",
+				Unique:  false,
+				Columns: []*schema.Column{OrderAssignmentsColumns[4]},
+			},
+			{
+				Name:    "orderassignment_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrderAssignmentsColumns[17]},
+			},
+		},
+	}
 	// OrderEventsColumns holds the columns for the "order_events" table.
 	OrderEventsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -789,6 +975,204 @@ var (
 				Name:    "orderitem_menu_item_id",
 				Unique:  false,
 				Columns: []*schema.Column{OrderItemsColumns[1]},
+			},
+		},
+	}
+	// PaymentsColumns holds the columns for the "payments" table.
+	PaymentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "amount", Type: field.TypeFloat64},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "processing", "succeeded", "failed", "refunded", "partially_refunded"}, Default: "pending"},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"mpesa", "stripe", "paystack", "flutterwave", "manual"}},
+		{Name: "provider_reference", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "provider_receipt", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "mpesa_transaction_id", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "mpesa_phone_number", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "refunded_amount", Type: field.TypeFloat64, Default: 0},
+		{Name: "provider_response", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "captured_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "payment_intent_id", Type: field.TypeUUID},
+	}
+	// PaymentsTable holds the schema information for the "payments" table.
+	PaymentsTable = &schema.Table{
+		Name:       "payments",
+		Columns:    PaymentsColumns,
+		PrimaryKey: []*schema.Column{PaymentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "payments_orders_payments",
+				Columns:    []*schema.Column{PaymentsColumns[17]},
+				RefColumns: []*schema.Column{OrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "payments_payment_intents_payments",
+				Columns:    []*schema.Column{PaymentsColumns[18]},
+				RefColumns: []*schema.Column{PaymentIntentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "payment_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[1], PaymentsColumns[17]},
+			},
+			{
+				Name:    "payment_provider_provider_reference",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[5], PaymentsColumns[6]},
+			},
+			{
+				Name:    "payment_mpesa_transaction_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[8]},
+			},
+			{
+				Name:    "payment_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[4]},
+			},
+			{
+				Name:    "payment_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[15]},
+			},
+		},
+	}
+	// PaymentIntentsColumns holds the columns for the "payment_intents" table.
+	PaymentIntentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"mpesa", "stripe", "paystack", "flutterwave", "manual"}},
+		{Name: "provider_intent_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "client_secret", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "requires_action", "processing", "succeeded", "failed", "cancelled", "expired"}, Default: "pending"},
+		{Name: "amount", Type: field.TypeFloat64},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "mpesa_checkout_request_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "mpesa_phone_number", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "retry_count", Type: field.TypeInt, Default: 0},
+		{Name: "last_retry_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "payment_method_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// PaymentIntentsTable holds the schema information for the "payment_intents" table.
+	PaymentIntentsTable = &schema.Table{
+		Name:       "payment_intents",
+		Columns:    PaymentIntentsColumns,
+		PrimaryKey: []*schema.Column{PaymentIntentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "payment_intents_orders_payment_intents",
+				Columns:    []*schema.Column{PaymentIntentsColumns[20]},
+				RefColumns: []*schema.Column{OrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "payment_intents_payment_methods_payment_intents",
+				Columns:    []*schema.Column{PaymentIntentsColumns[21]},
+				RefColumns: []*schema.Column{PaymentMethodsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "paymentintent_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentIntentsColumns[1], PaymentIntentsColumns[20]},
+			},
+			{
+				Name:    "paymentintent_provider_provider_intent_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentIntentsColumns[2], PaymentIntentsColumns[3]},
+			},
+			{
+				Name:    "paymentintent_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentIntentsColumns[5]},
+			},
+			{
+				Name:    "paymentintent_mpesa_checkout_request_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentIntentsColumns[10]},
+			},
+			{
+				Name:    "paymentintent_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{PaymentIntentsColumns[9]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "idempotency_key IS NOT NULL",
+				},
+			},
+			{
+				Name:    "paymentintent_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentIntentsColumns[18]},
+			},
+		},
+	}
+	// PaymentMethodsColumns holds the columns for the "payment_methods" table.
+	PaymentMethodsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"mpesa", "stripe", "paystack", "flutterwave", "manual"}},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"mobile_money", "card", "bank_account", "wallet", "cash"}},
+		{Name: "mask", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "label", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "exp_month", Type: field.TypeInt, Nullable: true},
+		{Name: "exp_year", Type: field.TypeInt, Nullable: true},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "fingerprint", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "provider_token", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
+	PaymentMethodsTable = &schema.Table{
+		Name:       "payment_methods",
+		Columns:    PaymentMethodsColumns,
+		PrimaryKey: []*schema.Column{PaymentMethodsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "payment_methods_users_payment_methods",
+				Columns:    []*schema.Column{PaymentMethodsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "paymentmethod_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[1], PaymentMethodsColumns[14]},
+			},
+			{
+				Name:    "paymentmethod_tenant_id_fingerprint",
+				Unique:  true,
+				Columns: []*schema.Column{PaymentMethodsColumns[1], PaymentMethodsColumns[9]},
+			},
+			{
+				Name:    "paymentmethod_provider_provider_token",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[2], PaymentMethodsColumns[10]},
 			},
 		},
 	}
@@ -897,6 +1281,141 @@ var (
 				Name:    "promoredemption_promo_code_id_user_id",
 				Unique:  false,
 				Columns: []*schema.Column{PromoRedemptionsColumns[5], PromoRedemptionsColumns[2]},
+			},
+		},
+	}
+	// ProofOfDeliveryColumns holds the columns for the "proof_of_delivery" table.
+	ProofOfDeliveryColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "logistics_task_id", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"signature", "photo", "otp", "pin", "contactless", "recipient_name"}},
+		{Name: "signature_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
+		{Name: "otp_verified", Type: field.TypeBool, Default: false},
+		{Name: "otp_code", Type: field.TypeString, Nullable: true, Size: 10},
+		{Name: "recipient_name", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "recipient_relation", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "delivery_latitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "delivery_longitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "rider_notes", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "customer_rating", Type: field.TypeString, Nullable: true, Size: 10},
+		{Name: "customer_feedback", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "is_verified", Type: field.TypeBool, Default: false},
+		{Name: "verified_by", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "delivered_at", Type: field.TypeTime},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "assignment_id", Type: field.TypeUUID, Unique: true},
+	}
+	// ProofOfDeliveryTable holds the schema information for the "proof_of_delivery" table.
+	ProofOfDeliveryTable = &schema.Table{
+		Name:       "proof_of_delivery",
+		Columns:    ProofOfDeliveryColumns,
+		PrimaryKey: []*schema.Column{ProofOfDeliveryColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "proof_of_delivery_order_assignments_proof_of_delivery",
+				Columns:    []*schema.Column{ProofOfDeliveryColumns[23]},
+				RefColumns: []*schema.Column{OrderAssignmentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "proofofdelivery_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProofOfDeliveryColumns[1], ProofOfDeliveryColumns[2]},
+			},
+			{
+				Name:    "proofofdelivery_assignment_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProofOfDeliveryColumns[23]},
+			},
+			{
+				Name:    "proofofdelivery_logistics_task_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProofOfDeliveryColumns[3]},
+			},
+			{
+				Name:    "proofofdelivery_delivered_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProofOfDeliveryColumns[19]},
+			},
+			{
+				Name:    "proofofdelivery_is_verified",
+				Unique:  false,
+				Columns: []*schema.Column{ProofOfDeliveryColumns[16]},
+			},
+		},
+	}
+	// RefundsColumns holds the columns for the "refunds" table.
+	RefundsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "amount", Type: field.TypeFloat64},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "processing", "succeeded", "failed", "cancelled"}, Default: "pending"},
+		{Name: "reason", Type: field.TypeEnum, Enums: []string{"customer_request", "order_cancelled", "duplicate", "fraudulent", "product_unavailable", "other"}},
+		{Name: "reason_notes", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"mpesa", "stripe", "paystack", "flutterwave", "manual"}},
+		{Name: "provider_refund_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "provider_reference", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "requested_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "approved_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "provider_response", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "requested_at", Type: field.TypeTime},
+		{Name: "approved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "payment_id", Type: field.TypeUUID},
+	}
+	// RefundsTable holds the schema information for the "refunds" table.
+	RefundsTable = &schema.Table{
+		Name:       "refunds",
+		Columns:    RefundsColumns,
+		PrimaryKey: []*schema.Column{RefundsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "refunds_payments_refunds",
+				Columns:    []*schema.Column{RefundsColumns[22]},
+				RefColumns: []*schema.Column{PaymentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "refund_tenant_id_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundsColumns[1], RefundsColumns[2]},
+			},
+			{
+				Name:    "refund_tenant_id_payment_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundsColumns[1], RefundsColumns[22]},
+			},
+			{
+				Name:    "refund_provider_provider_refund_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundsColumns[8], RefundsColumns[9]},
+			},
+			{
+				Name:    "refund_status",
+				Unique:  false,
+				Columns: []*schema.Column{RefundsColumns[5]},
+			},
+			{
+				Name:    "refund_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{RefundsColumns[20]},
 			},
 		},
 	}
@@ -1023,6 +1542,75 @@ var (
 				Name:    "tenantsyncevent_tenant_id_destination_service",
 				Unique:  true,
 				Columns: []*schema.Column{TenantSyncEventsColumns[9], TenantSyncEventsColumns[2]},
+			},
+		},
+	}
+	// TreasuryEventsColumns holds the columns for the "treasury_events" table.
+	TreasuryEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "external_id", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "event_type", Type: field.TypeEnum, Enums: []string{"payment_initiated", "payment_processing", "payment_succeeded", "payment_failed", "payment_cancelled", "payment_expired", "refund_initiated", "refund_processing", "refund_succeeded", "refund_failed", "mpesa_stk_push_initiated", "mpesa_stk_push_success", "mpesa_stk_push_failed", "mpesa_stk_push_timeout", "mpesa_c2b_received", "settlement_initiated", "settlement_completed", "payout_initiated", "payout_completed", "payout_failed"}},
+		{Name: "provider", Type: field.TypeEnum, Nullable: true, Enums: []string{"mpesa", "stripe", "paystack", "flutterwave", "manual", "treasury"}},
+		{Name: "order_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "payment_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "payment_intent_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "refund_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "payload", Type: field.TypeJSON},
+		{Name: "headers", Type: field.TypeJSON, Nullable: true},
+		{Name: "signature", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "signature_valid", Type: field.TypeBool, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "processing", "processed", "failed", "skipped"}, Default: "pending"},
+		{Name: "retry_count", Type: field.TypeInt, Default: 0},
+		{Name: "last_retry_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Size: 45},
+		{Name: "received_at", Type: field.TypeTime},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// TreasuryEventsTable holds the schema information for the "treasury_events" table.
+	TreasuryEventsTable = &schema.Table{
+		Name:       "treasury_events",
+		Columns:    TreasuryEventsColumns,
+		PrimaryKey: []*schema.Column{TreasuryEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "treasuryevent_tenant_id_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[1], TreasuryEventsColumns[3]},
+			},
+			{
+				Name:    "treasuryevent_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[5]},
+			},
+			{
+				Name:    "treasuryevent_payment_id",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[6]},
+			},
+			{
+				Name:    "treasuryevent_payment_intent_id",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[7]},
+			},
+			{
+				Name:    "treasuryevent_status",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[13]},
+			},
+			{
+				Name:    "treasuryevent_received_at",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[19]},
+			},
+			{
+				Name:    "treasuryevent_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{TreasuryEventsColumns[21]},
 			},
 		},
 	}
@@ -1240,8 +1828,10 @@ var (
 		CartsTable,
 		CartItemsTable,
 		CustomerAddressesTable,
+		DeliveryWindowsTable,
 		DevicesTable,
 		DietaryTagsTable,
+		LogisticsEventsTable,
 		LoyaltyAccountsTable,
 		LoyaltyTransactionsTable,
 		MenuCategoriesTable,
@@ -1252,16 +1842,23 @@ var (
 		MenuItemVariantsTable,
 		OauthAccountsTable,
 		OrdersTable,
+		OrderAssignmentsTable,
 		OrderEventsTable,
 		OrderItemsTable,
+		PaymentsTable,
+		PaymentIntentsTable,
+		PaymentMethodsTable,
 		PermissionsTable,
 		PromoCodesTable,
 		PromoRedemptionsTable,
+		ProofOfDeliveryTable,
+		RefundsTable,
 		RolesTable,
 		SessionsTable,
 		TenantsTable,
 		TenantSettingsTable,
 		TenantSyncEventsTable,
+		TreasuryEventsTable,
 		TwoFactorSettingsTable,
 		UsersTable,
 		UserPreferencesTable,
@@ -1283,6 +1880,13 @@ func init() {
 	CartItemsTable.ForeignKeys[1].RefTable = MenuItemsTable
 	CartItemsTable.ForeignKeys[2].RefTable = MenuItemVariantsTable
 	CustomerAddressesTable.ForeignKeys[0].RefTable = UsersTable
+	DeliveryWindowsTable.ForeignKeys[0].RefTable = OrderAssignmentsTable
+	DeliveryWindowsTable.Annotation = &entsql.Annotation{
+		Table: "delivery_windows",
+	}
+	LogisticsEventsTable.Annotation = &entsql.Annotation{
+		Table: "logistics_events",
+	}
 	LoyaltyAccountsTable.ForeignKeys[0].RefTable = UsersTable
 	LoyaltyTransactionsTable.ForeignKeys[0].RefTable = LoyaltyAccountsTable
 	MenuCategoriesTable.ForeignKeys[0].RefTable = MenuCategoriesTable
@@ -1297,13 +1901,39 @@ func init() {
 	OrdersTable.Annotation = &entsql.Annotation{
 		Table: "orders",
 	}
+	OrderAssignmentsTable.ForeignKeys[0].RefTable = OrdersTable
+	OrderAssignmentsTable.Annotation = &entsql.Annotation{
+		Table: "order_assignments",
+	}
 	OrderEventsTable.ForeignKeys[0].RefTable = OrdersTable
 	OrderItemsTable.ForeignKeys[0].RefTable = OrdersTable
+	PaymentsTable.ForeignKeys[0].RefTable = OrdersTable
+	PaymentsTable.ForeignKeys[1].RefTable = PaymentIntentsTable
+	PaymentsTable.Annotation = &entsql.Annotation{
+		Table: "payments",
+	}
+	PaymentIntentsTable.ForeignKeys[0].RefTable = OrdersTable
+	PaymentIntentsTable.ForeignKeys[1].RefTable = PaymentMethodsTable
+	PaymentIntentsTable.Annotation = &entsql.Annotation{
+		Table: "payment_intents",
+	}
+	PaymentMethodsTable.ForeignKeys[0].RefTable = UsersTable
 	PromoRedemptionsTable.ForeignKeys[0].RefTable = PromoCodesTable
+	ProofOfDeliveryTable.ForeignKeys[0].RefTable = OrderAssignmentsTable
+	ProofOfDeliveryTable.Annotation = &entsql.Annotation{
+		Table: "proof_of_delivery",
+	}
+	RefundsTable.ForeignKeys[0].RefTable = PaymentsTable
+	RefundsTable.Annotation = &entsql.Annotation{
+		Table: "refunds",
+	}
 	SessionsTable.ForeignKeys[0].RefTable = TenantsTable
 	SessionsTable.ForeignKeys[1].RefTable = UsersTable
 	TenantSettingsTable.ForeignKeys[0].RefTable = TenantsTable
 	TenantSyncEventsTable.ForeignKeys[0].RefTable = TenantsTable
+	TreasuryEventsTable.Annotation = &entsql.Annotation{
+		Table: "treasury_events",
+	}
 	UsersTable.ForeignKeys[0].RefTable = TenantsTable
 	UsersTable.ForeignKeys[1].RefTable = TwoFactorSettingsTable
 	UserPreferencesTable.ForeignKeys[0].RefTable = UsersTable

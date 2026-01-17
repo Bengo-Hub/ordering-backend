@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 // ErrorResponse represents a standard error payload.
@@ -26,4 +27,22 @@ func RespondError(w http.ResponseWriter, status int, message string) {
 		Error:   http.StatusText(status),
 		Message: message,
 	})
+}
+
+// DecodeJSON decodes the request body into the provided destination.
+func DecodeJSON(r *http.Request, dst any) error {
+	defer r.Body.Close()
+	return json.NewDecoder(r.Body).Decode(dst)
+}
+
+// ParseInt parses a string to an integer, returning a default value if parsing fails.
+func ParseInt(s string, defaultVal int) int {
+	if s == "" {
+		return defaultVal
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil {
+		return defaultVal
+	}
+	return v
 }

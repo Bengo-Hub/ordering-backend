@@ -97,13 +97,19 @@ type OrderEdges struct {
 	Items []*OrderItem `json:"items,omitempty"`
 	// Events holds the value of the events edge.
 	Events []*OrderEvent `json:"events,omitempty"`
+	// PaymentIntents holds the value of the payment_intents edge.
+	PaymentIntents []*PaymentIntent `json:"payment_intents,omitempty"`
+	// Payments holds the value of the payments edge.
+	Payments []*Payment `json:"payments,omitempty"`
+	// Assignments holds the value of the assignments edge.
+	Assignments []*OrderAssignment `json:"assignments,omitempty"`
 	// Customer holds the value of the customer edge.
 	Customer *User `json:"customer,omitempty"`
 	// DeliveryAddress holds the value of the delivery_address edge.
 	DeliveryAddress *CustomerAddress `json:"delivery_address,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [7]bool
 }
 
 // ItemsOrErr returns the Items value or an error if the edge
@@ -124,12 +130,39 @@ func (e OrderEdges) EventsOrErr() ([]*OrderEvent, error) {
 	return nil, &NotLoadedError{edge: "events"}
 }
 
+// PaymentIntentsOrErr returns the PaymentIntents value or an error if the edge
+// was not loaded in eager-loading.
+func (e OrderEdges) PaymentIntentsOrErr() ([]*PaymentIntent, error) {
+	if e.loadedTypes[2] {
+		return e.PaymentIntents, nil
+	}
+	return nil, &NotLoadedError{edge: "payment_intents"}
+}
+
+// PaymentsOrErr returns the Payments value or an error if the edge
+// was not loaded in eager-loading.
+func (e OrderEdges) PaymentsOrErr() ([]*Payment, error) {
+	if e.loadedTypes[3] {
+		return e.Payments, nil
+	}
+	return nil, &NotLoadedError{edge: "payments"}
+}
+
+// AssignmentsOrErr returns the Assignments value or an error if the edge
+// was not loaded in eager-loading.
+func (e OrderEdges) AssignmentsOrErr() ([]*OrderAssignment, error) {
+	if e.loadedTypes[4] {
+		return e.Assignments, nil
+	}
+	return nil, &NotLoadedError{edge: "assignments"}
+}
+
 // CustomerOrErr returns the Customer value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e OrderEdges) CustomerOrErr() (*User, error) {
 	if e.Customer != nil {
 		return e.Customer, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "customer"}
@@ -140,7 +173,7 @@ func (e OrderEdges) CustomerOrErr() (*User, error) {
 func (e OrderEdges) DeliveryAddressOrErr() (*CustomerAddress, error) {
 	if e.DeliveryAddress != nil {
 		return e.DeliveryAddress, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[6] {
 		return nil, &NotFoundError{label: customeraddress.Label}
 	}
 	return nil, &NotLoadedError{edge: "delivery_address"}
@@ -410,6 +443,21 @@ func (o *Order) QueryItems() *OrderItemQuery {
 // QueryEvents queries the "events" edge of the Order entity.
 func (o *Order) QueryEvents() *OrderEventQuery {
 	return NewOrderClient(o.config).QueryEvents(o)
+}
+
+// QueryPaymentIntents queries the "payment_intents" edge of the Order entity.
+func (o *Order) QueryPaymentIntents() *PaymentIntentQuery {
+	return NewOrderClient(o.config).QueryPaymentIntents(o)
+}
+
+// QueryPayments queries the "payments" edge of the Order entity.
+func (o *Order) QueryPayments() *PaymentQuery {
+	return NewOrderClient(o.config).QueryPayments(o)
+}
+
+// QueryAssignments queries the "assignments" edge of the Order entity.
+func (o *Order) QueryAssignments() *OrderAssignmentQuery {
+	return NewOrderClient(o.config).QueryAssignments(o)
 }
 
 // QueryCustomer queries the "customer" edge of the Order entity.

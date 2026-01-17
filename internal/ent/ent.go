@@ -16,8 +16,10 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/logisticsevent"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
@@ -28,16 +30,23 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/payment"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
+	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
+	"github.com/bengobox/ordering-backend/internal/ent/refund"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
+	"github.com/bengobox/ordering-backend/internal/ent/treasuryevent"
 	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
@@ -106,8 +115,10 @@ func checkColumn(table, column string) error {
 			cart.Table:                cart.ValidColumn,
 			cartitem.Table:            cartitem.ValidColumn,
 			customeraddress.Table:     customeraddress.ValidColumn,
+			deliverywindow.Table:      deliverywindow.ValidColumn,
 			device.Table:              device.ValidColumn,
 			dietarytag.Table:          dietarytag.ValidColumn,
+			logisticsevent.Table:      logisticsevent.ValidColumn,
 			loyaltyaccount.Table:      loyaltyaccount.ValidColumn,
 			loyaltytransaction.Table:  loyaltytransaction.ValidColumn,
 			menucategory.Table:        menucategory.ValidColumn,
@@ -118,16 +129,23 @@ func checkColumn(table, column string) error {
 			menuitemvariant.Table:     menuitemvariant.ValidColumn,
 			oauthaccount.Table:        oauthaccount.ValidColumn,
 			order.Table:               order.ValidColumn,
+			orderassignment.Table:     orderassignment.ValidColumn,
 			orderevent.Table:          orderevent.ValidColumn,
 			orderitem.Table:           orderitem.ValidColumn,
+			payment.Table:             payment.ValidColumn,
+			paymentintent.Table:       paymentintent.ValidColumn,
+			paymentmethod.Table:       paymentmethod.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			promocode.Table:           promocode.ValidColumn,
 			promoredemption.Table:     promoredemption.ValidColumn,
+			proofofdelivery.Table:     proofofdelivery.ValidColumn,
+			refund.Table:              refund.ValidColumn,
 			role.Table:                role.ValidColumn,
 			session.Table:             session.ValidColumn,
 			tenant.Table:              tenant.ValidColumn,
 			tenantsetting.Table:       tenantsetting.ValidColumn,
 			tenantsyncevent.Table:     tenantsyncevent.ValidColumn,
+			treasuryevent.Table:       treasuryevent.ValidColumn,
 			twofactorsetting.Table:    twofactorsetting.ValidColumn,
 			user.Table:                user.ValidColumn,
 			userpreference.Table:      userpreference.ValidColumn,

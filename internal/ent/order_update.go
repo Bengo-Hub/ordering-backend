@@ -13,8 +13,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/payment"
+	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
@@ -621,6 +624,51 @@ func (ou *OrderUpdate) AddEvents(o ...*OrderEvent) *OrderUpdate {
 	return ou.AddEventIDs(ids...)
 }
 
+// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
+func (ou *OrderUpdate) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.AddPaymentIntentIDs(ids...)
+	return ou
+}
+
+// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
+func (ou *OrderUpdate) AddPaymentIntents(p ...*PaymentIntent) *OrderUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ou.AddPaymentIntentIDs(ids...)
+}
+
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (ou *OrderUpdate) AddPaymentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.AddPaymentIDs(ids...)
+	return ou
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (ou *OrderUpdate) AddPayments(p ...*Payment) *OrderUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ou.AddPaymentIDs(ids...)
+}
+
+// AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
+func (ou *OrderUpdate) AddAssignmentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.AddAssignmentIDs(ids...)
+	return ou
+}
+
+// AddAssignments adds the "assignments" edges to the OrderAssignment entity.
+func (ou *OrderUpdate) AddAssignments(o ...*OrderAssignment) *OrderUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ou.AddAssignmentIDs(ids...)
+}
+
 // SetCustomer sets the "customer" edge to the User entity.
 func (ou *OrderUpdate) SetCustomer(u *User) *OrderUpdate {
 	return ou.SetCustomerID(u.ID)
@@ -676,6 +724,69 @@ func (ou *OrderUpdate) RemoveEvents(o ...*OrderEvent) *OrderUpdate {
 		ids[i] = o[i].ID
 	}
 	return ou.RemoveEventIDs(ids...)
+}
+
+// ClearPaymentIntents clears all "payment_intents" edges to the PaymentIntent entity.
+func (ou *OrderUpdate) ClearPaymentIntents() *OrderUpdate {
+	ou.mutation.ClearPaymentIntents()
+	return ou
+}
+
+// RemovePaymentIntentIDs removes the "payment_intents" edge to PaymentIntent entities by IDs.
+func (ou *OrderUpdate) RemovePaymentIntentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.RemovePaymentIntentIDs(ids...)
+	return ou
+}
+
+// RemovePaymentIntents removes "payment_intents" edges to PaymentIntent entities.
+func (ou *OrderUpdate) RemovePaymentIntents(p ...*PaymentIntent) *OrderUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ou.RemovePaymentIntentIDs(ids...)
+}
+
+// ClearPayments clears all "payments" edges to the Payment entity.
+func (ou *OrderUpdate) ClearPayments() *OrderUpdate {
+	ou.mutation.ClearPayments()
+	return ou
+}
+
+// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
+func (ou *OrderUpdate) RemovePaymentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.RemovePaymentIDs(ids...)
+	return ou
+}
+
+// RemovePayments removes "payments" edges to Payment entities.
+func (ou *OrderUpdate) RemovePayments(p ...*Payment) *OrderUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ou.RemovePaymentIDs(ids...)
+}
+
+// ClearAssignments clears all "assignments" edges to the OrderAssignment entity.
+func (ou *OrderUpdate) ClearAssignments() *OrderUpdate {
+	ou.mutation.ClearAssignments()
+	return ou
+}
+
+// RemoveAssignmentIDs removes the "assignments" edge to OrderAssignment entities by IDs.
+func (ou *OrderUpdate) RemoveAssignmentIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.RemoveAssignmentIDs(ids...)
+	return ou
+}
+
+// RemoveAssignments removes "assignments" edges to OrderAssignment entities.
+func (ou *OrderUpdate) RemoveAssignments(o ...*OrderAssignment) *OrderUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ou.RemoveAssignmentIDs(ids...)
 }
 
 // ClearCustomer clears the "customer" edge to the User entity.
@@ -1014,6 +1125,141 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ou.mutation.PaymentIntentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.RemovedPaymentIntentsIDs(); len(nodes) > 0 && !ou.mutation.PaymentIntentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ou.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !ou.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ou.mutation.AssignmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.RemovedAssignmentsIDs(); len(nodes) > 0 && !ou.mutation.AssignmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.AssignmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1687,6 +1933,51 @@ func (ouo *OrderUpdateOne) AddEvents(o ...*OrderEvent) *OrderUpdateOne {
 	return ouo.AddEventIDs(ids...)
 }
 
+// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
+func (ouo *OrderUpdateOne) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.AddPaymentIntentIDs(ids...)
+	return ouo
+}
+
+// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
+func (ouo *OrderUpdateOne) AddPaymentIntents(p ...*PaymentIntent) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ouo.AddPaymentIntentIDs(ids...)
+}
+
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (ouo *OrderUpdateOne) AddPaymentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.AddPaymentIDs(ids...)
+	return ouo
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (ouo *OrderUpdateOne) AddPayments(p ...*Payment) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ouo.AddPaymentIDs(ids...)
+}
+
+// AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
+func (ouo *OrderUpdateOne) AddAssignmentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.AddAssignmentIDs(ids...)
+	return ouo
+}
+
+// AddAssignments adds the "assignments" edges to the OrderAssignment entity.
+func (ouo *OrderUpdateOne) AddAssignments(o ...*OrderAssignment) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ouo.AddAssignmentIDs(ids...)
+}
+
 // SetCustomer sets the "customer" edge to the User entity.
 func (ouo *OrderUpdateOne) SetCustomer(u *User) *OrderUpdateOne {
 	return ouo.SetCustomerID(u.ID)
@@ -1742,6 +2033,69 @@ func (ouo *OrderUpdateOne) RemoveEvents(o ...*OrderEvent) *OrderUpdateOne {
 		ids[i] = o[i].ID
 	}
 	return ouo.RemoveEventIDs(ids...)
+}
+
+// ClearPaymentIntents clears all "payment_intents" edges to the PaymentIntent entity.
+func (ouo *OrderUpdateOne) ClearPaymentIntents() *OrderUpdateOne {
+	ouo.mutation.ClearPaymentIntents()
+	return ouo
+}
+
+// RemovePaymentIntentIDs removes the "payment_intents" edge to PaymentIntent entities by IDs.
+func (ouo *OrderUpdateOne) RemovePaymentIntentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.RemovePaymentIntentIDs(ids...)
+	return ouo
+}
+
+// RemovePaymentIntents removes "payment_intents" edges to PaymentIntent entities.
+func (ouo *OrderUpdateOne) RemovePaymentIntents(p ...*PaymentIntent) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ouo.RemovePaymentIntentIDs(ids...)
+}
+
+// ClearPayments clears all "payments" edges to the Payment entity.
+func (ouo *OrderUpdateOne) ClearPayments() *OrderUpdateOne {
+	ouo.mutation.ClearPayments()
+	return ouo
+}
+
+// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
+func (ouo *OrderUpdateOne) RemovePaymentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.RemovePaymentIDs(ids...)
+	return ouo
+}
+
+// RemovePayments removes "payments" edges to Payment entities.
+func (ouo *OrderUpdateOne) RemovePayments(p ...*Payment) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ouo.RemovePaymentIDs(ids...)
+}
+
+// ClearAssignments clears all "assignments" edges to the OrderAssignment entity.
+func (ouo *OrderUpdateOne) ClearAssignments() *OrderUpdateOne {
+	ouo.mutation.ClearAssignments()
+	return ouo
+}
+
+// RemoveAssignmentIDs removes the "assignments" edge to OrderAssignment entities by IDs.
+func (ouo *OrderUpdateOne) RemoveAssignmentIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.RemoveAssignmentIDs(ids...)
+	return ouo
+}
+
+// RemoveAssignments removes "assignments" edges to OrderAssignment entities.
+func (ouo *OrderUpdateOne) RemoveAssignments(o ...*OrderAssignment) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ouo.RemoveAssignmentIDs(ids...)
 }
 
 // ClearCustomer clears the "customer" edge to the User entity.
@@ -2110,6 +2464,141 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ouo.mutation.PaymentIntentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.RemovedPaymentIntentsIDs(); len(nodes) > 0 && !ouo.mutation.PaymentIntentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentIntentsTable,
+			Columns: []string{order.PaymentIntentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ouo.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !ouo.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.PaymentsTable,
+			Columns: []string{order.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ouo.mutation.AssignmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.RemovedAssignmentsIDs(); len(nodes) > 0 && !ouo.mutation.AssignmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.AssignmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.AssignmentsTable,
+			Columns: []string{order.AssignmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

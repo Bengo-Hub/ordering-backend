@@ -20,10 +20,14 @@ type Tx struct {
 	CartItem *CartItemClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
+	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
+	DeliveryWindow *DeliveryWindowClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
 	// DietaryTag is the client for interacting with the DietaryTag builders.
 	DietaryTag *DietaryTagClient
+	// LogisticsEvent is the client for interacting with the LogisticsEvent builders.
+	LogisticsEvent *LogisticsEventClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
 	LoyaltyAccount *LoyaltyAccountClient
 	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
@@ -44,16 +48,28 @@ type Tx struct {
 	OAuthAccount *OAuthAccountClient
 	// Order is the client for interacting with the Order builders.
 	Order *OrderClient
+	// OrderAssignment is the client for interacting with the OrderAssignment builders.
+	OrderAssignment *OrderAssignmentClient
 	// OrderEvent is the client for interacting with the OrderEvent builders.
 	OrderEvent *OrderEventClient
 	// OrderItem is the client for interacting with the OrderItem builders.
 	OrderItem *OrderItemClient
+	// Payment is the client for interacting with the Payment builders.
+	Payment *PaymentClient
+	// PaymentIntent is the client for interacting with the PaymentIntent builders.
+	PaymentIntent *PaymentIntentClient
+	// PaymentMethod is the client for interacting with the PaymentMethod builders.
+	PaymentMethod *PaymentMethodClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// PromoCode is the client for interacting with the PromoCode builders.
 	PromoCode *PromoCodeClient
 	// PromoRedemption is the client for interacting with the PromoRedemption builders.
 	PromoRedemption *PromoRedemptionClient
+	// ProofOfDelivery is the client for interacting with the ProofOfDelivery builders.
+	ProofOfDelivery *ProofOfDeliveryClient
+	// Refund is the client for interacting with the Refund builders.
+	Refund *RefundClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Session is the client for interacting with the Session builders.
@@ -64,6 +80,8 @@ type Tx struct {
 	TenantSetting *TenantSettingClient
 	// TenantSyncEvent is the client for interacting with the TenantSyncEvent builders.
 	TenantSyncEvent *TenantSyncEventClient
+	// TreasuryEvent is the client for interacting with the TreasuryEvent builders.
+	TreasuryEvent *TreasuryEventClient
 	// TwoFactorSetting is the client for interacting with the TwoFactorSetting builders.
 	TwoFactorSetting *TwoFactorSettingClient
 	// User is the client for interacting with the User builders.
@@ -207,8 +225,10 @@ func (tx *Tx) init() {
 	tx.Cart = NewCartClient(tx.config)
 	tx.CartItem = NewCartItemClient(tx.config)
 	tx.CustomerAddress = NewCustomerAddressClient(tx.config)
+	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.DietaryTag = NewDietaryTagClient(tx.config)
+	tx.LogisticsEvent = NewLogisticsEventClient(tx.config)
 	tx.LoyaltyAccount = NewLoyaltyAccountClient(tx.config)
 	tx.LoyaltyTransaction = NewLoyaltyTransactionClient(tx.config)
 	tx.MenuCategory = NewMenuCategoryClient(tx.config)
@@ -219,16 +239,23 @@ func (tx *Tx) init() {
 	tx.MenuItemVariant = NewMenuItemVariantClient(tx.config)
 	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
+	tx.OrderAssignment = NewOrderAssignmentClient(tx.config)
 	tx.OrderEvent = NewOrderEventClient(tx.config)
 	tx.OrderItem = NewOrderItemClient(tx.config)
+	tx.Payment = NewPaymentClient(tx.config)
+	tx.PaymentIntent = NewPaymentIntentClient(tx.config)
+	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.PromoCode = NewPromoCodeClient(tx.config)
 	tx.PromoRedemption = NewPromoRedemptionClient(tx.config)
+	tx.ProofOfDelivery = NewProofOfDeliveryClient(tx.config)
+	tx.Refund = NewRefundClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantSetting = NewTenantSettingClient(tx.config)
 	tx.TenantSyncEvent = NewTenantSyncEventClient(tx.config)
+	tx.TreasuryEvent = NewTreasuryEventClient(tx.config)
 	tx.TwoFactorSetting = NewTwoFactorSettingClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserPreference = NewUserPreferenceClient(tx.config)

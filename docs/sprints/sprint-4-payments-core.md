@@ -1,7 +1,28 @@
 # Sprint 4 - Payments Core
 
-**Duration**: Weeks 8-9  
-**Status**: ⏳ Not Started
+**Duration**: Weeks 8-9
+**Status**: ✅ Complete (January 2026)
+
+---
+
+## Sprint Progress (Updated January 2026)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Ent schema: PaymentMethod | ✅ Complete | `internal/ent/schema/paymentmethod.go` |
+| Ent schema: PaymentIntent | ✅ Complete | `internal/ent/schema/paymentintent.go` |
+| Ent schema: Payment | ✅ Complete | `internal/ent/schema/payment.go` |
+| Ent schema: Refund | ✅ Complete | `internal/ent/schema/refund.go` |
+| Ent schema: TreasuryEvent | ✅ Complete | `internal/ent/schema/treasuryevent.go` |
+| Run Ent code generation | ✅ Complete | `go generate ./internal/ent` |
+| Treasury client implementation | ✅ Complete | `internal/platform/treasury/client.go` |
+| Payment service implementation | ✅ Complete | `internal/modules/payments/` |
+| Webhook signature verification | ✅ Complete | `internal/platform/treasury/webhook.go` |
+| Payment HTTP handlers | ✅ Complete | `internal/http/handlers/payments/payment_handler.go` |
+| Payment Method HTTP handlers | ✅ Complete | `internal/http/handlers/payments/method_handler.go` |
+| Webhook HTTP handlers | ✅ Complete | `internal/http/handlers/payments/webhook_handler.go` |
+| Router integration | ✅ Complete | `internal/http/router/router.go` |
+| App initialization | ✅ Complete | `internal/app/app.go` |
 
 ---
 
@@ -297,16 +318,16 @@ Sprint 4 focuses on integrating with the treasury service for payment processing
 
 ## Deliverables
 
-- [ ] Treasury service integration
-- [ ] Payment intent creation
-- [ ] M-Pesa STK Push integration
-- [ ] Payment webhook processing
-- [ ] Payment method management
-- [ ] Refund processing
-- [ ] Reconciliation logs
-- [ ] Retry policies and error handling
-- [ ] Database migrations
-- [ ] Integration tests
+- [x] Treasury service integration
+- [x] Payment intent creation
+- [x] M-Pesa STK Push integration
+- [x] Payment webhook processing
+- [x] Payment method management
+- [x] Refund processing
+- [ ] Reconciliation logs (deferred to Sprint 7)
+- [x] Retry policies and error handling
+- [x] Database migrations (via Ent schema)
+- [ ] Integration tests (ongoing)
 
 ---
 

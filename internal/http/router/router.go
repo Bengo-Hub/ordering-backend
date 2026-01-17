@@ -14,6 +14,7 @@ import (
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
+	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	sharedmw "github.com/bengobox/ordering-backend/internal/shared/middleware"
 )
 
@@ -28,6 +29,9 @@ func New(
 	promoHandler *orderinghandler.PromoHandler,
 	loyaltyHandler *orderinghandler.LoyaltyHandler,
 	addressHandler *orderinghandler.AddressHandler,
+	paymentHandler *paymentshandler.PaymentHandler,
+	paymentMethodHandler *paymentshandler.PaymentMethodHandler,
+	webhookHandler *paymentshandler.WebhookHandler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	allowedOrigins []string,
@@ -56,14 +60,15 @@ func New(
 	// Domain routes will be mounted on /api/v1.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
-			// Apply auth-service middleware to protected routes only (excluding /auth/*)
+			// Apply auth-service middleware to protected routes only (excluding /auth/* and /webhooks/*)
 			// Note: This middleware validates JWT tokens from auth-service
 			// Individual routes can still use authenticator.RequireAuth for additional RBAC checks
 			if authMiddleware != nil {
 				v1.Use(func(next http.Handler) http.Handler {
 					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						// Skip auth middleware for /auth/* routes
-						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") {
+						// Skip auth middleware for /auth/* routes and /webhooks/* routes
+						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") ||
+							strings.HasPrefix(r.URL.Path, "/api/v1/webhooks/") {
 							next.ServeHTTP(w, r)
 							return
 						}
@@ -106,6 +111,19 @@ func New(
 				if addressHandler != nil {
 					addressHandler.Register(v1, authenticator)
 				}
+
+				// Register payment routes
+				if paymentHandler != nil {
+					paymentHandler.Register(v1, authenticator)
+				}
+				if paymentMethodHandler != nil {
+					paymentMethodHandler.Register(v1, authenticator)
+				}
+			}
+
+			// Webhook routes (no auth required - use signature verification)
+			if webhookHandler != nil {
+				webhookHandler.Register(v1)
 			}
 		})
 	})

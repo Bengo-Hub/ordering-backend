@@ -380,16 +380,12 @@ See `docs/sprints/` folder for detailed sprint plans:
 - Sprint 0: Foundation ✅ **Completed** (Foundation, database, auth integration)
 - Sprint 1: Identity & Access ✅ **Completed** (Auth-service integration, RBAC, user sync)
 - Sprint 2: Catalog & Localization ✅ **Completed** (Categories, items, variants, translations, dietary tags)
-- Sprint 3: Shopping Cart 🚧 **Next** (Cart persistence, Redis caching, real-time calculations)
-- Sprint 4: Delivery Options ⏳ **Planned** (Zones, scheduling, dropoff methods, availability checks)
-- Sprint 5: Order Management ⏳ **Planned** (Order placement, state machine, tracking)
-- Sprint 6: Group Orders ⏳ **Planned** (Collaborative ordering, split payments)
-- Sprint 7: Payments Integration ⏳ **Planned** (Treasury integration, payment methods, webhooks)
-- Sprint 8: Logistics Integration ⏳ **Planned** (Delivery tasks, live tracking, POD)
-- Sprint 9: Promo & Loyalty ⏳ **Planned** (Promo codes, loyalty points, rewards)
-- Sprint 10: Notifications ⏳ **Planned** (Order status notifications, marketing)
-- Sprint 11: Analytics & PWA ⏳ **Planned** (Dashboards, image upload, CDN, Ordering PWA)
-- Sprint 12: Launch & Hardening ⏳ **Planned** (Load testing, security audit, production deployment)
+- Sprint 3: Orders & Cart ✅ **Completed** (Cart, checkout, orders, promo codes, loyalty, addresses)
+- Sprint 4: Payments Core ✅ **Completed** (Treasury integration, payment webhooks, refunds, M-Pesa STK Push)
+- Sprint 5: Order Fulfilment & Logistics 🚧 **Next** (Logistics integration, delivery tasks, live tracking)
+- Sprint 6: Notifications & Ops ⏳ **Planned** (Order status notifications, marketing)
+- Sprint 7: Analytics, Compliance & Hardening ⏳ **Planned** (Dashboards, security audit, compliance)
+- Sprint 8: Launch & Handover ⏳ **Planned** (Load testing, production deployment)
 
 ## Current Implementation Status (January 2026)
 
@@ -401,23 +397,29 @@ See `docs/sprints/` folder for detailed sprint plans:
 - ✅ Catalog module (categories, items, variants, translations, dietary tags, schedules)
 - ✅ Public menu API (locale-aware, no auth required)
 - ✅ Admin catalog API (RBAC-protected CRUD operations)
+- ✅ Ordering module (cart, checkout, orders, order state machine)
+- ✅ Promo code engine (validation, redemption, usage limits)
+- ✅ Loyalty points system (earn/redeem, tiers, transactions)
+- ✅ Customer address management (CRUD, default address)
+- ✅ Ordering HTTP handlers (cart, orders, promo, loyalty, addresses)
+- ✅ Payments module (treasury integration, payment intents, M-Pesa STK Push)
+- ✅ Payment method management (CRUD, default method)
+- ✅ Webhook processing (treasury webhooks, signature verification)
+- ✅ Refund processing (initiate, track, partial refunds)
 
-**Next Sprint (Sprint 3 - Shopping Cart):**
-- 🚧 Cart service with Redis caching
-- 🚧 Cart persistence to PostgreSQL
-- 🚧 Guest checkout support
-- 🚧 Cart-to-order conversion
+**Next Sprint (Sprint 5 - Order Fulfilment & Logistics):**
+- 🚧 Logistics service integration
+- 🚧 Delivery task creation
+- 🚧 Task status consumption
+- 🚧 Live driver tracking (WebSocket/SSE)
 
 **Not Yet Implemented:**
 - ❌ Delivery options and zone management
-- ❌ Order management and state machine
 - ❌ Group ordering
-- ❌ Payments integration (treasury-service)
-- ❌ Logistics integration (delivery tasks, tracking)
-- ❌ Promo codes and loyalty
 - ❌ Notifications integration
 - ❌ Analytics and reporting
-- ❌ Image upload/CDN (deferred to Sprint 11)
+- ❌ Reconciliation logs
+- ❌ Image upload/CDN
 - ❌ Ordering PWA frontend
 
 ---
