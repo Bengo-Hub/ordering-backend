@@ -1,0 +1,65 @@
+package ordering
+
+import "errors"
+
+var (
+	// Cart errors
+	ErrCartNotFound        = errors.New("cart not found")
+	ErrCartExpired         = errors.New("cart has expired")
+	ErrCartAlreadyCheckedOut = errors.New("cart has already been checked out")
+	ErrCartEmpty           = errors.New("cart is empty")
+	ErrInvalidCartStatus   = errors.New("invalid cart status")
+
+	// CartItem errors
+	ErrCartItemNotFound    = errors.New("cart item not found")
+	ErrInvalidQuantity     = errors.New("quantity must be positive")
+	ErrMenuItemUnavailable = errors.New("menu item is not available")
+	ErrVariantUnavailable  = errors.New("variant is not available")
+
+	// Order errors
+	ErrOrderNotFound          = errors.New("order not found")
+	ErrOrderAlreadyExists     = errors.New("order with this idempotency key already exists")
+	ErrInvalidOrderStatus     = errors.New("invalid order status")
+	ErrInvalidStatusTransition = errors.New("invalid order status transition")
+	ErrOrderCannotBeCancelled = errors.New("order cannot be cancelled in current status")
+	ErrInvalidOrderNumber     = errors.New("invalid order number format")
+
+	// Payment errors
+	ErrPaymentPending     = errors.New("payment is still pending")
+	ErrPaymentFailed      = errors.New("payment failed")
+	ErrInvalidPaymentStatus = errors.New("invalid payment status")
+
+	// Address errors
+	ErrAddressNotFound     = errors.New("address not found")
+	ErrAddressAlreadyExists = errors.New("address already exists")
+	ErrInvalidAddress      = errors.New("invalid address")
+	ErrMaxAddressesReached = errors.New("maximum number of addresses reached")
+
+	// PromoCode errors
+	ErrPromoCodeNotFound     = errors.New("promo code not found")
+	ErrPromoCodeExpired      = errors.New("promo code has expired")
+	ErrPromoCodeNotStarted   = errors.New("promo code is not yet active")
+	ErrPromoCodeMaxUses      = errors.New("promo code has reached maximum uses")
+	ErrPromoCodeUserLimit    = errors.New("user has reached maximum uses for this promo code")
+	ErrPromoCodeMinSubtotal  = errors.New("cart subtotal does not meet minimum requirement")
+	ErrPromoCodeInactive     = errors.New("promo code is not active")
+	ErrPromoCodeInvalidCafe  = errors.New("promo code is not valid for this cafe")
+	ErrPromoCodeAlreadyUsed  = errors.New("promo code has already been applied")
+
+	// Loyalty errors
+	ErrLoyaltyAccountNotFound   = errors.New("loyalty account not found")
+	ErrInsufficientLoyaltyPoints = errors.New("insufficient loyalty points")
+	ErrInvalidLoyaltyPoints     = errors.New("invalid loyalty points amount")
+	ErrLoyaltyTransactionFailed = errors.New("loyalty transaction failed")
+
+	// Checkout errors
+	ErrCheckoutFailed       = errors.New("checkout failed")
+	ErrInvalidDeliveryAddress = errors.New("invalid delivery address")
+	ErrDeliveryNotAvailable = errors.New("delivery is not available to this address")
+
+	// General errors
+	ErrInvalidTenant   = errors.New("invalid tenant")
+	ErrInvalidCafe     = errors.New("invalid cafe")
+	ErrUnauthorized    = errors.New("unauthorized access")
+	ErrInternalError   = errors.New("internal server error")
+)

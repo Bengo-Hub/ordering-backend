@@ -1,0 +1,453 @@
+package ordering
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+)
+
+// OrderService provides order business logic.
+type OrderService struct {
+	repo         Repository
+	cartSvc      *CartService
+	promoSvc     *PromoService
+	loyaltySvc   *LoyaltyService
+	stateMachine *OrderStateMachine
+	logger       *zap.Logger
+}
+
+// NewOrderService creates a new order service.
+func NewOrderService(
+	repo Repository,
+	cartSvc *CartService,
+	promoSvc *PromoService,
+	loyaltySvc *LoyaltyService,
+	logger *zap.Logger,
+) *OrderService {
+	return &OrderService{
+		repo:         repo,
+		cartSvc:      cartSvc,
+		promoSvc:     promoSvc,
+		loyaltySvc:   loyaltySvc,
+		stateMachine: NewOrderStateMachine(),
+		logger:       logger,
+	}
+}
+
+// Checkout creates an order from a cart.
+func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Order, error) {
+	// Check for idempotency
+	if req.IdempotencyKey != "" {
+		existingOrder, err := s.repo.GetOrderByIdempotencyKey(ctx, req.TenantID, req.IdempotencyKey)
+		if err == nil && existingOrder != nil {
+			return existingOrder, nil
+		}
+	}
+
+	// Get cart
+	cart, err := s.cartSvc.GetCart(ctx, req.TenantID, req.CartID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate cart
+	if cart.Status != CartStatusActive {
+		return nil, ErrCartAlreadyCheckedOut
+	}
+
+	if len(cart.Items) == 0 {
+		return nil, ErrCartEmpty
+	}
+
+	// Validate delivery address if provided
+	var deliveryAddress *CustomerAddress
+	if req.DeliveryAddressID != nil {
+		deliveryAddress, err = s.repo.GetAddress(ctx, req.TenantID, *req.DeliveryAddressID)
+		if err != nil {
+			return nil, ErrInvalidDeliveryAddress
+		}
+		if deliveryAddress.UserID != req.UserID {
+			return nil, ErrInvalidDeliveryAddress
+		}
+	}
+
+	// Apply promo code if provided
+	var promoCodeID *uuid.UUID
+	var discountTotal float64 = cart.DiscountTotal
+	if req.PromoCode != "" {
+		result, err := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, cart.CafeID, req.PromoCode, cart.Subtotal, &req.UserID)
+		if err != nil || !result.Valid {
+			return nil, ErrPromoCodeNotFound
+		}
+		promoCodeID = result.PromoCodeID
+		discountTotal = result.DiscountAmount
+	} else if cart.PromoCodeID != nil {
+		promoCodeID = cart.PromoCodeID
+	}
+
+	// Validate loyalty points
+	loyaltyPointsRedeemed := req.LoyaltyPointsRedeemed
+	loyaltyDiscount := float64(loyaltyPointsRedeemed) * LoyaltyPointValue
+	if loyaltyPointsRedeemed > 0 {
+		account, err := s.loyaltySvc.GetAccountByUser(ctx, req.TenantID, req.UserID)
+		if err != nil || account.BalancePoints < loyaltyPointsRedeemed {
+			return nil, ErrInsufficientLoyaltyPoints
+		}
+	}
+
+	// Calculate totals
+	grandTotal := cart.Subtotal - discountTotal - loyaltyDiscount + cart.TaxTotal + cart.DeliveryFee
+
+	// Generate order number
+	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, cart.CafeID)
+	if err != nil {
+		s.logger.Error("failed to generate order number", zap.Error(err))
+		return nil, err
+	}
+
+	// Calculate loyalty points earned
+	loyaltyPointsEarned := int(grandTotal * float64(LoyaltyPointsPerUnit))
+
+	// Create order
+	now := time.Now()
+	order := &Order{
+		TenantID:              req.TenantID,
+		CafeID:                cart.CafeID,
+		CustomerID:            req.UserID,
+		CartID:                &cart.ID,
+		OrderNumber:           orderNumber,
+		Status:                OrderStatusPending,
+		PaymentStatus:         PaymentStatusPending,
+		Currency:              cart.Currency,
+		Subtotal:              cart.Subtotal,
+		DiscountTotal:         discountTotal,
+		TaxTotal:              cart.TaxTotal,
+		DeliveryFee:           cart.DeliveryFee,
+		GrandTotal:            grandTotal,
+		LoyaltyPointsEarned:   loyaltyPointsEarned,
+		LoyaltyPointsRedeemed: loyaltyPointsRedeemed,
+		DeliveryAddressID:     req.DeliveryAddressID,
+		PromoCodeID:           promoCodeID,
+		Instructions:          req.Instructions,
+		Channel:               req.Channel,
+		IdempotencyKey:        req.IdempotencyKey,
+		PlacedAt:              &now,
+		DeliveryAddress:       deliveryAddress,
+	}
+
+	if err := s.repo.CreateOrder(ctx, order); err != nil {
+		s.logger.Error("failed to create order", zap.Error(err))
+		return nil, err
+	}
+
+	// Create order items from cart items
+	for _, cartItem := range cart.Items {
+		orderItem := &OrderItem{
+			OrderID:      order.ID,
+			MenuItemID:   cartItem.MenuItemID,
+			VariantID:    cartItem.VariantID,
+			NameSnapshot: cartItem.NameSnapshot,
+			Quantity:     cartItem.Quantity,
+			UnitPrice:    cartItem.UnitPrice,
+			TotalPrice:   cartItem.TotalPrice,
+			Notes:        cartItem.Notes,
+			Metadata:     cartItem.Metadata,
+		}
+		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
+			s.logger.Error("failed to create order item", zap.Error(err))
+		}
+	}
+
+	// Record promo redemption
+	if promoCodeID != nil {
+		if err := s.promoSvc.RecordPromoRedemption(ctx, *promoCodeID, order.ID, req.UserID, discountTotal); err != nil {
+			s.logger.Error("failed to record promo redemption", zap.Error(err))
+		}
+	}
+
+	// Deduct loyalty points if redeemed
+	if loyaltyPointsRedeemed > 0 {
+		if err := s.loyaltySvc.RedeemPoints(ctx, req.TenantID, req.UserID, loyaltyPointsRedeemed, &order.ID, "Points redeemed for order "+orderNumber); err != nil {
+			s.logger.Error("failed to deduct loyalty points", zap.Error(err))
+		}
+	}
+
+	// Mark cart as checked out
+	cart.Status = CartStatusCheckedOut
+	if err := s.repo.UpdateCart(ctx, cart); err != nil {
+		s.logger.Error("failed to mark cart as checked out", zap.Error(err))
+	}
+
+	// Create initial order event
+	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, &req.UserID, "user", "")
+
+	s.logger.Info("order created",
+		zap.String("id", order.ID.String()),
+		zap.String("orderNumber", order.OrderNumber),
+		zap.Float64("grandTotal", order.GrandTotal))
+
+	return order, nil
+}
+
+// GetOrder retrieves an order by ID.
+func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load order items
+	items, err := s.repo.ListOrderItems(ctx, orderID)
+	if err == nil {
+		order.Items = items
+	}
+
+	// Load events
+	events, err := s.repo.ListOrderEvents(ctx, orderID)
+	if err == nil {
+		order.Events = events
+	}
+
+	// Load delivery address
+	if order.DeliveryAddressID != nil {
+		address, err := s.repo.GetAddress(ctx, tenantID, *order.DeliveryAddressID)
+		if err == nil {
+			order.DeliveryAddress = address
+		}
+	}
+
+	return order, nil
+}
+
+// GetOrderByNumber retrieves an order by order number.
+func (s *OrderService) GetOrderByNumber(ctx context.Context, tenantID uuid.UUID, orderNumber string) (*Order, error) {
+	return s.repo.GetOrderByNumber(ctx, tenantID, orderNumber)
+}
+
+// ListOrders lists orders with filters.
+func (s *OrderService) ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error) {
+	return s.repo.ListOrders(ctx, filter)
+}
+
+// UpdateOrderStatus transitions an order to a new status.
+func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus OrderStatus, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate transition
+	if !s.stateMachine.CanTransition(order.Status, newStatus) {
+		return nil, ErrInvalidStatusTransition
+	}
+
+	// Update timestamps based on status
+	now := time.Now()
+	oldStatus := order.Status
+	order.Status = newStatus
+
+	switch newStatus {
+	case OrderStatusConfirmed:
+		order.ConfirmedAt = &now
+	case OrderStatusReady:
+		order.ReadyAt = &now
+	case OrderStatusDelivered:
+		order.DeliveredAt = &now
+	case OrderStatusCompleted:
+		order.CompletedAt = &now
+		// Award loyalty points on completion
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
+			s.logger.Error("failed to award loyalty points", zap.Error(err))
+		}
+	case OrderStatusCancelled:
+		order.CancelledAt = &now
+	}
+
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		return nil, err
+	}
+
+	// Create order event
+	s.createOrderEvent(ctx, order.ID, "status_changed", string(oldStatus), string(newStatus), nil, actorID, actorType, ipAddress)
+
+	s.logger.Info("order status updated",
+		zap.String("id", order.ID.String()),
+		zap.String("from", string(oldStatus)),
+		zap.String("to", string(newStatus)))
+
+	return order, nil
+}
+
+// CancelOrder cancels an order with a reason.
+func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.UUID, reason string, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if order can be cancelled
+	if !s.stateMachine.CanTransition(order.Status, OrderStatusCancelled) {
+		return nil, ErrOrderCannotBeCancelled
+	}
+
+	now := time.Now()
+	oldStatus := order.Status
+	order.Status = OrderStatusCancelled
+	order.CancelledAt = &now
+	order.CancellationReason = reason
+
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		return nil, err
+	}
+
+	// Refund loyalty points if they were redeemed
+	if order.LoyaltyPointsRedeemed > 0 {
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsRedeemed, &order.ID, "Points refunded for cancelled order "+order.OrderNumber); err != nil {
+			s.logger.Error("failed to refund loyalty points", zap.Error(err))
+		}
+	}
+
+	// Create order event
+	payload := map[string]interface{}{"reason": reason}
+	s.createOrderEvent(ctx, order.ID, "order_cancelled", string(oldStatus), string(OrderStatusCancelled), payload, actorID, actorType, ipAddress)
+
+	s.logger.Info("order cancelled",
+		zap.String("id", order.ID.String()),
+		zap.String("reason", reason))
+
+	return order, nil
+}
+
+// UpdatePaymentStatus updates the payment status of an order.
+func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus PaymentStatus, payload map[string]interface{}) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	oldStatus := order.PaymentStatus
+	order.PaymentStatus = newStatus
+
+	// Auto-confirm order on successful payment
+	if newStatus == PaymentStatusPaid && order.Status == OrderStatusPending {
+		now := time.Now()
+		order.Status = OrderStatusConfirmed
+		order.ConfirmedAt = &now
+	}
+
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		return nil, err
+	}
+
+	// Create order event
+	s.createOrderEvent(ctx, order.ID, "payment_"+string(newStatus), string(oldStatus), string(newStatus), payload, nil, "system", "")
+
+	s.logger.Info("order payment status updated",
+		zap.String("id", order.ID.String()),
+		zap.String("paymentStatus", string(newStatus)))
+
+	return order, nil
+}
+
+// createOrderEvent creates an order event record.
+func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, eventType, fromStatus, toStatus string, payload map[string]interface{}, actorID *uuid.UUID, actorType, ipAddress string) {
+	event := &OrderEvent{
+		OrderID:     orderID,
+		EventType:   eventType,
+		FromStatus:  fromStatus,
+		ToStatus:    toStatus,
+		Payload:     payload,
+		ActorUserID: actorID,
+		ActorType:   actorType,
+		IPAddress:   ipAddress,
+		OccurredAt:  time.Now(),
+	}
+
+	if err := s.repo.CreateOrderEvent(ctx, event); err != nil {
+		s.logger.Error("failed to create order event", zap.Error(err))
+	}
+}
+
+// OrderStateMachine defines valid order status transitions.
+type OrderStateMachine struct {
+	transitions map[OrderStatus][]OrderStatus
+}
+
+// NewOrderStateMachine creates a new order state machine.
+func NewOrderStateMachine() *OrderStateMachine {
+	return &OrderStateMachine{
+		transitions: map[OrderStatus][]OrderStatus{
+			OrderStatusPending: {
+				OrderStatusConfirmed,
+				OrderStatusCancelled,
+			},
+			OrderStatusConfirmed: {
+				OrderStatusPreparing,
+				OrderStatusCancelled,
+			},
+			OrderStatusPreparing: {
+				OrderStatusReady,
+				OrderStatusCancelled,
+			},
+			OrderStatusReady: {
+				OrderStatusOutForDelivery,
+				OrderStatusCompleted, // For pickup orders
+				OrderStatusCancelled,
+			},
+			OrderStatusOutForDelivery: {
+				OrderStatusDelivered,
+				OrderStatusCancelled,
+			},
+			OrderStatusDelivered: {
+				OrderStatusCompleted,
+			},
+			OrderStatusCompleted: {
+				OrderStatusRefunded,
+			},
+			OrderStatusCancelled: {
+				// No transitions from cancelled
+			},
+			OrderStatusRefunded: {
+				// No transitions from refunded
+			},
+		},
+	}
+}
+
+// CanTransition checks if a status transition is valid.
+func (m *OrderStateMachine) CanTransition(from, to OrderStatus) bool {
+	allowedTransitions, ok := m.transitions[from]
+	if !ok {
+		return false
+	}
+
+	for _, allowed := range allowedTransitions {
+		if allowed == to {
+			return true
+		}
+	}
+
+	return false
+}
+
+// GetAllowedTransitions returns the allowed transitions from a status.
+func (m *OrderStateMachine) GetAllowedTransitions(from OrderStatus) []OrderStatus {
+	return m.transitions[from]
+}
+
+// ValidateStatusTransition validates and returns a helpful error message.
+func (m *OrderStateMachine) ValidateStatusTransition(from, to OrderStatus) error {
+	if m.CanTransition(from, to) {
+		return nil
+	}
+
+	allowed := m.GetAllowedTransitions(from)
+	if len(allowed) == 0 {
+		return fmt.Errorf("order status '%s' is final and cannot be changed", from)
+	}
+
+	return fmt.Errorf("cannot transition from '%s' to '%s'; allowed transitions: %v", from, to, allowed)
+}

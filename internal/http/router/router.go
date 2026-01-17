@@ -13,11 +13,25 @@ import (
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	sharedmw "github.com/bengobox/ordering-backend/internal/shared/middleware"
 )
 
 // New constructs the chi router with global middleware and base routes.
-func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, catalogHandler *cataloghandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware, allowedOrigins []string) http.Handler {
+func New(
+	log *zap.Logger,
+	healthHandler *handlers.HealthHandler,
+	identityHandler *identityhandler.Handler,
+	catalogHandler *cataloghandler.Handler,
+	cartHandler *orderinghandler.CartHandler,
+	orderHandler *orderinghandler.OrderHandler,
+	promoHandler *orderinghandler.PromoHandler,
+	loyaltyHandler *orderinghandler.LoyaltyHandler,
+	addressHandler *orderinghandler.AddressHandler,
+	authenticator *identityhandler.Authenticator,
+	authMiddleware *authclient.AuthMiddleware,
+	allowedOrigins []string,
+) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -73,6 +87,25 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 			// Register catalog routes (public menu + admin catalog)
 			if catalogHandler != nil && authenticator != nil {
 				catalogHandler.Register(v1, authenticator)
+			}
+
+			// Register ordering routes (cart, orders, checkout, promo, loyalty, addresses)
+			if authenticator != nil {
+				if cartHandler != nil {
+					cartHandler.Register(v1, authenticator)
+				}
+				if orderHandler != nil {
+					orderHandler.Register(v1, authenticator)
+				}
+				if promoHandler != nil {
+					promoHandler.Register(v1, authenticator)
+				}
+				if loyaltyHandler != nil {
+					loyaltyHandler.Register(v1, authenticator)
+				}
+				if addressHandler != nil {
+					addressHandler.Register(v1, authenticator)
+				}
 			}
 		})
 	})

@@ -19,9 +19,11 @@ import (
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
@@ -146,7 +148,22 @@ func New(ctx context.Context) (*App, error) {
 	catalogSvc := catalog.NewService(catalogRepo, log)
 	catalogHandler := cataloghandler.New(log, catalogSvc)
 
-	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
+	// Initialize ordering module
+	orderingRepo := ordering.NewEntRepository(ormClient)
+	cartSvc := ordering.NewCartService(orderingRepo, catalogSvc, log)
+	promoSvc := ordering.NewPromoService(orderingRepo, log)
+	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
+	addressSvc := ordering.NewAddressService(orderingRepo, log)
+	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, log)
+
+	// Create ordering handlers
+	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
+	orderHandler := orderinghandler.NewOrderHandler(log, orderSvc)
+	promoHandler := orderinghandler.NewPromoHandler(log, promoSvc, cartSvc)
+	loyaltyHandler := orderinghandler.NewLoyaltyHandler(log, loyaltySvc)
+	addressHandler := orderinghandler.NewAddressHandler(log, addressSvc)
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

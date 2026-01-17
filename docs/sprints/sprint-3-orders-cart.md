@@ -21,18 +21,25 @@
 | Ent schema: LoyaltyTransaction | ✅ Complete | `internal/ent/schema/loyaltytransaction.go` |
 | User schema edges updated | ✅ Complete | Added carts, orders, addresses, loyalty_account edges |
 | Run Ent code generation | ✅ Complete | `go generate ./internal/ent` |
-| Cart service implementation | ⏳ Pending | |
-| Cart HTTP handlers | ⏳ Pending | |
-| Order service implementation | ⏳ Pending | |
-| Order state machine | ⏳ Pending | |
-| Checkout workflow | ⏳ Pending | |
-| PromoCode validation | ⏳ Pending | |
+| Cart service implementation | ✅ Complete | `internal/modules/ordering/cart_service.go` |
+| Cart Ent repository | ✅ Complete | `internal/modules/ordering/repository_ent.go` |
+| Order service implementation | ✅ Complete | `internal/modules/ordering/order_service.go` |
+| Order state machine | ✅ Complete | Included in order_service.go |
+| Checkout workflow | ✅ Complete | `OrderService.Checkout()` |
+| PromoCode validation | ✅ Complete | `internal/modules/ordering/promo_service.go` |
+| Loyalty service | ✅ Complete | `internal/modules/ordering/loyalty_service.go` |
+| Address service | ✅ Complete | `internal/modules/ordering/address_service.go` |
+| Cart HTTP handlers | ✅ Complete | `internal/http/handlers/ordering/cart_handler.go` |
+| Order HTTP handlers | ✅ Complete | `internal/http/handlers/ordering/order_handler.go` |
+| Promo HTTP handlers | ✅ Complete | `internal/http/handlers/ordering/promo_handler.go` |
+| Loyalty HTTP handlers | ✅ Complete | `internal/http/handlers/ordering/loyalty_handler.go` |
+| Address HTTP handlers | ✅ Complete | `internal/http/handlers/ordering/address_handler.go` |
 
 **Next Steps**:
-1. Implement Cart module (service, repository, handlers)
-2. Implement Order module with state machine
-3. Implement checkout workflow
-4. Implement PromoCode validation service
+1. Write unit tests for ordering module
+2. Write integration tests for ordering workflows
+3. Register handlers in main router
+4. Test endpoints manually
 
 ---
 

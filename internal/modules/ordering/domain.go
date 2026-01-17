@@ -1,0 +1,367 @@
+package ordering
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+// CartStatus represents the status of a cart.
+type CartStatus string
+
+const (
+	CartStatusActive     CartStatus = "active"
+	CartStatusCheckedOut CartStatus = "checked_out"
+	CartStatusAbandoned  CartStatus = "abandoned"
+	CartStatusExpired    CartStatus = "expired"
+)
+
+// Cart represents a shopping cart.
+type Cart struct {
+	ID                    uuid.UUID  `json:"id"`
+	TenantID              uuid.UUID  `json:"tenantId"`
+	CafeID                uuid.UUID  `json:"cafeId"`
+	UserID                *uuid.UUID `json:"userId,omitempty"`
+	SessionID             string     `json:"sessionId,omitempty"`
+	Status                CartStatus `json:"status"`
+	Currency              string     `json:"currency"`
+	Subtotal              float64    `json:"subtotal"`
+	DiscountTotal         float64    `json:"discountTotal"`
+	TaxTotal              float64    `json:"taxTotal"`
+	DeliveryFee           float64    `json:"deliveryFee"`
+	LoyaltyPointsRedeemed int        `json:"loyaltyPointsRedeemed"`
+	PromoCodeID           *uuid.UUID `json:"promoCodeId,omitempty"`
+	Items                 []CartItem `json:"items,omitempty"`
+	ExpiresAt             *time.Time `json:"expiresAt,omitempty"`
+	CreatedAt             time.Time  `json:"createdAt"`
+	UpdatedAt             time.Time  `json:"updatedAt"`
+}
+
+// CartItem represents an item in a shopping cart.
+type CartItem struct {
+	ID           uuid.UUID              `json:"id"`
+	CartID       uuid.UUID              `json:"cartId"`
+	MenuItemID   uuid.UUID              `json:"menuItemId"`
+	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
+	NameSnapshot string                 `json:"nameSnapshot"`
+	Quantity     int                    `json:"quantity"`
+	UnitPrice    float64                `json:"unitPrice"`
+	TotalPrice   float64                `json:"totalPrice"`
+	Notes        string                 `json:"notes,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt    time.Time              `json:"createdAt"`
+	UpdatedAt    time.Time              `json:"updatedAt"`
+}
+
+// OrderStatus represents the status of an order.
+type OrderStatus string
+
+const (
+	OrderStatusPending        OrderStatus = "pending"
+	OrderStatusConfirmed      OrderStatus = "confirmed"
+	OrderStatusPreparing      OrderStatus = "preparing"
+	OrderStatusReady          OrderStatus = "ready"
+	OrderStatusOutForDelivery OrderStatus = "out_for_delivery"
+	OrderStatusDelivered      OrderStatus = "delivered"
+	OrderStatusCompleted      OrderStatus = "completed"
+	OrderStatusCancelled      OrderStatus = "cancelled"
+	OrderStatusRefunded       OrderStatus = "refunded"
+)
+
+// PaymentStatus represents the payment status of an order.
+type PaymentStatus string
+
+const (
+	PaymentStatusPending           PaymentStatus = "pending"
+	PaymentStatusAuthorized        PaymentStatus = "authorized"
+	PaymentStatusPaid              PaymentStatus = "paid"
+	PaymentStatusFailed            PaymentStatus = "failed"
+	PaymentStatusRefunded          PaymentStatus = "refunded"
+	PaymentStatusPartiallyRefunded PaymentStatus = "partially_refunded"
+)
+
+// OrderChannel represents the order source channel.
+type OrderChannel string
+
+const (
+	OrderChannelWeb       OrderChannel = "web"
+	OrderChannelMobileApp OrderChannel = "mobile_app"
+	OrderChannelKiosk     OrderChannel = "kiosk"
+	OrderChannelPhone     OrderChannel = "phone"
+	OrderChannelAPI       OrderChannel = "api"
+)
+
+// Order represents a customer order.
+type Order struct {
+	ID                    uuid.UUID              `json:"id"`
+	TenantID              uuid.UUID              `json:"tenantId"`
+	CafeID                uuid.UUID              `json:"cafeId"`
+	CustomerID            uuid.UUID              `json:"customerId"`
+	CartID                *uuid.UUID             `json:"cartId,omitempty"`
+	OrderNumber           string                 `json:"orderNumber"`
+	Status                OrderStatus            `json:"status"`
+	PaymentStatus         PaymentStatus          `json:"paymentStatus"`
+	Currency              string                 `json:"currency"`
+	Subtotal              float64                `json:"subtotal"`
+	DiscountTotal         float64                `json:"discountTotal"`
+	TaxTotal              float64                `json:"taxTotal"`
+	DeliveryFee           float64                `json:"deliveryFee"`
+	TipTotal              float64                `json:"tipTotal"`
+	GrandTotal            float64                `json:"grandTotal"`
+	LoyaltyPointsEarned   int                    `json:"loyaltyPointsEarned"`
+	LoyaltyPointsRedeemed int                    `json:"loyaltyPointsRedeemed"`
+	DeliveryAddressID     *uuid.UUID             `json:"deliveryAddressId,omitempty"`
+	PromoCodeID           *uuid.UUID             `json:"promoCodeId,omitempty"`
+	Instructions          string                 `json:"instructions,omitempty"`
+	Channel               OrderChannel           `json:"channel"`
+	Source                string                 `json:"source,omitempty"`
+	IdempotencyKey        string                 `json:"idempotencyKey,omitempty"`
+	Items                 []OrderItem            `json:"items,omitempty"`
+	Events                []OrderEvent           `json:"events,omitempty"`
+	DeliveryAddress       *CustomerAddress       `json:"deliveryAddress,omitempty"`
+	PlacedAt              *time.Time             `json:"placedAt,omitempty"`
+	ConfirmedAt           *time.Time             `json:"confirmedAt,omitempty"`
+	ReadyAt               *time.Time             `json:"readyAt,omitempty"`
+	DeliveredAt           *time.Time             `json:"deliveredAt,omitempty"`
+	CompletedAt           *time.Time             `json:"completedAt,omitempty"`
+	CancelledAt           *time.Time             `json:"cancelledAt,omitempty"`
+	CancellationReason    string                 `json:"cancellationReason,omitempty"`
+	Metadata              map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt             time.Time              `json:"createdAt"`
+	UpdatedAt             time.Time              `json:"updatedAt"`
+}
+
+// OrderItem represents an item in an order.
+type OrderItem struct {
+	ID           uuid.UUID              `json:"id"`
+	OrderID      uuid.UUID              `json:"orderId"`
+	MenuItemID   uuid.UUID              `json:"menuItemId"`
+	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
+	NameSnapshot string                 `json:"nameSnapshot"`
+	Quantity     int                    `json:"quantity"`
+	UnitPrice    float64                `json:"unitPrice"`
+	TotalPrice   float64                `json:"totalPrice"`
+	Notes        string                 `json:"notes,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// OrderEvent represents an event in the order lifecycle.
+type OrderEvent struct {
+	ID          uuid.UUID              `json:"id"`
+	OrderID     uuid.UUID              `json:"orderId"`
+	EventType   string                 `json:"eventType"`
+	FromStatus  string                 `json:"fromStatus,omitempty"`
+	ToStatus    string                 `json:"toStatus,omitempty"`
+	Payload     map[string]interface{} `json:"payload,omitempty"`
+	ActorUserID *uuid.UUID             `json:"actorUserId,omitempty"`
+	ActorType   string                 `json:"actorType,omitempty"`
+	IPAddress   string                 `json:"ipAddress,omitempty"`
+	OccurredAt  time.Time              `json:"occurredAt"`
+}
+
+// CustomerAddress represents a customer's delivery address.
+type CustomerAddress struct {
+	ID           uuid.UUID `json:"id"`
+	TenantID     uuid.UUID `json:"tenantId"`
+	UserID       uuid.UUID `json:"userId"`
+	Label        string    `json:"label"`
+	AddressLine1 string    `json:"addressLine1"`
+	AddressLine2 string    `json:"addressLine2,omitempty"`
+	City         string    `json:"city"`
+	County       string    `json:"county,omitempty"`
+	PostalCode   string    `json:"postalCode,omitempty"`
+	Country      string    `json:"country"`
+	Latitude     *float64  `json:"latitude,omitempty"`
+	Longitude    *float64  `json:"longitude,omitempty"`
+	PlusCode     string    `json:"plusCode,omitempty"`
+	ContactName  string    `json:"contactName,omitempty"`
+	ContactPhone string    `json:"contactPhone,omitempty"`
+	Instructions string    `json:"instructions,omitempty"`
+	IsVerified   bool      `json:"isVerified"`
+	IsDefault          bool       `json:"isDefault"`
+	CreatedAt          time.Time  `json:"createdAt"`
+	UpdatedAt          time.Time  `json:"updatedAt"`
+}
+
+// PromoCodeType represents the type of discount.
+type PromoCodeType string
+
+const (
+	PromoCodeTypePercentage   PromoCodeType = "percentage"
+	PromoCodeTypeFixedAmount  PromoCodeType = "fixed_amount"
+	PromoCodeTypeFreeDelivery PromoCodeType = "free_delivery"
+	PromoCodeTypeFreeItem     PromoCodeType = "free_item"
+)
+
+// PromoCode represents a promotional discount code.
+type PromoCode struct {
+	ID               uuid.UUID              `json:"id"`
+	TenantID         uuid.UUID              `json:"tenantId"`
+	CafeID           *uuid.UUID             `json:"cafeId,omitempty"`
+	Code             string                 `json:"code"`
+	Name             string                 `json:"name"`
+	Description      string                 `json:"description,omitempty"`
+	DiscountType     PromoCodeType          `json:"discountType"`
+	DiscountValue    float64                `json:"discountValue"`
+	MaxDiscountAmount *float64              `json:"maxDiscountAmount,omitempty"`
+	MinSubtotal      float64                `json:"minSubtotal"`
+	MaxUses          *int                   `json:"maxUses,omitempty"`
+	MaxUsesPerUser   *int                   `json:"maxUsesPerUser,omitempty"`
+	UsageCount       int                    `json:"usageCount"`
+	IsActive         bool                   `json:"isActive"`
+	FirstOrderOnly   bool                   `json:"firstOrderOnly"`
+	StartsAt         *time.Time             `json:"startsAt,omitempty"`
+	EndsAt           *time.Time             `json:"endsAt,omitempty"`
+	EligibleCategories []uuid.UUID          `json:"eligibleCategories,omitempty"`
+	EligibleItems    []uuid.UUID            `json:"eligibleItems,omitempty"`
+	Metadata         map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt        time.Time              `json:"createdAt"`
+	UpdatedAt        time.Time              `json:"updatedAt"`
+}
+
+// PromoRedemption represents the redemption of a promo code.
+type PromoRedemption struct {
+	ID             uuid.UUID `json:"id"`
+	PromoCodeID    uuid.UUID `json:"promoCodeId"`
+	OrderID        uuid.UUID `json:"orderId"`
+	UserID         uuid.UUID `json:"userId"`
+	DiscountAmount float64   `json:"discountAmount"`
+	RedeemedAt     time.Time `json:"redeemedAt"`
+}
+
+// LoyaltyTier represents a loyalty program tier.
+type LoyaltyTier string
+
+const (
+	LoyaltyTierBronze   LoyaltyTier = "bronze"
+	LoyaltyTierSilver   LoyaltyTier = "silver"
+	LoyaltyTierGold     LoyaltyTier = "gold"
+	LoyaltyTierPlatinum LoyaltyTier = "platinum"
+)
+
+// LoyaltyAccount represents a customer's loyalty account.
+type LoyaltyAccount struct {
+	ID             uuid.UUID   `json:"id"`
+	TenantID       uuid.UUID   `json:"tenantId"`
+	UserID         uuid.UUID   `json:"userId"`
+	BalancePoints  int         `json:"balancePoints"`
+	Tier           LoyaltyTier `json:"tier"`
+	LifetimePoints int         `json:"lifetimePoints"`
+	CreatedAt      time.Time   `json:"createdAt"`
+	UpdatedAt      time.Time   `json:"updatedAt"`
+}
+
+// LoyaltyTransactionType represents the type of loyalty transaction.
+type LoyaltyTransactionType string
+
+const (
+	LoyaltyTransactionTypeEarn       LoyaltyTransactionType = "earn"
+	LoyaltyTransactionTypeRedeem     LoyaltyTransactionType = "redeem"
+	LoyaltyTransactionTypeExpire     LoyaltyTransactionType = "expire"
+	LoyaltyTransactionTypeAdjustment LoyaltyTransactionType = "adjustment"
+	LoyaltyTransactionTypeBonus      LoyaltyTransactionType = "bonus"
+)
+
+// LoyaltyTransaction represents a loyalty points transaction.
+type LoyaltyTransaction struct {
+	ID              uuid.UUID              `json:"id"`
+	AccountID       uuid.UUID              `json:"accountId"`
+	OrderID         *uuid.UUID             `json:"orderId,omitempty"`
+	Points          int                    `json:"points"`
+	TransactionType LoyaltyTransactionType `json:"transactionType"`
+	Description     string                 `json:"description,omitempty"`
+	OccurredAt      time.Time              `json:"occurredAt"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// DefaultCurrency is the default currency for orders.
+const DefaultCurrency = "KES"
+
+// CartExpirationDuration is the default cart expiration duration.
+const CartExpirationDuration = 24 * time.Hour
+
+// LoyaltyPointsPerUnit is the default points earned per currency unit.
+const LoyaltyPointsPerUnit = 1 // 1 point per KES 1
+
+// LoyaltyPointValue is the value of each loyalty point in the default currency.
+const LoyaltyPointValue = 0.1 // 1 point = 0.1 KES
+
+// CartFilter defines filter options for listing carts.
+type CartFilter struct {
+	TenantID  uuid.UUID
+	CafeID    *uuid.UUID
+	UserID    *uuid.UUID
+	SessionID string
+	Status    *CartStatus
+	Limit     int
+	Offset    int
+}
+
+// OrderFilter defines filter options for listing orders.
+type OrderFilter struct {
+	TenantID      uuid.UUID
+	CafeID        *uuid.UUID
+	CustomerID    *uuid.UUID
+	Status        *OrderStatus
+	PaymentStatus *PaymentStatus
+	DateFrom      *time.Time
+	DateTo        *time.Time
+	Search        string
+	Limit         int
+	Offset        int
+}
+
+// AddItemRequest represents a request to add an item to cart.
+type AddItemRequest struct {
+	TenantID   uuid.UUID
+	CafeID     uuid.UUID
+	UserID     *uuid.UUID
+	SessionID  string
+	MenuItemID uuid.UUID
+	VariantID  *uuid.UUID
+	Quantity   int
+	Notes      string
+}
+
+// UpdateItemRequest represents a request to update a cart item.
+type UpdateItemRequest struct {
+	TenantID uuid.UUID
+	CartID   uuid.UUID
+	ItemID   uuid.UUID
+	Quantity *int
+	Notes    *string
+}
+
+// CheckoutRequest represents a request to checkout a cart.
+type CheckoutRequest struct {
+	TenantID              uuid.UUID
+	CartID                uuid.UUID
+	UserID                uuid.UUID
+	DeliveryAddressID     *uuid.UUID
+	PromoCode             string
+	LoyaltyPointsRedeemed int
+	Instructions          string
+	Channel               OrderChannel
+	IdempotencyKey        string
+}
+
+// PromoValidationResult represents the result of promo code validation.
+type PromoValidationResult struct {
+	Valid          bool          `json:"valid"`
+	PromoCodeID    *uuid.UUID    `json:"promoCodeId,omitempty"`
+	DiscountType   PromoCodeType `json:"discountType,omitempty"`
+	DiscountValue  float64       `json:"discountValue,omitempty"`
+	DiscountAmount float64       `json:"discountAmount,omitempty"`
+	ErrorMessage   string        `json:"errorMessage,omitempty"`
+}
+
+// CartSummary represents a cart summary with calculated totals.
+type CartSummary struct {
+	Subtotal              float64 `json:"subtotal"`
+	DiscountTotal         float64 `json:"discountTotal"`
+	TaxTotal              float64 `json:"taxTotal"`
+	DeliveryFee           float64 `json:"deliveryFee"`
+	LoyaltyPointsRedeemed int     `json:"loyaltyPointsRedeemed"`
+	LoyaltyDiscount       float64 `json:"loyaltyDiscount"`
+	GrandTotal            float64 `json:"grandTotal"`
+}
