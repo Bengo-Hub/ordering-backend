@@ -14,15 +14,15 @@ success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-APP_NAME=${APP_NAME:-"cafe-backend"}
-NAMESPACE=${NAMESPACE:-"cafe"}
-ENV_SECRET_NAME=${ENV_SECRET_NAME:-"cafe-backend-env"}
+APP_NAME=${APP_NAME:-"ordering-backend"}
+NAMESPACE=${NAMESPACE:-"ordering"}
+ENV_SECRET_NAME=${ENV_SECRET_NAME:-"ordering-backend-secrets"}
 DEPLOY=${DEPLOY:-true}
 SETUP_DATABASES=${SETUP_DATABASES:-true}
 DB_TYPES=${DB_TYPES:-postgres,redis}
 # Per-service database configuration
-SERVICE_DB_NAME=${SERVICE_DB_NAME:-cafe}
-SERVICE_DB_USER=${SERVICE_DB_USER:-cafe_user}
+SERVICE_DB_NAME=${SERVICE_DB_NAME:-ordering}
+SERVICE_DB_USER=${SERVICE_DB_USER:-ordering_user}
 
 REGISTRY_SERVER=${REGISTRY_SERVER:-docker.io}
 REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE:-codevertex}
@@ -33,7 +33,7 @@ DEVOPS_DIR=${DEVOPS_DIR:-"$HOME/devops-k8s"}
 VALUES_FILE_PATH=${VALUES_FILE_PATH:-"apps/${APP_NAME}/values.yaml"}
 
 GIT_EMAIL=${GIT_EMAIL:-"dev@bengobox.com"}
-GIT_USER=${GIT_USER:-"Food Delivery Bot"}
+GIT_USER=${GIT_USER:-"Ordering Bot"}
 TRIVY_ECODE=${TRIVY_ECODE:-0}
 
 if [[ -z ${GITHUB_SHA:-} ]]; then

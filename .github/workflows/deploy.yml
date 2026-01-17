@@ -1,4 +1,4 @@
-name: Build and Deploy Food Delivery Backend
+name: Build and Deploy Ordering Backend
 
 on:
   push:
@@ -26,12 +26,12 @@ jobs:
           echo "DEPLOY=true" >> $GITHUB_ENV
           echo "SETUP_DATABASES=true" >> $GITHUB_ENV
           echo "DB_TYPES=postgres,redis" >> $GITHUB_ENV
-          echo "NAMESPACE=cafe" >> $GITHUB_ENV
-          echo "ENV_SECRET_NAME=cafe-backend-env" >> $GITHUB_ENV
+          echo "NAMESPACE=ordering" >> $GITHUB_ENV
+          echo "ENV_SECRET_NAME=ordering-backend-secrets" >> $GITHUB_ENV
           echo "REGISTRY_SERVER=docker.io" >> $GITHUB_ENV
           echo "REGISTRY_NAMESPACE=codevertex" >> $GITHUB_ENV
-          echo "VALUES_FILE_PATH=apps/cafe-backend/values.yaml" >> $GITHUB_ENV
-          echo "APP_NAME=cafe-backend" >> $GITHUB_ENV
+          echo "VALUES_FILE_PATH=apps/ordering-backend/values.yaml" >> $GITHUB_ENV
+          echo "APP_NAME=ordering-backend" >> $GITHUB_ENV
 
       - name: Run production deployment
         env:
@@ -45,16 +45,17 @@ jobs:
           DEPLOY: true
           SETUP_DATABASES: true
           DB_TYPES: postgres,redis
-          NAMESPACE: cafe
-          ENV_SECRET_NAME: cafe-backend-env
+          NAMESPACE: ordering
+          ENV_SECRET_NAME: ordering-backend-secrets
           REGISTRY_SERVER: docker.io
           REGISTRY_NAMESPACE: codevertex
-          VALUES_FILE_PATH: apps/cafe-backend/values.yaml
-          APP_NAME: cafe-backend
-          GIT_USER: ${{ secrets.GIT_USER || 'Cafe Bot' }}
+          VALUES_FILE_PATH: apps/ordering-backend/values.yaml
+          APP_NAME: ordering-backend
+          GIT_USER: ${{ secrets.GIT_USER || 'Ordering Bot' }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@bengobox.com' }}
           # Database passwords from shared infrastructure
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          ORDERING_POSTGRES_URL: ${{ secrets.ORDERING_POSTGRES_URL }}
         run: |
           chmod +x build.sh
           ./build.sh
@@ -68,7 +69,7 @@ jobs:
           REGISTRY_NAMESPACE: codevertex
         run: |
           set -e
-          IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/cafe-backend"
+          IMAGE_REPO="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/ordering-backend"
           SHORT_SHA=${GITHUB_SHA::8}
           echo "Tagging ${IMAGE_REPO}:${SHORT_SHA} as :latest"
           echo "$REGISTRY_PASSWORD" | docker login "$REGISTRY_SERVER" -u "$REGISTRY_USERNAME" --password-stdin
@@ -80,11 +81,11 @@ jobs:
         if: success()
         env:
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG }}
-          NS: cafe
-          APP_NAME: cafe-backend
+          NS: ordering
+          APP_NAME: ordering-backend
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
-            echo "⏭️ Skipping ArgoCD check - no KUBE_CONFIG available"
+            echo "Skipping ArgoCD check - no KUBE_CONFIG available"
             exit 0
           fi
 
@@ -93,13 +94,13 @@ jobs:
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
           if kubectl get application ${APP_NAME} -n argocd >/dev/null 2>&1; then
-            echo "✓ ArgoCD Application '${APP_NAME}' found"
+            echo "ArgoCD Application '${APP_NAME}' found"
             kubectl patch application ${APP_NAME} -n argocd --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}' || true
             SYNC_STATUS=$(kubectl get application ${APP_NAME} -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
             HEALTH_STATUS=$(kubectl get application ${APP_NAME} -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")
             echo "Current Status - Sync: ${SYNC_STATUS}, Health: ${HEALTH_STATUS}"
           else
-            echo "⚠️ ArgoCD Application '${APP_NAME}' not found"
+            echo "ArgoCD Application '${APP_NAME}' not found"
             echo "Trigger provisioning: gh workflow run provision.yml --repo Bengo-Hub/devops-k8s"
           fi
           echo "::endgroup::"
@@ -108,10 +109,10 @@ jobs:
         if: success()
         env:
           KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG }}
-          NS: cafe
+          NS: ordering
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
-            echo "⏭️ Skipping health check - no KUBE_CONFIG available"
+            echo "Skipping health check - no KUBE_CONFIG available"
             exit 0
           fi
 
@@ -119,14 +120,14 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
-          if kubectl get deployment cafe-backend-app -n ${NS} >/dev/null 2>&1; then
-            kubectl rollout status deployment/cafe-backend-app -n ${NS} --timeout=300s
-            HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'food-delivery' || true)
+          if kubectl get deployment ordering-backend -n ${NS} >/dev/null 2>&1; then
+            kubectl rollout status deployment/ordering-backend -n ${NS} --timeout=300s
+            HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
             if [ -n "$HOSTS" ]; then
               for H in $HOSTS; do
                 echo "Checking https://$H/healthz ..."
                 if curl -sk --max-time 10 "https://$H/healthz" | grep -qi "ok"; then
-                  echo "✅ Health OK for $H"
+                  echo "Health OK for $H"
                   break
                 fi
               done
