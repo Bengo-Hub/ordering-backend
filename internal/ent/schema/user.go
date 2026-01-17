@@ -80,6 +80,11 @@ func (User) Edges() []ent.Edge {
 			Ref("user"),
 		edge.To("preferences", UserPreference.Type).Unique(),
 		edge.To("profile", UserProfile.Type).Unique(),
+		// Ordering module edges
+		edge.To("carts", Cart.Type),
+		edge.To("orders", Order.Type),
+		edge.To("addresses", CustomerAddress.Type),
+		edge.To("loyalty_account", LoyaltyAccount.Type).Unique(),
 		// DEPRECATED: Rider profile edges - all rider data owned by logistics-service
 		// edge.To("rider_profile", RiderProfile.Type).Unique(),
 		// edge.To("reviewed_documents", RiderDocument.Type),

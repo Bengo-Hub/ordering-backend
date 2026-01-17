@@ -1,7 +1,38 @@
 # Sprint 3 - Orders & Cart
 
-**Duration**: Weeks 6-7  
-**Status**: ⏳ Not Started
+**Duration**: Weeks 6-7
+**Status**: 🚧 In Progress (January 2026)
+
+---
+
+## Sprint Progress (Updated January 2026)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Ent schema: Cart | ✅ Complete | `internal/ent/schema/cart.go` |
+| Ent schema: CartItem | ✅ Complete | `internal/ent/schema/cartitem.go` |
+| Ent schema: Order | ✅ Complete | `internal/ent/schema/order.go` |
+| Ent schema: OrderItem | ✅ Complete | `internal/ent/schema/orderitem.go` |
+| Ent schema: OrderEvent | ✅ Complete | `internal/ent/schema/orderevent.go` |
+| Ent schema: CustomerAddress | ✅ Complete | `internal/ent/schema/customeraddress.go` |
+| Ent schema: PromoCode | ✅ Complete | `internal/ent/schema/promocode.go` |
+| Ent schema: PromoRedemption | ✅ Complete | `internal/ent/schema/promoredemption.go` |
+| Ent schema: LoyaltyAccount | ✅ Complete | `internal/ent/schema/loyaltyaccount.go` |
+| Ent schema: LoyaltyTransaction | ✅ Complete | `internal/ent/schema/loyaltytransaction.go` |
+| User schema edges updated | ✅ Complete | Added carts, orders, addresses, loyalty_account edges |
+| Run Ent code generation | ⏳ Pending | `go generate ./ent` |
+| Cart service implementation | ⏳ Pending | |
+| Cart HTTP handlers | ⏳ Pending | |
+| Order service implementation | ⏳ Pending | |
+| Order state machine | ⏳ Pending | |
+| Checkout workflow | ⏳ Pending | |
+| PromoCode validation | ⏳ Pending | |
+
+**Next Steps**:
+1. Run `go generate ./ent` to generate Ent code
+2. Implement Cart module (service, repository, handlers)
+3. Implement Order module with state machine
+4. Implement checkout workflow
 
 ---
 

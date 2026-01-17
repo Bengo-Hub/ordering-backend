@@ -898,8 +898,8 @@ func (s *Service) syncGoogleUserToAuthService(ctx context.Context, profile googl
 		return nil, fmt.Errorf("identity: auth-service not configured")
 	}
 
-	// 1. Check/Ensure Tenant Exists (tenant_slug should be provided by caller)
-	// If not provided, tenant auto-discovery will attempt to create tenant from slug
+	// Use default tenant slug for Google OAuth logins
+	tenantSlug := DefaultTenantSlug
 	if tenantSlug == "" {
 		return nil, fmt.Errorf("identity: tenant_slug is required for Google OAuth login")
 	}
@@ -908,8 +908,7 @@ func (s *Service) syncGoogleUserToAuthService(ctx context.Context, profile googl
 		// Don't fail - tenant may be auto-created
 	}
 
-	// 2. Sync User to Auth Service
-	// We use the "admin" sync endpoint which requires API Key
+	// Sync User to Auth Service using the admin sync endpoint
 	req := authclient.SyncUserRequest{
 		Email:      strings.ToLower(profile.Email),
 		TenantSlug: tenantSlug,

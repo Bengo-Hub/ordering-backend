@@ -18,6 +18,13 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
+	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
@@ -40,6 +47,20 @@ type Client struct {
 	BackupCode *BackupCodeClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
+	// DietaryTag is the client for interacting with the DietaryTag builders.
+	DietaryTag *DietaryTagClient
+	// MenuCategory is the client for interacting with the MenuCategory builders.
+	MenuCategory *MenuCategoryClient
+	// MenuItem is the client for interacting with the MenuItem builders.
+	MenuItem *MenuItemClient
+	// MenuItemAsset is the client for interacting with the MenuItemAsset builders.
+	MenuItemAsset *MenuItemAssetClient
+	// MenuItemSchedule is the client for interacting with the MenuItemSchedule builders.
+	MenuItemSchedule *MenuItemScheduleClient
+	// MenuItemTranslation is the client for interacting with the MenuItemTranslation builders.
+	MenuItemTranslation *MenuItemTranslationClient
+	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
+	MenuItemVariant *MenuItemVariantClient
 	// OAuthAccount is the client for interacting with the OAuthAccount builders.
 	OAuthAccount *OAuthAccountClient
 	// Permission is the client for interacting with the Permission builders.
@@ -75,6 +96,13 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.BackupCode = NewBackupCodeClient(c.config)
 	c.Device = NewDeviceClient(c.config)
+	c.DietaryTag = NewDietaryTagClient(c.config)
+	c.MenuCategory = NewMenuCategoryClient(c.config)
+	c.MenuItem = NewMenuItemClient(c.config)
+	c.MenuItemAsset = NewMenuItemAssetClient(c.config)
+	c.MenuItemSchedule = NewMenuItemScheduleClient(c.config)
+	c.MenuItemTranslation = NewMenuItemTranslationClient(c.config)
+	c.MenuItemVariant = NewMenuItemVariantClient(c.config)
 	c.OAuthAccount = NewOAuthAccountClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Role = NewRoleClient(c.config)
@@ -176,21 +204,28 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		BackupCode:       NewBackupCodeClient(cfg),
-		Device:           NewDeviceClient(cfg),
-		OAuthAccount:     NewOAuthAccountClient(cfg),
-		Permission:       NewPermissionClient(cfg),
-		Role:             NewRoleClient(cfg),
-		Session:          NewSessionClient(cfg),
-		Tenant:           NewTenantClient(cfg),
-		TenantSetting:    NewTenantSettingClient(cfg),
-		TenantSyncEvent:  NewTenantSyncEventClient(cfg),
-		TwoFactorSetting: NewTwoFactorSettingClient(cfg),
-		User:             NewUserClient(cfg),
-		UserPreference:   NewUserPreferenceClient(cfg),
-		UserProfile:      NewUserProfileClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		BackupCode:          NewBackupCodeClient(cfg),
+		Device:              NewDeviceClient(cfg),
+		DietaryTag:          NewDietaryTagClient(cfg),
+		MenuCategory:        NewMenuCategoryClient(cfg),
+		MenuItem:            NewMenuItemClient(cfg),
+		MenuItemAsset:       NewMenuItemAssetClient(cfg),
+		MenuItemSchedule:    NewMenuItemScheduleClient(cfg),
+		MenuItemTranslation: NewMenuItemTranslationClient(cfg),
+		MenuItemVariant:     NewMenuItemVariantClient(cfg),
+		OAuthAccount:        NewOAuthAccountClient(cfg),
+		Permission:          NewPermissionClient(cfg),
+		Role:                NewRoleClient(cfg),
+		Session:             NewSessionClient(cfg),
+		Tenant:              NewTenantClient(cfg),
+		TenantSetting:       NewTenantSettingClient(cfg),
+		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
+		TwoFactorSetting:    NewTwoFactorSettingClient(cfg),
+		User:                NewUserClient(cfg),
+		UserPreference:      NewUserPreferenceClient(cfg),
+		UserProfile:         NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -208,21 +243,28 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		BackupCode:       NewBackupCodeClient(cfg),
-		Device:           NewDeviceClient(cfg),
-		OAuthAccount:     NewOAuthAccountClient(cfg),
-		Permission:       NewPermissionClient(cfg),
-		Role:             NewRoleClient(cfg),
-		Session:          NewSessionClient(cfg),
-		Tenant:           NewTenantClient(cfg),
-		TenantSetting:    NewTenantSettingClient(cfg),
-		TenantSyncEvent:  NewTenantSyncEventClient(cfg),
-		TwoFactorSetting: NewTwoFactorSettingClient(cfg),
-		User:             NewUserClient(cfg),
-		UserPreference:   NewUserPreferenceClient(cfg),
-		UserProfile:      NewUserProfileClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		BackupCode:          NewBackupCodeClient(cfg),
+		Device:              NewDeviceClient(cfg),
+		DietaryTag:          NewDietaryTagClient(cfg),
+		MenuCategory:        NewMenuCategoryClient(cfg),
+		MenuItem:            NewMenuItemClient(cfg),
+		MenuItemAsset:       NewMenuItemAssetClient(cfg),
+		MenuItemSchedule:    NewMenuItemScheduleClient(cfg),
+		MenuItemTranslation: NewMenuItemTranslationClient(cfg),
+		MenuItemVariant:     NewMenuItemVariantClient(cfg),
+		OAuthAccount:        NewOAuthAccountClient(cfg),
+		Permission:          NewPermissionClient(cfg),
+		Role:                NewRoleClient(cfg),
+		Session:             NewSessionClient(cfg),
+		Tenant:              NewTenantClient(cfg),
+		TenantSetting:       NewTenantSettingClient(cfg),
+		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
+		TwoFactorSetting:    NewTwoFactorSettingClient(cfg),
+		User:                NewUserClient(cfg),
+		UserPreference:      NewUserPreferenceClient(cfg),
+		UserProfile:         NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -252,9 +294,10 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.Role, c.Session,
-		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.TwoFactorSetting, c.User,
-		c.UserPreference, c.UserProfile,
+		c.BackupCode, c.Device, c.DietaryTag, c.MenuCategory, c.MenuItem,
+		c.MenuItemAsset, c.MenuItemSchedule, c.MenuItemTranslation, c.MenuItemVariant,
+		c.OAuthAccount, c.Permission, c.Role, c.Session, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Use(hooks...)
 	}
@@ -264,9 +307,10 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BackupCode, c.Device, c.OAuthAccount, c.Permission, c.Role, c.Session,
-		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.TwoFactorSetting, c.User,
-		c.UserPreference, c.UserProfile,
+		c.BackupCode, c.Device, c.DietaryTag, c.MenuCategory, c.MenuItem,
+		c.MenuItemAsset, c.MenuItemSchedule, c.MenuItemTranslation, c.MenuItemVariant,
+		c.OAuthAccount, c.Permission, c.Role, c.Session, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -279,6 +323,20 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.BackupCode.mutate(ctx, m)
 	case *DeviceMutation:
 		return c.Device.mutate(ctx, m)
+	case *DietaryTagMutation:
+		return c.DietaryTag.mutate(ctx, m)
+	case *MenuCategoryMutation:
+		return c.MenuCategory.mutate(ctx, m)
+	case *MenuItemMutation:
+		return c.MenuItem.mutate(ctx, m)
+	case *MenuItemAssetMutation:
+		return c.MenuItemAsset.mutate(ctx, m)
+	case *MenuItemScheduleMutation:
+		return c.MenuItemSchedule.mutate(ctx, m)
+	case *MenuItemTranslationMutation:
+		return c.MenuItemTranslation.mutate(ctx, m)
+	case *MenuItemVariantMutation:
+		return c.MenuItemVariant.mutate(ctx, m)
 	case *OAuthAccountMutation:
 		return c.OAuthAccount.mutate(ctx, m)
 	case *PermissionMutation:
@@ -601,6 +659,1161 @@ func (c *DeviceClient) mutate(ctx context.Context, m *DeviceMutation) (Value, er
 		return (&DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Device mutation op: %q", m.Op())
+	}
+}
+
+// DietaryTagClient is a client for the DietaryTag schema.
+type DietaryTagClient struct {
+	config
+}
+
+// NewDietaryTagClient returns a client for the DietaryTag from the given config.
+func NewDietaryTagClient(c config) *DietaryTagClient {
+	return &DietaryTagClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `dietarytag.Hooks(f(g(h())))`.
+func (c *DietaryTagClient) Use(hooks ...Hook) {
+	c.hooks.DietaryTag = append(c.hooks.DietaryTag, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `dietarytag.Intercept(f(g(h())))`.
+func (c *DietaryTagClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DietaryTag = append(c.inters.DietaryTag, interceptors...)
+}
+
+// Create returns a builder for creating a DietaryTag entity.
+func (c *DietaryTagClient) Create() *DietaryTagCreate {
+	mutation := newDietaryTagMutation(c.config, OpCreate)
+	return &DietaryTagCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DietaryTag entities.
+func (c *DietaryTagClient) CreateBulk(builders ...*DietaryTagCreate) *DietaryTagCreateBulk {
+	return &DietaryTagCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DietaryTagClient) MapCreateBulk(slice any, setFunc func(*DietaryTagCreate, int)) *DietaryTagCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DietaryTagCreateBulk{err: fmt.Errorf("calling to DietaryTagClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DietaryTagCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DietaryTagCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DietaryTag.
+func (c *DietaryTagClient) Update() *DietaryTagUpdate {
+	mutation := newDietaryTagMutation(c.config, OpUpdate)
+	return &DietaryTagUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DietaryTagClient) UpdateOne(dt *DietaryTag) *DietaryTagUpdateOne {
+	mutation := newDietaryTagMutation(c.config, OpUpdateOne, withDietaryTag(dt))
+	return &DietaryTagUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DietaryTagClient) UpdateOneID(id int) *DietaryTagUpdateOne {
+	mutation := newDietaryTagMutation(c.config, OpUpdateOne, withDietaryTagID(id))
+	return &DietaryTagUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DietaryTag.
+func (c *DietaryTagClient) Delete() *DietaryTagDelete {
+	mutation := newDietaryTagMutation(c.config, OpDelete)
+	return &DietaryTagDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DietaryTagClient) DeleteOne(dt *DietaryTag) *DietaryTagDeleteOne {
+	return c.DeleteOneID(dt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DietaryTagClient) DeleteOneID(id int) *DietaryTagDeleteOne {
+	builder := c.Delete().Where(dietarytag.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DietaryTagDeleteOne{builder}
+}
+
+// Query returns a query builder for DietaryTag.
+func (c *DietaryTagClient) Query() *DietaryTagQuery {
+	return &DietaryTagQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDietaryTag},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DietaryTag entity by its id.
+func (c *DietaryTagClient) Get(ctx context.Context, id int) (*DietaryTag, error) {
+	return c.Query().Where(dietarytag.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DietaryTagClient) GetX(ctx context.Context, id int) *DietaryTag {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenuItems queries the menu_items edge of a DietaryTag.
+func (c *DietaryTagClient) QueryMenuItems(dt *DietaryTag) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(dietarytag.Table, dietarytag.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, dietarytag.MenuItemsTable, dietarytag.MenuItemsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(dt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DietaryTagClient) Hooks() []Hook {
+	return c.hooks.DietaryTag
+}
+
+// Interceptors returns the client interceptors.
+func (c *DietaryTagClient) Interceptors() []Interceptor {
+	return c.inters.DietaryTag
+}
+
+func (c *DietaryTagClient) mutate(ctx context.Context, m *DietaryTagMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DietaryTagCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DietaryTagUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DietaryTagUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DietaryTagDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DietaryTag mutation op: %q", m.Op())
+	}
+}
+
+// MenuCategoryClient is a client for the MenuCategory schema.
+type MenuCategoryClient struct {
+	config
+}
+
+// NewMenuCategoryClient returns a client for the MenuCategory from the given config.
+func NewMenuCategoryClient(c config) *MenuCategoryClient {
+	return &MenuCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menucategory.Hooks(f(g(h())))`.
+func (c *MenuCategoryClient) Use(hooks ...Hook) {
+	c.hooks.MenuCategory = append(c.hooks.MenuCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menucategory.Intercept(f(g(h())))`.
+func (c *MenuCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuCategory = append(c.inters.MenuCategory, interceptors...)
+}
+
+// Create returns a builder for creating a MenuCategory entity.
+func (c *MenuCategoryClient) Create() *MenuCategoryCreate {
+	mutation := newMenuCategoryMutation(c.config, OpCreate)
+	return &MenuCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuCategory entities.
+func (c *MenuCategoryClient) CreateBulk(builders ...*MenuCategoryCreate) *MenuCategoryCreateBulk {
+	return &MenuCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuCategoryClient) MapCreateBulk(slice any, setFunc func(*MenuCategoryCreate, int)) *MenuCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuCategoryCreateBulk{err: fmt.Errorf("calling to MenuCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuCategory.
+func (c *MenuCategoryClient) Update() *MenuCategoryUpdate {
+	mutation := newMenuCategoryMutation(c.config, OpUpdate)
+	return &MenuCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuCategoryClient) UpdateOne(mc *MenuCategory) *MenuCategoryUpdateOne {
+	mutation := newMenuCategoryMutation(c.config, OpUpdateOne, withMenuCategory(mc))
+	return &MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuCategoryClient) UpdateOneID(id uuid.UUID) *MenuCategoryUpdateOne {
+	mutation := newMenuCategoryMutation(c.config, OpUpdateOne, withMenuCategoryID(id))
+	return &MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuCategory.
+func (c *MenuCategoryClient) Delete() *MenuCategoryDelete {
+	mutation := newMenuCategoryMutation(c.config, OpDelete)
+	return &MenuCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuCategoryClient) DeleteOne(mc *MenuCategory) *MenuCategoryDeleteOne {
+	return c.DeleteOneID(mc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuCategoryClient) DeleteOneID(id uuid.UUID) *MenuCategoryDeleteOne {
+	builder := c.Delete().Where(menucategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuCategory.
+func (c *MenuCategoryClient) Query() *MenuCategoryQuery {
+	return &MenuCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuCategory entity by its id.
+func (c *MenuCategoryClient) Get(ctx context.Context, id uuid.UUID) (*MenuCategory, error) {
+	return c.Query().Where(menucategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuCategoryClient) GetX(ctx context.Context, id uuid.UUID) *MenuCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryItems queries the items edge of a MenuCategory.
+func (c *MenuCategoryClient) QueryItems(mc *MenuCategory) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menucategory.ItemsTable, menucategory.ItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParent queries the parent edge of a MenuCategory.
+func (c *MenuCategoryClient) QueryParent(mc *MenuCategory) *MenuCategoryQuery {
+	query := (&MenuCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
+			sqlgraph.To(menucategory.Table, menucategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menucategory.ParentTable, menucategory.ParentColumn),
+		)
+		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChildren queries the children edge of a MenuCategory.
+func (c *MenuCategoryClient) QueryChildren(mc *MenuCategory) *MenuCategoryQuery {
+	query := (&MenuCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
+			sqlgraph.To(menucategory.Table, menucategory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menucategory.ChildrenTable, menucategory.ChildrenColumn),
+		)
+		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuCategoryClient) Hooks() []Hook {
+	return c.hooks.MenuCategory
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuCategoryClient) Interceptors() []Interceptor {
+	return c.inters.MenuCategory
+}
+
+func (c *MenuCategoryClient) mutate(ctx context.Context, m *MenuCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuCategory mutation op: %q", m.Op())
+	}
+}
+
+// MenuItemClient is a client for the MenuItem schema.
+type MenuItemClient struct {
+	config
+}
+
+// NewMenuItemClient returns a client for the MenuItem from the given config.
+func NewMenuItemClient(c config) *MenuItemClient {
+	return &MenuItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menuitem.Hooks(f(g(h())))`.
+func (c *MenuItemClient) Use(hooks ...Hook) {
+	c.hooks.MenuItem = append(c.hooks.MenuItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menuitem.Intercept(f(g(h())))`.
+func (c *MenuItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuItem = append(c.inters.MenuItem, interceptors...)
+}
+
+// Create returns a builder for creating a MenuItem entity.
+func (c *MenuItemClient) Create() *MenuItemCreate {
+	mutation := newMenuItemMutation(c.config, OpCreate)
+	return &MenuItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuItem entities.
+func (c *MenuItemClient) CreateBulk(builders ...*MenuItemCreate) *MenuItemCreateBulk {
+	return &MenuItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuItemClient) MapCreateBulk(slice any, setFunc func(*MenuItemCreate, int)) *MenuItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuItemCreateBulk{err: fmt.Errorf("calling to MenuItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuItem.
+func (c *MenuItemClient) Update() *MenuItemUpdate {
+	mutation := newMenuItemMutation(c.config, OpUpdate)
+	return &MenuItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuItemClient) UpdateOne(mi *MenuItem) *MenuItemUpdateOne {
+	mutation := newMenuItemMutation(c.config, OpUpdateOne, withMenuItem(mi))
+	return &MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuItemClient) UpdateOneID(id uuid.UUID) *MenuItemUpdateOne {
+	mutation := newMenuItemMutation(c.config, OpUpdateOne, withMenuItemID(id))
+	return &MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuItem.
+func (c *MenuItemClient) Delete() *MenuItemDelete {
+	mutation := newMenuItemMutation(c.config, OpDelete)
+	return &MenuItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuItemClient) DeleteOne(mi *MenuItem) *MenuItemDeleteOne {
+	return c.DeleteOneID(mi.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuItemClient) DeleteOneID(id uuid.UUID) *MenuItemDeleteOne {
+	builder := c.Delete().Where(menuitem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuItemDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuItem.
+func (c *MenuItemClient) Query() *MenuItemQuery {
+	return &MenuItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuItem entity by its id.
+func (c *MenuItemClient) Get(ctx context.Context, id uuid.UUID) (*MenuItem, error) {
+	return c.Query().Where(menuitem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuItemClient) GetX(ctx context.Context, id uuid.UUID) *MenuItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a MenuItem.
+func (c *MenuItemClient) QueryCategory(mi *MenuItem) *MenuCategoryQuery {
+	query := (&MenuCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(menucategory.Table, menucategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menuitem.CategoryTable, menuitem.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryVariants queries the variants edge of a MenuItem.
+func (c *MenuItemClient) QueryVariants(mi *MenuItem) *MenuItemVariantQuery {
+	query := (&MenuItemVariantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(menuitemvariant.Table, menuitemvariant.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.VariantsTable, menuitem.VariantsColumn),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTranslations queries the translations edge of a MenuItem.
+func (c *MenuItemClient) QueryTranslations(mi *MenuItem) *MenuItemTranslationQuery {
+	query := (&MenuItemTranslationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(menuitemtranslation.Table, menuitemtranslation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.TranslationsTable, menuitem.TranslationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDietaryTags queries the dietary_tags edge of a MenuItem.
+func (c *MenuItemClient) QueryDietaryTags(mi *MenuItem) *DietaryTagQuery {
+	query := (&DietaryTagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(dietarytag.Table, dietarytag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, menuitem.DietaryTagsTable, menuitem.DietaryTagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAssets queries the assets edge of a MenuItem.
+func (c *MenuItemClient) QueryAssets(mi *MenuItem) *MenuItemAssetQuery {
+	query := (&MenuItemAssetClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(menuitemasset.Table, menuitemasset.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.AssetsTable, menuitem.AssetsColumn),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySchedules queries the schedules edge of a MenuItem.
+func (c *MenuItemClient) QuerySchedules(mi *MenuItem) *MenuItemScheduleQuery {
+	query := (&MenuItemScheduleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
+			sqlgraph.To(menuitemschedule.Table, menuitemschedule.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.SchedulesTable, menuitem.SchedulesColumn),
+		)
+		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuItemClient) Hooks() []Hook {
+	return c.hooks.MenuItem
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuItemClient) Interceptors() []Interceptor {
+	return c.inters.MenuItem
+}
+
+func (c *MenuItemClient) mutate(ctx context.Context, m *MenuItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuItem mutation op: %q", m.Op())
+	}
+}
+
+// MenuItemAssetClient is a client for the MenuItemAsset schema.
+type MenuItemAssetClient struct {
+	config
+}
+
+// NewMenuItemAssetClient returns a client for the MenuItemAsset from the given config.
+func NewMenuItemAssetClient(c config) *MenuItemAssetClient {
+	return &MenuItemAssetClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menuitemasset.Hooks(f(g(h())))`.
+func (c *MenuItemAssetClient) Use(hooks ...Hook) {
+	c.hooks.MenuItemAsset = append(c.hooks.MenuItemAsset, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menuitemasset.Intercept(f(g(h())))`.
+func (c *MenuItemAssetClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuItemAsset = append(c.inters.MenuItemAsset, interceptors...)
+}
+
+// Create returns a builder for creating a MenuItemAsset entity.
+func (c *MenuItemAssetClient) Create() *MenuItemAssetCreate {
+	mutation := newMenuItemAssetMutation(c.config, OpCreate)
+	return &MenuItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuItemAsset entities.
+func (c *MenuItemAssetClient) CreateBulk(builders ...*MenuItemAssetCreate) *MenuItemAssetCreateBulk {
+	return &MenuItemAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuItemAssetClient) MapCreateBulk(slice any, setFunc func(*MenuItemAssetCreate, int)) *MenuItemAssetCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuItemAssetCreateBulk{err: fmt.Errorf("calling to MenuItemAssetClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuItemAssetCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuItemAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuItemAsset.
+func (c *MenuItemAssetClient) Update() *MenuItemAssetUpdate {
+	mutation := newMenuItemAssetMutation(c.config, OpUpdate)
+	return &MenuItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuItemAssetClient) UpdateOne(mia *MenuItemAsset) *MenuItemAssetUpdateOne {
+	mutation := newMenuItemAssetMutation(c.config, OpUpdateOne, withMenuItemAsset(mia))
+	return &MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuItemAssetClient) UpdateOneID(id uuid.UUID) *MenuItemAssetUpdateOne {
+	mutation := newMenuItemAssetMutation(c.config, OpUpdateOne, withMenuItemAssetID(id))
+	return &MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuItemAsset.
+func (c *MenuItemAssetClient) Delete() *MenuItemAssetDelete {
+	mutation := newMenuItemAssetMutation(c.config, OpDelete)
+	return &MenuItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuItemAssetClient) DeleteOne(mia *MenuItemAsset) *MenuItemAssetDeleteOne {
+	return c.DeleteOneID(mia.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuItemAssetClient) DeleteOneID(id uuid.UUID) *MenuItemAssetDeleteOne {
+	builder := c.Delete().Where(menuitemasset.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuItemAssetDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuItemAsset.
+func (c *MenuItemAssetClient) Query() *MenuItemAssetQuery {
+	return &MenuItemAssetQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuItemAsset},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuItemAsset entity by its id.
+func (c *MenuItemAssetClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemAsset, error) {
+	return c.Query().Where(menuitemasset.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuItemAssetClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemAsset {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenuItem queries the menu_item edge of a MenuItemAsset.
+func (c *MenuItemAssetClient) QueryMenuItem(mia *MenuItemAsset) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mia.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitemasset.Table, menuitemasset.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menuitemasset.MenuItemTable, menuitemasset.MenuItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(mia.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuItemAssetClient) Hooks() []Hook {
+	return c.hooks.MenuItemAsset
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuItemAssetClient) Interceptors() []Interceptor {
+	return c.inters.MenuItemAsset
+}
+
+func (c *MenuItemAssetClient) mutate(ctx context.Context, m *MenuItemAssetMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuItemAsset mutation op: %q", m.Op())
+	}
+}
+
+// MenuItemScheduleClient is a client for the MenuItemSchedule schema.
+type MenuItemScheduleClient struct {
+	config
+}
+
+// NewMenuItemScheduleClient returns a client for the MenuItemSchedule from the given config.
+func NewMenuItemScheduleClient(c config) *MenuItemScheduleClient {
+	return &MenuItemScheduleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menuitemschedule.Hooks(f(g(h())))`.
+func (c *MenuItemScheduleClient) Use(hooks ...Hook) {
+	c.hooks.MenuItemSchedule = append(c.hooks.MenuItemSchedule, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menuitemschedule.Intercept(f(g(h())))`.
+func (c *MenuItemScheduleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuItemSchedule = append(c.inters.MenuItemSchedule, interceptors...)
+}
+
+// Create returns a builder for creating a MenuItemSchedule entity.
+func (c *MenuItemScheduleClient) Create() *MenuItemScheduleCreate {
+	mutation := newMenuItemScheduleMutation(c.config, OpCreate)
+	return &MenuItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuItemSchedule entities.
+func (c *MenuItemScheduleClient) CreateBulk(builders ...*MenuItemScheduleCreate) *MenuItemScheduleCreateBulk {
+	return &MenuItemScheduleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuItemScheduleClient) MapCreateBulk(slice any, setFunc func(*MenuItemScheduleCreate, int)) *MenuItemScheduleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuItemScheduleCreateBulk{err: fmt.Errorf("calling to MenuItemScheduleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuItemScheduleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuItemScheduleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuItemSchedule.
+func (c *MenuItemScheduleClient) Update() *MenuItemScheduleUpdate {
+	mutation := newMenuItemScheduleMutation(c.config, OpUpdate)
+	return &MenuItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuItemScheduleClient) UpdateOne(mis *MenuItemSchedule) *MenuItemScheduleUpdateOne {
+	mutation := newMenuItemScheduleMutation(c.config, OpUpdateOne, withMenuItemSchedule(mis))
+	return &MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuItemScheduleClient) UpdateOneID(id uuid.UUID) *MenuItemScheduleUpdateOne {
+	mutation := newMenuItemScheduleMutation(c.config, OpUpdateOne, withMenuItemScheduleID(id))
+	return &MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuItemSchedule.
+func (c *MenuItemScheduleClient) Delete() *MenuItemScheduleDelete {
+	mutation := newMenuItemScheduleMutation(c.config, OpDelete)
+	return &MenuItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuItemScheduleClient) DeleteOne(mis *MenuItemSchedule) *MenuItemScheduleDeleteOne {
+	return c.DeleteOneID(mis.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuItemScheduleClient) DeleteOneID(id uuid.UUID) *MenuItemScheduleDeleteOne {
+	builder := c.Delete().Where(menuitemschedule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuItemScheduleDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuItemSchedule.
+func (c *MenuItemScheduleClient) Query() *MenuItemScheduleQuery {
+	return &MenuItemScheduleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuItemSchedule},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuItemSchedule entity by its id.
+func (c *MenuItemScheduleClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemSchedule, error) {
+	return c.Query().Where(menuitemschedule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuItemScheduleClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemSchedule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenuItem queries the menu_item edge of a MenuItemSchedule.
+func (c *MenuItemScheduleClient) QueryMenuItem(mis *MenuItemSchedule) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mis.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitemschedule.Table, menuitemschedule.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menuitemschedule.MenuItemTable, menuitemschedule.MenuItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(mis.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuItemScheduleClient) Hooks() []Hook {
+	return c.hooks.MenuItemSchedule
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuItemScheduleClient) Interceptors() []Interceptor {
+	return c.inters.MenuItemSchedule
+}
+
+func (c *MenuItemScheduleClient) mutate(ctx context.Context, m *MenuItemScheduleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuItemSchedule mutation op: %q", m.Op())
+	}
+}
+
+// MenuItemTranslationClient is a client for the MenuItemTranslation schema.
+type MenuItemTranslationClient struct {
+	config
+}
+
+// NewMenuItemTranslationClient returns a client for the MenuItemTranslation from the given config.
+func NewMenuItemTranslationClient(c config) *MenuItemTranslationClient {
+	return &MenuItemTranslationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menuitemtranslation.Hooks(f(g(h())))`.
+func (c *MenuItemTranslationClient) Use(hooks ...Hook) {
+	c.hooks.MenuItemTranslation = append(c.hooks.MenuItemTranslation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menuitemtranslation.Intercept(f(g(h())))`.
+func (c *MenuItemTranslationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuItemTranslation = append(c.inters.MenuItemTranslation, interceptors...)
+}
+
+// Create returns a builder for creating a MenuItemTranslation entity.
+func (c *MenuItemTranslationClient) Create() *MenuItemTranslationCreate {
+	mutation := newMenuItemTranslationMutation(c.config, OpCreate)
+	return &MenuItemTranslationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuItemTranslation entities.
+func (c *MenuItemTranslationClient) CreateBulk(builders ...*MenuItemTranslationCreate) *MenuItemTranslationCreateBulk {
+	return &MenuItemTranslationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuItemTranslationClient) MapCreateBulk(slice any, setFunc func(*MenuItemTranslationCreate, int)) *MenuItemTranslationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuItemTranslationCreateBulk{err: fmt.Errorf("calling to MenuItemTranslationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuItemTranslationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuItemTranslationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuItemTranslation.
+func (c *MenuItemTranslationClient) Update() *MenuItemTranslationUpdate {
+	mutation := newMenuItemTranslationMutation(c.config, OpUpdate)
+	return &MenuItemTranslationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuItemTranslationClient) UpdateOne(mit *MenuItemTranslation) *MenuItemTranslationUpdateOne {
+	mutation := newMenuItemTranslationMutation(c.config, OpUpdateOne, withMenuItemTranslation(mit))
+	return &MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuItemTranslationClient) UpdateOneID(id uuid.UUID) *MenuItemTranslationUpdateOne {
+	mutation := newMenuItemTranslationMutation(c.config, OpUpdateOne, withMenuItemTranslationID(id))
+	return &MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuItemTranslation.
+func (c *MenuItemTranslationClient) Delete() *MenuItemTranslationDelete {
+	mutation := newMenuItemTranslationMutation(c.config, OpDelete)
+	return &MenuItemTranslationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuItemTranslationClient) DeleteOne(mit *MenuItemTranslation) *MenuItemTranslationDeleteOne {
+	return c.DeleteOneID(mit.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuItemTranslationClient) DeleteOneID(id uuid.UUID) *MenuItemTranslationDeleteOne {
+	builder := c.Delete().Where(menuitemtranslation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuItemTranslationDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuItemTranslation.
+func (c *MenuItemTranslationClient) Query() *MenuItemTranslationQuery {
+	return &MenuItemTranslationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuItemTranslation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuItemTranslation entity by its id.
+func (c *MenuItemTranslationClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemTranslation, error) {
+	return c.Query().Where(menuitemtranslation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuItemTranslationClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemTranslation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenuItem queries the menu_item edge of a MenuItemTranslation.
+func (c *MenuItemTranslationClient) QueryMenuItem(mit *MenuItemTranslation) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mit.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitemtranslation.Table, menuitemtranslation.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menuitemtranslation.MenuItemTable, menuitemtranslation.MenuItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(mit.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuItemTranslationClient) Hooks() []Hook {
+	return c.hooks.MenuItemTranslation
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuItemTranslationClient) Interceptors() []Interceptor {
+	return c.inters.MenuItemTranslation
+}
+
+func (c *MenuItemTranslationClient) mutate(ctx context.Context, m *MenuItemTranslationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuItemTranslationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuItemTranslationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuItemTranslationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuItemTranslation mutation op: %q", m.Op())
+	}
+}
+
+// MenuItemVariantClient is a client for the MenuItemVariant schema.
+type MenuItemVariantClient struct {
+	config
+}
+
+// NewMenuItemVariantClient returns a client for the MenuItemVariant from the given config.
+func NewMenuItemVariantClient(c config) *MenuItemVariantClient {
+	return &MenuItemVariantClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menuitemvariant.Hooks(f(g(h())))`.
+func (c *MenuItemVariantClient) Use(hooks ...Hook) {
+	c.hooks.MenuItemVariant = append(c.hooks.MenuItemVariant, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menuitemvariant.Intercept(f(g(h())))`.
+func (c *MenuItemVariantClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MenuItemVariant = append(c.inters.MenuItemVariant, interceptors...)
+}
+
+// Create returns a builder for creating a MenuItemVariant entity.
+func (c *MenuItemVariantClient) Create() *MenuItemVariantCreate {
+	mutation := newMenuItemVariantMutation(c.config, OpCreate)
+	return &MenuItemVariantCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MenuItemVariant entities.
+func (c *MenuItemVariantClient) CreateBulk(builders ...*MenuItemVariantCreate) *MenuItemVariantCreateBulk {
+	return &MenuItemVariantCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuItemVariantClient) MapCreateBulk(slice any, setFunc func(*MenuItemVariantCreate, int)) *MenuItemVariantCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuItemVariantCreateBulk{err: fmt.Errorf("calling to MenuItemVariantClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuItemVariantCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuItemVariantCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MenuItemVariant.
+func (c *MenuItemVariantClient) Update() *MenuItemVariantUpdate {
+	mutation := newMenuItemVariantMutation(c.config, OpUpdate)
+	return &MenuItemVariantUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuItemVariantClient) UpdateOne(miv *MenuItemVariant) *MenuItemVariantUpdateOne {
+	mutation := newMenuItemVariantMutation(c.config, OpUpdateOne, withMenuItemVariant(miv))
+	return &MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuItemVariantClient) UpdateOneID(id uuid.UUID) *MenuItemVariantUpdateOne {
+	mutation := newMenuItemVariantMutation(c.config, OpUpdateOne, withMenuItemVariantID(id))
+	return &MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MenuItemVariant.
+func (c *MenuItemVariantClient) Delete() *MenuItemVariantDelete {
+	mutation := newMenuItemVariantMutation(c.config, OpDelete)
+	return &MenuItemVariantDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuItemVariantClient) DeleteOne(miv *MenuItemVariant) *MenuItemVariantDeleteOne {
+	return c.DeleteOneID(miv.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuItemVariantClient) DeleteOneID(id uuid.UUID) *MenuItemVariantDeleteOne {
+	builder := c.Delete().Where(menuitemvariant.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuItemVariantDeleteOne{builder}
+}
+
+// Query returns a query builder for MenuItemVariant.
+func (c *MenuItemVariantClient) Query() *MenuItemVariantQuery {
+	return &MenuItemVariantQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenuItemVariant},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MenuItemVariant entity by its id.
+func (c *MenuItemVariantClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemVariant, error) {
+	return c.Query().Where(menuitemvariant.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuItemVariantClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemVariant {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenuItem queries the menu_item edge of a MenuItemVariant.
+func (c *MenuItemVariantClient) QueryMenuItem(miv *MenuItemVariant) *MenuItemQuery {
+	query := (&MenuItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := miv.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menuitemvariant.Table, menuitemvariant.FieldID, id),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menuitemvariant.MenuItemTable, menuitemvariant.MenuItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(miv.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuItemVariantClient) Hooks() []Hook {
+	return c.hooks.MenuItemVariant
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuItemVariantClient) Interceptors() []Interceptor {
+	return c.inters.MenuItemVariant
+}
+
+func (c *MenuItemVariantClient) mutate(ctx context.Context, m *MenuItemVariantMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuItemVariantCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuItemVariantUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuItemVariantDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MenuItemVariant mutation op: %q", m.Op())
 	}
 }
 
@@ -2454,13 +3667,15 @@ func (c *UserProfileClient) mutate(ctx context.Context, m *UserProfileMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BackupCode, Device, OAuthAccount, Permission, Role, Session, Tenant,
-		TenantSetting, TenantSyncEvent, TwoFactorSetting, User, UserPreference,
-		UserProfile []ent.Hook
+		BackupCode, Device, DietaryTag, MenuCategory, MenuItem, MenuItemAsset,
+		MenuItemSchedule, MenuItemTranslation, MenuItemVariant, OAuthAccount,
+		Permission, Role, Session, Tenant, TenantSetting, TenantSyncEvent,
+		TwoFactorSetting, User, UserPreference, UserProfile []ent.Hook
 	}
 	inters struct {
-		BackupCode, Device, OAuthAccount, Permission, Role, Session, Tenant,
-		TenantSetting, TenantSyncEvent, TwoFactorSetting, User, UserPreference,
-		UserProfile []ent.Interceptor
+		BackupCode, Device, DietaryTag, MenuCategory, MenuItem, MenuItemAsset,
+		MenuItemSchedule, MenuItemTranslation, MenuItemVariant, OAuthAccount,
+		Permission, Role, Session, Tenant, TenantSetting, TenantSyncEvent,
+		TwoFactorSetting, User, UserPreference, UserProfile []ent.Interceptor
 	}
 )

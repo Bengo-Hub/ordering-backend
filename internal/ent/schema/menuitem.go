@@ -78,6 +78,7 @@ func (MenuItem) Edges() []ent.Edge {
 		edge.To("dietary_tags", DietaryTag.Type),
 		edge.To("assets", MenuItemAsset.Type),
 		edge.To("schedules", MenuItemSchedule.Type),
+		edge.To("cart_items", CartItem.Type),
 	}
 }
 

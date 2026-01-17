@@ -14,6 +14,13 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
+	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
@@ -85,19 +92,26 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			backupcode.Table:       backupcode.ValidColumn,
-			device.Table:           device.ValidColumn,
-			oauthaccount.Table:     oauthaccount.ValidColumn,
-			permission.Table:       permission.ValidColumn,
-			role.Table:             role.ValidColumn,
-			session.Table:          session.ValidColumn,
-			tenant.Table:           tenant.ValidColumn,
-			tenantsetting.Table:    tenantsetting.ValidColumn,
-			tenantsyncevent.Table:  tenantsyncevent.ValidColumn,
-			twofactorsetting.Table: twofactorsetting.ValidColumn,
-			user.Table:             user.ValidColumn,
-			userpreference.Table:   userpreference.ValidColumn,
-			userprofile.Table:      userprofile.ValidColumn,
+			backupcode.Table:          backupcode.ValidColumn,
+			device.Table:              device.ValidColumn,
+			dietarytag.Table:          dietarytag.ValidColumn,
+			menucategory.Table:        menucategory.ValidColumn,
+			menuitem.Table:            menuitem.ValidColumn,
+			menuitemasset.Table:       menuitemasset.ValidColumn,
+			menuitemschedule.Table:    menuitemschedule.ValidColumn,
+			menuitemtranslation.Table: menuitemtranslation.ValidColumn,
+			menuitemvariant.Table:     menuitemvariant.ValidColumn,
+			oauthaccount.Table:        oauthaccount.ValidColumn,
+			permission.Table:          permission.ValidColumn,
+			role.Table:                role.ValidColumn,
+			session.Table:             session.ValidColumn,
+			tenant.Table:              tenant.ValidColumn,
+			tenantsetting.Table:       tenantsetting.ValidColumn,
+			tenantsyncevent.Table:     tenantsyncevent.ValidColumn,
+			twofactorsetting.Table:    twofactorsetting.ValidColumn,
+			user.Table:                user.ValidColumn,
+			userpreference.Table:      userpreference.ValidColumn,
+			userprofile.Table:         userprofile.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

@@ -378,9 +378,9 @@
 
 See `docs/sprints/` folder for detailed sprint plans:
 - Sprint 0: Foundation ✅ **Completed** (Foundation, database, auth integration)
-- Sprint 1: Business Configuration 🚧 **In Progress** (Multi-business type support, workflow templates)
-- Sprint 2: Flexible Catalog ⏳ **Planned** (Item types, variants, modifiers, categories)
-- Sprint 3: Shopping Cart ⏳ **Planned** (Cart persistence, Redis caching, real-time calculations)
+- Sprint 1: Identity & Access ✅ **Completed** (Auth-service integration, RBAC, user sync)
+- Sprint 2: Catalog & Localization ✅ **Completed** (Categories, items, variants, translations, dietary tags)
+- Sprint 3: Shopping Cart 🚧 **Next** (Cart persistence, Redis caching, real-time calculations)
 - Sprint 4: Delivery Options ⏳ **Planned** (Zones, scheduling, dropoff methods, availability checks)
 - Sprint 5: Order Management ⏳ **Planned** (Order placement, state machine, tracking)
 - Sprint 6: Group Orders ⏳ **Planned** (Collaborative ordering, split payments)
@@ -388,22 +388,27 @@ See `docs/sprints/` folder for detailed sprint plans:
 - Sprint 8: Logistics Integration ⏳ **Planned** (Delivery tasks, live tracking, POD)
 - Sprint 9: Promo & Loyalty ⏳ **Planned** (Promo codes, loyalty points, rewards)
 - Sprint 10: Notifications ⏳ **Planned** (Order status notifications, marketing)
-- Sprint 11: Analytics & PWA ⏳ **Planned** (Dashboards, Ordering PWA development)
+- Sprint 11: Analytics & PWA ⏳ **Planned** (Dashboards, image upload, CDN, Ordering PWA)
 - Sprint 12: Launch & Hardening ⏳ **Planned** (Load testing, security audit, production deployment)
 
-## Current Implementation Status
+## Current Implementation Status (January 2026)
 
 **Implemented Modules:**
 - ✅ Foundation (server bootstrap, health checks, observability baseline)
-- ✅ Auth integration (JWT validation via auth-service, session management)
-- ✅ Basic multi-tenancy support
+- ✅ Auth integration (JWT validation via auth-service, user sync, superuser handling)
+- ✅ Multi-tenancy (tenant scoping, tenant sync via events)
+- ✅ RBAC (roles, permissions, cafe-specific role assignments)
+- ✅ Catalog module (categories, items, variants, translations, dietary tags, schedules)
+- ✅ Public menu API (locale-aware, no auth required)
+- ✅ Admin catalog API (RBAC-protected CRUD operations)
 
-**In Progress:**
-- 🚧 Business configuration module
-- 🚧 Flexible catalog schema design
+**Next Sprint (Sprint 3 - Shopping Cart):**
+- 🚧 Cart service with Redis caching
+- 🚧 Cart persistence to PostgreSQL
+- 🚧 Guest checkout support
+- 🚧 Cart-to-order conversion
 
 **Not Yet Implemented:**
-- ❌ Shopping cart
 - ❌ Delivery options and zone management
 - ❌ Order management and state machine
 - ❌ Group ordering
@@ -412,6 +417,7 @@ See `docs/sprints/` folder for detailed sprint plans:
 - ❌ Promo codes and loyalty
 - ❌ Notifications integration
 - ❌ Analytics and reporting
+- ❌ Image upload/CDN (deferred to Sprint 11)
 - ❌ Ordering PWA frontend
 
 ---

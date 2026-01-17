@@ -33,6 +33,90 @@ func (f DeviceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeviceMutation", m)
 }
 
+// The DietaryTagFunc type is an adapter to allow the use of ordinary
+// function as DietaryTag mutator.
+type DietaryTagFunc func(context.Context, *ent.DietaryTagMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DietaryTagFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DietaryTagMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DietaryTagMutation", m)
+}
+
+// The MenuCategoryFunc type is an adapter to allow the use of ordinary
+// function as MenuCategory mutator.
+type MenuCategoryFunc func(context.Context, *ent.MenuCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuCategoryMutation", m)
+}
+
+// The MenuItemFunc type is an adapter to allow the use of ordinary
+// function as MenuItem mutator.
+type MenuItemFunc func(context.Context, *ent.MenuItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemMutation", m)
+}
+
+// The MenuItemAssetFunc type is an adapter to allow the use of ordinary
+// function as MenuItemAsset mutator.
+type MenuItemAssetFunc func(context.Context, *ent.MenuItemAssetMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuItemAssetFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuItemAssetMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemAssetMutation", m)
+}
+
+// The MenuItemScheduleFunc type is an adapter to allow the use of ordinary
+// function as MenuItemSchedule mutator.
+type MenuItemScheduleFunc func(context.Context, *ent.MenuItemScheduleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuItemScheduleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuItemScheduleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemScheduleMutation", m)
+}
+
+// The MenuItemTranslationFunc type is an adapter to allow the use of ordinary
+// function as MenuItemTranslation mutator.
+type MenuItemTranslationFunc func(context.Context, *ent.MenuItemTranslationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuItemTranslationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuItemTranslationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemTranslationMutation", m)
+}
+
+// The MenuItemVariantFunc type is an adapter to allow the use of ordinary
+// function as MenuItemVariant mutator.
+type MenuItemVariantFunc func(context.Context, *ent.MenuItemVariantMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuItemVariantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MenuItemVariantMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemVariantMutation", m)
+}
+
 // The OAuthAccountFunc type is an adapter to allow the use of ordinary
 // function as OAuthAccount mutator.
 type OAuthAccountFunc func(context.Context, *ent.OAuthAccountMutation) (ent.Value, error)

@@ -7,6 +7,13 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
+	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
@@ -50,6 +57,374 @@ func init() {
 	deviceDescID := deviceFields[0].Descriptor()
 	// device.DefaultID holds the default value on creation for the id field.
 	device.DefaultID = deviceDescID.Default.(func() uuid.UUID)
+	dietarytagFields := schema.DietaryTag{}.Fields()
+	_ = dietarytagFields
+	// dietarytagDescCode is the schema descriptor for code field.
+	dietarytagDescCode := dietarytagFields[0].Descriptor()
+	// dietarytag.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	dietarytag.CodeValidator = func() func(string) error {
+		validators := dietarytagDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// dietarytagDescLabel is the schema descriptor for label field.
+	dietarytagDescLabel := dietarytagFields[1].Descriptor()
+	// dietarytag.LabelValidator is a validator for the "label" field. It is called by the builders before save.
+	dietarytag.LabelValidator = func() func(string) error {
+		validators := dietarytagDescLabel.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(label string) error {
+			for _, fn := range fns {
+				if err := fn(label); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// dietarytagDescIconURL is the schema descriptor for icon_url field.
+	dietarytagDescIconURL := dietarytagFields[3].Descriptor()
+	// dietarytag.IconURLValidator is a validator for the "icon_url" field. It is called by the builders before save.
+	dietarytag.IconURLValidator = dietarytagDescIconURL.Validators[0].(func(string) error)
+	// dietarytagDescCreatedAt is the schema descriptor for created_at field.
+	dietarytagDescCreatedAt := dietarytagFields[4].Descriptor()
+	// dietarytag.DefaultCreatedAt holds the default value on creation for the created_at field.
+	dietarytag.DefaultCreatedAt = dietarytagDescCreatedAt.Default.(func() time.Time)
+	menucategoryFields := schema.MenuCategory{}.Fields()
+	_ = menucategoryFields
+	// menucategoryDescName is the schema descriptor for name field.
+	menucategoryDescName := menucategoryFields[4].Descriptor()
+	// menucategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menucategory.NameValidator = func() func(string) error {
+		validators := menucategoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menucategoryDescDisplayOrder is the schema descriptor for display_order field.
+	menucategoryDescDisplayOrder := menucategoryFields[6].Descriptor()
+	// menucategory.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	menucategory.DefaultDisplayOrder = menucategoryDescDisplayOrder.Default.(int)
+	// menucategoryDescIsActive is the schema descriptor for is_active field.
+	menucategoryDescIsActive := menucategoryFields[7].Descriptor()
+	// menucategory.DefaultIsActive holds the default value on creation for the is_active field.
+	menucategory.DefaultIsActive = menucategoryDescIsActive.Default.(bool)
+	// menucategoryDescImageURL is the schema descriptor for image_url field.
+	menucategoryDescImageURL := menucategoryFields[8].Descriptor()
+	// menucategory.ImageURLValidator is a validator for the "image_url" field. It is called by the builders before save.
+	menucategory.ImageURLValidator = menucategoryDescImageURL.Validators[0].(func(string) error)
+	// menucategoryDescCreatedAt is the schema descriptor for created_at field.
+	menucategoryDescCreatedAt := menucategoryFields[9].Descriptor()
+	// menucategory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menucategory.DefaultCreatedAt = menucategoryDescCreatedAt.Default.(func() time.Time)
+	// menucategoryDescUpdatedAt is the schema descriptor for updated_at field.
+	menucategoryDescUpdatedAt := menucategoryFields[10].Descriptor()
+	// menucategory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menucategory.DefaultUpdatedAt = menucategoryDescUpdatedAt.Default.(func() time.Time)
+	// menucategory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menucategory.UpdateDefaultUpdatedAt = menucategoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menucategoryDescID is the schema descriptor for id field.
+	menucategoryDescID := menucategoryFields[0].Descriptor()
+	// menucategory.DefaultID holds the default value on creation for the id field.
+	menucategory.DefaultID = menucategoryDescID.Default.(func() uuid.UUID)
+	menuitemFields := schema.MenuItem{}.Fields()
+	_ = menuitemFields
+	// menuitemDescName is the schema descriptor for name field.
+	menuitemDescName := menuitemFields[4].Descriptor()
+	// menuitem.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menuitem.NameValidator = func() func(string) error {
+		validators := menuitemDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemDescBasePrice is the schema descriptor for base_price field.
+	menuitemDescBasePrice := menuitemFields[6].Descriptor()
+	// menuitem.BasePriceValidator is a validator for the "base_price" field. It is called by the builders before save.
+	menuitem.BasePriceValidator = menuitemDescBasePrice.Validators[0].(func(float64) error)
+	// menuitemDescCurrency is the schema descriptor for currency field.
+	menuitemDescCurrency := menuitemFields[7].Descriptor()
+	// menuitem.DefaultCurrency holds the default value on creation for the currency field.
+	menuitem.DefaultCurrency = menuitemDescCurrency.Default.(string)
+	// menuitem.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
+	menuitem.CurrencyValidator = menuitemDescCurrency.Validators[0].(func(string) error)
+	// menuitemDescIsAvailable is the schema descriptor for is_available field.
+	menuitemDescIsAvailable := menuitemFields[8].Descriptor()
+	// menuitem.DefaultIsAvailable holds the default value on creation for the is_available field.
+	menuitem.DefaultIsAvailable = menuitemDescIsAvailable.Default.(bool)
+	// menuitemDescImageURL is the schema descriptor for image_url field.
+	menuitemDescImageURL := menuitemFields[10].Descriptor()
+	// menuitem.ImageURLValidator is a validator for the "image_url" field. It is called by the builders before save.
+	menuitem.ImageURLValidator = menuitemDescImageURL.Validators[0].(func(string) error)
+	// menuitemDescSku is the schema descriptor for sku field.
+	menuitemDescSku := menuitemFields[12].Descriptor()
+	// menuitem.SkuValidator is a validator for the "sku" field. It is called by the builders before save.
+	menuitem.SkuValidator = menuitemDescSku.Validators[0].(func(string) error)
+	// menuitemDescDisplayOrder is the schema descriptor for display_order field.
+	menuitemDescDisplayOrder := menuitemFields[13].Descriptor()
+	// menuitem.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	menuitem.DefaultDisplayOrder = menuitemDescDisplayOrder.Default.(int)
+	// menuitemDescCreatedAt is the schema descriptor for created_at field.
+	menuitemDescCreatedAt := menuitemFields[14].Descriptor()
+	// menuitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitem.DefaultCreatedAt = menuitemDescCreatedAt.Default.(func() time.Time)
+	// menuitemDescUpdatedAt is the schema descriptor for updated_at field.
+	menuitemDescUpdatedAt := menuitemFields[15].Descriptor()
+	// menuitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menuitem.DefaultUpdatedAt = menuitemDescUpdatedAt.Default.(func() time.Time)
+	// menuitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menuitem.UpdateDefaultUpdatedAt = menuitemDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuitemDescID is the schema descriptor for id field.
+	menuitemDescID := menuitemFields[0].Descriptor()
+	// menuitem.DefaultID holds the default value on creation for the id field.
+	menuitem.DefaultID = menuitemDescID.Default.(func() uuid.UUID)
+	menuitemassetFields := schema.MenuItemAsset{}.Fields()
+	_ = menuitemassetFields
+	// menuitemassetDescAssetType is the schema descriptor for asset_type field.
+	menuitemassetDescAssetType := menuitemassetFields[2].Descriptor()
+	// menuitemasset.AssetTypeValidator is a validator for the "asset_type" field. It is called by the builders before save.
+	menuitemasset.AssetTypeValidator = func() func(string) error {
+		validators := menuitemassetDescAssetType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(asset_type string) error {
+			for _, fn := range fns {
+				if err := fn(asset_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemassetDescURL is the schema descriptor for url field.
+	menuitemassetDescURL := menuitemassetFields[3].Descriptor()
+	// menuitemasset.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	menuitemasset.URLValidator = func() func(string) error {
+		validators := menuitemassetDescURL.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(url string) error {
+			for _, fn := range fns {
+				if err := fn(url); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemassetDescDisplayOrder is the schema descriptor for display_order field.
+	menuitemassetDescDisplayOrder := menuitemassetFields[5].Descriptor()
+	// menuitemasset.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	menuitemasset.DefaultDisplayOrder = menuitemassetDescDisplayOrder.Default.(int)
+	// menuitemassetDescCreatedAt is the schema descriptor for created_at field.
+	menuitemassetDescCreatedAt := menuitemassetFields[6].Descriptor()
+	// menuitemasset.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitemasset.DefaultCreatedAt = menuitemassetDescCreatedAt.Default.(func() time.Time)
+	// menuitemassetDescID is the schema descriptor for id field.
+	menuitemassetDescID := menuitemassetFields[0].Descriptor()
+	// menuitemasset.DefaultID holds the default value on creation for the id field.
+	menuitemasset.DefaultID = menuitemassetDescID.Default.(func() uuid.UUID)
+	menuitemscheduleFields := schema.MenuItemSchedule{}.Fields()
+	_ = menuitemscheduleFields
+	// menuitemscheduleDescDayOfWeek is the schema descriptor for day_of_week field.
+	menuitemscheduleDescDayOfWeek := menuitemscheduleFields[2].Descriptor()
+	// menuitemschedule.DayOfWeekValidator is a validator for the "day_of_week" field. It is called by the builders before save.
+	menuitemschedule.DayOfWeekValidator = func() func(int) error {
+		validators := menuitemscheduleDescDayOfWeek.Validators
+		fns := [...]func(int) error{
+			validators[0].(func(int) error),
+			validators[1].(func(int) error),
+		}
+		return func(day_of_week int) error {
+			for _, fn := range fns {
+				if err := fn(day_of_week); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemscheduleDescTimeStart is the schema descriptor for time_start field.
+	menuitemscheduleDescTimeStart := menuitemscheduleFields[3].Descriptor()
+	// menuitemschedule.TimeStartValidator is a validator for the "time_start" field. It is called by the builders before save.
+	menuitemschedule.TimeStartValidator = func() func(string) error {
+		validators := menuitemscheduleDescTimeStart.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(time_start string) error {
+			for _, fn := range fns {
+				if err := fn(time_start); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemscheduleDescTimeEnd is the schema descriptor for time_end field.
+	menuitemscheduleDescTimeEnd := menuitemscheduleFields[4].Descriptor()
+	// menuitemschedule.TimeEndValidator is a validator for the "time_end" field. It is called by the builders before save.
+	menuitemschedule.TimeEndValidator = func() func(string) error {
+		validators := menuitemscheduleDescTimeEnd.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(time_end string) error {
+			for _, fn := range fns {
+				if err := fn(time_end); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemscheduleDescCreatedAt is the schema descriptor for created_at field.
+	menuitemscheduleDescCreatedAt := menuitemscheduleFields[5].Descriptor()
+	// menuitemschedule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitemschedule.DefaultCreatedAt = menuitemscheduleDescCreatedAt.Default.(func() time.Time)
+	// menuitemscheduleDescID is the schema descriptor for id field.
+	menuitemscheduleDescID := menuitemscheduleFields[0].Descriptor()
+	// menuitemschedule.DefaultID holds the default value on creation for the id field.
+	menuitemschedule.DefaultID = menuitemscheduleDescID.Default.(func() uuid.UUID)
+	menuitemtranslationFields := schema.MenuItemTranslation{}.Fields()
+	_ = menuitemtranslationFields
+	// menuitemtranslationDescLocale is the schema descriptor for locale field.
+	menuitemtranslationDescLocale := menuitemtranslationFields[2].Descriptor()
+	// menuitemtranslation.LocaleValidator is a validator for the "locale" field. It is called by the builders before save.
+	menuitemtranslation.LocaleValidator = func() func(string) error {
+		validators := menuitemtranslationDescLocale.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(locale string) error {
+			for _, fn := range fns {
+				if err := fn(locale); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemtranslationDescName is the schema descriptor for name field.
+	menuitemtranslationDescName := menuitemtranslationFields[3].Descriptor()
+	// menuitemtranslation.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menuitemtranslation.NameValidator = func() func(string) error {
+		validators := menuitemtranslationDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemtranslationDescCreatedAt is the schema descriptor for created_at field.
+	menuitemtranslationDescCreatedAt := menuitemtranslationFields[5].Descriptor()
+	// menuitemtranslation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitemtranslation.DefaultCreatedAt = menuitemtranslationDescCreatedAt.Default.(func() time.Time)
+	// menuitemtranslationDescUpdatedAt is the schema descriptor for updated_at field.
+	menuitemtranslationDescUpdatedAt := menuitemtranslationFields[6].Descriptor()
+	// menuitemtranslation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menuitemtranslation.DefaultUpdatedAt = menuitemtranslationDescUpdatedAt.Default.(func() time.Time)
+	// menuitemtranslation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menuitemtranslation.UpdateDefaultUpdatedAt = menuitemtranslationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuitemtranslationDescID is the schema descriptor for id field.
+	menuitemtranslationDescID := menuitemtranslationFields[0].Descriptor()
+	// menuitemtranslation.DefaultID holds the default value on creation for the id field.
+	menuitemtranslation.DefaultID = menuitemtranslationDescID.Default.(func() uuid.UUID)
+	menuitemvariantFields := schema.MenuItemVariant{}.Fields()
+	_ = menuitemvariantFields
+	// menuitemvariantDescName is the schema descriptor for name field.
+	menuitemvariantDescName := menuitemvariantFields[2].Descriptor()
+	// menuitemvariant.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menuitemvariant.NameValidator = func() func(string) error {
+		validators := menuitemvariantDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuitemvariantDescPriceDelta is the schema descriptor for price_delta field.
+	menuitemvariantDescPriceDelta := menuitemvariantFields[3].Descriptor()
+	// menuitemvariant.DefaultPriceDelta holds the default value on creation for the price_delta field.
+	menuitemvariant.DefaultPriceDelta = menuitemvariantDescPriceDelta.Default.(float64)
+	// menuitemvariantDescIsAvailable is the schema descriptor for is_available field.
+	menuitemvariantDescIsAvailable := menuitemvariantFields[4].Descriptor()
+	// menuitemvariant.DefaultIsAvailable holds the default value on creation for the is_available field.
+	menuitemvariant.DefaultIsAvailable = menuitemvariantDescIsAvailable.Default.(bool)
+	// menuitemvariantDescSku is the schema descriptor for sku field.
+	menuitemvariantDescSku := menuitemvariantFields[5].Descriptor()
+	// menuitemvariant.SkuValidator is a validator for the "sku" field. It is called by the builders before save.
+	menuitemvariant.SkuValidator = menuitemvariantDescSku.Validators[0].(func(string) error)
+	// menuitemvariantDescDisplayOrder is the schema descriptor for display_order field.
+	menuitemvariantDescDisplayOrder := menuitemvariantFields[6].Descriptor()
+	// menuitemvariant.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	menuitemvariant.DefaultDisplayOrder = menuitemvariantDescDisplayOrder.Default.(int)
+	// menuitemvariantDescCreatedAt is the schema descriptor for created_at field.
+	menuitemvariantDescCreatedAt := menuitemvariantFields[7].Descriptor()
+	// menuitemvariant.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitemvariant.DefaultCreatedAt = menuitemvariantDescCreatedAt.Default.(func() time.Time)
+	// menuitemvariantDescUpdatedAt is the schema descriptor for updated_at field.
+	menuitemvariantDescUpdatedAt := menuitemvariantFields[8].Descriptor()
+	// menuitemvariant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menuitemvariant.DefaultUpdatedAt = menuitemvariantDescUpdatedAt.Default.(func() time.Time)
+	// menuitemvariant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menuitemvariant.UpdateDefaultUpdatedAt = menuitemvariantDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuitemvariantDescID is the schema descriptor for id field.
+	menuitemvariantDescID := menuitemvariantFields[0].Descriptor()
+	// menuitemvariant.DefaultID holds the default value on creation for the id field.
+	menuitemvariant.DefaultID = menuitemvariantDescID.Default.(func() uuid.UUID)
 	oauthaccountFields := schema.OAuthAccount{}.Fields()
 	_ = oauthaccountFields
 	// oauthaccountDescProvider is the schema descriptor for provider field.

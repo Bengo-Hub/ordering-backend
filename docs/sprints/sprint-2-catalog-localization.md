@@ -1,7 +1,7 @@
 # Sprint 2 - Catalog & Localization
 
 **Duration**: Weeks 4-5
-**Status**: 🚧 In Progress (January 2026)
+**Status**: ✅ Complete (January 2026)
 
 ---
 
@@ -16,17 +16,37 @@
 | Ent schema: DietaryTag | ✅ Complete | `internal/ent/schema/dietarytag.go` |
 | Ent schema: MenuItemAsset | ✅ Complete | `internal/ent/schema/menuitemasset.go` |
 | Ent schema: MenuItemSchedule | ✅ Complete | `internal/ent/schema/menuitemschedule.go` |
-| Run Ent code generation | ⏳ Pending | `go generate ./ent` |
-| Run database migrations | ⏳ Pending | Apply Ent migrations |
-| Category CRUD endpoints | ⏳ Pending | |
-| Menu item CRUD endpoints | ⏳ Pending | |
-| Public menu API | ⏳ Pending | |
-| Localization support | ⏳ Pending | |
+| Run Ent code generation | ✅ Complete | Generated code in `internal/ent/` |
+| Run database migrations | ✅ Complete | Ent auto-migration on startup |
+| Category CRUD endpoints | ✅ Complete | `internal/http/handlers/catalog/category_handler.go` |
+| Menu item CRUD endpoints | ✅ Complete | `internal/http/handlers/catalog/item_handler.go` |
+| Variant management | ✅ Complete | Create/List variants per item |
+| Translation management | ✅ Complete | Multi-locale support (EN/SW) |
+| Dietary tag system | ✅ Complete | Tag management and item assignment |
+| Public menu API | ✅ Complete | `/api/v1/menu/*` endpoints |
+| Admin catalog API | ✅ Complete | `/api/v1/catalog/*` with RBAC |
+| Localization support | ✅ Complete | Locale-aware menu API |
+| Image upload | ⏳ Deferred | S3 integration (Sprint 11) |
+| CDN integration | ⏳ Deferred | CloudFront/CDN setup (Sprint 11) |
 
-**Next Steps**:
-1. Run `go generate ./ent` to generate Ent code
-2. Create database migrations
-3. Implement catalog module services and handlers
+**Implementation Summary**:
+- Full catalog module: `internal/modules/catalog/`
+- Service layer: `service.go` (679 lines of business logic)
+- Ent repository: `repository_ent.go` (967 lines)
+- Domain models: `domain.go`, errors: `errors.go`
+- HTTP handlers with RBAC: `internal/http/handlers/catalog/`
+- Routes wired into main router with permission checks
+
+**API Endpoints Implemented**:
+- `GET /api/v1/menu/categories` - Public categories
+- `GET /api/v1/menu/items` - Public menu items
+- `GET /api/v1/menu/items/{id}` - Public item details
+- `POST/GET/PUT/DELETE /api/v1/catalog/categories` - Admin category CRUD
+- `POST/GET/PUT/DELETE /api/v1/catalog/items` - Admin item CRUD
+- `POST/GET /api/v1/catalog/items/{id}/variants` - Variant management
+- `POST/GET /api/v1/catalog/items/{id}/translations` - Translations
+- `GET /api/v1/catalog/dietary-tags` - List dietary tags
+- `POST/DELETE /api/v1/catalog/items/{id}/dietary-tags` - Tag assignment
 
 ---
 

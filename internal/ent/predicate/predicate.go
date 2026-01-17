@@ -12,6 +12,27 @@ type BackupCode func(*sql.Selector)
 // Device is the predicate function for device builders.
 type Device func(*sql.Selector)
 
+// DietaryTag is the predicate function for dietarytag builders.
+type DietaryTag func(*sql.Selector)
+
+// MenuCategory is the predicate function for menucategory builders.
+type MenuCategory func(*sql.Selector)
+
+// MenuItem is the predicate function for menuitem builders.
+type MenuItem func(*sql.Selector)
+
+// MenuItemAsset is the predicate function for menuitemasset builders.
+type MenuItemAsset func(*sql.Selector)
+
+// MenuItemSchedule is the predicate function for menuitemschedule builders.
+type MenuItemSchedule func(*sql.Selector)
+
+// MenuItemTranslation is the predicate function for menuitemtranslation builders.
+type MenuItemTranslation func(*sql.Selector)
+
+// MenuItemVariant is the predicate function for menuitemvariant builders.
+type MenuItemVariant func(*sql.Selector)
+
 // OAuthAccount is the predicate function for oauthaccount builders.
 type OAuthAccount func(*sql.Selector)
 

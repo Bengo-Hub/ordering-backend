@@ -16,6 +16,20 @@ type Tx struct {
 	BackupCode *BackupCodeClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
+	// DietaryTag is the client for interacting with the DietaryTag builders.
+	DietaryTag *DietaryTagClient
+	// MenuCategory is the client for interacting with the MenuCategory builders.
+	MenuCategory *MenuCategoryClient
+	// MenuItem is the client for interacting with the MenuItem builders.
+	MenuItem *MenuItemClient
+	// MenuItemAsset is the client for interacting with the MenuItemAsset builders.
+	MenuItemAsset *MenuItemAssetClient
+	// MenuItemSchedule is the client for interacting with the MenuItemSchedule builders.
+	MenuItemSchedule *MenuItemScheduleClient
+	// MenuItemTranslation is the client for interacting with the MenuItemTranslation builders.
+	MenuItemTranslation *MenuItemTranslationClient
+	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
+	MenuItemVariant *MenuItemVariantClient
 	// OAuthAccount is the client for interacting with the OAuthAccount builders.
 	OAuthAccount *OAuthAccountClient
 	// Permission is the client for interacting with the Permission builders.
@@ -171,6 +185,13 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.BackupCode = NewBackupCodeClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
+	tx.DietaryTag = NewDietaryTagClient(tx.config)
+	tx.MenuCategory = NewMenuCategoryClient(tx.config)
+	tx.MenuItem = NewMenuItemClient(tx.config)
+	tx.MenuItemAsset = NewMenuItemAssetClient(tx.config)
+	tx.MenuItemSchedule = NewMenuItemScheduleClient(tx.config)
+	tx.MenuItemTranslation = NewMenuItemTranslationClient(tx.config)
+	tx.MenuItemVariant = NewMenuItemVariantClient(tx.config)
 	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)

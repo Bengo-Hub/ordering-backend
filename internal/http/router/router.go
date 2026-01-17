@@ -11,12 +11,13 @@ import (
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	sharedmw "github.com/bengobox/ordering-backend/internal/shared/middleware"
 )
 
 // New constructs the chi router with global middleware and base routes.
-func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware, allowedOrigins []string) http.Handler {
+func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler *identityhandler.Handler, catalogHandler *cataloghandler.Handler, authenticator *identityhandler.Authenticator, authMiddleware *authclient.AuthMiddleware, allowedOrigins []string) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -67,6 +68,11 @@ func New(log *zap.Logger, healthHandler *handlers.HealthHandler, identityHandler
 			// Auth endpoints (/auth/*) are registered without auth middleware
 			if identityHandler != nil && authenticator != nil {
 				identityHandler.Register(v1, authenticator)
+			}
+
+			// Register catalog routes (public menu + admin catalog)
+			if catalogHandler != nil && authenticator != nil {
+				catalogHandler.Register(v1, authenticator)
 			}
 		})
 	})

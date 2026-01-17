@@ -17,8 +17,10 @@ import (
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
+	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
@@ -139,7 +141,12 @@ func New(ctx context.Context) (*App, error) {
 	identityHandler := identityhandler.New(log, identitySvc)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
-	router := httprouter.New(log, healthHandler, identityHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
+	// Initialize catalog module
+	catalogRepo := catalog.NewEntRepository(ormClient)
+	catalogSvc := catalog.NewService(catalogRepo, log)
+	catalogHandler := cataloghandler.New(log, catalogSvc)
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

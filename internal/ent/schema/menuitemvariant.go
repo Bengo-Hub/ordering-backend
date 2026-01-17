@@ -56,6 +56,7 @@ func (MenuItemVariant) Edges() []ent.Edge {
 			Field("menu_item_id").
 			Unique().
 			Required(),
+		edge.To("cart_items", CartItem.Type),
 	}
 }
 

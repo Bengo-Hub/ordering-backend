@@ -45,6 +45,271 @@ var (
 		Columns:    DevicesColumns,
 		PrimaryKey: []*schema.Column{DevicesColumns[0]},
 	}
+	// DietaryTagsColumns holds the columns for the "dietary_tags" table.
+	DietaryTagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "code", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "label", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "icon_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// DietaryTagsTable holds the schema information for the "dietary_tags" table.
+	DietaryTagsTable = &schema.Table{
+		Name:       "dietary_tags",
+		Columns:    DietaryTagsColumns,
+		PrimaryKey: []*schema.Column{DietaryTagsColumns[0]},
+	}
+	// MenuCategoriesColumns holds the columns for the "menu_categories" table.
+	MenuCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "cafe_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "image_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// MenuCategoriesTable holds the schema information for the "menu_categories" table.
+	MenuCategoriesTable = &schema.Table{
+		Name:       "menu_categories",
+		Columns:    MenuCategoriesColumns,
+		PrimaryKey: []*schema.Column{MenuCategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_categories_menu_categories_children",
+				Columns:    []*schema.Column{MenuCategoriesColumns[10]},
+				RefColumns: []*schema.Column{MenuCategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menucategory_tenant_id_cafe_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuCategoriesColumns[1], MenuCategoriesColumns[2]},
+			},
+			{
+				Name:    "menucategory_tenant_id_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{MenuCategoriesColumns[1], MenuCategoriesColumns[6]},
+			},
+			{
+				Name:    "menucategory_display_order",
+				Unique:  false,
+				Columns: []*schema.Column{MenuCategoriesColumns[5]},
+			},
+		},
+	}
+	// MenuItemsColumns holds the columns for the "menu_items" table.
+	MenuItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "cafe_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "base_price", Type: field.TypeFloat64},
+		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
+		{Name: "is_available", Type: field.TypeBool, Default: true},
+		{Name: "lead_time_minutes", Type: field.TypeInt, Nullable: true},
+		{Name: "image_url", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "nutrition_json", Type: field.TypeJSON, Nullable: true},
+		{Name: "sku", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "category_id", Type: field.TypeUUID},
+	}
+	// MenuItemsTable holds the schema information for the "menu_items" table.
+	MenuItemsTable = &schema.Table{
+		Name:       "menu_items",
+		Columns:    MenuItemsColumns,
+		PrimaryKey: []*schema.Column{MenuItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_items_menu_categories_items",
+				Columns:    []*schema.Column{MenuItemsColumns[15]},
+				RefColumns: []*schema.Column{MenuCategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitem_tenant_id_cafe_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[1], MenuItemsColumns[2]},
+			},
+			{
+				Name:    "menuitem_tenant_id_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[1], MenuItemsColumns[15]},
+			},
+			{
+				Name:    "menuitem_tenant_id_is_available",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[1], MenuItemsColumns[7]},
+			},
+			{
+				Name:    "menuitem_sku",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[11]},
+			},
+			{
+				Name:    "menuitem_display_order",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[12]},
+			},
+		},
+	}
+	// MenuItemAssetsColumns holds the columns for the "menu_item_assets" table.
+	MenuItemAssetsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "asset_type", Type: field.TypeString, Size: 50},
+		{Name: "url", Type: field.TypeString, Size: 500},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+	}
+	// MenuItemAssetsTable holds the schema information for the "menu_item_assets" table.
+	MenuItemAssetsTable = &schema.Table{
+		Name:       "menu_item_assets",
+		Columns:    MenuItemAssetsColumns,
+		PrimaryKey: []*schema.Column{MenuItemAssetsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_item_assets_menu_items_assets",
+				Columns:    []*schema.Column{MenuItemAssetsColumns[6]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitemasset_menu_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemAssetsColumns[6]},
+			},
+			{
+				Name:    "menuitemasset_asset_type",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemAssetsColumns[1]},
+			},
+		},
+	}
+	// MenuItemSchedulesColumns holds the columns for the "menu_item_schedules" table.
+	MenuItemSchedulesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "day_of_week", Type: field.TypeInt},
+		{Name: "time_start", Type: field.TypeString, Size: 5},
+		{Name: "time_end", Type: field.TypeString, Size: 5},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+	}
+	// MenuItemSchedulesTable holds the schema information for the "menu_item_schedules" table.
+	MenuItemSchedulesTable = &schema.Table{
+		Name:       "menu_item_schedules",
+		Columns:    MenuItemSchedulesColumns,
+		PrimaryKey: []*schema.Column{MenuItemSchedulesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_item_schedules_menu_items_schedules",
+				Columns:    []*schema.Column{MenuItemSchedulesColumns[5]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitemschedule_menu_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemSchedulesColumns[5]},
+			},
+			{
+				Name:    "menuitemschedule_day_of_week",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemSchedulesColumns[1]},
+			},
+		},
+	}
+	// MenuItemTranslationsColumns holds the columns for the "menu_item_translations" table.
+	MenuItemTranslationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "locale", Type: field.TypeString, Size: 5},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+	}
+	// MenuItemTranslationsTable holds the schema information for the "menu_item_translations" table.
+	MenuItemTranslationsTable = &schema.Table{
+		Name:       "menu_item_translations",
+		Columns:    MenuItemTranslationsColumns,
+		PrimaryKey: []*schema.Column{MenuItemTranslationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_item_translations_menu_items_translations",
+				Columns:    []*schema.Column{MenuItemTranslationsColumns[6]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitemtranslation_menu_item_id_locale",
+				Unique:  true,
+				Columns: []*schema.Column{MenuItemTranslationsColumns[6], MenuItemTranslationsColumns[1]},
+			},
+		},
+	}
+	// MenuItemVariantsColumns holds the columns for the "menu_item_variants" table.
+	MenuItemVariantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "price_delta", Type: field.TypeFloat64, Default: 0},
+		{Name: "is_available", Type: field.TypeBool, Default: true},
+		{Name: "sku", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "menu_item_id", Type: field.TypeUUID},
+	}
+	// MenuItemVariantsTable holds the schema information for the "menu_item_variants" table.
+	MenuItemVariantsTable = &schema.Table{
+		Name:       "menu_item_variants",
+		Columns:    MenuItemVariantsColumns,
+		PrimaryKey: []*schema.Column{MenuItemVariantsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_item_variants_menu_items_variants",
+				Columns:    []*schema.Column{MenuItemVariantsColumns[8]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitemvariant_menu_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemVariantsColumns[8]},
+			},
+			{
+				Name:    "menuitemvariant_sku",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemVariantsColumns[4]},
+			},
+			{
+				Name:    "menuitemvariant_is_available",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemVariantsColumns[3]},
+			},
+		},
+	}
 	// OauthAccountsColumns holds the columns for the "oauth_accounts" table.
 	OauthAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -329,6 +594,31 @@ var (
 			},
 		},
 	}
+	// MenuItemDietaryTagsColumns holds the columns for the "menu_item_dietary_tags" table.
+	MenuItemDietaryTagsColumns = []*schema.Column{
+		{Name: "menu_item_id", Type: field.TypeUUID},
+		{Name: "dietary_tag_id", Type: field.TypeInt},
+	}
+	// MenuItemDietaryTagsTable holds the schema information for the "menu_item_dietary_tags" table.
+	MenuItemDietaryTagsTable = &schema.Table{
+		Name:       "menu_item_dietary_tags",
+		Columns:    MenuItemDietaryTagsColumns,
+		PrimaryKey: []*schema.Column{MenuItemDietaryTagsColumns[0], MenuItemDietaryTagsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_item_dietary_tags_menu_item_id",
+				Columns:    []*schema.Column{MenuItemDietaryTagsColumns[0]},
+				RefColumns: []*schema.Column{MenuItemsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "menu_item_dietary_tags_dietary_tag_id",
+				Columns:    []*schema.Column{MenuItemDietaryTagsColumns[1]},
+				RefColumns: []*schema.Column{DietaryTagsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeString},
@@ -408,6 +698,13 @@ var (
 	Tables = []*schema.Table{
 		BackupCodesTable,
 		DevicesTable,
+		DietaryTagsTable,
+		MenuCategoriesTable,
+		MenuItemsTable,
+		MenuItemAssetsTable,
+		MenuItemSchedulesTable,
+		MenuItemTranslationsTable,
+		MenuItemVariantsTable,
 		OauthAccountsTable,
 		PermissionsTable,
 		RolesTable,
@@ -419,6 +716,7 @@ var (
 		UsersTable,
 		UserPreferencesTable,
 		UserProfilesTable,
+		MenuItemDietaryTagsTable,
 		RolePermissionsTable,
 		UserRolesTable,
 		UserDevicesTable,
@@ -427,6 +725,12 @@ var (
 
 func init() {
 	BackupCodesTable.ForeignKeys[0].RefTable = UsersTable
+	MenuCategoriesTable.ForeignKeys[0].RefTable = MenuCategoriesTable
+	MenuItemsTable.ForeignKeys[0].RefTable = MenuCategoriesTable
+	MenuItemAssetsTable.ForeignKeys[0].RefTable = MenuItemsTable
+	MenuItemSchedulesTable.ForeignKeys[0].RefTable = MenuItemsTable
+	MenuItemTranslationsTable.ForeignKeys[0].RefTable = MenuItemsTable
+	MenuItemVariantsTable.ForeignKeys[0].RefTable = MenuItemsTable
 	OauthAccountsTable.ForeignKeys[0].RefTable = UsersTable
 	SessionsTable.ForeignKeys[0].RefTable = TenantsTable
 	SessionsTable.ForeignKeys[1].RefTable = UsersTable
@@ -436,6 +740,8 @@ func init() {
 	UsersTable.ForeignKeys[1].RefTable = TwoFactorSettingsTable
 	UserPreferencesTable.ForeignKeys[0].RefTable = UsersTable
 	UserProfilesTable.ForeignKeys[0].RefTable = UsersTable
+	MenuItemDietaryTagsTable.ForeignKeys[0].RefTable = MenuItemsTable
+	MenuItemDietaryTagsTable.ForeignKeys[1].RefTable = DietaryTagsTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
