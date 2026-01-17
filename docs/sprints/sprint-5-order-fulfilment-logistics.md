@@ -1,7 +1,7 @@
 # Sprint 5 - Order Fulfilment & Logistics Integration
 
-**Duration**: Weeks 10-11  
-**Status**: ⏳ Not Started
+**Duration**: Weeks 10-11
+**Status**: 🚧 In Progress
 
 ---
 
@@ -38,60 +38,60 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 ## User Stories
 
 ### US-5.1: Delivery Task Creation
-**As a** cafe administrator  
-**I want** to create delivery tasks when orders are ready  
+**As a** cafe administrator
+**I want** to create delivery tasks when orders are ready
 **So that** riders can pick up and deliver orders
 
 **Acceptance Criteria**:
-- [ ] Automatic task creation on order ready
-- [ ] Manual task creation option
-- [ ] Task details include order and delivery address
-- [ ] Task status tracking
+- [ ] Automatic task creation on order ready (requires order service integration)
+- [x] Manual task creation option (`POST /{tenant}/orders/{id}/delivery/create-task`)
+- [x] Task details include order and delivery address
+- [x] Task status tracking (via `OrderAssignment` entity)
 
 ### US-5.2: Task Status Updates
-**As a** customer  
-**I want** to see real-time order status updates  
+**As a** customer
+**I want** to see real-time order status updates
 **So that** I know when my order will arrive
 
 **Acceptance Criteria**:
-- [ ] Order status updates from logistics events
-- [ ] Status timeline display
-- [ ] ETA updates
-- [ ] Delivery confirmation
+- [x] Order status updates from logistics events (webhook handlers)
+- [x] Status timeline display (via assignment status history)
+- [x] ETA updates (via `DeliveryWindow` entity)
+- [x] Delivery confirmation (via `ProofOfDelivery` entity)
 
 ### US-5.3: Live Driver Tracking
-**As a** customer  
-**I want** to see my driver's location in real-time  
+**As a** customer
+**I want** to see my driver's location in real-time
 **So that** I can track my delivery
 
 **Acceptance Criteria**:
-- [ ] WebSocket connection to logistics service
-- [ ] Real-time location updates
-- [ ] Map display with driver location
-- [ ] ETA calculation based on location
+- [ ] WebSocket connection to logistics service (deferred)
+- [x] Real-time location updates (via REST API polling: `GET /{tenant}/orders/{id}/delivery/tracking`)
+- [ ] Map display with driver location (frontend)
+- [x] ETA calculation based on location (via logistics service tracking API)
 
 ### US-5.4: Rider Information
-**As a** customer  
-**I want** to see rider information  
+**As a** customer
+**I want** to see rider information
 **So that** I can contact the rider if needed
 
 **Acceptance Criteria**:
-- [ ] Query rider details from logistics-service API (`GET /v1/{tenant}/fleet-members/{id}`)
-- [ ] Rider contact information (from logistics-service)
-- [ ] Rider rating display (from logistics-service)
-- [ ] Rider photo display (from logistics-service)
+- [x] Query rider details from logistics-service API (`GET /v1/{tenant}/fleet-members/{id}`)
+- [x] Rider contact information (from logistics-service via `GetFleetMember`)
+- [x] Rider rating display (from logistics-service via `GetFleetMember`)
+- [x] Rider photo display (from logistics-service via `GetFleetMember`)
 - **Note**: All rider data comes from logistics-service, cafe backend only stores `rider_id` reference
 
 ### US-5.5: Proof of Delivery
-**As a** cafe administrator  
-**I want** to receive proof of delivery  
+**As a** cafe administrator
+**I want** to receive proof of delivery
 **So that** I can confirm order completion
 
 **Acceptance Criteria**:
-- [ ] PoD artifacts (signature, photo, OTP)
-- [ ] PoD storage and retrieval
-- [ ] PoD display in order details
-- [ ] PoD validation
+- [x] PoD artifacts (signature, photo, OTP) - via `ProofOfDelivery` entity
+- [x] PoD storage and retrieval (via webhook handler and repository)
+- [ ] PoD display in order details (frontend)
+- [x] PoD validation (signature verification, OTP verified flag)
 
 ---
 
@@ -227,14 +227,14 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 
 ## Deliverables
 
-- [ ] Logistics service REST API client
-- [ ] Delivery task creation
-- [ ] Task status event handlers
-- [ ] WebSocket client for live tracking
-- [ ] Rider information queries (via logistics-service API, not stored locally)
-- [ ] Proof of delivery handling
-- [ ] Order status updates from logistics
-- [ ] Database migrations
+- [x] Logistics service REST API client (`internal/platform/logistics/client.go`)
+- [x] Delivery task creation (`internal/modules/fulfilment/task_service.go`)
+- [x] Task status event handlers (`internal/modules/fulfilment/webhook_service.go`)
+- [ ] WebSocket client for live tracking (deferred - requires logistics service WebSocket support)
+- [x] Rider information queries (via logistics-service API, not stored locally)
+- [x] Proof of delivery handling (`internal/modules/fulfilment/webhook_service.go`)
+- [x] Order status updates from logistics (via webhook events)
+- [x] Database migrations (Ent schemas auto-migrate)
 - [ ] Integration tests
 
 ---

@@ -12,6 +12,7 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
+	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
@@ -31,7 +32,9 @@ func New(
 	addressHandler *orderinghandler.AddressHandler,
 	paymentHandler *paymentshandler.PaymentHandler,
 	paymentMethodHandler *paymentshandler.PaymentMethodHandler,
-	webhookHandler *paymentshandler.WebhookHandler,
+	paymentWebhookHandler *paymentshandler.WebhookHandler,
+	fulfilmentTaskHandler *fulfilmenthandler.TaskHandler,
+	fulfilmentWebhookHandler *fulfilmenthandler.WebhookHandler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	allowedOrigins []string,
@@ -121,9 +124,17 @@ func New(
 				}
 			}
 
+			// Register fulfilment routes (delivery tasks, tracking)
+			if fulfilmentTaskHandler != nil {
+				fulfilmentTaskHandler.Register(v1, authenticator)
+			}
+
 			// Webhook routes (no auth required - use signature verification)
-			if webhookHandler != nil {
-				webhookHandler.Register(v1)
+			if paymentWebhookHandler != nil {
+				paymentWebhookHandler.Register(v1)
+			}
+			if fulfilmentWebhookHandler != nil {
+				fulfilmentWebhookHandler.Register(v1)
 			}
 		})
 	})

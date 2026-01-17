@@ -382,8 +382,8 @@ See `docs/sprints/` folder for detailed sprint plans:
 - Sprint 2: Catalog & Localization ✅ **Completed** (Categories, items, variants, translations, dietary tags)
 - Sprint 3: Orders & Cart ✅ **Completed** (Cart, checkout, orders, promo codes, loyalty, addresses)
 - Sprint 4: Payments Core ✅ **Completed** (Treasury integration, payment webhooks, refunds, M-Pesa STK Push)
-- Sprint 5: Order Fulfilment & Logistics 🚧 **Next** (Logistics integration, delivery tasks, live tracking)
-- Sprint 6: Notifications & Ops ⏳ **Planned** (Order status notifications, marketing)
+- Sprint 5: Order Fulfilment & Logistics 🚧 **In Progress** (Logistics integration, delivery tasks, live tracking)
+- Sprint 6: Notifications & Ops ⏳ **Next** (Order status notifications, marketing)
 - Sprint 7: Analytics, Compliance & Hardening ⏳ **Planned** (Dashboards, security audit, compliance)
 - Sprint 8: Launch & Handover ⏳ **Planned** (Load testing, production deployment)
 
@@ -407,11 +407,23 @@ See `docs/sprints/` folder for detailed sprint plans:
 - ✅ Webhook processing (treasury webhooks, signature verification)
 - ✅ Refund processing (initiate, track, partial refunds)
 
-**Next Sprint (Sprint 5 - Order Fulfilment & Logistics):**
-- 🚧 Logistics service integration
-- 🚧 Delivery task creation
-- 🚧 Task status consumption
-- 🚧 Live driver tracking (WebSocket/SSE)
+**Current Sprint (Sprint 5 - Order Fulfilment & Logistics):**
+- ✅ Logistics service REST API client (`internal/platform/logistics/client.go`)
+- ✅ Delivery task creation (`POST /{tenant}/orders/{id}/delivery/create-task`)
+- ✅ Task status consumption (webhook handlers for all logistics events)
+- ✅ Fulfilment module (task service, webhook service, repository)
+- ✅ Ent schemas (OrderAssignment, DeliveryWindow, ProofOfDelivery, LogisticsEvent)
+- ✅ Rider information queries (via logistics service API)
+- ✅ Proof of delivery handling (webhook events, storage)
+- ✅ Tracking endpoint (`GET /{tenant}/orders/{id}/delivery/tracking`)
+- ⏳ WebSocket client for live tracking (deferred - requires logistics service support)
+- ⏳ Integration tests
+
+**Next Sprint (Sprint 6 - Notifications & Ops):**
+- 🚧 Order status notifications
+- 🚧 Marketing campaigns
+- 🚧 SLA monitoring
+- 🚧 Issue escalation
 
 **Not Yet Implemented:**
 - ❌ Delivery options and zone management

@@ -18,17 +18,20 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
+	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
+	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
+	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
 )
@@ -171,14 +174,24 @@ func New(ctx context.Context) (*App, error) {
 	paymentsRepo := payments.NewEntRepository(ormClient)
 	paymentSvc := payments.NewPaymentService(paymentsRepo, treasuryClient, log)
 	paymentMethodSvc := payments.NewPaymentMethodService(paymentsRepo, log)
-	webhookSvc := payments.NewWebhookService(paymentsRepo, cfg.Treasury.WebhookSecret, log)
+	paymentWebhookSvc := payments.NewWebhookService(paymentsRepo, cfg.Treasury.WebhookSecret, log)
 
 	// Create payment handlers
 	paymentHandler := paymentshandler.NewPaymentHandler(log, paymentSvc)
 	paymentMethodHandler := paymentshandler.NewPaymentMethodHandler(log, paymentMethodSvc)
-	webhookHandler := paymentshandler.NewWebhookHandler(log, webhookSvc)
+	paymentWebhookHandler := paymentshandler.NewWebhookHandler(log, paymentWebhookSvc)
 
-	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, webhookHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
+	// Initialize fulfilment module
+	logisticsClient := logistics.NewClient(cfg.Logistics, log)
+	fulfilmentRepo := fulfilment.NewEntRepository(ormClient)
+	taskSvc := fulfilment.NewTaskService(fulfilmentRepo, logisticsClient, log)
+	fulfilmentWebhookSvc := fulfilment.NewWebhookService(fulfilmentRepo, cfg.Logistics.WebhookSecret, log)
+
+	// Create fulfilment handlers
+	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc)
+	fulfilmentWebhookHandler := fulfilmenthandler.NewWebhookHandler(log, fulfilmentWebhookSvc)
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
