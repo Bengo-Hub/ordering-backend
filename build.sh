@@ -127,18 +127,22 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   else
     warn "PostgreSQL not found in infra namespace - skipping database creation"
   fi
-  
-  log_info "Setting up environment secrets from existing databases"
-  if [[ -f "scripts/setup_env_secrets.sh" ]]; then
-    chmod +x scripts/setup_env_secrets.sh
-    VALIDATION_OUTPUT=$(./scripts/setup_env_secrets.sh) || { log_error "Environment secret setup failed"; exit 1; }
-    log_success "Environment secrets configured successfully"
+fi
+
+# Create service secrets using devops-k8s script if not exists
+if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
+  if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
+    log "Creating secrets for ${APP_NAME} using devops-k8s script..."
+    SERVICE_NAME="$APP_NAME" \
+    NAMESPACE="$NAMESPACE" \
+    DB_NAME="$SERVICE_DB_NAME" \
+    DB_USER="$SERVICE_DB_USER" \
+    SECRET_NAME="$ENV_SECRET_NAME" \
+    bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed or already exists"
   else
-    log_error "scripts/setup_env_secrets.sh not found"
-    exit 1
+    warn "Secret $ENV_SECRET_NAME not found and create-service-secrets.sh not available"
+    warn "Please create the secret manually or ensure devops-k8s repo is cloned"
   fi
-else
-  warn "No KUBE_CONFIG available - skipping database and secret setup"
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
