@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"regexp"
 	"time"
 
 	"entgo.io/ent/dialect"
@@ -15,21 +16,30 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 )
 
+// maskPassword masks the password in a database URL for logging
+func maskPassword(url string) string {
+	re := regexp.MustCompile(`://([^:]+):([^@]+)@`)
+	return re.ReplaceAllString(url, "://$1:****@")
+}
+
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	cfg, err := config.Load()
+	// Use LoadDatabaseOnly to avoid OAuth validation failures
+	dbCfg, err := config.LoadDatabaseOnly()
 	if err != nil {
-		log.Fatalf("load config: %v", err)
+		log.Fatalf("load database config: %v", err)
 	}
 
-	db, err := sql.Open("pgx", cfg.Postgres.URL)
+	log.Printf("connecting to database: %s", maskPassword(dbCfg.URL))
+
+	db, err := sql.Open("pgx", dbCfg.URL)
 	if err != nil {
 		log.Fatalf("open ent driver: %v", err)
 	}
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(dbCfg.MaxIdleConns)
+	db.SetMaxOpenConns(dbCfg.MaxOpenConns)
 	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	drv := entsql.OpenDB(dialect.Postgres, db)

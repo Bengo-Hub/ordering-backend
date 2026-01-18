@@ -177,3 +177,24 @@ func Load() (*Config, error) {
 
 	return &cfg, nil
 }
+
+// LoadDatabaseOnly loads only database configuration for migration/setup-db commands.
+// This avoids validation errors for OAuth, secrets, etc. that aren't needed for migrations.
+func LoadDatabaseOnly() (PostgresConfig, error) {
+	_ = godotenv.Load()
+
+	type dbOnlyConfig struct {
+		Postgres PostgresConfig `envconfig:""`
+	}
+
+	cfg := &dbOnlyConfig{}
+	if err := envconfig.Process(namespace, cfg); err != nil {
+		return PostgresConfig{}, fmt.Errorf("config: failed to load database config: %w", err)
+	}
+
+	if cfg.Postgres.URL == "" {
+		return PostgresConfig{}, fmt.Errorf("ORDERING_POSTGRES_URL or ORDERING_DB_URL is required")
+	}
+
+	return cfg.Postgres, nil
+}
