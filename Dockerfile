@@ -1,22 +1,25 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.23-bookworm AS builder
+FROM golang:1.23-alpine AS builder
 WORKDIR /src
+RUN apk add --no-cache git ca-certificates
 COPY go.mod go.sum ./
 
 RUN GOTOOLCHAIN=auto go mod download
 COPY . .
 # Build all binaries: api, migrate, and seed
-RUN GOTOOLCHAIN=auto CGO_ENABLED=0 go build -o /out/app ./cmd/api && \
-    GOTOOLCHAIN=auto CGO_ENABLED=0 go build -o /out/migrate ./cmd/migrate && \
-    GOTOOLCHAIN=auto CGO_ENABLED=0 go build -o /out/seed ./cmd/seed
+RUN GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-backend ./cmd/api && \
+    GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-migrate ./cmd/migrate && \
+    GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-seed ./cmd/seed
 
-FROM gcr.io/distroless/base-debian12
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata && addgroup -S app && adduser -S app -G app
 WORKDIR /app
-COPY --from=builder /out/app /app/service
-COPY --from=builder /out/migrate /app/migrate
-COPY --from=builder /out/seed /app/seed
-USER nonroot:nonroot
+# Copy all binaries to well-known locations
+COPY --from=builder /bin/ordering-backend /usr/local/bin/ordering-backend
+COPY --from=builder /bin/ordering-migrate /usr/local/bin/ordering-migrate
+COPY --from=builder /bin/ordering-seed /usr/local/bin/ordering-seed
+USER app
 EXPOSE 4000
 ENV PORT=4000
-ENTRYPOINT ["/app/service"]
+ENTRYPOINT ["/usr/local/bin/ordering-backend"]
