@@ -9,7 +9,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-log() { echo -e "${BLUE}[INFO]${NC} $1"; }
+info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
@@ -42,9 +42,9 @@ else
   GIT_COMMIT_ID=${GITHUB_SHA::8}
 fi
 
-log "Service : ${APP_NAME}"
-log "Namespace: ${NAMESPACE}"
-log "Image   : ${IMAGE_REPO}:${GIT_COMMIT_ID}"
+info "Service : ${APP_NAME}"
+info "Namespace: ${NAMESPACE}"
+info "Image   : ${IMAGE_REPO}:${GIT_COMMIT_ID}"
 
 for tool in git docker trivy; do
   command -v "$tool" >/dev/null || { error "$tool is required"; exit 1; }
@@ -56,10 +56,10 @@ if [[ ${DEPLOY} == "true" ]]; then
 fi
 success "Prerequisite checks passed"
 
-log "Running Trivy filesystem scan"
+info "Running Trivy filesystem scan"
 trivy fs . --exit-code "$TRIVY_ECODE" --format table --skip-dirs vendor || true
 
-log "Building Docker image"
+info "Building Docker image"
 DOCKER_BUILDKIT=1 docker build . -t "${IMAGE_REPO}:${GIT_COMMIT_ID}"
 success "Docker build complete"
 
@@ -85,7 +85,7 @@ fi
 kubectl get ns "$NAMESPACE" >/dev/null 2>&1 || kubectl create ns "$NAMESPACE"
 
 if [[ -z ${CI:-}${GITHUB_ACTIONS:-} && -f KubeSecrets/devENV.yml ]]; then
-  log "Applying local dev secrets"
+  info "Applying local dev secrets"
   kubectl apply -n "$NAMESPACE" -f KubeSecrets/devENV.yml || warn "Failed to apply devENV.yml"
 fi
 
@@ -101,7 +101,7 @@ fi
 if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   # Wait for PostgreSQL to be ready in infra namespace
   if kubectl -n infra get statefulset postgresql >/dev/null 2>&1; then
-    log "Waiting for PostgreSQL to be ready..."
+    info "Waiting for PostgreSQL to be ready..."
     kubectl -n infra rollout status statefulset/postgresql --timeout=180s || warn "PostgreSQL not fully ready"
     
     # Create service database using devops-k8s script
@@ -115,7 +115,7 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
       fi
       
       if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-database.sh" ]]; then
-        log "Creating database '${SERVICE_DB_NAME}' for service ${APP_NAME}..."
+        info "Creating database '${SERVICE_DB_NAME}' for service ${APP_NAME}..."
         SERVICE_DB_NAME="$SERVICE_DB_NAME" \
         APP_NAME="$APP_NAME" \
         NAMESPACE="$NAMESPACE" \
@@ -129,20 +129,13 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   fi
 fi
 
-# Create service secrets using devops-k8s script if not exists
 if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
-  if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
-    log "Creating secrets for ${APP_NAME} using devops-k8s script..."
-    SERVICE_NAME="$APP_NAME" \
-    NAMESPACE="$NAMESPACE" \
-    DB_NAME="$SERVICE_DB_NAME" \
-    DB_USER="$SERVICE_DB_USER" \
-    SECRET_NAME="$ENV_SECRET_NAME" \
-    bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed or already exists"
-  else
-    warn "Secret $ENV_SECRET_NAME not found and create-service-secrets.sh not available"
-    warn "Please create the secret manually or ensure devops-k8s repo is cloned"
-  fi
+  warn "Secret $ENV_SECRET_NAME not found - creating placeholder"
+  kubectl -n "$NAMESPACE" create secret generic "$ENV_SECRET_NAME" \
+    --from-literal=ORDERING_POSTGRES_URL="postgresql://${SERVICE_DB_USER}:PASSWORD@postgresql.infra.svc.cluster.local:5432/${SERVICE_DB_NAME}?sslmode=disable" \
+    --from-literal=ORDERING_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
+    --from-literal=ORDERING_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" \
+    --from-literal=ORDERING_STORAGE_ENDPOINT="http://minio.storage.svc.cluster.local:9000" || true
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
@@ -171,7 +164,7 @@ if [[ -n $DEVOPS_DIR && -d $DEVOPS_DIR ]]; then
   popd >/dev/null || true
 fi
 
-log "Deployment summary"
+info "Deployment summary"
 echo "  Image      : ${IMAGE_REPO}:${GIT_COMMIT_ID}"
 echo "  Namespace  : ${NAMESPACE}"
 echo "  Databases  : ${SETUP_DATABASES} (${DB_TYPES})"
