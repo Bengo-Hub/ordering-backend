@@ -44,6 +44,12 @@ type Tx struct {
 	MenuItemTranslation *MenuItemTranslationClient
 	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
 	MenuItemVariant *MenuItemVariantClient
+	// NotificationEvent is the client for interacting with the NotificationEvent builders.
+	NotificationEvent *NotificationEventClient
+	// NotificationSubscription is the client for interacting with the NotificationSubscription builders.
+	NotificationSubscription *NotificationSubscriptionClient
+	// NotificationTemplate is the client for interacting with the NotificationTemplate builders.
+	NotificationTemplate *NotificationTemplateClient
 	// OAuthAccount is the client for interacting with the OAuthAccount builders.
 	OAuthAccount *OAuthAccountClient
 	// Order is the client for interacting with the Order builders.
@@ -54,6 +60,8 @@ type Tx struct {
 	OrderEvent *OrderEventClient
 	// OrderItem is the client for interacting with the OrderItem builders.
 	OrderItem *OrderItemClient
+	// OutboxEvent is the client for interacting with the OutboxEvent builders.
+	OutboxEvent *OutboxEventClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentIntent is the client for interacting with the PaymentIntent builders.
@@ -72,6 +80,8 @@ type Tx struct {
 	Refund *RefundClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// SLAMetric is the client for interacting with the SLAMetric builders.
+	SLAMetric *SLAMetricClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
 	// Tenant is the client for interacting with the Tenant builders.
@@ -237,11 +247,15 @@ func (tx *Tx) init() {
 	tx.MenuItemSchedule = NewMenuItemScheduleClient(tx.config)
 	tx.MenuItemTranslation = NewMenuItemTranslationClient(tx.config)
 	tx.MenuItemVariant = NewMenuItemVariantClient(tx.config)
+	tx.NotificationEvent = NewNotificationEventClient(tx.config)
+	tx.NotificationSubscription = NewNotificationSubscriptionClient(tx.config)
+	tx.NotificationTemplate = NewNotificationTemplateClient(tx.config)
 	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
 	tx.OrderAssignment = NewOrderAssignmentClient(tx.config)
 	tx.OrderEvent = NewOrderEventClient(tx.config)
 	tx.OrderItem = NewOrderItemClient(tx.config)
+	tx.OutboxEvent = NewOutboxEventClient(tx.config)
 	tx.Payment = NewPaymentClient(tx.config)
 	tx.PaymentIntent = NewPaymentIntentClient(tx.config)
 	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
@@ -251,6 +265,7 @@ func (tx *Tx) init() {
 	tx.ProofOfDelivery = NewProofOfDeliveryClient(tx.config)
 	tx.Refund = NewRefundClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.SLAMetric = NewSLAMetricClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantSetting = NewTenantSettingClient(tx.config)

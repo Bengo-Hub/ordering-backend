@@ -54,6 +54,15 @@ type MenuItemTranslation func(*sql.Selector)
 // MenuItemVariant is the predicate function for menuitemvariant builders.
 type MenuItemVariant func(*sql.Selector)
 
+// NotificationEvent is the predicate function for notificationevent builders.
+type NotificationEvent func(*sql.Selector)
+
+// NotificationSubscription is the predicate function for notificationsubscription builders.
+type NotificationSubscription func(*sql.Selector)
+
+// NotificationTemplate is the predicate function for notificationtemplate builders.
+type NotificationTemplate func(*sql.Selector)
+
 // OAuthAccount is the predicate function for oauthaccount builders.
 type OAuthAccount func(*sql.Selector)
 
@@ -68,6 +77,9 @@ type OrderEvent func(*sql.Selector)
 
 // OrderItem is the predicate function for orderitem builders.
 type OrderItem func(*sql.Selector)
+
+// OutboxEvent is the predicate function for outboxevent builders.
+type OutboxEvent func(*sql.Selector)
 
 // Payment is the predicate function for payment builders.
 type Payment func(*sql.Selector)
@@ -95,6 +107,9 @@ type Refund func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
+
+// SLAMetric is the predicate function for slametric builders.
+type SLAMetric func(*sql.Selector)
 
 // Session is the predicate function for session builders.
 type Session func(*sql.Selector)

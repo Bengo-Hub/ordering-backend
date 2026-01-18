@@ -201,6 +201,42 @@ func (f MenuItemVariantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuItemVariantMutation", m)
 }
 
+// The NotificationEventFunc type is an adapter to allow the use of ordinary
+// function as NotificationEvent mutator.
+type NotificationEventFunc func(context.Context, *ent.NotificationEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationEventMutation", m)
+}
+
+// The NotificationSubscriptionFunc type is an adapter to allow the use of ordinary
+// function as NotificationSubscription mutator.
+type NotificationSubscriptionFunc func(context.Context, *ent.NotificationSubscriptionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationSubscriptionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationSubscriptionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationSubscriptionMutation", m)
+}
+
+// The NotificationTemplateFunc type is an adapter to allow the use of ordinary
+// function as NotificationTemplate mutator.
+type NotificationTemplateFunc func(context.Context, *ent.NotificationTemplateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationTemplateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationTemplateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationTemplateMutation", m)
+}
+
 // The OAuthAccountFunc type is an adapter to allow the use of ordinary
 // function as OAuthAccount mutator.
 type OAuthAccountFunc func(context.Context, *ent.OAuthAccountMutation) (ent.Value, error)
@@ -259,6 +295,18 @@ func (f OrderItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderItemMutation", m)
+}
+
+// The OutboxEventFunc type is an adapter to allow the use of ordinary
+// function as OutboxEvent mutator.
+type OutboxEventFunc func(context.Context, *ent.OutboxEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OutboxEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OutboxEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OutboxEventMutation", m)
 }
 
 // The PaymentFunc type is an adapter to allow the use of ordinary
@@ -367,6 +415,18 @@ func (f RoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoleMutation", m)
+}
+
+// The SLAMetricFunc type is an adapter to allow the use of ordinary
+// function as SLAMetric mutator.
+type SLAMetricFunc func(context.Context, *ent.SLAMetricMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SLAMetricFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SLAMetricMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SLAMetricMutation", m)
 }
 
 // The SessionFunc type is an adapter to allow the use of ordinary

@@ -20,14 +20,18 @@ import (
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
+	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
+	"github.com/bengobox/ordering-backend/internal/modules/sla"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
@@ -191,7 +195,17 @@ func New(ctx context.Context) (*App, error) {
 	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc)
 	fulfilmentWebhookHandler := fulfilmenthandler.NewWebhookHandler(log, fulfilmentWebhookSvc)
 
-	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
+	// Initialize notifications module
+	notificationsRepo := notifications.NewEntRepository(ormClient)
+	notificationsSvc := notifications.NewService(notificationsRepo, log)
+	notificationsHandler := notificationshandler.NewHandler(log, notificationsSvc)
+
+	// Initialize SLA module
+	slaRepo := sla.NewEntRepository(ormClient)
+	slaSvc := sla.NewService(slaRepo, log)
+	slaHandler := slahandler.NewHandler(log, slaSvc)
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

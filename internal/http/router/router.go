@@ -10,13 +10,15 @@ import (
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	httpware "github.com/Bengo-Hub/httpware"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
-	sharedmw "github.com/bengobox/ordering-backend/internal/shared/middleware"
+	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 )
 
 // New constructs the chi router with global middleware and base routes.
@@ -35,6 +37,8 @@ func New(
 	paymentWebhookHandler *paymentshandler.WebhookHandler,
 	fulfilmentTaskHandler *fulfilmenthandler.TaskHandler,
 	fulfilmentWebhookHandler *fulfilmenthandler.WebhookHandler,
+	notificationsHandler *notificationshandler.Handler,
+	slaHandler *slahandler.Handler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	allowedOrigins []string,
@@ -44,9 +48,9 @@ func New(
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Heartbeat("/readyz"))
-	r.Use(sharedmw.RequestID)
-	r.Use(sharedmw.Logging(log))
-	r.Use(sharedmw.Recover(log))
+	r.Use(httpware.RequestID)
+	r.Use(httpware.Logging(log))
+	r.Use(httpware.Recover(log))
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -127,6 +131,16 @@ func New(
 			// Register fulfilment routes (delivery tasks, tracking)
 			if fulfilmentTaskHandler != nil {
 				fulfilmentTaskHandler.Register(v1, authenticator)
+			}
+
+			// Register notifications routes
+			if notificationsHandler != nil {
+				notificationsHandler.Register(v1, authenticator)
+			}
+
+			// Register SLA routes
+			if slaHandler != nil {
+				slaHandler.Register(v1, authenticator)
 			}
 
 			// Webhook routes (no auth required - use signature verification)

@@ -353,6 +353,57 @@
 - Tenant/outlet discovery webhooks
 - Outbox pattern for reliable domain events
 
+### Architecture Patterns Migration Status (January 2026)
+
+| Pattern | Status | Library | Notes |
+|---------|--------|---------|-------|
+| Outbox Pattern | ✅ **Schema Ready** | `shared-events` v0.1.0 | Schema + repository created |
+| Circuit Breaker | ⏳ **Dependency Ready** | `shared-service-client` v0.1.0 | Import and use in HTTP clients |
+| Shared Middleware | ✅ **Completed** | `httpware` v0.1.1 | Migrated to shared package |
+| JWT Validation | ✅ Implemented | `shared-auth-client` v0.2.0 | Production |
+| Subscription Feature Gating | ⏳ **Planned** | `shared-auth-client` v0.2.0 | Use JWT claims for feature checks |
+| Dual Auth (JWT + API Key) | ✅ Implemented | `shared-auth-client` v0.2.0 | SSO fully supports both |
+
+**Migration Checklist:**
+- [x] Add `github.com/Bengo-Hub/shared-events` dependency ✅ (Jan 2026)
+- [x] Create `outbox_events` Ent schema ✅ (Jan 2026)
+- [x] Create `internal/modules/outbox/repository.go` ✅ (Jan 2026)
+- [ ] Replace direct NATS publish with `PublishWithOutbox`
+- [ ] Add background publisher worker
+- [ ] Add `github.com/Bengo-Hub/shared-service-client` dependency
+- [ ] Replace direct HTTP calls with shared client
+- [x] Add `github.com/Bengo-Hub/httpware` dependency ✅ (Jan 2026)
+- [x] Replace local middleware with shared package ✅ (Jan 2026)
+- [x] Upgrade to `shared-auth-client` v0.2.0 ✅ (Jan 2026)
+- [ ] Add feature gating middleware for premium features (group_ordering, advanced_analytics)
+- [ ] Use `authclient.RequireFeature()` middleware for subscription-gated routes
+
+### Subscription Feature Gating (Pending auth-service Sprint 11)
+
+Once auth-service embeds subscription data in JWT, apply feature gating:
+
+```go
+// In router.go - Gate premium features
+r.Route("/group-orders", func(r chi.Router) {
+    r.Use(authclient.RequireFeature("group_ordering"))
+    r.Post("/", handler.CreateGroupOrder)
+    r.Get("/", handler.ListGroupOrders)
+})
+
+r.Route("/analytics", func(r chi.Router) {
+    r.Use(authclient.RequirePlan("PROFESSIONAL"))
+    r.Get("/dashboard", handler.GetAnalyticsDashboard)
+})
+```
+
+**Features to Gate:**
+| Feature | Required Plan | Feature Code |
+|---------|---------------|--------------|
+| Group Ordering | Growth+ | `group_ordering` |
+| Advanced Analytics | Professional | `advanced_analytics` |
+| Scheduled Delivery | Growth+ | `scheduled_delivery` |
+| Priority Support | Professional | `priority_support` |
+
 ---
 
 ## API & Protocol Strategy

@@ -697,6 +697,133 @@ var (
 			},
 		},
 	}
+	// NotificationEventsColumns holds the columns for the "notification_events" table.
+	NotificationEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "event_key", Type: field.TypeString, Size: 100},
+		{Name: "payload", Type: field.TypeJSON},
+		{Name: "order_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "queued", "sent", "delivered", "failed", "skipped"}, Default: "pending"},
+		{Name: "attempts", Type: field.TypeInt, Default: 0},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "external_id", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "sent_at", Type: field.TypeTime, Nullable: true},
+		{Name: "delivered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// NotificationEventsTable holds the schema information for the "notification_events" table.
+	NotificationEventsTable = &schema.Table{
+		Name:       "notification_events",
+		Columns:    NotificationEventsColumns,
+		PrimaryKey: []*schema.Column{NotificationEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationevent_tenant_id_event_key",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[1], NotificationEventsColumns[3]},
+			},
+			{
+				Name:    "notificationevent_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[1], NotificationEventsColumns[2]},
+			},
+			{
+				Name:    "notificationevent_status",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[6]},
+			},
+			{
+				Name:    "notificationevent_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[5]},
+			},
+			{
+				Name:    "notificationevent_external_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[11]},
+			},
+			{
+				Name:    "notificationevent_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[14]},
+			},
+		},
+	}
+	// NotificationSubscriptionsColumns holds the columns for the "notification_subscriptions" table.
+	NotificationSubscriptionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"email", "sms", "push", "in_app"}},
+		{Name: "event_key", Type: field.TypeString, Size: 100},
+		{Name: "is_subscribed", Type: field.TypeBool, Default: true},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// NotificationSubscriptionsTable holds the schema information for the "notification_subscriptions" table.
+	NotificationSubscriptionsTable = &schema.Table{
+		Name:       "notification_subscriptions",
+		Columns:    NotificationSubscriptionsColumns,
+		PrimaryKey: []*schema.Column{NotificationSubscriptionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationsubscription_tenant_id_user_id_channel_event_key",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationSubscriptionsColumns[1], NotificationSubscriptionsColumns[2], NotificationSubscriptionsColumns[3], NotificationSubscriptionsColumns[4]},
+			},
+			{
+				Name:    "notificationsubscription_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationSubscriptionsColumns[1], NotificationSubscriptionsColumns[2]},
+			},
+			{
+				Name:    "notificationsubscription_is_subscribed",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationSubscriptionsColumns[5]},
+			},
+		},
+	}
+	// NotificationTemplatesColumns holds the columns for the "notification_templates" table.
+	NotificationTemplatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"email", "sms", "push", "in_app"}},
+		{Name: "event_key", Type: field.TypeString, Size: 100},
+		{Name: "locale", Type: field.TypeString, Size: 10, Default: "en"},
+		{Name: "subject", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "body", Type: field.TypeString, Size: 2147483647},
+		{Name: "data_schema", Type: field.TypeJSON, Nullable: true},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// NotificationTemplatesTable holds the schema information for the "notification_templates" table.
+	NotificationTemplatesTable = &schema.Table{
+		Name:       "notification_templates",
+		Columns:    NotificationTemplatesColumns,
+		PrimaryKey: []*schema.Column{NotificationTemplatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationtemplate_tenant_id_channel_event_key_locale",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationTemplatesColumns[1], NotificationTemplatesColumns[2], NotificationTemplatesColumns[3], NotificationTemplatesColumns[4]},
+			},
+			{
+				Name:    "notificationtemplate_tenant_id_event_key",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationTemplatesColumns[1], NotificationTemplatesColumns[3]},
+			},
+			{
+				Name:    "notificationtemplate_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationTemplatesColumns[8]},
+			},
+		},
+	}
 	// OauthAccountsColumns holds the columns for the "oauth_accounts" table.
 	OauthAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -975,6 +1102,44 @@ var (
 				Name:    "orderitem_menu_item_id",
 				Unique:  false,
 				Columns: []*schema.Column{OrderItemsColumns[1]},
+			},
+		},
+	}
+	// OutboxEventsColumns holds the columns for the "outbox_events" table.
+	OutboxEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "aggregate_type", Type: field.TypeString},
+		{Name: "aggregate_id", Type: field.TypeUUID},
+		{Name: "event_type", Type: field.TypeString},
+		{Name: "payload", Type: field.TypeBytes},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "PUBLISHED", "FAILED"}, Default: "PENDING"},
+		{Name: "attempts", Type: field.TypeInt, Default: 0},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// OutboxEventsTable holds the schema information for the "outbox_events" table.
+	OutboxEventsTable = &schema.Table{
+		Name:       "outbox_events",
+		Columns:    OutboxEventsColumns,
+		PrimaryKey: []*schema.Column{OutboxEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "outboxevent_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[6], OutboxEventsColumns[11]},
+			},
+			{
+				Name:    "outboxevent_aggregate_type_aggregate_id",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[2], OutboxEventsColumns[3]},
+			},
+			{
+				Name:    "outboxevent_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[1], OutboxEventsColumns[6]},
 			},
 		},
 	}
@@ -1435,6 +1600,61 @@ var (
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
+	// SLAMetricsColumns holds the columns for the "sla_metrics" table.
+	SLAMetricsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "order_id", Type: field.TypeUUID},
+		{Name: "metric_type", Type: field.TypeEnum, Enums: []string{"order_to_ready", "order_to_pickup", "order_to_delivery", "ready_to_pickup", "pickup_to_delivery", "first_response_time", "ticket_resolution_time"}},
+		{Name: "target_seconds", Type: field.TypeInt},
+		{Name: "actual_seconds", Type: field.TypeInt, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"tracking", "met", "breached", "cancelled"}, Default: "tracking"},
+		{Name: "breach_percentage", Type: field.TypeFloat64, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime},
+		{Name: "ended_at", Type: field.TypeTime, Nullable: true},
+		{Name: "measured_at", Type: field.TypeTime},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// SLAMetricsTable holds the schema information for the "sla_metrics" table.
+	SLAMetricsTable = &schema.Table{
+		Name:       "sla_metrics",
+		Columns:    SLAMetricsColumns,
+		PrimaryKey: []*schema.Column{SLAMetricsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "slametric_tenant_id_metric_type",
+				Unique:  false,
+				Columns: []*schema.Column{SLAMetricsColumns[1], SLAMetricsColumns[3]},
+			},
+			{
+				Name:    "slametric_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{SLAMetricsColumns[1], SLAMetricsColumns[6]},
+			},
+			{
+				Name:    "slametric_tenant_id_measured_at",
+				Unique:  false,
+				Columns: []*schema.Column{SLAMetricsColumns[1], SLAMetricsColumns[10]},
+			},
+			{
+				Name:    "slametric_order_id_metric_type",
+				Unique:  true,
+				Columns: []*schema.Column{SLAMetricsColumns[2], SLAMetricsColumns[3]},
+			},
+			{
+				Name:    "slametric_status",
+				Unique:  false,
+				Columns: []*schema.Column{SLAMetricsColumns[6]},
+			},
+			{
+				Name:    "slametric_measured_at",
+				Unique:  false,
+				Columns: []*schema.Column{SLAMetricsColumns[10]},
+			},
+		},
+	}
 	// SessionsColumns holds the columns for the "sessions" table.
 	SessionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1840,11 +2060,15 @@ var (
 		MenuItemSchedulesTable,
 		MenuItemTranslationsTable,
 		MenuItemVariantsTable,
+		NotificationEventsTable,
+		NotificationSubscriptionsTable,
+		NotificationTemplatesTable,
 		OauthAccountsTable,
 		OrdersTable,
 		OrderAssignmentsTable,
 		OrderEventsTable,
 		OrderItemsTable,
+		OutboxEventsTable,
 		PaymentsTable,
 		PaymentIntentsTable,
 		PaymentMethodsTable,
@@ -1854,6 +2078,7 @@ var (
 		ProofOfDeliveryTable,
 		RefundsTable,
 		RolesTable,
+		SLAMetricsTable,
 		SessionsTable,
 		TenantsTable,
 		TenantSettingsTable,
@@ -1895,6 +2120,15 @@ func init() {
 	MenuItemSchedulesTable.ForeignKeys[0].RefTable = MenuItemsTable
 	MenuItemTranslationsTable.ForeignKeys[0].RefTable = MenuItemsTable
 	MenuItemVariantsTable.ForeignKeys[0].RefTable = MenuItemsTable
+	NotificationEventsTable.Annotation = &entsql.Annotation{
+		Table: "notification_events",
+	}
+	NotificationSubscriptionsTable.Annotation = &entsql.Annotation{
+		Table: "notification_subscriptions",
+	}
+	NotificationTemplatesTable.Annotation = &entsql.Annotation{
+		Table: "notification_templates",
+	}
 	OauthAccountsTable.ForeignKeys[0].RefTable = UsersTable
 	OrdersTable.ForeignKeys[0].RefTable = CustomerAddressesTable
 	OrdersTable.ForeignKeys[1].RefTable = UsersTable
@@ -1926,6 +2160,9 @@ func init() {
 	RefundsTable.ForeignKeys[0].RefTable = PaymentsTable
 	RefundsTable.Annotation = &entsql.Annotation{
 		Table: "refunds",
+	}
+	SLAMetricsTable.Annotation = &entsql.Annotation{
+		Table: "sla_metrics",
 	}
 	SessionsTable.ForeignKeys[0].RefTable = TenantsTable
 	SessionsTable.ForeignKeys[1].RefTable = UsersTable

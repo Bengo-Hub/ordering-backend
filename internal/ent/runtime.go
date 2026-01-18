@@ -21,11 +21,15 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationevent"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationsubscription"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationtemplate"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/payment"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
@@ -37,6 +41,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/schema"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/slametric"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -710,6 +715,138 @@ func init() {
 	menuitemvariantDescID := menuitemvariantFields[0].Descriptor()
 	// menuitemvariant.DefaultID holds the default value on creation for the id field.
 	menuitemvariant.DefaultID = menuitemvariantDescID.Default.(func() uuid.UUID)
+	notificationeventFields := schema.NotificationEvent{}.Fields()
+	_ = notificationeventFields
+	// notificationeventDescEventKey is the schema descriptor for event_key field.
+	notificationeventDescEventKey := notificationeventFields[3].Descriptor()
+	// notificationevent.EventKeyValidator is a validator for the "event_key" field. It is called by the builders before save.
+	notificationevent.EventKeyValidator = func() func(string) error {
+		validators := notificationeventDescEventKey.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_key string) error {
+			for _, fn := range fns {
+				if err := fn(event_key); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// notificationeventDescAttempts is the schema descriptor for attempts field.
+	notificationeventDescAttempts := notificationeventFields[7].Descriptor()
+	// notificationevent.DefaultAttempts holds the default value on creation for the attempts field.
+	notificationevent.DefaultAttempts = notificationeventDescAttempts.Default.(int)
+	// notificationeventDescErrorCode is the schema descriptor for error_code field.
+	notificationeventDescErrorCode := notificationeventFields[10].Descriptor()
+	// notificationevent.ErrorCodeValidator is a validator for the "error_code" field. It is called by the builders before save.
+	notificationevent.ErrorCodeValidator = notificationeventDescErrorCode.Validators[0].(func(string) error)
+	// notificationeventDescExternalID is the schema descriptor for external_id field.
+	notificationeventDescExternalID := notificationeventFields[11].Descriptor()
+	// notificationevent.ExternalIDValidator is a validator for the "external_id" field. It is called by the builders before save.
+	notificationevent.ExternalIDValidator = notificationeventDescExternalID.Validators[0].(func(string) error)
+	// notificationeventDescCreatedAt is the schema descriptor for created_at field.
+	notificationeventDescCreatedAt := notificationeventFields[14].Descriptor()
+	// notificationevent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notificationevent.DefaultCreatedAt = notificationeventDescCreatedAt.Default.(func() time.Time)
+	// notificationeventDescUpdatedAt is the schema descriptor for updated_at field.
+	notificationeventDescUpdatedAt := notificationeventFields[15].Descriptor()
+	// notificationevent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	notificationevent.DefaultUpdatedAt = notificationeventDescUpdatedAt.Default.(func() time.Time)
+	// notificationevent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	notificationevent.UpdateDefaultUpdatedAt = notificationeventDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// notificationeventDescID is the schema descriptor for id field.
+	notificationeventDescID := notificationeventFields[0].Descriptor()
+	// notificationevent.DefaultID holds the default value on creation for the id field.
+	notificationevent.DefaultID = notificationeventDescID.Default.(func() uuid.UUID)
+	notificationsubscriptionFields := schema.NotificationSubscription{}.Fields()
+	_ = notificationsubscriptionFields
+	// notificationsubscriptionDescEventKey is the schema descriptor for event_key field.
+	notificationsubscriptionDescEventKey := notificationsubscriptionFields[4].Descriptor()
+	// notificationsubscription.EventKeyValidator is a validator for the "event_key" field. It is called by the builders before save.
+	notificationsubscription.EventKeyValidator = func() func(string) error {
+		validators := notificationsubscriptionDescEventKey.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_key string) error {
+			for _, fn := range fns {
+				if err := fn(event_key); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// notificationsubscriptionDescIsSubscribed is the schema descriptor for is_subscribed field.
+	notificationsubscriptionDescIsSubscribed := notificationsubscriptionFields[5].Descriptor()
+	// notificationsubscription.DefaultIsSubscribed holds the default value on creation for the is_subscribed field.
+	notificationsubscription.DefaultIsSubscribed = notificationsubscriptionDescIsSubscribed.Default.(bool)
+	// notificationsubscriptionDescUpdatedAt is the schema descriptor for updated_at field.
+	notificationsubscriptionDescUpdatedAt := notificationsubscriptionFields[6].Descriptor()
+	// notificationsubscription.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	notificationsubscription.DefaultUpdatedAt = notificationsubscriptionDescUpdatedAt.Default.(func() time.Time)
+	// notificationsubscription.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	notificationsubscription.UpdateDefaultUpdatedAt = notificationsubscriptionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// notificationsubscriptionDescID is the schema descriptor for id field.
+	notificationsubscriptionDescID := notificationsubscriptionFields[0].Descriptor()
+	// notificationsubscription.DefaultID holds the default value on creation for the id field.
+	notificationsubscription.DefaultID = notificationsubscriptionDescID.Default.(func() uuid.UUID)
+	notificationtemplateFields := schema.NotificationTemplate{}.Fields()
+	_ = notificationtemplateFields
+	// notificationtemplateDescEventKey is the schema descriptor for event_key field.
+	notificationtemplateDescEventKey := notificationtemplateFields[3].Descriptor()
+	// notificationtemplate.EventKeyValidator is a validator for the "event_key" field. It is called by the builders before save.
+	notificationtemplate.EventKeyValidator = func() func(string) error {
+		validators := notificationtemplateDescEventKey.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_key string) error {
+			for _, fn := range fns {
+				if err := fn(event_key); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// notificationtemplateDescLocale is the schema descriptor for locale field.
+	notificationtemplateDescLocale := notificationtemplateFields[4].Descriptor()
+	// notificationtemplate.DefaultLocale holds the default value on creation for the locale field.
+	notificationtemplate.DefaultLocale = notificationtemplateDescLocale.Default.(string)
+	// notificationtemplate.LocaleValidator is a validator for the "locale" field. It is called by the builders before save.
+	notificationtemplate.LocaleValidator = notificationtemplateDescLocale.Validators[0].(func(string) error)
+	// notificationtemplateDescSubject is the schema descriptor for subject field.
+	notificationtemplateDescSubject := notificationtemplateFields[5].Descriptor()
+	// notificationtemplate.SubjectValidator is a validator for the "subject" field. It is called by the builders before save.
+	notificationtemplate.SubjectValidator = notificationtemplateDescSubject.Validators[0].(func(string) error)
+	// notificationtemplateDescBody is the schema descriptor for body field.
+	notificationtemplateDescBody := notificationtemplateFields[6].Descriptor()
+	// notificationtemplate.BodyValidator is a validator for the "body" field. It is called by the builders before save.
+	notificationtemplate.BodyValidator = notificationtemplateDescBody.Validators[0].(func(string) error)
+	// notificationtemplateDescIsActive is the schema descriptor for is_active field.
+	notificationtemplateDescIsActive := notificationtemplateFields[8].Descriptor()
+	// notificationtemplate.DefaultIsActive holds the default value on creation for the is_active field.
+	notificationtemplate.DefaultIsActive = notificationtemplateDescIsActive.Default.(bool)
+	// notificationtemplateDescCreatedAt is the schema descriptor for created_at field.
+	notificationtemplateDescCreatedAt := notificationtemplateFields[9].Descriptor()
+	// notificationtemplate.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notificationtemplate.DefaultCreatedAt = notificationtemplateDescCreatedAt.Default.(func() time.Time)
+	// notificationtemplateDescUpdatedAt is the schema descriptor for updated_at field.
+	notificationtemplateDescUpdatedAt := notificationtemplateFields[10].Descriptor()
+	// notificationtemplate.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	notificationtemplate.DefaultUpdatedAt = notificationtemplateDescUpdatedAt.Default.(func() time.Time)
+	// notificationtemplate.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	notificationtemplate.UpdateDefaultUpdatedAt = notificationtemplateDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// notificationtemplateDescID is the schema descriptor for id field.
+	notificationtemplateDescID := notificationtemplateFields[0].Descriptor()
+	// notificationtemplate.DefaultID holds the default value on creation for the id field.
+	notificationtemplate.DefaultID = notificationtemplateDescID.Default.(func() uuid.UUID)
 	oauthaccountFields := schema.OAuthAccount{}.Fields()
 	_ = oauthaccountFields
 	// oauthaccountDescProvider is the schema descriptor for provider field.
@@ -892,6 +1029,28 @@ func init() {
 	orderitemDescID := orderitemFields[0].Descriptor()
 	// orderitem.DefaultID holds the default value on creation for the id field.
 	orderitem.DefaultID = orderitemDescID.Default.(func() uuid.UUID)
+	outboxeventFields := schema.OutboxEvent{}.Fields()
+	_ = outboxeventFields
+	// outboxeventDescAggregateType is the schema descriptor for aggregate_type field.
+	outboxeventDescAggregateType := outboxeventFields[2].Descriptor()
+	// outboxevent.AggregateTypeValidator is a validator for the "aggregate_type" field. It is called by the builders before save.
+	outboxevent.AggregateTypeValidator = outboxeventDescAggregateType.Validators[0].(func(string) error)
+	// outboxeventDescEventType is the schema descriptor for event_type field.
+	outboxeventDescEventType := outboxeventFields[4].Descriptor()
+	// outboxevent.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
+	outboxevent.EventTypeValidator = outboxeventDescEventType.Validators[0].(func(string) error)
+	// outboxeventDescAttempts is the schema descriptor for attempts field.
+	outboxeventDescAttempts := outboxeventFields[7].Descriptor()
+	// outboxevent.DefaultAttempts holds the default value on creation for the attempts field.
+	outboxevent.DefaultAttempts = outboxeventDescAttempts.Default.(int)
+	// outboxeventDescCreatedAt is the schema descriptor for created_at field.
+	outboxeventDescCreatedAt := outboxeventFields[11].Descriptor()
+	// outboxevent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	outboxevent.DefaultCreatedAt = outboxeventDescCreatedAt.Default.(func() time.Time)
+	// outboxeventDescID is the schema descriptor for id field.
+	outboxeventDescID := outboxeventFields[0].Descriptor()
+	// outboxevent.DefaultID holds the default value on creation for the id field.
+	outboxevent.DefaultID = outboxeventDescID.Default.(func() uuid.UUID)
 	paymentFields := schema.Payment{}.Fields()
 	_ = paymentFields
 	// paymentDescCurrency is the schema descriptor for currency field.
@@ -1224,6 +1383,26 @@ func init() {
 	roleDescID := roleFields[0].Descriptor()
 	// role.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	role.IDValidator = roleDescID.Validators[0].(func(string) error)
+	slametricFields := schema.SLAMetric{}.Fields()
+	_ = slametricFields
+	// slametricDescMeasuredAt is the schema descriptor for measured_at field.
+	slametricDescMeasuredAt := slametricFields[10].Descriptor()
+	// slametric.DefaultMeasuredAt holds the default value on creation for the measured_at field.
+	slametric.DefaultMeasuredAt = slametricDescMeasuredAt.Default.(func() time.Time)
+	// slametricDescCreatedAt is the schema descriptor for created_at field.
+	slametricDescCreatedAt := slametricFields[12].Descriptor()
+	// slametric.DefaultCreatedAt holds the default value on creation for the created_at field.
+	slametric.DefaultCreatedAt = slametricDescCreatedAt.Default.(func() time.Time)
+	// slametricDescUpdatedAt is the schema descriptor for updated_at field.
+	slametricDescUpdatedAt := slametricFields[13].Descriptor()
+	// slametric.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	slametric.DefaultUpdatedAt = slametricDescUpdatedAt.Default.(func() time.Time)
+	// slametric.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	slametric.UpdateDefaultUpdatedAt = slametricDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// slametricDescID is the schema descriptor for id field.
+	slametricDescID := slametricFields[0].Descriptor()
+	// slametric.DefaultID holds the default value on creation for the id field.
+	slametric.DefaultID = slametricDescID.Default.(func() uuid.UUID)
 	sessionFields := schema.Session{}.Fields()
 	_ = sessionFields
 	// sessionDescRefreshTokenHash is the schema descriptor for refresh_token_hash field.

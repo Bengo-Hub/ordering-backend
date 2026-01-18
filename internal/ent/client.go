@@ -32,11 +32,15 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationevent"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationsubscription"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationtemplate"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/payment"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
@@ -47,6 +51,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/refund"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/slametric"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -94,6 +99,12 @@ type Client struct {
 	MenuItemTranslation *MenuItemTranslationClient
 	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
 	MenuItemVariant *MenuItemVariantClient
+	// NotificationEvent is the client for interacting with the NotificationEvent builders.
+	NotificationEvent *NotificationEventClient
+	// NotificationSubscription is the client for interacting with the NotificationSubscription builders.
+	NotificationSubscription *NotificationSubscriptionClient
+	// NotificationTemplate is the client for interacting with the NotificationTemplate builders.
+	NotificationTemplate *NotificationTemplateClient
 	// OAuthAccount is the client for interacting with the OAuthAccount builders.
 	OAuthAccount *OAuthAccountClient
 	// Order is the client for interacting with the Order builders.
@@ -104,6 +115,8 @@ type Client struct {
 	OrderEvent *OrderEventClient
 	// OrderItem is the client for interacting with the OrderItem builders.
 	OrderItem *OrderItemClient
+	// OutboxEvent is the client for interacting with the OutboxEvent builders.
+	OutboxEvent *OutboxEventClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentIntent is the client for interacting with the PaymentIntent builders.
@@ -122,6 +135,8 @@ type Client struct {
 	Refund *RefundClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// SLAMetric is the client for interacting with the SLAMetric builders.
+	SLAMetric *SLAMetricClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
 	// Tenant is the client for interacting with the Tenant builders.
@@ -167,11 +182,15 @@ func (c *Client) init() {
 	c.MenuItemSchedule = NewMenuItemScheduleClient(c.config)
 	c.MenuItemTranslation = NewMenuItemTranslationClient(c.config)
 	c.MenuItemVariant = NewMenuItemVariantClient(c.config)
+	c.NotificationEvent = NewNotificationEventClient(c.config)
+	c.NotificationSubscription = NewNotificationSubscriptionClient(c.config)
+	c.NotificationTemplate = NewNotificationTemplateClient(c.config)
 	c.OAuthAccount = NewOAuthAccountClient(c.config)
 	c.Order = NewOrderClient(c.config)
 	c.OrderAssignment = NewOrderAssignmentClient(c.config)
 	c.OrderEvent = NewOrderEventClient(c.config)
 	c.OrderItem = NewOrderItemClient(c.config)
+	c.OutboxEvent = NewOutboxEventClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
 	c.PaymentIntent = NewPaymentIntentClient(c.config)
 	c.PaymentMethod = NewPaymentMethodClient(c.config)
@@ -181,6 +200,7 @@ func (c *Client) init() {
 	c.ProofOfDelivery = NewProofOfDeliveryClient(c.config)
 	c.Refund = NewRefundClient(c.config)
 	c.Role = NewRoleClient(c.config)
+	c.SLAMetric = NewSLAMetricClient(c.config)
 	c.Session = NewSessionClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
 	c.TenantSetting = NewTenantSettingClient(c.config)
@@ -280,47 +300,52 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                 ctx,
-		config:              cfg,
-		BackupCode:          NewBackupCodeClient(cfg),
-		Cart:                NewCartClient(cfg),
-		CartItem:            NewCartItemClient(cfg),
-		CustomerAddress:     NewCustomerAddressClient(cfg),
-		DeliveryWindow:      NewDeliveryWindowClient(cfg),
-		Device:              NewDeviceClient(cfg),
-		DietaryTag:          NewDietaryTagClient(cfg),
-		LogisticsEvent:      NewLogisticsEventClient(cfg),
-		LoyaltyAccount:      NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction:  NewLoyaltyTransactionClient(cfg),
-		MenuCategory:        NewMenuCategoryClient(cfg),
-		MenuItem:            NewMenuItemClient(cfg),
-		MenuItemAsset:       NewMenuItemAssetClient(cfg),
-		MenuItemSchedule:    NewMenuItemScheduleClient(cfg),
-		MenuItemTranslation: NewMenuItemTranslationClient(cfg),
-		MenuItemVariant:     NewMenuItemVariantClient(cfg),
-		OAuthAccount:        NewOAuthAccountClient(cfg),
-		Order:               NewOrderClient(cfg),
-		OrderAssignment:     NewOrderAssignmentClient(cfg),
-		OrderEvent:          NewOrderEventClient(cfg),
-		OrderItem:           NewOrderItemClient(cfg),
-		Payment:             NewPaymentClient(cfg),
-		PaymentIntent:       NewPaymentIntentClient(cfg),
-		PaymentMethod:       NewPaymentMethodClient(cfg),
-		Permission:          NewPermissionClient(cfg),
-		PromoCode:           NewPromoCodeClient(cfg),
-		PromoRedemption:     NewPromoRedemptionClient(cfg),
-		ProofOfDelivery:     NewProofOfDeliveryClient(cfg),
-		Refund:              NewRefundClient(cfg),
-		Role:                NewRoleClient(cfg),
-		Session:             NewSessionClient(cfg),
-		Tenant:              NewTenantClient(cfg),
-		TenantSetting:       NewTenantSettingClient(cfg),
-		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
-		TreasuryEvent:       NewTreasuryEventClient(cfg),
-		TwoFactorSetting:    NewTwoFactorSettingClient(cfg),
-		User:                NewUserClient(cfg),
-		UserPreference:      NewUserPreferenceClient(cfg),
-		UserProfile:         NewUserProfileClient(cfg),
+		ctx:                      ctx,
+		config:                   cfg,
+		BackupCode:               NewBackupCodeClient(cfg),
+		Cart:                     NewCartClient(cfg),
+		CartItem:                 NewCartItemClient(cfg),
+		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DeliveryWindow:           NewDeliveryWindowClient(cfg),
+		Device:                   NewDeviceClient(cfg),
+		DietaryTag:               NewDietaryTagClient(cfg),
+		LogisticsEvent:           NewLogisticsEventClient(cfg),
+		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
+		MenuCategory:             NewMenuCategoryClient(cfg),
+		MenuItem:                 NewMenuItemClient(cfg),
+		MenuItemAsset:            NewMenuItemAssetClient(cfg),
+		MenuItemSchedule:         NewMenuItemScheduleClient(cfg),
+		MenuItemTranslation:      NewMenuItemTranslationClient(cfg),
+		MenuItemVariant:          NewMenuItemVariantClient(cfg),
+		NotificationEvent:        NewNotificationEventClient(cfg),
+		NotificationSubscription: NewNotificationSubscriptionClient(cfg),
+		NotificationTemplate:     NewNotificationTemplateClient(cfg),
+		OAuthAccount:             NewOAuthAccountClient(cfg),
+		Order:                    NewOrderClient(cfg),
+		OrderAssignment:          NewOrderAssignmentClient(cfg),
+		OrderEvent:               NewOrderEventClient(cfg),
+		OrderItem:                NewOrderItemClient(cfg),
+		OutboxEvent:              NewOutboxEventClient(cfg),
+		Payment:                  NewPaymentClient(cfg),
+		PaymentIntent:            NewPaymentIntentClient(cfg),
+		PaymentMethod:            NewPaymentMethodClient(cfg),
+		Permission:               NewPermissionClient(cfg),
+		PromoCode:                NewPromoCodeClient(cfg),
+		PromoRedemption:          NewPromoRedemptionClient(cfg),
+		ProofOfDelivery:          NewProofOfDeliveryClient(cfg),
+		Refund:                   NewRefundClient(cfg),
+		Role:                     NewRoleClient(cfg),
+		SLAMetric:                NewSLAMetricClient(cfg),
+		Session:                  NewSessionClient(cfg),
+		Tenant:                   NewTenantClient(cfg),
+		TenantSetting:            NewTenantSettingClient(cfg),
+		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
+		TreasuryEvent:            NewTreasuryEventClient(cfg),
+		TwoFactorSetting:         NewTwoFactorSettingClient(cfg),
+		User:                     NewUserClient(cfg),
+		UserPreference:           NewUserPreferenceClient(cfg),
+		UserProfile:              NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -338,47 +363,52 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                 ctx,
-		config:              cfg,
-		BackupCode:          NewBackupCodeClient(cfg),
-		Cart:                NewCartClient(cfg),
-		CartItem:            NewCartItemClient(cfg),
-		CustomerAddress:     NewCustomerAddressClient(cfg),
-		DeliveryWindow:      NewDeliveryWindowClient(cfg),
-		Device:              NewDeviceClient(cfg),
-		DietaryTag:          NewDietaryTagClient(cfg),
-		LogisticsEvent:      NewLogisticsEventClient(cfg),
-		LoyaltyAccount:      NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction:  NewLoyaltyTransactionClient(cfg),
-		MenuCategory:        NewMenuCategoryClient(cfg),
-		MenuItem:            NewMenuItemClient(cfg),
-		MenuItemAsset:       NewMenuItemAssetClient(cfg),
-		MenuItemSchedule:    NewMenuItemScheduleClient(cfg),
-		MenuItemTranslation: NewMenuItemTranslationClient(cfg),
-		MenuItemVariant:     NewMenuItemVariantClient(cfg),
-		OAuthAccount:        NewOAuthAccountClient(cfg),
-		Order:               NewOrderClient(cfg),
-		OrderAssignment:     NewOrderAssignmentClient(cfg),
-		OrderEvent:          NewOrderEventClient(cfg),
-		OrderItem:           NewOrderItemClient(cfg),
-		Payment:             NewPaymentClient(cfg),
-		PaymentIntent:       NewPaymentIntentClient(cfg),
-		PaymentMethod:       NewPaymentMethodClient(cfg),
-		Permission:          NewPermissionClient(cfg),
-		PromoCode:           NewPromoCodeClient(cfg),
-		PromoRedemption:     NewPromoRedemptionClient(cfg),
-		ProofOfDelivery:     NewProofOfDeliveryClient(cfg),
-		Refund:              NewRefundClient(cfg),
-		Role:                NewRoleClient(cfg),
-		Session:             NewSessionClient(cfg),
-		Tenant:              NewTenantClient(cfg),
-		TenantSetting:       NewTenantSettingClient(cfg),
-		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
-		TreasuryEvent:       NewTreasuryEventClient(cfg),
-		TwoFactorSetting:    NewTwoFactorSettingClient(cfg),
-		User:                NewUserClient(cfg),
-		UserPreference:      NewUserPreferenceClient(cfg),
-		UserProfile:         NewUserProfileClient(cfg),
+		ctx:                      ctx,
+		config:                   cfg,
+		BackupCode:               NewBackupCodeClient(cfg),
+		Cart:                     NewCartClient(cfg),
+		CartItem:                 NewCartItemClient(cfg),
+		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DeliveryWindow:           NewDeliveryWindowClient(cfg),
+		Device:                   NewDeviceClient(cfg),
+		DietaryTag:               NewDietaryTagClient(cfg),
+		LogisticsEvent:           NewLogisticsEventClient(cfg),
+		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
+		MenuCategory:             NewMenuCategoryClient(cfg),
+		MenuItem:                 NewMenuItemClient(cfg),
+		MenuItemAsset:            NewMenuItemAssetClient(cfg),
+		MenuItemSchedule:         NewMenuItemScheduleClient(cfg),
+		MenuItemTranslation:      NewMenuItemTranslationClient(cfg),
+		MenuItemVariant:          NewMenuItemVariantClient(cfg),
+		NotificationEvent:        NewNotificationEventClient(cfg),
+		NotificationSubscription: NewNotificationSubscriptionClient(cfg),
+		NotificationTemplate:     NewNotificationTemplateClient(cfg),
+		OAuthAccount:             NewOAuthAccountClient(cfg),
+		Order:                    NewOrderClient(cfg),
+		OrderAssignment:          NewOrderAssignmentClient(cfg),
+		OrderEvent:               NewOrderEventClient(cfg),
+		OrderItem:                NewOrderItemClient(cfg),
+		OutboxEvent:              NewOutboxEventClient(cfg),
+		Payment:                  NewPaymentClient(cfg),
+		PaymentIntent:            NewPaymentIntentClient(cfg),
+		PaymentMethod:            NewPaymentMethodClient(cfg),
+		Permission:               NewPermissionClient(cfg),
+		PromoCode:                NewPromoCodeClient(cfg),
+		PromoRedemption:          NewPromoRedemptionClient(cfg),
+		ProofOfDelivery:          NewProofOfDeliveryClient(cfg),
+		Refund:                   NewRefundClient(cfg),
+		Role:                     NewRoleClient(cfg),
+		SLAMetric:                NewSLAMetricClient(cfg),
+		Session:                  NewSessionClient(cfg),
+		Tenant:                   NewTenantClient(cfg),
+		TenantSetting:            NewTenantSettingClient(cfg),
+		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
+		TreasuryEvent:            NewTreasuryEventClient(cfg),
+		TwoFactorSetting:         NewTwoFactorSettingClient(cfg),
+		User:                     NewUserClient(cfg),
+		UserPreference:           NewUserPreferenceClient(cfg),
+		UserProfile:              NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -411,12 +441,13 @@ func (c *Client) Use(hooks ...Hook) {
 		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DeliveryWindow, c.Device,
 		c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount, c.LoyaltyTransaction,
 		c.MenuCategory, c.MenuItem, c.MenuItemAsset, c.MenuItemSchedule,
-		c.MenuItemTranslation, c.MenuItemVariant, c.OAuthAccount, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.Payment, c.PaymentIntent,
-		c.PaymentMethod, c.Permission, c.PromoCode, c.PromoRedemption,
-		c.ProofOfDelivery, c.Refund, c.Role, c.Session, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.TreasuryEvent, c.TwoFactorSetting, c.User,
-		c.UserPreference, c.UserProfile,
+		c.MenuItemTranslation, c.MenuItemVariant, c.NotificationEvent,
+		c.NotificationSubscription, c.NotificationTemplate, c.OAuthAccount, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OutboxEvent, c.Payment,
+		c.PaymentIntent, c.PaymentMethod, c.Permission, c.PromoCode, c.PromoRedemption,
+		c.ProofOfDelivery, c.Refund, c.Role, c.SLAMetric, c.Session, c.Tenant,
+		c.TenantSetting, c.TenantSyncEvent, c.TreasuryEvent, c.TwoFactorSetting,
+		c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Use(hooks...)
 	}
@@ -429,12 +460,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DeliveryWindow, c.Device,
 		c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount, c.LoyaltyTransaction,
 		c.MenuCategory, c.MenuItem, c.MenuItemAsset, c.MenuItemSchedule,
-		c.MenuItemTranslation, c.MenuItemVariant, c.OAuthAccount, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.Payment, c.PaymentIntent,
-		c.PaymentMethod, c.Permission, c.PromoCode, c.PromoRedemption,
-		c.ProofOfDelivery, c.Refund, c.Role, c.Session, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.TreasuryEvent, c.TwoFactorSetting, c.User,
-		c.UserPreference, c.UserProfile,
+		c.MenuItemTranslation, c.MenuItemVariant, c.NotificationEvent,
+		c.NotificationSubscription, c.NotificationTemplate, c.OAuthAccount, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OutboxEvent, c.Payment,
+		c.PaymentIntent, c.PaymentMethod, c.Permission, c.PromoCode, c.PromoRedemption,
+		c.ProofOfDelivery, c.Refund, c.Role, c.SLAMetric, c.Session, c.Tenant,
+		c.TenantSetting, c.TenantSyncEvent, c.TreasuryEvent, c.TwoFactorSetting,
+		c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -475,6 +507,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MenuItemTranslation.mutate(ctx, m)
 	case *MenuItemVariantMutation:
 		return c.MenuItemVariant.mutate(ctx, m)
+	case *NotificationEventMutation:
+		return c.NotificationEvent.mutate(ctx, m)
+	case *NotificationSubscriptionMutation:
+		return c.NotificationSubscription.mutate(ctx, m)
+	case *NotificationTemplateMutation:
+		return c.NotificationTemplate.mutate(ctx, m)
 	case *OAuthAccountMutation:
 		return c.OAuthAccount.mutate(ctx, m)
 	case *OrderMutation:
@@ -485,6 +523,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OrderEvent.mutate(ctx, m)
 	case *OrderItemMutation:
 		return c.OrderItem.mutate(ctx, m)
+	case *OutboxEventMutation:
+		return c.OutboxEvent.mutate(ctx, m)
 	case *PaymentMutation:
 		return c.Payment.mutate(ctx, m)
 	case *PaymentIntentMutation:
@@ -503,6 +543,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Refund.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
+	case *SLAMetricMutation:
+		return c.SLAMetric.mutate(ctx, m)
 	case *SessionMutation:
 		return c.Session.mutate(ctx, m)
 	case *TenantMutation:
@@ -3118,6 +3160,405 @@ func (c *MenuItemVariantClient) mutate(ctx context.Context, m *MenuItemVariantMu
 	}
 }
 
+// NotificationEventClient is a client for the NotificationEvent schema.
+type NotificationEventClient struct {
+	config
+}
+
+// NewNotificationEventClient returns a client for the NotificationEvent from the given config.
+func NewNotificationEventClient(c config) *NotificationEventClient {
+	return &NotificationEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationevent.Hooks(f(g(h())))`.
+func (c *NotificationEventClient) Use(hooks ...Hook) {
+	c.hooks.NotificationEvent = append(c.hooks.NotificationEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationevent.Intercept(f(g(h())))`.
+func (c *NotificationEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationEvent = append(c.inters.NotificationEvent, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationEvent entity.
+func (c *NotificationEventClient) Create() *NotificationEventCreate {
+	mutation := newNotificationEventMutation(c.config, OpCreate)
+	return &NotificationEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationEvent entities.
+func (c *NotificationEventClient) CreateBulk(builders ...*NotificationEventCreate) *NotificationEventCreateBulk {
+	return &NotificationEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationEventClient) MapCreateBulk(slice any, setFunc func(*NotificationEventCreate, int)) *NotificationEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationEventCreateBulk{err: fmt.Errorf("calling to NotificationEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationEvent.
+func (c *NotificationEventClient) Update() *NotificationEventUpdate {
+	mutation := newNotificationEventMutation(c.config, OpUpdate)
+	return &NotificationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationEventClient) UpdateOne(ne *NotificationEvent) *NotificationEventUpdateOne {
+	mutation := newNotificationEventMutation(c.config, OpUpdateOne, withNotificationEvent(ne))
+	return &NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationEventClient) UpdateOneID(id uuid.UUID) *NotificationEventUpdateOne {
+	mutation := newNotificationEventMutation(c.config, OpUpdateOne, withNotificationEventID(id))
+	return &NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationEvent.
+func (c *NotificationEventClient) Delete() *NotificationEventDelete {
+	mutation := newNotificationEventMutation(c.config, OpDelete)
+	return &NotificationEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationEventClient) DeleteOne(ne *NotificationEvent) *NotificationEventDeleteOne {
+	return c.DeleteOneID(ne.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationEventClient) DeleteOneID(id uuid.UUID) *NotificationEventDeleteOne {
+	builder := c.Delete().Where(notificationevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationEventDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationEvent.
+func (c *NotificationEventClient) Query() *NotificationEventQuery {
+	return &NotificationEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationEvent entity by its id.
+func (c *NotificationEventClient) Get(ctx context.Context, id uuid.UUID) (*NotificationEvent, error) {
+	return c.Query().Where(notificationevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationEventClient) GetX(ctx context.Context, id uuid.UUID) *NotificationEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationEventClient) Hooks() []Hook {
+	return c.hooks.NotificationEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationEventClient) Interceptors() []Interceptor {
+	return c.inters.NotificationEvent
+}
+
+func (c *NotificationEventClient) mutate(ctx context.Context, m *NotificationEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationEvent mutation op: %q", m.Op())
+	}
+}
+
+// NotificationSubscriptionClient is a client for the NotificationSubscription schema.
+type NotificationSubscriptionClient struct {
+	config
+}
+
+// NewNotificationSubscriptionClient returns a client for the NotificationSubscription from the given config.
+func NewNotificationSubscriptionClient(c config) *NotificationSubscriptionClient {
+	return &NotificationSubscriptionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationsubscription.Hooks(f(g(h())))`.
+func (c *NotificationSubscriptionClient) Use(hooks ...Hook) {
+	c.hooks.NotificationSubscription = append(c.hooks.NotificationSubscription, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationsubscription.Intercept(f(g(h())))`.
+func (c *NotificationSubscriptionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationSubscription = append(c.inters.NotificationSubscription, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationSubscription entity.
+func (c *NotificationSubscriptionClient) Create() *NotificationSubscriptionCreate {
+	mutation := newNotificationSubscriptionMutation(c.config, OpCreate)
+	return &NotificationSubscriptionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationSubscription entities.
+func (c *NotificationSubscriptionClient) CreateBulk(builders ...*NotificationSubscriptionCreate) *NotificationSubscriptionCreateBulk {
+	return &NotificationSubscriptionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationSubscriptionClient) MapCreateBulk(slice any, setFunc func(*NotificationSubscriptionCreate, int)) *NotificationSubscriptionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationSubscriptionCreateBulk{err: fmt.Errorf("calling to NotificationSubscriptionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationSubscriptionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationSubscriptionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationSubscription.
+func (c *NotificationSubscriptionClient) Update() *NotificationSubscriptionUpdate {
+	mutation := newNotificationSubscriptionMutation(c.config, OpUpdate)
+	return &NotificationSubscriptionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationSubscriptionClient) UpdateOne(ns *NotificationSubscription) *NotificationSubscriptionUpdateOne {
+	mutation := newNotificationSubscriptionMutation(c.config, OpUpdateOne, withNotificationSubscription(ns))
+	return &NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationSubscriptionClient) UpdateOneID(id uuid.UUID) *NotificationSubscriptionUpdateOne {
+	mutation := newNotificationSubscriptionMutation(c.config, OpUpdateOne, withNotificationSubscriptionID(id))
+	return &NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationSubscription.
+func (c *NotificationSubscriptionClient) Delete() *NotificationSubscriptionDelete {
+	mutation := newNotificationSubscriptionMutation(c.config, OpDelete)
+	return &NotificationSubscriptionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationSubscriptionClient) DeleteOne(ns *NotificationSubscription) *NotificationSubscriptionDeleteOne {
+	return c.DeleteOneID(ns.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationSubscriptionClient) DeleteOneID(id uuid.UUID) *NotificationSubscriptionDeleteOne {
+	builder := c.Delete().Where(notificationsubscription.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationSubscriptionDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationSubscription.
+func (c *NotificationSubscriptionClient) Query() *NotificationSubscriptionQuery {
+	return &NotificationSubscriptionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationSubscription},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationSubscription entity by its id.
+func (c *NotificationSubscriptionClient) Get(ctx context.Context, id uuid.UUID) (*NotificationSubscription, error) {
+	return c.Query().Where(notificationsubscription.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationSubscriptionClient) GetX(ctx context.Context, id uuid.UUID) *NotificationSubscription {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationSubscriptionClient) Hooks() []Hook {
+	return c.hooks.NotificationSubscription
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationSubscriptionClient) Interceptors() []Interceptor {
+	return c.inters.NotificationSubscription
+}
+
+func (c *NotificationSubscriptionClient) mutate(ctx context.Context, m *NotificationSubscriptionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationSubscriptionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationSubscriptionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationSubscriptionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationSubscription mutation op: %q", m.Op())
+	}
+}
+
+// NotificationTemplateClient is a client for the NotificationTemplate schema.
+type NotificationTemplateClient struct {
+	config
+}
+
+// NewNotificationTemplateClient returns a client for the NotificationTemplate from the given config.
+func NewNotificationTemplateClient(c config) *NotificationTemplateClient {
+	return &NotificationTemplateClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationtemplate.Hooks(f(g(h())))`.
+func (c *NotificationTemplateClient) Use(hooks ...Hook) {
+	c.hooks.NotificationTemplate = append(c.hooks.NotificationTemplate, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationtemplate.Intercept(f(g(h())))`.
+func (c *NotificationTemplateClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationTemplate = append(c.inters.NotificationTemplate, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationTemplate entity.
+func (c *NotificationTemplateClient) Create() *NotificationTemplateCreate {
+	mutation := newNotificationTemplateMutation(c.config, OpCreate)
+	return &NotificationTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationTemplate entities.
+func (c *NotificationTemplateClient) CreateBulk(builders ...*NotificationTemplateCreate) *NotificationTemplateCreateBulk {
+	return &NotificationTemplateCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationTemplateClient) MapCreateBulk(slice any, setFunc func(*NotificationTemplateCreate, int)) *NotificationTemplateCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationTemplateCreateBulk{err: fmt.Errorf("calling to NotificationTemplateClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationTemplateCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationTemplateCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationTemplate.
+func (c *NotificationTemplateClient) Update() *NotificationTemplateUpdate {
+	mutation := newNotificationTemplateMutation(c.config, OpUpdate)
+	return &NotificationTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationTemplateClient) UpdateOne(nt *NotificationTemplate) *NotificationTemplateUpdateOne {
+	mutation := newNotificationTemplateMutation(c.config, OpUpdateOne, withNotificationTemplate(nt))
+	return &NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationTemplateClient) UpdateOneID(id uuid.UUID) *NotificationTemplateUpdateOne {
+	mutation := newNotificationTemplateMutation(c.config, OpUpdateOne, withNotificationTemplateID(id))
+	return &NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationTemplate.
+func (c *NotificationTemplateClient) Delete() *NotificationTemplateDelete {
+	mutation := newNotificationTemplateMutation(c.config, OpDelete)
+	return &NotificationTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationTemplateClient) DeleteOne(nt *NotificationTemplate) *NotificationTemplateDeleteOne {
+	return c.DeleteOneID(nt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationTemplateClient) DeleteOneID(id uuid.UUID) *NotificationTemplateDeleteOne {
+	builder := c.Delete().Where(notificationtemplate.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationTemplateDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationTemplate.
+func (c *NotificationTemplateClient) Query() *NotificationTemplateQuery {
+	return &NotificationTemplateQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationTemplate},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationTemplate entity by its id.
+func (c *NotificationTemplateClient) Get(ctx context.Context, id uuid.UUID) (*NotificationTemplate, error) {
+	return c.Query().Where(notificationtemplate.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationTemplateClient) GetX(ctx context.Context, id uuid.UUID) *NotificationTemplate {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationTemplateClient) Hooks() []Hook {
+	return c.hooks.NotificationTemplate
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationTemplateClient) Interceptors() []Interceptor {
+	return c.inters.NotificationTemplate
+}
+
+func (c *NotificationTemplateClient) mutate(ctx context.Context, m *NotificationTemplateMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationTemplate mutation op: %q", m.Op())
+	}
+}
+
 // OAuthAccountClient is a client for the OAuthAccount schema.
 type OAuthAccountClient struct {
 	config
@@ -3988,6 +4429,139 @@ func (c *OrderItemClient) mutate(ctx context.Context, m *OrderItemMutation) (Val
 		return (&OrderItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown OrderItem mutation op: %q", m.Op())
+	}
+}
+
+// OutboxEventClient is a client for the OutboxEvent schema.
+type OutboxEventClient struct {
+	config
+}
+
+// NewOutboxEventClient returns a client for the OutboxEvent from the given config.
+func NewOutboxEventClient(c config) *OutboxEventClient {
+	return &OutboxEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `outboxevent.Hooks(f(g(h())))`.
+func (c *OutboxEventClient) Use(hooks ...Hook) {
+	c.hooks.OutboxEvent = append(c.hooks.OutboxEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `outboxevent.Intercept(f(g(h())))`.
+func (c *OutboxEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.OutboxEvent = append(c.inters.OutboxEvent, interceptors...)
+}
+
+// Create returns a builder for creating a OutboxEvent entity.
+func (c *OutboxEventClient) Create() *OutboxEventCreate {
+	mutation := newOutboxEventMutation(c.config, OpCreate)
+	return &OutboxEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of OutboxEvent entities.
+func (c *OutboxEventClient) CreateBulk(builders ...*OutboxEventCreate) *OutboxEventCreateBulk {
+	return &OutboxEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OutboxEventClient) MapCreateBulk(slice any, setFunc func(*OutboxEventCreate, int)) *OutboxEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OutboxEventCreateBulk{err: fmt.Errorf("calling to OutboxEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OutboxEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OutboxEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for OutboxEvent.
+func (c *OutboxEventClient) Update() *OutboxEventUpdate {
+	mutation := newOutboxEventMutation(c.config, OpUpdate)
+	return &OutboxEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OutboxEventClient) UpdateOne(oe *OutboxEvent) *OutboxEventUpdateOne {
+	mutation := newOutboxEventMutation(c.config, OpUpdateOne, withOutboxEvent(oe))
+	return &OutboxEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OutboxEventClient) UpdateOneID(id uuid.UUID) *OutboxEventUpdateOne {
+	mutation := newOutboxEventMutation(c.config, OpUpdateOne, withOutboxEventID(id))
+	return &OutboxEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for OutboxEvent.
+func (c *OutboxEventClient) Delete() *OutboxEventDelete {
+	mutation := newOutboxEventMutation(c.config, OpDelete)
+	return &OutboxEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OutboxEventClient) DeleteOne(oe *OutboxEvent) *OutboxEventDeleteOne {
+	return c.DeleteOneID(oe.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OutboxEventClient) DeleteOneID(id uuid.UUID) *OutboxEventDeleteOne {
+	builder := c.Delete().Where(outboxevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OutboxEventDeleteOne{builder}
+}
+
+// Query returns a query builder for OutboxEvent.
+func (c *OutboxEventClient) Query() *OutboxEventQuery {
+	return &OutboxEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOutboxEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a OutboxEvent entity by its id.
+func (c *OutboxEventClient) Get(ctx context.Context, id uuid.UUID) (*OutboxEvent, error) {
+	return c.Query().Where(outboxevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OutboxEventClient) GetX(ctx context.Context, id uuid.UUID) *OutboxEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *OutboxEventClient) Hooks() []Hook {
+	return c.hooks.OutboxEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *OutboxEventClient) Interceptors() []Interceptor {
+	return c.inters.OutboxEvent
+}
+
+func (c *OutboxEventClient) mutate(ctx context.Context, m *OutboxEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OutboxEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OutboxEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OutboxEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OutboxEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown OutboxEvent mutation op: %q", m.Op())
 	}
 }
 
@@ -5425,6 +5999,139 @@ func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error)
 		return (&RoleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Role mutation op: %q", m.Op())
+	}
+}
+
+// SLAMetricClient is a client for the SLAMetric schema.
+type SLAMetricClient struct {
+	config
+}
+
+// NewSLAMetricClient returns a client for the SLAMetric from the given config.
+func NewSLAMetricClient(c config) *SLAMetricClient {
+	return &SLAMetricClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `slametric.Hooks(f(g(h())))`.
+func (c *SLAMetricClient) Use(hooks ...Hook) {
+	c.hooks.SLAMetric = append(c.hooks.SLAMetric, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `slametric.Intercept(f(g(h())))`.
+func (c *SLAMetricClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SLAMetric = append(c.inters.SLAMetric, interceptors...)
+}
+
+// Create returns a builder for creating a SLAMetric entity.
+func (c *SLAMetricClient) Create() *SLAMetricCreate {
+	mutation := newSLAMetricMutation(c.config, OpCreate)
+	return &SLAMetricCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SLAMetric entities.
+func (c *SLAMetricClient) CreateBulk(builders ...*SLAMetricCreate) *SLAMetricCreateBulk {
+	return &SLAMetricCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SLAMetricClient) MapCreateBulk(slice any, setFunc func(*SLAMetricCreate, int)) *SLAMetricCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SLAMetricCreateBulk{err: fmt.Errorf("calling to SLAMetricClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SLAMetricCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SLAMetricCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SLAMetric.
+func (c *SLAMetricClient) Update() *SLAMetricUpdate {
+	mutation := newSLAMetricMutation(c.config, OpUpdate)
+	return &SLAMetricUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SLAMetricClient) UpdateOne(sm *SLAMetric) *SLAMetricUpdateOne {
+	mutation := newSLAMetricMutation(c.config, OpUpdateOne, withSLAMetric(sm))
+	return &SLAMetricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SLAMetricClient) UpdateOneID(id uuid.UUID) *SLAMetricUpdateOne {
+	mutation := newSLAMetricMutation(c.config, OpUpdateOne, withSLAMetricID(id))
+	return &SLAMetricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SLAMetric.
+func (c *SLAMetricClient) Delete() *SLAMetricDelete {
+	mutation := newSLAMetricMutation(c.config, OpDelete)
+	return &SLAMetricDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SLAMetricClient) DeleteOne(sm *SLAMetric) *SLAMetricDeleteOne {
+	return c.DeleteOneID(sm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SLAMetricClient) DeleteOneID(id uuid.UUID) *SLAMetricDeleteOne {
+	builder := c.Delete().Where(slametric.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SLAMetricDeleteOne{builder}
+}
+
+// Query returns a query builder for SLAMetric.
+func (c *SLAMetricClient) Query() *SLAMetricQuery {
+	return &SLAMetricQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSLAMetric},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SLAMetric entity by its id.
+func (c *SLAMetricClient) Get(ctx context.Context, id uuid.UUID) (*SLAMetric, error) {
+	return c.Query().Where(slametric.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SLAMetricClient) GetX(ctx context.Context, id uuid.UUID) *SLAMetric {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *SLAMetricClient) Hooks() []Hook {
+	return c.hooks.SLAMetric
+}
+
+// Interceptors returns the client interceptors.
+func (c *SLAMetricClient) Interceptors() []Interceptor {
+	return c.inters.SLAMetric
+}
+
+func (c *SLAMetricClient) mutate(ctx context.Context, m *SLAMetricMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SLAMetricCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SLAMetricUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SLAMetricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SLAMetricDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SLAMetric mutation op: %q", m.Op())
 	}
 }
 
@@ -7031,19 +7738,22 @@ type (
 		BackupCode, Cart, CartItem, CustomerAddress, DeliveryWindow, Device, DietaryTag,
 		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
 		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, Payment,
-		PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, Session, Tenant, TenantSetting, TenantSyncEvent,
-		TreasuryEvent, TwoFactorSetting, User, UserPreference, UserProfile []ent.Hook
+		NotificationEvent, NotificationSubscription, NotificationTemplate,
+		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
+		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
+		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
+		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
+		UserProfile []ent.Hook
 	}
 	inters struct {
 		BackupCode, Cart, CartItem, CustomerAddress, DeliveryWindow, Device, DietaryTag,
 		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
 		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, Payment,
-		PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, Session, Tenant, TenantSetting, TenantSyncEvent,
-		TreasuryEvent, TwoFactorSetting, User, UserPreference,
+		NotificationEvent, NotificationSubscription, NotificationTemplate,
+		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
+		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
+		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
+		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
 		UserProfile []ent.Interceptor
 	}
 )

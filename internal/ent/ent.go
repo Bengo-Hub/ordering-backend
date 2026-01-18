@@ -28,11 +28,15 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
 	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationevent"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationsubscription"
+	"github.com/bengobox/ordering-backend/internal/ent/notificationtemplate"
 	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/payment"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
 	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
@@ -43,6 +47,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/refund"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
 	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/slametric"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -111,45 +116,50 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			backupcode.Table:          backupcode.ValidColumn,
-			cart.Table:                cart.ValidColumn,
-			cartitem.Table:            cartitem.ValidColumn,
-			customeraddress.Table:     customeraddress.ValidColumn,
-			deliverywindow.Table:      deliverywindow.ValidColumn,
-			device.Table:              device.ValidColumn,
-			dietarytag.Table:          dietarytag.ValidColumn,
-			logisticsevent.Table:      logisticsevent.ValidColumn,
-			loyaltyaccount.Table:      loyaltyaccount.ValidColumn,
-			loyaltytransaction.Table:  loyaltytransaction.ValidColumn,
-			menucategory.Table:        menucategory.ValidColumn,
-			menuitem.Table:            menuitem.ValidColumn,
-			menuitemasset.Table:       menuitemasset.ValidColumn,
-			menuitemschedule.Table:    menuitemschedule.ValidColumn,
-			menuitemtranslation.Table: menuitemtranslation.ValidColumn,
-			menuitemvariant.Table:     menuitemvariant.ValidColumn,
-			oauthaccount.Table:        oauthaccount.ValidColumn,
-			order.Table:               order.ValidColumn,
-			orderassignment.Table:     orderassignment.ValidColumn,
-			orderevent.Table:          orderevent.ValidColumn,
-			orderitem.Table:           orderitem.ValidColumn,
-			payment.Table:             payment.ValidColumn,
-			paymentintent.Table:       paymentintent.ValidColumn,
-			paymentmethod.Table:       paymentmethod.ValidColumn,
-			permission.Table:          permission.ValidColumn,
-			promocode.Table:           promocode.ValidColumn,
-			promoredemption.Table:     promoredemption.ValidColumn,
-			proofofdelivery.Table:     proofofdelivery.ValidColumn,
-			refund.Table:              refund.ValidColumn,
-			role.Table:                role.ValidColumn,
-			session.Table:             session.ValidColumn,
-			tenant.Table:              tenant.ValidColumn,
-			tenantsetting.Table:       tenantsetting.ValidColumn,
-			tenantsyncevent.Table:     tenantsyncevent.ValidColumn,
-			treasuryevent.Table:       treasuryevent.ValidColumn,
-			twofactorsetting.Table:    twofactorsetting.ValidColumn,
-			user.Table:                user.ValidColumn,
-			userpreference.Table:      userpreference.ValidColumn,
-			userprofile.Table:         userprofile.ValidColumn,
+			backupcode.Table:               backupcode.ValidColumn,
+			cart.Table:                     cart.ValidColumn,
+			cartitem.Table:                 cartitem.ValidColumn,
+			customeraddress.Table:          customeraddress.ValidColumn,
+			deliverywindow.Table:           deliverywindow.ValidColumn,
+			device.Table:                   device.ValidColumn,
+			dietarytag.Table:               dietarytag.ValidColumn,
+			logisticsevent.Table:           logisticsevent.ValidColumn,
+			loyaltyaccount.Table:           loyaltyaccount.ValidColumn,
+			loyaltytransaction.Table:       loyaltytransaction.ValidColumn,
+			menucategory.Table:             menucategory.ValidColumn,
+			menuitem.Table:                 menuitem.ValidColumn,
+			menuitemasset.Table:            menuitemasset.ValidColumn,
+			menuitemschedule.Table:         menuitemschedule.ValidColumn,
+			menuitemtranslation.Table:      menuitemtranslation.ValidColumn,
+			menuitemvariant.Table:          menuitemvariant.ValidColumn,
+			notificationevent.Table:        notificationevent.ValidColumn,
+			notificationsubscription.Table: notificationsubscription.ValidColumn,
+			notificationtemplate.Table:     notificationtemplate.ValidColumn,
+			oauthaccount.Table:             oauthaccount.ValidColumn,
+			order.Table:                    order.ValidColumn,
+			orderassignment.Table:          orderassignment.ValidColumn,
+			orderevent.Table:               orderevent.ValidColumn,
+			orderitem.Table:                orderitem.ValidColumn,
+			outboxevent.Table:              outboxevent.ValidColumn,
+			payment.Table:                  payment.ValidColumn,
+			paymentintent.Table:            paymentintent.ValidColumn,
+			paymentmethod.Table:            paymentmethod.ValidColumn,
+			permission.Table:               permission.ValidColumn,
+			promocode.Table:                promocode.ValidColumn,
+			promoredemption.Table:          promoredemption.ValidColumn,
+			proofofdelivery.Table:          proofofdelivery.ValidColumn,
+			refund.Table:                   refund.ValidColumn,
+			role.Table:                     role.ValidColumn,
+			slametric.Table:                slametric.ValidColumn,
+			session.Table:                  session.ValidColumn,
+			tenant.Table:                   tenant.ValidColumn,
+			tenantsetting.Table:            tenantsetting.ValidColumn,
+			tenantsyncevent.Table:          tenantsyncevent.ValidColumn,
+			treasuryevent.Table:            treasuryevent.ValidColumn,
+			twofactorsetting.Table:         twofactorsetting.ValidColumn,
+			user.Table:                     user.ValidColumn,
+			userpreference.Table:           userpreference.ValidColumn,
+			userprofile.Table:              userprofile.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
