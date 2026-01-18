@@ -24,9 +24,9 @@ import (
 )
 
 var tenantSyncDestinations = []string{
-	"logistics-service",
-	"inventory-service",
-	"pos-service",
+	"logistics-api",
+	"inventory-api",
+	"pos-api",
 	"notifications-api",
 	"treasury-api",
 }

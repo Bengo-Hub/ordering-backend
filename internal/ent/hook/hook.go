@@ -57,6 +57,42 @@ func (f CustomerAddressFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CustomerAddressMutation", m)
 }
 
+// The DataDeletionJobFunc type is an adapter to allow the use of ordinary
+// function as DataDeletionJob mutator.
+type DataDeletionJobFunc func(context.Context, *ent.DataDeletionJobMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DataDeletionJobFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DataDeletionJobMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DataDeletionJobMutation", m)
+}
+
+// The DataExportJobFunc type is an adapter to allow the use of ordinary
+// function as DataExportJob mutator.
+type DataExportJobFunc func(context.Context, *ent.DataExportJobMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DataExportJobFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DataExportJobMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DataExportJobMutation", m)
+}
+
+// The DataSubjectRequestFunc type is an adapter to allow the use of ordinary
+// function as DataSubjectRequest mutator.
+type DataSubjectRequestFunc func(context.Context, *ent.DataSubjectRequestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DataSubjectRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DataSubjectRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DataSubjectRequestMutation", m)
+}
+
 // The DeliveryWindowFunc type is an adapter to allow the use of ordinary
 // function as DeliveryWindow mutator.
 type DeliveryWindowFunc func(context.Context, *ent.DeliveryWindowMutation) (ent.Value, error)

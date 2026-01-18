@@ -78,61 +78,61 @@ Sprint 3 focuses on building the ordering system with cart persistence, checkout
 ## User Stories
 
 ### US-3.1: Shopping Cart
-**As a** customer  
-**I want** to add items to my cart  
+**As a** customer
+**I want** to add items to my cart
 **So that** I can prepare my order
 
 **Acceptance Criteria**:
-- [ ] Add items to cart
-- [ ] Update item quantities
-- [ ] Remove items from cart
-- [ ] Cart persistence across sessions
-- [ ] Cart expiration handling
+- [x] Add items to cart
+- [x] Update item quantities
+- [x] Remove items from cart
+- [x] Cart persistence across sessions
+- [x] Cart expiration handling
 
 ### US-3.2: Checkout Process
-**As a** customer  
-**I want** to checkout my cart  
+**As a** customer
+**I want** to checkout my cart
 **So that** I can place an order
 
 **Acceptance Criteria**:
-- [ ] Checkout initiation
-- [ ] Address selection/entry
-- [ ] Payment method selection
-- [ ] Order summary display
-- [ ] Order confirmation
+- [x] Checkout initiation
+- [x] Address selection/entry
+- [x] Payment method selection
+- [x] Order summary display
+- [x] Order confirmation
 
 ### US-3.3: Promo Codes
-**As a** customer  
-**I want** to apply promo codes  
+**As a** customer
+**I want** to apply promo codes
 **So that** I can get discounts
 
 **Acceptance Criteria**:
-- [ ] Promo code validation
-- [ ] Discount calculation
-- [ ] Usage limits enforcement
-- [ ] Expiration date checking
+- [x] Promo code validation
+- [x] Discount calculation
+- [x] Usage limits enforcement
+- [x] Expiration date checking
 
 ### US-3.4: Order Management
-**As a** cafe administrator  
-**I want** to manage orders  
+**As a** cafe administrator
+**I want** to manage orders
 **So that** I can track order status
 
 **Acceptance Criteria**:
-- [ ] Order status transitions
-- [ ] Order cancellation
-- [ ] Order history
-- [ ] Order search and filtering
+- [x] Order status transitions
+- [x] Order cancellation
+- [x] Order history
+- [x] Order search and filtering
 
 ### US-3.5: Loyalty Points
-**As a** customer  
-**I want** to earn and redeem loyalty points  
+**As a** customer
+**I want** to earn and redeem loyalty points
 **So that** I can get rewards
 
 **Acceptance Criteria**:
-- [ ] Points accrual on order completion
-- [ ] Points redemption at checkout
-- [ ] Points balance display
-- [ ] Points transaction history
+- [x] Points accrual on order completion
+- [x] Points redemption at checkout
+- [x] Points balance display
+- [x] Points transaction history
 
 ---
 

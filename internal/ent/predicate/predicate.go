@@ -18,6 +18,15 @@ type CartItem func(*sql.Selector)
 // CustomerAddress is the predicate function for customeraddress builders.
 type CustomerAddress func(*sql.Selector)
 
+// DataDeletionJob is the predicate function for datadeletionjob builders.
+type DataDeletionJob func(*sql.Selector)
+
+// DataExportJob is the predicate function for dataexportjob builders.
+type DataExportJob func(*sql.Selector)
+
+// DataSubjectRequest is the predicate function for datasubjectrequest builders.
+type DataSubjectRequest func(*sql.Selector)
+
 // DeliveryWindow is the predicate function for deliverywindow builders.
 type DeliveryWindow func(*sql.Selector)
 

@@ -20,6 +20,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
+	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
+	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
@@ -75,6 +78,12 @@ type Client struct {
 	CartItem *CartItemClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
+	// DataDeletionJob is the client for interacting with the DataDeletionJob builders.
+	DataDeletionJob *DataDeletionJobClient
+	// DataExportJob is the client for interacting with the DataExportJob builders.
+	DataExportJob *DataExportJobClient
+	// DataSubjectRequest is the client for interacting with the DataSubjectRequest builders.
+	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
 	// Device is the client for interacting with the Device builders.
@@ -170,6 +179,9 @@ func (c *Client) init() {
 	c.Cart = NewCartClient(c.config)
 	c.CartItem = NewCartItemClient(c.config)
 	c.CustomerAddress = NewCustomerAddressClient(c.config)
+	c.DataDeletionJob = NewDataDeletionJobClient(c.config)
+	c.DataExportJob = NewDataExportJobClient(c.config)
+	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
 	c.Device = NewDeviceClient(c.config)
 	c.DietaryTag = NewDietaryTagClient(c.config)
@@ -306,6 +318,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Cart:                     NewCartClient(cfg),
 		CartItem:                 NewCartItemClient(cfg),
 		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DataDeletionJob:          NewDataDeletionJobClient(cfg),
+		DataExportJob:            NewDataExportJobClient(cfg),
+		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
 		Device:                   NewDeviceClient(cfg),
 		DietaryTag:               NewDietaryTagClient(cfg),
@@ -369,6 +384,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Cart:                     NewCartClient(cfg),
 		CartItem:                 NewCartItemClient(cfg),
 		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DataDeletionJob:          NewDataDeletionJobClient(cfg),
+		DataExportJob:            NewDataExportJobClient(cfg),
+		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
 		Device:                   NewDeviceClient(cfg),
 		DietaryTag:               NewDietaryTagClient(cfg),
@@ -438,7 +456,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DeliveryWindow, c.Device,
+		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DataDeletionJob,
+		c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow, c.Device,
 		c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount, c.LoyaltyTransaction,
 		c.MenuCategory, c.MenuItem, c.MenuItemAsset, c.MenuItemSchedule,
 		c.MenuItemTranslation, c.MenuItemVariant, c.NotificationEvent,
@@ -457,7 +476,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DeliveryWindow, c.Device,
+		c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress, c.DataDeletionJob,
+		c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow, c.Device,
 		c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount, c.LoyaltyTransaction,
 		c.MenuCategory, c.MenuItem, c.MenuItemAsset, c.MenuItemSchedule,
 		c.MenuItemTranslation, c.MenuItemVariant, c.NotificationEvent,
@@ -483,6 +503,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.CartItem.mutate(ctx, m)
 	case *CustomerAddressMutation:
 		return c.CustomerAddress.mutate(ctx, m)
+	case *DataDeletionJobMutation:
+		return c.DataDeletionJob.mutate(ctx, m)
+	case *DataExportJobMutation:
+		return c.DataExportJob.mutate(ctx, m)
+	case *DataSubjectRequestMutation:
+		return c.DataSubjectRequest.mutate(ctx, m)
 	case *DeliveryWindowMutation:
 		return c.DeliveryWindow.mutate(ctx, m)
 	case *DeviceMutation:
@@ -1225,6 +1251,405 @@ func (c *CustomerAddressClient) mutate(ctx context.Context, m *CustomerAddressMu
 		return (&CustomerAddressDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CustomerAddress mutation op: %q", m.Op())
+	}
+}
+
+// DataDeletionJobClient is a client for the DataDeletionJob schema.
+type DataDeletionJobClient struct {
+	config
+}
+
+// NewDataDeletionJobClient returns a client for the DataDeletionJob from the given config.
+func NewDataDeletionJobClient(c config) *DataDeletionJobClient {
+	return &DataDeletionJobClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `datadeletionjob.Hooks(f(g(h())))`.
+func (c *DataDeletionJobClient) Use(hooks ...Hook) {
+	c.hooks.DataDeletionJob = append(c.hooks.DataDeletionJob, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `datadeletionjob.Intercept(f(g(h())))`.
+func (c *DataDeletionJobClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DataDeletionJob = append(c.inters.DataDeletionJob, interceptors...)
+}
+
+// Create returns a builder for creating a DataDeletionJob entity.
+func (c *DataDeletionJobClient) Create() *DataDeletionJobCreate {
+	mutation := newDataDeletionJobMutation(c.config, OpCreate)
+	return &DataDeletionJobCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DataDeletionJob entities.
+func (c *DataDeletionJobClient) CreateBulk(builders ...*DataDeletionJobCreate) *DataDeletionJobCreateBulk {
+	return &DataDeletionJobCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DataDeletionJobClient) MapCreateBulk(slice any, setFunc func(*DataDeletionJobCreate, int)) *DataDeletionJobCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DataDeletionJobCreateBulk{err: fmt.Errorf("calling to DataDeletionJobClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DataDeletionJobCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DataDeletionJobCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DataDeletionJob.
+func (c *DataDeletionJobClient) Update() *DataDeletionJobUpdate {
+	mutation := newDataDeletionJobMutation(c.config, OpUpdate)
+	return &DataDeletionJobUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DataDeletionJobClient) UpdateOne(ddj *DataDeletionJob) *DataDeletionJobUpdateOne {
+	mutation := newDataDeletionJobMutation(c.config, OpUpdateOne, withDataDeletionJob(ddj))
+	return &DataDeletionJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DataDeletionJobClient) UpdateOneID(id uuid.UUID) *DataDeletionJobUpdateOne {
+	mutation := newDataDeletionJobMutation(c.config, OpUpdateOne, withDataDeletionJobID(id))
+	return &DataDeletionJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DataDeletionJob.
+func (c *DataDeletionJobClient) Delete() *DataDeletionJobDelete {
+	mutation := newDataDeletionJobMutation(c.config, OpDelete)
+	return &DataDeletionJobDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DataDeletionJobClient) DeleteOne(ddj *DataDeletionJob) *DataDeletionJobDeleteOne {
+	return c.DeleteOneID(ddj.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DataDeletionJobClient) DeleteOneID(id uuid.UUID) *DataDeletionJobDeleteOne {
+	builder := c.Delete().Where(datadeletionjob.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DataDeletionJobDeleteOne{builder}
+}
+
+// Query returns a query builder for DataDeletionJob.
+func (c *DataDeletionJobClient) Query() *DataDeletionJobQuery {
+	return &DataDeletionJobQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDataDeletionJob},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DataDeletionJob entity by its id.
+func (c *DataDeletionJobClient) Get(ctx context.Context, id uuid.UUID) (*DataDeletionJob, error) {
+	return c.Query().Where(datadeletionjob.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DataDeletionJobClient) GetX(ctx context.Context, id uuid.UUID) *DataDeletionJob {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DataDeletionJobClient) Hooks() []Hook {
+	return c.hooks.DataDeletionJob
+}
+
+// Interceptors returns the client interceptors.
+func (c *DataDeletionJobClient) Interceptors() []Interceptor {
+	return c.inters.DataDeletionJob
+}
+
+func (c *DataDeletionJobClient) mutate(ctx context.Context, m *DataDeletionJobMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DataDeletionJobCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DataDeletionJobUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DataDeletionJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DataDeletionJobDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DataDeletionJob mutation op: %q", m.Op())
+	}
+}
+
+// DataExportJobClient is a client for the DataExportJob schema.
+type DataExportJobClient struct {
+	config
+}
+
+// NewDataExportJobClient returns a client for the DataExportJob from the given config.
+func NewDataExportJobClient(c config) *DataExportJobClient {
+	return &DataExportJobClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `dataexportjob.Hooks(f(g(h())))`.
+func (c *DataExportJobClient) Use(hooks ...Hook) {
+	c.hooks.DataExportJob = append(c.hooks.DataExportJob, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `dataexportjob.Intercept(f(g(h())))`.
+func (c *DataExportJobClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DataExportJob = append(c.inters.DataExportJob, interceptors...)
+}
+
+// Create returns a builder for creating a DataExportJob entity.
+func (c *DataExportJobClient) Create() *DataExportJobCreate {
+	mutation := newDataExportJobMutation(c.config, OpCreate)
+	return &DataExportJobCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DataExportJob entities.
+func (c *DataExportJobClient) CreateBulk(builders ...*DataExportJobCreate) *DataExportJobCreateBulk {
+	return &DataExportJobCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DataExportJobClient) MapCreateBulk(slice any, setFunc func(*DataExportJobCreate, int)) *DataExportJobCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DataExportJobCreateBulk{err: fmt.Errorf("calling to DataExportJobClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DataExportJobCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DataExportJobCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DataExportJob.
+func (c *DataExportJobClient) Update() *DataExportJobUpdate {
+	mutation := newDataExportJobMutation(c.config, OpUpdate)
+	return &DataExportJobUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DataExportJobClient) UpdateOne(dej *DataExportJob) *DataExportJobUpdateOne {
+	mutation := newDataExportJobMutation(c.config, OpUpdateOne, withDataExportJob(dej))
+	return &DataExportJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DataExportJobClient) UpdateOneID(id uuid.UUID) *DataExportJobUpdateOne {
+	mutation := newDataExportJobMutation(c.config, OpUpdateOne, withDataExportJobID(id))
+	return &DataExportJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DataExportJob.
+func (c *DataExportJobClient) Delete() *DataExportJobDelete {
+	mutation := newDataExportJobMutation(c.config, OpDelete)
+	return &DataExportJobDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DataExportJobClient) DeleteOne(dej *DataExportJob) *DataExportJobDeleteOne {
+	return c.DeleteOneID(dej.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DataExportJobClient) DeleteOneID(id uuid.UUID) *DataExportJobDeleteOne {
+	builder := c.Delete().Where(dataexportjob.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DataExportJobDeleteOne{builder}
+}
+
+// Query returns a query builder for DataExportJob.
+func (c *DataExportJobClient) Query() *DataExportJobQuery {
+	return &DataExportJobQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDataExportJob},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DataExportJob entity by its id.
+func (c *DataExportJobClient) Get(ctx context.Context, id uuid.UUID) (*DataExportJob, error) {
+	return c.Query().Where(dataexportjob.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DataExportJobClient) GetX(ctx context.Context, id uuid.UUID) *DataExportJob {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DataExportJobClient) Hooks() []Hook {
+	return c.hooks.DataExportJob
+}
+
+// Interceptors returns the client interceptors.
+func (c *DataExportJobClient) Interceptors() []Interceptor {
+	return c.inters.DataExportJob
+}
+
+func (c *DataExportJobClient) mutate(ctx context.Context, m *DataExportJobMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DataExportJobCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DataExportJobUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DataExportJobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DataExportJobDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DataExportJob mutation op: %q", m.Op())
+	}
+}
+
+// DataSubjectRequestClient is a client for the DataSubjectRequest schema.
+type DataSubjectRequestClient struct {
+	config
+}
+
+// NewDataSubjectRequestClient returns a client for the DataSubjectRequest from the given config.
+func NewDataSubjectRequestClient(c config) *DataSubjectRequestClient {
+	return &DataSubjectRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `datasubjectrequest.Hooks(f(g(h())))`.
+func (c *DataSubjectRequestClient) Use(hooks ...Hook) {
+	c.hooks.DataSubjectRequest = append(c.hooks.DataSubjectRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `datasubjectrequest.Intercept(f(g(h())))`.
+func (c *DataSubjectRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DataSubjectRequest = append(c.inters.DataSubjectRequest, interceptors...)
+}
+
+// Create returns a builder for creating a DataSubjectRequest entity.
+func (c *DataSubjectRequestClient) Create() *DataSubjectRequestCreate {
+	mutation := newDataSubjectRequestMutation(c.config, OpCreate)
+	return &DataSubjectRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DataSubjectRequest entities.
+func (c *DataSubjectRequestClient) CreateBulk(builders ...*DataSubjectRequestCreate) *DataSubjectRequestCreateBulk {
+	return &DataSubjectRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DataSubjectRequestClient) MapCreateBulk(slice any, setFunc func(*DataSubjectRequestCreate, int)) *DataSubjectRequestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DataSubjectRequestCreateBulk{err: fmt.Errorf("calling to DataSubjectRequestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DataSubjectRequestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DataSubjectRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DataSubjectRequest.
+func (c *DataSubjectRequestClient) Update() *DataSubjectRequestUpdate {
+	mutation := newDataSubjectRequestMutation(c.config, OpUpdate)
+	return &DataSubjectRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DataSubjectRequestClient) UpdateOne(dsr *DataSubjectRequest) *DataSubjectRequestUpdateOne {
+	mutation := newDataSubjectRequestMutation(c.config, OpUpdateOne, withDataSubjectRequest(dsr))
+	return &DataSubjectRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DataSubjectRequestClient) UpdateOneID(id uuid.UUID) *DataSubjectRequestUpdateOne {
+	mutation := newDataSubjectRequestMutation(c.config, OpUpdateOne, withDataSubjectRequestID(id))
+	return &DataSubjectRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DataSubjectRequest.
+func (c *DataSubjectRequestClient) Delete() *DataSubjectRequestDelete {
+	mutation := newDataSubjectRequestMutation(c.config, OpDelete)
+	return &DataSubjectRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DataSubjectRequestClient) DeleteOne(dsr *DataSubjectRequest) *DataSubjectRequestDeleteOne {
+	return c.DeleteOneID(dsr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DataSubjectRequestClient) DeleteOneID(id uuid.UUID) *DataSubjectRequestDeleteOne {
+	builder := c.Delete().Where(datasubjectrequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DataSubjectRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for DataSubjectRequest.
+func (c *DataSubjectRequestClient) Query() *DataSubjectRequestQuery {
+	return &DataSubjectRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDataSubjectRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DataSubjectRequest entity by its id.
+func (c *DataSubjectRequestClient) Get(ctx context.Context, id uuid.UUID) (*DataSubjectRequest, error) {
+	return c.Query().Where(datasubjectrequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DataSubjectRequestClient) GetX(ctx context.Context, id uuid.UUID) *DataSubjectRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DataSubjectRequestClient) Hooks() []Hook {
+	return c.hooks.DataSubjectRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *DataSubjectRequestClient) Interceptors() []Interceptor {
+	return c.inters.DataSubjectRequest
+}
+
+func (c *DataSubjectRequestClient) mutate(ctx context.Context, m *DataSubjectRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DataSubjectRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DataSubjectRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DataSubjectRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DataSubjectRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DataSubjectRequest mutation op: %q", m.Op())
 	}
 }
 
@@ -7735,25 +8160,26 @@ func (c *UserProfileClient) mutate(ctx context.Context, m *UserProfileMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BackupCode, Cart, CartItem, CustomerAddress, DeliveryWindow, Device, DietaryTag,
-		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
-		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		NotificationEvent, NotificationSubscription, NotificationTemplate,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
-		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
-		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
-		UserProfile []ent.Hook
+		BackupCode, Cart, CartItem, CustomerAddress, DataDeletionJob, DataExportJob,
+		DataSubjectRequest, DeliveryWindow, Device, DietaryTag, LogisticsEvent,
+		LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem, MenuItemAsset,
+		MenuItemSchedule, MenuItemTranslation, MenuItemVariant, NotificationEvent,
+		NotificationSubscription, NotificationTemplate, OAuthAccount, Order,
+		OrderAssignment, OrderEvent, OrderItem, OutboxEvent, Payment, PaymentIntent,
+		PaymentMethod, Permission, PromoCode, PromoRedemption, ProofOfDelivery, Refund,
+		Role, SLAMetric, Session, Tenant, TenantSetting, TenantSyncEvent,
+		TreasuryEvent, TwoFactorSetting, User, UserPreference, UserProfile []ent.Hook
 	}
 	inters struct {
-		BackupCode, Cart, CartItem, CustomerAddress, DeliveryWindow, Device, DietaryTag,
-		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
-		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		NotificationEvent, NotificationSubscription, NotificationTemplate,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
-		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
-		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
+		BackupCode, Cart, CartItem, CustomerAddress, DataDeletionJob, DataExportJob,
+		DataSubjectRequest, DeliveryWindow, Device, DietaryTag, LogisticsEvent,
+		LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem, MenuItemAsset,
+		MenuItemSchedule, MenuItemTranslation, MenuItemVariant, NotificationEvent,
+		NotificationSubscription, NotificationTemplate, OAuthAccount, Order,
+		OrderAssignment, OrderEvent, OrderItem, OutboxEvent, Payment, PaymentIntent,
+		PaymentMethod, Permission, PromoCode, PromoRedemption, ProofOfDelivery, Refund,
+		Role, SLAMetric, Session, Tenant, TenantSetting, TenantSyncEvent,
+		TreasuryEvent, TwoFactorSetting, User, UserPreference,
 		UserProfile []ent.Interceptor
 	}
 )

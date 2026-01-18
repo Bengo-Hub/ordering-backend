@@ -112,9 +112,18 @@ func (Payment) Annotations() []schema.Annotation {
 func (Payment) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "order_id"),
+		index.Fields("tenant_id", "status"),
+		index.Fields("tenant_id", "provider"),
+		// Composite indexes for common filtering patterns
+		index.Fields("tenant_id", "status", "created_at"),
 		index.Fields("provider", "provider_reference"),
 		index.Fields("mpesa_transaction_id"),
+		index.Fields("mpesa_phone_number"),
 		index.Fields("status"),
+		index.Fields("payment_intent_id"),
+		// Time-based indexes for reporting
 		index.Fields("created_at"),
+		index.Fields("processed_at"),
+		index.Fields("captured_at"),
 	}
 }

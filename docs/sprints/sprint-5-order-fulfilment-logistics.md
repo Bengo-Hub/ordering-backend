@@ -1,7 +1,7 @@
 # Sprint 5 - Order Fulfilment & Logistics Integration
 
 **Duration**: Weeks 10-11
-**Status**: 🚧 In Progress
+**Status**: ✅ Complete (January 2026)
 
 ---
 
@@ -43,7 +43,7 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 **So that** riders can pick up and deliver orders
 
 **Acceptance Criteria**:
-- [ ] Automatic task creation on order ready (requires order service integration)
+- [x] Automatic task creation on order ready (`internal/modules/fulfilment/events.go`)
 - [x] Manual task creation option (`POST /{tenant}/orders/{id}/delivery/create-task`)
 - [x] Task details include order and delivery address
 - [x] Task status tracking (via `OrderAssignment` entity)

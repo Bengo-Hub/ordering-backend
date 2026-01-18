@@ -60,59 +60,59 @@ Sprint 4 focuses on integrating with the treasury service for payment processing
 ## User Stories
 
 ### US-4.1: Payment Initiation
-**As a** customer  
-**I want** to pay for my order  
+**As a** customer
+**I want** to pay for my order
 **So that** I can complete my purchase
 
 **Acceptance Criteria**:
-- [ ] Payment intent creation
-- [ ] M-Pesa STK Push initiation
-- [ ] Payment status tracking
-- [ ] Payment confirmation
+- [x] Payment intent creation
+- [x] M-Pesa STK Push initiation
+- [x] Payment status tracking
+- [x] Payment confirmation
 
 ### US-4.2: Payment Webhooks
-**As a** system administrator  
-**I want** payment webhooks to be processed reliably  
+**As a** system administrator
+**I want** payment webhooks to be processed reliably
 **So that** order status updates automatically
 
 **Acceptance Criteria**:
-- [ ] Webhook signature verification
-- [ ] Idempotent webhook processing
-- [ ] Order status updates on payment success
-- [ ] Error handling and retry logic
+- [x] Webhook signature verification
+- [x] Idempotent webhook processing
+- [x] Order status updates on payment success
+- [x] Error handling and retry logic
 
 ### US-4.3: Payment Methods
-**As a** customer  
-**I want** to save payment methods  
+**As a** customer
+**I want** to save payment methods
 **So that** I can checkout faster
 
 **Acceptance Criteria**:
-- [ ] Payment method storage (tokenized)
-- [ ] Default payment method selection
-- [ ] Payment method deletion
-- [ ] Payment method list
+- [x] Payment method storage (tokenized)
+- [x] Default payment method selection
+- [x] Payment method deletion
+- [x] Payment method list
 
 ### US-4.4: Refunds
-**As a** cafe administrator  
-**I want** to process refunds  
+**As a** cafe administrator
+**I want** to process refunds
 **So that** I can handle customer complaints
 
 **Acceptance Criteria**:
-- [ ] Refund initiation
-- [ ] Refund status tracking
-- [ ] Partial refund support
-- [ ] Refund history
+- [x] Refund initiation
+- [x] Refund status tracking
+- [x] Partial refund support
+- [x] Refund history
 
 ### US-4.5: Reconciliation
-**As a** finance team member  
-**I want** payment reconciliation reports  
+**As a** finance team member
+**I want** payment reconciliation reports
 **So that** I can verify financial transactions
 
 **Acceptance Criteria**:
-- [ ] Reconciliation log generation
-- [ ] Payment vs order matching
-- [ ] Discrepancy detection
-- [ ] Reconciliation reports
+- [ ] Reconciliation log generation (Deferred to Sprint 7)
+- [ ] Payment vs order matching (Deferred to Sprint 7)
+- [ ] Discrepancy detection (Deferred to Sprint 7)
+- [ ] Reconciliation reports (Deferred to Sprint 7)
 
 ---
 

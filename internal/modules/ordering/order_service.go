@@ -7,16 +7,19 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/bengobox/ordering-backend/internal/platform/events"
 )
 
 // OrderService provides order business logic.
 type OrderService struct {
-	repo         Repository
-	cartSvc      *CartService
-	promoSvc     *PromoService
-	loyaltySvc   *LoyaltyService
-	stateMachine *OrderStateMachine
-	logger       *zap.Logger
+	repo           Repository
+	cartSvc        *CartService
+	promoSvc       *PromoService
+	loyaltySvc     *LoyaltyService
+	stateMachine   *OrderStateMachine
+	eventPublisher *events.Publisher
+	logger         *zap.Logger
 }
 
 // NewOrderService creates a new order service.
@@ -35,6 +38,12 @@ func NewOrderService(
 		stateMachine: NewOrderStateMachine(),
 		logger:       logger,
 	}
+}
+
+// SetEventPublisher sets the event publisher for the order service.
+// This is called after initialization to avoid circular dependencies.
+func (s *OrderService) SetEventPublisher(publisher *events.Publisher) {
+	s.eventPublisher = publisher
 }
 
 // Checkout creates an order from a cart.
@@ -184,6 +193,9 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Create initial order event
 	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, &req.UserID, "user", "")
 
+	// Publish order.created event to NATS
+	s.publishOrderCreated(ctx, order, len(cart.Items))
+
 	s.logger.Info("order created",
 		zap.String("id", order.ID.String()),
 		zap.String("orderNumber", order.OrderNumber),
@@ -273,6 +285,9 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	// Create order event
 	s.createOrderEvent(ctx, order.ID, "status_changed", string(oldStatus), string(newStatus), nil, actorID, actorType, ipAddress)
 
+	// Publish order.status.changed event to NATS
+	s.publishOrderStatusChanged(ctx, order, oldStatus, newStatus)
+
 	s.logger.Info("order status updated",
 		zap.String("id", order.ID.String()),
 		zap.String("from", string(oldStatus)),
@@ -313,6 +328,9 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	// Create order event
 	payload := map[string]interface{}{"reason": reason}
 	s.createOrderEvent(ctx, order.ID, "order_cancelled", string(oldStatus), string(OrderStatusCancelled), payload, actorID, actorType, ipAddress)
+
+	// Publish order.cancelled event to NATS
+	s.publishOrderCancelled(ctx, order, reason, actorType)
 
 	s.logger.Info("order cancelled",
 		zap.String("id", order.ID.String()),
@@ -368,6 +386,143 @@ func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, 
 
 	if err := s.repo.CreateOrderEvent(ctx, event); err != nil {
 		s.logger.Error("failed to create order event", zap.Error(err))
+	}
+}
+
+// --- Event Publishing Helpers ---
+
+// publishOrderCreated publishes an order.created event to NATS.
+func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, itemCount int) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderCreatedData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CustomerID:  order.CustomerID,
+		CafeID:      order.CafeID,
+		TotalAmount: order.GrandTotal,
+		Currency:    order.Currency,
+		ItemCount:   itemCount,
+	}
+
+	if err := s.eventPublisher.PublishOrderCreated(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.created event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderStatusChanged publishes an order.status.changed event to NATS.
+func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Order, oldStatus, newStatus OrderStatus) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderStatusChangedData{
+		OrderID:        order.ID,
+		OrderNumber:    order.OrderNumber,
+		CustomerID:     order.CustomerID,
+		PreviousStatus: string(oldStatus),
+		NewStatus:      string(newStatus),
+		ChangedAt:      time.Now(),
+	}
+
+	if err := s.eventPublisher.PublishOrderStatusChanged(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.status.changed event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+
+	// Publish specific events for key status changes
+	switch newStatus {
+	case OrderStatusReady:
+		s.publishOrderReady(ctx, order)
+	case OrderStatusCompleted:
+		s.publishOrderCompleted(ctx, order)
+	}
+}
+
+// publishOrderReady publishes an order.ready event to NATS (for logistics integration).
+func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderReadyData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CafeID:      order.CafeID,
+		CustomerID:  order.CustomerID,
+	}
+
+	// Add delivery address if available
+	if order.DeliveryAddress != nil {
+		data.DeliveryAddress = map[string]interface{}{
+			"id":            order.DeliveryAddress.ID.String(),
+			"label":         order.DeliveryAddress.Label,
+			"address_line1": order.DeliveryAddress.AddressLine1,
+			"address_line2": order.DeliveryAddress.AddressLine2,
+			"city":          order.DeliveryAddress.City,
+			"county":        order.DeliveryAddress.County,
+			"country":       order.DeliveryAddress.Country,
+			"latitude":      order.DeliveryAddress.Latitude,
+			"longitude":     order.DeliveryAddress.Longitude,
+			"contact_name":  order.DeliveryAddress.ContactName,
+			"contact_phone": order.DeliveryAddress.ContactPhone,
+			"instructions":  order.DeliveryAddress.Instructions,
+		}
+	}
+
+	if err := s.eventPublisher.PublishOrderReady(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.ready event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderCompleted publishes an order.completed event to NATS.
+func (s *OrderService) publishOrderCompleted(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderCompletedData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CustomerID:  order.CustomerID,
+		TotalAmount: order.GrandTotal,
+		Currency:    order.Currency,
+		CompletedAt: time.Now(),
+	}
+
+	if err := s.eventPublisher.PublishOrderCompleted(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.completed event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderCancelled publishes an order.cancelled event to NATS.
+func (s *OrderService) publishOrderCancelled(ctx context.Context, order *Order, reason, cancelledBy string) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderCancelledData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CustomerID:  order.CustomerID,
+		Reason:      reason,
+		CancelledBy: cancelledBy,
+		CancelledAt: time.Now(),
+	}
+
+	if err := s.eventPublisher.PublishOrderCancelled(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.cancelled event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
 	}
 }
 

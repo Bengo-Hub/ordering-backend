@@ -52,9 +52,33 @@ type AuthUserUpdatedEvent struct {
 
 // AuthUserDeactivatedEvent represents an auth.user.deactivated event.
 type AuthUserDeactivatedEvent struct {
-	UserID    string    `json:"user_id"`
-	TenantID  string    `json:"tenant_id,omitempty"`
+	UserID        string    `json:"user_id"`
+	TenantID      string    `json:"tenant_id,omitempty"`
 	DeactivatedAt time.Time `json:"deactivated_at"`
+}
+
+// AuthTenantCreatedEvent represents an auth.tenant.created event.
+type AuthTenantCreatedEvent struct {
+	TenantID     string                 `json:"tenant_id"`
+	Slug         string                 `json:"slug"`
+	Name         string                 `json:"name"`
+	Status       string                 `json:"status"`
+	ContactEmail string                 `json:"contact_email,omitempty"`
+	ContactPhone string                 `json:"contact_phone,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt    time.Time              `json:"created_at"`
+}
+
+// AuthTenantUpdatedEvent represents an auth.tenant.updated event.
+type AuthTenantUpdatedEvent struct {
+	TenantID     string                 `json:"tenant_id"`
+	Slug         string                 `json:"slug,omitempty"`
+	Name         string                 `json:"name,omitempty"`
+	Status       string                 `json:"status,omitempty"`
+	ContactEmail string                 `json:"contact_email,omitempty"`
+	ContactPhone string                 `json:"contact_phone,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	UpdatedAt    time.Time              `json:"updated_at"`
 }
 
 // HandleAuthUserCreated handles auth.user.created events.
@@ -191,6 +215,114 @@ func (h *EventHandler) HandleAuthUserDeactivated(ctx context.Context, event *Aut
 	return nil
 }
 
+// HandleAuthTenantCreated handles auth.tenant.created events.
+func (h *EventHandler) HandleAuthTenantCreated(ctx context.Context, event *AuthTenantCreatedEvent) error {
+	tenantID, err := uuid.Parse(event.TenantID)
+	if err != nil {
+		return fmt.Errorf("identity: invalid tenant_id in event: %w", err)
+	}
+
+	if event.Slug == "" {
+		return fmt.Errorf("identity: slug required in tenant.created event")
+	}
+
+	tenant := &Tenant{
+		ID:           tenantID,
+		Slug:         event.Slug,
+		Name:         event.Name,
+		Status:       event.Status,
+		ContactEmail: event.ContactEmail,
+		ContactPhone: event.ContactPhone,
+		Metadata:     event.Metadata,
+	}
+
+	if tenant.Status == "" {
+		tenant.Status = "active"
+	}
+
+	if err := h.service.repo.UpsertTenant(ctx, tenant); err != nil {
+		h.logger.Error("Failed to create tenant from auth.tenant.created event",
+			zap.String("tenant_id", event.TenantID),
+			zap.String("slug", event.Slug),
+			zap.Error(err))
+		return fmt.Errorf("identity: create tenant from event: %w", err)
+	}
+
+	h.logger.Info("Tenant created from auth.tenant.created event",
+		zap.String("tenant_id", event.TenantID),
+		zap.String("slug", event.Slug),
+		zap.String("name", event.Name))
+
+	return nil
+}
+
+// HandleAuthTenantUpdated handles auth.tenant.updated events.
+func (h *EventHandler) HandleAuthTenantUpdated(ctx context.Context, event *AuthTenantUpdatedEvent) error {
+	tenantID, err := uuid.Parse(event.TenantID)
+	if err != nil {
+		return fmt.Errorf("identity: invalid tenant_id in event: %w", err)
+	}
+
+	// Find existing tenant
+	tenant, err := h.service.repo.FindTenantByID(ctx, tenantID)
+	if err != nil {
+		h.logger.Warn("Tenant not found for auth.tenant.updated event, creating new tenant",
+			zap.String("tenant_id", event.TenantID),
+			zap.Error(err))
+
+		// Tenant might not exist yet, create it if we have the slug
+		if event.Slug == "" {
+			return fmt.Errorf("identity: tenant not found and no slug provided: %w", err)
+		}
+
+		tenant = &Tenant{
+			ID:           tenantID,
+			Slug:         event.Slug,
+			Name:         event.Name,
+			Status:       event.Status,
+			ContactEmail: event.ContactEmail,
+			ContactPhone: event.ContactPhone,
+			Metadata:     event.Metadata,
+		}
+		if tenant.Status == "" {
+			tenant.Status = "active"
+		}
+	} else {
+		// Update existing tenant fields (only if provided in event)
+		if event.Slug != "" {
+			tenant.Slug = event.Slug
+		}
+		if event.Name != "" {
+			tenant.Name = event.Name
+		}
+		if event.Status != "" {
+			tenant.Status = event.Status
+		}
+		if event.ContactEmail != "" {
+			tenant.ContactEmail = event.ContactEmail
+		}
+		if event.ContactPhone != "" {
+			tenant.ContactPhone = event.ContactPhone
+		}
+		if event.Metadata != nil {
+			tenant.Metadata = event.Metadata
+		}
+	}
+
+	if err := h.service.repo.UpsertTenant(ctx, tenant); err != nil {
+		h.logger.Error("Failed to update tenant from auth.tenant.updated event",
+			zap.String("tenant_id", event.TenantID),
+			zap.Error(err))
+		return fmt.Errorf("identity: update tenant from event: %w", err)
+	}
+
+	h.logger.Info("Tenant updated from auth.tenant.updated event",
+		zap.String("tenant_id", event.TenantID),
+		zap.String("slug", tenant.Slug))
+
+	return nil
+}
+
 // SubscribeToAuthEvents subscribes to auth-service events via NATS.
 func (h *EventHandler) SubscribeToAuthEvents(nc *nats.Conn) error {
 	// Subscribe to auth.user.created
@@ -259,8 +391,55 @@ func (h *EventHandler) SubscribeToAuthEvents(nc *nats.Conn) error {
 		return fmt.Errorf("identity: subscribe to auth.user.deactivated: %w", err)
 	}
 
+	// Subscribe to auth.tenant.created
+	_, err = nc.Subscribe("auth.tenant.created", func(msg *nats.Msg) {
+		var event AuthTenantCreatedEvent
+		if err := json.Unmarshal(msg.Data, &event); err != nil {
+			h.logger.Error("Failed to unmarshal auth.tenant.created event", zap.Error(err))
+			return
+		}
+
+		ctx := context.Background()
+		if err := h.HandleAuthTenantCreated(ctx, &event); err != nil {
+			h.logger.Error("Failed to handle auth.tenant.created event", zap.Error(err))
+			// Don't ack the message so it can be retried
+			return
+		}
+
+		// Ack the message
+		_ = msg.Ack()
+	})
+	if err != nil {
+		return fmt.Errorf("identity: subscribe to auth.tenant.created: %w", err)
+	}
+
+	// Subscribe to auth.tenant.updated
+	_, err = nc.Subscribe("auth.tenant.updated", func(msg *nats.Msg) {
+		var event AuthTenantUpdatedEvent
+		if err := json.Unmarshal(msg.Data, &event); err != nil {
+			h.logger.Error("Failed to unmarshal auth.tenant.updated event", zap.Error(err))
+			return
+		}
+
+		ctx := context.Background()
+		if err := h.HandleAuthTenantUpdated(ctx, &event); err != nil {
+			h.logger.Error("Failed to handle auth.tenant.updated event", zap.Error(err))
+			// Don't ack the message so it can be retried
+			return
+		}
+
+		// Ack the message
+		_ = msg.Ack()
+	})
+	if err != nil {
+		return fmt.Errorf("identity: subscribe to auth.tenant.updated: %w", err)
+	}
+
 	h.logger.Info("Subscribed to auth-service events",
-		zap.Strings("events", []string{"auth.user.created", "auth.user.updated", "auth.user.deactivated"}))
+		zap.Strings("events", []string{
+			"auth.user.created", "auth.user.updated", "auth.user.deactivated",
+			"auth.tenant.created", "auth.tenant.updated",
+		}))
 
 	return nil
 }

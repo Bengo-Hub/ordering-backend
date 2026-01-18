@@ -89,60 +89,60 @@ Sprint 2 focuses on building the menu catalog system with full localization supp
 ## User Stories
 
 ### US-2.1: Menu Categories
-**As a** cafe administrator  
-**I want** to manage menu categories  
+**As a** cafe administrator
+**I want** to manage menu categories
 **So that** I can organize menu items
 
 **Acceptance Criteria**:
-- [ ] Create, read, update, delete categories
-- [ ] Category hierarchy support
-- [ ] Display order management
-- [ ] Category activation/deactivation
+- [x] Create, read, update, delete categories
+- [x] Category hierarchy support
+- [x] Display order management
+- [x] Category activation/deactivation
 
 ### US-2.2: Menu Items
-**As a** cafe administrator  
-**I want** to manage menu items  
+**As a** cafe administrator
+**I want** to manage menu items
 **So that** I can offer products to customers
 
 **Acceptance Criteria**:
-- [ ] Create, read, update, delete menu items
-- [ ] Item variants (size, flavor)
-- [ ] Pricing management
-- [ ] Availability scheduling
-- [ ] Image upload and management
+- [x] Create, read, update, delete menu items
+- [x] Item variants (size, flavor)
+- [x] Pricing management
+- [x] Availability scheduling
+- [ ] Image upload and management (Deferred to Sprint 11)
 
 ### US-2.3: Localization
-**As a** cafe administrator  
-**I want** to provide menu content in multiple languages  
+**As a** cafe administrator
+**I want** to provide menu content in multiple languages
 **So that** customers can understand items in their preferred language
 
 **Acceptance Criteria**:
-- [ ] English and Swahili translations
-- [ ] Translation CRUD operations
-- [ ] Fallback to default language
-- [ ] Locale-aware menu API
+- [x] English and Swahili translations
+- [x] Translation CRUD operations
+- [x] Fallback to default language
+- [x] Locale-aware menu API
 
 ### US-2.4: Dietary Tags
-**As a** customer  
-**I want** to see dietary information for menu items  
+**As a** customer
+**I want** to see dietary information for menu items
 **So that** I can make informed choices
 
 **Acceptance Criteria**:
-- [ ] Dietary tag management
-- [ ] Tag assignment to items
-- [ ] Filter by dietary tags
-- [ ] Tag display in menu
+- [x] Dietary tag management
+- [x] Tag assignment to items
+- [x] Filter by dietary tags
+- [x] Tag display in menu
 
 ### US-2.5: Public Menu API
-**As a** customer  
-**I want** to browse the menu without authentication  
+**As a** customer
+**I want** to browse the menu without authentication
 **So that** I can see available items
 
 **Acceptance Criteria**:
-- [ ] Public menu endpoint
-- [ ] Filter by category, dietary tags
-- [ ] Search functionality
-- [ ] Availability filtering
+- [x] Public menu endpoint
+- [x] Filter by category, dietary tags
+- [x] Search functionality
+- [x] Availability filtering
 
 ---
 
@@ -353,16 +353,16 @@ Sprint 2 focuses on building the menu catalog system with full localization supp
 
 ## Deliverables
 
-- [ ] Menu category CRUD endpoints
-- [ ] Menu item CRUD endpoints
-- [ ] Variant management endpoints
-- [ ] Translation management endpoints
-- [ ] Image upload and management
-- [ ] Dietary tag system
-- [ ] Public menu API
-- [ ] Availability scheduling
-- [ ] Database migrations
-- [ ] Integration tests
+- [x] Menu category CRUD endpoints (`internal/http/handlers/catalog/category_handler.go`)
+- [x] Menu item CRUD endpoints (`internal/http/handlers/catalog/item_handler.go`)
+- [x] Variant management endpoints (Create/List variants per item)
+- [x] Translation management endpoints (Multi-locale support EN/SW)
+- [ ] Image upload and management (Deferred - Sprint 11, S3 integration)
+- [x] Dietary tag system (Tag management and item assignment)
+- [x] Public menu API (`/api/v1/menu/*` endpoints)
+- [x] Availability scheduling (`MenuItemSchedule` entity)
+- [x] Database migrations (Ent auto-migration)
+- [ ] Integration tests (Ongoing)
 
 ---
 

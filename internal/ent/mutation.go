@@ -15,6 +15,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
+	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
+	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
@@ -72,6 +75,9 @@ const (
 	TypeCart                     = "Cart"
 	TypeCartItem                 = "CartItem"
 	TypeCustomerAddress          = "CustomerAddress"
+	TypeDataDeletionJob          = "DataDeletionJob"
+	TypeDataExportJob            = "DataExportJob"
+	TypeDataSubjectRequest       = "DataSubjectRequest"
 	TypeDeliveryWindow           = "DeliveryWindow"
 	TypeDevice                   = "Device"
 	TypeDietaryTag               = "DietaryTag"
@@ -5146,6 +5152,3529 @@ func (m *CustomerAddressMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown CustomerAddress edge %s", name)
+}
+
+// DataDeletionJobMutation represents an operation that mutates the DataDeletionJob nodes in the graph.
+type DataDeletionJobMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	tenant_id         *uuid.UUID
+	user_id           *uuid.UUID
+	deletion_type     *datadeletionjob.DeletionType
+	status            *datadeletionjob.Status
+	reason            *string
+	confirmed         *bool
+	retention_days    *int
+	addretention_days *int
+	error_message     *string
+	deletion_summary  *map[string]int
+	requested_at      *time.Time
+	scheduled_for     *time.Time
+	started_at        *time.Time
+	completed_at      *time.Time
+	created_at        *time.Time
+	updated_at        *time.Time
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*DataDeletionJob, error)
+	predicates        []predicate.DataDeletionJob
+}
+
+var _ ent.Mutation = (*DataDeletionJobMutation)(nil)
+
+// datadeletionjobOption allows management of the mutation configuration using functional options.
+type datadeletionjobOption func(*DataDeletionJobMutation)
+
+// newDataDeletionJobMutation creates new mutation for the DataDeletionJob entity.
+func newDataDeletionJobMutation(c config, op Op, opts ...datadeletionjobOption) *DataDeletionJobMutation {
+	m := &DataDeletionJobMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDataDeletionJob,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDataDeletionJobID sets the ID field of the mutation.
+func withDataDeletionJobID(id uuid.UUID) datadeletionjobOption {
+	return func(m *DataDeletionJobMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DataDeletionJob
+		)
+		m.oldValue = func(ctx context.Context) (*DataDeletionJob, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DataDeletionJob.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDataDeletionJob sets the old DataDeletionJob of the mutation.
+func withDataDeletionJob(node *DataDeletionJob) datadeletionjobOption {
+	return func(m *DataDeletionJobMutation) {
+		m.oldValue = func(context.Context) (*DataDeletionJob, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DataDeletionJobMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DataDeletionJobMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DataDeletionJob entities.
+func (m *DataDeletionJobMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DataDeletionJobMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DataDeletionJobMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DataDeletionJob.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *DataDeletionJobMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *DataDeletionJobMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *DataDeletionJobMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *DataDeletionJobMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *DataDeletionJobMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *DataDeletionJobMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetDeletionType sets the "deletion_type" field.
+func (m *DataDeletionJobMutation) SetDeletionType(dt datadeletionjob.DeletionType) {
+	m.deletion_type = &dt
+}
+
+// DeletionType returns the value of the "deletion_type" field in the mutation.
+func (m *DataDeletionJobMutation) DeletionType() (r datadeletionjob.DeletionType, exists bool) {
+	v := m.deletion_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletionType returns the old "deletion_type" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldDeletionType(ctx context.Context) (v datadeletionjob.DeletionType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletionType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletionType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletionType: %w", err)
+	}
+	return oldValue.DeletionType, nil
+}
+
+// ResetDeletionType resets all changes to the "deletion_type" field.
+func (m *DataDeletionJobMutation) ResetDeletionType() {
+	m.deletion_type = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *DataDeletionJobMutation) SetStatus(d datadeletionjob.Status) {
+	m.status = &d
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DataDeletionJobMutation) Status() (r datadeletionjob.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldStatus(ctx context.Context) (v datadeletionjob.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DataDeletionJobMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetReason sets the "reason" field.
+func (m *DataDeletionJobMutation) SetReason(s string) {
+	m.reason = &s
+}
+
+// Reason returns the value of the "reason" field in the mutation.
+func (m *DataDeletionJobMutation) Reason() (r string, exists bool) {
+	v := m.reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReason returns the old "reason" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReason: %w", err)
+	}
+	return oldValue.Reason, nil
+}
+
+// ClearReason clears the value of the "reason" field.
+func (m *DataDeletionJobMutation) ClearReason() {
+	m.reason = nil
+	m.clearedFields[datadeletionjob.FieldReason] = struct{}{}
+}
+
+// ReasonCleared returns if the "reason" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) ReasonCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldReason]
+	return ok
+}
+
+// ResetReason resets all changes to the "reason" field.
+func (m *DataDeletionJobMutation) ResetReason() {
+	m.reason = nil
+	delete(m.clearedFields, datadeletionjob.FieldReason)
+}
+
+// SetConfirmed sets the "confirmed" field.
+func (m *DataDeletionJobMutation) SetConfirmed(b bool) {
+	m.confirmed = &b
+}
+
+// Confirmed returns the value of the "confirmed" field in the mutation.
+func (m *DataDeletionJobMutation) Confirmed() (r bool, exists bool) {
+	v := m.confirmed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfirmed returns the old "confirmed" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldConfirmed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConfirmed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConfirmed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfirmed: %w", err)
+	}
+	return oldValue.Confirmed, nil
+}
+
+// ResetConfirmed resets all changes to the "confirmed" field.
+func (m *DataDeletionJobMutation) ResetConfirmed() {
+	m.confirmed = nil
+}
+
+// SetRetentionDays sets the "retention_days" field.
+func (m *DataDeletionJobMutation) SetRetentionDays(i int) {
+	m.retention_days = &i
+	m.addretention_days = nil
+}
+
+// RetentionDays returns the value of the "retention_days" field in the mutation.
+func (m *DataDeletionJobMutation) RetentionDays() (r int, exists bool) {
+	v := m.retention_days
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRetentionDays returns the old "retention_days" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldRetentionDays(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRetentionDays is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRetentionDays requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRetentionDays: %w", err)
+	}
+	return oldValue.RetentionDays, nil
+}
+
+// AddRetentionDays adds i to the "retention_days" field.
+func (m *DataDeletionJobMutation) AddRetentionDays(i int) {
+	if m.addretention_days != nil {
+		*m.addretention_days += i
+	} else {
+		m.addretention_days = &i
+	}
+}
+
+// AddedRetentionDays returns the value that was added to the "retention_days" field in this mutation.
+func (m *DataDeletionJobMutation) AddedRetentionDays() (r int, exists bool) {
+	v := m.addretention_days
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRetentionDays resets all changes to the "retention_days" field.
+func (m *DataDeletionJobMutation) ResetRetentionDays() {
+	m.retention_days = nil
+	m.addretention_days = nil
+}
+
+// SetErrorMessage sets the "error_message" field.
+func (m *DataDeletionJobMutation) SetErrorMessage(s string) {
+	m.error_message = &s
+}
+
+// ErrorMessage returns the value of the "error_message" field in the mutation.
+func (m *DataDeletionJobMutation) ErrorMessage() (r string, exists bool) {
+	v := m.error_message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorMessage returns the old "error_message" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldErrorMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorMessage: %w", err)
+	}
+	return oldValue.ErrorMessage, nil
+}
+
+// ClearErrorMessage clears the value of the "error_message" field.
+func (m *DataDeletionJobMutation) ClearErrorMessage() {
+	m.error_message = nil
+	m.clearedFields[datadeletionjob.FieldErrorMessage] = struct{}{}
+}
+
+// ErrorMessageCleared returns if the "error_message" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) ErrorMessageCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldErrorMessage]
+	return ok
+}
+
+// ResetErrorMessage resets all changes to the "error_message" field.
+func (m *DataDeletionJobMutation) ResetErrorMessage() {
+	m.error_message = nil
+	delete(m.clearedFields, datadeletionjob.FieldErrorMessage)
+}
+
+// SetDeletionSummary sets the "deletion_summary" field.
+func (m *DataDeletionJobMutation) SetDeletionSummary(value map[string]int) {
+	m.deletion_summary = &value
+}
+
+// DeletionSummary returns the value of the "deletion_summary" field in the mutation.
+func (m *DataDeletionJobMutation) DeletionSummary() (r map[string]int, exists bool) {
+	v := m.deletion_summary
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletionSummary returns the old "deletion_summary" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldDeletionSummary(ctx context.Context) (v map[string]int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletionSummary is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletionSummary requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletionSummary: %w", err)
+	}
+	return oldValue.DeletionSummary, nil
+}
+
+// ClearDeletionSummary clears the value of the "deletion_summary" field.
+func (m *DataDeletionJobMutation) ClearDeletionSummary() {
+	m.deletion_summary = nil
+	m.clearedFields[datadeletionjob.FieldDeletionSummary] = struct{}{}
+}
+
+// DeletionSummaryCleared returns if the "deletion_summary" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) DeletionSummaryCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldDeletionSummary]
+	return ok
+}
+
+// ResetDeletionSummary resets all changes to the "deletion_summary" field.
+func (m *DataDeletionJobMutation) ResetDeletionSummary() {
+	m.deletion_summary = nil
+	delete(m.clearedFields, datadeletionjob.FieldDeletionSummary)
+}
+
+// SetRequestedAt sets the "requested_at" field.
+func (m *DataDeletionJobMutation) SetRequestedAt(t time.Time) {
+	m.requested_at = &t
+}
+
+// RequestedAt returns the value of the "requested_at" field in the mutation.
+func (m *DataDeletionJobMutation) RequestedAt() (r time.Time, exists bool) {
+	v := m.requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestedAt returns the old "requested_at" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldRequestedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestedAt: %w", err)
+	}
+	return oldValue.RequestedAt, nil
+}
+
+// ResetRequestedAt resets all changes to the "requested_at" field.
+func (m *DataDeletionJobMutation) ResetRequestedAt() {
+	m.requested_at = nil
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (m *DataDeletionJobMutation) SetScheduledFor(t time.Time) {
+	m.scheduled_for = &t
+}
+
+// ScheduledFor returns the value of the "scheduled_for" field in the mutation.
+func (m *DataDeletionJobMutation) ScheduledFor() (r time.Time, exists bool) {
+	v := m.scheduled_for
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScheduledFor returns the old "scheduled_for" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldScheduledFor(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldScheduledFor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldScheduledFor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScheduledFor: %w", err)
+	}
+	return oldValue.ScheduledFor, nil
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (m *DataDeletionJobMutation) ClearScheduledFor() {
+	m.scheduled_for = nil
+	m.clearedFields[datadeletionjob.FieldScheduledFor] = struct{}{}
+}
+
+// ScheduledForCleared returns if the "scheduled_for" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) ScheduledForCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldScheduledFor]
+	return ok
+}
+
+// ResetScheduledFor resets all changes to the "scheduled_for" field.
+func (m *DataDeletionJobMutation) ResetScheduledFor() {
+	m.scheduled_for = nil
+	delete(m.clearedFields, datadeletionjob.FieldScheduledFor)
+}
+
+// SetStartedAt sets the "started_at" field.
+func (m *DataDeletionJobMutation) SetStartedAt(t time.Time) {
+	m.started_at = &t
+}
+
+// StartedAt returns the value of the "started_at" field in the mutation.
+func (m *DataDeletionJobMutation) StartedAt() (r time.Time, exists bool) {
+	v := m.started_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartedAt returns the old "started_at" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldStartedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
+	}
+	return oldValue.StartedAt, nil
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *DataDeletionJobMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[datadeletionjob.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldStartedAt]
+	return ok
+}
+
+// ResetStartedAt resets all changes to the "started_at" field.
+func (m *DataDeletionJobMutation) ResetStartedAt() {
+	m.started_at = nil
+	delete(m.clearedFields, datadeletionjob.FieldStartedAt)
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *DataDeletionJobMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *DataDeletionJobMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldCompletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *DataDeletionJobMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[datadeletionjob.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *DataDeletionJobMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[datadeletionjob.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *DataDeletionJobMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, datadeletionjob.FieldCompletedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DataDeletionJobMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DataDeletionJobMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DataDeletionJobMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DataDeletionJobMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DataDeletionJobMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the DataDeletionJob entity.
+// If the DataDeletionJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataDeletionJobMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DataDeletionJobMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the DataDeletionJobMutation builder.
+func (m *DataDeletionJobMutation) Where(ps ...predicate.DataDeletionJob) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DataDeletionJobMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DataDeletionJobMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DataDeletionJob, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DataDeletionJobMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DataDeletionJobMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DataDeletionJob).
+func (m *DataDeletionJobMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DataDeletionJobMutation) Fields() []string {
+	fields := make([]string, 0, 15)
+	if m.tenant_id != nil {
+		fields = append(fields, datadeletionjob.FieldTenantID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, datadeletionjob.FieldUserID)
+	}
+	if m.deletion_type != nil {
+		fields = append(fields, datadeletionjob.FieldDeletionType)
+	}
+	if m.status != nil {
+		fields = append(fields, datadeletionjob.FieldStatus)
+	}
+	if m.reason != nil {
+		fields = append(fields, datadeletionjob.FieldReason)
+	}
+	if m.confirmed != nil {
+		fields = append(fields, datadeletionjob.FieldConfirmed)
+	}
+	if m.retention_days != nil {
+		fields = append(fields, datadeletionjob.FieldRetentionDays)
+	}
+	if m.error_message != nil {
+		fields = append(fields, datadeletionjob.FieldErrorMessage)
+	}
+	if m.deletion_summary != nil {
+		fields = append(fields, datadeletionjob.FieldDeletionSummary)
+	}
+	if m.requested_at != nil {
+		fields = append(fields, datadeletionjob.FieldRequestedAt)
+	}
+	if m.scheduled_for != nil {
+		fields = append(fields, datadeletionjob.FieldScheduledFor)
+	}
+	if m.started_at != nil {
+		fields = append(fields, datadeletionjob.FieldStartedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, datadeletionjob.FieldCompletedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, datadeletionjob.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, datadeletionjob.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DataDeletionJobMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case datadeletionjob.FieldTenantID:
+		return m.TenantID()
+	case datadeletionjob.FieldUserID:
+		return m.UserID()
+	case datadeletionjob.FieldDeletionType:
+		return m.DeletionType()
+	case datadeletionjob.FieldStatus:
+		return m.Status()
+	case datadeletionjob.FieldReason:
+		return m.Reason()
+	case datadeletionjob.FieldConfirmed:
+		return m.Confirmed()
+	case datadeletionjob.FieldRetentionDays:
+		return m.RetentionDays()
+	case datadeletionjob.FieldErrorMessage:
+		return m.ErrorMessage()
+	case datadeletionjob.FieldDeletionSummary:
+		return m.DeletionSummary()
+	case datadeletionjob.FieldRequestedAt:
+		return m.RequestedAt()
+	case datadeletionjob.FieldScheduledFor:
+		return m.ScheduledFor()
+	case datadeletionjob.FieldStartedAt:
+		return m.StartedAt()
+	case datadeletionjob.FieldCompletedAt:
+		return m.CompletedAt()
+	case datadeletionjob.FieldCreatedAt:
+		return m.CreatedAt()
+	case datadeletionjob.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DataDeletionJobMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case datadeletionjob.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case datadeletionjob.FieldUserID:
+		return m.OldUserID(ctx)
+	case datadeletionjob.FieldDeletionType:
+		return m.OldDeletionType(ctx)
+	case datadeletionjob.FieldStatus:
+		return m.OldStatus(ctx)
+	case datadeletionjob.FieldReason:
+		return m.OldReason(ctx)
+	case datadeletionjob.FieldConfirmed:
+		return m.OldConfirmed(ctx)
+	case datadeletionjob.FieldRetentionDays:
+		return m.OldRetentionDays(ctx)
+	case datadeletionjob.FieldErrorMessage:
+		return m.OldErrorMessage(ctx)
+	case datadeletionjob.FieldDeletionSummary:
+		return m.OldDeletionSummary(ctx)
+	case datadeletionjob.FieldRequestedAt:
+		return m.OldRequestedAt(ctx)
+	case datadeletionjob.FieldScheduledFor:
+		return m.OldScheduledFor(ctx)
+	case datadeletionjob.FieldStartedAt:
+		return m.OldStartedAt(ctx)
+	case datadeletionjob.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	case datadeletionjob.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case datadeletionjob.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown DataDeletionJob field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataDeletionJobMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case datadeletionjob.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case datadeletionjob.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case datadeletionjob.FieldDeletionType:
+		v, ok := value.(datadeletionjob.DeletionType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletionType(v)
+		return nil
+	case datadeletionjob.FieldStatus:
+		v, ok := value.(datadeletionjob.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case datadeletionjob.FieldReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReason(v)
+		return nil
+	case datadeletionjob.FieldConfirmed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfirmed(v)
+		return nil
+	case datadeletionjob.FieldRetentionDays:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRetentionDays(v)
+		return nil
+	case datadeletionjob.FieldErrorMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorMessage(v)
+		return nil
+	case datadeletionjob.FieldDeletionSummary:
+		v, ok := value.(map[string]int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletionSummary(v)
+		return nil
+	case datadeletionjob.FieldRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestedAt(v)
+		return nil
+	case datadeletionjob.FieldScheduledFor:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScheduledFor(v)
+		return nil
+	case datadeletionjob.FieldStartedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartedAt(v)
+		return nil
+	case datadeletionjob.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	case datadeletionjob.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case datadeletionjob.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DataDeletionJob field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DataDeletionJobMutation) AddedFields() []string {
+	var fields []string
+	if m.addretention_days != nil {
+		fields = append(fields, datadeletionjob.FieldRetentionDays)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DataDeletionJobMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case datadeletionjob.FieldRetentionDays:
+		return m.AddedRetentionDays()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataDeletionJobMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case datadeletionjob.FieldRetentionDays:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRetentionDays(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DataDeletionJob numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DataDeletionJobMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(datadeletionjob.FieldReason) {
+		fields = append(fields, datadeletionjob.FieldReason)
+	}
+	if m.FieldCleared(datadeletionjob.FieldErrorMessage) {
+		fields = append(fields, datadeletionjob.FieldErrorMessage)
+	}
+	if m.FieldCleared(datadeletionjob.FieldDeletionSummary) {
+		fields = append(fields, datadeletionjob.FieldDeletionSummary)
+	}
+	if m.FieldCleared(datadeletionjob.FieldScheduledFor) {
+		fields = append(fields, datadeletionjob.FieldScheduledFor)
+	}
+	if m.FieldCleared(datadeletionjob.FieldStartedAt) {
+		fields = append(fields, datadeletionjob.FieldStartedAt)
+	}
+	if m.FieldCleared(datadeletionjob.FieldCompletedAt) {
+		fields = append(fields, datadeletionjob.FieldCompletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DataDeletionJobMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DataDeletionJobMutation) ClearField(name string) error {
+	switch name {
+	case datadeletionjob.FieldReason:
+		m.ClearReason()
+		return nil
+	case datadeletionjob.FieldErrorMessage:
+		m.ClearErrorMessage()
+		return nil
+	case datadeletionjob.FieldDeletionSummary:
+		m.ClearDeletionSummary()
+		return nil
+	case datadeletionjob.FieldScheduledFor:
+		m.ClearScheduledFor()
+		return nil
+	case datadeletionjob.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case datadeletionjob.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataDeletionJob nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DataDeletionJobMutation) ResetField(name string) error {
+	switch name {
+	case datadeletionjob.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case datadeletionjob.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case datadeletionjob.FieldDeletionType:
+		m.ResetDeletionType()
+		return nil
+	case datadeletionjob.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case datadeletionjob.FieldReason:
+		m.ResetReason()
+		return nil
+	case datadeletionjob.FieldConfirmed:
+		m.ResetConfirmed()
+		return nil
+	case datadeletionjob.FieldRetentionDays:
+		m.ResetRetentionDays()
+		return nil
+	case datadeletionjob.FieldErrorMessage:
+		m.ResetErrorMessage()
+		return nil
+	case datadeletionjob.FieldDeletionSummary:
+		m.ResetDeletionSummary()
+		return nil
+	case datadeletionjob.FieldRequestedAt:
+		m.ResetRequestedAt()
+		return nil
+	case datadeletionjob.FieldScheduledFor:
+		m.ResetScheduledFor()
+		return nil
+	case datadeletionjob.FieldStartedAt:
+		m.ResetStartedAt()
+		return nil
+	case datadeletionjob.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	case datadeletionjob.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case datadeletionjob.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataDeletionJob field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DataDeletionJobMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DataDeletionJobMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DataDeletionJobMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DataDeletionJobMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DataDeletionJobMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DataDeletionJobMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DataDeletionJobMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DataDeletionJob unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DataDeletionJobMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DataDeletionJob edge %s", name)
+}
+
+// DataExportJobMutation represents an operation that mutates the DataExportJob nodes in the graph.
+type DataExportJobMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *uuid.UUID
+	tenant_id           *uuid.UUID
+	user_id             *uuid.UUID
+	format              *dataexportjob.Format
+	status              *dataexportjob.Status
+	included_data       *[]string
+	appendincluded_data []string
+	storage_url         *string
+	error_message       *string
+	file_size_bytes     *int
+	addfile_size_bytes  *int
+	records_exported    *int
+	addrecords_exported *int
+	requested_at        *time.Time
+	started_at          *time.Time
+	completed_at        *time.Time
+	expires_at          *time.Time
+	created_at          *time.Time
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*DataExportJob, error)
+	predicates          []predicate.DataExportJob
+}
+
+var _ ent.Mutation = (*DataExportJobMutation)(nil)
+
+// dataexportjobOption allows management of the mutation configuration using functional options.
+type dataexportjobOption func(*DataExportJobMutation)
+
+// newDataExportJobMutation creates new mutation for the DataExportJob entity.
+func newDataExportJobMutation(c config, op Op, opts ...dataexportjobOption) *DataExportJobMutation {
+	m := &DataExportJobMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDataExportJob,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDataExportJobID sets the ID field of the mutation.
+func withDataExportJobID(id uuid.UUID) dataexportjobOption {
+	return func(m *DataExportJobMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DataExportJob
+		)
+		m.oldValue = func(ctx context.Context) (*DataExportJob, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DataExportJob.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDataExportJob sets the old DataExportJob of the mutation.
+func withDataExportJob(node *DataExportJob) dataexportjobOption {
+	return func(m *DataExportJobMutation) {
+		m.oldValue = func(context.Context) (*DataExportJob, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DataExportJobMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DataExportJobMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DataExportJob entities.
+func (m *DataExportJobMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DataExportJobMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DataExportJobMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DataExportJob.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *DataExportJobMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *DataExportJobMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *DataExportJobMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *DataExportJobMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *DataExportJobMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *DataExportJobMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetFormat sets the "format" field.
+func (m *DataExportJobMutation) SetFormat(d dataexportjob.Format) {
+	m.format = &d
+}
+
+// Format returns the value of the "format" field in the mutation.
+func (m *DataExportJobMutation) Format() (r dataexportjob.Format, exists bool) {
+	v := m.format
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFormat returns the old "format" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldFormat(ctx context.Context) (v dataexportjob.Format, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFormat is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFormat requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFormat: %w", err)
+	}
+	return oldValue.Format, nil
+}
+
+// ResetFormat resets all changes to the "format" field.
+func (m *DataExportJobMutation) ResetFormat() {
+	m.format = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *DataExportJobMutation) SetStatus(d dataexportjob.Status) {
+	m.status = &d
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DataExportJobMutation) Status() (r dataexportjob.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldStatus(ctx context.Context) (v dataexportjob.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DataExportJobMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetIncludedData sets the "included_data" field.
+func (m *DataExportJobMutation) SetIncludedData(s []string) {
+	m.included_data = &s
+	m.appendincluded_data = nil
+}
+
+// IncludedData returns the value of the "included_data" field in the mutation.
+func (m *DataExportJobMutation) IncludedData() (r []string, exists bool) {
+	v := m.included_data
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIncludedData returns the old "included_data" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldIncludedData(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIncludedData is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIncludedData requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIncludedData: %w", err)
+	}
+	return oldValue.IncludedData, nil
+}
+
+// AppendIncludedData adds s to the "included_data" field.
+func (m *DataExportJobMutation) AppendIncludedData(s []string) {
+	m.appendincluded_data = append(m.appendincluded_data, s...)
+}
+
+// AppendedIncludedData returns the list of values that were appended to the "included_data" field in this mutation.
+func (m *DataExportJobMutation) AppendedIncludedData() ([]string, bool) {
+	if len(m.appendincluded_data) == 0 {
+		return nil, false
+	}
+	return m.appendincluded_data, true
+}
+
+// ClearIncludedData clears the value of the "included_data" field.
+func (m *DataExportJobMutation) ClearIncludedData() {
+	m.included_data = nil
+	m.appendincluded_data = nil
+	m.clearedFields[dataexportjob.FieldIncludedData] = struct{}{}
+}
+
+// IncludedDataCleared returns if the "included_data" field was cleared in this mutation.
+func (m *DataExportJobMutation) IncludedDataCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldIncludedData]
+	return ok
+}
+
+// ResetIncludedData resets all changes to the "included_data" field.
+func (m *DataExportJobMutation) ResetIncludedData() {
+	m.included_data = nil
+	m.appendincluded_data = nil
+	delete(m.clearedFields, dataexportjob.FieldIncludedData)
+}
+
+// SetStorageURL sets the "storage_url" field.
+func (m *DataExportJobMutation) SetStorageURL(s string) {
+	m.storage_url = &s
+}
+
+// StorageURL returns the value of the "storage_url" field in the mutation.
+func (m *DataExportJobMutation) StorageURL() (r string, exists bool) {
+	v := m.storage_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStorageURL returns the old "storage_url" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldStorageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStorageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStorageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStorageURL: %w", err)
+	}
+	return oldValue.StorageURL, nil
+}
+
+// ClearStorageURL clears the value of the "storage_url" field.
+func (m *DataExportJobMutation) ClearStorageURL() {
+	m.storage_url = nil
+	m.clearedFields[dataexportjob.FieldStorageURL] = struct{}{}
+}
+
+// StorageURLCleared returns if the "storage_url" field was cleared in this mutation.
+func (m *DataExportJobMutation) StorageURLCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldStorageURL]
+	return ok
+}
+
+// ResetStorageURL resets all changes to the "storage_url" field.
+func (m *DataExportJobMutation) ResetStorageURL() {
+	m.storage_url = nil
+	delete(m.clearedFields, dataexportjob.FieldStorageURL)
+}
+
+// SetErrorMessage sets the "error_message" field.
+func (m *DataExportJobMutation) SetErrorMessage(s string) {
+	m.error_message = &s
+}
+
+// ErrorMessage returns the value of the "error_message" field in the mutation.
+func (m *DataExportJobMutation) ErrorMessage() (r string, exists bool) {
+	v := m.error_message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorMessage returns the old "error_message" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldErrorMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorMessage: %w", err)
+	}
+	return oldValue.ErrorMessage, nil
+}
+
+// ClearErrorMessage clears the value of the "error_message" field.
+func (m *DataExportJobMutation) ClearErrorMessage() {
+	m.error_message = nil
+	m.clearedFields[dataexportjob.FieldErrorMessage] = struct{}{}
+}
+
+// ErrorMessageCleared returns if the "error_message" field was cleared in this mutation.
+func (m *DataExportJobMutation) ErrorMessageCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldErrorMessage]
+	return ok
+}
+
+// ResetErrorMessage resets all changes to the "error_message" field.
+func (m *DataExportJobMutation) ResetErrorMessage() {
+	m.error_message = nil
+	delete(m.clearedFields, dataexportjob.FieldErrorMessage)
+}
+
+// SetFileSizeBytes sets the "file_size_bytes" field.
+func (m *DataExportJobMutation) SetFileSizeBytes(i int) {
+	m.file_size_bytes = &i
+	m.addfile_size_bytes = nil
+}
+
+// FileSizeBytes returns the value of the "file_size_bytes" field in the mutation.
+func (m *DataExportJobMutation) FileSizeBytes() (r int, exists bool) {
+	v := m.file_size_bytes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFileSizeBytes returns the old "file_size_bytes" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldFileSizeBytes(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFileSizeBytes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFileSizeBytes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFileSizeBytes: %w", err)
+	}
+	return oldValue.FileSizeBytes, nil
+}
+
+// AddFileSizeBytes adds i to the "file_size_bytes" field.
+func (m *DataExportJobMutation) AddFileSizeBytes(i int) {
+	if m.addfile_size_bytes != nil {
+		*m.addfile_size_bytes += i
+	} else {
+		m.addfile_size_bytes = &i
+	}
+}
+
+// AddedFileSizeBytes returns the value that was added to the "file_size_bytes" field in this mutation.
+func (m *DataExportJobMutation) AddedFileSizeBytes() (r int, exists bool) {
+	v := m.addfile_size_bytes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearFileSizeBytes clears the value of the "file_size_bytes" field.
+func (m *DataExportJobMutation) ClearFileSizeBytes() {
+	m.file_size_bytes = nil
+	m.addfile_size_bytes = nil
+	m.clearedFields[dataexportjob.FieldFileSizeBytes] = struct{}{}
+}
+
+// FileSizeBytesCleared returns if the "file_size_bytes" field was cleared in this mutation.
+func (m *DataExportJobMutation) FileSizeBytesCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldFileSizeBytes]
+	return ok
+}
+
+// ResetFileSizeBytes resets all changes to the "file_size_bytes" field.
+func (m *DataExportJobMutation) ResetFileSizeBytes() {
+	m.file_size_bytes = nil
+	m.addfile_size_bytes = nil
+	delete(m.clearedFields, dataexportjob.FieldFileSizeBytes)
+}
+
+// SetRecordsExported sets the "records_exported" field.
+func (m *DataExportJobMutation) SetRecordsExported(i int) {
+	m.records_exported = &i
+	m.addrecords_exported = nil
+}
+
+// RecordsExported returns the value of the "records_exported" field in the mutation.
+func (m *DataExportJobMutation) RecordsExported() (r int, exists bool) {
+	v := m.records_exported
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRecordsExported returns the old "records_exported" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldRecordsExported(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRecordsExported is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRecordsExported requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRecordsExported: %w", err)
+	}
+	return oldValue.RecordsExported, nil
+}
+
+// AddRecordsExported adds i to the "records_exported" field.
+func (m *DataExportJobMutation) AddRecordsExported(i int) {
+	if m.addrecords_exported != nil {
+		*m.addrecords_exported += i
+	} else {
+		m.addrecords_exported = &i
+	}
+}
+
+// AddedRecordsExported returns the value that was added to the "records_exported" field in this mutation.
+func (m *DataExportJobMutation) AddedRecordsExported() (r int, exists bool) {
+	v := m.addrecords_exported
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearRecordsExported clears the value of the "records_exported" field.
+func (m *DataExportJobMutation) ClearRecordsExported() {
+	m.records_exported = nil
+	m.addrecords_exported = nil
+	m.clearedFields[dataexportjob.FieldRecordsExported] = struct{}{}
+}
+
+// RecordsExportedCleared returns if the "records_exported" field was cleared in this mutation.
+func (m *DataExportJobMutation) RecordsExportedCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldRecordsExported]
+	return ok
+}
+
+// ResetRecordsExported resets all changes to the "records_exported" field.
+func (m *DataExportJobMutation) ResetRecordsExported() {
+	m.records_exported = nil
+	m.addrecords_exported = nil
+	delete(m.clearedFields, dataexportjob.FieldRecordsExported)
+}
+
+// SetRequestedAt sets the "requested_at" field.
+func (m *DataExportJobMutation) SetRequestedAt(t time.Time) {
+	m.requested_at = &t
+}
+
+// RequestedAt returns the value of the "requested_at" field in the mutation.
+func (m *DataExportJobMutation) RequestedAt() (r time.Time, exists bool) {
+	v := m.requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestedAt returns the old "requested_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldRequestedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestedAt: %w", err)
+	}
+	return oldValue.RequestedAt, nil
+}
+
+// ResetRequestedAt resets all changes to the "requested_at" field.
+func (m *DataExportJobMutation) ResetRequestedAt() {
+	m.requested_at = nil
+}
+
+// SetStartedAt sets the "started_at" field.
+func (m *DataExportJobMutation) SetStartedAt(t time.Time) {
+	m.started_at = &t
+}
+
+// StartedAt returns the value of the "started_at" field in the mutation.
+func (m *DataExportJobMutation) StartedAt() (r time.Time, exists bool) {
+	v := m.started_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartedAt returns the old "started_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldStartedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
+	}
+	return oldValue.StartedAt, nil
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *DataExportJobMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[dataexportjob.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *DataExportJobMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldStartedAt]
+	return ok
+}
+
+// ResetStartedAt resets all changes to the "started_at" field.
+func (m *DataExportJobMutation) ResetStartedAt() {
+	m.started_at = nil
+	delete(m.clearedFields, dataexportjob.FieldStartedAt)
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *DataExportJobMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *DataExportJobMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldCompletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *DataExportJobMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[dataexportjob.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *DataExportJobMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *DataExportJobMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, dataexportjob.FieldCompletedAt)
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *DataExportJobMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *DataExportJobMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldExpiresAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ClearExpiresAt clears the value of the "expires_at" field.
+func (m *DataExportJobMutation) ClearExpiresAt() {
+	m.expires_at = nil
+	m.clearedFields[dataexportjob.FieldExpiresAt] = struct{}{}
+}
+
+// ExpiresAtCleared returns if the "expires_at" field was cleared in this mutation.
+func (m *DataExportJobMutation) ExpiresAtCleared() bool {
+	_, ok := m.clearedFields[dataexportjob.FieldExpiresAt]
+	return ok
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *DataExportJobMutation) ResetExpiresAt() {
+	m.expires_at = nil
+	delete(m.clearedFields, dataexportjob.FieldExpiresAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DataExportJobMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DataExportJobMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DataExportJobMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DataExportJobMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DataExportJobMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the DataExportJob entity.
+// If the DataExportJob object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataExportJobMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DataExportJobMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the DataExportJobMutation builder.
+func (m *DataExportJobMutation) Where(ps ...predicate.DataExportJob) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DataExportJobMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DataExportJobMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DataExportJob, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DataExportJobMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DataExportJobMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DataExportJob).
+func (m *DataExportJobMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DataExportJobMutation) Fields() []string {
+	fields := make([]string, 0, 15)
+	if m.tenant_id != nil {
+		fields = append(fields, dataexportjob.FieldTenantID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, dataexportjob.FieldUserID)
+	}
+	if m.format != nil {
+		fields = append(fields, dataexportjob.FieldFormat)
+	}
+	if m.status != nil {
+		fields = append(fields, dataexportjob.FieldStatus)
+	}
+	if m.included_data != nil {
+		fields = append(fields, dataexportjob.FieldIncludedData)
+	}
+	if m.storage_url != nil {
+		fields = append(fields, dataexportjob.FieldStorageURL)
+	}
+	if m.error_message != nil {
+		fields = append(fields, dataexportjob.FieldErrorMessage)
+	}
+	if m.file_size_bytes != nil {
+		fields = append(fields, dataexportjob.FieldFileSizeBytes)
+	}
+	if m.records_exported != nil {
+		fields = append(fields, dataexportjob.FieldRecordsExported)
+	}
+	if m.requested_at != nil {
+		fields = append(fields, dataexportjob.FieldRequestedAt)
+	}
+	if m.started_at != nil {
+		fields = append(fields, dataexportjob.FieldStartedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, dataexportjob.FieldCompletedAt)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, dataexportjob.FieldExpiresAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, dataexportjob.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, dataexportjob.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DataExportJobMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case dataexportjob.FieldTenantID:
+		return m.TenantID()
+	case dataexportjob.FieldUserID:
+		return m.UserID()
+	case dataexportjob.FieldFormat:
+		return m.Format()
+	case dataexportjob.FieldStatus:
+		return m.Status()
+	case dataexportjob.FieldIncludedData:
+		return m.IncludedData()
+	case dataexportjob.FieldStorageURL:
+		return m.StorageURL()
+	case dataexportjob.FieldErrorMessage:
+		return m.ErrorMessage()
+	case dataexportjob.FieldFileSizeBytes:
+		return m.FileSizeBytes()
+	case dataexportjob.FieldRecordsExported:
+		return m.RecordsExported()
+	case dataexportjob.FieldRequestedAt:
+		return m.RequestedAt()
+	case dataexportjob.FieldStartedAt:
+		return m.StartedAt()
+	case dataexportjob.FieldCompletedAt:
+		return m.CompletedAt()
+	case dataexportjob.FieldExpiresAt:
+		return m.ExpiresAt()
+	case dataexportjob.FieldCreatedAt:
+		return m.CreatedAt()
+	case dataexportjob.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DataExportJobMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case dataexportjob.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case dataexportjob.FieldUserID:
+		return m.OldUserID(ctx)
+	case dataexportjob.FieldFormat:
+		return m.OldFormat(ctx)
+	case dataexportjob.FieldStatus:
+		return m.OldStatus(ctx)
+	case dataexportjob.FieldIncludedData:
+		return m.OldIncludedData(ctx)
+	case dataexportjob.FieldStorageURL:
+		return m.OldStorageURL(ctx)
+	case dataexportjob.FieldErrorMessage:
+		return m.OldErrorMessage(ctx)
+	case dataexportjob.FieldFileSizeBytes:
+		return m.OldFileSizeBytes(ctx)
+	case dataexportjob.FieldRecordsExported:
+		return m.OldRecordsExported(ctx)
+	case dataexportjob.FieldRequestedAt:
+		return m.OldRequestedAt(ctx)
+	case dataexportjob.FieldStartedAt:
+		return m.OldStartedAt(ctx)
+	case dataexportjob.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	case dataexportjob.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	case dataexportjob.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case dataexportjob.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown DataExportJob field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataExportJobMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case dataexportjob.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case dataexportjob.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case dataexportjob.FieldFormat:
+		v, ok := value.(dataexportjob.Format)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFormat(v)
+		return nil
+	case dataexportjob.FieldStatus:
+		v, ok := value.(dataexportjob.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case dataexportjob.FieldIncludedData:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIncludedData(v)
+		return nil
+	case dataexportjob.FieldStorageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStorageURL(v)
+		return nil
+	case dataexportjob.FieldErrorMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorMessage(v)
+		return nil
+	case dataexportjob.FieldFileSizeBytes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFileSizeBytes(v)
+		return nil
+	case dataexportjob.FieldRecordsExported:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRecordsExported(v)
+		return nil
+	case dataexportjob.FieldRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestedAt(v)
+		return nil
+	case dataexportjob.FieldStartedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartedAt(v)
+		return nil
+	case dataexportjob.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	case dataexportjob.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	case dataexportjob.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case dataexportjob.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DataExportJob field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DataExportJobMutation) AddedFields() []string {
+	var fields []string
+	if m.addfile_size_bytes != nil {
+		fields = append(fields, dataexportjob.FieldFileSizeBytes)
+	}
+	if m.addrecords_exported != nil {
+		fields = append(fields, dataexportjob.FieldRecordsExported)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DataExportJobMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case dataexportjob.FieldFileSizeBytes:
+		return m.AddedFileSizeBytes()
+	case dataexportjob.FieldRecordsExported:
+		return m.AddedRecordsExported()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataExportJobMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case dataexportjob.FieldFileSizeBytes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFileSizeBytes(v)
+		return nil
+	case dataexportjob.FieldRecordsExported:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRecordsExported(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DataExportJob numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DataExportJobMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(dataexportjob.FieldIncludedData) {
+		fields = append(fields, dataexportjob.FieldIncludedData)
+	}
+	if m.FieldCleared(dataexportjob.FieldStorageURL) {
+		fields = append(fields, dataexportjob.FieldStorageURL)
+	}
+	if m.FieldCleared(dataexportjob.FieldErrorMessage) {
+		fields = append(fields, dataexportjob.FieldErrorMessage)
+	}
+	if m.FieldCleared(dataexportjob.FieldFileSizeBytes) {
+		fields = append(fields, dataexportjob.FieldFileSizeBytes)
+	}
+	if m.FieldCleared(dataexportjob.FieldRecordsExported) {
+		fields = append(fields, dataexportjob.FieldRecordsExported)
+	}
+	if m.FieldCleared(dataexportjob.FieldStartedAt) {
+		fields = append(fields, dataexportjob.FieldStartedAt)
+	}
+	if m.FieldCleared(dataexportjob.FieldCompletedAt) {
+		fields = append(fields, dataexportjob.FieldCompletedAt)
+	}
+	if m.FieldCleared(dataexportjob.FieldExpiresAt) {
+		fields = append(fields, dataexportjob.FieldExpiresAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DataExportJobMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DataExportJobMutation) ClearField(name string) error {
+	switch name {
+	case dataexportjob.FieldIncludedData:
+		m.ClearIncludedData()
+		return nil
+	case dataexportjob.FieldStorageURL:
+		m.ClearStorageURL()
+		return nil
+	case dataexportjob.FieldErrorMessage:
+		m.ClearErrorMessage()
+		return nil
+	case dataexportjob.FieldFileSizeBytes:
+		m.ClearFileSizeBytes()
+		return nil
+	case dataexportjob.FieldRecordsExported:
+		m.ClearRecordsExported()
+		return nil
+	case dataexportjob.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case dataexportjob.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	case dataexportjob.FieldExpiresAt:
+		m.ClearExpiresAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataExportJob nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DataExportJobMutation) ResetField(name string) error {
+	switch name {
+	case dataexportjob.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case dataexportjob.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case dataexportjob.FieldFormat:
+		m.ResetFormat()
+		return nil
+	case dataexportjob.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case dataexportjob.FieldIncludedData:
+		m.ResetIncludedData()
+		return nil
+	case dataexportjob.FieldStorageURL:
+		m.ResetStorageURL()
+		return nil
+	case dataexportjob.FieldErrorMessage:
+		m.ResetErrorMessage()
+		return nil
+	case dataexportjob.FieldFileSizeBytes:
+		m.ResetFileSizeBytes()
+		return nil
+	case dataexportjob.FieldRecordsExported:
+		m.ResetRecordsExported()
+		return nil
+	case dataexportjob.FieldRequestedAt:
+		m.ResetRequestedAt()
+		return nil
+	case dataexportjob.FieldStartedAt:
+		m.ResetStartedAt()
+		return nil
+	case dataexportjob.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	case dataexportjob.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	case dataexportjob.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case dataexportjob.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataExportJob field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DataExportJobMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DataExportJobMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DataExportJobMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DataExportJobMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DataExportJobMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DataExportJobMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DataExportJobMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DataExportJob unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DataExportJobMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DataExportJob edge %s", name)
+}
+
+// DataSubjectRequestMutation represents an operation that mutates the DataSubjectRequest nodes in the graph.
+type DataSubjectRequestMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	tenant_id     *uuid.UUID
+	user_id       *uuid.UUID
+	request_type  *datasubjectrequest.RequestType
+	status        *datasubjectrequest.Status
+	description   *string
+	notes         *string
+	result_url    *string
+	submitted_at  *time.Time
+	processed_at  *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*DataSubjectRequest, error)
+	predicates    []predicate.DataSubjectRequest
+}
+
+var _ ent.Mutation = (*DataSubjectRequestMutation)(nil)
+
+// datasubjectrequestOption allows management of the mutation configuration using functional options.
+type datasubjectrequestOption func(*DataSubjectRequestMutation)
+
+// newDataSubjectRequestMutation creates new mutation for the DataSubjectRequest entity.
+func newDataSubjectRequestMutation(c config, op Op, opts ...datasubjectrequestOption) *DataSubjectRequestMutation {
+	m := &DataSubjectRequestMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDataSubjectRequest,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDataSubjectRequestID sets the ID field of the mutation.
+func withDataSubjectRequestID(id uuid.UUID) datasubjectrequestOption {
+	return func(m *DataSubjectRequestMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DataSubjectRequest
+		)
+		m.oldValue = func(ctx context.Context) (*DataSubjectRequest, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DataSubjectRequest.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDataSubjectRequest sets the old DataSubjectRequest of the mutation.
+func withDataSubjectRequest(node *DataSubjectRequest) datasubjectrequestOption {
+	return func(m *DataSubjectRequestMutation) {
+		m.oldValue = func(context.Context) (*DataSubjectRequest, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DataSubjectRequestMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DataSubjectRequestMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DataSubjectRequest entities.
+func (m *DataSubjectRequestMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DataSubjectRequestMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DataSubjectRequestMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DataSubjectRequest.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *DataSubjectRequestMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *DataSubjectRequestMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *DataSubjectRequestMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *DataSubjectRequestMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *DataSubjectRequestMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *DataSubjectRequestMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetRequestType sets the "request_type" field.
+func (m *DataSubjectRequestMutation) SetRequestType(dt datasubjectrequest.RequestType) {
+	m.request_type = &dt
+}
+
+// RequestType returns the value of the "request_type" field in the mutation.
+func (m *DataSubjectRequestMutation) RequestType() (r datasubjectrequest.RequestType, exists bool) {
+	v := m.request_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestType returns the old "request_type" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldRequestType(ctx context.Context) (v datasubjectrequest.RequestType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestType: %w", err)
+	}
+	return oldValue.RequestType, nil
+}
+
+// ResetRequestType resets all changes to the "request_type" field.
+func (m *DataSubjectRequestMutation) ResetRequestType() {
+	m.request_type = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *DataSubjectRequestMutation) SetStatus(d datasubjectrequest.Status) {
+	m.status = &d
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DataSubjectRequestMutation) Status() (r datasubjectrequest.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldStatus(ctx context.Context) (v datasubjectrequest.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DataSubjectRequestMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *DataSubjectRequestMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *DataSubjectRequestMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *DataSubjectRequestMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[datasubjectrequest.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *DataSubjectRequestMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[datasubjectrequest.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *DataSubjectRequestMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, datasubjectrequest.FieldDescription)
+}
+
+// SetNotes sets the "notes" field.
+func (m *DataSubjectRequestMutation) SetNotes(s string) {
+	m.notes = &s
+}
+
+// Notes returns the value of the "notes" field in the mutation.
+func (m *DataSubjectRequestMutation) Notes() (r string, exists bool) {
+	v := m.notes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotes returns the old "notes" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldNotes(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotes: %w", err)
+	}
+	return oldValue.Notes, nil
+}
+
+// ClearNotes clears the value of the "notes" field.
+func (m *DataSubjectRequestMutation) ClearNotes() {
+	m.notes = nil
+	m.clearedFields[datasubjectrequest.FieldNotes] = struct{}{}
+}
+
+// NotesCleared returns if the "notes" field was cleared in this mutation.
+func (m *DataSubjectRequestMutation) NotesCleared() bool {
+	_, ok := m.clearedFields[datasubjectrequest.FieldNotes]
+	return ok
+}
+
+// ResetNotes resets all changes to the "notes" field.
+func (m *DataSubjectRequestMutation) ResetNotes() {
+	m.notes = nil
+	delete(m.clearedFields, datasubjectrequest.FieldNotes)
+}
+
+// SetResultURL sets the "result_url" field.
+func (m *DataSubjectRequestMutation) SetResultURL(s string) {
+	m.result_url = &s
+}
+
+// ResultURL returns the value of the "result_url" field in the mutation.
+func (m *DataSubjectRequestMutation) ResultURL() (r string, exists bool) {
+	v := m.result_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResultURL returns the old "result_url" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldResultURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResultURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResultURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResultURL: %w", err)
+	}
+	return oldValue.ResultURL, nil
+}
+
+// ClearResultURL clears the value of the "result_url" field.
+func (m *DataSubjectRequestMutation) ClearResultURL() {
+	m.result_url = nil
+	m.clearedFields[datasubjectrequest.FieldResultURL] = struct{}{}
+}
+
+// ResultURLCleared returns if the "result_url" field was cleared in this mutation.
+func (m *DataSubjectRequestMutation) ResultURLCleared() bool {
+	_, ok := m.clearedFields[datasubjectrequest.FieldResultURL]
+	return ok
+}
+
+// ResetResultURL resets all changes to the "result_url" field.
+func (m *DataSubjectRequestMutation) ResetResultURL() {
+	m.result_url = nil
+	delete(m.clearedFields, datasubjectrequest.FieldResultURL)
+}
+
+// SetSubmittedAt sets the "submitted_at" field.
+func (m *DataSubjectRequestMutation) SetSubmittedAt(t time.Time) {
+	m.submitted_at = &t
+}
+
+// SubmittedAt returns the value of the "submitted_at" field in the mutation.
+func (m *DataSubjectRequestMutation) SubmittedAt() (r time.Time, exists bool) {
+	v := m.submitted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubmittedAt returns the old "submitted_at" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldSubmittedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubmittedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubmittedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubmittedAt: %w", err)
+	}
+	return oldValue.SubmittedAt, nil
+}
+
+// ResetSubmittedAt resets all changes to the "submitted_at" field.
+func (m *DataSubjectRequestMutation) ResetSubmittedAt() {
+	m.submitted_at = nil
+}
+
+// SetProcessedAt sets the "processed_at" field.
+func (m *DataSubjectRequestMutation) SetProcessedAt(t time.Time) {
+	m.processed_at = &t
+}
+
+// ProcessedAt returns the value of the "processed_at" field in the mutation.
+func (m *DataSubjectRequestMutation) ProcessedAt() (r time.Time, exists bool) {
+	v := m.processed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProcessedAt returns the old "processed_at" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldProcessedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProcessedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProcessedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProcessedAt: %w", err)
+	}
+	return oldValue.ProcessedAt, nil
+}
+
+// ClearProcessedAt clears the value of the "processed_at" field.
+func (m *DataSubjectRequestMutation) ClearProcessedAt() {
+	m.processed_at = nil
+	m.clearedFields[datasubjectrequest.FieldProcessedAt] = struct{}{}
+}
+
+// ProcessedAtCleared returns if the "processed_at" field was cleared in this mutation.
+func (m *DataSubjectRequestMutation) ProcessedAtCleared() bool {
+	_, ok := m.clearedFields[datasubjectrequest.FieldProcessedAt]
+	return ok
+}
+
+// ResetProcessedAt resets all changes to the "processed_at" field.
+func (m *DataSubjectRequestMutation) ResetProcessedAt() {
+	m.processed_at = nil
+	delete(m.clearedFields, datasubjectrequest.FieldProcessedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DataSubjectRequestMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DataSubjectRequestMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DataSubjectRequestMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DataSubjectRequestMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DataSubjectRequestMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the DataSubjectRequest entity.
+// If the DataSubjectRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSubjectRequestMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DataSubjectRequestMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the DataSubjectRequestMutation builder.
+func (m *DataSubjectRequestMutation) Where(ps ...predicate.DataSubjectRequest) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DataSubjectRequestMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DataSubjectRequestMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DataSubjectRequest, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DataSubjectRequestMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DataSubjectRequestMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DataSubjectRequest).
+func (m *DataSubjectRequestMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DataSubjectRequestMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.tenant_id != nil {
+		fields = append(fields, datasubjectrequest.FieldTenantID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, datasubjectrequest.FieldUserID)
+	}
+	if m.request_type != nil {
+		fields = append(fields, datasubjectrequest.FieldRequestType)
+	}
+	if m.status != nil {
+		fields = append(fields, datasubjectrequest.FieldStatus)
+	}
+	if m.description != nil {
+		fields = append(fields, datasubjectrequest.FieldDescription)
+	}
+	if m.notes != nil {
+		fields = append(fields, datasubjectrequest.FieldNotes)
+	}
+	if m.result_url != nil {
+		fields = append(fields, datasubjectrequest.FieldResultURL)
+	}
+	if m.submitted_at != nil {
+		fields = append(fields, datasubjectrequest.FieldSubmittedAt)
+	}
+	if m.processed_at != nil {
+		fields = append(fields, datasubjectrequest.FieldProcessedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, datasubjectrequest.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, datasubjectrequest.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DataSubjectRequestMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case datasubjectrequest.FieldTenantID:
+		return m.TenantID()
+	case datasubjectrequest.FieldUserID:
+		return m.UserID()
+	case datasubjectrequest.FieldRequestType:
+		return m.RequestType()
+	case datasubjectrequest.FieldStatus:
+		return m.Status()
+	case datasubjectrequest.FieldDescription:
+		return m.Description()
+	case datasubjectrequest.FieldNotes:
+		return m.Notes()
+	case datasubjectrequest.FieldResultURL:
+		return m.ResultURL()
+	case datasubjectrequest.FieldSubmittedAt:
+		return m.SubmittedAt()
+	case datasubjectrequest.FieldProcessedAt:
+		return m.ProcessedAt()
+	case datasubjectrequest.FieldCreatedAt:
+		return m.CreatedAt()
+	case datasubjectrequest.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DataSubjectRequestMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case datasubjectrequest.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case datasubjectrequest.FieldUserID:
+		return m.OldUserID(ctx)
+	case datasubjectrequest.FieldRequestType:
+		return m.OldRequestType(ctx)
+	case datasubjectrequest.FieldStatus:
+		return m.OldStatus(ctx)
+	case datasubjectrequest.FieldDescription:
+		return m.OldDescription(ctx)
+	case datasubjectrequest.FieldNotes:
+		return m.OldNotes(ctx)
+	case datasubjectrequest.FieldResultURL:
+		return m.OldResultURL(ctx)
+	case datasubjectrequest.FieldSubmittedAt:
+		return m.OldSubmittedAt(ctx)
+	case datasubjectrequest.FieldProcessedAt:
+		return m.OldProcessedAt(ctx)
+	case datasubjectrequest.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case datasubjectrequest.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown DataSubjectRequest field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataSubjectRequestMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case datasubjectrequest.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case datasubjectrequest.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case datasubjectrequest.FieldRequestType:
+		v, ok := value.(datasubjectrequest.RequestType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestType(v)
+		return nil
+	case datasubjectrequest.FieldStatus:
+		v, ok := value.(datasubjectrequest.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case datasubjectrequest.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case datasubjectrequest.FieldNotes:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotes(v)
+		return nil
+	case datasubjectrequest.FieldResultURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResultURL(v)
+		return nil
+	case datasubjectrequest.FieldSubmittedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubmittedAt(v)
+		return nil
+	case datasubjectrequest.FieldProcessedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProcessedAt(v)
+		return nil
+	case datasubjectrequest.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case datasubjectrequest.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DataSubjectRequest field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DataSubjectRequestMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DataSubjectRequestMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DataSubjectRequestMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown DataSubjectRequest numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DataSubjectRequestMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(datasubjectrequest.FieldDescription) {
+		fields = append(fields, datasubjectrequest.FieldDescription)
+	}
+	if m.FieldCleared(datasubjectrequest.FieldNotes) {
+		fields = append(fields, datasubjectrequest.FieldNotes)
+	}
+	if m.FieldCleared(datasubjectrequest.FieldResultURL) {
+		fields = append(fields, datasubjectrequest.FieldResultURL)
+	}
+	if m.FieldCleared(datasubjectrequest.FieldProcessedAt) {
+		fields = append(fields, datasubjectrequest.FieldProcessedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DataSubjectRequestMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DataSubjectRequestMutation) ClearField(name string) error {
+	switch name {
+	case datasubjectrequest.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case datasubjectrequest.FieldNotes:
+		m.ClearNotes()
+		return nil
+	case datasubjectrequest.FieldResultURL:
+		m.ClearResultURL()
+		return nil
+	case datasubjectrequest.FieldProcessedAt:
+		m.ClearProcessedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataSubjectRequest nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DataSubjectRequestMutation) ResetField(name string) error {
+	switch name {
+	case datasubjectrequest.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case datasubjectrequest.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case datasubjectrequest.FieldRequestType:
+		m.ResetRequestType()
+		return nil
+	case datasubjectrequest.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case datasubjectrequest.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case datasubjectrequest.FieldNotes:
+		m.ResetNotes()
+		return nil
+	case datasubjectrequest.FieldResultURL:
+		m.ResetResultURL()
+		return nil
+	case datasubjectrequest.FieldSubmittedAt:
+		m.ResetSubmittedAt()
+		return nil
+	case datasubjectrequest.FieldProcessedAt:
+		m.ResetProcessedAt()
+		return nil
+	case datasubjectrequest.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case datasubjectrequest.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DataSubjectRequest field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DataSubjectRequestMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DataSubjectRequestMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DataSubjectRequestMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DataSubjectRequestMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DataSubjectRequestMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DataSubjectRequestMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DataSubjectRequestMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DataSubjectRequest unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DataSubjectRequestMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DataSubjectRequest edge %s", name)
 }
 
 // DeliveryWindowMutation represents an operation that mutates the DeliveryWindow nodes in the graph.

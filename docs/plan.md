@@ -1,4 +1,5 @@
 # Ordering Service - Implementation Plan
+**Overall Backend Progress: ~90% Complete**
 
 ## Executive Summary
 
@@ -433,9 +434,9 @@ See `docs/sprints/` folder for detailed sprint plans:
 - Sprint 2: Catalog & Localization ✅ **Completed** (Categories, items, variants, translations, dietary tags)
 - Sprint 3: Orders & Cart ✅ **Completed** (Cart, checkout, orders, promo codes, loyalty, addresses)
 - Sprint 4: Payments Core ✅ **Completed** (Treasury integration, payment webhooks, refunds, M-Pesa STK Push)
-- Sprint 5: Order Fulfilment & Logistics 🚧 **In Progress** (Logistics integration, delivery tasks, live tracking)
-- Sprint 6: Notifications & Ops ⏳ **Next** (Order status notifications, marketing)
-- Sprint 7: Analytics, Compliance & Hardening ⏳ **Planned** (Dashboards, security audit, compliance)
+- Sprint 5: Order Fulfilment & Logistics ✅ **Completed** (Logistics integration, delivery tasks, webhook handlers)
+- Sprint 6: Notifications & Ops ✅ **Completed** (Order status notifications, SLA monitoring, event publishing)
+- Sprint 7: Analytics, Compliance & Hardening 🚧 **In Progress** (Dashboards, security audit, compliance)
 - Sprint 8: Launch & Handover ⏳ **Planned** (Load testing, production deployment)
 
 ## Current Implementation Status (January 2026)
@@ -457,8 +458,11 @@ See `docs/sprints/` folder for detailed sprint plans:
 - ✅ Payment method management (CRUD, default method)
 - ✅ Webhook processing (treasury webhooks, signature verification)
 - ✅ Refund processing (initiate, track, partial refunds)
+- ✅ Fulfilment module (logistics integration, task service, webhook handlers)
+- ✅ Notifications module (templates, preferences, local event storage)
+- ✅ SLA module (metrics, violation detection, statistics endpoints)
 
-**Current Sprint (Sprint 5 - Order Fulfilment & Logistics):**
+**Completed Sprint 5 (Order Fulfilment & Logistics):**
 - ✅ Logistics service REST API client (`internal/platform/logistics/client.go`)
 - ✅ Delivery task creation (`POST /{tenant}/orders/{id}/delivery/create-task`)
 - ✅ Task status consumption (webhook handlers for all logistics events)
@@ -467,23 +471,44 @@ See `docs/sprints/` folder for detailed sprint plans:
 - ✅ Rider information queries (via logistics service API)
 - ✅ Proof of delivery handling (webhook events, storage)
 - ✅ Tracking endpoint (`GET /{tenant}/orders/{id}/delivery/tracking`)
-- ⏳ WebSocket client for live tracking (deferred - requires logistics service support)
-- ⏳ Integration tests
 
-**Next Sprint (Sprint 6 - Notifications & Ops):**
-- 🚧 Order status notifications
-- 🚧 Marketing campaigns
-- 🚧 SLA monitoring
-- 🚧 Issue escalation
+**Completed Sprint 6 (Notifications & Ops):**
+- ✅ Notifications module (Ent schemas, service, repository, handlers)
+- ✅ SLA module (Ent schema, service, repository, handlers)
+- ✅ Notification preferences management (GET/PUT endpoints)
+- ✅ Notifications REST client (`internal/platform/notifications/client.go`)
+- ✅ Inventory REST client (`internal/platform/inventory/client.go`)
+- ✅ NATS event publisher (`internal/platform/events/publisher.go`)
+- ✅ NATS event subscriber (`internal/platform/events/subscriber.go`)
+- ✅ Event publisher for order lifecycle (created, ready, cancelled, completed)
+- ✅ Event publisher for payment events (initiated, completed, failed)
+- ✅ Event publisher for POS integration (catalog sync, pickup handoff)
+- ✅ Event publisher wired to order service (`OrderService.SetEventPublisher()`)
+- ⏳ Integration tests (ongoing)
+
+**Current Sprint (Sprint 7 - Analytics, Compliance & Hardening):**
+- ⏳ Analytics reports (order, revenue, customer)
+- ⏳ Data export/delete tooling (GDPR/DPA compliance)
+- ⏳ Performance optimization
+- ⏳ Security hardening
 
 **Not Yet Implemented:**
 - ❌ Delivery options and zone management
 - ❌ Group ordering
-- ❌ Notifications integration
 - ❌ Analytics and reporting
 - ❌ Reconciliation logs
 - ❌ Image upload/CDN
 - ❌ Ordering PWA frontend
+
+**External Service Integrations - 100% Platform Clients Complete:**
+| Service | Client | Status |
+|---------|--------|--------|
+| Auth Service | `shared-auth-client` | ✅ Implemented |
+| Treasury Service | `internal/platform/treasury/client.go` | ✅ Implemented |
+| Logistics Service | `internal/platform/logistics/client.go` | ✅ Implemented |
+| Notifications Service | `internal/platform/notifications/client.go` | ✅ Implemented |
+| Inventory Service | `internal/platform/inventory/client.go` | ✅ Implemented |
+| NATS Events | `internal/platform/events/publisher.go` | ✅ Implemented |
 
 ---
 

@@ -9,6 +9,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
+	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
+	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
@@ -217,6 +220,74 @@ func init() {
 	customeraddressDescID := customeraddressFields[0].Descriptor()
 	// customeraddress.DefaultID holds the default value on creation for the id field.
 	customeraddress.DefaultID = customeraddressDescID.Default.(func() uuid.UUID)
+	datadeletionjobFields := schema.DataDeletionJob{}.Fields()
+	_ = datadeletionjobFields
+	// datadeletionjobDescConfirmed is the schema descriptor for confirmed field.
+	datadeletionjobDescConfirmed := datadeletionjobFields[6].Descriptor()
+	// datadeletionjob.DefaultConfirmed holds the default value on creation for the confirmed field.
+	datadeletionjob.DefaultConfirmed = datadeletionjobDescConfirmed.Default.(bool)
+	// datadeletionjobDescRetentionDays is the schema descriptor for retention_days field.
+	datadeletionjobDescRetentionDays := datadeletionjobFields[7].Descriptor()
+	// datadeletionjob.DefaultRetentionDays holds the default value on creation for the retention_days field.
+	datadeletionjob.DefaultRetentionDays = datadeletionjobDescRetentionDays.Default.(int)
+	// datadeletionjobDescRequestedAt is the schema descriptor for requested_at field.
+	datadeletionjobDescRequestedAt := datadeletionjobFields[10].Descriptor()
+	// datadeletionjob.DefaultRequestedAt holds the default value on creation for the requested_at field.
+	datadeletionjob.DefaultRequestedAt = datadeletionjobDescRequestedAt.Default.(func() time.Time)
+	// datadeletionjobDescCreatedAt is the schema descriptor for created_at field.
+	datadeletionjobDescCreatedAt := datadeletionjobFields[14].Descriptor()
+	// datadeletionjob.DefaultCreatedAt holds the default value on creation for the created_at field.
+	datadeletionjob.DefaultCreatedAt = datadeletionjobDescCreatedAt.Default.(func() time.Time)
+	// datadeletionjobDescUpdatedAt is the schema descriptor for updated_at field.
+	datadeletionjobDescUpdatedAt := datadeletionjobFields[15].Descriptor()
+	// datadeletionjob.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	datadeletionjob.DefaultUpdatedAt = datadeletionjobDescUpdatedAt.Default.(func() time.Time)
+	// datadeletionjob.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	datadeletionjob.UpdateDefaultUpdatedAt = datadeletionjobDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// datadeletionjobDescID is the schema descriptor for id field.
+	datadeletionjobDescID := datadeletionjobFields[0].Descriptor()
+	// datadeletionjob.DefaultID holds the default value on creation for the id field.
+	datadeletionjob.DefaultID = datadeletionjobDescID.Default.(func() uuid.UUID)
+	dataexportjobFields := schema.DataExportJob{}.Fields()
+	_ = dataexportjobFields
+	// dataexportjobDescRequestedAt is the schema descriptor for requested_at field.
+	dataexportjobDescRequestedAt := dataexportjobFields[10].Descriptor()
+	// dataexportjob.DefaultRequestedAt holds the default value on creation for the requested_at field.
+	dataexportjob.DefaultRequestedAt = dataexportjobDescRequestedAt.Default.(func() time.Time)
+	// dataexportjobDescCreatedAt is the schema descriptor for created_at field.
+	dataexportjobDescCreatedAt := dataexportjobFields[14].Descriptor()
+	// dataexportjob.DefaultCreatedAt holds the default value on creation for the created_at field.
+	dataexportjob.DefaultCreatedAt = dataexportjobDescCreatedAt.Default.(func() time.Time)
+	// dataexportjobDescUpdatedAt is the schema descriptor for updated_at field.
+	dataexportjobDescUpdatedAt := dataexportjobFields[15].Descriptor()
+	// dataexportjob.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	dataexportjob.DefaultUpdatedAt = dataexportjobDescUpdatedAt.Default.(func() time.Time)
+	// dataexportjob.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	dataexportjob.UpdateDefaultUpdatedAt = dataexportjobDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// dataexportjobDescID is the schema descriptor for id field.
+	dataexportjobDescID := dataexportjobFields[0].Descriptor()
+	// dataexportjob.DefaultID holds the default value on creation for the id field.
+	dataexportjob.DefaultID = dataexportjobDescID.Default.(func() uuid.UUID)
+	datasubjectrequestFields := schema.DataSubjectRequest{}.Fields()
+	_ = datasubjectrequestFields
+	// datasubjectrequestDescSubmittedAt is the schema descriptor for submitted_at field.
+	datasubjectrequestDescSubmittedAt := datasubjectrequestFields[8].Descriptor()
+	// datasubjectrequest.DefaultSubmittedAt holds the default value on creation for the submitted_at field.
+	datasubjectrequest.DefaultSubmittedAt = datasubjectrequestDescSubmittedAt.Default.(func() time.Time)
+	// datasubjectrequestDescCreatedAt is the schema descriptor for created_at field.
+	datasubjectrequestDescCreatedAt := datasubjectrequestFields[10].Descriptor()
+	// datasubjectrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
+	datasubjectrequest.DefaultCreatedAt = datasubjectrequestDescCreatedAt.Default.(func() time.Time)
+	// datasubjectrequestDescUpdatedAt is the schema descriptor for updated_at field.
+	datasubjectrequestDescUpdatedAt := datasubjectrequestFields[11].Descriptor()
+	// datasubjectrequest.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	datasubjectrequest.DefaultUpdatedAt = datasubjectrequestDescUpdatedAt.Default.(func() time.Time)
+	// datasubjectrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	datasubjectrequest.UpdateDefaultUpdatedAt = datasubjectrequestDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// datasubjectrequestDescID is the schema descriptor for id field.
+	datasubjectrequestDescID := datasubjectrequestFields[0].Descriptor()
+	// datasubjectrequest.DefaultID holds the default value on creation for the id field.
+	datasubjectrequest.DefaultID = datasubjectrequestDescID.Default.(func() uuid.UUID)
 	deliverywindowFields := schema.DeliveryWindow{}.Fields()
 	_ = deliverywindowFields
 	// deliverywindowDescSource is the schema descriptor for source field.

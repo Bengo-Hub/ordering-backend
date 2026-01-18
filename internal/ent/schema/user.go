@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 )
 
@@ -92,5 +93,17 @@ func (User) Edges() []ent.Edge {
 
 // Indexes of the User.
 func (User) Indexes() []ent.Index {
-	return nil
+	return []ent.Index{
+		// Common query patterns
+		index.Fields("tenant_id", "email").
+			Unique(),
+		index.Fields("tenant_id", "auth_service_user_id"),
+		index.Fields("tenant_id", "status"),
+		index.Fields("tenant_id", "primary_role"),
+		index.Fields("email"),
+		index.Fields("phone"),
+		index.Fields("sync_status"),
+		index.Fields("last_login_at"),
+		index.Fields("created_at"),
+	}
 }

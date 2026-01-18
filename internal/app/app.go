@@ -17,7 +17,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
+	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
@@ -25,7 +27,9 @@ import (
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
+	"github.com/bengobox/ordering-backend/internal/modules/analytics"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
+	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
@@ -35,8 +39,12 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
+	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
+	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
+	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
+	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
 )
 
@@ -94,9 +102,16 @@ func New(ctx context.Context) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("app: ent driver init: %w", err)
 	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(25)
+	// Configure connection pooling for optimal performance
+	sqlDB.SetMaxIdleConns(cfg.Postgres.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(cfg.Postgres.MaxOpenConns)
+	sqlDB.SetConnMaxLifetime(cfg.Postgres.ConnMaxLifetime)
 	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
+	log.Info("app: database connection pool configured",
+		zap.Int("max_open_conns", cfg.Postgres.MaxOpenConns),
+		zap.Int("max_idle_conns", cfg.Postgres.MaxIdleConns),
+		zap.Duration("conn_max_lifetime", cfg.Postgres.ConnMaxLifetime))
 
 	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
 	ormClient := ent.NewClient(ent.Driver(drv))
@@ -195,7 +210,31 @@ func New(ctx context.Context) (*App, error) {
 	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc)
 	fulfilmentWebhookHandler := fulfilmenthandler.NewWebhookHandler(log, fulfilmentWebhookSvc)
 
-	// Initialize notifications module
+	// Initialize inventory client (for stock availability and reservations)
+	inventoryClient := inventory.NewClient(cfg.Inventory, log)
+	_ = inventoryClient // Available for use in services that need stock checks
+
+	// Initialize external notifications client (for sending to notifications-service)
+	notificationsClient := extnotifications.NewClient(cfg.Notifications, log)
+	_ = notificationsClient // Available for use in services that need to send notifications
+
+	// Initialize event publisher for NATS events
+	var eventPublisher *events.Publisher
+	if natsConn != nil {
+		eventPublisher = events.NewPublisher(natsConn, log)
+		log.Info("app: event publisher initialized")
+
+		// Wire event publisher to order service for publishing order events
+		orderSvc.SetEventPublisher(eventPublisher)
+
+		// Subscribe to order events for automatic delivery task creation
+		fulfilmentEventHandler := fulfilment.NewEventHandler(taskSvc, orderSvc, orderingRepo, log)
+		if err := fulfilmentEventHandler.SubscribeToOrderEvents(natsConn); err != nil {
+			log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
+		}
+	}
+
+	// Initialize notifications module (local notification events storage)
 	notificationsRepo := notifications.NewEntRepository(ormClient)
 	notificationsSvc := notifications.NewService(notificationsRepo, log)
 	notificationsHandler := notificationshandler.NewHandler(log, notificationsSvc)
@@ -205,7 +244,32 @@ func New(ctx context.Context) (*App, error) {
 	slaSvc := sla.NewService(slaRepo, log)
 	slaHandler := slahandler.NewHandler(log, slaSvc)
 
-	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, authenticator, authMiddleware, cfg.HTTP.AllowedOrigins)
+	// Initialize analytics module (Superset integration)
+	supersetClient := superset.NewClient(cfg.Superset, log)
+	analyticsSvc := analytics.NewService(supersetClient, cfg.Superset, log)
+	analyticsHandler := analyticshandler.NewHandler(log, analyticsSvc)
+
+	// Initialize compliance module (GDPR/DPA data export and deletion)
+	complianceRepo := compliance.NewEntRepository(ormClient)
+	complianceSvc := compliance.NewService(complianceRepo, log)
+	complianceHandler := compliancehandler.NewHandler(log, complianceSvc)
+
+	// Initialize security module (rate limiting)
+	rateLimitConfig := security.RateLimitConfig{
+		RequestsPerMinute:        cfg.Security.RateLimitRequestsPerMin,
+		RequestsPerHour:          cfg.Security.RateLimitRequestsPerHour,
+		AuthRequestsPerMinute:    cfg.Security.RateLimitAuthPerMin,
+		PaymentRequestsPerMinute: cfg.Security.RateLimitPaymentPerMin,
+		BurstMultiplier:          cfg.Security.RateLimitBurstMultiplier,
+		KeyPrefix:                cfg.Security.RateLimitKeyPrefix,
+		Enabled:                  cfg.Security.RateLimitEnabled,
+	}
+	rateLimiter := security.NewRateLimiter(redisClient, rateLimitConfig, log)
+	log.Info("app: security rate limiter initialized",
+		zap.Bool("enabled", cfg.Security.RateLimitEnabled),
+		zap.Int("requests_per_min", cfg.Security.RateLimitRequestsPerMin))
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, cfg.Security, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

@@ -157,6 +157,11 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("tenant_id", "cafe_id"),
 		index.Fields("tenant_id", "customer_id"),
 		index.Fields("tenant_id", "status"),
+		index.Fields("tenant_id", "payment_status"),
+		// Composite index for common filtering patterns
+		index.Fields("tenant_id", "status", "created_at"),
+		index.Fields("tenant_id", "cafe_id", "status"),
+		index.Fields("tenant_id", "customer_id", "status"),
 		index.Fields("order_number").
 			Unique(),
 		// Partial unique index: unique idempotency key when set
@@ -165,7 +170,14 @@ func (Order) Indexes() []ent.Index {
 				Where: "idempotency_key IS NOT NULL",
 			}).
 			Unique(),
+		// Time-based indexes for analytics and reporting
 		index.Fields("placed_at"),
 		index.Fields("created_at"),
+		index.Fields("completed_at"),
+		index.Fields("delivered_at"),
+		// Delivery address for fulfillment queries
+		index.Fields("delivery_address_id"),
+		// Channel and source for analytics
+		index.Fields("channel"),
 	}
 }

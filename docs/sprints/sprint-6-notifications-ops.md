@@ -1,7 +1,37 @@
 # Sprint 6 - Notifications & Ops
 
-**Duration**: Weeks 12-13  
-**Status**: ⏳ Not Started
+**Duration**: Weeks 12-13
+**Status**: ✅ Complete (January 2026)
+
+---
+
+## Sprint Progress (Updated January 2026)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Ent schema: NotificationEvent | ✅ Complete | `internal/ent/schema/notificationevent.go` |
+| Ent schema: NotificationTemplate | ✅ Complete | `internal/ent/schema/notificationtemplate.go` |
+| Ent schema: NotificationSubscription | ✅ Complete | `internal/ent/schema/notificationsubscription.go` |
+| Ent schema: SLAMetric | ✅ Complete | `internal/ent/schema/slametric.go` |
+| Run Ent code generation | ✅ Complete | `go generate ./internal/ent` |
+| Notifications module domain | ✅ Complete | `internal/modules/notifications/domain.go` |
+| Notifications service implementation | ✅ Complete | `internal/modules/notifications/service.go` |
+| Notifications repository (Ent) | ✅ Complete | `internal/modules/notifications/repository_ent.go` |
+| SLA module domain | ✅ Complete | `internal/modules/sla/domain.go` |
+| SLA service implementation | ✅ Complete | `internal/modules/sla/service.go` |
+| SLA repository (Ent) | ✅ Complete | `internal/modules/sla/repository_ent.go` |
+| Notifications HTTP handlers | ✅ Complete | `internal/http/handlers/notifications/handler.go` |
+| SLA HTTP handlers | ✅ Complete | `internal/http/handlers/sla/handler.go` |
+| Router integration | ✅ Complete | `internal/http/router/router.go` |
+| App initialization | ✅ Complete | `internal/app/app.go` |
+| Event publisher wired to order service | ✅ Complete | `OrderService.SetEventPublisher()` in `app.go` |
+| Order created event publishing | ✅ Complete | `publishOrderCreated()` in `order_service.go` |
+| Order status changed event publishing | ✅ Complete | `publishOrderStatusChanged()` in `order_service.go` |
+| Order ready event publishing | ✅ Complete | `publishOrderReady()` in `order_service.go` |
+| Order completed event publishing | ✅ Complete | `publishOrderCompleted()` in `order_service.go` |
+| Order cancelled event publishing | ✅ Complete | `publishOrderCancelled()` in `order_service.go` |
+| Support ticket system | ⏳ Pending | Deferred - handled by ticketing-service |
+| Issue escalation workflows | ⏳ Pending | Deferred to future sprint |
 
 ---
 
@@ -16,7 +46,7 @@ Sprint 6 focuses on integrating with the notifications service for event-driven 
 1. Event pipeline to notifications service
 2. SLA monitoring
 3. Issue escalation workflows
-4. Support ticket endpoints
+4. Support ticket endpoints (deferred to ticketing-service)
 5. Notification template management
 6. User preference management
 
@@ -41,60 +71,63 @@ Sprint 6 focuses on integrating with the notifications service for event-driven 
 ## User Stories
 
 ### US-6.1: Order Notifications
-**As a** customer  
-**I want** to receive notifications about my order  
+**As a** customer
+**I want** to receive notifications about my order
 **So that** I stay informed about order status
 
 **Acceptance Criteria**:
-- [ ] Order confirmation notification
-- [ ] Order ready notification
-- [ ] Driver assigned notification
-- [ ] Delivery ETA updates
-- [ ] Delivery completion notification
+- [x] Order confirmation notification (via `PublishOrderCreated`)
+- [x] Order ready notification (via `PublishOrderReady`)
+- [x] Driver assigned notification (via `PublishDriverAssigned`)
+- [ ] Delivery ETA updates (requires event from logistics)
+- [x] Delivery completion notification (via `PublishDeliveryComplete`)
 
 ### US-6.2: SLA Monitoring
-**As a** cafe administrator  
-**I want** to monitor order SLA compliance  
+**As a** cafe administrator
+**I want** to monitor order SLA compliance
 **So that** I can ensure timely delivery
 
 **Acceptance Criteria**:
-- [ ] SLA calculation per order
-- [ ] SLA violation alerts
-- [ ] SLA dashboard
-- [ ] SLA reports
+- [x] SLA calculation per order (via `SLA.Service.StartOrderTracking`)
+- [x] SLA metric types: order_to_confirm, confirm_to_ready, ready_to_pickup, pickup_to_delivery, end_to_end
+- [x] SLA violation detection (via `GetBreachedMetrics`)
+- [x] SLA dashboard endpoint (`GET /sla/stats`)
+- [x] SLA reports endpoint (`GET /sla/metrics`)
 
 ### US-6.3: Support Tickets
-**As a** customer  
-**I want** to create support tickets  
+**As a** customer
+**I want** to create support tickets
 **So that** I can get help with issues
 
 **Acceptance Criteria**:
-- [ ] Ticket creation endpoint
-- [ ] Ticket status tracking
-- [ ] Ticket assignment
-- [ ] Ticket history
+- [ ] Ticket creation endpoint - **Deferred to ticketing-service**
+- [ ] Ticket status tracking - **Deferred to ticketing-service**
+- [ ] Ticket assignment - **Deferred to ticketing-service**
+- [ ] Ticket history - **Deferred to ticketing-service**
+
+**Note**: Support ticket functionality is now handled by the dedicated `ticketing-service` microservice.
 
 ### US-6.4: Issue Escalation
-**As a** system administrator  
-**I want** automatic issue escalation  
+**As a** system administrator
+**I want** automatic issue escalation
 **So that** critical issues are handled promptly
 
 **Acceptance Criteria**:
-- [ ] Escalation rules configuration
-- [ ] Automatic escalation triggers
-- [ ] Escalation notifications
-- [ ] Escalation history
+- [ ] Escalation rules configuration (future sprint)
+- [ ] Automatic escalation triggers (future sprint)
+- [ ] Escalation notifications (future sprint)
+- [ ] Escalation history (future sprint)
 
 ### US-6.5: Notification Preferences
-**As a** user  
-**I want** to manage my notification preferences  
+**As a** user
+**I want** to manage my notification preferences
 **So that** I receive only relevant notifications
 
 **Acceptance Criteria**:
-- [ ] Preference management endpoints
-- [ ] Channel selection (email, SMS, push)
-- [ ] Event type subscriptions
-- [ ] Preference persistence
+- [x] Preference management endpoints (`GET/PUT /notifications/preferences`)
+- [x] Channel selection (email, SMS, push) - via `NotificationChannel` enum
+- [x] Event type subscriptions - via `NotificationSubscription` entity
+- [x] Preference persistence - via Ent repository
 
 ---
 
@@ -283,15 +316,23 @@ Sprint 6 focuses on integrating with the notifications service for event-driven 
 
 ## Deliverables
 
-- [ ] Event pipeline to notifications service
-- [ ] Notification template management
-- [ ] User preference management
-- [ ] Support ticket system
-- [ ] Issue escalation workflows
-- [ ] SLA monitoring and metrics
-- [ ] SLA violation alerts
-- [ ] Database migrations
-- [ ] Integration tests
+- [x] Notification event domain model and service (`internal/modules/notifications/`)
+- [x] Notification template management (`NotificationTemplate` entity + handlers)
+- [x] User preference management (`NotificationSubscription` entity + handlers)
+- [x] Order notification helpers (`PublishOrderCreated`, `PublishOrderReady`, etc.)
+- [x] NATS event publisher (`internal/platform/events/publisher.go`)
+- [x] Event publisher wired to order service (`OrderService.SetEventPublisher()`)
+- [x] Order lifecycle events (created, status changed, ready, completed, cancelled)
+- [x] Payment events (initiated, completed, failed)
+- [x] POS integration events (catalog updated, order for pickup)
+- [ ] Support ticket system - **Deferred to ticketing-service**
+- [ ] Issue escalation workflows - **Deferred to future sprint**
+- [x] SLA monitoring and metrics (`internal/modules/sla/`)
+- [x] SLA metric tracking per order (`SLAMetric` entity)
+- [x] SLA violation detection (`GetBreachedMetrics`)
+- [x] SLA statistics endpoints (`GET /sla/stats`, `GET /sla/breached`)
+- [x] Database migrations (via Ent schema auto-migrate)
+- [ ] Integration tests - **Ongoing**
 
 ---
 

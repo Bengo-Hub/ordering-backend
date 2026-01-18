@@ -206,6 +206,173 @@ var (
 			},
 		},
 	}
+	// DataDeletionJobsColumns holds the columns for the "data_deletion_jobs" table.
+	DataDeletionJobsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "deletion_type", Type: field.TypeEnum, Enums: []string{"soft", "permanent", "anonymize"}, Default: "soft"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "scheduled", "in_progress", "completed", "failed", "cancelled"}, Default: "pending"},
+		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "confirmed", Type: field.TypeBool, Default: false},
+		{Name: "retention_days", Type: field.TypeInt, Default: 30},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "deletion_summary", Type: field.TypeJSON, Nullable: true},
+		{Name: "requested_at", Type: field.TypeTime},
+		{Name: "scheduled_for", Type: field.TypeTime, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// DataDeletionJobsTable holds the schema information for the "data_deletion_jobs" table.
+	DataDeletionJobsTable = &schema.Table{
+		Name:       "data_deletion_jobs",
+		Columns:    DataDeletionJobsColumns,
+		PrimaryKey: []*schema.Column{DataDeletionJobsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "datadeletionjob_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[1], DataDeletionJobsColumns[2]},
+			},
+			{
+				Name:    "datadeletionjob_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[1], DataDeletionJobsColumns[4]},
+			},
+			{
+				Name:    "datadeletionjob_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[2]},
+			},
+			{
+				Name:    "datadeletionjob_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[4]},
+			},
+			{
+				Name:    "datadeletionjob_requested_at",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[10]},
+			},
+			{
+				Name:    "datadeletionjob_scheduled_for",
+				Unique:  false,
+				Columns: []*schema.Column{DataDeletionJobsColumns[11]},
+			},
+		},
+	}
+	// DataExportJobsColumns holds the columns for the "data_export_jobs" table.
+	DataExportJobsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "format", Type: field.TypeEnum, Enums: []string{"json", "csv"}, Default: "json"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "in_progress", "completed", "failed", "expired"}, Default: "pending"},
+		{Name: "included_data", Type: field.TypeJSON, Nullable: true},
+		{Name: "storage_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "file_size_bytes", Type: field.TypeInt, Nullable: true},
+		{Name: "records_exported", Type: field.TypeInt, Nullable: true},
+		{Name: "requested_at", Type: field.TypeTime},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// DataExportJobsTable holds the schema information for the "data_export_jobs" table.
+	DataExportJobsTable = &schema.Table{
+		Name:       "data_export_jobs",
+		Columns:    DataExportJobsColumns,
+		PrimaryKey: []*schema.Column{DataExportJobsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "dataexportjob_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[1], DataExportJobsColumns[2]},
+			},
+			{
+				Name:    "dataexportjob_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[1], DataExportJobsColumns[4]},
+			},
+			{
+				Name:    "dataexportjob_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[2]},
+			},
+			{
+				Name:    "dataexportjob_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[4]},
+			},
+			{
+				Name:    "dataexportjob_requested_at",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[10]},
+			},
+			{
+				Name:    "dataexportjob_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{DataExportJobsColumns[13]},
+			},
+		},
+	}
+	// DataSubjectRequestsColumns holds the columns for the "data_subject_requests" table.
+	DataSubjectRequestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "request_type", Type: field.TypeEnum, Enums: []string{"export", "delete", "access", "rectification", "restriction", "portability", "objection"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "in_progress", "completed", "rejected", "cancelled"}, Default: "pending"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "result_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "submitted_at", Type: field.TypeTime},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// DataSubjectRequestsTable holds the schema information for the "data_subject_requests" table.
+	DataSubjectRequestsTable = &schema.Table{
+		Name:       "data_subject_requests",
+		Columns:    DataSubjectRequestsColumns,
+		PrimaryKey: []*schema.Column{DataSubjectRequestsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "datasubjectrequest_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[1], DataSubjectRequestsColumns[2]},
+			},
+			{
+				Name:    "datasubjectrequest_tenant_id_request_type",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[1], DataSubjectRequestsColumns[3]},
+			},
+			{
+				Name:    "datasubjectrequest_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[1], DataSubjectRequestsColumns[4]},
+			},
+			{
+				Name:    "datasubjectrequest_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[2]},
+			},
+			{
+				Name:    "datasubjectrequest_status",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[4]},
+			},
+			{
+				Name:    "datasubjectrequest_submitted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DataSubjectRequestsColumns[8]},
+			},
+		},
+	}
 	// DeliveryWindowsColumns holds the columns for the "delivery_windows" table.
 	DeliveryWindowsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -733,9 +900,19 @@ var (
 				Columns: []*schema.Column{NotificationEventsColumns[1], NotificationEventsColumns[2]},
 			},
 			{
-				Name:    "notificationevent_status",
+				Name:    "notificationevent_tenant_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{NotificationEventsColumns[6]},
+				Columns: []*schema.Column{NotificationEventsColumns[1], NotificationEventsColumns[6]},
+			},
+			{
+				Name:    "notificationevent_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[6], NotificationEventsColumns[14]},
+			},
+			{
+				Name:    "notificationevent_status_attempts_last_attempt_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[6], NotificationEventsColumns[7], NotificationEventsColumns[8]},
 			},
 			{
 				Name:    "notificationevent_order_id",
@@ -751,6 +928,11 @@ var (
 				Name:    "notificationevent_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{NotificationEventsColumns[14]},
+			},
+			{
+				Name:    "notificationevent_sent_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationEventsColumns[12]},
 			},
 		},
 	}
@@ -931,6 +1113,26 @@ var (
 				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5]},
 			},
 			{
+				Name:    "order_tenant_id_payment_status",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[6]},
+			},
+			{
+				Name:    "order_tenant_id_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[29]},
+			},
+			{
+				Name:    "order_tenant_id_cafe_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[2], OrdersColumns[5]},
+			},
+			{
+				Name:    "order_tenant_id_customer_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[32], OrdersColumns[5]},
+			},
+			{
 				Name:    "order_order_number",
 				Unique:  true,
 				Columns: []*schema.Column{OrdersColumns[4]},
@@ -952,6 +1154,26 @@ var (
 				Name:    "order_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{OrdersColumns[29]},
+			},
+			{
+				Name:    "order_completed_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[25]},
+			},
+			{
+				Name:    "order_delivered_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[24]},
+			},
+			{
+				Name:    "order_delivery_address_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[31]},
+			},
+			{
+				Name:    "order_channel",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[18]},
 			},
 		},
 	}
@@ -1191,6 +1413,21 @@ var (
 				Columns: []*schema.Column{PaymentsColumns[1], PaymentsColumns[17]},
 			},
 			{
+				Name:    "payment_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[1], PaymentsColumns[4]},
+			},
+			{
+				Name:    "payment_tenant_id_provider",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[1], PaymentsColumns[5]},
+			},
+			{
+				Name:    "payment_tenant_id_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[1], PaymentsColumns[4], PaymentsColumns[15]},
+			},
+			{
 				Name:    "payment_provider_provider_reference",
 				Unique:  false,
 				Columns: []*schema.Column{PaymentsColumns[5], PaymentsColumns[6]},
@@ -1201,14 +1438,34 @@ var (
 				Columns: []*schema.Column{PaymentsColumns[8]},
 			},
 			{
+				Name:    "payment_mpesa_phone_number",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[9]},
+			},
+			{
 				Name:    "payment_status",
 				Unique:  false,
 				Columns: []*schema.Column{PaymentsColumns[4]},
 			},
 			{
+				Name:    "payment_payment_intent_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[18]},
+			},
+			{
 				Name:    "payment_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{PaymentsColumns[15]},
+			},
+			{
+				Name:    "payment_processed_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[13]},
+			},
+			{
+				Name:    "payment_captured_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[14]},
 			},
 		},
 	}
@@ -1890,6 +2147,53 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "user_tenant_id_email",
+				Unique:  true,
+				Columns: []*schema.Column{UsersColumns[16], UsersColumns[2]},
+			},
+			{
+				Name:    "user_tenant_id_auth_service_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[16], UsersColumns[1]},
+			},
+			{
+				Name:    "user_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[16], UsersColumns[8]},
+			},
+			{
+				Name:    "user_tenant_id_primary_role",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[16], UsersColumns[9]},
+			},
+			{
+				Name:    "user_email",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[2]},
+			},
+			{
+				Name:    "user_phone",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[7]},
+			},
+			{
+				Name:    "user_sync_status",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[4]},
+			},
+			{
+				Name:    "user_last_login_at",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[12]},
+			},
+			{
+				Name:    "user_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[14]},
+			},
+		},
 	}
 	// UserPreferencesColumns holds the columns for the "user_preferences" table.
 	UserPreferencesColumns = []*schema.Column{
@@ -2048,6 +2352,9 @@ var (
 		CartsTable,
 		CartItemsTable,
 		CustomerAddressesTable,
+		DataDeletionJobsTable,
+		DataExportJobsTable,
+		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
 		DevicesTable,
 		DietaryTagsTable,
@@ -2105,6 +2412,15 @@ func init() {
 	CartItemsTable.ForeignKeys[1].RefTable = MenuItemsTable
 	CartItemsTable.ForeignKeys[2].RefTable = MenuItemVariantsTable
 	CustomerAddressesTable.ForeignKeys[0].RefTable = UsersTable
+	DataDeletionJobsTable.Annotation = &entsql.Annotation{
+		Table: "data_deletion_jobs",
+	}
+	DataExportJobsTable.Annotation = &entsql.Annotation{
+		Table: "data_export_jobs",
+	}
+	DataSubjectRequestsTable.Annotation = &entsql.Annotation{
+		Table: "data_subject_requests",
+	}
 	DeliveryWindowsTable.ForeignKeys[0].RefTable = OrderAssignmentsTable
 	DeliveryWindowsTable.Annotation = &entsql.Annotation{
 		Table: "delivery_windows",

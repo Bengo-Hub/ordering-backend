@@ -4,17 +4,78 @@
 
 This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal BengoBox microservices and external third-party services.
 
+**Last Updated**: January 2026
+
+---
+
+## Implementation Status Summary
+
+| Service | Integration Type | Status | Implementation |
+|---------|-----------------|--------|----------------|
+| **Auth Service** | REST + Events + JWT | ✅ Implemented | `shared-auth-client` library, event handlers |
+| **Treasury Service** | REST + Webhooks | ✅ Implemented | `internal/platform/treasury/client.go`, webhook handlers |
+| **Logistics Service** | REST + Webhooks | ✅ Implemented | `internal/platform/logistics/client.go`, webhook handlers |
+| **Notifications Service** | REST + Events | ✅ Implemented | `internal/platform/notifications/client.go`, local module |
+| **Inventory Service** | REST + Events | ✅ Implemented | `internal/platform/inventory/client.go` |
+| **POS Service** | Events | ✅ Implemented | Event publisher with catalog sync and pickup handoff |
+| **NATS JetStream** | Events | ✅ Implemented | Publisher and subscriber in `internal/platform/events/` |
+| **Redis** | Cache | ✅ Implemented | `internal/platform/cache/redis.go` |
+| **PostgreSQL** | Database | ✅ Implemented | Ent ORM with auto-migrations |
+
+### Current Integration Implementations
+
+**Fully Implemented:**
+- Treasury client with M-Pesa STK Push, Stripe, Paystack, Flutterwave support
+- Treasury webhook handler with HMAC signature verification
+- Logistics client with task creation, tracking, and fleet member queries
+- Logistics webhook handler with full task lifecycle events
+- Auth JWT validation via shared-auth-client
+- User sync from auth-service events
+- Inventory client with stock availability, reservations, and consumption tracking
+- Notifications client with multi-channel support (email, SMS, push)
+- Event publisher for order lifecycle events (created, ready, cancelled, completed)
+- Event publisher for payment events (initiated, completed, failed)
+- Event publisher for catalog sync (for POS integration)
+- Event publisher for pickup order handoff (ordering → POS)
+
+**Platform Clients:**
+- `internal/platform/treasury/client.go` - Treasury service REST client
+- `internal/platform/logistics/client.go` - Logistics service REST client
+- `internal/platform/inventory/client.go` - Inventory service REST client
+- `internal/platform/notifications/client.go` - Notifications service REST client
+- `internal/platform/events/publisher.go` - NATS event publisher
+- `internal/platform/events/subscriber.go` - NATS event subscriber
+
+**Webhook Endpoints:**
+- `POST /api/v1/webhooks/treasury` - Treasury payment events
+- `POST /api/v1/webhooks/mpesa/*` - M-Pesa callbacks
+- `POST /api/v1/webhooks/logistics` - Logistics task events
+
+**Events Published:**
+- `cafe.order.created` - Order placed (→ inventory, notifications)
+- `cafe.order.ready` - Order ready for delivery (→ logistics, notifications)
+- `cafe.order.cancelled` - Order cancelled (→ inventory, notifications)
+- `cafe.order.completed` - Order delivered (→ inventory, notifications)
+- `cafe.order.status.changed` - Status updates (→ notifications)
+- `cafe.payment.initiated` - Payment started (→ treasury)
+- `cafe.payment.completed` - Payment successful (→ notifications)
+- `cafe.payment.failed` - Payment failed (→ notifications)
+- `cafe.loyalty.points_awarded` - Loyalty points earned (→ notifications, POS)
+- `ordering.catalog.updated` - Catalog changes (→ POS sync)
+- `ordering.order.for_pickup` - Pickup order handoff (→ POS)
+
 ---
 
 ## Table of Contents
 
-1. [Internal BengoBox Service Integrations](#internal-bengobox-service-integrations)
-2. [External Third-Party Integrations](#external-third-party-integrations)
-3. [Integration Patterns](#integration-patterns)
-4. [Two-Tier Configuration Management](#two-tier-configuration-management)
-5. [Event-Driven Architecture](#event-driven-architecture)
-6. [Integration Security](#integration-security)
-7. [Error Handling & Resilience](#error-handling--resilience)
+1. [Implementation Status Summary](#implementation-status-summary)
+2. [Internal BengoBox Service Integrations](#internal-bengobox-service-integrations)
+3. [External Third-Party Integrations](#external-third-party-integrations)
+4. [Integration Patterns](#integration-patterns)
+5. [Two-Tier Configuration Management](#two-tier-configuration-management)
+6. [Event-Driven Architecture](#event-driven-architecture)
+7. [Integration Security](#integration-security)
+8. [Error Handling & Resilience](#error-handling--resilience)
 
 ---
 
@@ -362,11 +423,11 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 **Flow**:
 1. Customer initiates payment
-2. Cafe backend creates payment intent via treasury-api
-3. Treasury-app initiates M-Pesa STK Push
+2. Ordering backend creates payment intent via treasury-api
+3. Treasury-api initiates M-Pesa STK Push
 4. Customer confirms payment
-5. Treasury-app sends webhook to cafe backend
-6. Cafe backend updates order payment status
+5. Treasury-api sends webhook to ordering backend
+6. Ordering backend updates order payment status
 
 **Integration**: Handled via treasury-api, not directly
 

@@ -16,6 +16,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
+	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
+	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
@@ -120,6 +123,9 @@ func checkColumn(table, column string) error {
 			cart.Table:                     cart.ValidColumn,
 			cartitem.Table:                 cartitem.ValidColumn,
 			customeraddress.Table:          customeraddress.ValidColumn,
+			datadeletionjob.Table:          datadeletionjob.ValidColumn,
+			dataexportjob.Table:            dataexportjob.ValidColumn,
+			datasubjectrequest.Table:       datasubjectrequest.ValidColumn,
 			deliverywindow.Table:           deliverywindow.ValidColumn,
 			device.Table:                   device.ValidColumn,
 			dietarytag.Table:               dietarytag.ValidColumn,

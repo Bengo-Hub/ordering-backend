@@ -15,15 +15,19 @@ const DefaultTenantSlug = ""
 
 // Config captures environment configuration for the Ordering service backend.
 type Config struct {
-	App       AppConfig
-	HTTP      HTTPConfig
-	Postgres  PostgresConfig
-	Redis     RedisConfig
-	Events    EventsConfig
-	Telemetry TelemetryConfig
-	Auth      AuthConfig
-	Treasury  TreasuryConfig
-	Logistics LogisticsConfig
+	App           AppConfig
+	HTTP          HTTPConfig
+	Postgres      PostgresConfig
+	Redis         RedisConfig
+	Events        EventsConfig
+	Telemetry     TelemetryConfig
+	Auth          AuthConfig
+	Treasury      TreasuryConfig
+	Logistics     LogisticsConfig
+	Inventory     InventoryConfig
+	Notifications NotificationsConfig
+	Superset      SupersetConfig
+	Security      SecurityConfig
 }
 
 type AppConfig struct {
@@ -107,6 +111,59 @@ type LogisticsConfig struct {
 
 	// WebSocket configuration for live tracking
 	WebSocketURL string `envconfig:"LOGISTICS_WEBSOCKET_URL" default:"ws://localhost:4005/ws"`
+}
+
+type InventoryConfig struct {
+	// Inventory service URL
+	ServiceURL     string        `envconfig:"INVENTORY_SERVICE_URL" default:"http://localhost:4003"`
+	APIKey         string        `envconfig:"INVENTORY_API_KEY"`
+	RequestTimeout time.Duration `envconfig:"INVENTORY_REQUEST_TIMEOUT" default:"10s"`
+}
+
+type NotificationsConfig struct {
+	// Notifications service URL
+	ServiceURL     string        `envconfig:"NOTIFICATIONS_SERVICE_URL" default:"http://localhost:4002"`
+	APIKey         string        `envconfig:"NOTIFICATIONS_API_KEY"`
+	RequestTimeout time.Duration `envconfig:"NOTIFICATIONS_REQUEST_TIMEOUT" default:"10s"`
+}
+
+type SupersetConfig struct {
+	// Superset service URL
+	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.co.ke"`
+	AdminUsername  string        `envconfig:"SUPERSET_ADMIN_USERNAME" default:"admin"`
+	AdminPassword  string        `envconfig:"SUPERSET_ADMIN_PASSWORD"`
+	APIVersion     string        `envconfig:"SUPERSET_API_VERSION" default:"v1"`
+	RequestTimeout time.Duration `envconfig:"SUPERSET_REQUEST_TIMEOUT" default:"30s"`
+
+	// Guest token settings
+	GuestTokenTTLMinutes int `envconfig:"SUPERSET_GUEST_TOKEN_TTL_MINUTES" default:"5"`
+
+	// Dashboard IDs (configured per module)
+	OrderAnalyticsDashboardID    int `envconfig:"SUPERSET_ORDER_ANALYTICS_DASHBOARD_ID"`
+	RevenueDashboardID           int `envconfig:"SUPERSET_REVENUE_DASHBOARD_ID"`
+	CustomerAnalyticsDashboardID int `envconfig:"SUPERSET_CUSTOMER_ANALYTICS_DASHBOARD_ID"`
+	OperationsDashboardID        int `envconfig:"SUPERSET_OPERATIONS_DASHBOARD_ID"`
+	SubscriptionDashboardID      int `envconfig:"SUPERSET_SUBSCRIPTION_DASHBOARD_ID"`
+}
+
+type SecurityConfig struct {
+	// Rate limiting
+	RateLimitEnabled          bool    `envconfig:"RATE_LIMIT_ENABLED" default:"true"`
+	RateLimitRequestsPerMin   int     `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"60"`
+	RateLimitRequestsPerHour  int     `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"1000"`
+	RateLimitAuthPerMin       int     `envconfig:"RATE_LIMIT_AUTH_PER_MINUTE" default:"10"`
+	RateLimitPaymentPerMin    int     `envconfig:"RATE_LIMIT_PAYMENT_PER_MINUTE" default:"20"`
+	RateLimitBurstMultiplier  float64 `envconfig:"RATE_LIMIT_BURST_MULTIPLIER" default:"1.5"`
+	RateLimitKeyPrefix        string  `envconfig:"RATE_LIMIT_KEY_PREFIX" default:"rl:ordering:"`
+
+	// Request limits
+	MaxRequestBodySize int64 `envconfig:"MAX_REQUEST_BODY_SIZE" default:"10485760"` // 10MB
+
+	// Input validation
+	InputValidationEnabled bool `envconfig:"INPUT_VALIDATION_ENABLED" default:"true"`
+
+	// Security headers
+	SecurityHeadersEnabled bool `envconfig:"SECURITY_HEADERS_ENABLED" default:"true"`
 }
 
 // Load reads configuration from environment variables and optional .env files.

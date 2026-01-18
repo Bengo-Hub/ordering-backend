@@ -48,12 +48,12 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 **Acceptance Criteria**:
 - [x] User entities persisted via Ent repositories
-- [ ] **Auth-Service Integration**: All login/registration requests proxy to auth-service (`https://sso.codevertexitsolutions.com/`)
-- [ ] **User Sync**: `auth_service_user_id` field added to user schema, user sync via events
-- [ ] **Superuser Handling**: Superuser detection from JWT claims with RBAC bypass
-- [ ] Session data managed by auth-service (no local session tables)
-- [ ] Token refresh proxied to auth-service
-- [ ] User profile data synced with auth-service via `auth.user.*` events
+- [x] **Auth-Service Integration**: All login/registration requests proxy to auth-service (`https://sso.codevertexitsolutions.com/`)
+- [x] **User Sync**: `auth_service_user_id` field added to user schema, user sync via events (`internal/modules/identity/events.go`)
+- [x] **Superuser Handling**: Superuser detection from JWT claims with RBAC bypass
+- [x] Session data managed by auth-service (no local session tables)
+- [ ] Token refresh proxied to auth-service (uses local refresh, needs migration)
+- [x] User profile data synced with auth-service via `auth.user.*` events (`SubscribeToAuthEvents`)
 
 ### US-1.2: Tenant Scoping
 **As a** system administrator  
@@ -62,11 +62,11 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 **Acceptance Criteria**:
 - [x] Tenant ID extracted from JWT claims (via auth-service middleware)
-- [ ] **Tenant Slug Required**: All login/registration requests require `tenant_slug` parameter
-- [ ] All database queries filtered by tenant_id (partial - identity module uses tenant_id, but not enforced across all operations)
-- [ ] Tenant validation middleware
-- [ ] Cross-tenant access prevented
-- [ ] Tenant metadata synced from auth-service via `auth.tenant.*` events
+- [x] **Tenant Slug Required**: All login/registration requests require `tenant_slug` parameter
+- [x] All database queries filtered by tenant_id
+- [x] Tenant validation middleware
+- [x] Cross-tenant access prevented
+- [x] Tenant metadata synced from auth-service via `auth.tenant.*` events (`internal/modules/identity/events.go`)
 
 ### US-1.3: Device Management
 **As a** user  

@@ -20,6 +20,12 @@ type Tx struct {
 	CartItem *CartItemClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
+	// DataDeletionJob is the client for interacting with the DataDeletionJob builders.
+	DataDeletionJob *DataDeletionJobClient
+	// DataExportJob is the client for interacting with the DataExportJob builders.
+	DataExportJob *DataExportJobClient
+	// DataSubjectRequest is the client for interacting with the DataSubjectRequest builders.
+	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
 	// Device is the client for interacting with the Device builders.
@@ -235,6 +241,9 @@ func (tx *Tx) init() {
 	tx.Cart = NewCartClient(tx.config)
 	tx.CartItem = NewCartItemClient(tx.config)
 	tx.CustomerAddress = NewCustomerAddressClient(tx.config)
+	tx.DataDeletionJob = NewDataDeletionJobClient(tx.config)
+	tx.DataExportJob = NewDataExportJobClient(tx.config)
+	tx.DataSubjectRequest = NewDataSubjectRequestClient(tx.config)
 	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.DietaryTag = NewDietaryTagClient(tx.config)

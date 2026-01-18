@@ -97,9 +97,13 @@ func (NotificationEvent) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "event_key"),
 		index.Fields("tenant_id", "user_id"),
-		index.Fields("status"),
+		index.Fields("tenant_id", "status"),
+		// Composite index for retry queue queries
+		index.Fields("status", "created_at"),
+		index.Fields("status", "attempts", "last_attempt_at"),
 		index.Fields("order_id"),
 		index.Fields("external_id"),
 		index.Fields("created_at"),
+		index.Fields("sent_at"),
 	}
 }
