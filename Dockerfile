@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.24-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 WORKDIR /src
 COPY go.mod go.sum ./
+ENV GOTOOLCHAIN=auto
 RUN go mod download
 COPY . .
 # Build all binaries: api, migrate, and seed
