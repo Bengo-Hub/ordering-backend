@@ -1,16 +1,13 @@
 package logistics
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/google/uuid"
+	serviceclient "github.com/Bengo-Hub/shared-service-client"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
@@ -18,21 +15,26 @@ import (
 
 // Client provides methods to interact with the logistics service.
 type Client struct {
-	baseURL    string
-	apiKey     string
-	httpClient *http.Client
-	logger     *zap.Logger
+	baseURL       string
+	apiKey        string
+	serviceClient *serviceclient.Client
+	logger        *zap.Logger
 }
 
 // NewClient creates a new logistics service client.
 func NewClient(cfg config.LogisticsConfig, logger *zap.Logger) *Client {
+	scCfg := serviceclient.DefaultConfig(
+		cfg.ServiceURL,
+		"ordering-service",
+		logger.Named("logistics.client"),
+	)
+	scCfg.Timeout = cfg.RequestTimeout
+
 	return &Client{
-		baseURL: cfg.ServiceURL,
-		apiKey:  cfg.APIKey,
-		httpClient: &http.Client{
-			Timeout: cfg.RequestTimeout,
-		},
-		logger: logger,
+		baseURL:       cfg.ServiceURL,
+		apiKey:        cfg.APIKey,
+		serviceClient: serviceclient.New(scCfg),
+		logger:        logger.Named("logistics.client"),
 	}
 }
 
@@ -85,11 +87,11 @@ type CreateTaskRequest struct {
 
 // Location represents a geographical location.
 type Location struct {
-	Address    string  `json:"address"`
-	Latitude   float64 `json:"latitude"`
-	Longitude  float64 `json:"longitude"`
-	PlaceID    string  `json:"place_id,omitempty"`
-	Notes      string  `json:"notes,omitempty"`
+	Address      string  `json:"address"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+	PlaceID      string  `json:"place_id,omitempty"`
+	Notes        string  `json:"notes,omitempty"`
 	ContactName  string  `json:"contact_name,omitempty"`
 	ContactPhone string  `json:"contact_phone,omitempty"`
 }
@@ -197,33 +199,48 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("logistics API error: %s - %s", e.Code, e.Message)
 }
 
+// headers returns common headers for requests.
+func (c *Client) headers(idempotencyKey string) map[string]string {
+	h := map[string]string{
+		"Content-Type": "application/json",
+		"Accept":       "application/json",
+	}
+
+	if c.apiKey != "" {
+		h["X-API-Key"] = c.apiKey
+	}
+
+	if idempotencyKey != "" {
+		h["Idempotency-Key"] = idempotencyKey
+	}
+
+	return h
+}
+
+// parseError parses an error response from the API.
+func (c *Client) parseError(resp *serviceclient.Response) error {
+	var apiErr APIError
+	if err := resp.DecodeJSON(&apiErr); err != nil {
+		return fmt.Errorf("logistics API error (status %d)", resp.StatusCode)
+	}
+	return &apiErr
+}
+
 // CreateTask creates a delivery task with the logistics service.
 func (c *Client) CreateTask(ctx context.Context, tenantSlug string, req CreateTaskRequest) (*TaskResponse, error) {
-	body, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("marshal request: %w", err)
-	}
+	path := fmt.Sprintf("/api/v1/%s/tasks", tenantSlug)
 
-	url := fmt.Sprintf("%s/api/v1/%s/tasks", c.baseURL, tenantSlug)
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, req.IdempotencyKey)
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result TaskResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -232,27 +249,19 @@ func (c *Client) CreateTask(ctx context.Context, tenantSlug string, req CreateTa
 
 // GetTask retrieves a task by ID.
 func (c *Client) GetTask(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*TaskResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/%s/tasks/%s", c.baseURL, tenantSlug, taskID.String())
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s", tenantSlug, taskID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result TaskResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -261,27 +270,19 @@ func (c *Client) GetTask(ctx context.Context, tenantSlug string, taskID uuid.UUI
 
 // GetTaskByExternalRef retrieves a task by external reference (order_id).
 func (c *Client) GetTaskByExternalRef(ctx context.Context, tenantSlug string, externalRef string) (*TaskResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/%s/tasks?external_reference=%s", c.baseURL, tenantSlug, url.QueryEscape(externalRef))
+	path := fmt.Sprintf("/api/v1/%s/tasks?external_reference=%s", tenantSlug, url.QueryEscape(externalRef))
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var tasks []TaskResponse
-	if err := json.NewDecoder(resp.Body).Decode(&tasks); err != nil {
+	if err := resp.DecodeJSON(&tasks); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -294,27 +295,15 @@ func (c *Client) GetTaskByExternalRef(ctx context.Context, tenantSlug string, ex
 
 // CancelTask cancels a pending or assigned task.
 func (c *Client) CancelTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, reason string) error {
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s/cancel", tenantSlug, taskID.String())
 	reqBody := CancelTaskRequest{Reason: reason}
-	body, err := json.Marshal(reqBody)
-	if err != nil {
-		return fmt.Errorf("marshal request: %w", err)
-	}
 
-	url := fmt.Sprintf("%s/api/v1/%s/tasks/%s/cancel", c.baseURL, tenantSlug, taskID.String())
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return c.parseError(resp)
 	}
 
@@ -323,27 +312,19 @@ func (c *Client) CancelTask(ctx context.Context, tenantSlug string, taskID uuid.
 
 // GetTracking retrieves real-time tracking information for a task.
 func (c *Client) GetTracking(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*TrackingInfo, error) {
-	url := fmt.Sprintf("%s/api/v1/%s/tasks/%s/tracking", c.baseURL, tenantSlug, taskID.String())
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s/tracking", tenantSlug, taskID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result TrackingInfo
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -352,29 +333,19 @@ func (c *Client) GetTracking(ctx context.Context, tenantSlug string, taskID uuid
 
 // GetFleetMember retrieves fleet member/rider details.
 func (c *Client) GetFleetMember(ctx context.Context, tenantSlug string, memberID string) (*FleetMemberResponse, error) {
-	// Note: The API structure uses nested routes, but we need to query without fleet context
-	// This may need to be adjusted based on actual logistics API implementation
-	url := fmt.Sprintf("%s/api/v1/%s/fleet-members/%s", c.baseURL, tenantSlug, memberID)
+	path := fmt.Sprintf("/api/v1/%s/fleet-members/%s", tenantSlug, memberID)
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result FleetMemberResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -383,77 +354,33 @@ func (c *Client) GetFleetMember(ctx context.Context, tenantSlug string, memberID
 
 // GetProofOfDelivery retrieves proof of delivery for a completed task.
 func (c *Client) GetProofOfDelivery(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*ProofOfDeliveryResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/%s/tasks/%s/proof-of-delivery", c.baseURL, tenantSlug, taskID.String())
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s/proof-of-delivery", tenantSlug, taskID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result ProofOfDeliveryResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
 	return &result, nil
 }
 
-// setHeaders sets common headers for requests.
-func (c *Client) setHeaders(req *http.Request, idempotencyKey string) {
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-
-	if c.apiKey != "" {
-		req.Header.Set("X-API-Key", c.apiKey)
-	}
-
-	if idempotencyKey != "" {
-		req.Header.Set("Idempotency-Key", idempotencyKey)
-	}
-}
-
-// parseError parses an error response from the API.
-func (c *Client) parseError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("read error body: %w", err)
-	}
-
-	var apiErr APIError
-	if err := json.Unmarshal(body, &apiErr); err != nil {
-		// If we can't parse the error, return a generic error with the body
-		return fmt.Errorf("logistics API error (status %d): %s", resp.StatusCode, string(body))
-	}
-
-	return &apiErr
-}
-
 // HealthCheck checks if the logistics service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/healthz", nil)
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, "/healthz", nil)
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if !resp.IsSuccess() {
 		return fmt.Errorf("logistics service unhealthy: status %d", resp.StatusCode)
 	}
 

@@ -105,7 +105,7 @@ See [`docs/erd.md`](docs/erd.md) for a detailed entity relationship overview bac
 Port mapping:
 
 - Local development runs on **http://localhost:4000** by default.
-- Treasury (`treasury-app`) and Notifications (`notifications-app`) services occupy ports **4001** and **4002** respectively when running locally.
+- Treasury (`treasury-api`) and Notifications (`notifications-api`) services occupy ports **4001** and **4002** respectively when running locally.
 - In cloud/cluster deployments, all backend services are configured to listen on **port 4000** for ingress uniformity. Helm values set `FOOD_DELIVERY_HTTP_PORT` to override the default.
 
 ### Required Environment Variables

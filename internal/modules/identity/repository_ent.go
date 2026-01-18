@@ -34,8 +34,8 @@ var tenantSyncDestinations = []string{
 	"logistics-service",
 	"inventory-service",
 	"pos-service",
-	"notifications-app",
-	"treasury-app",
+	"notifications-api",
+	"treasury-api",
 }
 
 // NewEntRepository constructs an Ent-backed repository.

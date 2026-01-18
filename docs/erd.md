@@ -98,7 +98,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `payouts` | `id`, `tenant_id`, `recipient_type`, `recipient_id`, `amount`, `currency`, `status`, `scheduled_at`, `processed_at`, `metadata` | Payouts to riders/cafes. |
 | `settlements` | `id`, `tenant_id`, `cafe_id`, `period_start`, `period_end`, `gross_amount`, `net_amount`, `status`, `generated_at`, `metadata` | Periodic accounting for cafes. |
 | `treasury_events` | `id`, `external_id`, `event_type`, `payload`, `received_at`, `processed_at`, `status`, `error_message` | Webhook ingestion for treasury systems. |
-| _External Integration_ | — | The tables above synchronise with `treasury-app` for ledgering, billing documents, payout approvals, and financial reconciliation. |
+| _External Integration_ | — | The tables above synchronise with `treasury-api` for ledgering, billing documents, payout approvals, and financial reconciliation. |
 
 
 
@@ -118,7 +118,7 @@ Authentication and token issuance delegated to auth-service (OIDC authority). Al
 | `notification_templates` | `id`, `tenant_id`, `channel`, `event_key`, `locale`, `subject`, `body`, `data_schema`, `is_active`, `created_at`, `updated_at` | Messaging templates. |
 | `notification_events` | `id`, `tenant_id`, `event_key`, `payload`, `status`, `attempts`, `last_attempt_at`, `created_at` | Pending notifications for async dispatch. |
 | `notification_subscriptions` | `id`, `tenant_id`, `user_id`, `channel`, `event_key`, `is_subscribed`, `updated_at` | Opt-in/opt-out preferences (complements `user_preferences`). |
-| _External Integration_ | — | Delivery and marketing messaging is delegated to `notifications-app`, which consumes events emitted from these tables and enforces channel delivery guarantees. |
+| _External Integration_ | — | Delivery and marketing messaging is delegated to `notifications-api`, which consumes events emitted from these tables and enforces channel delivery guarantees. |
 
 ## Analytics, Support & Compliance
 

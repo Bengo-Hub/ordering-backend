@@ -27,8 +27,8 @@ var tenantSyncDestinations = []string{
 	"logistics-service",
 	"inventory-service",
 	"pos-service",
-	"notifications-app",
-	"treasury-app",
+	"notifications-api",
+	"treasury-api",
 }
 
 func main() {
@@ -393,11 +393,11 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 }
 
 func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
-	// Note: Seed data should be tenant-agnostic. 
+	// Note: Seed data should be tenant-agnostic.
 	// In production, tenants are created through normal registration flows.
 	// This seed function is kept for demo/development purposes only.
 	const (
-		slug   = "demo-tenant"  // Generic demo tenant
+		slug   = "demo-tenant" // Generic demo tenant
 		name   = "Demo Tenant"
 		status = "active"
 		email  = "support@codevertexitsolutions.com"

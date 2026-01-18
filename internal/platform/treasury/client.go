@@ -1,15 +1,12 @@
 package treasury
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	serviceclient "github.com/Bengo-Hub/shared-service-client"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
@@ -17,21 +14,26 @@ import (
 
 // Client provides methods to interact with the treasury service.
 type Client struct {
-	baseURL    string
-	apiKey     string
-	httpClient *http.Client
-	logger     *zap.Logger
+	baseURL       string
+	apiKey        string
+	serviceClient *serviceclient.Client
+	logger        *zap.Logger
 }
 
 // NewClient creates a new treasury service client.
 func NewClient(cfg config.TreasuryConfig, logger *zap.Logger) *Client {
+	scCfg := serviceclient.DefaultConfig(
+		cfg.ServiceURL,
+		"ordering-service",
+		logger.Named("treasury.client"),
+	)
+	scCfg.Timeout = cfg.RequestTimeout
+
 	return &Client{
-		baseURL: cfg.ServiceURL,
-		apiKey:  cfg.APIKey,
-		httpClient: &http.Client{
-			Timeout: cfg.RequestTimeout,
-		},
-		logger: logger,
+		baseURL:       cfg.ServiceURL,
+		apiKey:        cfg.APIKey,
+		serviceClient: serviceclient.New(scCfg),
+		logger:        logger.Named("treasury.client"),
 	}
 }
 
@@ -39,11 +41,11 @@ func NewClient(cfg config.TreasuryConfig, logger *zap.Logger) *Client {
 type PaymentProvider string
 
 const (
-	ProviderMpesa      PaymentProvider = "mpesa"
-	ProviderStripe     PaymentProvider = "stripe"
-	ProviderPaystack   PaymentProvider = "paystack"
+	ProviderMpesa       PaymentProvider = "mpesa"
+	ProviderStripe      PaymentProvider = "stripe"
+	ProviderPaystack    PaymentProvider = "paystack"
 	ProviderFlutterwave PaymentProvider = "flutterwave"
-	ProviderManual     PaymentProvider = "manual"
+	ProviderManual      PaymentProvider = "manual"
 )
 
 // PaymentIntentRequest represents a request to create a payment intent.
@@ -90,13 +92,13 @@ type MpesaSTKPushRequest struct {
 
 // MpesaSTKPushResponse represents the response from an STK Push initiation.
 type MpesaSTKPushResponse struct {
-	PaymentIntentID    uuid.UUID `json:"payment_intent_id"`
-	CheckoutRequestID  string    `json:"checkout_request_id"`
-	MerchantRequestID  string    `json:"merchant_request_id"`
-	ResponseCode       string    `json:"response_code"`
-	ResponseMessage    string    `json:"response_message"`
-	CustomerMessage    string    `json:"customer_message"`
-	Status             string    `json:"status"`
+	PaymentIntentID   uuid.UUID `json:"payment_intent_id"`
+	CheckoutRequestID string    `json:"checkout_request_id"`
+	MerchantRequestID string    `json:"merchant_request_id"`
+	ResponseCode      string    `json:"response_code"`
+	ResponseMessage   string    `json:"response_message"`
+	CustomerMessage   string    `json:"customer_message"`
+	Status            string    `json:"status"`
 }
 
 // RefundRequest represents a refund request.
@@ -110,15 +112,15 @@ type RefundRequest struct {
 
 // RefundResponse represents a refund response.
 type RefundResponse struct {
-	ID                uuid.UUID `json:"id"`
-	PaymentID         uuid.UUID `json:"payment_id"`
-	Amount            float64   `json:"amount"`
-	Currency          string    `json:"currency"`
-	Status            string    `json:"status"`
-	Reason            string    `json:"reason"`
-	ProviderRefundID  string    `json:"provider_refund_id,omitempty"`
-	ProviderReference string    `json:"provider_reference,omitempty"`
-	CreatedAt         time.Time `json:"created_at"`
+	ID                uuid.UUID  `json:"id"`
+	PaymentID         uuid.UUID  `json:"payment_id"`
+	Amount            float64    `json:"amount"`
+	Currency          string     `json:"currency"`
+	Status            string     `json:"status"`
+	Reason            string     `json:"reason"`
+	ProviderRefundID  string     `json:"provider_refund_id,omitempty"`
+	ProviderReference string     `json:"provider_reference,omitempty"`
+	CreatedAt         time.Time  `json:"created_at"`
 	ProcessedAt       *time.Time `json:"processed_at,omitempty"`
 }
 
@@ -146,32 +148,46 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("treasury API error: %s - %s", e.Code, e.Message)
 }
 
+// headers returns common headers for requests.
+func (c *Client) headers(idempotencyKey string) map[string]string {
+	h := map[string]string{
+		"Content-Type": "application/json",
+		"Accept":       "application/json",
+	}
+
+	if c.apiKey != "" {
+		h["X-API-Key"] = c.apiKey
+	}
+
+	if idempotencyKey != "" {
+		h["Idempotency-Key"] = idempotencyKey
+	}
+
+	return h
+}
+
+// parseError parses an error response from the API.
+func (c *Client) parseError(resp *serviceclient.Response) error {
+	var apiErr APIError
+	if err := resp.DecodeJSON(&apiErr); err != nil {
+		return fmt.Errorf("treasury API error (status %d)", resp.StatusCode)
+	}
+	return &apiErr
+}
+
 // CreatePaymentIntent creates a payment intent with the treasury service.
 func (c *Client) CreatePaymentIntent(ctx context.Context, req PaymentIntentRequest) (*PaymentIntentResponse, error) {
-	body, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/v1/payments/intents", bytes.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, req.IdempotencyKey)
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, "/api/v1/payments/intents", req, c.headers(req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result PaymentIntentResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -180,30 +196,17 @@ func (c *Client) CreatePaymentIntent(ctx context.Context, req PaymentIntentReque
 
 // InitiateMpesaSTKPush initiates an M-Pesa STK Push payment.
 func (c *Client) InitiateMpesaSTKPush(ctx context.Context, req MpesaSTKPushRequest) (*MpesaSTKPushResponse, error) {
-	body, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/v1/mpesa/stk-push", bytes.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, req.IdempotencyKey)
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, "/api/v1/mpesa/stk-push", req, c.headers(req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result MpesaSTKPushResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -212,27 +215,19 @@ func (c *Client) InitiateMpesaSTKPush(ctx context.Context, req MpesaSTKPushReque
 
 // GetPaymentIntent retrieves a payment intent by ID.
 func (c *Client) GetPaymentIntent(ctx context.Context, tenantID, intentID uuid.UUID) (*PaymentIntentResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/payments/intents/%s?tenant_id=%s", c.baseURL, intentID.String(), tenantID.String())
+	path := fmt.Sprintf("/api/v1/payments/intents/%s?tenant_id=%s", intentID.String(), tenantID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result PaymentIntentResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -241,27 +236,19 @@ func (c *Client) GetPaymentIntent(ctx context.Context, tenantID, intentID uuid.U
 
 // GetPaymentStatus retrieves the current status of a payment.
 func (c *Client) GetPaymentStatus(ctx context.Context, tenantID, paymentIntentID uuid.UUID) (*PaymentStatusResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/payments/intents/%s/status?tenant_id=%s", c.baseURL, paymentIntentID.String(), tenantID.String())
+	path := fmt.Sprintf("/api/v1/payments/intents/%s/status?tenant_id=%s", paymentIntentID.String(), tenantID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result PaymentStatusResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -270,30 +257,17 @@ func (c *Client) GetPaymentStatus(ctx context.Context, tenantID, paymentIntentID
 
 // CreateRefund initiates a refund for a payment.
 func (c *Client) CreateRefund(ctx context.Context, req RefundRequest) (*RefundResponse, error) {
-	body, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/v1/refunds", bytes.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, req.IdempotencyKey)
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, "/api/v1/refunds", req, c.headers(req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result RefundResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -302,27 +276,19 @@ func (c *Client) CreateRefund(ctx context.Context, req RefundRequest) (*RefundRe
 
 // GetRefund retrieves a refund by ID.
 func (c *Client) GetRefund(ctx context.Context, tenantID, refundID uuid.UUID) (*RefundResponse, error) {
-	url := fmt.Sprintf("%s/api/v1/refunds/%s?tenant_id=%s", c.baseURL, refundID.String(), tenantID.String())
+	path := fmt.Sprintf("/api/v1/refunds/%s?tenant_id=%s", refundID.String(), tenantID.String())
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
 
 	var result RefundResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -331,78 +297,29 @@ func (c *Client) GetRefund(ctx context.Context, tenantID, refundID uuid.UUID) (*
 
 // CancelPaymentIntent cancels a pending payment intent.
 func (c *Client) CancelPaymentIntent(ctx context.Context, tenantID, intentID uuid.UUID) error {
-	url := fmt.Sprintf("%s/api/v1/payments/intents/%s/cancel", c.baseURL, intentID.String())
-
+	path := fmt.Sprintf("/api/v1/payments/intents/%s/cancel", intentID.String())
 	reqBody := map[string]interface{}{"tenant_id": tenantID.String()}
-	body, err := json.Marshal(reqBody)
-	if err != nil {
-		return fmt.Errorf("marshal request: %w", err)
-	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	c.setHeaders(httpReq, "")
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if !resp.IsSuccess() {
 		return c.parseError(resp)
 	}
 
 	return nil
 }
 
-// setHeaders sets common headers for requests.
-func (c *Client) setHeaders(req *http.Request, idempotencyKey string) {
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-
-	if c.apiKey != "" {
-		req.Header.Set("X-API-Key", c.apiKey)
-	}
-
-	if idempotencyKey != "" {
-		req.Header.Set("Idempotency-Key", idempotencyKey)
-	}
-}
-
-// parseError parses an error response from the API.
-func (c *Client) parseError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("read error body: %w", err)
-	}
-
-	var apiErr APIError
-	if err := json.Unmarshal(body, &apiErr); err != nil {
-		// If we can't parse the error, return a generic error with the body
-		return fmt.Errorf("treasury API error (status %d): %s", resp.StatusCode, string(body))
-	}
-
-	return &apiErr
-}
-
 // HealthCheck checks if the treasury service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/health", nil)
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
+	resp, err := c.serviceClient.Get(ctx, "/health", nil)
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if !resp.IsSuccess() {
 		return fmt.Errorf("treasury service unhealthy: status %d", resp.StatusCode)
 	}
 

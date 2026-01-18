@@ -203,7 +203,7 @@
   - Live tracking: WebSocket/SSE streams from logistics-service
   - **Important**: Cafe backend stores only `rider_id` references, never rider profiles or fleet data
 - **inventory-service**: Stock availability queries (references inventory SKUs, no duplication)
-- **treasury-app**: Payment processing (payment intents, webhooks, refunds)
+- **treasury-api**: Payment processing (payment intents, webhooks, refunds)
 
 ### 5. Payments & Treasury Integration
 
@@ -220,13 +220,13 @@
 - `payment_intents` - In-flight payment attempts
 - `payments` - Finalized payment records
 - `refunds` - Refund transactions
-- `payouts` - Payouts to riders/cafes (references treasury-app)
+- `payouts` - Payouts to riders/cafes (references treasury-api)
 - `settlements` - Periodic accounting for cafes
 - `treasury_events` - Webhook ingestion for treasury systems
 
 **Integration Points**:
-- **treasury-app**: Payment processing, ledgering, invoicing, payout orchestration, financial compliance exports
-- **M-Pesa**: STK Push (C2B), Express payments via treasury-app
+- **treasury-api**: Payment processing, ledgering, invoicing, payout orchestration, financial compliance exports
+- **M-Pesa**: STK Push (C2B), Express payments via treasury-api
 
 
 
@@ -272,7 +272,7 @@
 - `notification_subscriptions` - Opt-in/opt-out preferences
 
 **Integration Points**:
-- **notifications-app**: Channel delivery guarantees, template rendering, audit trails
+- **notifications-api**: Channel delivery guarantees, template rendering, audit trails
 
 ### 8. Analytics & Reporting
 
@@ -489,7 +489,7 @@ See `docs/sprints/` folder for detailed sprint plans:
 
 ## Runtime Ports & Environments
 
-- **Local development**: Backend runs on port **4000**, with `treasury-app` on **4001** and `notifications-app` on **4002**
+- **Local development**: Backend runs on port **4000**, with `treasury-api` on **4001** and `notifications-api` on **4002**
 - **Cloud deployment**: All backend services listen on **port 4000** for consistency behind ingress controllers
 
 ---

@@ -362,13 +362,13 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 **Flow**:
 1. Customer initiates payment
-2. Cafe backend creates payment intent via treasury-app
+2. Cafe backend creates payment intent via treasury-api
 3. Treasury-app initiates M-Pesa STK Push
 4. Customer confirms payment
 5. Treasury-app sends webhook to cafe backend
 6. Cafe backend updates order payment status
 
-**Integration**: Handled via treasury-app, not directly
+**Integration**: Handled via treasury-api, not directly
 
 ### Mapbox / Google Maps
 
@@ -686,7 +686,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 - [Cross-Service Data Ownership](../CROSS-SERVICE-DATA-OWNERSHIP.md) - Architecture pattern for data ownership and user management across services
 - [Auth Service Integration](../auth-service/auth-service/docs/integrations.md)
-- [Treasury App Integration](../finance-service/treasury-app/docs/integrations.md)
+- [Treasury App Integration](../finance-service/treasury-api/docs/integrations.md)
 - [Logistics Service Integration](../logistics-service/logistics-api/docs/integrations.md)
 - [Notifications Service Integration](../notifications-service/notifications-api/docs/integrations.md)
 
