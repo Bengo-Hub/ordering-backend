@@ -4,8 +4,6 @@ cloud.google.com/go/compute/metadata v0.9.0 h1:pDUj4QMoPejqq20dK0Pg2N4yG9zIkYGdB
 cloud.google.com/go/compute/metadata v0.9.0/go.mod h1:E0bWwX5wTnLPedCKqk3pJmVgCBSM6qQI1yTBdEb3C10=
 entgo.io/ent v0.13.1 h1:uD8QwN1h6SNphdCCzmkMN3feSUzNnVvV/WIkHKMbzOE=
 entgo.io/ent v0.13.1/go.mod h1:qCEmo+biw3ccBn9OyL4ZK5dfpwg++l1Gxwac5B1206A=
-github.com/Bengo-Hub/auth-client v0.2.0 h1:EuoN3MHQVc6Xl89cs6JYIBIJue4U/Y/VRBltsfwNJhM=
-github.com/Bengo-Hub/auth-client v0.2.0/go.mod h1:DTfmZRTomkZRFm1YYKO8DmvwjLIchZnM7ZaFArIffsI=
 github.com/Bengo-Hub/auth-client v0.3.0 h1:XcQ3OkNaGeE7guCb76trypBmaz4lOosT4D7oqtrqxnY=
 github.com/Bengo-Hub/auth-client v0.3.0/go.mod h1:DTfmZRTomkZRFm1YYKO8DmvwjLIchZnM7ZaFArIffsI=
 github.com/Bengo-Hub/httpware v0.1.1 h1:Nm6Ia/I57VCnsmo36zZpss+52Y4eodapYicnu2eIJJY=

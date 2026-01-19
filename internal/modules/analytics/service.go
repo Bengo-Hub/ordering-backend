@@ -13,13 +13,13 @@ import (
 
 // Service provides analytics and dashboard business logic.
 type Service struct {
-	supersetClient  *superset.Client
+	supersetClient  superset.ClientInterface
 	dashboardConfig map[DashboardModule]int
 	logger          *zap.Logger
 }
 
 // NewService creates a new analytics service.
-func NewService(supersetClient *superset.Client, cfg config.SupersetConfig, logger *zap.Logger) *Service {
+func NewService(supersetClient superset.ClientInterface, cfg config.SupersetConfig, logger *zap.Logger) *Service {
 	// Map dashboard modules to their IDs from config
 	dashboardConfig := make(map[DashboardModule]int)
 

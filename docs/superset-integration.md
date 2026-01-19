@@ -11,7 +11,7 @@ The Cafe backend integrates with the centralized Apache Superset instance for BI
 ### Service Configuration
 
 **Environment Variables**:
-- `SUPERSET_BASE_URL` - Superset service URL (e.g., `https://superset.codevertexitsolutions.co.ke`)
+- `SUPERSET_BASE_URL` - Superset service URL (e.g., `https://superset.codevertexitsolutions.com`)
 - `SUPERSET_ADMIN_USERNAME` - Admin username (K8s secret)
 - `SUPERSET_ADMIN_PASSWORD` - Admin password (K8s secret)
 - `SUPERSET_API_VERSION` - API version (default: v1)

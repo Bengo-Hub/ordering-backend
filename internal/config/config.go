@@ -134,7 +134,7 @@ type NotificationsConfig struct {
 
 type SupersetConfig struct {
 	// Superset service URL
-	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.co.ke"`
+	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.com"`
 	AdminUsername  string        `envconfig:"SUPERSET_ADMIN_USERNAME" default:"admin"`
 	AdminPassword  string        `envconfig:"SUPERSET_ADMIN_PASSWORD"`
 	APIVersion     string        `envconfig:"SUPERSET_API_VERSION" default:"v1"`
