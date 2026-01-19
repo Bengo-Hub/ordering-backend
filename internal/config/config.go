@@ -86,7 +86,7 @@ type AuthConfig struct {
 	RefreshTokenTTL    time.Duration `envconfig:"AUTH_REFRESH_TOKEN_TTL" default:"720h"`
 	GoogleClientID     string        `envconfig:"AUTH_GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
-	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"http://localhost:3000/auth/callback"`
+	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"https://orderapp.codevertexitsolutions.com/auth/callback"`
 	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Ordering Platform"`
 }
 
