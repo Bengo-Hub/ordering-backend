@@ -370,7 +370,7 @@
 - [x] Create `outbox_events` Ent schema ✅ (Jan 2026)
 - [x] Create `internal/modules/outbox/repository.go` ✅ (Jan 2026)
 - [ ] Replace direct NATS publish with `PublishWithOutbox`
-- [ ] Add background publisher worker
+- [ ] **CRITICAL**: Add background publisher worker (see `sprint-8-launch-handover.md` for implementation)
 - [ ] Add `github.com/Bengo-Hub/shared-service-client` dependency
 - [ ] Replace direct HTTP calls with shared client
 - [x] Add `github.com/Bengo-Hub/httpware` dependency ✅ (Jan 2026)
@@ -378,6 +378,8 @@
 - [x] Upgrade to `shared-auth-client` v0.2.0 ✅ (Jan 2026)
 - [ ] Add feature gating middleware for premium features (group_ordering, advanced_analytics)
 - [ ] Use `authclient.RequireFeature()` middleware for subscription-gated routes
+- [ ] **CRITICAL**: Fix CORS configuration (use specific origins, not wildcard with credentials)
+- [ ] Wire audit logging middleware to mutation endpoints
 
 ### Subscription Feature Gating (Pending auth-service Sprint 11)
 

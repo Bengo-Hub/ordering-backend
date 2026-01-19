@@ -19,6 +19,131 @@ Sprint 8 focuses on production deployment, chaos engineering drills, documentati
 4. Post-launch monitoring
 5. Backlog triage
 6. Production readiness review
+7. **Critical Infrastructure Fixes** (from January 2026 audit)
+
+---
+
+## Critical Pre-Launch Fixes (January 2026 Audit)
+
+### CRITICAL-1: Implement Outbox Background Publisher
+**Priority**: CRITICAL - Events may be lost without this
+**Status**: ❌ Not Implemented
+
+The outbox schema and repository exist (`internal/modules/outbox/`) but the background worker that polls the outbox table and publishes to NATS is missing.
+
+**Files to Create/Update**:
+- [ ] Create `internal/modules/outbox/worker.go` - Background publisher worker
+- [ ] Update `internal/app/app.go` - Wire outbox worker to app lifecycle
+- [ ] Add configuration for poll interval, batch size, max retries
+
+**Implementation Pattern** (from shared-events library):
+```go
+// internal/modules/outbox/worker.go
+type OutboxWorker struct {
+    repo         *OutboxRepository
+    nats         *nats.Conn
+    logger       *zap.Logger
+    pollInterval time.Duration
+    batchSize    int
+    maxRetries   int
+}
+
+func (w *OutboxWorker) Run(ctx context.Context) {
+    ticker := time.NewTicker(w.pollInterval)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ctx.Done():
+            w.logger.Info("outbox worker shutting down")
+            return
+        case <-ticker.C:
+            w.processPendingEvents(ctx)
+        }
+    }
+}
+
+func (w *OutboxWorker) processPendingEvents(ctx context.Context) {
+    events, err := w.repo.GetPendingEvents(ctx, w.batchSize)
+    if err != nil {
+        w.logger.Error("failed to get pending events", zap.Error(err))
+        return
+    }
+
+    for _, event := range events {
+        if event.Attempts >= w.maxRetries {
+            w.repo.MarkAsFailed(ctx, event.ID, "max retries exceeded")
+            continue
+        }
+
+        subject := fmt.Sprintf("%s.%s", event.AggregateType, event.EventType)
+        if err := w.nats.Publish(subject, event.Payload); err != nil {
+            w.repo.IncrementAttempts(ctx, event.ID)
+            w.logger.Warn("failed to publish event", zap.Error(err), zap.String("event_id", event.ID.String()))
+            continue
+        }
+        w.repo.MarkAsPublished(ctx, event.ID)
+    }
+}
+```
+
+### CRITICAL-2: Fix CORS Configuration
+**Priority**: HIGH - Browsers reject current configuration
+**Status**: ❌ Misconfigured
+
+Current configuration uses `AllowedOrigins: ["*"]` with `AllowCredentials: true`, which browsers reject.
+
+**File to Update**: `internal/http/router/router.go`
+
+**Current (WRONG)**:
+```go
+cors.Options{
+    AllowedOrigins:   []string{"*"},
+    AllowCredentials: true,
+}
+```
+
+**Fixed**:
+```go
+cors.Options{
+    AllowedOrigins: []string{
+        "https://orderapp.codevertexitsolutions.com",
+        "https://accounts.codevertexitsolutions.com",
+        "http://localhost:3000",
+        "http://localhost:3001",
+    },
+    AllowCredentials: true,
+}
+```
+
+### CRITICAL-3: Implement Subscription Feature Gating
+**Priority**: HIGH - Premium features not protected
+**Status**: ⏳ Planned (awaiting auth-service JWT enrichment)
+
+Premium features (group ordering, advanced analytics) need subscription-based access control.
+
+**File to Update**: `internal/http/router/router.go`
+
+```go
+// Gate premium features
+r.Route("/group-orders", func(r chi.Router) {
+    r.Use(authclient.RequireFeature("group_ordering"))
+    r.Post("/", handler.CreateGroupOrder)
+})
+
+r.Route("/analytics", func(r chi.Router) {
+    r.Use(authclient.RequirePlan("PROFESSIONAL"))
+    r.Get("/dashboard", handler.GetAnalyticsDashboard)
+})
+```
+
+### MEDIUM-1: Audit Logging Middleware
+**Priority**: MEDIUM - Compliance requirement
+**Status**: ❌ Schema exists, middleware not wired
+
+**File to Update**: `internal/http/router/router.go`
+
+Add audit logging middleware for all mutation endpoints.
 
 ---
 
