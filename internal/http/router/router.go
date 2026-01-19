@@ -23,6 +23,7 @@ import (
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
+	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 )
 
@@ -49,6 +50,7 @@ func New(
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	rateLimiter *security.RateLimiter,
+	auditLogger *audit.Logger,
 	securityConfig config.SecurityConfig,
 	allowedOrigins []string,
 ) http.Handler {
@@ -138,6 +140,12 @@ func New(
 						authMiddleware.RequireAuth(next).ServeHTTP(w, r)
 					})
 				})
+			}
+
+			// Audit logging middleware for mutation endpoints (POST, PUT, PATCH, DELETE)
+			// Must be applied after auth middleware to have access to user claims
+			if auditLogger != nil {
+				v1.Use(audit.MutationAudit(auditLogger))
 			}
 
 			// Serve OpenAPI spec (public, no auth required)

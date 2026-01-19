@@ -9,6 +9,52 @@ import (
 )
 
 var (
+	// AuditLogsColumns holds the columns for the "audit_logs" table.
+	AuditLogsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "action", Type: field.TypeString},
+		{Name: "resource_type", Type: field.TypeString, Nullable: true},
+		{Name: "resource_id", Type: field.TypeString, Nullable: true},
+		{Name: "http_method", Type: field.TypeString, Nullable: true},
+		{Name: "path", Type: field.TypeString, Nullable: true},
+		{Name: "status_code", Type: field.TypeInt, Nullable: true},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Size: 45},
+		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "request_body", Type: field.TypeJSON, Nullable: true},
+		{Name: "context", Type: field.TypeJSON, Nullable: true},
+		{Name: "duration_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "occurred_at", Type: field.TypeTime},
+	}
+	// AuditLogsTable holds the schema information for the "audit_logs" table.
+	AuditLogsTable = &schema.Table{
+		Name:       "audit_logs",
+		Columns:    AuditLogsColumns,
+		PrimaryKey: []*schema.Column{AuditLogsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "auditlog_tenant_id_occurred_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[1], AuditLogsColumns[14]},
+			},
+			{
+				Name:    "auditlog_user_id_occurred_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[2], AuditLogsColumns[14]},
+			},
+			{
+				Name:    "auditlog_resource_type_resource_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[4], AuditLogsColumns[5]},
+			},
+			{
+				Name:    "auditlog_action_occurred_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[3], AuditLogsColumns[14]},
+			},
+		},
+	}
 	// BackupCodesColumns holds the columns for the "backup_codes" table.
 	BackupCodesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -2348,6 +2394,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AuditLogsTable,
 		BackupCodesTable,
 		CartsTable,
 		CartItemsTable,

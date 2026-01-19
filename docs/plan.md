@@ -358,28 +358,30 @@
 
 | Pattern | Status | Library | Notes |
 |---------|--------|---------|-------|
-| Outbox Pattern | ✅ **Schema Ready** | `shared-events` v0.1.0 | Schema + repository created |
+| Outbox Pattern | ✅ **Fully Implemented** | `shared-events` v0.1.0 | Schema + repository + background publisher |
 | Circuit Breaker | ⏳ **Dependency Ready** | `shared-service-client` v0.1.0 | Import and use in HTTP clients |
 | Shared Middleware | ✅ **Completed** | `httpware` v0.1.1 | Migrated to shared package |
 | JWT Validation | ✅ Implemented | `shared-auth-client` v0.2.0 | Production |
-| Subscription Feature Gating | ⏳ **Planned** | `shared-auth-client` v0.2.0 | Use JWT claims for feature checks |
+| Subscription Feature Gating | ✅ **Partial** | `shared-auth-client` v0.2.0 | Analytics gated, group_ordering pending |
 | Dual Auth (JWT + API Key) | ✅ Implemented | `shared-auth-client` v0.2.0 | SSO fully supports both |
+| CORS Configuration | ✅ **Fixed** | chi/cors | Configurable origins, production defaults |
+| Audit Logging | ✅ **Implemented** | `internal/modules/audit` | Mutation endpoints logged asynchronously |
 
 **Migration Checklist:**
 - [x] Add `github.com/Bengo-Hub/shared-events` dependency ✅ (Jan 2026)
 - [x] Create `outbox_events` Ent schema ✅ (Jan 2026)
 - [x] Create `internal/modules/outbox/repository.go` ✅ (Jan 2026)
 - [ ] Replace direct NATS publish with `PublishWithOutbox`
-- [ ] **CRITICAL**: Add background publisher worker (see `sprint-8-launch-handover.md` for implementation)
+- [x] **CRITICAL**: Add background publisher worker ✅ (Jan 2026) - `internal/platform/events/outbox_adapter.go`, wired in `app.go`
 - [ ] Add `github.com/Bengo-Hub/shared-service-client` dependency
 - [ ] Replace direct HTTP calls with shared client
 - [x] Add `github.com/Bengo-Hub/httpware` dependency ✅ (Jan 2026)
 - [x] Replace local middleware with shared package ✅ (Jan 2026)
 - [x] Upgrade to `shared-auth-client` v0.2.0 ✅ (Jan 2026)
-- [ ] Add feature gating middleware for premium features (group_ordering, advanced_analytics)
-- [ ] Use `authclient.RequireFeature()` middleware for subscription-gated routes
-- [ ] **CRITICAL**: Fix CORS configuration (use specific origins, not wildcard with credentials)
-- [ ] Wire audit logging middleware to mutation endpoints
+- [x] Add feature gating middleware for premium features ✅ (Jan 2026) - Analytics gated with `RequirePlan("PROFESSIONAL")`
+- [ ] Use `authclient.RequireFeature()` middleware for additional subscription-gated routes (group_ordering)
+- [x] **CRITICAL**: Fix CORS configuration ✅ (Jan 2026) - Configurable AllowedOrigins in config with production defaults
+- [x] Wire audit logging middleware to mutation endpoints ✅ (Jan 2026) - `internal/modules/audit/` module with MutationAudit middleware
 
 ### Subscription Feature Gating (Pending auth-service Sprint 11)
 

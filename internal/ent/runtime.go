@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/bengobox/ordering-backend/internal/ent/auditlog"
 	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
@@ -60,6 +61,28 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	auditlogFields := schema.AuditLog{}.Fields()
+	_ = auditlogFields
+	// auditlogDescAction is the schema descriptor for action field.
+	auditlogDescAction := auditlogFields[3].Descriptor()
+	// auditlog.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	auditlog.ActionValidator = auditlogDescAction.Validators[0].(func(string) error)
+	// auditlogDescIPAddress is the schema descriptor for ip_address field.
+	auditlogDescIPAddress := auditlogFields[9].Descriptor()
+	// auditlog.IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
+	auditlog.IPAddressValidator = auditlogDescIPAddress.Validators[0].(func(string) error)
+	// auditlogDescUserAgent is the schema descriptor for user_agent field.
+	auditlogDescUserAgent := auditlogFields[10].Descriptor()
+	// auditlog.UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
+	auditlog.UserAgentValidator = auditlogDescUserAgent.Validators[0].(func(string) error)
+	// auditlogDescOccurredAt is the schema descriptor for occurred_at field.
+	auditlogDescOccurredAt := auditlogFields[14].Descriptor()
+	// auditlog.DefaultOccurredAt holds the default value on creation for the occurred_at field.
+	auditlog.DefaultOccurredAt = auditlogDescOccurredAt.Default.(func() time.Time)
+	// auditlogDescID is the schema descriptor for id field.
+	auditlogDescID := auditlogFields[0].Descriptor()
+	// auditlog.DefaultID holds the default value on creation for the id field.
+	auditlog.DefaultID = auditlogDescID.Default.(func() uuid.UUID)
 	backupcodeFields := schema.BackupCode{}.Fields()
 	_ = backupcodeFields
 	// backupcodeDescCodeHash is the schema descriptor for code_hash field.

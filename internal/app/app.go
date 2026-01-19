@@ -32,6 +32,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
@@ -44,18 +45,20 @@ import (
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
+	"github.com/bengobox/ordering-backend/internal/modules/outbox"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
 )
 
 type App struct {
-	cfg        *config.Config
-	log        *zap.Logger
-	httpServer *http.Server
-	db         dbCloser
-	cache      cacheCloser
-	events     eventCloser
-	orm        *ent.Client
+	cfg             *config.Config
+	log             *zap.Logger
+	httpServer      *http.Server
+	db              dbCloser
+	cache           cacheCloser
+	events          eventCloser
+	orm             *ent.Client
+	outboxPublisher *outbox.Publisher
 }
 
 type dbCloser interface {
@@ -220,6 +223,7 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize event publisher for NATS events
 	var eventPublisher *events.Publisher
+	var outboxPublisher *outbox.Publisher
 	if natsConn != nil {
 		eventPublisher = events.NewPublisher(natsConn, log)
 		log.Info("app: event publisher initialized")
@@ -231,6 +235,21 @@ func New(ctx context.Context) (*App, error) {
 		fulfilmentEventHandler := fulfilment.NewEventHandler(taskSvc, orderSvc, orderingRepo, log)
 		if err := fulfilmentEventHandler.SubscribeToOrderEvents(natsConn); err != nil {
 			log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
+		}
+
+		// Initialize outbox background publisher (Transactional Outbox Pattern)
+		if cfg.Events.OutboxEnabled {
+			outboxRepo := outbox.NewEntRepository(ormClient, sqlDB)
+			outboxNatsPublisher := events.NewOutboxPublisher(natsConn, log)
+			outboxConfig := outbox.PublisherConfig{
+				BatchSize:  cfg.Events.OutboxBatchSize,
+				PollPeriod: cfg.Events.OutboxPollPeriod,
+			}
+			outboxPublisher = outbox.NewPublisher(outboxRepo, outboxNatsPublisher, log, outboxConfig)
+			outboxPublisher.Start(ctx)
+			log.Info("app: outbox background publisher started",
+				zap.Int("batch_size", cfg.Events.OutboxBatchSize),
+				zap.Duration("poll_period", cfg.Events.OutboxPollPeriod))
 		}
 	}
 
@@ -269,7 +288,11 @@ func New(ctx context.Context) (*App, error) {
 		zap.Bool("enabled", cfg.Security.RateLimitEnabled),
 		zap.Int("requests_per_min", cfg.Security.RateLimitRequestsPerMin))
 
-	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, cfg.Security, cfg.HTTP.AllowedOrigins)
+	// Initialize audit logging module (compliance requirement)
+	auditLogger := audit.New(ormClient, log)
+	log.Info("app: audit logger initialized")
+
+	router := httprouter.New(log, healthHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
@@ -281,13 +304,14 @@ func New(ctx context.Context) (*App, error) {
 	}
 
 	return &App{
-		cfg:        cfg,
-		log:        log,
-		httpServer: httpServer,
-		db:         dbPool,
-		cache:      redisClient,
-		events:     natsConn,
-		orm:        ormClient,
+		cfg:             cfg,
+		log:             log,
+		httpServer:      httpServer,
+		db:              dbPool,
+		cache:           redisClient,
+		events:          natsConn,
+		orm:             ormClient,
+		outboxPublisher: outboxPublisher,
 	}, nil
 }
 
@@ -320,6 +344,12 @@ func (a *App) Run(ctx context.Context) error {
 
 // Close releases infrastructure resources.
 func (a *App) Close() {
+	// Stop outbox publisher first (before NATS connection)
+	if a.outboxPublisher != nil {
+		a.outboxPublisher.Stop()
+		a.log.Info("outbox publisher stopped")
+	}
+
 	if a.events != nil {
 		if err := a.events.Drain(); err != nil {
 			a.log.Warn("failed to drain nats connection", zap.Error(err))

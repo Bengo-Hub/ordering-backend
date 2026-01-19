@@ -42,7 +42,7 @@ type HTTPConfig struct {
 	ReadTimeout    time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
 	WriteTimeout   time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout    time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
-	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"http://localhost:3000"`
+	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://cafe.codevertexitsolutions.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
 }
 
 type PostgresConfig struct {
@@ -62,6 +62,11 @@ type RedisConfig struct {
 type EventsConfig struct {
 	NATSURL    string `envconfig:"NATS_URL" default:"nats://127.0.0.1:4222"`
 	StreamName string `envconfig:"NATS_STREAM" default:"ordering"`
+
+	// Outbox publisher settings
+	OutboxEnabled    bool          `envconfig:"OUTBOX_ENABLED" default:"true"`
+	OutboxPollPeriod time.Duration `envconfig:"OUTBOX_POLL_PERIOD" default:"5s"`
+	OutboxBatchSize  int           `envconfig:"OUTBOX_BATCH_SIZE" default:"100"`
 }
 
 type TelemetryConfig struct {

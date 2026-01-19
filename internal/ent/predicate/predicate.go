@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AuditLog is the predicate function for auditlog builders.
+type AuditLog func(*sql.Selector)
+
 // BackupCode is the predicate function for backupcode builders.
 type BackupCode func(*sql.Selector)
 

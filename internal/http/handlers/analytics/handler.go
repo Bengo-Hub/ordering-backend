@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
@@ -32,6 +33,9 @@ func NewHandler(logger *zap.Logger, analyticsSvc *analytics.Service) *Handler {
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/{tenant}/analytics", func(ar chi.Router) {
 		ar.Use(auth.RequireAuth)
+		// Require PROFESSIONAL plan or higher for analytics access
+		// This ensures only tenants with paid subscriptions can access advanced analytics
+		ar.Use(authclient.RequirePlan("PROFESSIONAL"))
 
 		// Dashboard endpoints
 		ar.Get("/dashboards", h.ListDashboards)

@@ -510,3 +510,108 @@ Superset is healthy and ready for integration. Complete the service account setu
 - Monitoring and alerting setup
 - Documentation handover
 - Chaos engineering tests
+
+---
+
+## Post-Audit Implementation (January 2026)
+
+### Critical Fixes Implemented ✅
+
+The following critical and high-priority gaps identified during the audit have been addressed:
+
+#### 1. CRITICAL: Outbox Background Publisher ✅
+**Status**: Implemented
+**Files Created/Modified**:
+- `internal/platform/events/outbox_adapter.go` - NATS publisher adapter bridging outbox module to NATS
+- `internal/app/app.go` - Wired outbox publisher to app lifecycle with graceful shutdown
+- `internal/config/config.go` - Added `OutboxEnabled`, `OutboxPollPeriod`, `OutboxBatchSize` config
+
+**Features**:
+- Background worker polls outbox table and publishes to NATS
+- Configurable batch size and poll period
+- Graceful shutdown handling
+
+#### 2. CRITICAL: CORS Configuration ✅
+**Status**: Fixed across ALL Go microservices
+**Files Modified** (all services):
+- `internal/config/config.go` - Added `AllowedOrigins` with production URLs as defaults
+- `internal/http/router/router.go` - Uses configurable origins from config
+
+**Services Updated**:
+| Service | Production Origins |
+|---------|-------------------|
+| ordering-backend | ordersapp, cafe, pos, accounts |
+| logistics-api | ordersapp, pos, accounts |
+| inventory-api | pos, ordersapp, accounts |
+| pos-api | pos, ordersapp, accounts |
+| treasury-api | books, ordersapp, pos, accounts |
+| notifications-api | notifications, ordersapp, accounts |
+| subscriptions-api | accounts, sso |
+
+**K8s Values Updated** (devops-k8s):
+- Added `HTTP_ALLOWED_ORIGINS` env var to all services' values.yaml files
+
+#### 3. HIGH: Subscription Feature Gating ✅
+**Status**: Implemented (Partial - Analytics)
+**Files Modified**:
+- `internal/http/handlers/analytics/handler.go` - Added `authclient.RequirePlan("PROFESSIONAL")` middleware
+
+**Note**: Full feature gating (group_ordering) pending auth-service Sprint 11 JWT enrichment
+
+#### 4. MEDIUM: Audit Logging Middleware ✅
+**Status**: Fully Implemented
+**Files Created**:
+- `internal/ent/schema/auditlog.go` - AuditLog entity schema with indexes
+- `internal/modules/audit/logger.go` - Audit logger with async recording
+- `internal/modules/audit/middleware.go` - MutationAudit middleware for POST/PUT/PATCH/DELETE
+
+**Files Modified**:
+- `internal/http/router/router.go` - Wired audit middleware after auth middleware
+- `internal/app/app.go` - Initialized audit logger
+
+**Features**:
+- Logs all mutation operations (POST, PUT, PATCH, DELETE)
+- Captures user ID, tenant ID from JWT claims
+- Sanitizes sensitive fields (passwords, tokens, API keys, CVV, etc.)
+- Extracts resource type and ID from URL paths
+- Records request duration, IP address, user agent
+- Asynchronous logging to avoid blocking responses
+- Skips health checks, webhooks, and auth endpoints
+
+#### 5. HIGH: Cafe-Website SSO Integration ✅
+**Status**: Fully Implemented
+**Files Created/Modified**:
+- `src/lib/auth/config.ts` - SSO URLs with production defaults, NextAuth OIDC provider
+- `src/hooks/use-auth.ts` - SSO login/logout hooks with proper session clearing
+- `src/app/signup/page.tsx` - Redirects to SSO signup with return URL
+- `src/app/staff/layout.tsx` - Staff portal with SSO logout integration
+
+**SSO Features**:
+- OIDC provider integration with auth-service
+- JWT token validation via JWKS
+- Access token refresh flow
+- SSO logout (clears NextAuth session + redirects to SSO logout endpoint)
+- Production URLs as defaults (`https://sso.codevertexitsolutions.com`)
+- Return URL support for post-login/signup redirects
+
+#### 6. HIGH: Auth-API CORS for masterspace.co.ke ✅
+**Status**: Implemented
+**Files Modified**:
+- `auth-service/auth-api/internal/httpapi/router.go` - Added dynamic origin checking for `*.masterspace.co.ke` subdomains
+
+### Documentation Updated ✅
+
+- `ordering-backend/docs/plan.md` - Architecture Patterns Migration Status table updated
+- `ordering-backend/docs/sprints/sprint-8-launch-handover.md` - All critical gaps marked as completed
+- `cafe-website/docs/plan.md` - SSO Integration section added
+- `cafe-website/docs/sprints/sprint-4-auth-tracking.md` - Logout flow marked as completed
+
+### Remaining Gaps
+
+| Gap | Priority | Status | Notes |
+|-----|----------|--------|-------|
+| Docker Registry Auth | CRITICAL | ❌ Pending | Create repo on Docker Hub manually |
+| Redis Session Storage | MEDIUM | ⏳ Optional | Recommended for production |
+| Booking Service | MEDIUM | ❌ Not Started | Use contact forms as mitigation |
+| Group Ordering Feature Gate | MEDIUM | ⏳ Pending | Blocked on auth-service Sprint 11 |
+| Superset Service Account | MEDIUM | ⏳ Pending | Create credentials in Superset |
