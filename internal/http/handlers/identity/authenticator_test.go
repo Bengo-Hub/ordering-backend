@@ -64,19 +64,7 @@ func TestIsSuperuser(t *testing.T) {
 }
 
 // TestAuthenticator_RequireRoles_WithSuperuser tests the RequireRoles middleware with superuser claims.
-// NOTE: This test is currently skipped because it requires setting claims in context using
-// authclient's internal private context key. The authclient package (v0.2.0) does not export
-// a helper function to inject claims for testing purposes.
-//
-// Possible solutions:
-// 1. Add authclient.ContextWithClaims() helper in shared-auth-client package
-// 2. Use integration tests with real JWT validation instead of unit tests
-// 3. Mock the entire authclient.ClaimsFromContext function (requires interface/dependency injection)
-//
-// The actual implementation works correctly in production with real auth middleware.
 func TestAuthenticator_RequireRoles_WithSuperuser(t *testing.T) {
-	t.Skip("Test requires authclient.ContextWithClaims() helper - not available in v0.2.0")
-
 	tests := []struct {
 		name           string
 		claims         *authclient.Claims
@@ -112,7 +100,9 @@ func TestAuthenticator_RequireRoles_WithSuperuser(t *testing.T) {
 			authenticator := NewAuthenticator(logger, service, nil)
 
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			// TODO: Need authclient.ContextWithClaims(req.Context(), tt.claims)
+			// Use authclient.ContextWithClaims to inject test claims (available in v0.3.0+)
+			ctx := authclient.ContextWithClaims(req.Context(), tt.claims)
+			req = req.WithContext(ctx)
 			rec := httptest.NewRecorder()
 
 			handler := authenticator.RequireRoles(tt.requiredRoles...)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
