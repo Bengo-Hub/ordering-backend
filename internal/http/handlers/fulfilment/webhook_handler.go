@@ -26,10 +26,9 @@ func NewWebhookHandler(logger *zap.Logger, webhookSvc *fulfilment.WebhookService
 }
 
 // Register registers the webhook routes.
+// Routes are registered directly to avoid conflicts with other webhook handlers.
 func (h *WebhookHandler) Register(r chi.Router) {
-	r.Route("/webhooks", func(webhooks chi.Router) {
-		webhooks.Post("/logistics", h.HandleLogisticsWebhook)
-	})
+	r.Post("/webhooks/logistics", h.HandleLogisticsWebhook)
 }
 
 // HandleLogisticsWebhook handles incoming logistics webhooks.

@@ -27,16 +27,15 @@ func NewWebhookHandler(log *zap.Logger, webhookService *payments.WebhookService)
 
 // Register mounts webhook routes on the supplied router.
 // Note: Webhooks don't require authentication - they use signature verification.
+// Routes are registered directly to avoid conflicts with other webhook handlers.
 func (h *WebhookHandler) Register(r chi.Router) {
-	r.Route("/webhooks", func(webhookRouter chi.Router) {
-		// Treasury payment webhooks
-		webhookRouter.Post("/treasury", h.HandleTreasuryWebhook)
+	// Treasury payment webhooks - register directly without creating a route group
+	r.Post("/webhooks/treasury", h.HandleTreasuryWebhook)
 
-		// M-Pesa specific webhooks (may come directly from Safaricom via treasury)
-		webhookRouter.Post("/mpesa/callback", h.HandleMpesaCallback)
-		webhookRouter.Post("/mpesa/confirmation", h.HandleMpesaConfirmation)
-		webhookRouter.Post("/mpesa/validation", h.HandleMpesaValidation)
-	})
+	// M-Pesa specific webhooks (may come directly from Safaricom via treasury)
+	r.Post("/webhooks/mpesa/callback", h.HandleMpesaCallback)
+	r.Post("/webhooks/mpesa/confirmation", h.HandleMpesaConfirmation)
+	r.Post("/webhooks/mpesa/validation", h.HandleMpesaValidation)
 }
 
 // HandleTreasuryWebhook processes incoming treasury webhooks.
