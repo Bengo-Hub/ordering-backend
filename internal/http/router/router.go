@@ -217,18 +217,15 @@ func New(
 			}
 
 			// Webhook routes (no auth required - use signature verification)
-			// Prevent double-mounting by using a local flag
-			var webhooksRegistered bool
-			if !webhooksRegistered {
-				if paymentWebhookHandler != nil {
-					paymentWebhookHandler.Register(v1)
-				}
-				if fulfilmentWebhookHandler != nil {
-					fulfilmentWebhookHandler.Register(v1)
-				}
-				webhooksRegistered = true
+			// Each webhook handler registers its own unique POST paths directly on v1:
+			// - Payment: /webhooks/treasury, /webhooks/mpesa/callback, /webhooks/mpesa/confirmation, /webhooks/mpesa/validation
+			// - Fulfilment: /webhooks/logistics
+			if paymentWebhookHandler != nil {
+				paymentWebhookHandler.Register(v1)
 			}
-			// NOTE: Do not call Register() for the same handler more than once per router instance.
+			if fulfilmentWebhookHandler != nil {
+				fulfilmentWebhookHandler.Register(v1)
+			}
 		})
 	})
 
