@@ -6,4 +6,5 @@ metadata:
 type: Opaque
 stringData:
   # Postgres connection URL - Set via GitHub Secrets
-  postgresUrl: "${ORDERING_POSTGRES_URL}"
+  # Key must match what's referenced in values.yaml secretKeyRef
+  ORDERING_POSTGRES_URL: "${ORDERING_POSTGRES_URL}"
