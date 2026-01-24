@@ -35,7 +35,7 @@ func NewEventHandler(
 	}
 }
 
-// OrderReadyEvent represents the cafe.order.ready event payload.
+// OrderReadyEvent represents the ordering.order.ready event payload.
 type OrderReadyEvent struct {
 	ID        string                 `json:"id"`
 	EventType string                 `json:"event_type"`
@@ -51,17 +51,17 @@ func (h *EventHandler) SubscribeToOrderEvents(nc *nats.Conn) error {
 		return nil
 	}
 
-	// Subscribe to cafe.order.ready events
-	_, err := nc.Subscribe("cafe.order.ready", func(msg *nats.Msg) {
+	// Subscribe to ordering.order.ready events
+	_, err := nc.Subscribe("ordering.order.ready", func(msg *nats.Msg) {
 		var event OrderReadyEvent
 		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal cafe.order.ready event", zap.Error(err))
+			h.logger.Error("Failed to unmarshal ordering.order.ready event", zap.Error(err))
 			return
 		}
 
 		ctx := context.Background()
 		if err := h.handleOrderReady(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle cafe.order.ready event",
+			h.logger.Error("Failed to handle ordering.order.ready event",
 				zap.Error(err),
 				zap.String("event_id", event.ID))
 			// Don't ack the message so it can be retried
@@ -73,11 +73,11 @@ func (h *EventHandler) SubscribeToOrderEvents(nc *nats.Conn) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("fulfilment: subscribe to cafe.order.ready: %w", err)
+		return fmt.Errorf("fulfilment: subscribe to ordering.order.ready: %w", err)
 	}
 
 	h.logger.Info("Subscribed to order events for automatic task creation",
-		zap.Strings("events", []string{"cafe.order.ready"}))
+		zap.Strings("events", []string{"ordering.order.ready"}))
 
 	return nil
 }

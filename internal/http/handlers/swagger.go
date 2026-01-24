@@ -36,34 +36,42 @@ func SwaggerUI(w http.ResponseWriter, r *http.Request) {
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Cafe Backend API Docs</title>
+    <title>Ordering Backend API Docs</title>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+    <style>
+      html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+      *, *:before, *:after { box-sizing: inherit; }
+      body { margin: 0; background: #fafafa; }
+    </style>
   </head>
   <body>
     <div id="swagger-ui"></div>
-    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <script>
       window.onload = () => {
-        // Use the same protocol as the current page to avoid HTTP/HTTPS mismatch
         const specUrl = window.location.protocol + '//' + window.location.host + '/api/v1/openapi.json';
+        console.log('Loading spec from:', specUrl);
+        
         window.ui = SwaggerUIBundle({
           url: specUrl,
           dom_id: '#swagger-ui',
-          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
-          layout: "BaseLayout",
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+          ],
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: "StandaloneLayout",
           deepLinking: true,
           filter: true,
           persistAuthorization: true,
-          requestInterceptor: (request) => {
-            // Automatically add "Bearer " prefix to Authorization header if missing
-            if (request.headers && request.headers.Authorization) {
-              const authHeader = request.headers.Authorization;
-              // Check if it doesn't already start with "Bearer " (case-insensitive)
-              if (!/^bearer\s+/i.test(authHeader)) {
-                request.headers.Authorization = 'Bearer ' + authHeader.trim();
-              }
-            }
-            return request;
+          onFailure: (error) => {
+            console.error('Failed to load spec:', error);
+          },
+          onComplete: () => {
+            console.log('Swagger UI loaded successfully');
           }
         })
       }
@@ -71,4 +79,3 @@ func SwaggerUI(w http.ResponseWriter, r *http.Request) {
   </body>
 </html>`))
 }
-

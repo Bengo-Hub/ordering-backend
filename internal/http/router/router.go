@@ -102,6 +102,11 @@ func New(
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
 
+	// Redirect root path to Swagger documentation
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/v1/docs/", http.StatusMovedPermanently)
+	})
+
 	// Domain routes will be mounted on /api/v1.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
@@ -124,15 +129,16 @@ func New(
 				})
 			}
 
-			// Apply auth-service middleware to protected routes only (excluding /auth/* and /webhooks/*)
+			// Apply auth-service middleware to protected routes only (excluding /auth/*, /webhooks/*, and /openapi.json)
 			// Note: This middleware validates JWT tokens from auth-service
 			// Individual routes can still use authenticator.RequireAuth for additional RBAC checks
 			if authMiddleware != nil {
 				v1.Use(func(next http.Handler) http.Handler {
 					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						// Skip auth middleware for /auth/* routes and /webhooks/* routes
+						// Skip auth middleware for /auth/*, /webhooks/*, and /openapi.json routes
 						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") ||
-							strings.HasPrefix(r.URL.Path, "/api/v1/webhooks/") {
+							strings.HasPrefix(r.URL.Path, "/api/v1/webhooks/") ||
+							r.URL.Path == "/api/v1/openapi.json" {
 							next.ServeHTTP(w, r)
 							return
 						}

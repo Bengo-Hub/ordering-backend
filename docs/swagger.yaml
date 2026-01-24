@@ -1,0 +1,4968 @@
+basePath: /api/v1
+definitions:
+  analytics.DashboardEmbed:
+    properties:
+      expires_at:
+        type: string
+      module:
+        $ref: '#/definitions/analytics.DashboardModule'
+      token:
+        type: string
+      url:
+        type: string
+    type: object
+  analytics.DashboardInfo:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      module:
+        $ref: '#/definitions/analytics.DashboardModule'
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  analytics.DashboardModule:
+    enum:
+    - orders
+    - revenue
+    - customers
+    - operations
+    - subscription
+    type: string
+    x-enum-varnames:
+    - DashboardModuleOrders
+    - DashboardModuleRevenue
+    - DashboardModuleCustomers
+    - DashboardModuleOperations
+    - DashboardModuleSubscription
+  catalog.Asset:
+    properties:
+      assetType:
+        $ref: '#/definitions/catalog.AssetType'
+      createdAt:
+        type: string
+      id:
+        type: string
+      menuItemId:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      url:
+        type: string
+    type: object
+  catalog.AssetType:
+    enum:
+    - image
+    - video
+    type: string
+    x-enum-varnames:
+    - AssetTypeImage
+    - AssetTypeVideo
+  catalog.Category:
+    properties:
+      cafeId:
+        type: string
+      children:
+        items:
+          $ref: '#/definitions/catalog.Category'
+        type: array
+      createdAt:
+        type: string
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      id:
+        type: string
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      itemCount:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: string
+      tenantId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  catalog.DietaryTag:
+    properties:
+      code:
+        description: 'Primary key: vegetarian, vegan, gluten-free, etc.'
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      iconUrl:
+        type: string
+      label:
+        type: string
+    type: object
+  catalog.MenuItem:
+    properties:
+      assets:
+        items:
+          $ref: '#/definitions/catalog.Asset'
+        type: array
+      basePrice:
+        type: number
+      cafeId:
+        type: string
+      category:
+        $ref: '#/definitions/catalog.Category'
+      categoryId:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      dietaryTags:
+        items:
+          $ref: '#/definitions/catalog.DietaryTag'
+        type: array
+      displayOrder:
+        type: integer
+      id:
+        type: string
+      imageUrl:
+        type: string
+      isAvailable:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      name:
+        type: string
+      nutrition:
+        additionalProperties: true
+        type: object
+      schedules:
+        items:
+          $ref: '#/definitions/catalog.Schedule'
+        type: array
+      sku:
+        type: string
+      tenantId:
+        type: string
+      translations:
+        items:
+          $ref: '#/definitions/catalog.Translation'
+        type: array
+      updatedAt:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/catalog.Variant'
+        type: array
+    type: object
+  catalog.PublicCategory:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/catalog.PublicCategory'
+        type: array
+      description:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      itemCount:
+        type: integer
+      name:
+        type: string
+    type: object
+  catalog.PublicMenuItem:
+    properties:
+      basePrice:
+        type: number
+      categoryId:
+        type: string
+      categoryName:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      dietaryTags:
+        items:
+          $ref: '#/definitions/catalog.DietaryTag'
+        type: array
+      id:
+        type: string
+      imageUrl:
+        type: string
+      leadTimeMinutes:
+        type: integer
+      name:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/catalog.Variant'
+        type: array
+    type: object
+  catalog.Schedule:
+    properties:
+      createdAt:
+        type: string
+      dayOfWeek:
+        description: 0=Sunday, 6=Saturday
+        type: integer
+      id:
+        type: string
+      menuItemId:
+        type: string
+      timeEnd:
+        description: HH:MM format
+        type: string
+      timeStart:
+        description: HH:MM format
+        type: string
+    type: object
+  catalog.Translation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      locale:
+        description: e.g., "en", "sw"
+        type: string
+      menuItemId:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  catalog.Variant:
+    properties:
+      createdAt:
+        type: string
+      displayOrder:
+        type: integer
+      id:
+        type: string
+      isAvailable:
+        type: boolean
+      menuItemId:
+        type: string
+      name:
+        type: string
+      priceDelta:
+        type: number
+      sku:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  cataloghandler.AddDietaryTagRequest:
+    properties:
+      code:
+        type: string
+    type: object
+  cataloghandler.CreateCategoryRequest:
+    properties:
+      cafeId:
+        type: string
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      parentId:
+        type: string
+    type: object
+  cataloghandler.CreateMenuItemRequest:
+    properties:
+      basePrice:
+        type: number
+      cafeId:
+        type: string
+      categoryId:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      imageUrl:
+        type: string
+      isAvailable:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      name:
+        type: string
+      sku:
+        type: string
+    type: object
+  cataloghandler.CreateTranslationRequest:
+    properties:
+      description:
+        type: string
+      locale:
+        type: string
+      name:
+        type: string
+    type: object
+  cataloghandler.CreateVariantRequest:
+    properties:
+      displayOrder:
+        type: integer
+      isAvailable:
+        type: boolean
+      name:
+        type: string
+      priceDelta:
+        type: number
+      sku:
+        type: string
+    type: object
+  cataloghandler.ListResponse:
+    properties:
+      data: {}
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  cataloghandler.UpdateCategoryRequest:
+    properties:
+      clearParent:
+        type: boolean
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      parentId:
+        type: string
+    type: object
+  cataloghandler.UpdateMenuItemRequest:
+    properties:
+      basePrice:
+        type: number
+      categoryId:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      imageUrl:
+        type: string
+      isAvailable:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      name:
+        type: string
+      sku:
+        type: string
+    type: object
+  compliance.CreateDataSubjectRequestRequest:
+    properties:
+      description:
+        type: string
+      request_type:
+        type: string
+    type: object
+  compliance.DataDeletionJob:
+    properties:
+      completed_at:
+        type: string
+      confirmed:
+        type: boolean
+      created_at:
+        type: string
+      deletion_summary:
+        additionalProperties:
+          type: integer
+        description: Entity type -> count
+        type: object
+      deletion_type:
+        $ref: '#/definitions/compliance.DeletionType'
+      error_message:
+        type: string
+      id:
+        type: string
+      reason:
+        type: string
+      requested_at:
+        type: string
+      retention_days:
+        description: Days before permanent deletion
+        type: integer
+      scheduled_for:
+        type: string
+      started_at:
+        type: string
+      status:
+        $ref: '#/definitions/compliance.DeletionJobStatus'
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  compliance.DataExportJob:
+    properties:
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      error_message:
+        type: string
+      expires_at:
+        type: string
+      file_size_bytes:
+        type: integer
+      format:
+        $ref: '#/definitions/compliance.ExportFormat'
+      id:
+        type: string
+      included_data:
+        description: orders, addresses, loyalty, etc.
+        items:
+          type: string
+        type: array
+      records_exported:
+        type: integer
+      requested_at:
+        type: string
+      started_at:
+        type: string
+      status:
+        $ref: '#/definitions/compliance.ExportJobStatus'
+      storage_url:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  compliance.DataSubjectRequest:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      error_message:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      processed_at:
+        type: string
+      processed_by:
+        type: string
+      request_type:
+        $ref: '#/definitions/compliance.DataSubjectRequestType'
+      result_url:
+        type: string
+      status:
+        $ref: '#/definitions/compliance.DataSubjectRequestStatus'
+      submitted_at:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  compliance.DataSubjectRequestStatus:
+    enum:
+    - pending
+    - processing
+    - completed
+    - failed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - RequestStatusPending
+    - RequestStatusProcessing
+    - RequestStatusCompleted
+    - RequestStatusFailed
+    - RequestStatusCancelled
+  compliance.DataSubjectRequestType:
+    enum:
+    - export
+    - delete
+    - access
+    - rectify
+    type: string
+    x-enum-varnames:
+    - RequestTypeExport
+    - RequestTypeDelete
+    - RequestTypeAccess
+    - RequestTypeRectify
+  compliance.DeletionJobStatus:
+    enum:
+    - pending
+    - scheduled
+    - in_progress
+    - completed
+    - failed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - DeletionStatusPending
+    - DeletionStatusScheduled
+    - DeletionStatusInProgress
+    - DeletionStatusCompleted
+    - DeletionStatusFailed
+    - DeletionStatusCancelled
+  compliance.DeletionType:
+    enum:
+    - soft
+    - permanent
+    - anonymize
+    type: string
+    x-enum-comments:
+      DeletionTypeAnonymize: Replace PII with anonymized data
+      DeletionTypePermanent: Immediate permanent deletion
+      DeletionTypeSoft: Soft delete with retention
+    x-enum-descriptions:
+    - Soft delete with retention
+    - Immediate permanent deletion
+    - Replace PII with anonymized data
+    x-enum-varnames:
+    - DeletionTypeSoft
+    - DeletionTypePermanent
+    - DeletionTypeAnonymize
+  compliance.ExportFormat:
+    enum:
+    - json
+    - csv
+    type: string
+    x-enum-varnames:
+    - ExportFormatJSON
+    - ExportFormatCSV
+  compliance.ExportJobStatus:
+    enum:
+    - pending
+    - in_progress
+    - completed
+    - failed
+    - expired
+    type: string
+    x-enum-varnames:
+    - ExportStatusPending
+    - ExportStatusInProgress
+    - ExportStatusCompleted
+    - ExportStatusFailed
+    - ExportStatusExpired
+  compliance.RequestDataDeletionRequest:
+    properties:
+      confirmed:
+        type: boolean
+      deletion_type:
+        description: soft, permanent, anonymize
+        type: string
+      reason:
+        type: string
+      retention_days:
+        type: integer
+    type: object
+  compliance.RequestDataExportRequest:
+    properties:
+      format:
+        description: json or csv
+        type: string
+      included_data:
+        items:
+          type: string
+        type: array
+    type: object
+  fulfilment.AssignmentStatus:
+    enum:
+    - pending
+    - assigned
+    - accepted
+    - en_route_pickup
+    - arrived_pickup
+    - picked_up
+    - en_route_dropoff
+    - arrived_dropoff
+    - completed
+    - cancelled
+    - failed
+    type: string
+    x-enum-varnames:
+    - AssignmentStatusPending
+    - AssignmentStatusAssigned
+    - AssignmentStatusAccepted
+    - AssignmentStatusEnRoutePickup
+    - AssignmentStatusArrivedPickup
+    - AssignmentStatusPickedUp
+    - AssignmentStatusEnRouteDropoff
+    - AssignmentStatusArrivedDropoff
+    - AssignmentStatusCompleted
+    - AssignmentStatusCancelled
+    - AssignmentStatusFailed
+  fulfilment.CancelDeliveryTaskRequest:
+    properties:
+      reason:
+        type: string
+    type: object
+  fulfilment.OrderAssignment:
+    properties:
+      accepted_at:
+        type: string
+      assigned_at:
+        type: string
+      attempt_count:
+        type: integer
+      cancellation_reason:
+        type: string
+      cancelled_at:
+        type: string
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      failure_reason:
+        type: string
+      id:
+        type: string
+      logistics_task_id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      order_id:
+        type: string
+      picked_up_at:
+        type: string
+      priority:
+        $ref: '#/definitions/fulfilment.TaskPriority'
+      rejection_reason:
+        type: string
+      rider_id:
+        type: string
+      special_instructions:
+        type: string
+      status:
+        $ref: '#/definitions/fulfilment.AssignmentStatus'
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  fulfilment.TaskPriority:
+    enum:
+    - low
+    - normal
+    - high
+    - urgent
+    type: string
+    x-enum-varnames:
+    - PriorityLow
+    - PriorityNormal
+    - PriorityHigh
+    - PriorityUrgent
+  fulfilment.TrackingInfo:
+    properties:
+      assignment_id:
+        type: string
+      distance_km:
+        type: number
+      eta_at:
+        type: string
+      eta_minutes:
+        type: integer
+      last_updated_at:
+        type: string
+      order_id:
+        type: string
+      rider_id:
+        type: string
+      rider_latitude:
+        type: number
+      rider_longitude:
+        type: number
+      rider_name:
+        type: string
+      rider_phone:
+        type: string
+      status:
+        $ref: '#/definitions/fulfilment.AssignmentStatus'
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: Unauthorized
+        type: string
+      message:
+        example: invalid credentials
+        type: string
+    type: object
+  handlers.livenessResponse:
+    properties:
+      service:
+        example: cafe-backend
+        type: string
+      status:
+        example: ok
+        type: string
+    type: object
+  handlers.readinessResponse:
+    properties:
+      dependencies:
+        additionalProperties:
+          type: string
+        type: object
+      status:
+        example: OK
+        type: string
+    type: object
+  identity.Permission:
+    enum:
+    - orders:view
+    - orders:manage
+    - orders:refund
+    - profile:update
+    - preferences:update
+    - loyalty:view
+    - loyalty:redeem
+    - catalog:view
+    - catalog:manage
+    - payments:view
+    - payments:manage
+    - logistics:view
+    - logistics:dispatch
+    - operations:kitchen
+    - operations:inventory
+    - notifications:view
+    - notifications:manage
+    - analytics:view
+    - analytics:export
+    - support:view
+    - support:manage
+    - riders:onboard
+    - staff:invite
+    - admin:manage
+    type: string
+    x-enum-comments:
+      PermissionRidersOnboard: Kept for backward compatibility if used elsewhere
+      PermissionStaffInvite: Kept for backward compatibility if used elsewhere
+    x-enum-descriptions:
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - Kept for backward compatibility if used elsewhere
+    - Kept for backward compatibility if used elsewhere
+    - ""
+    x-enum-varnames:
+    - PermissionOrdersView
+    - PermissionOrdersManage
+    - PermissionOrdersRefund
+    - PermissionProfileUpdate
+    - PermissionPreferencesUpdate
+    - PermissionLoyaltyView
+    - PermissionLoyaltyRedeem
+    - PermissionCatalogView
+    - PermissionCatalogManage
+    - PermissionPaymentsView
+    - PermissionPaymentsManage
+    - PermissionLogisticsView
+    - PermissionLogisticsDispatch
+    - PermissionOperationsKitchen
+    - PermissionOperationsInventory
+    - PermissionNotificationsView
+    - PermissionNotificationsManage
+    - PermissionAnalyticsView
+    - PermissionAnalyticsExport
+    - PermissionSupportView
+    - PermissionSupportManage
+    - PermissionRidersOnboard
+    - PermissionStaffInvite
+    - PermissionAdminManage
+  identity.Role:
+    enum:
+    - customer
+    - rider
+    - staff
+    - admin
+    - superuser
+    type: string
+    x-enum-varnames:
+    - RoleCustomer
+    - RoleRider
+    - RoleStaff
+    - RoleAdmin
+    - RoleSuperAdmin
+  identityhandler.AuthResponsePayload:
+    properties:
+      session:
+        $ref: '#/definitions/identityhandler.SessionResponsePayload'
+      user:
+        $ref: '#/definitions/identityhandler.UserResponsePayload'
+    type: object
+  identityhandler.GoogleCompleteRequest:
+    properties:
+      code:
+        example: auth-code
+        type: string
+      state:
+        example: customer
+        type: string
+    type: object
+  identityhandler.GoogleOAuthURLResponse:
+    properties:
+      url:
+        type: string
+    type: object
+  identityhandler.GoogleStartRequest:
+    properties:
+      redirectUri:
+        example: http://localhost:3000/auth/callback
+        type: string
+      role:
+        example: customer
+        type: string
+    type: object
+  identityhandler.LoginRequest:
+    properties:
+      email:
+        example: customer@demo.com
+        type: string
+      password:
+        example: demo1234
+        type: string
+      role:
+        example: customer
+        type: string
+      tenant_slug:
+        description: Defaults to "urban-cafe" if not provided
+        example: urban-cafe
+        type: string
+    type: object
+  identityhandler.NotificationPreferenceInput:
+    properties:
+      email:
+        example: true
+        type: boolean
+      push:
+        example: true
+        type: boolean
+      sms:
+        example: false
+        type: boolean
+    type: object
+  identityhandler.OperationStatusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  identityhandler.OrderSummaryResponse:
+    properties:
+      eta:
+        type: string
+      id:
+        type: string
+      placedAt:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    type: object
+  identityhandler.RefreshRequest:
+    properties:
+      refreshToken:
+        example: refresh-token
+        type: string
+    type: object
+  identityhandler.RegisterRequest:
+    properties:
+      email:
+        example: newuser@urban-cafe.com
+        type: string
+      password:
+        example: SecurePassword123!
+        type: string
+      profile:
+        additionalProperties: true
+        description: Optional profile data
+        type: object
+      tenant_slug:
+        description: Defaults to "urban-cafe" if not provided
+        example: urban-cafe
+        type: string
+    type: object
+  identityhandler.SessionResponsePayload:
+    properties:
+      accessToken:
+        type: string
+      expiresAt:
+        type: string
+      refreshToken:
+        type: string
+      sessionId:
+        type: string
+    type: object
+  identityhandler.UpdatePreferencesRequest:
+    properties:
+      language:
+        example: en
+        type: string
+      notifications:
+        $ref: '#/definitions/identityhandler.NotificationPreferenceInput'
+      theme:
+        example: dark
+        type: string
+    type: object
+  identityhandler.UpdateProfileRequest:
+    properties:
+      avatarUrl:
+        example: https://cdn.example.com/avatar.png
+        type: string
+      fullName:
+        example: Urban Café Guest
+        type: string
+      phone:
+        example: "+254700000000"
+        type: string
+    type: object
+  identityhandler.UpdateSecurityRequest:
+    properties:
+      disableTwoFactor:
+        type: boolean
+      enableTwoFactor:
+        type: boolean
+    type: object
+  identityhandler.UserPreferencesResponse:
+    properties:
+      language:
+        type: string
+      notifications:
+        $ref: '#/definitions/identityhandler.NotificationPreferenceInput'
+      theme:
+        type: string
+    type: object
+  identityhandler.UserResponsePayload:
+    properties:
+      availableCoupons:
+        type: integer
+      avatarUrl:
+        type: string
+      backupCodesEnabled:
+        type: boolean
+      createdAt:
+        type: string
+      defaultLocationLabel:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      lastLoginAt:
+        type: string
+      loyaltyPoints:
+        type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/identity.Permission'
+        type: array
+      phone:
+        type: string
+      preferences:
+        $ref: '#/definitions/identityhandler.UserPreferencesResponse'
+      roles:
+        items:
+          $ref: '#/definitions/identity.Role'
+        type: array
+      twoFactorEnabled:
+        type: boolean
+      updatedAt:
+        type: string
+    type: object
+  internal_http_handlers_fulfilment.CreateDeliveryTaskRequest:
+    properties:
+      idempotency_key:
+        type: string
+      instructions:
+        type: string
+      priority:
+        type: string
+    type: object
+  ordering.Cart:
+    properties:
+      cafeId:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      deliveryFee:
+        type: number
+      discountTotal:
+        type: number
+      expiresAt:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/ordering.CartItem'
+        type: array
+      loyaltyPointsRedeemed:
+        type: integer
+      promoCodeId:
+        type: string
+      sessionId:
+        type: string
+      status:
+        $ref: '#/definitions/ordering.CartStatus'
+      subtotal:
+        type: number
+      taxTotal:
+        type: number
+      tenantId:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  ordering.CartItem:
+    properties:
+      cartId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      menuItemId:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      nameSnapshot:
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: integer
+      totalPrice:
+        type: number
+      unitPrice:
+        type: number
+      updatedAt:
+        type: string
+      variantId:
+        type: string
+    type: object
+  ordering.CartStatus:
+    enum:
+    - active
+    - checked_out
+    - abandoned
+    - expired
+    type: string
+    x-enum-varnames:
+    - CartStatusActive
+    - CartStatusCheckedOut
+    - CartStatusAbandoned
+    - CartStatusExpired
+  ordering.CartSummary:
+    properties:
+      deliveryFee:
+        type: number
+      discountTotal:
+        type: number
+      grandTotal:
+        type: number
+      loyaltyDiscount:
+        type: number
+      loyaltyPointsRedeemed:
+        type: integer
+      subtotal:
+        type: number
+      taxTotal:
+        type: number
+    type: object
+  ordering.CustomerAddress:
+    properties:
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      city:
+        type: string
+      contactName:
+        type: string
+      contactPhone:
+        type: string
+      country:
+        type: string
+      county:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      instructions:
+        type: string
+      isDefault:
+        type: boolean
+      isVerified:
+        type: boolean
+      label:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      plusCode:
+        type: string
+      postalCode:
+        type: string
+      tenantId:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  ordering.LoyaltyTransaction:
+    properties:
+      accountId:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      occurredAt:
+        type: string
+      orderId:
+        type: string
+      points:
+        type: integer
+      transactionType:
+        $ref: '#/definitions/ordering.LoyaltyTransactionType'
+    type: object
+  ordering.LoyaltyTransactionType:
+    enum:
+    - earn
+    - redeem
+    - expire
+    - adjustment
+    - bonus
+    type: string
+    x-enum-varnames:
+    - LoyaltyTransactionTypeEarn
+    - LoyaltyTransactionTypeRedeem
+    - LoyaltyTransactionTypeExpire
+    - LoyaltyTransactionTypeAdjustment
+    - LoyaltyTransactionTypeBonus
+  ordering.Order:
+    properties:
+      cafeId:
+        type: string
+      cancellationReason:
+        type: string
+      cancelledAt:
+        type: string
+      cartId:
+        type: string
+      channel:
+        $ref: '#/definitions/ordering.OrderChannel'
+      completedAt:
+        type: string
+      confirmedAt:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      customerId:
+        type: string
+      deliveredAt:
+        type: string
+      deliveryAddress:
+        $ref: '#/definitions/ordering.CustomerAddress'
+      deliveryAddressId:
+        type: string
+      deliveryFee:
+        type: number
+      discountTotal:
+        type: number
+      events:
+        items:
+          $ref: '#/definitions/ordering.OrderEvent'
+        type: array
+      grandTotal:
+        type: number
+      id:
+        type: string
+      idempotencyKey:
+        type: string
+      instructions:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/ordering.OrderItem'
+        type: array
+      loyaltyPointsEarned:
+        type: integer
+      loyaltyPointsRedeemed:
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      orderNumber:
+        type: string
+      paymentStatus:
+        $ref: '#/definitions/ordering.PaymentStatus'
+      placedAt:
+        type: string
+      promoCodeId:
+        type: string
+      readyAt:
+        type: string
+      source:
+        type: string
+      status:
+        $ref: '#/definitions/ordering.OrderStatus'
+      subtotal:
+        type: number
+      taxTotal:
+        type: number
+      tenantId:
+        type: string
+      tipTotal:
+        type: number
+      updatedAt:
+        type: string
+    type: object
+  ordering.OrderChannel:
+    enum:
+    - web
+    - mobile_app
+    - kiosk
+    - phone
+    - api
+    type: string
+    x-enum-varnames:
+    - OrderChannelWeb
+    - OrderChannelMobileApp
+    - OrderChannelKiosk
+    - OrderChannelPhone
+    - OrderChannelAPI
+  ordering.OrderEvent:
+    properties:
+      actorType:
+        type: string
+      actorUserId:
+        type: string
+      eventType:
+        type: string
+      fromStatus:
+        type: string
+      id:
+        type: string
+      ipAddress:
+        type: string
+      occurredAt:
+        type: string
+      orderId:
+        type: string
+      payload:
+        additionalProperties: true
+        type: object
+      toStatus:
+        type: string
+    type: object
+  ordering.OrderItem:
+    properties:
+      id:
+        type: string
+      menuItemId:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      nameSnapshot:
+        type: string
+      notes:
+        type: string
+      orderId:
+        type: string
+      quantity:
+        type: integer
+      totalPrice:
+        type: number
+      unitPrice:
+        type: number
+      variantId:
+        type: string
+    type: object
+  ordering.OrderStatus:
+    enum:
+    - pending
+    - confirmed
+    - preparing
+    - ready
+    - out_for_delivery
+    - delivered
+    - completed
+    - cancelled
+    - refunded
+    type: string
+    x-enum-varnames:
+    - OrderStatusPending
+    - OrderStatusConfirmed
+    - OrderStatusPreparing
+    - OrderStatusReady
+    - OrderStatusOutForDelivery
+    - OrderStatusDelivered
+    - OrderStatusCompleted
+    - OrderStatusCancelled
+    - OrderStatusRefunded
+  ordering.PaymentStatus:
+    enum:
+    - pending
+    - authorized
+    - paid
+    - failed
+    - refunded
+    - partially_refunded
+    type: string
+    x-enum-varnames:
+    - PaymentStatusPending
+    - PaymentStatusAuthorized
+    - PaymentStatusPaid
+    - PaymentStatusFailed
+    - PaymentStatusRefunded
+    - PaymentStatusPartiallyRefunded
+  ordering.PromoCodeType:
+    enum:
+    - percentage
+    - fixed_amount
+    - free_delivery
+    - free_item
+    type: string
+    x-enum-varnames:
+    - PromoCodeTypePercentage
+    - PromoCodeTypeFixedAmount
+    - PromoCodeTypeFreeDelivery
+    - PromoCodeTypeFreeItem
+  ordering.PromoValidationResult:
+    properties:
+      discountAmount:
+        type: number
+      discountType:
+        $ref: '#/definitions/ordering.PromoCodeType'
+      discountValue:
+        type: number
+      errorMessage:
+        type: string
+      promoCodeId:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  orderinghandler.AccountResponse:
+    properties:
+      balancePoints:
+        type: integer
+      balanceValue:
+        type: number
+      currency:
+        type: string
+      id:
+        type: string
+      lifetimePoints:
+        type: integer
+      tier:
+        type: string
+      tierBenefits:
+        additionalProperties: true
+        type: object
+    type: object
+  orderinghandler.AddItemRequest:
+    properties:
+      cafeId:
+        type: string
+      menuItemId:
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: integer
+      variantId:
+        type: string
+    type: object
+  orderinghandler.ApplyPromoRequest:
+    properties:
+      cartId:
+        type: string
+      code:
+        type: string
+    type: object
+  orderinghandler.BalanceResponse:
+    properties:
+      balance:
+        type: integer
+      balanceValue:
+        type: number
+      currency:
+        type: string
+    type: object
+  orderinghandler.CancelOrderRequest:
+    properties:
+      reason:
+        type: string
+    type: object
+  orderinghandler.CheckoutRequestDTO:
+    properties:
+      cartId:
+        type: string
+      channel:
+        type: string
+      deliveryAddressId:
+        type: string
+      idempotencyKey:
+        type: string
+      instructions:
+        type: string
+      loyaltyPointsRedeemed:
+        type: integer
+      promoCode:
+        type: string
+    type: object
+  orderinghandler.CreateAddressRequestDTO:
+    properties:
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      city:
+        type: string
+      contactName:
+        type: string
+      contactPhone:
+        type: string
+      country:
+        type: string
+      county:
+        type: string
+      instructions:
+        type: string
+      isDefault:
+        type: boolean
+      label:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      plusCode:
+        type: string
+      postalCode:
+        type: string
+    type: object
+  orderinghandler.ListOrdersResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/ordering.Order'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  orderinghandler.MergeCartRequest:
+    properties:
+      cafeId:
+        type: string
+      sessionId:
+        type: string
+    type: object
+  orderinghandler.RemovePromoRequest:
+    properties:
+      cartId:
+        type: string
+    type: object
+  orderinghandler.TransactionsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/ordering.LoyaltyTransaction'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  orderinghandler.UpdateAddressRequestDTO:
+    properties:
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      city:
+        type: string
+      contactName:
+        type: string
+      contactPhone:
+        type: string
+      country:
+        type: string
+      county:
+        type: string
+      instructions:
+        type: string
+      isDefault:
+        type: boolean
+      label:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      plusCode:
+        type: string
+      postalCode:
+        type: string
+    type: object
+  orderinghandler.UpdateItemRequest:
+    properties:
+      notes:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  orderinghandler.UpdateStatusRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  orderinghandler.ValidatePromoRequest:
+    properties:
+      cafeId:
+        type: string
+      code:
+        type: string
+      subtotal:
+        type: number
+    type: object
+  paymentshandler.CreatePaymentIntentRequest:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+      description:
+        type: string
+      idempotencyKey:
+        type: string
+      orderId:
+        type: string
+      paymentMethodId:
+        type: string
+      provider:
+        type: string
+    type: object
+  paymentshandler.CreatePaymentMethodRequest:
+    properties:
+      expMonth:
+        type: integer
+      expYear:
+        type: integer
+      label:
+        type: string
+      mask:
+        type: string
+      provider:
+        type: string
+      providerToken:
+        type: string
+      setAsDefault:
+        type: boolean
+      type:
+        type: string
+    type: object
+  paymentshandler.CreateRefundRequest:
+    properties:
+      amount:
+        type: number
+      idempotencyKey:
+        type: string
+      paymentId:
+        type: string
+      reason:
+        type: string
+      reasonNotes:
+        type: string
+    type: object
+  paymentshandler.ListPaymentsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/paymentshandler.PaymentResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  paymentshandler.ListRefundsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/paymentshandler.RefundResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  paymentshandler.MpesaSTKPushRequest:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      idempotencyKey:
+        type: string
+      orderId:
+        type: string
+      phoneNumber:
+        type: string
+    type: object
+  paymentshandler.PaymentIntentResponse:
+    properties:
+      amount:
+        type: number
+      clientSecret:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      mpesaCheckoutRequestId:
+        type: string
+      orderId:
+        type: string
+      provider:
+        type: string
+      status:
+        type: string
+    type: object
+  paymentshandler.PaymentMethodResponse:
+    properties:
+      createdAt:
+        type: string
+      expMonth:
+        type: integer
+      expYear:
+        type: integer
+      id:
+        type: string
+      isDefault:
+        type: boolean
+      label:
+        type: string
+      mask:
+        type: string
+      provider:
+        type: string
+      type:
+        type: string
+    type: object
+  paymentshandler.PaymentResponse:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        type: string
+      currency:
+        type: string
+      id:
+        type: string
+      orderId:
+        type: string
+      processedAt:
+        type: string
+      provider:
+        type: string
+      providerReceipt:
+        type: string
+      providerReference:
+        type: string
+      refundedAmount:
+        type: number
+      status:
+        type: string
+    type: object
+  paymentshandler.RefundResponse:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+      id:
+        type: string
+      orderId:
+        type: string
+      paymentId:
+        type: string
+      processedAt:
+        type: string
+      reason:
+        type: string
+      reasonNotes:
+        type: string
+      requestedAt:
+        type: string
+      status:
+        type: string
+    type: object
+  paymentshandler.UpdatePaymentMethodRequest:
+    properties:
+      label:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: HTTP API for the BengoBox ordering service - online delivery/shipping
+    orders only.
+  title: Ordering Service API
+  version: 0.1.0
+paths:
+  /addresses:
+    get:
+      description: Lists all delivery addresses for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ordering.CustomerAddress'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List addresses
+      tags:
+      - Addresses
+    post:
+      consumes:
+      - application/json
+      description: Creates a new delivery address for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Address data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CreateAddressRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ordering.CustomerAddress'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create address
+      tags:
+      - Addresses
+  /addresses/{addressId}:
+    delete:
+      description: Deletes a delivery address
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Address ID
+        in: path
+        name: addressId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete address
+      tags:
+      - Addresses
+    get:
+      description: Retrieves a delivery address by its ID
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Address ID
+        in: path
+        name: addressId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.CustomerAddress'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get address
+      tags:
+      - Addresses
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing delivery address
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Address ID
+        in: path
+        name: addressId
+        required: true
+        type: string
+      - description: Updated address data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.UpdateAddressRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.CustomerAddress'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update address
+      tags:
+      - Addresses
+  /addresses/{addressId}/default:
+    put:
+      description: Sets the specified address as the user's default delivery address
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Address ID
+        in: path
+        name: addressId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Set default address
+      tags:
+      - Addresses
+  /addresses/default:
+    get:
+      description: Retrieves the current user's default delivery address
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.CustomerAddress'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get default address
+      tags:
+      - Addresses
+  /admin/orders:
+    get:
+      description: Lists all orders with optional filters
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Filter by cafe ID
+        in: query
+        name: cafe_id
+        type: string
+      - description: Filter by customer ID
+        in: query
+        name: customer_id
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by payment status
+        in: query
+        name: payment_status
+        type: string
+      - description: Filter orders from date (RFC3339)
+        in: query
+        name: date_from
+        type: string
+      - description: Filter orders to date (RFC3339)
+        in: query
+        name: date_to
+        type: string
+      - description: Search by order number
+        in: query
+        name: search
+        type: string
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderinghandler.ListOrdersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List all orders (admin)
+      tags:
+      - Admin Orders
+  /admin/orders/{orderId}:
+    get:
+      description: Retrieves any order by its ID
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get order (admin)
+      tags:
+      - Admin Orders
+  /admin/orders/{orderId}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancels an order with a reason
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Cancellation reason
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CancelOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Cancel order (admin)
+      tags:
+      - Admin Orders
+  /admin/orders/{orderId}/status:
+    put:
+      consumes:
+      - application/json
+      description: Updates the status of an order (admin only)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: New status
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update order status
+      tags:
+      - Admin Orders
+  /admin/refunds:
+    get:
+      parameters:
+      - description: Filter by payment ID
+        in: query
+        name: paymentId
+        type: string
+      - description: Filter by order ID
+        in: query
+        name: orderId
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.ListRefundsResponse'
+      summary: List refunds
+      tags:
+      - Refunds
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refund request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/paymentshandler.CreateRefundRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/paymentshandler.RefundResponse'
+      summary: Create refund
+      tags:
+      - Refunds
+  /admin/refunds/{refundId}:
+    get:
+      parameters:
+      - description: Refund ID
+        in: path
+        name: refundId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.RefundResponse'
+      summary: Get refund
+      tags:
+      - Refunds
+  /api/v1/{tenant}/analytics/dashboards:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/analytics.DashboardInfo'
+            type: array
+      summary: List available dashboards
+      tags:
+      - Analytics
+  /api/v1/{tenant}/analytics/dashboards/{module}:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Dashboard module (orders, revenue, customers, operations, subscription)
+        in: path
+        name: module
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.DashboardInfo'
+      summary: Get dashboard info
+      tags:
+      - Analytics
+  /api/v1/{tenant}/analytics/dashboards/{module}/embed:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Dashboard module (orders, revenue, customers, operations, subscription)
+        in: path
+        name: module
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics.DashboardEmbed'
+      summary: Get dashboard embed URL
+      tags:
+      - Analytics
+  /api/v1/{tenant}/analytics/status:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get analytics service status
+      tags:
+      - Analytics
+  /api/v1/{tenant}/assignments:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Filter by order ID
+        in: query
+        name: order_id
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List assignments
+      tags:
+      - Assignments
+  /api/v1/{tenant}/assignments/{id}:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/fulfilment.OrderAssignment'
+      summary: Get assignment
+      tags:
+      - Assignments
+  /api/v1/{tenant}/compliance/data-deletion:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Deletion request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compliance.RequestDataDeletionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/compliance.DataDeletionJob'
+      summary: Request data deletion
+      tags:
+      - Compliance
+  /api/v1/{tenant}/compliance/data-deletion/{id}:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Deletion job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/compliance.DataDeletionJob'
+      summary: Get deletion job
+      tags:
+      - Compliance
+  /api/v1/{tenant}/compliance/data-export:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Export request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compliance.RequestDataExportRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/compliance.DataExportJob'
+      summary: Request data export
+      tags:
+      - Compliance
+  /api/v1/{tenant}/compliance/data-export/{id}:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Export job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/compliance.DataExportJob'
+      summary: Get export job
+      tags:
+      - Compliance
+  /api/v1/{tenant}/compliance/data-subject-requests:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Request type filter
+        in: query
+        name: type
+        type: string
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List data subject requests
+      tags:
+      - Compliance
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compliance.CreateDataSubjectRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/compliance.DataSubjectRequest'
+      summary: Create data subject request
+      tags:
+      - Compliance
+  /api/v1/{tenant}/compliance/data-subject-requests/{id}:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/compliance.DataSubjectRequest'
+      summary: Get data subject request
+      tags:
+      - Compliance
+  /api/v1/{tenant}/orders/{orderId}/delivery/cancel-task:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Cancel request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/fulfilment.CancelDeliveryTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cancel delivery task
+      tags:
+      - Delivery
+  /api/v1/{tenant}/orders/{orderId}/delivery/create-task:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Task request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_fulfilment.CreateDeliveryTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/fulfilment.OrderAssignment'
+      summary: Create delivery task
+      tags:
+      - Delivery
+  /api/v1/{tenant}/orders/{orderId}/delivery/task:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/fulfilment.OrderAssignment'
+      summary: Get delivery task
+      tags:
+      - Delivery
+  /api/v1/{tenant}/orders/{orderId}/delivery/tracking:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/fulfilment.TrackingInfo'
+      summary: Get tracking info
+      tags:
+      - Delivery
+  /api/v1/webhooks/logistics:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle logistics webhook
+      tags:
+      - Webhooks
+  /auth/google/complete:
+    post:
+      consumes:
+      - application/json
+      description: Exchanges the Google authorization code for tokens, creates a user
+        if required, and issues session credentials.
+      parameters:
+      - description: Google OAuth completion request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.GoogleCompleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Complete Google OAuth sign-in
+      tags:
+      - Auth
+  /auth/google/start:
+    post:
+      consumes:
+      - application/json
+      description: Generates a Google OAuth consent URL for the requested role.
+      parameters:
+      - description: Google OAuth start request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.GoogleStartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.GoogleOAuthURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Start Google OAuth sign-in
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with email/password credentials and issues
+        session tokens scoped to the selected role.
+      parameters:
+      - description: Login request payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Sign in with email and password
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Revokes the active session belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.OperationStatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Sign out the current session
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      description: Returns the authenticated user's profile, preferences, and current
+        session metadata.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Get current authenticated user
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Issues a fresh access token and refresh token pair using a valid
+        refresh token.
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Refresh session tokens
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account via auth-service and issues session
+        tokens.
+      parameters:
+      - description: Registration request payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+  /cart:
+    delete:
+      description: Removes all items from the current user's cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cafe ID
+        in: query
+        name: cafe_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Clear cart
+      tags:
+      - Cart
+    get:
+      description: Retrieves the current user's active cart for a cafe
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cafe ID
+        in: query
+        name: cafe_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get current cart
+      tags:
+      - Cart
+  /cart/items:
+    post:
+      consumes:
+      - application/json
+      description: Adds a menu item to the current user's cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Item to add
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.AddItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Add item to cart
+      tags:
+      - Cart
+  /cart/items/{itemId}:
+    delete:
+      description: Removes an item from the current user's cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cart item ID
+        in: path
+        name: itemId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Remove cart item
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Updates the quantity or notes of a cart item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cart item ID
+        in: path
+        name: itemId
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.UpdateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update cart item
+      tags:
+      - Cart
+  /cart/merge:
+    post:
+      consumes:
+      - application/json
+      description: Merges items from a guest (session-based) cart into the authenticated
+        user's cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Guest cart session info
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.MergeCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Merge guest cart
+      tags:
+      - Cart
+  /cart/summary:
+    get:
+      description: Retrieves the cart summary with subtotal, discounts, taxes, and
+        grand total
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cafe ID
+        in: query
+        name: cafe_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.CartSummary'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get cart summary
+      tags:
+      - Cart
+  /catalog/categories:
+    get:
+      description: Lists all menu categories with optional filters
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Filter by cafe ID
+        in: query
+        name: cafe_id
+        type: string
+      - description: Filter by parent ID
+        in: query
+        name: parent_id
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cataloghandler.ListResponse'
+      summary: List categories
+      tags:
+      - Catalog
+    post:
+      consumes:
+      - application/json
+      description: Creates a new menu category for organizing menu items
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Category data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/catalog.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create a new category
+      tags:
+      - Catalog
+  /catalog/categories/{id}:
+    delete:
+      description: Deletes a menu category if it has no items or children
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete a category
+      tags:
+      - Catalog
+    get:
+      description: Retrieves a menu category by its ID
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/catalog.Category'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a category
+      tags:
+      - Catalog
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing menu category
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated category data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/catalog.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update a category
+      tags:
+      - Catalog
+  /catalog/dietary-tags:
+    get:
+      description: Lists all available dietary tags
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/catalog.DietaryTag'
+            type: array
+      summary: List dietary tags
+      tags:
+      - Catalog
+  /catalog/items:
+    get:
+      description: Lists all menu items with optional filters
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Filter by cafe ID
+        in: query
+        name: cafe_id
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: string
+      - description: Filter by availability
+        in: query
+        name: is_available
+        type: boolean
+      - description: Search by name or description
+        in: query
+        name: search
+        type: string
+      - description: Minimum price filter
+        in: query
+        name: min_price
+        type: number
+      - description: Maximum price filter
+        in: query
+        name: max_price
+        type: number
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cataloghandler.ListResponse'
+      summary: List menu items
+      tags:
+      - Catalog
+    post:
+      consumes:
+      - application/json
+      description: Creates a new menu item within a category
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.CreateMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/catalog.MenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create a new menu item
+      tags:
+      - Catalog
+  /catalog/items/{id}:
+    delete:
+      description: Deletes a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete a menu item
+      tags:
+      - Catalog
+    get:
+      description: Retrieves a menu item by its ID including variants and translations
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/catalog.MenuItem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a menu item
+      tags:
+      - Catalog
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated item data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.UpdateMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/catalog.MenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update a menu item
+      tags:
+      - Catalog
+  /catalog/items/{id}/dietary-tags:
+    post:
+      consumes:
+      - application/json
+      description: Adds a dietary tag to a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Dietary tag code
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.AddDietaryTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Add dietary tag to item
+      tags:
+      - Catalog
+  /catalog/items/{id}/dietary-tags/{code}:
+    delete:
+      description: Removes a dietary tag from a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Dietary tag code
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Remove dietary tag from item
+      tags:
+      - Catalog
+  /catalog/items/{id}/translations:
+    get:
+      description: Lists all translations for a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/catalog.Translation'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List menu item translations
+      tags:
+      - Catalog
+    post:
+      consumes:
+      - application/json
+      description: Creates a localized translation for a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Translation data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.CreateTranslationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/catalog.Translation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create a menu item translation
+      tags:
+      - Catalog
+  /catalog/items/{id}/variants:
+    get:
+      description: Lists all variants for a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/catalog.Variant'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List menu item variants
+      tags:
+      - Catalog
+    post:
+      consumes:
+      - application/json
+      description: Creates a new variant (e.g., size, flavor) for a menu item
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Variant data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/cataloghandler.CreateVariantRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/catalog.Variant'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create a menu item variant
+      tags:
+      - Catalog
+  /checkout:
+    post:
+      consumes:
+      - application/json
+      description: Creates an order from the current cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Checkout data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CheckoutRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Checkout cart
+      tags:
+      - Checkout
+  /checkout/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validates checkout data and returns any errors
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Checkout data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CheckoutRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Validate checkout
+      tags:
+      - Checkout
+  /customers/orders/summary:
+    get:
+      description: Returns a collection of recent order summaries for the authenticated
+        customer.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/identityhandler.OrderSummaryResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: List customer order summaries
+      tags:
+      - Customers
+  /healthz:
+    get:
+      description: Returns OK when the API process is healthy.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.livenessResponse'
+      summary: Service liveness probe
+      tags:
+      - Health
+  /loyalty/account:
+    get:
+      description: Retrieves the current user's loyalty account with tier information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderinghandler.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get loyalty account
+      tags:
+      - Loyalty
+  /loyalty/balance:
+    get:
+      description: Retrieves the current user's loyalty points balance
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderinghandler.BalanceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get loyalty balance
+      tags:
+      - Loyalty
+  /loyalty/tier-benefits:
+    get:
+      description: Retrieves the benefits associated with the user's loyalty tier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get tier benefits
+      tags:
+      - Loyalty
+  /loyalty/transactions:
+    get:
+      description: Retrieves the current user's loyalty points transaction history
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderinghandler.TransactionsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get loyalty transactions
+      tags:
+      - Loyalty
+  /menu/categories:
+    get:
+      description: Lists active menu categories for public display
+      parameters:
+      - description: Cafe ID
+        in: query
+        name: cafe_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/catalog.PublicCategory'
+            type: array
+      summary: List public categories
+      tags:
+      - Menu
+  /menu/items:
+    get:
+      description: Lists available menu items for public display with localization
+        support
+      parameters:
+      - description: Filter by cafe ID
+        in: query
+        name: cafe_id
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: string
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: 'Locale for translations (default: en)'
+        in: query
+        name: locale
+        type: string
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cataloghandler.ListResponse'
+      summary: List public menu items
+      tags:
+      - Menu
+  /menu/items/{id}:
+    get:
+      description: Retrieves a menu item for public display
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Locale for translations (default: en)'
+        in: query
+        name: locale
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/catalog.PublicMenuItem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a public menu item
+      tags:
+      - Menu
+  /metrics:
+    get:
+      description: Exposes Prometheus metrics in the text format.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Prometheus metrics payload
+          schema:
+            type: string
+      summary: Prometheus metrics
+      tags:
+      - Health
+  /orders:
+    get:
+      description: Lists orders for the current user with optional filters
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter orders from date (RFC3339)
+        in: query
+        name: date_from
+        type: string
+      - description: Filter orders to date (RFC3339)
+        in: query
+        name: date_to
+        type: string
+      - description: Page size (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderinghandler.ListOrdersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List orders
+      tags:
+      - Orders
+  /orders/{orderId}:
+    get:
+      description: Retrieves an order by its ID
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get order
+      tags:
+      - Orders
+  /orders/{orderId}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancels an order with a reason (customer endpoint)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Cancellation reason
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CancelOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Cancel order
+      tags:
+      - Orders
+  /payment-methods:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/paymentshandler.PaymentMethodResponse'
+            type: array
+      summary: List payment methods
+      tags:
+      - Payment Methods
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Payment method request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/paymentshandler.CreatePaymentMethodRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentMethodResponse'
+      summary: Create payment method
+      tags:
+      - Payment Methods
+  /payment-methods/{methodId}:
+    delete:
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: methodId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete payment method
+      tags:
+      - Payment Methods
+    get:
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: methodId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentMethodResponse'
+      summary: Get payment method
+      tags:
+      - Payment Methods
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: methodId
+        required: true
+        type: string
+      - description: Update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/paymentshandler.UpdatePaymentMethodRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentMethodResponse'
+      summary: Update payment method
+      tags:
+      - Payment Methods
+  /payment-methods/{methodId}/default:
+    put:
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: methodId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Set default payment method
+      tags:
+      - Payment Methods
+  /payment-methods/default:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentMethodResponse'
+      summary: Get default payment method
+      tags:
+      - Payment Methods
+  /payments:
+    get:
+      parameters:
+      - description: Filter by order ID
+        in: query
+        name: orderId
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.ListPaymentsResponse'
+      summary: List payments
+      tags:
+      - Payments
+  /payments/{paymentId}:
+    get:
+      parameters:
+      - description: Payment ID
+        in: path
+        name: paymentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentResponse'
+      summary: Get payment
+      tags:
+      - Payments
+  /payments/intents:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Payment intent request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/paymentshandler.CreatePaymentIntentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentIntentResponse'
+      summary: Create payment intent
+      tags:
+      - Payments
+  /payments/intents/{intentId}:
+    get:
+      parameters:
+      - description: Payment Intent ID
+        in: path
+        name: intentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentIntentResponse'
+      summary: Get payment intent
+      tags:
+      - Payments
+  /payments/intents/{intentId}/cancel:
+    post:
+      parameters:
+      - description: Payment Intent ID
+        in: path
+        name: intentId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Cancel payment intent
+      tags:
+      - Payments
+  /payments/intents/{intentId}/status:
+    get:
+      parameters:
+      - description: Payment Intent ID
+        in: path
+        name: intentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentIntentResponse'
+      summary: Check payment status
+      tags:
+      - Payments
+  /payments/mpesa/stk-push:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: M-Pesa STK Push request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/paymentshandler.MpesaSTKPushRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/paymentshandler.PaymentIntentResponse'
+      summary: Initiate M-Pesa STK Push
+      tags:
+      - Payments
+  /promo-codes/apply:
+    post:
+      consumes:
+      - application/json
+      description: Applies a promo code to the specified cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Promo code and cart
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.ApplyPromoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Apply promo code to cart
+      tags:
+      - Promo Codes
+  /promo-codes/remove:
+    delete:
+      consumes:
+      - application/json
+      description: Removes the applied promo code from the specified cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Cart ID
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.RemovePromoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Remove promo code from cart
+      tags:
+      - Promo Codes
+  /promo-codes/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validates a promo code and returns discount information
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Promo code to validate
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.ValidatePromoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.PromoValidationResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Validate promo code
+      tags:
+      - Promo Codes
+  /status:
+    get:
+      description: Checks connectivity to Postgres, Redis, and NATS (if configured).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.readinessResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/handlers.readinessResponse'
+      summary: Readiness probe
+      tags:
+      - Health
+  /users/preferences:
+    patch:
+      consumes:
+      - application/json
+      description: Allows authenticated users to update theme, language, and notification
+        preferences.
+      parameters:
+      - description: Preferences update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.UpdatePreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Update user preferences
+      tags:
+      - Users
+  /users/profile:
+    patch:
+      consumes:
+      - application/json
+      description: Allows authenticated users to update their profile fields.
+      parameters:
+      - description: Profile update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Update profile information
+      tags:
+      - Users
+  /users/security:
+    post:
+      consumes:
+      - application/json
+      description: Enables or disables two-factor authentication for the authenticated
+        user.
+      parameters:
+      - description: Security update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/identityhandler.UpdateSecurityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/identityhandler.AuthResponsePayload'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Update account security settings
+      tags:
+      - Users
+  /webhooks/mpesa/callback:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle M-Pesa callback
+      tags:
+      - Webhooks
+  /webhooks/mpesa/confirmation:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle M-Pesa C2B confirmation
+      tags:
+      - Webhooks
+  /webhooks/mpesa/validation:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle M-Pesa C2B validation
+      tags:
+      - Webhooks
+  /webhooks/treasury:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle treasury webhook
+      tags:
+      - Webhooks
+schemes:
+- http
+- https
+securityDefinitions:
+  bearerAuth:
+    description: 'JWT token from auth-service. Format: Bearer {token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

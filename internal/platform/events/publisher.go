@@ -103,7 +103,7 @@ type OrderCreatedData struct {
 
 // PublishOrderCreated publishes an order.created event.
 func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID, data OrderCreatedData) error {
-	event := NewEvent("cafe.order.created", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.created", tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -115,22 +115,22 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 		"item_count":     data.ItemCount,
 	})
 
-	return p.Publish(ctx, "cafe.order.created", event)
+	return p.Publish(ctx, "ordering.order.created", event)
 }
 
 // OrderStatusChangedData represents data for order.status.changed event.
 type OrderStatusChangedData struct {
-	OrderID       uuid.UUID `json:"order_id"`
-	OrderNumber   string    `json:"order_number"`
-	CustomerID    uuid.UUID `json:"customer_id"`
-	PreviousStatus string   `json:"previous_status"`
-	NewStatus     string    `json:"new_status"`
-	ChangedAt     time.Time `json:"changed_at"`
+	OrderID        uuid.UUID `json:"order_id"`
+	OrderNumber    string    `json:"order_number"`
+	CustomerID     uuid.UUID `json:"customer_id"`
+	PreviousStatus string    `json:"previous_status"`
+	NewStatus      string    `json:"new_status"`
+	ChangedAt      time.Time `json:"changed_at"`
 }
 
 // PublishOrderStatusChanged publishes an order.status.changed event.
 func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid.UUID, data OrderStatusChangedData) error {
-	event := NewEvent("cafe.order.status.changed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.status.changed", tenantID, map[string]interface{}{
 		"order_id":        data.OrderID.String(),
 		"order_number":    data.OrderNumber,
 		"customer_id":     data.CustomerID.String(),
@@ -139,22 +139,22 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 		"changed_at":      data.ChangedAt.Format(time.RFC3339),
 	})
 
-	return p.Publish(ctx, "cafe.order.status.changed", event)
+	return p.Publish(ctx, "ordering.order.status.changed", event)
 }
 
 // OrderReadyData represents data for order.ready event.
 type OrderReadyData struct {
-	OrderID         uuid.UUID              `json:"order_id"`
-	OrderNumber     string                 `json:"order_number"`
-	CafeID          uuid.UUID              `json:"cafe_id"`
-	CustomerID      uuid.UUID              `json:"customer_id"`
-	DeliveryAddress map[string]interface{} `json:"delivery_address,omitempty"`
+	OrderID         uuid.UUID                `json:"order_id"`
+	OrderNumber     string                   `json:"order_number"`
+	CafeID          uuid.UUID                `json:"cafe_id"`
+	CustomerID      uuid.UUID                `json:"customer_id"`
+	DeliveryAddress map[string]interface{}   `json:"delivery_address,omitempty"`
 	Items           []map[string]interface{} `json:"items,omitempty"`
 }
 
 // PublishOrderReady publishes an order.ready event.
 func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, data OrderReadyData) error {
-	event := NewEvent("cafe.order.ready", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.ready", tenantID, map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
 		"cafe_id":          data.CafeID.String(),
@@ -163,22 +163,22 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 		"items":            data.Items,
 	})
 
-	return p.Publish(ctx, "cafe.order.ready", event)
+	return p.Publish(ctx, "ordering.order.ready", event)
 }
 
 // OrderCancelledData represents data for order.cancelled event.
 type OrderCancelledData struct {
-	OrderID      uuid.UUID `json:"order_id"`
-	OrderNumber  string    `json:"order_number"`
-	CustomerID   uuid.UUID `json:"customer_id"`
-	Reason       string    `json:"reason"`
-	CancelledBy  string    `json:"cancelled_by"` // customer, admin, system
-	CancelledAt  time.Time `json:"cancelled_at"`
+	OrderID     uuid.UUID `json:"order_id"`
+	OrderNumber string    `json:"order_number"`
+	CustomerID  uuid.UUID `json:"customer_id"`
+	Reason      string    `json:"reason"`
+	CancelledBy string    `json:"cancelled_by"` // customer, admin, system
+	CancelledAt time.Time `json:"cancelled_at"`
 }
 
 // PublishOrderCancelled publishes an order.cancelled event.
 func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUID, data OrderCancelledData) error {
-	event := NewEvent("cafe.order.cancelled", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.cancelled", tenantID, map[string]interface{}{
 		"order_id":     data.OrderID.String(),
 		"order_number": data.OrderNumber,
 		"customer_id":  data.CustomerID.String(),
@@ -187,22 +187,22 @@ func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUI
 		"cancelled_at": data.CancelledAt.Format(time.RFC3339),
 	})
 
-	return p.Publish(ctx, "cafe.order.cancelled", event)
+	return p.Publish(ctx, "ordering.order.cancelled", event)
 }
 
 // OrderCompletedData represents data for order.completed event.
 type OrderCompletedData struct {
-	OrderID      uuid.UUID `json:"order_id"`
-	OrderNumber  string    `json:"order_number"`
-	CustomerID   uuid.UUID `json:"customer_id"`
-	TotalAmount  float64   `json:"total_amount"`
-	Currency     string    `json:"currency"`
-	CompletedAt  time.Time `json:"completed_at"`
+	OrderID     uuid.UUID `json:"order_id"`
+	OrderNumber string    `json:"order_number"`
+	CustomerID  uuid.UUID `json:"customer_id"`
+	TotalAmount float64   `json:"total_amount"`
+	Currency    string    `json:"currency"`
+	CompletedAt time.Time `json:"completed_at"`
 }
 
 // PublishOrderCompleted publishes an order.completed event.
 func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUID, data OrderCompletedData) error {
-	event := NewEvent("cafe.order.completed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.completed", tenantID, map[string]interface{}{
 		"order_id":     data.OrderID.String(),
 		"order_number": data.OrderNumber,
 		"customer_id":  data.CustomerID.String(),
@@ -211,7 +211,7 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 		"completed_at": data.CompletedAt.Format(time.RFC3339),
 	})
 
-	return p.Publish(ctx, "cafe.order.completed", event)
+	return p.Publish(ctx, "ordering.order.completed", event)
 }
 
 // --- Payment Events ---
@@ -284,11 +284,11 @@ func (p *Publisher) PublishPaymentFailed(ctx context.Context, tenantID uuid.UUID
 
 // LoyaltyPointsAwardedData represents data for loyalty.points_awarded event.
 type LoyaltyPointsAwardedData struct {
-	UserID       uuid.UUID `json:"user_id"`
-	OrderID      uuid.UUID `json:"order_id"`
-	Points       int       `json:"points"`
-	TotalPoints  int       `json:"total_points"`
-	Reason       string    `json:"reason"`
+	UserID      uuid.UUID `json:"user_id"`
+	OrderID     uuid.UUID `json:"order_id"`
+	Points      int       `json:"points"`
+	TotalPoints int       `json:"total_points"`
+	Reason      string    `json:"reason"`
 }
 
 // PublishLoyaltyPointsAwarded publishes a loyalty.points_awarded event.
@@ -308,11 +308,11 @@ func (p *Publisher) PublishLoyaltyPointsAwarded(ctx context.Context, tenantID uu
 
 // CatalogUpdatedData represents data for catalog.updated event.
 type CatalogUpdatedData struct {
-	ChangeType   string    `json:"change_type"` // item_added, item_updated, item_removed, category_updated
-	EntityType   string    `json:"entity_type"` // menu_item, category, modifier_group
-	EntityID     uuid.UUID `json:"entity_id"`
-	EntityName   string    `json:"entity_name,omitempty"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ChangeType string    `json:"change_type"` // item_added, item_updated, item_removed, category_updated
+	EntityType string    `json:"entity_type"` // menu_item, category, modifier_group
+	EntityID   uuid.UUID `json:"entity_id"`
+	EntityName string    `json:"entity_name,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // PublishCatalogUpdated publishes a catalog.updated event (for POS sync).
