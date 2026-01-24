@@ -14,7 +14,7 @@ log_step() { echo -e "\033[0;35m[STEP]\033[0m $1"; }
 
 # Required environment variables
 NAMESPACE=${NAMESPACE:-ordering}
-ENV_SECRET_NAME=${ENV_SECRET_NAME:-ordering-backend-env}
+ENV_SECRET_NAME=${ENV_SECRET_NAME:-ordering-backend-secrets}
 SERVICE_DB_NAME=${SERVICE_DB_NAME:-ordering}
 SERVICE_DB_USER=${SERVICE_DB_USER:-ordering_user}
 

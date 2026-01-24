@@ -129,13 +129,18 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   fi
 fi
 
-if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
-  warn "Secret $ENV_SECRET_NAME not found - creating placeholder"
-  kubectl -n "$NAMESPACE" create secret generic "$ENV_SECRET_NAME" \
-    --from-literal=ORDERING_POSTGRES_URL="postgresql://${SERVICE_DB_USER}:PASSWORD@postgresql.infra.svc.cluster.local:5432/${SERVICE_DB_NAME}?sslmode=disable" \
-    --from-literal=ORDERING_REDIS_ADDR="redis-master.infra.svc.cluster.local:6379" \
-    --from-literal=ORDERING_NATS_URL="nats://nats.messaging.svc.cluster.local:4222" \
-    --from-literal=ORDERING_STORAGE_ENDPOINT="http://minio.storage.svc.cluster.local:9000" || true
+# Setup environment secrets from existing databases (managed by devops-k8s)
+# This retrieves real credentials from PostgreSQL/Redis secrets and creates the app secret
+if [[ -f "scripts/setup_env_secrets.sh" ]]; then
+  info "Running setup_env_secrets.sh to configure database credentials..."
+  chmod +x scripts/setup_env_secrets.sh
+  export NAMESPACE ENV_SECRET_NAME SERVICE_DB_NAME SERVICE_DB_USER
+  ./scripts/setup_env_secrets.sh || { error "Environment secret setup failed"; exit 1; }
+  success "Environment secrets configured with real credentials"
+elif ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
+  error "Secret $ENV_SECRET_NAME not found and setup_env_secrets.sh is missing"
+  error "Cannot proceed without database credentials"
+  exit 1
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"
