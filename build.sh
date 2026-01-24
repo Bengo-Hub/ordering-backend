@@ -167,6 +167,8 @@ if [[ -n $DEVOPS_DIR && -d $DEVOPS_DIR ]]; then
   git config user.name "$GIT_USER"
   git fetch origin main || true
   git checkout main || git checkout -b main || true
+  # Reset to origin/main to avoid conflicts with remote changes
+  git reset --hard origin/main || true
   if [[ -f "$VALUES_FILE_PATH" ]]; then
     IMAGE_REPO_ENV="$IMAGE_REPO" IMAGE_TAG_ENV="$GIT_COMMIT_ID" \
       yq e -i '.image.repository = strenv(IMAGE_REPO_ENV) | .image.tag = strenv(IMAGE_TAG_ENV)' "$VALUES_FILE_PATH"
