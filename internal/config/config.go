@@ -45,7 +45,7 @@ type HTTPConfig struct {
 	ReadTimeout    time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
 	WriteTimeout   time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout    time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
-	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://cafe.codevertexitsolutions.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
+	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://orderingapi.codevertexitsolutions.com,https://cafe.codevertexitsolutions.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
 }
 
 type PostgresConfig struct {
@@ -156,13 +156,13 @@ type SupersetConfig struct {
 
 type SecurityConfig struct {
 	// Rate limiting
-	RateLimitEnabled          bool    `envconfig:"RATE_LIMIT_ENABLED" default:"true"`
-	RateLimitRequestsPerMin   int     `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"60"`
-	RateLimitRequestsPerHour  int     `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"1000"`
-	RateLimitAuthPerMin       int     `envconfig:"RATE_LIMIT_AUTH_PER_MINUTE" default:"10"`
-	RateLimitPaymentPerMin    int     `envconfig:"RATE_LIMIT_PAYMENT_PER_MINUTE" default:"20"`
-	RateLimitBurstMultiplier  float64 `envconfig:"RATE_LIMIT_BURST_MULTIPLIER" default:"1.5"`
-	RateLimitKeyPrefix        string  `envconfig:"RATE_LIMIT_KEY_PREFIX" default:"rl:ordering:"`
+	RateLimitEnabled         bool    `envconfig:"RATE_LIMIT_ENABLED" default:"true"`
+	RateLimitRequestsPerMin  int     `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"60"`
+	RateLimitRequestsPerHour int     `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"1000"`
+	RateLimitAuthPerMin      int     `envconfig:"RATE_LIMIT_AUTH_PER_MINUTE" default:"10"`
+	RateLimitPaymentPerMin   int     `envconfig:"RATE_LIMIT_PAYMENT_PER_MINUTE" default:"20"`
+	RateLimitBurstMultiplier float64 `envconfig:"RATE_LIMIT_BURST_MULTIPLIER" default:"1.5"`
+	RateLimitKeyPrefix       string  `envconfig:"RATE_LIMIT_KEY_PREFIX" default:"rl:ordering:"`
 
 	// Request limits
 	MaxRequestBodySize int64 `envconfig:"MAX_REQUEST_BODY_SIZE" default:"10485760"` // 10MB
