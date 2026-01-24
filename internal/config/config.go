@@ -175,12 +175,53 @@ type SecurityConfig struct {
 }
 
 // Load reads configuration from environment variables and optional .env files.
+// Each nested config struct is processed separately to avoid double-prefix issues
+// (e.g., ORDERING_POSTGRES_URL instead of ORDERING_POSTGRES_POSTGRES_URL).
 func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	var cfg Config
-	if err := envconfig.Process(namespace, &cfg); err != nil {
-		return nil, fmt.Errorf("config: failed to load environment variables: %w", err)
+
+	// Process each nested config struct separately to match env var names
+	// This avoids the envconfig behavior of adding field names to the prefix
+	if err := envconfig.Process(namespace, &cfg.App); err != nil {
+		return nil, fmt.Errorf("config: failed to load app config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.HTTP); err != nil {
+		return nil, fmt.Errorf("config: failed to load http config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Postgres); err != nil {
+		return nil, fmt.Errorf("config: failed to load postgres config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Redis); err != nil {
+		return nil, fmt.Errorf("config: failed to load redis config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Events); err != nil {
+		return nil, fmt.Errorf("config: failed to load events config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Telemetry); err != nil {
+		return nil, fmt.Errorf("config: failed to load telemetry config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Auth); err != nil {
+		return nil, fmt.Errorf("config: failed to load auth config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Treasury); err != nil {
+		return nil, fmt.Errorf("config: failed to load treasury config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Logistics); err != nil {
+		return nil, fmt.Errorf("config: failed to load logistics config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Inventory); err != nil {
+		return nil, fmt.Errorf("config: failed to load inventory config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Notifications); err != nil {
+		return nil, fmt.Errorf("config: failed to load notifications config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Superset); err != nil {
+		return nil, fmt.Errorf("config: failed to load superset config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Security); err != nil {
+		return nil, fmt.Errorf("config: failed to load security config: %w", err)
 	}
 
 	return &cfg, nil
