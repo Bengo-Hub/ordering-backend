@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 
-	authclient "github.com/Bengo-Hub/shared-auth-client"
 	httpware "github.com/Bengo-Hub/httpware"
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/config"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
@@ -217,12 +217,18 @@ func New(
 			}
 
 			// Webhook routes (no auth required - use signature verification)
-			if paymentWebhookHandler != nil {
-				paymentWebhookHandler.Register(v1)
+			// Prevent double-mounting by using a local flag
+			var webhooksRegistered bool
+			if !webhooksRegistered {
+				if paymentWebhookHandler != nil {
+					paymentWebhookHandler.Register(v1)
+				}
+				if fulfilmentWebhookHandler != nil {
+					fulfilmentWebhookHandler.Register(v1)
+				}
+				webhooksRegistered = true
 			}
-			if fulfilmentWebhookHandler != nil {
-				fulfilmentWebhookHandler.Register(v1)
-			}
+			// NOTE: Do not call Register() for the same handler more than once per router instance.
 		})
 	})
 
