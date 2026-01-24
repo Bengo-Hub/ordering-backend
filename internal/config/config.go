@@ -14,20 +14,23 @@ const namespace = "ORDERING"
 const DefaultTenantSlug = ""
 
 // Config captures environment configuration for the Ordering service backend.
+// Note: Empty envconfig tags on nested structs prevent field names from being added to the key prefix.
+// Without empty tags, envconfig adds field names to prefix, e.g., Postgres.URL becomes ORDERING_POSTGRES_POSTGRES_URL.
+// With empty tags, it becomes ORDERING_POSTGRES_URL as expected.
 type Config struct {
-	App           AppConfig
-	HTTP          HTTPConfig
-	Postgres      PostgresConfig
-	Redis         RedisConfig
-	Events        EventsConfig
-	Telemetry     TelemetryConfig
-	Auth          AuthConfig
-	Treasury      TreasuryConfig
-	Logistics     LogisticsConfig
-	Inventory     InventoryConfig
-	Notifications NotificationsConfig
-	Superset      SupersetConfig
-	Security      SecurityConfig
+	App           AppConfig           `envconfig:""`
+	HTTP          HTTPConfig          `envconfig:""`
+	Postgres      PostgresConfig      `envconfig:""`
+	Redis         RedisConfig         `envconfig:""`
+	Events        EventsConfig        `envconfig:""`
+	Telemetry     TelemetryConfig     `envconfig:""`
+	Auth          AuthConfig          `envconfig:""`
+	Treasury      TreasuryConfig      `envconfig:""`
+	Logistics     LogisticsConfig     `envconfig:""`
+	Inventory     InventoryConfig     `envconfig:""`
+	Notifications NotificationsConfig `envconfig:""`
+	Superset      SupersetConfig      `envconfig:""`
+	Security      SecurityConfig      `envconfig:""`
 }
 
 type AppConfig struct {

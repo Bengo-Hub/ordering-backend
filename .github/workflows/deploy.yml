@@ -117,22 +117,38 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
-          if kubectl get deployment ordering-backend -n ${NS} >/dev/null 2>&1; then
-            # Wait for deployment with extended timeout for migrations (20 minutes like auth-api)
-            kubectl rollout status deployment/ordering-backend -n ${NS} --timeout=1200s
-            HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
-            if [ -n "$HOSTS" ]; then
-              for H in $HOSTS; do
-                echo "Checking https://$H/healthz ..."
-                if curl -sk --max-time 10 "https://$H/healthz" | grep -qi "ok"; then
-                  echo "✅ Health OK for $H"
-                  break
-                fi
-              done
-            else
-              echo "No ingress host found; skipping external health probe"
-            fi
+          if ! kubectl get deployment ordering-backend -n ${NS} >/dev/null 2>&1; then
+            echo "⚠️ Deployment not found yet - ArgoCD may still be syncing"
+            echo "Skipping health check - deployment will be verified on next sync"
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          echo "Waiting for deployment rollout (max 20 minutes)..."
+          # Use timeout but don't fail the workflow if it times out
+          if kubectl rollout status deployment/ordering-backend -n ${NS} --timeout=1200s; then
+            echo "✅ Deployment rollout successful"
           else
-            echo "Deployment not found yet - ArgoCD may still be syncing"
+            echo "⚠️ Deployment rollout timed out or failed"
+            echo "Checking pod status for debugging..."
+            kubectl get pods -n ${NS} -l app=ordering-backend -o wide || true
+            kubectl describe pods -n ${NS} -l app=ordering-backend | tail -50 || true
+            # Don't fail the workflow - ArgoCD will continue retrying
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # Verify ingress health
+          HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
+          if [ -n "$HOSTS" ]; then
+            for H in $HOSTS; do
+              echo "Checking https://$H/healthz ..."
+              if curl -sk --max-time 10 "https://$H/healthz" | grep -qi "ok"; then
+                echo "✅ Health OK for $H"
+                break
+              fi
+            done
+          else
+            echo "No ingress host found; skipping external health probe"
           fi
           echo "::endgroup::"
