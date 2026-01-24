@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# =============================================================================
+# Ordering Backend - Build & Deploy Script
+# =============================================================================
+# Pattern: Matches auth-api deployment approach exactly
+# - Uses devops-k8s scripts for database and secret creation
+# - Migrations/seed handled by Helm hooks (not build script)
+# =============================================================================
 
 set -euo pipefail
 set +H
@@ -103,7 +110,7 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   if kubectl -n infra get statefulset postgresql >/dev/null 2>&1; then
     info "Waiting for PostgreSQL to be ready..."
     kubectl -n infra rollout status statefulset/postgresql --timeout=180s || warn "PostgreSQL not fully ready"
-    
+
     # Create service database using devops-k8s script
     if [[ -d "$DEVOPS_DIR" ]] || [[ -n "${DEVOPS_REPO:-}" ]]; then
       # Ensure devops repo is cloned
@@ -113,7 +120,7 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
         [[ -n $TOKEN ]] && CLONE_URL="https://x-access-token:${TOKEN}@github.com/${DEVOPS_REPO}.git"
         git clone "$CLONE_URL" "$DEVOPS_DIR" || { warn "Unable to clone devops repo for database setup"; }
       fi
-      
+
       if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-database.sh" ]]; then
         info "Creating database '${SERVICE_DB_NAME}' for service ${APP_NAME}..."
         SERVICE_DB_NAME="$SERVICE_DB_NAME" \
@@ -129,18 +136,21 @@ if [[ "$SETUP_DATABASES" == "true" && -n "${KUBE_CONFIG:-}" ]]; then
   fi
 fi
 
-# Setup environment secrets from existing databases (managed by devops-k8s)
-# This retrieves real credentials from PostgreSQL/Redis secrets and creates the app secret
-if [[ -f "scripts/setup_env_secrets.sh" ]]; then
-  info "Running setup_env_secrets.sh to configure database credentials..."
-  chmod +x scripts/setup_env_secrets.sh
-  export NAMESPACE ENV_SECRET_NAME SERVICE_DB_NAME SERVICE_DB_USER
-  ./scripts/setup_env_secrets.sh || { error "Environment secret setup failed"; exit 1; }
-  success "Environment secrets configured with real credentials"
-elif ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
-  error "Secret $ENV_SECRET_NAME not found and setup_env_secrets.sh is missing"
-  error "Cannot proceed without database credentials"
-  exit 1
+# Create service secrets using devops-k8s script if not exists
+# This matches auth-api pattern exactly - uses standard keys (postgresUrl, REDIS_PASSWORD)
+if ! kubectl -n "$NAMESPACE" get secret "$ENV_SECRET_NAME" >/dev/null 2>&1; then
+  if [[ -d "$DEVOPS_DIR" && -f "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" ]]; then
+    info "Creating secrets for ${APP_NAME} using devops-k8s script..."
+    SERVICE_NAME="$APP_NAME" \
+    NAMESPACE="$NAMESPACE" \
+    DB_NAME="$SERVICE_DB_NAME" \
+    DB_USER="$SERVICE_DB_USER" \
+    SECRET_NAME="$ENV_SECRET_NAME" \
+    bash "$DEVOPS_DIR/scripts/infrastructure/create-service-secrets.sh" || warn "Secret creation failed or already exists"
+  else
+    warn "Secret $ENV_SECRET_NAME not found and create-service-secrets.sh not available"
+    warn "Please create the secret manually or ensure devops-k8s repo is cloned"
+  fi
 fi
 
 TOKEN="${GH_PAT:-${GIT_SECRET:-${GITHUB_TOKEN:-}}}"

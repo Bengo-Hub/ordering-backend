@@ -2,7 +2,7 @@ name: Build and Deploy Ordering Backend
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   deploy:
@@ -20,12 +20,6 @@ jobs:
 
       - name: Install DevOps Tools
         uses: Bengo-Hub/devops-k8s/.github/actions/install-devops-tools@main
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Set deployment variables
         run: |
@@ -59,9 +53,6 @@ jobs:
           APP_NAME: ordering-backend
           GIT_USER: ${{ secrets.GIT_USER || 'Ordering Bot' }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL || 'dev@bengobox.com' }}
-          # Database passwords from shared infrastructure
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          ORDERING_POSTGRES_URL: ${{ secrets.ORDERING_POSTGRES_URL }}
         run: |
           chmod +x build.sh
           ./build.sh
@@ -91,7 +82,7 @@ jobs:
           APP_NAME: ordering-backend
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
-            echo "Skipping ArgoCD check - no KUBE_CONFIG available"
+            echo "⏭️ Skipping ArgoCD check - no KUBE_CONFIG available"
             exit 0
           fi
 
@@ -100,13 +91,13 @@ jobs:
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
           if kubectl get application ${APP_NAME} -n argocd >/dev/null 2>&1; then
-            echo "ArgoCD Application '${APP_NAME}' found"
+            echo "✓ ArgoCD Application '${APP_NAME}' found"
             kubectl patch application ${APP_NAME} -n argocd --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}' || true
             SYNC_STATUS=$(kubectl get application ${APP_NAME} -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
             HEALTH_STATUS=$(kubectl get application ${APP_NAME} -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")
             echo "Current Status - Sync: ${SYNC_STATUS}, Health: ${HEALTH_STATUS}"
           else
-            echo "ArgoCD Application '${APP_NAME}' not found"
+            echo "⚠️ ArgoCD Application '${APP_NAME}' not found"
             echo "Trigger provisioning: gh workflow run provision.yml --repo Bengo-Hub/devops-k8s"
           fi
           echo "::endgroup::"
@@ -118,7 +109,7 @@ jobs:
           NS: ordering
         run: |
           if [ -z "${KUBE_CONFIG_B64}" ]; then
-            echo "Skipping health check - no KUBE_CONFIG available"
+            echo "⏭️ Skipping health check - no KUBE_CONFIG available"
             exit 0
           fi
 
@@ -126,14 +117,15 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
-          if kubectl get deployment ordering-backend -n ${NS} >/dev/null 2>&1; then
-            kubectl rollout status deployment/ordering-backend -n ${NS} --timeout=300s
+          if kubectl get deployment ordering-backend-app -n ${NS} >/dev/null 2>&1; then
+            # Wait for deployment with extended timeout for migrations (20 minutes like auth-api)
+            kubectl rollout status deployment/ordering-backend-app -n ${NS} --timeout=1200s
             HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
             if [ -n "$HOSTS" ]; then
               for H in $HOSTS; do
                 echo "Checking https://$H/healthz ..."
                 if curl -sk --max-time 10 "https://$H/healthz" | grep -qi "ok"; then
-                  echo "Health OK for $H"
+                  echo "✅ Health OK for $H"
                   break
                 fi
               done

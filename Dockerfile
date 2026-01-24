@@ -19,7 +19,10 @@ WORKDIR /app
 COPY --from=builder /bin/ordering-backend /usr/local/bin/ordering-backend
 COPY --from=builder /bin/ordering-migrate /usr/local/bin/ordering-migrate
 COPY --from=builder /bin/ordering-seed /usr/local/bin/ordering-seed
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 USER app
 EXPOSE 4000
 ENV PORT=4000
-ENTRYPOINT ["/usr/local/bin/ordering-backend"]
+# Use entrypoint script to wait for DB before starting (matches auth-api pattern)
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
