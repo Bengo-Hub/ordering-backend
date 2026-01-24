@@ -188,18 +188,16 @@ func Load() (*Config, error) {
 func LoadDatabaseOnly() (PostgresConfig, error) {
 	_ = godotenv.Load()
 
-	type dbOnlyConfig struct {
-		Postgres PostgresConfig `envconfig:""`
-	}
-
-	cfg := &dbOnlyConfig{}
-	if err := envconfig.Process(namespace, cfg); err != nil {
+	// Process PostgresConfig directly with the namespace prefix
+	// envconfig will look for ORDERING_POSTGRES_URL, ORDERING_POSTGRES_MAX_OPEN_CONNS, etc.
+	var cfg PostgresConfig
+	if err := envconfig.Process(namespace, &cfg); err != nil {
 		return PostgresConfig{}, fmt.Errorf("config: failed to load database config: %w", err)
 	}
 
-	if cfg.Postgres.URL == "" {
-		return PostgresConfig{}, fmt.Errorf("ORDERING_POSTGRES_URL or ORDERING_DB_URL is required")
+	if cfg.URL == "" {
+		return PostgresConfig{}, fmt.Errorf("ORDERING_POSTGRES_URL is required")
 	}
 
-	return cfg.Postgres, nil
+	return cfg, nil
 }

@@ -117,9 +117,9 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG_B64" | base64 -d > ~/.kube/config
 
-          if kubectl get deployment ordering-backend-app -n ${NS} >/dev/null 2>&1; then
+          if kubectl get deployment ordering-backend -n ${NS} >/dev/null 2>&1; then
             # Wait for deployment with extended timeout for migrations (20 minutes like auth-api)
-            kubectl rollout status deployment/ordering-backend-app -n ${NS} --timeout=1200s
+            kubectl rollout status deployment/ordering-backend -n ${NS} --timeout=1200s
             HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
             if [ -n "$HOSTS" ]; then
               for H in $HOSTS; do
