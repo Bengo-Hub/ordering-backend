@@ -44,7 +44,7 @@ Sprint 8 focuses on production deployment, chaos engineering drills, documentati
 
 **Production Origins Configured**:
 - `https://ordersapp.codevertexitsolutions.com`
-- `https://cafe.codevertexitsolutions.com`
+- `https://theurbanloftcafe.com`
 - `https://pos.codevertexitsolutions.com`
 - `https://accounts.codevertexitsolutions.com`
 
