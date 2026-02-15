@@ -3,16 +3,15 @@ module github.com/bengobox/ordering-backend
 go 1.24.0
 
 // Map module path to correct GitHub repository
-replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-client v0.3.0
-
-replace github.com/Bengo-Hub/shared-service-client => github.com/Bengo-Hub/shared-service-client v0.1.0
+replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-client v0.3.1
+// use tagged releases for other shared modules
 
 require (
 	entgo.io/ent v0.13.1
 	github.com/Bengo-Hub/httpware v0.1.1
-	github.com/Bengo-Hub/shared-auth-client v0.3.0
-	github.com/Bengo-Hub/shared-events v0.1.0
-	github.com/Bengo-Hub/shared-service-client v0.0.0-00010101000000-000000000000
+	github.com/Bengo-Hub/shared-auth-client v0.3.1
+	github.com/Bengo-Hub/shared-events v0.1.1
+	github.com/Bengo-Hub/shared-service-client v0.1.1
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
