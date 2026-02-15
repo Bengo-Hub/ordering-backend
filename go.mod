@@ -9,10 +9,10 @@ replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-cli
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/Bengo-Hub/httpware v0.1.1
+	github.com/Bengo-Hub/httpware v0.2.0
 	github.com/Bengo-Hub/shared-auth-client v0.3.1
-	github.com/Bengo-Hub/shared-events v0.1.1
-	github.com/Bengo-Hub/shared-service-client v0.1.1
+	github.com/Bengo-Hub/shared-events v0.2.0
+	github.com/Bengo-Hub/shared-service-client v0.2.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
