@@ -408,7 +408,8 @@ func (r *EntRepository) DeleteSessionsByUser(ctx context.Context, userID uuid.UU
 	return nil
 }
 
-// ListOrdersByUser returns aggregated order summaries (placeholder until order service integration).
+// ListOrdersByUser returns order summaries. Orders are fetched via the ordering module's
+// ListOrders API; this stub satisfies the identity.Repository interface for profile data.
 func (r *EntRepository) ListOrdersByUser(context.Context, uuid.UUID) ([]*OrderSummary, error) {
 	return []*OrderSummary{}, nil
 }

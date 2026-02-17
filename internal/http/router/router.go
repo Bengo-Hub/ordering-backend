@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"time"
@@ -81,9 +82,6 @@ func New(
 	// Content-Type validation for API requests
 	r.Use(security.ContentTypeValidation("application/json"))
 
-	// Tenant ID format validation
-	r.Use(security.TenantValidation())
-
 	// Global rate limiting by IP (if rate limiter is configured)
 	if rateLimiter != nil && securityConfig.RateLimitEnabled {
 		r.Use(rateLimiter.IPRateLimiter(securityConfig.RateLimitRequestsPerMin, time.Minute))
@@ -92,12 +90,13 @@ func New(
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID", "X-Tenant-Slug", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},
 		ExposedHeaders:   []string{"Link", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
+	// System endpoints (no tenant, no auth)
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
@@ -107,7 +106,20 @@ func New(
 		http.Redirect(w, r, "/v1/docs/", http.StatusMovedPermanently)
 	})
 
-	// Domain routes will be mounted on /api/v1.
+	// TenantV2 config: chained extraction from JWT → headers → URL param
+	tenantCfg := httpware.TenantConfig{
+		ClaimsExtractor: func(ctx context.Context) (tenantID, tenantSlug string, ok bool) {
+			claims, found := authclient.ClaimsFromContext(ctx)
+			if !found {
+				return "", "", false
+			}
+			return claims.TenantID, claims.GetTenantSlug(), true
+		},
+		URLParamFunc: chi.URLParam,
+		Required:     true,
+	}
+
+	// Domain routes will be mounted on /api/v1/{tenant}.
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
 			// Apply path-based rate limiting for sensitive endpoints
@@ -115,12 +127,12 @@ func New(
 				v1.Use(func(next http.Handler) http.Handler {
 					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						// Stricter rate limiting for auth endpoints
-						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") {
+						if strings.HasPrefix(r.URL.Path, "/api/v1/") && strings.Contains(r.URL.Path, "/auth/") {
 							rateLimiter.EndpointRateLimiter("auth", securityConfig.RateLimitAuthPerMin, time.Minute)(next).ServeHTTP(w, r)
 							return
 						}
 						// Stricter rate limiting for payment endpoints
-						if strings.HasPrefix(r.URL.Path, "/api/v1/payments/") {
+						if strings.HasPrefix(r.URL.Path, "/api/v1/") && strings.Contains(r.URL.Path, "/payments/") {
 							rateLimiter.EndpointRateLimiter("payments", securityConfig.RateLimitPaymentPerMin, time.Minute)(next).ServeHTTP(w, r)
 							return
 						}
@@ -129,109 +141,105 @@ func New(
 				})
 			}
 
-			// Apply auth-service middleware to protected routes only (excluding /auth/*, /webhooks/*, and /openapi.json)
-			// Note: This middleware validates JWT tokens from auth-service
-			// Individual routes can still use authenticator.RequireAuth for additional RBAC checks
-			if authMiddleware != nil {
-				v1.Use(func(next http.Handler) http.Handler {
-					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						// Skip auth middleware for /auth/*, /webhooks/*, and /openapi.json routes
-						if strings.HasPrefix(r.URL.Path, "/api/v1/auth/") ||
-							strings.HasPrefix(r.URL.Path, "/api/v1/webhooks/") ||
-							r.URL.Path == "/api/v1/openapi.json" {
-							next.ServeHTTP(w, r)
-							return
-						}
-						// Apply auth middleware for all other routes
-						authMiddleware.RequireAuth(next).ServeHTTP(w, r)
-					})
-				})
-			}
-
-			// Audit logging middleware for mutation endpoints (POST, PUT, PATCH, DELETE)
-			// Must be applied after auth middleware to have access to user claims
-			if auditLogger != nil {
-				v1.Use(audit.MutationAudit(auditLogger))
-			}
-
-			// Serve OpenAPI spec (public, no auth required)
+			// Serve OpenAPI spec (public, no auth required, outside tenant scope)
 			v1.Get("/openapi.json", handlers.OpenAPIJSON)
-
 			v1.Get("/status", healthHandler.Status)
 
-			// Register identity routes (auth endpoints are public)
-			// Auth endpoints (/auth/*) are registered without auth middleware
-			if identityHandler != nil && authenticator != nil {
-				identityHandler.Register(v1, authenticator)
-			}
+			// Tenant-scoped routes
+			v1.Route("/{tenant}", func(tenant chi.Router) {
+				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
+				tenant.Use(httpware.TenantV2(tenantCfg))
 
-			// Register catalog routes (public menu + admin catalog)
-			if catalogHandler != nil && authenticator != nil {
-				catalogHandler.Register(v1, authenticator)
-			}
-
-			// Register ordering routes (cart, orders, checkout, promo, loyalty, addresses)
-			if authenticator != nil {
-				if cartHandler != nil {
-					cartHandler.Register(v1, authenticator)
-				}
-				if orderHandler != nil {
-					orderHandler.Register(v1, authenticator)
-				}
-				if promoHandler != nil {
-					promoHandler.Register(v1, authenticator)
-				}
-				if loyaltyHandler != nil {
-					loyaltyHandler.Register(v1, authenticator)
-				}
-				if addressHandler != nil {
-					addressHandler.Register(v1, authenticator)
+				// Apply auth-service middleware (excluding /auth/*, /webhooks/*)
+				if authMiddleware != nil {
+					tenant.Use(func(next http.Handler) http.Handler {
+						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+							path := r.URL.Path
+							// Skip auth middleware for /auth/* and /webhooks/* routes
+							if strings.Contains(path, "/auth/") || strings.Contains(path, "/webhooks/") {
+								next.ServeHTTP(w, r)
+								return
+							}
+							authMiddleware.RequireAuth(next).ServeHTTP(w, r)
+						})
+					})
 				}
 
-				// Register payment routes
-				if paymentHandler != nil {
-					paymentHandler.Register(v1, authenticator)
+				// Audit logging middleware for mutation endpoints
+				if auditLogger != nil {
+					tenant.Use(audit.MutationAudit(auditLogger))
 				}
-				if paymentMethodHandler != nil {
-					paymentMethodHandler.Register(v1, authenticator)
+
+				// Register identity routes (auth endpoints are public)
+				if identityHandler != nil && authenticator != nil {
+					identityHandler.Register(tenant, authenticator)
 				}
-			}
 
-			// Register fulfilment routes (delivery tasks, tracking)
-			if fulfilmentTaskHandler != nil {
-				fulfilmentTaskHandler.Register(v1, authenticator)
-			}
+				// Register catalog routes (public menu + admin catalog)
+				if catalogHandler != nil && authenticator != nil {
+					catalogHandler.Register(tenant, authenticator)
+				}
 
-			// Register notifications routes
-			if notificationsHandler != nil {
-				notificationsHandler.Register(v1, authenticator)
-			}
+				// Register ordering routes (cart, orders, checkout, promo, loyalty, addresses)
+				if authenticator != nil {
+					if cartHandler != nil {
+						cartHandler.Register(tenant, authenticator)
+					}
+					if orderHandler != nil {
+						orderHandler.Register(tenant, authenticator)
+					}
+					if promoHandler != nil {
+						promoHandler.Register(tenant, authenticator)
+					}
+					if loyaltyHandler != nil {
+						loyaltyHandler.Register(tenant, authenticator)
+					}
+					if addressHandler != nil {
+						addressHandler.Register(tenant, authenticator)
+					}
 
-			// Register SLA routes
-			if slaHandler != nil {
-				slaHandler.Register(v1, authenticator)
-			}
+					// Register payment routes
+					if paymentHandler != nil {
+						paymentHandler.Register(tenant, authenticator)
+					}
+					if paymentMethodHandler != nil {
+						paymentMethodHandler.Register(tenant, authenticator)
+					}
+				}
 
-			// Register analytics routes
-			if analyticsHandler != nil {
-				analyticsHandler.Register(v1, authenticator)
-			}
+				// Register fulfilment routes (delivery tasks, tracking)
+				if fulfilmentTaskHandler != nil {
+					fulfilmentTaskHandler.Register(tenant, authenticator)
+				}
 
-			// Register compliance routes
-			if complianceHandler != nil {
-				complianceHandler.Register(v1, authenticator)
-			}
+				// Register notifications routes
+				if notificationsHandler != nil {
+					notificationsHandler.Register(tenant, authenticator)
+				}
 
-			// Webhook routes (no auth required - use signature verification)
-			// Each webhook handler registers its own unique POST paths directly on v1:
-			// - Payment: /webhooks/treasury, /webhooks/mpesa/callback, /webhooks/mpesa/confirmation, /webhooks/mpesa/validation
-			// - Fulfilment: /webhooks/logistics
-			if paymentWebhookHandler != nil {
-				paymentWebhookHandler.Register(v1)
-			}
-			if fulfilmentWebhookHandler != nil {
-				fulfilmentWebhookHandler.Register(v1)
-			}
+				// Register SLA routes
+				if slaHandler != nil {
+					slaHandler.Register(tenant, authenticator)
+				}
+
+				// Register analytics routes
+				if analyticsHandler != nil {
+					analyticsHandler.Register(tenant, authenticator)
+				}
+
+				// Register compliance routes
+				if complianceHandler != nil {
+					complianceHandler.Register(tenant, authenticator)
+				}
+
+				// Webhook routes (no auth required - use signature verification)
+				if paymentWebhookHandler != nil {
+					paymentWebhookHandler.Register(tenant)
+				}
+				if fulfilmentWebhookHandler != nil {
+					fulfilmentWebhookHandler.Register(tenant)
+				}
+			})
 		})
 	})
 

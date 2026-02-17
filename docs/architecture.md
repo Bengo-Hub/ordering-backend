@@ -11,8 +11,9 @@
   - Bootstraps configuration, infrastructure adapters, and HTTP server lifecycle
   - Coordinates graceful shutdown, dependency cleanup, and instrumentation
 
-- **Domain Layer (`internal/domain`)** *(coming soon)*
-  - Use case orchestration, business rules, entity definitions
+- **Domain Layer (`internal/modules`)**
+  - 13 business modules: identity, catalog, ordering, payments, fulfilment, notifications, SLA, analytics, compliance, loyalty, promotions, reviews, settings
+  - Use case orchestration, business rules, Ent-generated entity definitions
   - Interacts with repositories via interfaces for persistence/queue/cache
 
 - **Infrastructure Layer (`internal/platform`)**
@@ -29,8 +30,11 @@
 
 ## Integration Points
 
-- **Treasury App:** REST/gRPC for payments, refunds, settlements; event subscriptions for financial updates
-- **Notifications App:** Event emission for order lifecycle, loyalty updates, marketing campaigns
+- **Inventory Service:** REST for stock availability checks, reservations (create/release/consume), and direct consumption (`internal/platform/inventory/client.go`)
+- **Logistics Service:** NATS event `ordering.order.ready` triggers delivery task creation; REST for task tracking and proof of delivery (`internal/platform/logistics/client.go`)
+- **Treasury Service:** REST for M-Pesa STK Push, payment status, refunds; webhooks for payment callbacks (`internal/platform/treasury/client.go`)
+- **Notifications Service:** REST for sending templated notifications (order confirmation, delivery updates) (`internal/platform/notifications/client.go`)
+- **Auth Service:** NATS event subscriptions (`auth.user.*`, `auth.tenant.*`) for identity sync (`internal/modules/identity/events.go`)
 - **Maps & Geo:** External APIs (Mapbox/Google) abstracted behind `internal/platform/geo`
 - **Analytics:** Outbox pattern feeding data warehouse / analytics pipelines
 

@@ -119,7 +119,7 @@ func runSeed(ctx context.Context, client *ent.Client) (err error) {
 // seedDemoUser creates the demo admin user (idempotent).
 func seedDemoUser(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, now time.Time) error {
 	const (
-		demoEmail    = "demo@urban-cafe.com"
+		demoEmail    = "demo@theurbanloftcafe.com"
 		demoPassword = "password123"
 		demoFullName = "Demo Admin"
 		status       = "active"
@@ -397,10 +397,10 @@ func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
 	// In production, tenants are created through normal registration flows.
 	// This seed function is kept for demo/development purposes only.
 	const (
-		slug   = "demo-tenant" // Generic demo tenant
-		name   = "Demo Tenant"
+		slug   = "urban-loft" // Generic demo tenant
+		name   = "Urban Loft Cafe"
 		status = "active"
-		email  = "support@codevertexitsolutions.com"
+		email  = "hello@theurbanloftcafe.com"
 		phone  = "+254700000000"
 	)
 
@@ -520,7 +520,7 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 
 func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID, passwordHash string, now time.Time) error {
 	const (
-		email       = "superuser@urbancafe.com"
+		email       = "superuser@theurbanloftcafe.com"
 		fullName    = "Super Admin"
 		status      = "active"
 		locale      = "en"

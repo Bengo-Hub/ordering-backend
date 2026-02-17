@@ -34,6 +34,7 @@ type Event struct {
 	DataContentType string                 `json:"datacontenttype"`
 	Time            string                 `json:"time"`
 	TenantID        string                 `json:"tenantId,omitempty"`
+	TenantSlug      string                 `json:"tenant_slug,omitempty"`
 	Data            map[string]interface{} `json:"data"`
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -54,6 +55,13 @@ func NewEvent(eventType string, tenantID uuid.UUID, data map[string]interface{})
 			"source":         "ordering-service",
 		},
 	}
+}
+
+// NewEventWithSlug creates a new event including tenant_slug.
+func NewEventWithSlug(eventType string, tenantID uuid.UUID, tenantSlug string, data map[string]interface{}) Event {
+	e := NewEvent(eventType, tenantID, data)
+	e.TenantSlug = tenantSlug
+	return e
 }
 
 // Publish publishes an event to the specified subject.

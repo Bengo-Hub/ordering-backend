@@ -4,7 +4,7 @@
 
 This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal BengoBox microservices and external third-party services.
 
-**Last Updated**: January 2026
+**Last Updated**: February 16, 2026
 
 ---
 
@@ -16,7 +16,7 @@ This document provides detailed integration information for all external service
 | **Treasury Service** | REST + Webhooks | ✅ Implemented | `internal/platform/treasury/client.go`, webhook handlers |
 | **Logistics Service** | REST + Webhooks | ✅ Implemented | `internal/platform/logistics/client.go`, webhook handlers |
 | **Notifications Service** | REST + Events | ✅ Implemented | `internal/platform/notifications/client.go`, local module |
-| **Inventory Service** | REST + Events | ✅ Implemented | `internal/platform/inventory/client.go` |
+| **Inventory Service** | REST + Events | ✅ Implemented | `internal/platform/inventory/client.go` (inventory-api MVP live with 8 endpoints) |
 | **POS Service** | Events | ✅ Implemented | Event publisher with catalog sync and pickup handoff |
 | **NATS JetStream** | Events | ✅ Implemented | Publisher and subscriber in `internal/platform/events/` |
 | **Redis** | Cache | ✅ Implemented | `internal/platform/cache/redis.go` |
