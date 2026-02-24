@@ -339,6 +339,60 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	return order, nil
 }
 
+// RateOrder submits a customer rating (1-5 stars) for a delivered/completed order.
+func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, customerID uuid.UUID, rating int, comment string) (*Order, error) {
+	if rating < 1 || rating > 5 {
+		return nil, ErrInvalidRating
+	}
+
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only the order owner can rate
+	if order.CustomerID != customerID {
+		return nil, ErrUnauthorized
+	}
+
+	// Only delivered or completed orders can be rated
+	if order.Status != OrderStatusDelivered && order.Status != OrderStatusCompleted {
+		return nil, ErrOrderNotRatable
+	}
+
+	// Prevent double-rating
+	if order.Rating != nil {
+		return nil, ErrAlreadyRated
+	}
+
+	now := time.Now()
+	order.Rating = &rating
+	order.RatingComment = comment
+	order.RatedAt = &now
+
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		return nil, err
+	}
+
+	// Publish order.rated event
+	if s.eventPublisher != nil {
+		evt := events.NewEvent("ordering.order.rated", tenantID, map[string]interface{}{
+			"order_id":    order.ID.String(),
+			"order_number": order.OrderNumber,
+			"customer_id": customerID.String(),
+			"rating":      rating,
+			"comment":     comment,
+		})
+		_ = s.eventPublisher.Publish(ctx, "ordering.order.rated", evt)
+	}
+
+	s.logger.Info("order rated",
+		zap.String("id", order.ID.String()),
+		zap.Int("rating", rating))
+
+	return order, nil
+}
+
 // UpdatePaymentStatus updates the payment status of an order.
 func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus PaymentStatus, payload map[string]interface{}) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)

@@ -74,6 +74,12 @@ const (
 	FieldCancelledAt = "cancelled_at"
 	// FieldCancellationReason holds the string denoting the cancellation_reason field in the database.
 	FieldCancellationReason = "cancellation_reason"
+	// FieldRating holds the string denoting the rating field in the database.
+	FieldRating = "rating"
+	// FieldRatingComment holds the string denoting the rating_comment field in the database.
+	FieldRatingComment = "rating_comment"
+	// FieldRatedAt holds the string denoting the rated_at field in the database.
+	FieldRatedAt = "rated_at"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -179,6 +185,9 @@ var Columns = []string{
 	FieldCompletedAt,
 	FieldCancelledAt,
 	FieldCancellationReason,
+	FieldRating,
+	FieldRatingComment,
+	FieldRatedAt,
 	FieldMetadata,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -217,6 +226,8 @@ var (
 	SourceValidator func(string) error
 	// IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	IdempotencyKeyValidator func(string) error
+	// RatingValidator is a validator for the "rating" field. It is called by the builders before save.
+	RatingValidator func(int) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -470,6 +481,21 @@ func ByCancelledAt(opts ...sql.OrderTermOption) OrderOption {
 // ByCancellationReason orders the results by the cancellation_reason field.
 func ByCancellationReason(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCancellationReason, opts...).ToFunc()
+}
+
+// ByRating orders the results by the rating field.
+func ByRating(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRating, opts...).ToFunc()
+}
+
+// ByRatingComment orders the results by the rating_comment field.
+func ByRatingComment(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingComment, opts...).ToFunc()
+}
+
+// ByRatedAt orders the results by the rated_at field.
+func ByRatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatedAt, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

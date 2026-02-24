@@ -1117,6 +1117,9 @@ var (
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
 		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "rating", Type: field.TypeInt, Nullable: true},
+		{Name: "rating_comment", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "rated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -1131,13 +1134,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_customer_addresses_orders",
-				Columns:    []*schema.Column{OrdersColumns[31]},
+				Columns:    []*schema.Column{OrdersColumns[34]},
 				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[32]},
+				Columns:    []*schema.Column{OrdersColumns[35]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1151,7 +1154,7 @@ var (
 			{
 				Name:    "order_tenant_id_customer_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[32]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[35]},
 			},
 			{
 				Name:    "order_tenant_id_status",
@@ -1166,7 +1169,7 @@ var (
 			{
 				Name:    "order_tenant_id_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[29]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[32]},
 			},
 			{
 				Name:    "order_tenant_id_cafe_id_status",
@@ -1176,7 +1179,7 @@ var (
 			{
 				Name:    "order_tenant_id_customer_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[32], OrdersColumns[5]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[35], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_order_number",
@@ -1199,7 +1202,7 @@ var (
 			{
 				Name:    "order_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[29]},
+				Columns: []*schema.Column{OrdersColumns[32]},
 			},
 			{
 				Name:    "order_completed_at",
@@ -1214,7 +1217,7 @@ var (
 			{
 				Name:    "order_delivery_address_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[31]},
+				Columns: []*schema.Column{OrdersColumns[34]},
 			},
 			{
 				Name:    "order_channel",

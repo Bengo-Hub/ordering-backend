@@ -40,6 +40,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Get("/", h.ListOrders)
 		orderRouter.Get("/{orderId}", h.GetOrder)
 		orderRouter.Post("/{orderId}/cancel", h.CancelOrder)
+		orderRouter.Post("/{orderId}/rate", h.RateOrder)
 	})
 
 	// Checkout endpoint
@@ -82,6 +83,11 @@ type UpdateStatusRequest struct {
 // CancelOrderRequest represents a request to cancel an order.
 type CancelOrderRequest struct {
 	Reason string `json:"reason"`
+}
+
+type RateOrderRequest struct {
+	Rating  int    `json:"rating"`
+	Comment string `json:"comment"`
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -516,6 +522,66 @@ func (h *OrderHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 	order, err := h.orderService.CancelOrder(r.Context(), tenantID, orderID, req.Reason, &user.ID, "customer", getClientIP(r))
 	if err != nil {
 		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// RateOrder submits a 1-5 star rating for a delivered or completed order.
+// @Summary Rate an order
+// @Description Allows a customer to rate a delivered or completed order (1-5 stars)
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param orderId path string true "Order ID"
+// @Param payload body RateOrderRequest true "Rating payload"
+// @Success 200 {object} ordering.Order
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Router /orders/{orderId}/rate [post]
+func (h *OrderHandler) RateOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	var req RateOrderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	order, err := h.orderService.RateOrder(r.Context(), tenantID, orderID, user.ID, req.Rating, req.Comment)
+	if err != nil {
+		switch err {
+		case ordering.ErrInvalidRating:
+			handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		case ordering.ErrOrderNotRatable:
+			handlers.RespondError(w, http.StatusConflict, err.Error())
+		case ordering.ErrAlreadyRated:
+			handlers.RespondError(w, http.StatusConflict, err.Error())
+		case ordering.ErrUnauthorized:
+			handlers.RespondError(w, http.StatusForbidden, "access denied")
+		default:
+			h.handleError(w, err)
+		}
 		return
 	}
 

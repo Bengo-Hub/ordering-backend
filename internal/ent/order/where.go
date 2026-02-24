@@ -186,6 +186,21 @@ func CancellationReason(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCancellationReason, v))
 }
 
+// Rating applies equality check predicate on the "rating" field. It's identical to RatingEQ.
+func Rating(v int) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRating, v))
+}
+
+// RatingComment applies equality check predicate on the "rating_comment" field. It's identical to RatingCommentEQ.
+func RatingComment(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRatingComment, v))
+}
+
+// RatedAt applies equality check predicate on the "rated_at" field. It's identical to RatedAtEQ.
+func RatedAt(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRatedAt, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCreatedAt, v))
@@ -1534,6 +1549,181 @@ func CancellationReasonEqualFold(v string) predicate.Order {
 // CancellationReasonContainsFold applies the ContainsFold predicate on the "cancellation_reason" field.
 func CancellationReasonContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldCancellationReason, v))
+}
+
+// RatingEQ applies the EQ predicate on the "rating" field.
+func RatingEQ(v int) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRating, v))
+}
+
+// RatingNEQ applies the NEQ predicate on the "rating" field.
+func RatingNEQ(v int) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldRating, v))
+}
+
+// RatingIn applies the In predicate on the "rating" field.
+func RatingIn(vs ...int) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldRating, vs...))
+}
+
+// RatingNotIn applies the NotIn predicate on the "rating" field.
+func RatingNotIn(vs ...int) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldRating, vs...))
+}
+
+// RatingGT applies the GT predicate on the "rating" field.
+func RatingGT(v int) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldRating, v))
+}
+
+// RatingGTE applies the GTE predicate on the "rating" field.
+func RatingGTE(v int) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldRating, v))
+}
+
+// RatingLT applies the LT predicate on the "rating" field.
+func RatingLT(v int) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldRating, v))
+}
+
+// RatingLTE applies the LTE predicate on the "rating" field.
+func RatingLTE(v int) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldRating, v))
+}
+
+// RatingIsNil applies the IsNil predicate on the "rating" field.
+func RatingIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldRating))
+}
+
+// RatingNotNil applies the NotNil predicate on the "rating" field.
+func RatingNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldRating))
+}
+
+// RatingCommentEQ applies the EQ predicate on the "rating_comment" field.
+func RatingCommentEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRatingComment, v))
+}
+
+// RatingCommentNEQ applies the NEQ predicate on the "rating_comment" field.
+func RatingCommentNEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldRatingComment, v))
+}
+
+// RatingCommentIn applies the In predicate on the "rating_comment" field.
+func RatingCommentIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldRatingComment, vs...))
+}
+
+// RatingCommentNotIn applies the NotIn predicate on the "rating_comment" field.
+func RatingCommentNotIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldRatingComment, vs...))
+}
+
+// RatingCommentGT applies the GT predicate on the "rating_comment" field.
+func RatingCommentGT(v string) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldRatingComment, v))
+}
+
+// RatingCommentGTE applies the GTE predicate on the "rating_comment" field.
+func RatingCommentGTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldRatingComment, v))
+}
+
+// RatingCommentLT applies the LT predicate on the "rating_comment" field.
+func RatingCommentLT(v string) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldRatingComment, v))
+}
+
+// RatingCommentLTE applies the LTE predicate on the "rating_comment" field.
+func RatingCommentLTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldRatingComment, v))
+}
+
+// RatingCommentContains applies the Contains predicate on the "rating_comment" field.
+func RatingCommentContains(v string) predicate.Order {
+	return predicate.Order(sql.FieldContains(FieldRatingComment, v))
+}
+
+// RatingCommentHasPrefix applies the HasPrefix predicate on the "rating_comment" field.
+func RatingCommentHasPrefix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasPrefix(FieldRatingComment, v))
+}
+
+// RatingCommentHasSuffix applies the HasSuffix predicate on the "rating_comment" field.
+func RatingCommentHasSuffix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasSuffix(FieldRatingComment, v))
+}
+
+// RatingCommentIsNil applies the IsNil predicate on the "rating_comment" field.
+func RatingCommentIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldRatingComment))
+}
+
+// RatingCommentNotNil applies the NotNil predicate on the "rating_comment" field.
+func RatingCommentNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldRatingComment))
+}
+
+// RatingCommentEqualFold applies the EqualFold predicate on the "rating_comment" field.
+func RatingCommentEqualFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldEqualFold(FieldRatingComment, v))
+}
+
+// RatingCommentContainsFold applies the ContainsFold predicate on the "rating_comment" field.
+func RatingCommentContainsFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldContainsFold(FieldRatingComment, v))
+}
+
+// RatedAtEQ applies the EQ predicate on the "rated_at" field.
+func RatedAtEQ(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldRatedAt, v))
+}
+
+// RatedAtNEQ applies the NEQ predicate on the "rated_at" field.
+func RatedAtNEQ(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldRatedAt, v))
+}
+
+// RatedAtIn applies the In predicate on the "rated_at" field.
+func RatedAtIn(vs ...time.Time) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldRatedAt, vs...))
+}
+
+// RatedAtNotIn applies the NotIn predicate on the "rated_at" field.
+func RatedAtNotIn(vs ...time.Time) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldRatedAt, vs...))
+}
+
+// RatedAtGT applies the GT predicate on the "rated_at" field.
+func RatedAtGT(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldRatedAt, v))
+}
+
+// RatedAtGTE applies the GTE predicate on the "rated_at" field.
+func RatedAtGTE(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldRatedAt, v))
+}
+
+// RatedAtLT applies the LT predicate on the "rated_at" field.
+func RatedAtLT(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldRatedAt, v))
+}
+
+// RatedAtLTE applies the LTE predicate on the "rated_at" field.
+func RatedAtLTE(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldRatedAt, v))
+}
+
+// RatedAtIsNil applies the IsNil predicate on the "rated_at" field.
+func RatedAtIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldRatedAt))
+}
+
+// RatedAtNotNil applies the NotNil predicate on the "rated_at" field.
+func RatedAtNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldRatedAt))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

@@ -26103,6 +26103,10 @@ type OrderMutation struct {
 	completed_at               *time.Time
 	cancelled_at               *time.Time
 	cancellation_reason        *string
+	rating                     *int
+	addrating                  *int
+	rating_comment             *string
+	rated_at                   *time.Time
 	metadata                   *map[string]interface{}
 	created_at                 *time.Time
 	updated_at                 *time.Time
@@ -27608,6 +27612,174 @@ func (m *OrderMutation) ResetCancellationReason() {
 	delete(m.clearedFields, order.FieldCancellationReason)
 }
 
+// SetRating sets the "rating" field.
+func (m *OrderMutation) SetRating(i int) {
+	m.rating = &i
+	m.addrating = nil
+}
+
+// Rating returns the value of the "rating" field in the mutation.
+func (m *OrderMutation) Rating() (r int, exists bool) {
+	v := m.rating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRating returns the old "rating" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldRating(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRating is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRating requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRating: %w", err)
+	}
+	return oldValue.Rating, nil
+}
+
+// AddRating adds i to the "rating" field.
+func (m *OrderMutation) AddRating(i int) {
+	if m.addrating != nil {
+		*m.addrating += i
+	} else {
+		m.addrating = &i
+	}
+}
+
+// AddedRating returns the value that was added to the "rating" field in this mutation.
+func (m *OrderMutation) AddedRating() (r int, exists bool) {
+	v := m.addrating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearRating clears the value of the "rating" field.
+func (m *OrderMutation) ClearRating() {
+	m.rating = nil
+	m.addrating = nil
+	m.clearedFields[order.FieldRating] = struct{}{}
+}
+
+// RatingCleared returns if the "rating" field was cleared in this mutation.
+func (m *OrderMutation) RatingCleared() bool {
+	_, ok := m.clearedFields[order.FieldRating]
+	return ok
+}
+
+// ResetRating resets all changes to the "rating" field.
+func (m *OrderMutation) ResetRating() {
+	m.rating = nil
+	m.addrating = nil
+	delete(m.clearedFields, order.FieldRating)
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (m *OrderMutation) SetRatingComment(s string) {
+	m.rating_comment = &s
+}
+
+// RatingComment returns the value of the "rating_comment" field in the mutation.
+func (m *OrderMutation) RatingComment() (r string, exists bool) {
+	v := m.rating_comment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRatingComment returns the old "rating_comment" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldRatingComment(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRatingComment is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRatingComment requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRatingComment: %w", err)
+	}
+	return oldValue.RatingComment, nil
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (m *OrderMutation) ClearRatingComment() {
+	m.rating_comment = nil
+	m.clearedFields[order.FieldRatingComment] = struct{}{}
+}
+
+// RatingCommentCleared returns if the "rating_comment" field was cleared in this mutation.
+func (m *OrderMutation) RatingCommentCleared() bool {
+	_, ok := m.clearedFields[order.FieldRatingComment]
+	return ok
+}
+
+// ResetRatingComment resets all changes to the "rating_comment" field.
+func (m *OrderMutation) ResetRatingComment() {
+	m.rating_comment = nil
+	delete(m.clearedFields, order.FieldRatingComment)
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (m *OrderMutation) SetRatedAt(t time.Time) {
+	m.rated_at = &t
+}
+
+// RatedAt returns the value of the "rated_at" field in the mutation.
+func (m *OrderMutation) RatedAt() (r time.Time, exists bool) {
+	v := m.rated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRatedAt returns the old "rated_at" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldRatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRatedAt: %w", err)
+	}
+	return oldValue.RatedAt, nil
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (m *OrderMutation) ClearRatedAt() {
+	m.rated_at = nil
+	m.clearedFields[order.FieldRatedAt] = struct{}{}
+}
+
+// RatedAtCleared returns if the "rated_at" field was cleared in this mutation.
+func (m *OrderMutation) RatedAtCleared() bool {
+	_, ok := m.clearedFields[order.FieldRatedAt]
+	return ok
+}
+
+// ResetRatedAt resets all changes to the "rated_at" field.
+func (m *OrderMutation) ResetRatedAt() {
+	m.rated_at = nil
+	delete(m.clearedFields, order.FieldRatedAt)
+}
+
 // SetMetadata sets the "metadata" field.
 func (m *OrderMutation) SetMetadata(value map[string]interface{}) {
 	m.metadata = &value
@@ -28087,7 +28259,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 32)
+	fields := make([]string, 0, 35)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -28175,6 +28347,15 @@ func (m *OrderMutation) Fields() []string {
 	if m.cancellation_reason != nil {
 		fields = append(fields, order.FieldCancellationReason)
 	}
+	if m.rating != nil {
+		fields = append(fields, order.FieldRating)
+	}
+	if m.rating_comment != nil {
+		fields = append(fields, order.FieldRatingComment)
+	}
+	if m.rated_at != nil {
+		fields = append(fields, order.FieldRatedAt)
+	}
 	if m.metadata != nil {
 		fields = append(fields, order.FieldMetadata)
 	}
@@ -28250,6 +28431,12 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.CancelledAt()
 	case order.FieldCancellationReason:
 		return m.CancellationReason()
+	case order.FieldRating:
+		return m.Rating()
+	case order.FieldRatingComment:
+		return m.RatingComment()
+	case order.FieldRatedAt:
+		return m.RatedAt()
 	case order.FieldMetadata:
 		return m.Metadata()
 	case order.FieldCreatedAt:
@@ -28323,6 +28510,12 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCancelledAt(ctx)
 	case order.FieldCancellationReason:
 		return m.OldCancellationReason(ctx)
+	case order.FieldRating:
+		return m.OldRating(ctx)
+	case order.FieldRatingComment:
+		return m.OldRatingComment(ctx)
+	case order.FieldRatedAt:
+		return m.OldRatedAt(ctx)
 	case order.FieldMetadata:
 		return m.OldMetadata(ctx)
 	case order.FieldCreatedAt:
@@ -28541,6 +28734,27 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCancellationReason(v)
 		return nil
+	case order.FieldRating:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRating(v)
+		return nil
+	case order.FieldRatingComment:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRatingComment(v)
+		return nil
+	case order.FieldRatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRatedAt(v)
+		return nil
 	case order.FieldMetadata:
 		v, ok := value.(map[string]interface{})
 		if !ok {
@@ -28594,6 +28808,9 @@ func (m *OrderMutation) AddedFields() []string {
 	if m.addloyalty_points_redeemed != nil {
 		fields = append(fields, order.FieldLoyaltyPointsRedeemed)
 	}
+	if m.addrating != nil {
+		fields = append(fields, order.FieldRating)
+	}
 	return fields
 }
 
@@ -28618,6 +28835,8 @@ func (m *OrderMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedLoyaltyPointsEarned()
 	case order.FieldLoyaltyPointsRedeemed:
 		return m.AddedLoyaltyPointsRedeemed()
+	case order.FieldRating:
+		return m.AddedRating()
 	}
 	return nil, false
 }
@@ -28683,6 +28902,13 @@ func (m *OrderMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddLoyaltyPointsRedeemed(v)
 		return nil
+	case order.FieldRating:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRating(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Order numeric field %s", name)
 }
@@ -28729,6 +28955,15 @@ func (m *OrderMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(order.FieldCancellationReason) {
 		fields = append(fields, order.FieldCancellationReason)
+	}
+	if m.FieldCleared(order.FieldRating) {
+		fields = append(fields, order.FieldRating)
+	}
+	if m.FieldCleared(order.FieldRatingComment) {
+		fields = append(fields, order.FieldRatingComment)
+	}
+	if m.FieldCleared(order.FieldRatedAt) {
+		fields = append(fields, order.FieldRatedAt)
 	}
 	if m.FieldCleared(order.FieldMetadata) {
 		fields = append(fields, order.FieldMetadata)
@@ -28785,6 +29020,15 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldCancellationReason:
 		m.ClearCancellationReason()
+		return nil
+	case order.FieldRating:
+		m.ClearRating()
+		return nil
+	case order.FieldRatingComment:
+		m.ClearRatingComment()
+		return nil
+	case order.FieldRatedAt:
+		m.ClearRatedAt()
 		return nil
 	case order.FieldMetadata:
 		m.ClearMetadata()
@@ -28883,6 +29127,15 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldCancellationReason:
 		m.ResetCancellationReason()
+		return nil
+	case order.FieldRating:
+		m.ResetRating()
+		return nil
+	case order.FieldRatingComment:
+		m.ResetRatingComment()
+		return nil
+	case order.FieldRatedAt:
+		m.ResetRatedAt()
 		return nil
 	case order.FieldMetadata:
 		m.ResetMetadata()

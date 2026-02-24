@@ -57,6 +57,11 @@ var (
 	ErrInvalidDeliveryAddress = errors.New("invalid delivery address")
 	ErrDeliveryNotAvailable = errors.New("delivery is not available to this address")
 
+	// Rating errors
+	ErrOrderNotRatable  = errors.New("order cannot be rated: must be delivered or completed")
+	ErrAlreadyRated     = errors.New("order has already been rated")
+	ErrInvalidRating    = errors.New("rating must be between 1 and 5")
+
 	// General errors
 	ErrInvalidTenant   = errors.New("invalid tenant")
 	ErrInvalidCafe     = errors.New("invalid cafe")

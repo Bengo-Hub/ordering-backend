@@ -79,6 +79,12 @@ type Order struct {
 	CancelledAt *time.Time `json:"cancelled_at,omitempty"`
 	// CancellationReason holds the value of the "cancellation_reason" field.
 	CancellationReason string `json:"cancellation_reason,omitempty"`
+	// Customer rating 1-5 stars
+	Rating *int `json:"rating,omitempty"`
+	// Customer review comment
+	RatingComment string `json:"rating_comment,omitempty"`
+	// When the customer submitted their rating
+	RatedAt *time.Time `json:"rated_at,omitempty"`
 	// Additional metadata
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -190,11 +196,11 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case order.FieldSubtotal, order.FieldDiscountTotal, order.FieldTaxTotal, order.FieldDeliveryFee, order.FieldTipTotal, order.FieldGrandTotal:
 			values[i] = new(sql.NullFloat64)
-		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed:
+		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
-		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason:
+		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
 			values[i] = new(sql.NullString)
-		case order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldCreatedAt, order.FieldUpdatedAt:
+		case order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case order.FieldID, order.FieldTenantID, order.FieldCafeID, order.FieldCustomerID:
 			values[i] = new(uuid.UUID)
@@ -402,6 +408,26 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.CancellationReason = value.String
 			}
+		case order.FieldRating:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field rating", values[i])
+			} else if value.Valid {
+				o.Rating = new(int)
+				*o.Rating = int(value.Int64)
+			}
+		case order.FieldRatingComment:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rating_comment", values[i])
+			} else if value.Valid {
+				o.RatingComment = value.String
+			}
+		case order.FieldRatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field rated_at", values[i])
+			} else if value.Valid {
+				o.RatedAt = new(time.Time)
+				*o.RatedAt = value.Time
+			}
 		case order.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
@@ -597,6 +623,19 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("cancellation_reason=")
 	builder.WriteString(o.CancellationReason)
+	builder.WriteString(", ")
+	if v := o.Rating; v != nil {
+		builder.WriteString("rating=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("rating_comment=")
+	builder.WriteString(o.RatingComment)
+	builder.WriteString(", ")
+	if v := o.RatedAt; v != nil {
+		builder.WriteString("rated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", o.Metadata))

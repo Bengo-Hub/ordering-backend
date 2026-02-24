@@ -110,6 +110,19 @@ func (Order) Fields() []ent.Field {
 			Nillable(),
 		field.Text("cancellation_reason").
 			Optional(),
+		field.Int("rating").
+			Optional().
+			Nillable().
+			Min(1).
+			Max(5).
+			Comment("Customer rating 1-5 stars"),
+		field.Text("rating_comment").
+			Optional().
+			Comment("Customer review comment"),
+		field.Time("rated_at").
+			Optional().
+			Nillable().
+			Comment("When the customer submitted their rating"),
 		field.JSON("metadata", map[string]any{}).
 			Optional().
 			Comment("Additional metadata"),

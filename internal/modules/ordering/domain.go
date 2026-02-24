@@ -126,6 +126,9 @@ type Order struct {
 	CompletedAt           *time.Time             `json:"completedAt,omitempty"`
 	CancelledAt           *time.Time             `json:"cancelledAt,omitempty"`
 	CancellationReason    string                 `json:"cancellationReason,omitempty"`
+	Rating                *int                   `json:"rating,omitempty"`
+	RatingComment         string                 `json:"ratingComment,omitempty"`
+	RatedAt               *time.Time             `json:"ratedAt,omitempty"`
 	Metadata              map[string]interface{} `json:"metadata,omitempty"`
 	CreatedAt             time.Time              `json:"createdAt"`
 	UpdatedAt             time.Time              `json:"updatedAt"`

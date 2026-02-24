@@ -389,6 +389,48 @@ func (oc *OrderCreate) SetNillableCancellationReason(s *string) *OrderCreate {
 	return oc
 }
 
+// SetRating sets the "rating" field.
+func (oc *OrderCreate) SetRating(i int) *OrderCreate {
+	oc.mutation.SetRating(i)
+	return oc
+}
+
+// SetNillableRating sets the "rating" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRating(i *int) *OrderCreate {
+	if i != nil {
+		oc.SetRating(*i)
+	}
+	return oc
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (oc *OrderCreate) SetRatingComment(s string) *OrderCreate {
+	oc.mutation.SetRatingComment(s)
+	return oc
+}
+
+// SetNillableRatingComment sets the "rating_comment" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRatingComment(s *string) *OrderCreate {
+	if s != nil {
+		oc.SetRatingComment(*s)
+	}
+	return oc
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (oc *OrderCreate) SetRatedAt(t time.Time) *OrderCreate {
+	oc.mutation.SetRatedAt(t)
+	return oc
+}
+
+// SetNillableRatedAt sets the "rated_at" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRatedAt(t *time.Time) *OrderCreate {
+	if t != nil {
+		oc.SetRatedAt(*t)
+	}
+	return oc
+}
+
 // SetMetadata sets the "metadata" field.
 func (oc *OrderCreate) SetMetadata(m map[string]interface{}) *OrderCreate {
 	oc.mutation.SetMetadata(m)
@@ -696,6 +738,11 @@ func (oc *OrderCreate) check() error {
 			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "Order.idempotency_key": %w`, err)}
 		}
 	}
+	if v, ok := oc.mutation.Rating(); ok {
+		if err := order.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`ent: validator failed for field "Order.rating": %w`, err)}
+		}
+	}
 	if _, ok := oc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Order.created_at"`)}
 	}
@@ -848,6 +895,18 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.CancellationReason(); ok {
 		_spec.SetField(order.FieldCancellationReason, field.TypeString, value)
 		_node.CancellationReason = value
+	}
+	if value, ok := oc.mutation.Rating(); ok {
+		_spec.SetField(order.FieldRating, field.TypeInt, value)
+		_node.Rating = &value
+	}
+	if value, ok := oc.mutation.RatingComment(); ok {
+		_spec.SetField(order.FieldRatingComment, field.TypeString, value)
+		_node.RatingComment = value
+	}
+	if value, ok := oc.mutation.RatedAt(); ok {
+		_spec.SetField(order.FieldRatedAt, field.TypeTime, value)
+		_node.RatedAt = &value
 	}
 	if value, ok := oc.mutation.Metadata(); ok {
 		_spec.SetField(order.FieldMetadata, field.TypeJSON, value)
@@ -1501,6 +1560,66 @@ func (u *OrderUpsert) ClearCancellationReason() *OrderUpsert {
 	return u
 }
 
+// SetRating sets the "rating" field.
+func (u *OrderUpsert) SetRating(v int) *OrderUpsert {
+	u.Set(order.FieldRating, v)
+	return u
+}
+
+// UpdateRating sets the "rating" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateRating() *OrderUpsert {
+	u.SetExcluded(order.FieldRating)
+	return u
+}
+
+// AddRating adds v to the "rating" field.
+func (u *OrderUpsert) AddRating(v int) *OrderUpsert {
+	u.Add(order.FieldRating, v)
+	return u
+}
+
+// ClearRating clears the value of the "rating" field.
+func (u *OrderUpsert) ClearRating() *OrderUpsert {
+	u.SetNull(order.FieldRating)
+	return u
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (u *OrderUpsert) SetRatingComment(v string) *OrderUpsert {
+	u.Set(order.FieldRatingComment, v)
+	return u
+}
+
+// UpdateRatingComment sets the "rating_comment" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateRatingComment() *OrderUpsert {
+	u.SetExcluded(order.FieldRatingComment)
+	return u
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (u *OrderUpsert) ClearRatingComment() *OrderUpsert {
+	u.SetNull(order.FieldRatingComment)
+	return u
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (u *OrderUpsert) SetRatedAt(v time.Time) *OrderUpsert {
+	u.Set(order.FieldRatedAt, v)
+	return u
+}
+
+// UpdateRatedAt sets the "rated_at" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateRatedAt() *OrderUpsert {
+	u.SetExcluded(order.FieldRatedAt)
+	return u
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (u *OrderUpsert) ClearRatedAt() *OrderUpsert {
+	u.SetNull(order.FieldRatedAt)
+	return u
+}
+
 // SetMetadata sets the "metadata" field.
 func (u *OrderUpsert) SetMetadata(v map[string]interface{}) *OrderUpsert {
 	u.Set(order.FieldMetadata, v)
@@ -2132,6 +2251,76 @@ func (u *OrderUpsertOne) UpdateCancellationReason() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearCancellationReason() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearCancellationReason()
+	})
+}
+
+// SetRating sets the "rating" field.
+func (u *OrderUpsertOne) SetRating(v int) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRating(v)
+	})
+}
+
+// AddRating adds v to the "rating" field.
+func (u *OrderUpsertOne) AddRating(v int) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddRating(v)
+	})
+}
+
+// UpdateRating sets the "rating" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateRating() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRating()
+	})
+}
+
+// ClearRating clears the value of the "rating" field.
+func (u *OrderUpsertOne) ClearRating() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRating()
+	})
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (u *OrderUpsertOne) SetRatingComment(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRatingComment(v)
+	})
+}
+
+// UpdateRatingComment sets the "rating_comment" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateRatingComment() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRatingComment()
+	})
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (u *OrderUpsertOne) ClearRatingComment() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRatingComment()
+	})
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (u *OrderUpsertOne) SetRatedAt(v time.Time) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRatedAt(v)
+	})
+}
+
+// UpdateRatedAt sets the "rated_at" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateRatedAt() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRatedAt()
+	})
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (u *OrderUpsertOne) ClearRatedAt() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRatedAt()
 	})
 }
 
@@ -2938,6 +3127,76 @@ func (u *OrderUpsertBulk) UpdateCancellationReason() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearCancellationReason() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearCancellationReason()
+	})
+}
+
+// SetRating sets the "rating" field.
+func (u *OrderUpsertBulk) SetRating(v int) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRating(v)
+	})
+}
+
+// AddRating adds v to the "rating" field.
+func (u *OrderUpsertBulk) AddRating(v int) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddRating(v)
+	})
+}
+
+// UpdateRating sets the "rating" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateRating() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRating()
+	})
+}
+
+// ClearRating clears the value of the "rating" field.
+func (u *OrderUpsertBulk) ClearRating() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRating()
+	})
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (u *OrderUpsertBulk) SetRatingComment(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRatingComment(v)
+	})
+}
+
+// UpdateRatingComment sets the "rating_comment" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateRatingComment() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRatingComment()
+	})
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (u *OrderUpsertBulk) ClearRatingComment() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRatingComment()
+	})
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (u *OrderUpsertBulk) SetRatedAt(v time.Time) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRatedAt(v)
+	})
+}
+
+// UpdateRatedAt sets the "rated_at" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateRatedAt() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRatedAt()
+	})
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (u *OrderUpsertBulk) ClearRatedAt() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRatedAt()
 	})
 }
 

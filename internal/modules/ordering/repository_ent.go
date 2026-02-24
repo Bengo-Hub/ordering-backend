@@ -463,6 +463,15 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 	if o.Metadata != nil {
 		builder.SetMetadata(o.Metadata)
 	}
+	if o.Rating != nil {
+		builder.SetRating(*o.Rating)
+	}
+	if o.RatingComment != "" {
+		builder.SetRatingComment(o.RatingComment)
+	}
+	if o.RatedAt != nil {
+		builder.SetRatedAt(*o.RatedAt)
+	}
 
 	updated, err := builder.Save(ctx)
 	if err != nil {
@@ -766,6 +775,15 @@ func entOrderToDomain(o *ent.Order) *Order {
 	}
 	if o.CancelledAt != nil {
 		ord.CancelledAt = o.CancelledAt
+	}
+	if o.Rating != nil {
+		ord.Rating = o.Rating
+	}
+	if o.RatingComment != "" {
+		ord.RatingComment = o.RatingComment
+	}
+	if o.RatedAt != nil {
+		ord.RatedAt = o.RatedAt
 	}
 
 	return ord

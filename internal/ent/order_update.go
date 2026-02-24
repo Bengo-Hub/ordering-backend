@@ -576,6 +576,73 @@ func (ou *OrderUpdate) ClearCancellationReason() *OrderUpdate {
 	return ou
 }
 
+// SetRating sets the "rating" field.
+func (ou *OrderUpdate) SetRating(i int) *OrderUpdate {
+	ou.mutation.ResetRating()
+	ou.mutation.SetRating(i)
+	return ou
+}
+
+// SetNillableRating sets the "rating" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRating(i *int) *OrderUpdate {
+	if i != nil {
+		ou.SetRating(*i)
+	}
+	return ou
+}
+
+// AddRating adds i to the "rating" field.
+func (ou *OrderUpdate) AddRating(i int) *OrderUpdate {
+	ou.mutation.AddRating(i)
+	return ou
+}
+
+// ClearRating clears the value of the "rating" field.
+func (ou *OrderUpdate) ClearRating() *OrderUpdate {
+	ou.mutation.ClearRating()
+	return ou
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (ou *OrderUpdate) SetRatingComment(s string) *OrderUpdate {
+	ou.mutation.SetRatingComment(s)
+	return ou
+}
+
+// SetNillableRatingComment sets the "rating_comment" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRatingComment(s *string) *OrderUpdate {
+	if s != nil {
+		ou.SetRatingComment(*s)
+	}
+	return ou
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (ou *OrderUpdate) ClearRatingComment() *OrderUpdate {
+	ou.mutation.ClearRatingComment()
+	return ou
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (ou *OrderUpdate) SetRatedAt(t time.Time) *OrderUpdate {
+	ou.mutation.SetRatedAt(t)
+	return ou
+}
+
+// SetNillableRatedAt sets the "rated_at" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRatedAt(t *time.Time) *OrderUpdate {
+	if t != nil {
+		ou.SetRatedAt(*t)
+	}
+	return ou
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (ou *OrderUpdate) ClearRatedAt() *OrderUpdate {
+	ou.mutation.ClearRatedAt()
+	return ou
+}
+
 // SetMetadata sets the "metadata" field.
 func (ou *OrderUpdate) SetMetadata(m map[string]interface{}) *OrderUpdate {
 	ou.mutation.SetMetadata(m)
@@ -874,6 +941,11 @@ func (ou *OrderUpdate) check() error {
 			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "Order.idempotency_key": %w`, err)}
 		}
 	}
+	if v, ok := ou.mutation.Rating(); ok {
+		if err := order.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`ent: validator failed for field "Order.rating": %w`, err)}
+		}
+	}
 	if _, ok := ou.mutation.CustomerID(); ou.mutation.CustomerCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
 	}
@@ -1032,6 +1104,27 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.CancellationReasonCleared() {
 		_spec.ClearField(order.FieldCancellationReason, field.TypeString)
+	}
+	if value, ok := ou.mutation.Rating(); ok {
+		_spec.SetField(order.FieldRating, field.TypeInt, value)
+	}
+	if value, ok := ou.mutation.AddedRating(); ok {
+		_spec.AddField(order.FieldRating, field.TypeInt, value)
+	}
+	if ou.mutation.RatingCleared() {
+		_spec.ClearField(order.FieldRating, field.TypeInt)
+	}
+	if value, ok := ou.mutation.RatingComment(); ok {
+		_spec.SetField(order.FieldRatingComment, field.TypeString, value)
+	}
+	if ou.mutation.RatingCommentCleared() {
+		_spec.ClearField(order.FieldRatingComment, field.TypeString)
+	}
+	if value, ok := ou.mutation.RatedAt(); ok {
+		_spec.SetField(order.FieldRatedAt, field.TypeTime, value)
+	}
+	if ou.mutation.RatedAtCleared() {
+		_spec.ClearField(order.FieldRatedAt, field.TypeTime)
 	}
 	if value, ok := ou.mutation.Metadata(); ok {
 		_spec.SetField(order.FieldMetadata, field.TypeJSON, value)
@@ -1885,6 +1978,73 @@ func (ouo *OrderUpdateOne) ClearCancellationReason() *OrderUpdateOne {
 	return ouo
 }
 
+// SetRating sets the "rating" field.
+func (ouo *OrderUpdateOne) SetRating(i int) *OrderUpdateOne {
+	ouo.mutation.ResetRating()
+	ouo.mutation.SetRating(i)
+	return ouo
+}
+
+// SetNillableRating sets the "rating" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRating(i *int) *OrderUpdateOne {
+	if i != nil {
+		ouo.SetRating(*i)
+	}
+	return ouo
+}
+
+// AddRating adds i to the "rating" field.
+func (ouo *OrderUpdateOne) AddRating(i int) *OrderUpdateOne {
+	ouo.mutation.AddRating(i)
+	return ouo
+}
+
+// ClearRating clears the value of the "rating" field.
+func (ouo *OrderUpdateOne) ClearRating() *OrderUpdateOne {
+	ouo.mutation.ClearRating()
+	return ouo
+}
+
+// SetRatingComment sets the "rating_comment" field.
+func (ouo *OrderUpdateOne) SetRatingComment(s string) *OrderUpdateOne {
+	ouo.mutation.SetRatingComment(s)
+	return ouo
+}
+
+// SetNillableRatingComment sets the "rating_comment" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRatingComment(s *string) *OrderUpdateOne {
+	if s != nil {
+		ouo.SetRatingComment(*s)
+	}
+	return ouo
+}
+
+// ClearRatingComment clears the value of the "rating_comment" field.
+func (ouo *OrderUpdateOne) ClearRatingComment() *OrderUpdateOne {
+	ouo.mutation.ClearRatingComment()
+	return ouo
+}
+
+// SetRatedAt sets the "rated_at" field.
+func (ouo *OrderUpdateOne) SetRatedAt(t time.Time) *OrderUpdateOne {
+	ouo.mutation.SetRatedAt(t)
+	return ouo
+}
+
+// SetNillableRatedAt sets the "rated_at" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRatedAt(t *time.Time) *OrderUpdateOne {
+	if t != nil {
+		ouo.SetRatedAt(*t)
+	}
+	return ouo
+}
+
+// ClearRatedAt clears the value of the "rated_at" field.
+func (ouo *OrderUpdateOne) ClearRatedAt() *OrderUpdateOne {
+	ouo.mutation.ClearRatedAt()
+	return ouo
+}
+
 // SetMetadata sets the "metadata" field.
 func (ouo *OrderUpdateOne) SetMetadata(m map[string]interface{}) *OrderUpdateOne {
 	ouo.mutation.SetMetadata(m)
@@ -2196,6 +2356,11 @@ func (ouo *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "Order.idempotency_key": %w`, err)}
 		}
 	}
+	if v, ok := ouo.mutation.Rating(); ok {
+		if err := order.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`ent: validator failed for field "Order.rating": %w`, err)}
+		}
+	}
 	if _, ok := ouo.mutation.CustomerID(); ouo.mutation.CustomerCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
 	}
@@ -2371,6 +2536,27 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if ouo.mutation.CancellationReasonCleared() {
 		_spec.ClearField(order.FieldCancellationReason, field.TypeString)
+	}
+	if value, ok := ouo.mutation.Rating(); ok {
+		_spec.SetField(order.FieldRating, field.TypeInt, value)
+	}
+	if value, ok := ouo.mutation.AddedRating(); ok {
+		_spec.AddField(order.FieldRating, field.TypeInt, value)
+	}
+	if ouo.mutation.RatingCleared() {
+		_spec.ClearField(order.FieldRating, field.TypeInt)
+	}
+	if value, ok := ouo.mutation.RatingComment(); ok {
+		_spec.SetField(order.FieldRatingComment, field.TypeString, value)
+	}
+	if ouo.mutation.RatingCommentCleared() {
+		_spec.ClearField(order.FieldRatingComment, field.TypeString)
+	}
+	if value, ok := ouo.mutation.RatedAt(); ok {
+		_spec.SetField(order.FieldRatedAt, field.TypeTime, value)
+	}
+	if ouo.mutation.RatedAtCleared() {
+		_spec.ClearField(order.FieldRatedAt, field.TypeTime)
 	}
 	if value, ok := ouo.mutation.Metadata(); ok {
 		_spec.SetField(order.FieldMetadata, field.TypeJSON, value)
