@@ -31,6 +31,12 @@ fi
 
 echo ""
 echo "=========================================="
+echo "Running seed (idempotent)"
+echo "=========================================="
+/usr/local/bin/ordering-seed || echo "Seed completed with warnings (non-fatal)"
+
+echo ""
+echo "=========================================="
 echo "Starting Ordering-Backend server"
 echo "=========================================="
 echo ""

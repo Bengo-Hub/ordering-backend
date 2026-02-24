@@ -8,91 +8,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/config"
 )
-
-func TestService_LoginWithEmail(t *testing.T) {
-	// Skip this test for now as it requires proper auth-service mocking
-	// This should be tested as an integration test with a real or mocked auth-service
-	t.Skip("Skipping TestService_LoginWithEmail - requires auth-service mocking or integration test setup")
-
-	tests := []struct {
-		name            string
-		email           string
-		password        string
-		tenantSlug      string
-		role            Role
-		setupRepo       func() *MemoryRepository
-		setupAuthClient func() *authclient.Client
-		wantErr         bool
-		validateResult  func(t *testing.T, result *AuthResult, err error)
-	}{
-		{
-			name:       "successful login with auth-service",
-			email:      "user@example.com",
-			password:   "password123",
-			tenantSlug: "urban-cafe",
-			role:       RoleCustomer,
-			setupRepo: func() *MemoryRepository {
-				return NewMemoryRepository()
-			},
-			setupAuthClient: func() *authclient.Client {
-				// This will be mocked in actual implementation
-				return nil
-			},
-			wantErr: false,
-			validateResult: func(t *testing.T, result *AuthResult, err error) {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-				if result == nil {
-					t.Fatal("expected AuthResult, got nil")
-				}
-				if result.User == nil {
-					t.Fatal("expected User, got nil")
-				}
-				if result.User.Email != "user@example.com" {
-					t.Errorf("expected user@example.com, got %s", result.User.Email)
-				}
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := tt.setupRepo()
-			logger := zap.NewNop()
-
-			authCfg := config.AuthConfig{
-				ServiceURL:        "https://sso.codevertexitsolutions.com",
-				Issuer:            "https://auth.bengobox.local",
-				Audience:          "urban-cafe",
-				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
-			}
-
-			service, err := NewService(repo, authCfg, logger)
-			if err != nil {
-				t.Fatalf("failed to create service: %v", err)
-			}
-
-			ctx := context.Background()
-			result, err := service.LoginWithEmail(ctx, tt.email, tt.password, tt.tenantSlug, tt.role, RequestMeta{
-				UserAgent: "test-agent",
-				IP:        "127.0.0.1",
-			})
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("LoginWithEmail() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if tt.validateResult != nil {
-				tt.validateResult(t, result, err)
-			}
-		})
-	}
-}
 
 func TestService_SyncUserFromAuthService(t *testing.T) {
 	authID2 := uuid.New()
@@ -264,6 +181,47 @@ func TestService_GetUser(t *testing.T) {
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_ExtractRolesFromAuthServiceUser(t *testing.T) {
+	tests := []struct {
+		name         string
+		authUserData map[string]interface{}
+		email        string
+		wantRoles    []Role
+	}{
+		{
+			name: "extract superuser from admin email",
+			authUserData: map[string]interface{}{
+				"email": "admin@codevertexitsolutions.com",
+			},
+			email:     "admin@codevertexitsolutions.com",
+			wantRoles: []Role{RoleSuperAdmin, RoleAdmin},
+		},
+		{
+			name: "extract roles from roles array",
+			authUserData: map[string]interface{}{
+				"roles": []interface{}{"customer", "rider"},
+			},
+			email:     "user@example.com",
+			wantRoles: []Role{RoleCustomer, RoleRider},
+		},
+		{
+			name:         "no roles in data",
+			authUserData: map[string]interface{}{},
+			email:        "user@example.com",
+			wantRoles:    nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			roles := extractRolesFromAuthServiceUser(tt.authUserData, tt.email)
+			if len(roles) != len(tt.wantRoles) {
+				t.Errorf("expected %d roles, got %d", len(tt.wantRoles), len(roles))
 			}
 		})
 	}

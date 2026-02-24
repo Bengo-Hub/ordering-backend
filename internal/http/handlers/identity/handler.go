@@ -18,6 +18,8 @@ import (
 )
 
 // Handler exposes identity-related HTTP endpoints.
+// Authentication is handled entirely by the SSO (auth-service) via OIDC.
+// This handler provides user profile management and sync confirmation endpoints.
 type Handler struct {
 	log     *zap.Logger
 	service *identity.Service
@@ -32,16 +34,13 @@ func New(log *zap.Logger, service *identity.Service) *Handler {
 }
 
 // Register mounts identity routes on the supplied router, using the provided middleware.
+// Login/register/OAuth endpoints have been removed - all authentication goes through SSO.
 func (h *Handler) Register(r chi.Router, auth *Authenticator) {
 	r.Route("/auth", func(authRouter chi.Router) {
-		authRouter.Post("/login", h.Login)
-		authRouter.Post("/register", h.HandleRegister)
-		authRouter.Post("/google/start", h.BeginGoogleOAuth)
-		authRouter.Post("/google/complete", h.CompleteGoogleOAuth)
-
+		// GET /auth/me - Returns current user profile (confirms user sync after SSO login)
 		authRouter.With(auth.RequireAuth).Get("/me", h.Me)
+		// POST /auth/logout - Client-side cleanup (real logout happens at SSO)
 		authRouter.With(auth.RequireAuth).Post("/logout", h.Logout)
-		authRouter.Post("/refresh", h.Refresh)
 	})
 
 	r.Route("/users", func(usersRouter chi.Router) {
@@ -56,166 +55,10 @@ func (h *Handler) Register(r chi.Router, auth *Authenticator) {
 	})
 }
 
-// Login authenticates a user via email and password.
-// @Summary Sign in with email and password
-// @Description Authenticates a user with email/password credentials and issues session tokens scoped to the selected role.
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param payload body LoginRequest true "Login request payload"
-// @Success 200 {object} AuthResponsePayload
-// @Failure 400 {object} handlers.ErrorResponse
-// @Failure 401 {object} handlers.ErrorResponse
-// @Router /auth/login [post]
-func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	var req LoginRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	role := identity.Role(req.Role)
-	meta := identity.RequestMeta{
-		UserAgent: r.UserAgent(),
-		IP:        clientIP(r),
-	}
-
-	result, err := h.service.LoginWithEmail(r.Context(), req.Email, req.Password, req.TenantSlug, role, meta)
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusOK, toAuthResponsePayload(result))
-}
-
-// HandleRegister creates a new user account via auth-service.
-// @Summary Register a new user
-// @Description Creates a new user account via auth-service and issues session tokens.
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param payload body RegisterRequest true "Registration request payload"
-// @Success 201 {object} AuthResponsePayload
-// @Failure 400 {object} handlers.ErrorResponse
-// @Failure 409 {object} handlers.ErrorResponse
-// @Router /auth/register [post]
-func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
-	var req RegisterRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	meta := identity.RequestMeta{
-		UserAgent: r.UserAgent(),
-		IP:        clientIP(r),
-	}
-
-	result, err := h.service.RegisterWithEmail(r.Context(), req.Email, req.Password, req.TenantSlug, req.Profile, meta)
-	if err != nil {
-		h.log.Error("Registration failed", zap.Error(err), zap.String("email", req.Email))
-		h.handleError(w, err)
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusCreated, toAuthResponsePayload(result))
-}
-
-// BeginGoogleOAuth starts the Google OAuth workflow.
-// @Summary Start Google OAuth sign-in
-// @Description Generates a Google OAuth consent URL for the requested role.
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param payload body GoogleStartRequest true "Google OAuth start request"
-// @Success 200 {object} GoogleOAuthURLResponse
-// @Failure 400 {object} handlers.ErrorResponse
-// @Router /auth/google/start [post]
-func (h *Handler) BeginGoogleOAuth(w http.ResponseWriter, r *http.Request) {
-	var req GoogleStartRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	role := identity.Role(req.Role)
-	url, err := h.service.BeginGoogleOAuth(r.Context(), role, req.RedirectURI)
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusOK, GoogleOAuthURLResponse{URL: url})
-}
-
-// CompleteGoogleOAuth completes the OAuth workflow and issues tokens.
-// @Summary Complete Google OAuth sign-in
-// @Description Exchanges the Google authorization code for tokens, creates a user if required, and issues session credentials.
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param payload body GoogleCompleteRequest true "Google OAuth completion request"
-// @Success 200 {object} AuthResponsePayload
-// @Failure 400 {object} handlers.ErrorResponse
-// @Failure 401 {object} handlers.ErrorResponse
-// @Failure 403 {object} handlers.ErrorResponse
-// @Router /auth/google/complete [post]
-func (h *Handler) CompleteGoogleOAuth(w http.ResponseWriter, r *http.Request) {
-	var req GoogleCompleteRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	meta := identity.RequestMeta{
-		UserAgent: r.UserAgent(),
-		IP:        clientIP(r),
-	}
-
-	result, err := h.service.CompleteGoogleOAuth(r.Context(), req.Code, req.State, meta)
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusOK, toAuthResponsePayload(result))
-}
-
-// Refresh issues new tokens based on refresh token.
-// @Summary Refresh session tokens
-// @Description Issues a fresh access token and refresh token pair using a valid refresh token.
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param payload body RefreshRequest true "Refresh token request"
-// @Success 200 {object} AuthResponsePayload
-// @Failure 400 {object} handlers.ErrorResponse
-// @Failure 401 {object} handlers.ErrorResponse
-// @Router /auth/refresh [post]
-func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
-	var req RefreshRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	meta := identity.RequestMeta{
-		UserAgent: r.UserAgent(),
-		IP:        clientIP(r),
-	}
-
-	result, err := h.service.Refresh(r.Context(), req.RefreshToken, meta)
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-	handlers.RespondJSON(w, http.StatusOK, toAuthResponsePayload(result))
-}
-
-// Logout invalidates the current session.
+// Logout handles server-side logout. The actual sign-out happens at the SSO level.
+// This endpoint exists for backward compatibility and to allow any local cleanup.
 // @Summary Sign out the current session
-// @Description Revokes the active session belonging to the authenticated user.
+// @Description Acknowledges logout. The real sign-out happens at the SSO authorize endpoint.
 // @Tags Auth
 // @Security bearerAuth
 // @Produce json
@@ -223,29 +66,14 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} handlers.ErrorResponse
 // @Router /auth/logout [post]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	claims, ok := identity.ClaimsFromContext(r.Context())
-	if !ok {
-		handlers.RespondError(w, http.StatusUnauthorized, "missing session")
-		return
-	}
-
-	sessionID, err := uuid.Parse(claims.SessionID)
-	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "invalid session")
-		return
-	}
-
-	if err := h.service.Logout(r.Context(), sessionID); err != nil {
-		h.handleError(w, err)
-		return
-	}
-
 	handlers.RespondJSON(w, http.StatusOK, OperationStatusResponse{Status: "signed_out"})
 }
 
 // Me returns current user profile.
+// This is the primary endpoint called by frontends after SSO callback to confirm
+// the user has been synced from auth-service via NATS events.
 // @Summary Get current authenticated user
-// @Description Returns the authenticated user's profile, preferences, and current session metadata.
+// @Description Returns the authenticated user's profile, preferences, and metadata.
 // @Tags Auth
 // @Security bearerAuth
 // @Produce json
@@ -259,7 +87,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.respondWithCurrentSession(w, r, user)
+	h.respondWithUser(w, r, user)
 }
 
 // UpdateProfile updates user profile information.
@@ -297,7 +125,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.respondWithCurrentSession(w, r, user)
+	h.respondWithUser(w, r, user)
 }
 
 // UpdatePreferences updates user preferences.
@@ -344,7 +172,7 @@ func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.respondWithCurrentSession(w, r, user)
+	h.respondWithUser(w, r, user)
 }
 
 // UpdateSecurity toggles MFA.
@@ -381,7 +209,7 @@ func (h *Handler) UpdateSecurity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.respondWithCurrentSession(w, r, user)
+	h.respondWithUser(w, r, user)
 }
 
 // ListOrderSummary returns order summary for current user.
@@ -423,13 +251,6 @@ func (h *Handler) ListOrderSummary(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleError(w http.ResponseWriter, err error) {
 	h.log.Error("identity request failed", zap.Error(err), zap.String("error_type", fmt.Sprintf("%T", err)))
 
-	// Extract more detailed error message if available
-	errorMsg := err.Error()
-	if strings.Contains(errorMsg, "auth-service") {
-		// For auth-service errors, include more context
-		h.log.Error("auth-service error details", zap.String("full_error", errorMsg))
-	}
-
 	switch {
 	case errors.Is(err, identity.ErrInvalidCredentials):
 		handlers.RespondError(w, http.StatusUnauthorized, "invalid credentials")
@@ -437,24 +258,16 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 		handlers.RespondError(w, http.StatusForbidden, "role not permitted")
 	case errors.Is(err, identity.ErrUserNotFound):
 		handlers.RespondError(w, http.StatusNotFound, "user not found")
+	case errors.Is(err, identity.ErrTwoFactorConflict):
+		handlers.RespondError(w, http.StatusBadRequest, "two-factor conflict: cannot enable and disable simultaneously")
 	default:
-		// Include error message in response for debugging (in development)
-		handlers.RespondError(w, http.StatusInternalServerError, errorMsg)
+		handlers.RespondError(w, http.StatusInternalServerError, err.Error())
 	}
 }
 
 func decodeJSON(r *http.Request, dst any) error {
 	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(dst)
-}
-
-func currentAccessToken(r *http.Request) string {
-	authHeader := r.Header.Get("Authorization")
-	parts := strings.SplitN(authHeader, " ", 2)
-	if len(parts) != 2 || !strings.EqualFold(parts[0], "bearer") {
-		return ""
-	}
-	return strings.TrimSpace(parts[1])
 }
 
 func optionalString(value string) *string {
@@ -475,58 +288,46 @@ func clientIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-func (h *Handler) respondWithCurrentSession(w http.ResponseWriter, r *http.Request, user *identity.User) {
-	session, ok := identity.SessionFromContext(r.Context())
-	if !ok {
-		handlers.RespondError(w, http.StatusUnauthorized, "session not found")
-		return
-	}
+// respondWithUser returns the user profile in the standard AuthResponsePayload format.
+// With SSO, session tokens are managed by the SSO provider - the session fields
+// are populated from the request's Bearer token for backward compatibility.
+func (h *Handler) respondWithUser(w http.ResponseWriter, r *http.Request, user *identity.User) {
+	// Try to get session from context (legacy auth path)
+	session, hasSession := identity.SessionFromContext(r.Context())
 
-	resp := AuthResponsePayload{
-		Session: SessionResponsePayload{
+	var sessionPayload SessionResponsePayload
+	if hasSession && session != nil {
+		sessionPayload = SessionResponsePayload{
 			AccessToken:  currentAccessToken(r),
 			RefreshToken: session.RefreshToken,
 			ExpiresAt:    session.ExpiresAt.Format(time.RFC3339),
 			SessionID:    session.ID.String(),
-		},
-		User: toUserResponsePayload(user),
+		}
+	} else {
+		// SSO auth path - return the bearer token as access token, no local session
+		sessionPayload = SessionResponsePayload{
+			AccessToken: currentAccessToken(r),
+		}
+	}
+
+	resp := AuthResponsePayload{
+		Session: sessionPayload,
+		User:    toUserResponsePayload(user),
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, resp)
 }
 
-// LoginRequest models email/password authentication input.
-type LoginRequest struct {
-	Email      string `json:"email" example:"customer@demo.com"`
-	Password   string `json:"password" example:"demo1234"`
-	Role       string `json:"role" example:"customer"`
-	TenantSlug string `json:"tenant_slug" example:"urban-cafe"` // Defaults to "urban-cafe" if not provided
+func currentAccessToken(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "bearer") {
+		return ""
+	}
+	return strings.TrimSpace(parts[1])
 }
 
-// RegisterRequest models user registration input.
-type RegisterRequest struct {
-	Email      string                 `json:"email" example:"newuser@urban-cafe.com"`
-	Password   string                 `json:"password" example:"SecurePassword123!"`
-	TenantSlug string                 `json:"tenant_slug" example:"urban-cafe"` // Defaults to "urban-cafe" if not provided
-	Profile    map[string]interface{} `json:"profile,omitempty"`                // Optional profile data
-}
-
-// GoogleStartRequest starts the OAuth workflow.
-type GoogleStartRequest struct {
-	Role        string `json:"role" example:"customer"`
-	RedirectURI string `json:"redirectUri" example:"http://localhost:3000/auth/callback"`
-}
-
-// GoogleCompleteRequest completes OAuth.
-type GoogleCompleteRequest struct {
-	Code  string `json:"code" example:"auth-code"`
-	State string `json:"state,omitempty" example:"customer"`
-}
-
-// RefreshRequest attempts to issue new tokens from a refresh token.
-type RefreshRequest struct {
-	RefreshToken string `json:"refreshToken" example:"refresh-token"`
-}
+// --- Request/Response types ---
 
 // UpdateProfileRequest captures mutable profile fields.
 type UpdateProfileRequest struct {
@@ -555,12 +356,7 @@ type UpdateSecurityRequest struct {
 	DisableTwoFactor bool `json:"disableTwoFactor"`
 }
 
-// GoogleOAuthURLResponse contains the generated OAuth consent URL.
-type GoogleOAuthURLResponse struct {
-	URL string `json:"url"`
-}
-
-// AuthResponsePayload is returned after successful authentication or session refresh.
+// AuthResponsePayload is returned for authenticated user endpoints.
 type AuthResponsePayload struct {
 	Session SessionResponsePayload `json:"session"`
 	User    UserResponsePayload    `json:"user"`
@@ -569,9 +365,9 @@ type AuthResponsePayload struct {
 // SessionResponsePayload models session tokens.
 type SessionResponsePayload struct {
 	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-	ExpiresAt    string `json:"expiresAt"`
-	SessionID    string `json:"sessionId"`
+	RefreshToken string `json:"refreshToken,omitempty"`
+	ExpiresAt    string `json:"expiresAt,omitempty"`
+	SessionID    string `json:"sessionId,omitempty"`
 }
 
 // UserResponsePayload models user profile output.
@@ -613,18 +409,6 @@ type OrderSummaryResponse struct {
 // OperationStatusResponse provides a generic status indicator.
 type OperationStatusResponse struct {
 	Status string `json:"status"`
-}
-
-func toAuthResponsePayload(result *identity.AuthResult) AuthResponsePayload {
-	return AuthResponsePayload{
-		Session: SessionResponsePayload{
-			AccessToken:  result.Session.AccessToken,
-			RefreshToken: result.Session.RefreshToken,
-			ExpiresAt:    result.Session.ExpiresAt.Format(time.RFC3339),
-			SessionID:    result.Session.SessionID.String(),
-		},
-		User: toUserResponsePayload(result.User),
-	}
 }
 
 func toUserResponsePayload(user *identity.User) UserResponsePayload {
