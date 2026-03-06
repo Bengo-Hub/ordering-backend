@@ -61,6 +61,8 @@ func main() {
 	log.Println("database seed completed successfully")
 }
 
+// runSeed seeds default tenant, roles, permissions, super admin, and urban-loft menu.
+// Tenant slug "urban-loft" must match auth-api and notifications-api (see shared-docs: default tenants mss, urban-loft, kura, ultichange; Codevertex = platform).
 func runSeed(ctx context.Context, client *ent.Client) (err error) {
 	const (
 		superAdminID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
