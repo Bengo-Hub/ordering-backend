@@ -38,6 +38,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 
 		// Customer-facing endpoints
 		orderRouter.Get("/", h.ListOrders)
+		orderRouter.Post("/", h.CreateOrder)
 		orderRouter.Get("/{orderId}", h.GetOrder)
 		orderRouter.Post("/{orderId}/cancel", h.CancelOrder)
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
@@ -88,6 +89,28 @@ type CancelOrderRequest struct {
 type RateOrderRequest struct {
 	Rating  int    `json:"rating"`
 	Comment string `json:"comment"`
+}
+
+// CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
+type CreateOrderRequestDTO struct {
+	OutletID         string   `json:"outletId"`
+	Items            []OrderItemDTO `json:"items"`
+	DeliveryAddress  string   `json:"deliveryAddress"`
+	DeliveryLat      *float64 `json:"deliveryLat,omitempty"`
+	DeliveryLng      *float64 `json:"deliveryLng,omitempty"`
+	DeliveryNotes    string   `json:"deliveryNotes,omitempty"`
+	PaymentMethod    string   `json:"paymentMethod"` // "mpesa" | "cod"
+	PromoCode        string   `json:"promoCode,omitempty"`
+	ScheduledAt      string   `json:"scheduledAt,omitempty"`
+}
+
+// OrderItemDTO is a single item in CreateOrderRequestDTO.
+type OrderItemDTO struct {
+	MenuItemID string  `json:"menuItemId"`
+	Name       string  `json:"name"`
+	Quantity   int     `json:"quantity"`
+	UnitPrice  float64 `json:"unitPrice"`
+	TotalPrice float64 `json:"totalPrice"`
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -344,6 +367,92 @@ func (h *OrderHandler) ValidateCheckout(w http.ResponseWriter, r *http.Request) 
 		"valid":  true,
 		"errors": []string{},
 	})
+}
+
+// CreateOrder creates an order from a list of items (convenience endpoint matching frontend contract).
+// @Summary Create order from items
+// @Description Creates an order directly from items (outletId, items, deliveryAddress, paymentMethod). Alternative to cart + checkout flow.
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param payload body CreateOrderRequestDTO true "Order data"
+// @Success 201 {object} ordering.Order
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Router /orders [post]
+func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var req CreateOrderRequestDTO
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.OutletID == "" || len(req.Items) == 0 || req.DeliveryAddress == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "outletId, items, and deliveryAddress are required")
+		return
+	}
+
+	cafeID, err := uuid.Parse(req.OutletID)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
+		return
+	}
+
+	items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
+	for _, it := range req.Items {
+		menuItemID, err := uuid.Parse(it.MenuItemID)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid menuItemId in items")
+			return
+		}
+		items = append(items, ordering.CreateOrderItemInput{
+			MenuItemID: menuItemID,
+			Name:       it.Name,
+			Quantity:   it.Quantity,
+			UnitPrice:  it.UnitPrice,
+			TotalPrice: it.TotalPrice,
+		})
+	}
+
+	channel := ordering.OrderChannelWeb
+	if r.Header.Get("X-Order-Channel") != "" {
+		channel = ordering.OrderChannel(r.Header.Get("X-Order-Channel"))
+	}
+
+	order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
+		TenantID:        tenantID,
+		CafeID:          cafeID,
+		UserID:          user.ID,
+		Items:           items,
+		DeliveryAddress: req.DeliveryAddress,
+		DeliveryLat:     req.DeliveryLat,
+		DeliveryLng:     req.DeliveryLng,
+		DeliveryNotes:   req.DeliveryNotes,
+		PaymentMethod:   req.PaymentMethod,
+		PromoCode:       req.PromoCode,
+		Channel:         channel,
+	})
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusCreated, order)
 }
 
 // GetOrder retrieves an order by ID.

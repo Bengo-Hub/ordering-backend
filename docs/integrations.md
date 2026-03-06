@@ -76,6 +76,26 @@ This document provides detailed integration information for all external service
 6. [Event-Driven Architecture](#event-driven-architecture)
 7. [Integration Security](#integration-security)
 8. [Error Handling & Resilience](#error-handling--resilience)
+9. [Media storage (menu images and uploads)](#media-storage-menu-images-and-uploads)
+
+---
+
+## Media storage (menu images and uploads)
+
+**Local development**
+- `ORDERING_MEDIA_ROOT` defaults to `./media`. Create `./media/menu` and place or symlink menu images for local file serving at `GET /media/*`.
+- Seed script stores menu item `image_url` as paths (e.g. `/images/menu/espresso.jpg`) for frontend use; cafe-website serves these from its own `public/images/menu`.
+
+**Production (Kubernetes)**
+- Set `ORDERING_MEDIA_ROOT=/media` and mount a PVC at `/media` (see devops-k8s `persistence` in ordering-backend values).
+- Init container creates `.../menu`, `.../products`, etc., and sets permissions to 775; app runs as UID 1000 with `fsGroup: 1000` so the process can read/write the volume.
+- Uploaded menu images or assets can be stored under `/media/menu` and referenced by full URL (e.g. `https://orderingapi.codevertexitsolutions.com/media/menu/xyz.jpg`) or set `ORDERING_MEDIA_URL_BASE` for absolute URLs in API responses.
+
+**Ingress**
+- Ensure ingress allows `proxy-body-size` and routing for `/media/*` so uploads and static media are served correctly.
+
+**Order creation**
+- Backend supports (1) cart + `POST /checkout` and (2) direct `POST /api/v1/{tenant}/orders` with body `{ outletId, items, deliveryAddress, paymentMethod, ... }`. `outletId` must be the cafe/outlet UUID (see catalog or outlets API).
 
 ---
 
@@ -267,6 +287,7 @@ This document provides detailed integration information for all external service
 - Treasury service base URL: `TREASURY_SERVICE_BASE_URL` (environment variable)
 - Webhook secret: Stored encrypted (Tier 1)
 - M-Pesa configuration: Short code, consumer key/secret (Tier 1)
+- **Default payment provider**: Supported providers are M-Pesa, Stripe, Paystack, Flutterwave, Manual. For Paystack as default, configure treasury-api with Paystack keys and set default provider (e.g. tenant config or `CreatePaymentIntent` request with `Provider: paystack`) when creating intents.
 
 ### Logistics Service
 

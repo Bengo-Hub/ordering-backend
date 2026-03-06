@@ -29,9 +29,11 @@ import (
 )
 
 // New constructs the chi router with global middleware and base routes.
+// mediaRoot: if non-empty, serves static files at /media/* for menu images and uploads (local dev or persistent volume).
 func New(
 	log *zap.Logger,
 	healthHandler *handlers.HealthHandler,
+	mediaRoot string,
 	identityHandler *identityhandler.Handler,
 	catalogHandler *cataloghandler.Handler,
 	cartHandler *orderinghandler.CartHandler,
@@ -100,6 +102,11 @@ func New(
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
+
+	// Local media storage: menu images and uploads (ORDERING_MEDIA_ROOT). Production: use persistent volume mount.
+	if mediaRoot != "" {
+		r.Handle("/media/*", http.StripPrefix("/media", http.FileServer(http.Dir(mediaRoot))))
+	}
 
 	// Redirect root path to Swagger documentation
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {

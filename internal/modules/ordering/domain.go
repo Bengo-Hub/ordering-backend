@@ -348,6 +348,30 @@ type CheckoutRequest struct {
 	IdempotencyKey        string
 }
 
+// CreateOrderFromItemsRequest is the request to create an order directly from a list of items (frontend contract).
+type CreateOrderFromItemsRequest struct {
+	TenantID        uuid.UUID
+	CafeID          uuid.UUID
+	UserID          uuid.UUID
+	Items           []CreateOrderItemInput
+	DeliveryAddress string
+	DeliveryLat     *float64
+	DeliveryLng     *float64
+	DeliveryNotes   string
+	PaymentMethod   string // "mpesa" | "cod"
+	PromoCode       string
+	Channel         OrderChannel
+}
+
+// CreateOrderItemInput is a single line item when creating an order from items.
+type CreateOrderItemInput struct {
+	MenuItemID uuid.UUID
+	Name       string
+	Quantity   int
+	UnitPrice  float64
+	TotalPrice float64
+}
+
 // PromoValidationResult represents the result of promo code validation.
 type PromoValidationResult struct {
 	Valid          bool          `json:"valid"`

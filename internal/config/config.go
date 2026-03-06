@@ -31,6 +31,16 @@ type Config struct {
 	Notifications NotificationsConfig `envconfig:""`
 	Superset      SupersetConfig      `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
+	Media         MediaConfig         `envconfig:""`
+}
+
+// MediaConfig configures local media storage for menu item images and uploads.
+// Production: set MEDIA_ROOT to a persistent volume path (e.g. /media). Local: ./media or empty to disable.
+type MediaConfig struct {
+	// Root is the filesystem path for uploaded and local media (menu images, avatars). Empty disables local file serving.
+	Root string `envconfig:"MEDIA_ROOT" default:"./media"`
+	// URLBase is the base URL for serving media (e.g. https://orderingapi.codevertexitsolutions.com/media). Empty means relative /media.
+	URLBase string `envconfig:"MEDIA_URL_BASE"`
 }
 
 type AppConfig struct {
@@ -222,6 +232,9 @@ func Load() (*Config, error) {
 	}
 	if err := envconfig.Process(namespace, &cfg.Security); err != nil {
 		return nil, fmt.Errorf("config: failed to load security config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Media); err != nil {
+		return nil, fmt.Errorf("config: failed to load media config: %w", err)
 	}
 
 	return &cfg, nil

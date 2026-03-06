@@ -204,6 +204,86 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	return order, nil
 }
 
+// CreateOrderFromItems creates an order directly from a list of items (convenience endpoint for frontend).
+func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrderFromItemsRequest) (*Order, error) {
+	if len(req.Items) == 0 {
+		return nil, ErrCartEmpty
+	}
+
+	var subtotal float64
+	for _, it := range req.Items {
+		subtotal += it.TotalPrice
+	}
+
+	deliveryFee := 0.0
+	discountTotal := 0.0
+	grandTotal := subtotal - discountTotal + deliveryFee
+
+	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.CafeID)
+	if err != nil {
+		s.logger.Error("failed to generate order number", zap.Error(err))
+		return nil, err
+	}
+
+	loyaltyPointsEarned := int(grandTotal * float64(LoyaltyPointsPerUnit))
+	instructions := req.DeliveryAddress
+	if req.DeliveryNotes != "" {
+		instructions = instructions + "\n" + req.DeliveryNotes
+	}
+
+	now := time.Now()
+	order := &Order{
+		TenantID:            req.TenantID,
+		CafeID:              req.CafeID,
+		CustomerID:          req.UserID,
+		CartID:              nil,
+		OrderNumber:         orderNumber,
+		Status:              OrderStatusPending,
+		PaymentStatus:       PaymentStatusPending,
+		Currency:            "KES",
+		Subtotal:            subtotal,
+		DiscountTotal:       discountTotal,
+		TaxTotal:            0,
+		DeliveryFee:         deliveryFee,
+		GrandTotal:          grandTotal,
+		LoyaltyPointsEarned: loyaltyPointsEarned,
+		Instructions:        instructions,
+		Channel:             req.Channel,
+		PlacedAt:            &now,
+		CreatedAt:           now,
+		UpdatedAt:           now,
+	}
+
+	if err := s.repo.CreateOrder(ctx, order); err != nil {
+		s.logger.Error("failed to create order", zap.Error(err))
+		return nil, err
+	}
+
+	for _, it := range req.Items {
+		orderItem := &OrderItem{
+			OrderID:      order.ID,
+			MenuItemID:   it.MenuItemID,
+			NameSnapshot: it.Name,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
+		}
+		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
+			s.logger.Error("failed to create order item", zap.Error(err))
+		}
+	}
+
+	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, &req.UserID, "user", "")
+	s.publishOrderCreated(ctx, order, len(req.Items))
+
+	s.logger.Info("order created from items",
+		zap.String("id", order.ID.String()),
+		zap.String("orderNumber", order.OrderNumber),
+		zap.Float64("grandTotal", order.GrandTotal))
+
+	return order, nil
+}
+
 // GetOrder retrieves an order by ID.
 func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
