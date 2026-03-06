@@ -50,12 +50,13 @@ type AppConfig struct {
 }
 
 type HTTPConfig struct {
-	Host           string        `envconfig:"HTTP_HOST" default:"0.0.0.0"`
-	Port           int           `envconfig:"HTTP_PORT" default:"4000"`
-	ReadTimeout    time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
-	WriteTimeout   time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
-	IdleTimeout    time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
-	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://orderingapi.codevertexitsolutions.com,https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
+	Host         string        `envconfig:"HTTP_HOST" default:"0.0.0.0"`
+	Port         int           `envconfig:"HTTP_PORT" default:"4000"`
+	ReadTimeout  time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
+	WriteTimeout time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
+	IdleTimeout  time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
+	// Browser origins that may call this API (frontends). Not the API host itself.
+	AllowedOrigins []string `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com,https://notifications.codevertexitsolutions.com,http://localhost:3001,http://127.0.0.1:3001"`
 }
 
 type PostgresConfig struct {
@@ -104,7 +105,7 @@ type AuthConfig struct {
 	RefreshTokenTTL    time.Duration `envconfig:"AUTH_REFRESH_TOKEN_TTL" default:"720h"`
 	GoogleClientID     string        `envconfig:"AUTH_GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
-	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"https://orderapp.codevertexitsolutions.com/auth/callback"`
+	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"https://ordersapp.codevertexitsolutions.com/auth/callback"`
 	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Ordering Platform"`
 }
 
