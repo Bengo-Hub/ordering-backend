@@ -1,5 +1,7 @@
 # Ordering Service - Implementation Plan
-**Overall Backend Progress: ~90% Complete**
+**Overall Backend Progress: ~92% Complete**
+
+**March 6 update**: Menu seed script added (`cmd/seed/main.go`): 7 categories, 39 menu items with SKUs matching inventory-service 1:1 for tenant urban-loft / outlet Busia. Inventory client (`internal/platform/inventory/client.go`) already wired for stock check, reserve, consume, release. Run `go run ./cmd/seed/` after DB is up to populate menu data.
 
 ## Executive Summary
 
