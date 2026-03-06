@@ -65,4 +65,7 @@ type Repository interface {
 	// Public API helpers
 	GetPublicMenu(ctx context.Context, req PublicMenuRequest) ([]PublicMenuItem, int, error)
 	GetPublicCategories(ctx context.Context, tenantID, cafeID uuid.UUID) ([]PublicCategory, error)
+
+	// Cafes (distinct cafe/outlet IDs for a tenant, for frontend outlet list)
+	GetDistinctCafeIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error)
 }

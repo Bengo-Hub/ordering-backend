@@ -152,14 +152,15 @@ type MenuItemFilter struct {
 
 // PublicMenuRequest represents a request for the public menu API.
 type PublicMenuRequest struct {
-	TenantSlug  string
-	CafeID      *uuid.UUID
-	CategoryID  *uuid.UUID
-	Locale      string
+	TenantID   uuid.UUID
+	TenantSlug string
+	CafeID     *uuid.UUID
+	CategoryID *uuid.UUID
+	Locale     string
 	DietaryTags []string
-	Search      string
-	Limit       int
-	Offset      int
+	Search     string
+	Limit      int
+	Offset     int
 }
 
 // PublicMenuItem is a read-only view of a menu item for public consumption.
@@ -185,4 +186,10 @@ type PublicCategory struct {
 	ImageURL    string           `json:"imageUrl,omitempty"`
 	ItemCount   int              `json:"itemCount"`
 	Children    []PublicCategory `json:"children,omitempty"`
+}
+
+// CafeSummary is a minimal cafe/outlet for listing (id and display name).
+type CafeSummary struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }

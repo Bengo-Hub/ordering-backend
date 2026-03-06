@@ -708,12 +708,12 @@ func (r *EntRepository) DeleteSchedule(ctx context.Context, scheduleID uuid.UUID
 // --- Public API Methods ---
 
 func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicMenuRequest) ([]PublicMenuItem, int, error) {
-	// For now, use the regular menu item query with available filter
 	filter := MenuItemFilter{
-		Search:   req.Search,
-		Locale:   req.Locale,
-		Limit:    req.Limit,
-		Offset:   req.Offset,
+		TenantID:   req.TenantID,
+		Search:     req.Search,
+		Locale:     req.Locale,
+		Limit:      req.Limit,
+		Offset:     req.Offset,
 	}
 	if req.CafeID != nil {
 		filter.CafeID = req.CafeID
@@ -724,9 +724,6 @@ func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicMenuRequest
 	isAvailable := true
 	filter.IsAvailable = &isAvailable
 
-	// Note: We need tenant ID here, but public request has slug
-	// This should be resolved at service level by looking up tenant by slug
-	// For now, return empty if no tenant ID
 	if filter.TenantID == uuid.Nil {
 		return []PublicMenuItem{}, 0, nil
 	}
@@ -759,6 +756,28 @@ func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, cafeI
 		result[i] = toPublicCategory(cat)
 	}
 	return result, nil
+}
+
+// GetDistinctCafeIDs returns distinct cafe IDs that have menu categories for the tenant.
+func (r *EntRepository) GetDistinctCafeIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
+	cats, err := r.client.MenuCategory.Query().
+		Where(menucategory.TenantID(tenantID)).
+		Select(menucategory.FieldCafeID).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	seen := make(map[uuid.UUID]struct{})
+	var out []uuid.UUID
+	for _, c := range cats {
+		id := c.CafeID
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	return out, nil
 }
 
 // --- Conversion Helpers ---

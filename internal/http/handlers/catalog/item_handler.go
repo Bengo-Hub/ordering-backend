@@ -293,10 +293,11 @@ func (h *Handler) ListPublicMenuItems(w http.ResponseWriter, r *http.Request) {
 	locale := getLocale(r)
 
 	req := catalog.PublicMenuRequest{
-		Locale: locale,
-		Search: r.URL.Query().Get("search"),
-		Limit:  limit,
-		Offset: offset,
+		TenantID: tenantID,
+		Locale:   locale,
+		Search:   r.URL.Query().Get("search"),
+		Limit:    limit,
+		Offset:   offset,
 	}
 
 	if cafeIDStr := r.URL.Query().Get("cafe_id"); cafeIDStr != "" {
@@ -312,9 +313,6 @@ func (h *Handler) ListPublicMenuItems(w http.ResponseWriter, r *http.Request) {
 			req.CategoryID = &categoryID
 		}
 	}
-
-	// Set tenant ID on request for repo
-	_ = tenantID // Note: We need to pass this through the service
 
 	items, total, err := h.service.GetPublicMenu(r.Context(), req)
 	if err != nil {

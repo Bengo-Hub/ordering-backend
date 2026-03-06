@@ -38,6 +38,11 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 		menuRouter.Get("/items", h.ListPublicMenuItems)
 		menuRouter.Get("/items/{id}", h.GetPublicMenuItem)
 	})
+	// Public cafes/outlets list (no auth required)
+	r.Route("/cafes", func(cafesRouter chi.Router) {
+		cafesRouter.Get("/", h.ListCafes)
+		cafesRouter.Get("/{id}", h.GetCafe)
+	})
 
 	// Admin catalog API (auth required)
 	r.Route("/catalog", func(catalogRouter chi.Router) {

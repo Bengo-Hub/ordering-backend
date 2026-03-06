@@ -635,24 +635,44 @@ func (s *Service) DeleteSchedule(ctx context.Context, scheduleID uuid.UUID) erro
 
 // --- Public API Operations ---
 
-// GetPublicMenu retrieves the public menu.
+// GetPublicMenu retrieves the public menu. Caller must set req.TenantID.
 func (s *Service) GetPublicMenu(ctx context.Context, req PublicMenuRequest) ([]PublicMenuItem, int, error) {
-	// Set default locale
 	if req.Locale == "" {
 		req.Locale = LocaleEnglish
 	}
-
-	// Set default limit
 	if req.Limit == 0 {
 		req.Limit = 50
 	}
-
 	return s.repo.GetPublicMenu(ctx, req)
 }
 
 // GetPublicCategories retrieves public categories.
 func (s *Service) GetPublicCategories(ctx context.Context, tenantID, cafeID uuid.UUID) ([]PublicCategory, error) {
 	return s.repo.GetPublicCategories(ctx, tenantID, cafeID)
+}
+
+// ListCafes returns cafes (outlets) for the tenant for public listing.
+// Name defaults to "Outlet"; can be extended via tenant settings later.
+func (s *Service) ListCafes(ctx context.Context, tenantID uuid.UUID) ([]CafeSummary, error) {
+	ids, err := s.repo.GetDistinctCafeIDs(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]CafeSummary, len(ids))
+	for i, id := range ids {
+		out[i] = CafeSummary{ID: id, Name: cafeDisplayName(id)}
+	}
+	return out, nil
+}
+
+// cafeDisplayName returns a display name for the cafe (default "Outlet"; known seed cafes can be mapped).
+func cafeDisplayName(id uuid.UUID) string {
+	// Seed "urban-loft" / "busia" cafe ID (same formula as cmd/seed)
+	busiaID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
+	if id == busiaID {
+		return "Urban Loft Cafe Busia"
+	}
+	return "Outlet"
 }
 
 // --- Helper Functions ---
