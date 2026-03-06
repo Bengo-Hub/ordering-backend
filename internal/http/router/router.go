@@ -19,6 +19,7 @@ import (
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
+	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
@@ -34,6 +35,7 @@ func New(
 	log *zap.Logger,
 	healthHandler *handlers.HealthHandler,
 	mediaRoot string,
+	configHandler *confighandler.Handler,
 	identityHandler *identityhandler.Handler,
 	catalogHandler *cataloghandler.Handler,
 	cartHandler *orderinghandler.CartHandler,
@@ -162,8 +164,9 @@ func New(
 					tenant.Use(func(next http.Handler) http.Handler {
 						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 							path := r.URL.Path
-							// Skip auth middleware for /auth/* and /webhooks/* routes
-							if strings.Contains(path, "/auth/") || strings.Contains(path, "/webhooks/") {
+							// Skip auth for public routes: auth, webhooks, tenant config, cafes, menu (catalog)
+							if strings.Contains(path, "/auth/") || strings.Contains(path, "/webhooks/") ||
+								strings.Contains(path, "/config") || strings.Contains(path, "/cafes") || strings.Contains(path, "/menu") {
 								next.ServeHTTP(w, r)
 								return
 							}
@@ -175,6 +178,11 @@ func New(
 				// Audit logging middleware for mutation endpoints
 				if auditLogger != nil {
 					tenant.Use(audit.MutationAudit(auditLogger))
+				}
+
+				// Public tenant/brand config (no auth)
+				if configHandler != nil {
+					tenant.Get("/config", configHandler.GetConfig)
 				}
 
 				// Register identity routes (auth endpoints are public)

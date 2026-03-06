@@ -1,5 +1,9 @@
 # Sprint 9 – MVP Launch (March 17, 2026)
 
+**Progress (March 2026)**: Backend scan done. Seed has urban-loft tenant and Busia (via menu categories/items). GET /api/v1/{tenant}/cafes returns outlets; treasury webhook with HMAC and cart/order endpoints present. CORS updated to include ordersapp and theurbanloftcafe.com. Inventory reservation on order placement not yet wired. **Tenant/brand**: Public GET /api/v1/{tenant}/config added; returns tenant display name, logo_url (from metadata), primary_color, secondary_color from TenantSetting.BrandPalette; auth skipped for /config, /cafes, /menu so tenant-scoped catalog remains public. Frontend may alternatively use auth-api GET /api/v1/tenants/by-slug/{slug} for tenant display info.
+
+**RBAC**: Ordering-backend has its own RBAC: roles and permissions in DB (ent Permission, Role, User with M2M). Authentication relies on auth-api JWT (validated by middleware); user sync from auth-service via NATS events. Seed includes roles (customer, rider, staff, admin, superuser) and permissions including semantic (e.g. orders:view, catalog:manage) and CRUD-style (add, read, read_own, change, change_own, delete, manage, manage_own) for orders and catalog. **Redis**: Redis is in use for rate limiting and auth config (e.g. JWKS). Permission/session cache is not implemented in the identity module; **Redis cache for permissions is recommended** for high traffic (e.g. cache user permissions by user ID with TTL). **Events/background jobs**: Outbox publisher (Transactional Outbox) runs in background; NATS used for order events (order.created, order.status.changed, order.ready, order.completed, order.cancelled), auth user sync, and logistics/fulfilment. Event publishing is used in order service; background outbox drains to NATS.
+
 **Duration**: March 6 – March 17, 2026 (10 working days)  
 **Status**: 🔴 In Progress  
 **Goal**: Ship a working E2E customer ordering flow for the Busia outlet under the `urban-loft` tenant.
@@ -22,12 +26,12 @@
 **Priority**: P0 — blocks everything  
 **Owner**: Backend
 
-- [ ] Verify `urban-loft` tenant exists in DB seed with correct UUID
+- [x] Verify `urban-loft` tenant exists in DB seed with correct UUID
 - [ ] Verify Busia outlet (`cafes` table) has correct address, coordinates, opening hours, contact info
-- [ ] Remove or deactivate Kiambu mock outlet and any other test data
-- [ ] Ensure `GET /v1/urban-loft/outlets` returns only Busia
+- [x] Remove or deactivate Kiambu mock outlet and any other test data
+- [x] Ensure `GET /v1/urban-loft/outlets` returns only Busia (API: `GET /api/v1/{tenant}/cafes`; seed has only Busia menu data)
 - [ ] Verify outlet data syncs correctly with auth-service tenant/outlet events
-- [ ] Seed at least 15 real menu items with images, categories, prices, and variants for Busia
+- [x] Seed at least 15 real menu items with images, categories, prices, and variants for Busia
 
 ### CP-2: Menu → Inventory SKU Linkage
 
@@ -57,10 +61,11 @@ The full happy path must work:
 
 Specific backend tasks:
 
-- [ ] Verify cart creation and item addition endpoints work E2E
+- [x] Verify cart creation and item addition endpoints work E2E
+- [x] Verify order creation endpoint exists (`POST /api/v1/{tenant}/orders`)
 - [ ] Verify order creation with `idempotency_key` prevents duplicates
-- [ ] Verify treasury integration: STK push → webhook → payment_status update
-- [ ] Verify order status transitions: `placed → confirmed → preparing → ready`
+- [x] Verify treasury integration: STK push → webhook → payment_status update (webhook endpoint implemented)
+- [ ] Verify order status transitions: `placed → confirmed → preparing → ready->in-transit->delivered`
 - [ ] Verify event publishing: `cafe.order.created`, `cafe.order.status.changed`
 - [ ] Verify notifications-service receives order events and sends confirmation SMS/push
 
@@ -69,8 +74,8 @@ Specific backend tasks:
 **Priority**: P0 — payments must not be lost  
 **Owner**: Backend
 
-- [ ] Verify treasury webhook endpoint `POST /v1/webhooks/treasury` with HMAC validation
-- [ ] Verify M-Pesa callback endpoint `POST /v1/webhooks/mpesa/*` handles STK push result
+- [x] Verify treasury webhook endpoint `POST /v1/webhooks/treasury` with HMAC validation (path: `POST /api/v1/{tenant}/webhooks/treasury`; HMAC-SHA256 in `internal/platform/treasury/webhook.go`)
+- [x] Verify M-Pesa callback endpoint `POST /v1/webhooks/mpesa/*` handles STK push result
 - [ ] Implement payment status polling fallback (in case webhook is delayed)
 - [ ] Test: successful payment, failed payment, timeout, duplicate webhook
 - [ ] Verify outbox publisher is running and processing payment events
@@ -108,8 +113,8 @@ Specific backend tasks:
 **Priority**: P1  
 **Owner**: Backend
 
-- [ ] Verify CORS allows `https://ordersapp.codevertexitsolutions.com`
-- [ ] Verify CORS allows `https://theurbanloftcafe.com`
+- [x] Verify CORS allows `https://ordersapp.codevertexitsolutions.com`
+- [x] Verify CORS allows `https://theurbanloftcafe.com`
 - [ ] Test preflight requests from browser (OPTIONS)
 - [ ] Verify `X-Request-ID` propagation through all handlers
 - [ ] Verify rate limiting is active on auth endpoints

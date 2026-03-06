@@ -55,7 +55,7 @@ type HTTPConfig struct {
 	ReadTimeout    time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
 	WriteTimeout   time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout    time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
-	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://orderingapi.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
+	AllowedOrigins []string      `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://orderingapi.codevertexitsolutions.com,https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com"`
 }
 
 type PostgresConfig struct {

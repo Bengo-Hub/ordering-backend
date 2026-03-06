@@ -19,6 +19,7 @@ import (
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
+	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
@@ -171,6 +172,9 @@ func New(ctx context.Context) (*App, error) {
 	identityHandler := identityhandler.New(log, identitySvc)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
+	// Public tenant/brand config handler (no auth)
+	configHandler := confighandler.New(log, ormClient)
+
 	// Initialize catalog module
 	catalogRepo := catalog.NewEntRepository(ormClient)
 	catalogSvc := catalog.NewService(catalogRepo, log)
@@ -292,7 +296,7 @@ func New(ctx context.Context) (*App, error) {
 	auditLogger := audit.New(ormClient, log)
 	log.Info("app: audit logger initialized")
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
