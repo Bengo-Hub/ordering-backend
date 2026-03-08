@@ -311,8 +311,10 @@ func (h *Handler) respondWithUser(w http.ResponseWriter, r *http.Request, user *
 	}
 
 	resp := AuthResponsePayload{
-		Session: sessionPayload,
-		User:    toUserResponsePayload(user),
+		Session:    sessionPayload,
+		User:       toUserResponsePayload(user),
+		TenantID:   user.TenantID,
+		TenantSlug: getTenantSlugFromRequest(r),
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, resp)
@@ -325,6 +327,11 @@ func currentAccessToken(r *http.Request) string {
 		return ""
 	}
 	return strings.TrimSpace(parts[1])
+}
+
+// getTenantSlugFromRequest returns the tenant slug from the URL path (/api/v1/{tenant}/...).
+func getTenantSlugFromRequest(r *http.Request) string {
+	return chi.URLParam(r, "tenant")
 }
 
 // --- Request/Response types ---
@@ -357,9 +364,12 @@ type UpdateSecurityRequest struct {
 }
 
 // AuthResponsePayload is returned for authenticated user endpoints.
+// TenantID and TenantSlug allow frontends to set X-Tenant-ID and persist tenant context.
 type AuthResponsePayload struct {
-	Session SessionResponsePayload `json:"session"`
-	User    UserResponsePayload    `json:"user"`
+	Session    SessionResponsePayload `json:"session"`
+	User       UserResponsePayload    `json:"user"`
+	TenantID   string                 `json:"tenant_id,omitempty"`
+	TenantSlug string                 `json:"tenant_slug,omitempty"`
 }
 
 // SessionResponsePayload models session tokens.

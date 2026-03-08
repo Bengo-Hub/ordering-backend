@@ -17,18 +17,11 @@ import (
 // @Success 200 {array} catalog.CafeSummary
 // @Router /cafes [get]
 func (h *Handler) ListCafes(w http.ResponseWriter, r *http.Request) {
-	tenantID, err := getTenantID(r)
+	// Resolve tenant by slug from path (or X-Tenant-ID header) so public calls work with /api/v1/{tenant}/cafes
+	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
-		tenantIDStr := r.URL.Query().Get("tenant_id")
-		if tenantIDStr == "" {
-			handlers.RespondError(w, http.StatusBadRequest, "tenant_id or X-Tenant-ID required")
-			return
-		}
-		tenantID, err = uuid.Parse(tenantIDStr)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid tenant_id")
-			return
-		}
+		handlers.RespondError(w, http.StatusBadRequest, "tenant required (use path slug or X-Tenant-ID)")
+		return
 	}
 
 	list, err := h.service.ListCafes(r.Context(), tenantID)
@@ -56,9 +49,9 @@ func (h *Handler) ListCafes(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} handlers.ErrorResponse
 // @Router /cafes/{id} [get]
 func (h *Handler) GetCafe(w http.ResponseWriter, r *http.Request) {
-	tenantID, err := getTenantID(r)
+	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "tenant required")
+		handlers.RespondError(w, http.StatusBadRequest, "tenant required (use path slug or X-Tenant-ID)")
 		return
 	}
 
