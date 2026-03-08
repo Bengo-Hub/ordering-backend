@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
@@ -69,14 +70,25 @@ func (a *Authenticator) RequireAuth(next http.Handler) http.Handler {
 				return
 			}
 
-			// Load or sync user from local database
+			// Load or JIT-provision user from local database
 			user, err := a.service.GetUser(r.Context(), userID)
 			if err != nil {
-				// User might not exist locally yet, try to sync from auth-service
-				a.log.Warn("user not found locally, attempting sync", zap.String("user_id", userID.String()), zap.Error(err))
-				// For now, return error - user should be synced via events or on login
-				handlers.RespondError(w, http.StatusUnauthorized, "user not found")
-				return
+				// JIT provisioning: valid token but user not in DB (e.g. NATS sync delayed)
+				tenantSlug := chi.URLParam(r, "tenant")
+				if tenantSlug == "" {
+					tenantSlug = r.URL.Query().Get("tenant")
+				}
+				authUserData := map[string]interface{}{"roles": authClaims.Roles}
+				if authClaims.Email != "" {
+					authUserData["email"] = authClaims.Email
+				}
+				user, err = a.service.EnsureUserFromToken(r.Context(), userID, tenantSlug, authUserData)
+				if err != nil {
+					a.log.Warn("JIT provision failed", zap.String("user_id", userID.String()), zap.Error(err))
+					handlers.RespondError(w, http.StatusUnauthorized, "user not found")
+					return
+				}
+				a.log.Info("user JIT-provisioned", zap.String("user_id", userID.String()))
 			}
 
 			// Store auth-service claims in context (authclient middleware already does this, but ensure it's there)

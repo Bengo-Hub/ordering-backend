@@ -68,6 +68,8 @@ func DefaultPermissions(role Role) []Permission {
 		return []Permission{
 			PermissionOrdersView,
 			PermissionOrdersManage,
+			PermissionCatalogView,
+			PermissionCatalogManage,
 			PermissionProfileUpdate,
 			PermissionPreferencesUpdate,
 			PermissionNotificationsView,

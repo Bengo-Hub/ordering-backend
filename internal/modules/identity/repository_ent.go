@@ -656,7 +656,15 @@ func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 		tenantID = config.DefaultTenantSlug
 	}
 
-	// Try to find tenant by slug first
+	// If tenantID is a UUID string (e.g. from JIT user creation), look up by ID first
+	if parsed, err := uuid.Parse(tenantID); err == nil {
+		tenantEntity, err := tx.Tenant.Get(ctx, parsed)
+		if err == nil {
+			return enqueueTenantSyncEvents(ctx, tx, tenantEntity.ID, tenantID)
+		}
+	}
+
+	// Try to find tenant by slug
 	tenantEntity, err := tx.Tenant.Query().
 		Where(tenant.SlugEQ(tenantID)).
 		Only(ctx)

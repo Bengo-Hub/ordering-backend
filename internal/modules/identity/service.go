@@ -51,6 +51,32 @@ func (s *Service) SyncUserFromAuthService(ctx context.Context, authServiceUserID
 	return s.syncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, accessToken)
 }
 
+// EnsureUserFromToken (JIT provisioning): returns the local user for the given auth-service user ID,
+// creating a minimal user from token claims if not found. Used when a valid JWT is presented but
+// the user does not yet exist locally (e.g. NATS sync delayed). tenantIDOrSlug is either a tenant UUID
+// string or a tenant slug (e.g. "urban-loft"); it is resolved to tenant ID for user creation.
+// authUserData may be nil to use defaults.
+func (s *Service) EnsureUserFromToken(ctx context.Context, authServiceUserID uuid.UUID, tenantIDOrSlug string, authUserData map[string]interface{}) (*User, error) {
+	user, err := s.repo.FindUserByAuthServiceID(ctx, authServiceUserID)
+	if err == nil && user != nil {
+		return user, nil
+	}
+	tenantID := tenantIDOrSlug
+	if tenantIDOrSlug != "" {
+		if _, err := uuid.Parse(tenantIDOrSlug); err != nil {
+			t, err := s.repo.FindTenantBySlug(ctx, tenantIDOrSlug)
+			if err != nil {
+				return nil, fmt.Errorf("identity: resolve tenant for JIT: %w", err)
+			}
+			tenantID = t.ID.String()
+		}
+	}
+	if authUserData == nil {
+		authUserData = map[string]interface{}{}
+	}
+	return s.createUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData)
+}
+
 // syncUserFromAuthService syncs user data from auth-service to local database.
 func (s *Service) syncUserFromAuthService(ctx context.Context, authServiceUserID uuid.UUID, tenantID string, authUserData map[string]interface{}, accessToken string) (*User, error) {
 	// Try to find existing user by auth_service_user_id
