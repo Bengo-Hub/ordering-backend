@@ -12,7 +12,7 @@
 
 ## Hard Deadline Constraints
 
-- **March 17**: Public launch of `ordersapp.codevertexitsolutions.com` and `orderapi.codevertexitsolutions.com`
+- **March 17**: Public launch of `ordersapp.codevertexitsolutions.com` and `orderingapi.codevertexitsolutions.com`
 - **Tenant**: `urban-loft` only
 - **Outlet**: Busia only (remove or deactivate all mock outlets including Kiambu)
 - **Scope**: Customer ordering flow only. Admin/staff dashboards are best-effort.

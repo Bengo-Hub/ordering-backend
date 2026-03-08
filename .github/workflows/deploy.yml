@@ -310,7 +310,7 @@ jobs:
           fi
 
           # Verify ingress health
-          HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderapi' || true)
+          HOSTS=$(kubectl get ingress -n ${NS} -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | grep -E 'orderingapi' || true)
           if [ -n "$HOSTS" ]; then
             for H in $HOSTS; do
               echo "Checking https://$H/healthz ..."

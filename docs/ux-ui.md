@@ -2,7 +2,7 @@
 
 **Last Updated**: March 6, 2026
 
-This document defines the API patterns that frontend consumers (ordering-frontend, cafe-website, POS) must follow when integrating with `orderapi.codevertexitsolutions.com`.
+This document defines the API patterns that frontend consumers (ordering-frontend, cafe-website, POS) must follow when integrating with `orderingapi.codevertexitsolutions.com`.
 
 ---
 
