@@ -275,18 +275,10 @@ func (h *Handler) DeleteMenuItem(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} ListResponse
 // @Router /menu/items [get]
 func (h *Handler) ListPublicMenuItems(w http.ResponseWriter, r *http.Request) {
-	tenantID, err := getTenantID(r)
+	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
-		tenantIDStr := r.URL.Query().Get("tenant_id")
-		if tenantIDStr == "" {
-			handlers.RespondError(w, http.StatusBadRequest, "tenant_id required")
-			return
-		}
-		tenantID, err = uuid.Parse(tenantIDStr)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid tenant_id")
-			return
-		}
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	limit, offset, page := getPagination(r)
@@ -339,18 +331,10 @@ func (h *Handler) ListPublicMenuItems(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} handlers.ErrorResponse
 // @Router /menu/items/{id} [get]
 func (h *Handler) GetPublicMenuItem(w http.ResponseWriter, r *http.Request) {
-	tenantID, err := getTenantID(r)
+	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
-		tenantIDStr := r.URL.Query().Get("tenant_id")
-		if tenantIDStr == "" {
-			handlers.RespondError(w, http.StatusBadRequest, "tenant_id required")
-			return
-		}
-		tenantID, err = uuid.Parse(tenantIDStr)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid tenant_id")
-			return
-		}
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	itemID, err := uuid.Parse(chi.URLParam(r, "id"))

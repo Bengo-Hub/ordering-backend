@@ -10,6 +10,9 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
+	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
@@ -20,13 +23,15 @@ import (
 type Handler struct {
 	log     *zap.Logger
 	service *catalog.Service
+	db      *ent.Client // optional: for resolving tenant by slug on public routes
 }
 
-// New constructs a Handler instance.
-func New(log *zap.Logger, service *catalog.Service) *Handler {
+// New constructs a Handler instance. db may be nil; if set, public menu routes can resolve tenant by slug when X-Tenant-ID is not a UUID.
+func New(log *zap.Logger, service *catalog.Service, db *ent.Client) *Handler {
 	return &Handler{
 		log:     log.Named("catalog.Handler"),
 		service: service,
+		db:      db,
 	}
 }
 
@@ -230,6 +235,34 @@ func getTenantID(r *http.Request) (uuid.UUID, error) {
 		return uuid.Nil, errors.New("tenant ID not found")
 	}
 	return uuid.Parse(tenantIDStr)
+}
+
+// getTenantIDForPublic returns tenant UUID for public routes. It tries getTenantID first; if that fails (e.g. X-Tenant-ID is a slug like "tenant-urban-loft"), it resolves tenant by slug from context or URL when h.db is set.
+func (h *Handler) getTenantIDForPublic(r *http.Request) (uuid.UUID, error) {
+	id, err := getTenantID(r)
+	if err == nil {
+		return id, nil
+	}
+	if h.db == nil {
+		return uuid.Nil, err
+	}
+	slug := httpware.GetTenantSlug(r.Context())
+	if slug == "" {
+		slug = chi.URLParam(r, "tenant")
+	}
+	if slug == "" {
+		return uuid.Nil, errors.New("tenant ID or slug required")
+	}
+	t, err := h.db.Tenant.Query().
+		Where(tenant.SlugEQ(slug)).
+		Only(r.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return uuid.Nil, errors.New("tenant not found")
+		}
+		return uuid.Nil, err
+	}
+	return t.ID, nil
 }
 
 func getCafeID(r *http.Request) (uuid.UUID, error) {

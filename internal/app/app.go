@@ -19,8 +19,8 @@ import (
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
-	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
+	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
@@ -29,14 +29,16 @@ import (
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
+	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
-	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/modules/outbox"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
+	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
@@ -46,8 +48,6 @@ import (
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
-	"github.com/bengobox/ordering-backend/internal/modules/outbox"
-	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
 )
 
@@ -178,7 +178,7 @@ func New(ctx context.Context) (*App, error) {
 	// Initialize catalog module
 	catalogRepo := catalog.NewEntRepository(ormClient)
 	catalogSvc := catalog.NewService(catalogRepo, log)
-	catalogHandler := cataloghandler.New(log, catalogSvc)
+	catalogHandler := cataloghandler.New(log, catalogSvc, ormClient)
 
 	// Initialize ordering module
 	orderingRepo := ordering.NewEntRepository(ormClient)

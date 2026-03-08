@@ -259,38 +259,34 @@ func (h *Handler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 
 // ListPublicCategories lists public categories (no auth required).
 // @Summary List public categories
-// @Description Lists active menu categories for public display
+// @Description Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. cafe_id is optional; when omitted, the first outlet for the tenant is used.
 // @Tags Menu
 // @Produce json
-// @Param cafe_id query string true "Cafe ID"
+// @Param cafe_id query string false "Cafe ID (optional; defaults to first outlet)"
 // @Success 200 {array} catalog.PublicCategory
 // @Router /menu/categories [get]
 func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
-	// For public API, get tenant from slug in path or query
-	tenantID, err := getTenantID(r)
+	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
-		// Try to get from query param as fallback for public API
-		tenantIDStr := r.URL.Query().Get("tenant_id")
-		if tenantIDStr == "" {
-			handlers.RespondError(w, http.StatusBadRequest, "tenant_id required")
-			return
-		}
-		tenantID, err = uuid.Parse(tenantIDStr)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid tenant_id")
-			return
-		}
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
+	var cafeID uuid.UUID
 	cafeIDStr := r.URL.Query().Get("cafe_id")
-	if cafeIDStr == "" {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id required")
-		return
-	}
-	cafeID, err := uuid.Parse(cafeIDStr)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe_id")
-		return
+	if cafeIDStr != "" {
+		cafeID, err = uuid.Parse(cafeIDStr)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid cafe_id")
+			return
+		}
+	} else {
+		cafes, err := h.service.ListCafes(r.Context(), tenantID)
+		if err != nil || len(cafes) == 0 {
+			handlers.RespondJSON(w, http.StatusOK, []catalog.PublicCategory{})
+			return
+		}
+		cafeID = cafes[0].ID
 	}
 
 	categories, err := h.service.GetPublicCategories(r.Context(), tenantID, cafeID)
