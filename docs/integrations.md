@@ -265,9 +265,10 @@ This document provides detailed integration information for all external service
 - Subscription invoicing
 
 **REST API Usage**:
-- `POST /api/v1/payments/intents` - Create payment intent
-- `POST /api/v1/payments/confirm` - Confirm payment
-- `POST /api/v1/payments/refund` - Process refund
+- `POST /api/v1/{tenant}/payments/intents` - Create payment intent (use `payment_method: "pending"` for invoice-only; then redirect user to shared pay page). See [payment-workflow.md](../../../shared-docs/payment-workflow.md).
+- `POST /api/v1/{tenant}/payments/intents/{id}/initiate` - Initiate payment for existing intent (paystack, mpesa, cash, manual/till).
+- `POST /api/v1/{tenant}/payments/intents/{id}/confirm-manual` - Mark intent paid when user paid at till/agent.
+- Refund/confirm flows as per treasury-api docs.
 - `GET /api/v1/payouts/{id}` - Get payout status
 - `GET /api/v1/settlements` - Get settlement data
 - `POST /api/v1/invoices` - Create subscription invoice
