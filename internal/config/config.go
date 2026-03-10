@@ -8,7 +8,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-const namespace = "ORDERING"
+const namespace = ""
 
 // DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
 const DefaultTenantSlug = ""
