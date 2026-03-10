@@ -10,8 +10,8 @@ replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-cli
 require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43
 	entgo.io/ent v0.13.1
-	github.com/Bengo-Hub/httpware v0.2.0
-	github.com/Bengo-Hub/shared-auth-client v0.3.1
+	github.com/Bengo-Hub/httpware v0.3.0
+	github.com/Bengo-Hub/shared-auth-client v0.4.0
 	github.com/Bengo-Hub/shared-events v0.2.0
 	github.com/Bengo-Hub/shared-service-client v0.2.0
 	github.com/go-chi/chi/v5 v5.0.12
@@ -67,7 +67,6 @@ require (
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/lib/pq v1.11.2 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect

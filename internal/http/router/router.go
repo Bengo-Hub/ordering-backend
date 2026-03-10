@@ -117,12 +117,12 @@ func New(
 
 	// TenantV2 config: chained extraction from JWT → headers → URL param
 	tenantCfg := httpware.TenantConfig{
-		ClaimsExtractor: func(ctx context.Context) (tenantID, tenantSlug string, ok bool) {
+		ClaimsExtractor: func(ctx context.Context) (tenantID, tenantSlug string, isPlatformOwner bool, ok bool) {
 			claims, found := authclient.ClaimsFromContext(ctx)
 			if !found {
-				return "", "", false
+				return "", "", false, false
 			}
-			return claims.TenantID, claims.GetTenantSlug(), true
+			return claims.TenantID, claims.GetTenantSlug(), claims.IsPlatformOwner, true
 		},
 		URLParamFunc: chi.URLParam,
 		Required:     true,
