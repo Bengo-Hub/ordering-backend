@@ -49,6 +49,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
+	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
 type App struct {
@@ -129,7 +130,8 @@ func New(ctx context.Context) (*App, error) {
 	log.Info("app: migrations completed - run 'go run cmd/seed/main.go' to seed initial data (idempotent)")
 
 	identityRepo := identity.NewEntRepository(ormClient)
-	identitySvc, err := identity.NewService(identityRepo, cfg.Auth, log)
+	tenantSyncer := tenant.NewSyncer(ormClient)
+	identitySvc, err := identity.NewService(identityRepo, cfg.Auth, log, tenantSyncer)
 	if err != nil {
 		return nil, fmt.Errorf("app: identity service init: %w", err)
 	}

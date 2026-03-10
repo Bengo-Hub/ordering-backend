@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
+	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
 // DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
@@ -20,26 +21,28 @@ const DefaultTenantSlug = config.DefaultTenantSlug
 // Authentication is handled entirely by the SSO (auth-service) via OIDC.
 // This service manages local user records synced from auth-service via NATS events.
 type Service struct {
-	repo        Repository
-	authCfg     config.AuthConfig
-	tokenSigner *TokenSigner
-	logger      *zap.Logger
-	now         func() time.Time
+	repo         Repository
+	authCfg      config.AuthConfig
+	tokenSigner  *TokenSigner
+	logger       *zap.Logger
+	now          func() time.Time
+	tenantSyncer *tenant.Syncer
 }
 
 // NewService constructs the identity service with provided dependencies.
-func NewService(repo Repository, authCfg config.AuthConfig, logger *zap.Logger) (*Service, error) {
+func NewService(repo Repository, authCfg config.AuthConfig, logger *zap.Logger, tenantSyncer *tenant.Syncer) (*Service, error) {
 	tokenSigner, err := NewTokenSigner(authCfg)
 	if err != nil {
 		return nil, fmt.Errorf("identity: token signer: %w", err)
 	}
 
 	svc := &Service{
-		repo:        repo,
-		authCfg:     authCfg,
-		tokenSigner: tokenSigner,
-		logger:      logger.Named("identity.Service"),
-		now:         time.Now,
+		repo:         repo,
+		authCfg:      authCfg,
+		tokenSigner:  tokenSigner,
+		logger:       logger.Named("identity.Service"),
+		now:          time.Now,
+		tenantSyncer: tenantSyncer,
 	}
 
 	return svc, nil
@@ -64,11 +67,24 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, authServiceUserID uui
 	tenantID := tenantIDOrSlug
 	if tenantIDOrSlug != "" {
 		if _, err := uuid.Parse(tenantIDOrSlug); err != nil {
-			t, err := s.repo.FindTenantBySlug(ctx, tenantIDOrSlug)
-			if err != nil {
-				return nil, fmt.Errorf("identity: resolve tenant for JIT: %w", err)
+			// JIT Sync Tenant before we hit DB for it.
+			if s.tenantSyncer != nil {
+				realTenantID, syncErr := s.tenantSyncer.SyncTenant(ctx, tenantIDOrSlug)
+				if syncErr != nil {
+					s.logger.Warn("tenant sync failed during JIT user provisioning", zap.Error(syncErr))
+				} else {
+					tenantID = realTenantID.String()
+				}
 			}
-			tenantID = t.ID.String()
+
+			// If tenantID is still the slug, resolving it from local DB
+			if tenantID == tenantIDOrSlug {
+				t, err := s.repo.FindTenantBySlug(ctx, tenantIDOrSlug)
+				if err != nil {
+					return nil, fmt.Errorf("identity: resolve tenant for JIT: %w", err)
+				}
+				tenantID = t.ID.String()
+			}
 		}
 	}
 	if authUserData == nil {

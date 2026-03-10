@@ -1998,12 +1998,24 @@ var (
 	// TenantsColumns holds the columns for the "tenants" table.
 	TenantsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "slug", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "slug", Type: field.TypeString, Unique: true},
 		{Name: "status", Type: field.TypeString, Default: "active"},
 		{Name: "contact_email", Type: field.TypeString, Nullable: true},
 		{Name: "contact_phone", Type: field.TypeString, Nullable: true},
-		{Name: "metadata", Type: field.TypeJSON},
+		{Name: "logo_url", Type: field.TypeString, Nullable: true},
+		{Name: "website", Type: field.TypeString, Nullable: true},
+		{Name: "country", Type: field.TypeString, Nullable: true, Default: "KE"},
+		{Name: "timezone", Type: field.TypeString, Nullable: true, Default: "Africa/Nairobi"},
+		{Name: "brand_colors", Type: field.TypeJSON, Nullable: true},
+		{Name: "org_size", Type: field.TypeString, Nullable: true},
+		{Name: "use_case", Type: field.TypeString, Nullable: true},
+		{Name: "subscription_plan", Type: field.TypeString, Nullable: true},
+		{Name: "subscription_status", Type: field.TypeString, Nullable: true},
+		{Name: "subscription_expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "subscription_id", Type: field.TypeString, Nullable: true},
+		{Name: "tier_limits", Type: field.TypeJSON, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
@@ -2012,6 +2024,23 @@ var (
 		Name:       "tenants",
 		Columns:    TenantsColumns,
 		PrimaryKey: []*schema.Column{TenantsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenant_slug",
+				Unique:  true,
+				Columns: []*schema.Column{TenantsColumns[2]},
+			},
+			{
+				Name:    "tenant_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantsColumns[3]},
+			},
+			{
+				Name:    "tenant_subscription_plan",
+				Unique:  false,
+				Columns: []*schema.Column{TenantsColumns[13]},
+			},
+		},
 	}
 	// TenantSettingsColumns holds the columns for the "tenant_settings" table.
 	TenantSettingsColumns = []*schema.Column{

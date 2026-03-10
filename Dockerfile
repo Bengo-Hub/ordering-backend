@@ -19,6 +19,7 @@ WORKDIR /app
 COPY --from=builder /bin/ordering-backend /usr/local/bin/ordering-backend
 COPY --from=builder /bin/ordering-migrate /usr/local/bin/ordering-migrate
 COPY --from=builder /bin/ordering-seed /usr/local/bin/ordering-seed
+COPY internal/ent/migrate/migrations ./internal/ent/migrate/migrations
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 USER app

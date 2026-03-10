@@ -28,15 +28,15 @@ type TenantCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetSlug sets the "slug" field.
-func (tc *TenantCreate) SetSlug(s string) *TenantCreate {
-	tc.mutation.SetSlug(s)
-	return tc
-}
-
 // SetName sets the "name" field.
 func (tc *TenantCreate) SetName(s string) *TenantCreate {
 	tc.mutation.SetName(s)
+	return tc
+}
+
+// SetSlug sets the "slug" field.
+func (tc *TenantCreate) SetSlug(s string) *TenantCreate {
+	tc.mutation.SetSlug(s)
 	return tc
 }
 
@@ -79,6 +79,158 @@ func (tc *TenantCreate) SetNillableContactPhone(s *string) *TenantCreate {
 	if s != nil {
 		tc.SetContactPhone(*s)
 	}
+	return tc
+}
+
+// SetLogoURL sets the "logo_url" field.
+func (tc *TenantCreate) SetLogoURL(s string) *TenantCreate {
+	tc.mutation.SetLogoURL(s)
+	return tc
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableLogoURL(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetLogoURL(*s)
+	}
+	return tc
+}
+
+// SetWebsite sets the "website" field.
+func (tc *TenantCreate) SetWebsite(s string) *TenantCreate {
+	tc.mutation.SetWebsite(s)
+	return tc
+}
+
+// SetNillableWebsite sets the "website" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableWebsite(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetWebsite(*s)
+	}
+	return tc
+}
+
+// SetCountry sets the "country" field.
+func (tc *TenantCreate) SetCountry(s string) *TenantCreate {
+	tc.mutation.SetCountry(s)
+	return tc
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableCountry(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetCountry(*s)
+	}
+	return tc
+}
+
+// SetTimezone sets the "timezone" field.
+func (tc *TenantCreate) SetTimezone(s string) *TenantCreate {
+	tc.mutation.SetTimezone(s)
+	return tc
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableTimezone(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetTimezone(*s)
+	}
+	return tc
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (tc *TenantCreate) SetBrandColors(m map[string]interface{}) *TenantCreate {
+	tc.mutation.SetBrandColors(m)
+	return tc
+}
+
+// SetOrgSize sets the "org_size" field.
+func (tc *TenantCreate) SetOrgSize(s string) *TenantCreate {
+	tc.mutation.SetOrgSize(s)
+	return tc
+}
+
+// SetNillableOrgSize sets the "org_size" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableOrgSize(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetOrgSize(*s)
+	}
+	return tc
+}
+
+// SetUseCase sets the "use_case" field.
+func (tc *TenantCreate) SetUseCase(s string) *TenantCreate {
+	tc.mutation.SetUseCase(s)
+	return tc
+}
+
+// SetNillableUseCase sets the "use_case" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableUseCase(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetUseCase(*s)
+	}
+	return tc
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (tc *TenantCreate) SetSubscriptionPlan(s string) *TenantCreate {
+	tc.mutation.SetSubscriptionPlan(s)
+	return tc
+}
+
+// SetNillableSubscriptionPlan sets the "subscription_plan" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableSubscriptionPlan(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetSubscriptionPlan(*s)
+	}
+	return tc
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (tc *TenantCreate) SetSubscriptionStatus(s string) *TenantCreate {
+	tc.mutation.SetSubscriptionStatus(s)
+	return tc
+}
+
+// SetNillableSubscriptionStatus sets the "subscription_status" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableSubscriptionStatus(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetSubscriptionStatus(*s)
+	}
+	return tc
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (tc *TenantCreate) SetSubscriptionExpiresAt(t time.Time) *TenantCreate {
+	tc.mutation.SetSubscriptionExpiresAt(t)
+	return tc
+}
+
+// SetNillableSubscriptionExpiresAt sets the "subscription_expires_at" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableSubscriptionExpiresAt(t *time.Time) *TenantCreate {
+	if t != nil {
+		tc.SetSubscriptionExpiresAt(*t)
+	}
+	return tc
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (tc *TenantCreate) SetSubscriptionID(s string) *TenantCreate {
+	tc.mutation.SetSubscriptionID(s)
+	return tc
+}
+
+// SetNillableSubscriptionID sets the "subscription_id" field if the given value is not nil.
+func (tc *TenantCreate) SetNillableSubscriptionID(s *string) *TenantCreate {
+	if s != nil {
+		tc.SetSubscriptionID(*s)
+	}
+	return tc
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (tc *TenantCreate) SetTierLimits(m map[string]interface{}) *TenantCreate {
+	tc.mutation.SetTierLimits(m)
 	return tc
 }
 
@@ -233,6 +385,14 @@ func (tc *TenantCreate) defaults() {
 		v := tenant.DefaultStatus
 		tc.mutation.SetStatus(v)
 	}
+	if _, ok := tc.mutation.Country(); !ok {
+		v := tenant.DefaultCountry
+		tc.mutation.SetCountry(v)
+	}
+	if _, ok := tc.mutation.Timezone(); !ok {
+		v := tenant.DefaultTimezone
+		tc.mutation.SetTimezone(v)
+	}
 	if _, ok := tc.mutation.Metadata(); !ok {
 		v := tenant.DefaultMetadata
 		tc.mutation.SetMetadata(v)
@@ -253,14 +413,6 @@ func (tc *TenantCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (tc *TenantCreate) check() error {
-	if _, ok := tc.mutation.Slug(); !ok {
-		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Tenant.slug"`)}
-	}
-	if v, ok := tc.mutation.Slug(); ok {
-		if err := tenant.SlugValidator(v); err != nil {
-			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
-		}
-	}
 	if _, ok := tc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Tenant.name"`)}
 	}
@@ -269,11 +421,16 @@ func (tc *TenantCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
+	if _, ok := tc.mutation.Slug(); !ok {
+		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Tenant.slug"`)}
+	}
+	if v, ok := tc.mutation.Slug(); ok {
+		if err := tenant.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
+		}
+	}
 	if _, ok := tc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Tenant.status"`)}
-	}
-	if _, ok := tc.mutation.Metadata(); !ok {
-		return &ValidationError{Name: "metadata", err: errors.New(`ent: missing required field "Tenant.metadata"`)}
 	}
 	if _, ok := tc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Tenant.created_at"`)}
@@ -317,13 +474,13 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := tc.mutation.Slug(); ok {
-		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
-		_node.Slug = value
-	}
 	if value, ok := tc.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := tc.mutation.Slug(); ok {
+		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
+		_node.Slug = value
 	}
 	if value, ok := tc.mutation.Status(); ok {
 		_spec.SetField(tenant.FieldStatus, field.TypeString, value)
@@ -336,6 +493,54 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.ContactPhone(); ok {
 		_spec.SetField(tenant.FieldContactPhone, field.TypeString, value)
 		_node.ContactPhone = value
+	}
+	if value, ok := tc.mutation.LogoURL(); ok {
+		_spec.SetField(tenant.FieldLogoURL, field.TypeString, value)
+		_node.LogoURL = value
+	}
+	if value, ok := tc.mutation.Website(); ok {
+		_spec.SetField(tenant.FieldWebsite, field.TypeString, value)
+		_node.Website = value
+	}
+	if value, ok := tc.mutation.Country(); ok {
+		_spec.SetField(tenant.FieldCountry, field.TypeString, value)
+		_node.Country = value
+	}
+	if value, ok := tc.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+		_node.Timezone = value
+	}
+	if value, ok := tc.mutation.BrandColors(); ok {
+		_spec.SetField(tenant.FieldBrandColors, field.TypeJSON, value)
+		_node.BrandColors = value
+	}
+	if value, ok := tc.mutation.OrgSize(); ok {
+		_spec.SetField(tenant.FieldOrgSize, field.TypeString, value)
+		_node.OrgSize = value
+	}
+	if value, ok := tc.mutation.UseCase(); ok {
+		_spec.SetField(tenant.FieldUseCase, field.TypeString, value)
+		_node.UseCase = value
+	}
+	if value, ok := tc.mutation.SubscriptionPlan(); ok {
+		_spec.SetField(tenant.FieldSubscriptionPlan, field.TypeString, value)
+		_node.SubscriptionPlan = value
+	}
+	if value, ok := tc.mutation.SubscriptionStatus(); ok {
+		_spec.SetField(tenant.FieldSubscriptionStatus, field.TypeString, value)
+		_node.SubscriptionStatus = value
+	}
+	if value, ok := tc.mutation.SubscriptionExpiresAt(); ok {
+		_spec.SetField(tenant.FieldSubscriptionExpiresAt, field.TypeTime, value)
+		_node.SubscriptionExpiresAt = &value
+	}
+	if value, ok := tc.mutation.SubscriptionID(); ok {
+		_spec.SetField(tenant.FieldSubscriptionID, field.TypeString, value)
+		_node.SubscriptionID = value
+	}
+	if value, ok := tc.mutation.TierLimits(); ok {
+		_spec.SetField(tenant.FieldTierLimits, field.TypeJSON, value)
+		_node.TierLimits = value
 	}
 	if value, ok := tc.mutation.Metadata(); ok {
 		_spec.SetField(tenant.FieldMetadata, field.TypeJSON, value)
@@ -420,7 +625,7 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.Tenant.Create().
-//		SetSlug(v).
+//		SetName(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -429,7 +634,7 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TenantUpsert) {
-//			SetSlug(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (tc *TenantCreate) OnConflict(opts ...sql.ConflictOption) *TenantUpsertOne {
@@ -465,18 +670,6 @@ type (
 	}
 )
 
-// SetSlug sets the "slug" field.
-func (u *TenantUpsert) SetSlug(v string) *TenantUpsert {
-	u.Set(tenant.FieldSlug, v)
-	return u
-}
-
-// UpdateSlug sets the "slug" field to the value that was provided on create.
-func (u *TenantUpsert) UpdateSlug() *TenantUpsert {
-	u.SetExcluded(tenant.FieldSlug)
-	return u
-}
-
 // SetName sets the "name" field.
 func (u *TenantUpsert) SetName(v string) *TenantUpsert {
 	u.Set(tenant.FieldName, v)
@@ -486,6 +679,18 @@ func (u *TenantUpsert) SetName(v string) *TenantUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *TenantUpsert) UpdateName() *TenantUpsert {
 	u.SetExcluded(tenant.FieldName)
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsert) SetSlug(v string) *TenantUpsert {
+	u.Set(tenant.FieldSlug, v)
+	return u
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSlug() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSlug)
 	return u
 }
 
@@ -537,6 +742,222 @@ func (u *TenantUpsert) ClearContactPhone() *TenantUpsert {
 	return u
 }
 
+// SetLogoURL sets the "logo_url" field.
+func (u *TenantUpsert) SetLogoURL(v string) *TenantUpsert {
+	u.Set(tenant.FieldLogoURL, v)
+	return u
+}
+
+// UpdateLogoURL sets the "logo_url" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateLogoURL() *TenantUpsert {
+	u.SetExcluded(tenant.FieldLogoURL)
+	return u
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (u *TenantUpsert) ClearLogoURL() *TenantUpsert {
+	u.SetNull(tenant.FieldLogoURL)
+	return u
+}
+
+// SetWebsite sets the "website" field.
+func (u *TenantUpsert) SetWebsite(v string) *TenantUpsert {
+	u.Set(tenant.FieldWebsite, v)
+	return u
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateWebsite() *TenantUpsert {
+	u.SetExcluded(tenant.FieldWebsite)
+	return u
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *TenantUpsert) ClearWebsite() *TenantUpsert {
+	u.SetNull(tenant.FieldWebsite)
+	return u
+}
+
+// SetCountry sets the "country" field.
+func (u *TenantUpsert) SetCountry(v string) *TenantUpsert {
+	u.Set(tenant.FieldCountry, v)
+	return u
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateCountry() *TenantUpsert {
+	u.SetExcluded(tenant.FieldCountry)
+	return u
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *TenantUpsert) ClearCountry() *TenantUpsert {
+	u.SetNull(tenant.FieldCountry)
+	return u
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *TenantUpsert) SetTimezone(v string) *TenantUpsert {
+	u.Set(tenant.FieldTimezone, v)
+	return u
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateTimezone() *TenantUpsert {
+	u.SetExcluded(tenant.FieldTimezone)
+	return u
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (u *TenantUpsert) ClearTimezone() *TenantUpsert {
+	u.SetNull(tenant.FieldTimezone)
+	return u
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (u *TenantUpsert) SetBrandColors(v map[string]interface{}) *TenantUpsert {
+	u.Set(tenant.FieldBrandColors, v)
+	return u
+}
+
+// UpdateBrandColors sets the "brand_colors" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateBrandColors() *TenantUpsert {
+	u.SetExcluded(tenant.FieldBrandColors)
+	return u
+}
+
+// ClearBrandColors clears the value of the "brand_colors" field.
+func (u *TenantUpsert) ClearBrandColors() *TenantUpsert {
+	u.SetNull(tenant.FieldBrandColors)
+	return u
+}
+
+// SetOrgSize sets the "org_size" field.
+func (u *TenantUpsert) SetOrgSize(v string) *TenantUpsert {
+	u.Set(tenant.FieldOrgSize, v)
+	return u
+}
+
+// UpdateOrgSize sets the "org_size" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateOrgSize() *TenantUpsert {
+	u.SetExcluded(tenant.FieldOrgSize)
+	return u
+}
+
+// ClearOrgSize clears the value of the "org_size" field.
+func (u *TenantUpsert) ClearOrgSize() *TenantUpsert {
+	u.SetNull(tenant.FieldOrgSize)
+	return u
+}
+
+// SetUseCase sets the "use_case" field.
+func (u *TenantUpsert) SetUseCase(v string) *TenantUpsert {
+	u.Set(tenant.FieldUseCase, v)
+	return u
+}
+
+// UpdateUseCase sets the "use_case" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateUseCase() *TenantUpsert {
+	u.SetExcluded(tenant.FieldUseCase)
+	return u
+}
+
+// ClearUseCase clears the value of the "use_case" field.
+func (u *TenantUpsert) ClearUseCase() *TenantUpsert {
+	u.SetNull(tenant.FieldUseCase)
+	return u
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (u *TenantUpsert) SetSubscriptionPlan(v string) *TenantUpsert {
+	u.Set(tenant.FieldSubscriptionPlan, v)
+	return u
+}
+
+// UpdateSubscriptionPlan sets the "subscription_plan" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSubscriptionPlan() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSubscriptionPlan)
+	return u
+}
+
+// ClearSubscriptionPlan clears the value of the "subscription_plan" field.
+func (u *TenantUpsert) ClearSubscriptionPlan() *TenantUpsert {
+	u.SetNull(tenant.FieldSubscriptionPlan)
+	return u
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (u *TenantUpsert) SetSubscriptionStatus(v string) *TenantUpsert {
+	u.Set(tenant.FieldSubscriptionStatus, v)
+	return u
+}
+
+// UpdateSubscriptionStatus sets the "subscription_status" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSubscriptionStatus() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSubscriptionStatus)
+	return u
+}
+
+// ClearSubscriptionStatus clears the value of the "subscription_status" field.
+func (u *TenantUpsert) ClearSubscriptionStatus() *TenantUpsert {
+	u.SetNull(tenant.FieldSubscriptionStatus)
+	return u
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (u *TenantUpsert) SetSubscriptionExpiresAt(v time.Time) *TenantUpsert {
+	u.Set(tenant.FieldSubscriptionExpiresAt, v)
+	return u
+}
+
+// UpdateSubscriptionExpiresAt sets the "subscription_expires_at" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSubscriptionExpiresAt() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSubscriptionExpiresAt)
+	return u
+}
+
+// ClearSubscriptionExpiresAt clears the value of the "subscription_expires_at" field.
+func (u *TenantUpsert) ClearSubscriptionExpiresAt() *TenantUpsert {
+	u.SetNull(tenant.FieldSubscriptionExpiresAt)
+	return u
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (u *TenantUpsert) SetSubscriptionID(v string) *TenantUpsert {
+	u.Set(tenant.FieldSubscriptionID, v)
+	return u
+}
+
+// UpdateSubscriptionID sets the "subscription_id" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateSubscriptionID() *TenantUpsert {
+	u.SetExcluded(tenant.FieldSubscriptionID)
+	return u
+}
+
+// ClearSubscriptionID clears the value of the "subscription_id" field.
+func (u *TenantUpsert) ClearSubscriptionID() *TenantUpsert {
+	u.SetNull(tenant.FieldSubscriptionID)
+	return u
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (u *TenantUpsert) SetTierLimits(v map[string]interface{}) *TenantUpsert {
+	u.Set(tenant.FieldTierLimits, v)
+	return u
+}
+
+// UpdateTierLimits sets the "tier_limits" field to the value that was provided on create.
+func (u *TenantUpsert) UpdateTierLimits() *TenantUpsert {
+	u.SetExcluded(tenant.FieldTierLimits)
+	return u
+}
+
+// ClearTierLimits clears the value of the "tier_limits" field.
+func (u *TenantUpsert) ClearTierLimits() *TenantUpsert {
+	u.SetNull(tenant.FieldTierLimits)
+	return u
+}
+
 // SetMetadata sets the "metadata" field.
 func (u *TenantUpsert) SetMetadata(v map[string]interface{}) *TenantUpsert {
 	u.Set(tenant.FieldMetadata, v)
@@ -546,6 +967,12 @@ func (u *TenantUpsert) SetMetadata(v map[string]interface{}) *TenantUpsert {
 // UpdateMetadata sets the "metadata" field to the value that was provided on create.
 func (u *TenantUpsert) UpdateMetadata() *TenantUpsert {
 	u.SetExcluded(tenant.FieldMetadata)
+	return u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *TenantUpsert) ClearMetadata() *TenantUpsert {
+	u.SetNull(tenant.FieldMetadata)
 	return u
 }
 
@@ -612,20 +1039,6 @@ func (u *TenantUpsertOne) Update(set func(*TenantUpsert)) *TenantUpsertOne {
 	return u
 }
 
-// SetSlug sets the "slug" field.
-func (u *TenantUpsertOne) SetSlug(v string) *TenantUpsertOne {
-	return u.Update(func(s *TenantUpsert) {
-		s.SetSlug(v)
-	})
-}
-
-// UpdateSlug sets the "slug" field to the value that was provided on create.
-func (u *TenantUpsertOne) UpdateSlug() *TenantUpsertOne {
-	return u.Update(func(s *TenantUpsert) {
-		s.UpdateSlug()
-	})
-}
-
 // SetName sets the "name" field.
 func (u *TenantUpsertOne) SetName(v string) *TenantUpsertOne {
 	return u.Update(func(s *TenantUpsert) {
@@ -637,6 +1050,20 @@ func (u *TenantUpsertOne) SetName(v string) *TenantUpsertOne {
 func (u *TenantUpsertOne) UpdateName() *TenantUpsertOne {
 	return u.Update(func(s *TenantUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsertOne) SetSlug(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSlug() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSlug()
 	})
 }
 
@@ -696,6 +1123,258 @@ func (u *TenantUpsertOne) ClearContactPhone() *TenantUpsertOne {
 	})
 }
 
+// SetLogoURL sets the "logo_url" field.
+func (u *TenantUpsertOne) SetLogoURL(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetLogoURL(v)
+	})
+}
+
+// UpdateLogoURL sets the "logo_url" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateLogoURL() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateLogoURL()
+	})
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (u *TenantUpsertOne) ClearLogoURL() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearLogoURL()
+	})
+}
+
+// SetWebsite sets the "website" field.
+func (u *TenantUpsertOne) SetWebsite(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetWebsite(v)
+	})
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateWebsite() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateWebsite()
+	})
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *TenantUpsertOne) ClearWebsite() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearWebsite()
+	})
+}
+
+// SetCountry sets the "country" field.
+func (u *TenantUpsertOne) SetCountry(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetCountry(v)
+	})
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateCountry() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateCountry()
+	})
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *TenantUpsertOne) ClearCountry() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearCountry()
+	})
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *TenantUpsertOne) SetTimezone(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetTimezone(v)
+	})
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateTimezone() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateTimezone()
+	})
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (u *TenantUpsertOne) ClearTimezone() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearTimezone()
+	})
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (u *TenantUpsertOne) SetBrandColors(v map[string]interface{}) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetBrandColors(v)
+	})
+}
+
+// UpdateBrandColors sets the "brand_colors" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateBrandColors() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateBrandColors()
+	})
+}
+
+// ClearBrandColors clears the value of the "brand_colors" field.
+func (u *TenantUpsertOne) ClearBrandColors() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearBrandColors()
+	})
+}
+
+// SetOrgSize sets the "org_size" field.
+func (u *TenantUpsertOne) SetOrgSize(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetOrgSize(v)
+	})
+}
+
+// UpdateOrgSize sets the "org_size" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateOrgSize() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateOrgSize()
+	})
+}
+
+// ClearOrgSize clears the value of the "org_size" field.
+func (u *TenantUpsertOne) ClearOrgSize() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearOrgSize()
+	})
+}
+
+// SetUseCase sets the "use_case" field.
+func (u *TenantUpsertOne) SetUseCase(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetUseCase(v)
+	})
+}
+
+// UpdateUseCase sets the "use_case" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateUseCase() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateUseCase()
+	})
+}
+
+// ClearUseCase clears the value of the "use_case" field.
+func (u *TenantUpsertOne) ClearUseCase() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearUseCase()
+	})
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (u *TenantUpsertOne) SetSubscriptionPlan(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionPlan(v)
+	})
+}
+
+// UpdateSubscriptionPlan sets the "subscription_plan" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSubscriptionPlan() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionPlan()
+	})
+}
+
+// ClearSubscriptionPlan clears the value of the "subscription_plan" field.
+func (u *TenantUpsertOne) ClearSubscriptionPlan() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionPlan()
+	})
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (u *TenantUpsertOne) SetSubscriptionStatus(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionStatus(v)
+	})
+}
+
+// UpdateSubscriptionStatus sets the "subscription_status" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSubscriptionStatus() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionStatus()
+	})
+}
+
+// ClearSubscriptionStatus clears the value of the "subscription_status" field.
+func (u *TenantUpsertOne) ClearSubscriptionStatus() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionStatus()
+	})
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (u *TenantUpsertOne) SetSubscriptionExpiresAt(v time.Time) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionExpiresAt(v)
+	})
+}
+
+// UpdateSubscriptionExpiresAt sets the "subscription_expires_at" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSubscriptionExpiresAt() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionExpiresAt()
+	})
+}
+
+// ClearSubscriptionExpiresAt clears the value of the "subscription_expires_at" field.
+func (u *TenantUpsertOne) ClearSubscriptionExpiresAt() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionExpiresAt()
+	})
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (u *TenantUpsertOne) SetSubscriptionID(v string) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionID(v)
+	})
+}
+
+// UpdateSubscriptionID sets the "subscription_id" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateSubscriptionID() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionID()
+	})
+}
+
+// ClearSubscriptionID clears the value of the "subscription_id" field.
+func (u *TenantUpsertOne) ClearSubscriptionID() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionID()
+	})
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (u *TenantUpsertOne) SetTierLimits(v map[string]interface{}) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetTierLimits(v)
+	})
+}
+
+// UpdateTierLimits sets the "tier_limits" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdateTierLimits() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateTierLimits()
+	})
+}
+
+// ClearTierLimits clears the value of the "tier_limits" field.
+func (u *TenantUpsertOne) ClearTierLimits() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearTierLimits()
+	})
+}
+
 // SetMetadata sets the "metadata" field.
 func (u *TenantUpsertOne) SetMetadata(v map[string]interface{}) *TenantUpsertOne {
 	return u.Update(func(s *TenantUpsert) {
@@ -707,6 +1386,13 @@ func (u *TenantUpsertOne) SetMetadata(v map[string]interface{}) *TenantUpsertOne
 func (u *TenantUpsertOne) UpdateMetadata() *TenantUpsertOne {
 	return u.Update(func(s *TenantUpsert) {
 		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *TenantUpsertOne) ClearMetadata() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearMetadata()
 	})
 }
 
@@ -860,7 +1546,7 @@ func (tcb *TenantCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TenantUpsert) {
-//			SetSlug(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (tcb *TenantCreateBulk) OnConflict(opts ...sql.ConflictOption) *TenantUpsertBulk {
@@ -942,20 +1628,6 @@ func (u *TenantUpsertBulk) Update(set func(*TenantUpsert)) *TenantUpsertBulk {
 	return u
 }
 
-// SetSlug sets the "slug" field.
-func (u *TenantUpsertBulk) SetSlug(v string) *TenantUpsertBulk {
-	return u.Update(func(s *TenantUpsert) {
-		s.SetSlug(v)
-	})
-}
-
-// UpdateSlug sets the "slug" field to the value that was provided on create.
-func (u *TenantUpsertBulk) UpdateSlug() *TenantUpsertBulk {
-	return u.Update(func(s *TenantUpsert) {
-		s.UpdateSlug()
-	})
-}
-
 // SetName sets the "name" field.
 func (u *TenantUpsertBulk) SetName(v string) *TenantUpsertBulk {
 	return u.Update(func(s *TenantUpsert) {
@@ -967,6 +1639,20 @@ func (u *TenantUpsertBulk) SetName(v string) *TenantUpsertBulk {
 func (u *TenantUpsertBulk) UpdateName() *TenantUpsertBulk {
 	return u.Update(func(s *TenantUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *TenantUpsertBulk) SetSlug(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSlug() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSlug()
 	})
 }
 
@@ -1026,6 +1712,258 @@ func (u *TenantUpsertBulk) ClearContactPhone() *TenantUpsertBulk {
 	})
 }
 
+// SetLogoURL sets the "logo_url" field.
+func (u *TenantUpsertBulk) SetLogoURL(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetLogoURL(v)
+	})
+}
+
+// UpdateLogoURL sets the "logo_url" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateLogoURL() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateLogoURL()
+	})
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (u *TenantUpsertBulk) ClearLogoURL() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearLogoURL()
+	})
+}
+
+// SetWebsite sets the "website" field.
+func (u *TenantUpsertBulk) SetWebsite(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetWebsite(v)
+	})
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateWebsite() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateWebsite()
+	})
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *TenantUpsertBulk) ClearWebsite() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearWebsite()
+	})
+}
+
+// SetCountry sets the "country" field.
+func (u *TenantUpsertBulk) SetCountry(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetCountry(v)
+	})
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateCountry() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateCountry()
+	})
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *TenantUpsertBulk) ClearCountry() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearCountry()
+	})
+}
+
+// SetTimezone sets the "timezone" field.
+func (u *TenantUpsertBulk) SetTimezone(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetTimezone(v)
+	})
+}
+
+// UpdateTimezone sets the "timezone" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateTimezone() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateTimezone()
+	})
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (u *TenantUpsertBulk) ClearTimezone() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearTimezone()
+	})
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (u *TenantUpsertBulk) SetBrandColors(v map[string]interface{}) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetBrandColors(v)
+	})
+}
+
+// UpdateBrandColors sets the "brand_colors" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateBrandColors() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateBrandColors()
+	})
+}
+
+// ClearBrandColors clears the value of the "brand_colors" field.
+func (u *TenantUpsertBulk) ClearBrandColors() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearBrandColors()
+	})
+}
+
+// SetOrgSize sets the "org_size" field.
+func (u *TenantUpsertBulk) SetOrgSize(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetOrgSize(v)
+	})
+}
+
+// UpdateOrgSize sets the "org_size" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateOrgSize() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateOrgSize()
+	})
+}
+
+// ClearOrgSize clears the value of the "org_size" field.
+func (u *TenantUpsertBulk) ClearOrgSize() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearOrgSize()
+	})
+}
+
+// SetUseCase sets the "use_case" field.
+func (u *TenantUpsertBulk) SetUseCase(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetUseCase(v)
+	})
+}
+
+// UpdateUseCase sets the "use_case" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateUseCase() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateUseCase()
+	})
+}
+
+// ClearUseCase clears the value of the "use_case" field.
+func (u *TenantUpsertBulk) ClearUseCase() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearUseCase()
+	})
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (u *TenantUpsertBulk) SetSubscriptionPlan(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionPlan(v)
+	})
+}
+
+// UpdateSubscriptionPlan sets the "subscription_plan" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSubscriptionPlan() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionPlan()
+	})
+}
+
+// ClearSubscriptionPlan clears the value of the "subscription_plan" field.
+func (u *TenantUpsertBulk) ClearSubscriptionPlan() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionPlan()
+	})
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (u *TenantUpsertBulk) SetSubscriptionStatus(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionStatus(v)
+	})
+}
+
+// UpdateSubscriptionStatus sets the "subscription_status" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSubscriptionStatus() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionStatus()
+	})
+}
+
+// ClearSubscriptionStatus clears the value of the "subscription_status" field.
+func (u *TenantUpsertBulk) ClearSubscriptionStatus() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionStatus()
+	})
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (u *TenantUpsertBulk) SetSubscriptionExpiresAt(v time.Time) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionExpiresAt(v)
+	})
+}
+
+// UpdateSubscriptionExpiresAt sets the "subscription_expires_at" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSubscriptionExpiresAt() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionExpiresAt()
+	})
+}
+
+// ClearSubscriptionExpiresAt clears the value of the "subscription_expires_at" field.
+func (u *TenantUpsertBulk) ClearSubscriptionExpiresAt() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionExpiresAt()
+	})
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (u *TenantUpsertBulk) SetSubscriptionID(v string) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetSubscriptionID(v)
+	})
+}
+
+// UpdateSubscriptionID sets the "subscription_id" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateSubscriptionID() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateSubscriptionID()
+	})
+}
+
+// ClearSubscriptionID clears the value of the "subscription_id" field.
+func (u *TenantUpsertBulk) ClearSubscriptionID() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearSubscriptionID()
+	})
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (u *TenantUpsertBulk) SetTierLimits(v map[string]interface{}) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetTierLimits(v)
+	})
+}
+
+// UpdateTierLimits sets the "tier_limits" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdateTierLimits() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdateTierLimits()
+	})
+}
+
+// ClearTierLimits clears the value of the "tier_limits" field.
+func (u *TenantUpsertBulk) ClearTierLimits() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearTierLimits()
+	})
+}
+
 // SetMetadata sets the "metadata" field.
 func (u *TenantUpsertBulk) SetMetadata(v map[string]interface{}) *TenantUpsertBulk {
 	return u.Update(func(s *TenantUpsert) {
@@ -1037,6 +1975,13 @@ func (u *TenantUpsertBulk) SetMetadata(v map[string]interface{}) *TenantUpsertBu
 func (u *TenantUpsertBulk) UpdateMetadata() *TenantUpsertBulk {
 	return u.Update(func(s *TenantUpsert) {
 		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *TenantUpsertBulk) ClearMetadata() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearMetadata()
 	})
 }
 

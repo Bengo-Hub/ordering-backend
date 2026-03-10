@@ -15,16 +15,40 @@ const (
 	Label = "tenant"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldSlug holds the string denoting the slug field in the database.
-	FieldSlug = "slug"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldContactEmail holds the string denoting the contact_email field in the database.
 	FieldContactEmail = "contact_email"
 	// FieldContactPhone holds the string denoting the contact_phone field in the database.
 	FieldContactPhone = "contact_phone"
+	// FieldLogoURL holds the string denoting the logo_url field in the database.
+	FieldLogoURL = "logo_url"
+	// FieldWebsite holds the string denoting the website field in the database.
+	FieldWebsite = "website"
+	// FieldCountry holds the string denoting the country field in the database.
+	FieldCountry = "country"
+	// FieldTimezone holds the string denoting the timezone field in the database.
+	FieldTimezone = "timezone"
+	// FieldBrandColors holds the string denoting the brand_colors field in the database.
+	FieldBrandColors = "brand_colors"
+	// FieldOrgSize holds the string denoting the org_size field in the database.
+	FieldOrgSize = "org_size"
+	// FieldUseCase holds the string denoting the use_case field in the database.
+	FieldUseCase = "use_case"
+	// FieldSubscriptionPlan holds the string denoting the subscription_plan field in the database.
+	FieldSubscriptionPlan = "subscription_plan"
+	// FieldSubscriptionStatus holds the string denoting the subscription_status field in the database.
+	FieldSubscriptionStatus = "subscription_status"
+	// FieldSubscriptionExpiresAt holds the string denoting the subscription_expires_at field in the database.
+	FieldSubscriptionExpiresAt = "subscription_expires_at"
+	// FieldSubscriptionID holds the string denoting the subscription_id field in the database.
+	FieldSubscriptionID = "subscription_id"
+	// FieldTierLimits holds the string denoting the tier_limits field in the database.
+	FieldTierLimits = "tier_limits"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -74,11 +98,23 @@ const (
 // Columns holds all SQL columns for tenant fields.
 var Columns = []string{
 	FieldID,
-	FieldSlug,
 	FieldName,
+	FieldSlug,
 	FieldStatus,
 	FieldContactEmail,
 	FieldContactPhone,
+	FieldLogoURL,
+	FieldWebsite,
+	FieldCountry,
+	FieldTimezone,
+	FieldBrandColors,
+	FieldOrgSize,
+	FieldUseCase,
+	FieldSubscriptionPlan,
+	FieldSubscriptionStatus,
+	FieldSubscriptionExpiresAt,
+	FieldSubscriptionID,
+	FieldTierLimits,
 	FieldMetadata,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -95,12 +131,16 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
-	SlugValidator func(string) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	SlugValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
+	// DefaultCountry holds the default value on creation for the "country" field.
+	DefaultCountry string
+	// DefaultTimezone holds the default value on creation for the "timezone" field.
+	DefaultTimezone string
 	// DefaultMetadata holds the default value on creation for the "metadata" field.
 	DefaultMetadata map[string]interface{}
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -121,14 +161,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// BySlug orders the results by the slug field.
-func BySlug(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSlug, opts...).ToFunc()
-}
-
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// BySlug orders the results by the slug field.
+func BySlug(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSlug, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.
@@ -144,6 +184,56 @@ func ByContactEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByContactPhone orders the results by the contact_phone field.
 func ByContactPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContactPhone, opts...).ToFunc()
+}
+
+// ByLogoURL orders the results by the logo_url field.
+func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
+}
+
+// ByWebsite orders the results by the website field.
+func ByWebsite(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWebsite, opts...).ToFunc()
+}
+
+// ByCountry orders the results by the country field.
+func ByCountry(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCountry, opts...).ToFunc()
+}
+
+// ByTimezone orders the results by the timezone field.
+func ByTimezone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimezone, opts...).ToFunc()
+}
+
+// ByOrgSize orders the results by the org_size field.
+func ByOrgSize(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrgSize, opts...).ToFunc()
+}
+
+// ByUseCase orders the results by the use_case field.
+func ByUseCase(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUseCase, opts...).ToFunc()
+}
+
+// BySubscriptionPlan orders the results by the subscription_plan field.
+func BySubscriptionPlan(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionPlan, opts...).ToFunc()
+}
+
+// BySubscriptionStatus orders the results by the subscription_status field.
+func BySubscriptionStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionStatus, opts...).ToFunc()
+}
+
+// BySubscriptionExpiresAt orders the results by the subscription_expires_at field.
+func BySubscriptionExpiresAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionExpiresAt, opts...).ToFunc()
+}
+
+// BySubscriptionID orders the results by the subscription_id field.
+func BySubscriptionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

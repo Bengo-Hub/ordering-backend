@@ -10,10 +10,12 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/migrate"
 )
 
 // maskPassword masks the password in a database URL for logging
@@ -55,7 +57,9 @@ func main() {
 		}
 	}
 
-	if err := client.Schema.Create(ctx); err != nil {
+	if err := client.Schema.Create(ctx, 
+		schema.WithDir(migrate.Dir),
+	); err != nil {
 		log.Fatalf("run migrations: %v", err)
 	}
 

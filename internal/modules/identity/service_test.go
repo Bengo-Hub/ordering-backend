@@ -108,7 +108,7 @@ func TestService_SyncUserFromAuthService(t *testing.T) {
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 
-			service, err := NewService(repo, authCfg, logger)
+			service, err := NewService(repo, authCfg, logger, nil)
 			if err != nil {
 				t.Fatalf("failed to create service: %v", err)
 			}
@@ -171,7 +171,7 @@ func TestService_GetUser(t *testing.T) {
 			authCfg := config.AuthConfig{
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
-			service, err := NewService(repo, authCfg, logger)
+			service, err := NewService(repo, authCfg, logger, nil)
 			if err != nil {
 				t.Fatalf("failed to create service: %v", err)
 			}

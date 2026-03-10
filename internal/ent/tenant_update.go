@@ -33,20 +33,6 @@ func (tu *TenantUpdate) Where(ps ...predicate.Tenant) *TenantUpdate {
 	return tu
 }
 
-// SetSlug sets the "slug" field.
-func (tu *TenantUpdate) SetSlug(s string) *TenantUpdate {
-	tu.mutation.SetSlug(s)
-	return tu
-}
-
-// SetNillableSlug sets the "slug" field if the given value is not nil.
-func (tu *TenantUpdate) SetNillableSlug(s *string) *TenantUpdate {
-	if s != nil {
-		tu.SetSlug(*s)
-	}
-	return tu
-}
-
 // SetName sets the "name" field.
 func (tu *TenantUpdate) SetName(s string) *TenantUpdate {
 	tu.mutation.SetName(s)
@@ -57,6 +43,20 @@ func (tu *TenantUpdate) SetName(s string) *TenantUpdate {
 func (tu *TenantUpdate) SetNillableName(s *string) *TenantUpdate {
 	if s != nil {
 		tu.SetName(*s)
+	}
+	return tu
+}
+
+// SetSlug sets the "slug" field.
+func (tu *TenantUpdate) SetSlug(s string) *TenantUpdate {
+	tu.mutation.SetSlug(s)
+	return tu
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableSlug(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetSlug(*s)
 	}
 	return tu
 }
@@ -115,9 +115,239 @@ func (tu *TenantUpdate) ClearContactPhone() *TenantUpdate {
 	return tu
 }
 
+// SetLogoURL sets the "logo_url" field.
+func (tu *TenantUpdate) SetLogoURL(s string) *TenantUpdate {
+	tu.mutation.SetLogoURL(s)
+	return tu
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableLogoURL(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetLogoURL(*s)
+	}
+	return tu
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (tu *TenantUpdate) ClearLogoURL() *TenantUpdate {
+	tu.mutation.ClearLogoURL()
+	return tu
+}
+
+// SetWebsite sets the "website" field.
+func (tu *TenantUpdate) SetWebsite(s string) *TenantUpdate {
+	tu.mutation.SetWebsite(s)
+	return tu
+}
+
+// SetNillableWebsite sets the "website" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableWebsite(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetWebsite(*s)
+	}
+	return tu
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (tu *TenantUpdate) ClearWebsite() *TenantUpdate {
+	tu.mutation.ClearWebsite()
+	return tu
+}
+
+// SetCountry sets the "country" field.
+func (tu *TenantUpdate) SetCountry(s string) *TenantUpdate {
+	tu.mutation.SetCountry(s)
+	return tu
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableCountry(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetCountry(*s)
+	}
+	return tu
+}
+
+// ClearCountry clears the value of the "country" field.
+func (tu *TenantUpdate) ClearCountry() *TenantUpdate {
+	tu.mutation.ClearCountry()
+	return tu
+}
+
+// SetTimezone sets the "timezone" field.
+func (tu *TenantUpdate) SetTimezone(s string) *TenantUpdate {
+	tu.mutation.SetTimezone(s)
+	return tu
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableTimezone(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetTimezone(*s)
+	}
+	return tu
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (tu *TenantUpdate) ClearTimezone() *TenantUpdate {
+	tu.mutation.ClearTimezone()
+	return tu
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (tu *TenantUpdate) SetBrandColors(m map[string]interface{}) *TenantUpdate {
+	tu.mutation.SetBrandColors(m)
+	return tu
+}
+
+// ClearBrandColors clears the value of the "brand_colors" field.
+func (tu *TenantUpdate) ClearBrandColors() *TenantUpdate {
+	tu.mutation.ClearBrandColors()
+	return tu
+}
+
+// SetOrgSize sets the "org_size" field.
+func (tu *TenantUpdate) SetOrgSize(s string) *TenantUpdate {
+	tu.mutation.SetOrgSize(s)
+	return tu
+}
+
+// SetNillableOrgSize sets the "org_size" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableOrgSize(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetOrgSize(*s)
+	}
+	return tu
+}
+
+// ClearOrgSize clears the value of the "org_size" field.
+func (tu *TenantUpdate) ClearOrgSize() *TenantUpdate {
+	tu.mutation.ClearOrgSize()
+	return tu
+}
+
+// SetUseCase sets the "use_case" field.
+func (tu *TenantUpdate) SetUseCase(s string) *TenantUpdate {
+	tu.mutation.SetUseCase(s)
+	return tu
+}
+
+// SetNillableUseCase sets the "use_case" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableUseCase(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetUseCase(*s)
+	}
+	return tu
+}
+
+// ClearUseCase clears the value of the "use_case" field.
+func (tu *TenantUpdate) ClearUseCase() *TenantUpdate {
+	tu.mutation.ClearUseCase()
+	return tu
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (tu *TenantUpdate) SetSubscriptionPlan(s string) *TenantUpdate {
+	tu.mutation.SetSubscriptionPlan(s)
+	return tu
+}
+
+// SetNillableSubscriptionPlan sets the "subscription_plan" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableSubscriptionPlan(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetSubscriptionPlan(*s)
+	}
+	return tu
+}
+
+// ClearSubscriptionPlan clears the value of the "subscription_plan" field.
+func (tu *TenantUpdate) ClearSubscriptionPlan() *TenantUpdate {
+	tu.mutation.ClearSubscriptionPlan()
+	return tu
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (tu *TenantUpdate) SetSubscriptionStatus(s string) *TenantUpdate {
+	tu.mutation.SetSubscriptionStatus(s)
+	return tu
+}
+
+// SetNillableSubscriptionStatus sets the "subscription_status" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableSubscriptionStatus(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetSubscriptionStatus(*s)
+	}
+	return tu
+}
+
+// ClearSubscriptionStatus clears the value of the "subscription_status" field.
+func (tu *TenantUpdate) ClearSubscriptionStatus() *TenantUpdate {
+	tu.mutation.ClearSubscriptionStatus()
+	return tu
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (tu *TenantUpdate) SetSubscriptionExpiresAt(t time.Time) *TenantUpdate {
+	tu.mutation.SetSubscriptionExpiresAt(t)
+	return tu
+}
+
+// SetNillableSubscriptionExpiresAt sets the "subscription_expires_at" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableSubscriptionExpiresAt(t *time.Time) *TenantUpdate {
+	if t != nil {
+		tu.SetSubscriptionExpiresAt(*t)
+	}
+	return tu
+}
+
+// ClearSubscriptionExpiresAt clears the value of the "subscription_expires_at" field.
+func (tu *TenantUpdate) ClearSubscriptionExpiresAt() *TenantUpdate {
+	tu.mutation.ClearSubscriptionExpiresAt()
+	return tu
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (tu *TenantUpdate) SetSubscriptionID(s string) *TenantUpdate {
+	tu.mutation.SetSubscriptionID(s)
+	return tu
+}
+
+// SetNillableSubscriptionID sets the "subscription_id" field if the given value is not nil.
+func (tu *TenantUpdate) SetNillableSubscriptionID(s *string) *TenantUpdate {
+	if s != nil {
+		tu.SetSubscriptionID(*s)
+	}
+	return tu
+}
+
+// ClearSubscriptionID clears the value of the "subscription_id" field.
+func (tu *TenantUpdate) ClearSubscriptionID() *TenantUpdate {
+	tu.mutation.ClearSubscriptionID()
+	return tu
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (tu *TenantUpdate) SetTierLimits(m map[string]interface{}) *TenantUpdate {
+	tu.mutation.SetTierLimits(m)
+	return tu
+}
+
+// ClearTierLimits clears the value of the "tier_limits" field.
+func (tu *TenantUpdate) ClearTierLimits() *TenantUpdate {
+	tu.mutation.ClearTierLimits()
+	return tu
+}
+
 // SetMetadata sets the "metadata" field.
 func (tu *TenantUpdate) SetMetadata(m map[string]interface{}) *TenantUpdate {
 	tu.mutation.SetMetadata(m)
+	return tu
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (tu *TenantUpdate) ClearMetadata() *TenantUpdate {
+	tu.mutation.ClearMetadata()
 	return tu
 }
 
@@ -303,14 +533,14 @@ func (tu *TenantUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (tu *TenantUpdate) check() error {
-	if v, ok := tu.mutation.Slug(); ok {
-		if err := tenant.SlugValidator(v); err != nil {
-			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
-		}
-	}
 	if v, ok := tu.mutation.Name(); ok {
 		if err := tenant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
+		}
+	}
+	if v, ok := tu.mutation.Slug(); ok {
+		if err := tenant.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
 		}
 	}
 	return nil
@@ -328,11 +558,11 @@ func (tu *TenantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := tu.mutation.Slug(); ok {
-		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
-	}
 	if value, ok := tu.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
+	}
+	if value, ok := tu.mutation.Slug(); ok {
+		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
 	}
 	if value, ok := tu.mutation.Status(); ok {
 		_spec.SetField(tenant.FieldStatus, field.TypeString, value)
@@ -349,8 +579,83 @@ func (tu *TenantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if tu.mutation.ContactPhoneCleared() {
 		_spec.ClearField(tenant.FieldContactPhone, field.TypeString)
 	}
+	if value, ok := tu.mutation.LogoURL(); ok {
+		_spec.SetField(tenant.FieldLogoURL, field.TypeString, value)
+	}
+	if tu.mutation.LogoURLCleared() {
+		_spec.ClearField(tenant.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := tu.mutation.Website(); ok {
+		_spec.SetField(tenant.FieldWebsite, field.TypeString, value)
+	}
+	if tu.mutation.WebsiteCleared() {
+		_spec.ClearField(tenant.FieldWebsite, field.TypeString)
+	}
+	if value, ok := tu.mutation.Country(); ok {
+		_spec.SetField(tenant.FieldCountry, field.TypeString, value)
+	}
+	if tu.mutation.CountryCleared() {
+		_spec.ClearField(tenant.FieldCountry, field.TypeString)
+	}
+	if value, ok := tu.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+	}
+	if tu.mutation.TimezoneCleared() {
+		_spec.ClearField(tenant.FieldTimezone, field.TypeString)
+	}
+	if value, ok := tu.mutation.BrandColors(); ok {
+		_spec.SetField(tenant.FieldBrandColors, field.TypeJSON, value)
+	}
+	if tu.mutation.BrandColorsCleared() {
+		_spec.ClearField(tenant.FieldBrandColors, field.TypeJSON)
+	}
+	if value, ok := tu.mutation.OrgSize(); ok {
+		_spec.SetField(tenant.FieldOrgSize, field.TypeString, value)
+	}
+	if tu.mutation.OrgSizeCleared() {
+		_spec.ClearField(tenant.FieldOrgSize, field.TypeString)
+	}
+	if value, ok := tu.mutation.UseCase(); ok {
+		_spec.SetField(tenant.FieldUseCase, field.TypeString, value)
+	}
+	if tu.mutation.UseCaseCleared() {
+		_spec.ClearField(tenant.FieldUseCase, field.TypeString)
+	}
+	if value, ok := tu.mutation.SubscriptionPlan(); ok {
+		_spec.SetField(tenant.FieldSubscriptionPlan, field.TypeString, value)
+	}
+	if tu.mutation.SubscriptionPlanCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionPlan, field.TypeString)
+	}
+	if value, ok := tu.mutation.SubscriptionStatus(); ok {
+		_spec.SetField(tenant.FieldSubscriptionStatus, field.TypeString, value)
+	}
+	if tu.mutation.SubscriptionStatusCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionStatus, field.TypeString)
+	}
+	if value, ok := tu.mutation.SubscriptionExpiresAt(); ok {
+		_spec.SetField(tenant.FieldSubscriptionExpiresAt, field.TypeTime, value)
+	}
+	if tu.mutation.SubscriptionExpiresAtCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionExpiresAt, field.TypeTime)
+	}
+	if value, ok := tu.mutation.SubscriptionID(); ok {
+		_spec.SetField(tenant.FieldSubscriptionID, field.TypeString, value)
+	}
+	if tu.mutation.SubscriptionIDCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionID, field.TypeString)
+	}
+	if value, ok := tu.mutation.TierLimits(); ok {
+		_spec.SetField(tenant.FieldTierLimits, field.TypeJSON, value)
+	}
+	if tu.mutation.TierLimitsCleared() {
+		_spec.ClearField(tenant.FieldTierLimits, field.TypeJSON)
+	}
 	if value, ok := tu.mutation.Metadata(); ok {
 		_spec.SetField(tenant.FieldMetadata, field.TypeJSON, value)
+	}
+	if tu.mutation.MetadataCleared() {
+		_spec.ClearField(tenant.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
@@ -539,20 +844,6 @@ type TenantUpdateOne struct {
 	mutation *TenantMutation
 }
 
-// SetSlug sets the "slug" field.
-func (tuo *TenantUpdateOne) SetSlug(s string) *TenantUpdateOne {
-	tuo.mutation.SetSlug(s)
-	return tuo
-}
-
-// SetNillableSlug sets the "slug" field if the given value is not nil.
-func (tuo *TenantUpdateOne) SetNillableSlug(s *string) *TenantUpdateOne {
-	if s != nil {
-		tuo.SetSlug(*s)
-	}
-	return tuo
-}
-
 // SetName sets the "name" field.
 func (tuo *TenantUpdateOne) SetName(s string) *TenantUpdateOne {
 	tuo.mutation.SetName(s)
@@ -563,6 +854,20 @@ func (tuo *TenantUpdateOne) SetName(s string) *TenantUpdateOne {
 func (tuo *TenantUpdateOne) SetNillableName(s *string) *TenantUpdateOne {
 	if s != nil {
 		tuo.SetName(*s)
+	}
+	return tuo
+}
+
+// SetSlug sets the "slug" field.
+func (tuo *TenantUpdateOne) SetSlug(s string) *TenantUpdateOne {
+	tuo.mutation.SetSlug(s)
+	return tuo
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableSlug(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetSlug(*s)
 	}
 	return tuo
 }
@@ -621,9 +926,239 @@ func (tuo *TenantUpdateOne) ClearContactPhone() *TenantUpdateOne {
 	return tuo
 }
 
+// SetLogoURL sets the "logo_url" field.
+func (tuo *TenantUpdateOne) SetLogoURL(s string) *TenantUpdateOne {
+	tuo.mutation.SetLogoURL(s)
+	return tuo
+}
+
+// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableLogoURL(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetLogoURL(*s)
+	}
+	return tuo
+}
+
+// ClearLogoURL clears the value of the "logo_url" field.
+func (tuo *TenantUpdateOne) ClearLogoURL() *TenantUpdateOne {
+	tuo.mutation.ClearLogoURL()
+	return tuo
+}
+
+// SetWebsite sets the "website" field.
+func (tuo *TenantUpdateOne) SetWebsite(s string) *TenantUpdateOne {
+	tuo.mutation.SetWebsite(s)
+	return tuo
+}
+
+// SetNillableWebsite sets the "website" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableWebsite(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetWebsite(*s)
+	}
+	return tuo
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (tuo *TenantUpdateOne) ClearWebsite() *TenantUpdateOne {
+	tuo.mutation.ClearWebsite()
+	return tuo
+}
+
+// SetCountry sets the "country" field.
+func (tuo *TenantUpdateOne) SetCountry(s string) *TenantUpdateOne {
+	tuo.mutation.SetCountry(s)
+	return tuo
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableCountry(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetCountry(*s)
+	}
+	return tuo
+}
+
+// ClearCountry clears the value of the "country" field.
+func (tuo *TenantUpdateOne) ClearCountry() *TenantUpdateOne {
+	tuo.mutation.ClearCountry()
+	return tuo
+}
+
+// SetTimezone sets the "timezone" field.
+func (tuo *TenantUpdateOne) SetTimezone(s string) *TenantUpdateOne {
+	tuo.mutation.SetTimezone(s)
+	return tuo
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableTimezone(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetTimezone(*s)
+	}
+	return tuo
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (tuo *TenantUpdateOne) ClearTimezone() *TenantUpdateOne {
+	tuo.mutation.ClearTimezone()
+	return tuo
+}
+
+// SetBrandColors sets the "brand_colors" field.
+func (tuo *TenantUpdateOne) SetBrandColors(m map[string]interface{}) *TenantUpdateOne {
+	tuo.mutation.SetBrandColors(m)
+	return tuo
+}
+
+// ClearBrandColors clears the value of the "brand_colors" field.
+func (tuo *TenantUpdateOne) ClearBrandColors() *TenantUpdateOne {
+	tuo.mutation.ClearBrandColors()
+	return tuo
+}
+
+// SetOrgSize sets the "org_size" field.
+func (tuo *TenantUpdateOne) SetOrgSize(s string) *TenantUpdateOne {
+	tuo.mutation.SetOrgSize(s)
+	return tuo
+}
+
+// SetNillableOrgSize sets the "org_size" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableOrgSize(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetOrgSize(*s)
+	}
+	return tuo
+}
+
+// ClearOrgSize clears the value of the "org_size" field.
+func (tuo *TenantUpdateOne) ClearOrgSize() *TenantUpdateOne {
+	tuo.mutation.ClearOrgSize()
+	return tuo
+}
+
+// SetUseCase sets the "use_case" field.
+func (tuo *TenantUpdateOne) SetUseCase(s string) *TenantUpdateOne {
+	tuo.mutation.SetUseCase(s)
+	return tuo
+}
+
+// SetNillableUseCase sets the "use_case" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableUseCase(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetUseCase(*s)
+	}
+	return tuo
+}
+
+// ClearUseCase clears the value of the "use_case" field.
+func (tuo *TenantUpdateOne) ClearUseCase() *TenantUpdateOne {
+	tuo.mutation.ClearUseCase()
+	return tuo
+}
+
+// SetSubscriptionPlan sets the "subscription_plan" field.
+func (tuo *TenantUpdateOne) SetSubscriptionPlan(s string) *TenantUpdateOne {
+	tuo.mutation.SetSubscriptionPlan(s)
+	return tuo
+}
+
+// SetNillableSubscriptionPlan sets the "subscription_plan" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableSubscriptionPlan(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetSubscriptionPlan(*s)
+	}
+	return tuo
+}
+
+// ClearSubscriptionPlan clears the value of the "subscription_plan" field.
+func (tuo *TenantUpdateOne) ClearSubscriptionPlan() *TenantUpdateOne {
+	tuo.mutation.ClearSubscriptionPlan()
+	return tuo
+}
+
+// SetSubscriptionStatus sets the "subscription_status" field.
+func (tuo *TenantUpdateOne) SetSubscriptionStatus(s string) *TenantUpdateOne {
+	tuo.mutation.SetSubscriptionStatus(s)
+	return tuo
+}
+
+// SetNillableSubscriptionStatus sets the "subscription_status" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableSubscriptionStatus(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetSubscriptionStatus(*s)
+	}
+	return tuo
+}
+
+// ClearSubscriptionStatus clears the value of the "subscription_status" field.
+func (tuo *TenantUpdateOne) ClearSubscriptionStatus() *TenantUpdateOne {
+	tuo.mutation.ClearSubscriptionStatus()
+	return tuo
+}
+
+// SetSubscriptionExpiresAt sets the "subscription_expires_at" field.
+func (tuo *TenantUpdateOne) SetSubscriptionExpiresAt(t time.Time) *TenantUpdateOne {
+	tuo.mutation.SetSubscriptionExpiresAt(t)
+	return tuo
+}
+
+// SetNillableSubscriptionExpiresAt sets the "subscription_expires_at" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableSubscriptionExpiresAt(t *time.Time) *TenantUpdateOne {
+	if t != nil {
+		tuo.SetSubscriptionExpiresAt(*t)
+	}
+	return tuo
+}
+
+// ClearSubscriptionExpiresAt clears the value of the "subscription_expires_at" field.
+func (tuo *TenantUpdateOne) ClearSubscriptionExpiresAt() *TenantUpdateOne {
+	tuo.mutation.ClearSubscriptionExpiresAt()
+	return tuo
+}
+
+// SetSubscriptionID sets the "subscription_id" field.
+func (tuo *TenantUpdateOne) SetSubscriptionID(s string) *TenantUpdateOne {
+	tuo.mutation.SetSubscriptionID(s)
+	return tuo
+}
+
+// SetNillableSubscriptionID sets the "subscription_id" field if the given value is not nil.
+func (tuo *TenantUpdateOne) SetNillableSubscriptionID(s *string) *TenantUpdateOne {
+	if s != nil {
+		tuo.SetSubscriptionID(*s)
+	}
+	return tuo
+}
+
+// ClearSubscriptionID clears the value of the "subscription_id" field.
+func (tuo *TenantUpdateOne) ClearSubscriptionID() *TenantUpdateOne {
+	tuo.mutation.ClearSubscriptionID()
+	return tuo
+}
+
+// SetTierLimits sets the "tier_limits" field.
+func (tuo *TenantUpdateOne) SetTierLimits(m map[string]interface{}) *TenantUpdateOne {
+	tuo.mutation.SetTierLimits(m)
+	return tuo
+}
+
+// ClearTierLimits clears the value of the "tier_limits" field.
+func (tuo *TenantUpdateOne) ClearTierLimits() *TenantUpdateOne {
+	tuo.mutation.ClearTierLimits()
+	return tuo
+}
+
 // SetMetadata sets the "metadata" field.
 func (tuo *TenantUpdateOne) SetMetadata(m map[string]interface{}) *TenantUpdateOne {
 	tuo.mutation.SetMetadata(m)
+	return tuo
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (tuo *TenantUpdateOne) ClearMetadata() *TenantUpdateOne {
+	tuo.mutation.ClearMetadata()
 	return tuo
 }
 
@@ -822,14 +1357,14 @@ func (tuo *TenantUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (tuo *TenantUpdateOne) check() error {
-	if v, ok := tuo.mutation.Slug(); ok {
-		if err := tenant.SlugValidator(v); err != nil {
-			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
-		}
-	}
 	if v, ok := tuo.mutation.Name(); ok {
 		if err := tenant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
+		}
+	}
+	if v, ok := tuo.mutation.Slug(); ok {
+		if err := tenant.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Tenant.slug": %w`, err)}
 		}
 	}
 	return nil
@@ -864,11 +1399,11 @@ func (tuo *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err err
 			}
 		}
 	}
-	if value, ok := tuo.mutation.Slug(); ok {
-		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
-	}
 	if value, ok := tuo.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
+	}
+	if value, ok := tuo.mutation.Slug(); ok {
+		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
 	}
 	if value, ok := tuo.mutation.Status(); ok {
 		_spec.SetField(tenant.FieldStatus, field.TypeString, value)
@@ -885,8 +1420,83 @@ func (tuo *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err err
 	if tuo.mutation.ContactPhoneCleared() {
 		_spec.ClearField(tenant.FieldContactPhone, field.TypeString)
 	}
+	if value, ok := tuo.mutation.LogoURL(); ok {
+		_spec.SetField(tenant.FieldLogoURL, field.TypeString, value)
+	}
+	if tuo.mutation.LogoURLCleared() {
+		_spec.ClearField(tenant.FieldLogoURL, field.TypeString)
+	}
+	if value, ok := tuo.mutation.Website(); ok {
+		_spec.SetField(tenant.FieldWebsite, field.TypeString, value)
+	}
+	if tuo.mutation.WebsiteCleared() {
+		_spec.ClearField(tenant.FieldWebsite, field.TypeString)
+	}
+	if value, ok := tuo.mutation.Country(); ok {
+		_spec.SetField(tenant.FieldCountry, field.TypeString, value)
+	}
+	if tuo.mutation.CountryCleared() {
+		_spec.ClearField(tenant.FieldCountry, field.TypeString)
+	}
+	if value, ok := tuo.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+	}
+	if tuo.mutation.TimezoneCleared() {
+		_spec.ClearField(tenant.FieldTimezone, field.TypeString)
+	}
+	if value, ok := tuo.mutation.BrandColors(); ok {
+		_spec.SetField(tenant.FieldBrandColors, field.TypeJSON, value)
+	}
+	if tuo.mutation.BrandColorsCleared() {
+		_spec.ClearField(tenant.FieldBrandColors, field.TypeJSON)
+	}
+	if value, ok := tuo.mutation.OrgSize(); ok {
+		_spec.SetField(tenant.FieldOrgSize, field.TypeString, value)
+	}
+	if tuo.mutation.OrgSizeCleared() {
+		_spec.ClearField(tenant.FieldOrgSize, field.TypeString)
+	}
+	if value, ok := tuo.mutation.UseCase(); ok {
+		_spec.SetField(tenant.FieldUseCase, field.TypeString, value)
+	}
+	if tuo.mutation.UseCaseCleared() {
+		_spec.ClearField(tenant.FieldUseCase, field.TypeString)
+	}
+	if value, ok := tuo.mutation.SubscriptionPlan(); ok {
+		_spec.SetField(tenant.FieldSubscriptionPlan, field.TypeString, value)
+	}
+	if tuo.mutation.SubscriptionPlanCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionPlan, field.TypeString)
+	}
+	if value, ok := tuo.mutation.SubscriptionStatus(); ok {
+		_spec.SetField(tenant.FieldSubscriptionStatus, field.TypeString, value)
+	}
+	if tuo.mutation.SubscriptionStatusCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionStatus, field.TypeString)
+	}
+	if value, ok := tuo.mutation.SubscriptionExpiresAt(); ok {
+		_spec.SetField(tenant.FieldSubscriptionExpiresAt, field.TypeTime, value)
+	}
+	if tuo.mutation.SubscriptionExpiresAtCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionExpiresAt, field.TypeTime)
+	}
+	if value, ok := tuo.mutation.SubscriptionID(); ok {
+		_spec.SetField(tenant.FieldSubscriptionID, field.TypeString, value)
+	}
+	if tuo.mutation.SubscriptionIDCleared() {
+		_spec.ClearField(tenant.FieldSubscriptionID, field.TypeString)
+	}
+	if value, ok := tuo.mutation.TierLimits(); ok {
+		_spec.SetField(tenant.FieldTierLimits, field.TypeJSON, value)
+	}
+	if tuo.mutation.TierLimitsCleared() {
+		_spec.ClearField(tenant.FieldTierLimits, field.TypeJSON)
+	}
 	if value, ok := tuo.mutation.Metadata(); ok {
 		_spec.SetField(tenant.FieldMetadata, field.TypeJSON, value)
+	}
+	if tuo.mutation.MetadataCleared() {
+		_spec.ClearField(tenant.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)

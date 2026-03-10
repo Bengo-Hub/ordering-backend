@@ -77,7 +77,7 @@ func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 
-			service, err := NewService(repo, authCfg, logger)
+			service, err := NewService(repo, authCfg, logger, nil)
 			if err != nil {
 				t.Fatalf("failed to create service: %v", err)
 			}
@@ -165,7 +165,7 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 
-			service, err := NewService(repo, authCfg, logger)
+			service, err := NewService(repo, authCfg, logger, nil)
 			if err != nil {
 				t.Fatalf("failed to create service: %v", err)
 			}
@@ -248,7 +248,7 @@ func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 
-			service, err := NewService(repo, authCfg, logger)
+			service, err := NewService(repo, authCfg, logger, nil)
 			if err != nil {
 				t.Fatalf("failed to create service: %v", err)
 			}

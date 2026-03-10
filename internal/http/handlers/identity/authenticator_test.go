@@ -94,7 +94,7 @@ func TestAuthenticator_RequireRoles_WithSuperuser(t *testing.T) {
 			logger := zap.NewNop()
 			repo := identity.NewMemoryRepository()
 			authCfg := config.AuthConfig{}
-			service, _ := identity.NewService(repo, authCfg, logger)
+			service, _ := identity.NewService(repo, authCfg, logger, nil)
 
 			// Create authenticator with nil validator (for testing)
 			authenticator := NewAuthenticator(logger, service, nil)

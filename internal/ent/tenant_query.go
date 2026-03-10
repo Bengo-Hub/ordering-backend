@@ -407,12 +407,12 @@ func (tq *TenantQuery) WithSyncEvents(opts ...func(*TenantSyncEventQuery)) *Tena
 // Example:
 //
 //	var v []struct {
-//		Slug string `json:"slug,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Tenant.Query().
-//		GroupBy(tenant.FieldSlug).
+//		GroupBy(tenant.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (tq *TenantQuery) GroupBy(field string, fields ...string) *TenantGroupBy {
@@ -430,11 +430,11 @@ func (tq *TenantQuery) GroupBy(field string, fields ...string) *TenantGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Slug string `json:"slug,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.Tenant.Query().
-//		Select(tenant.FieldSlug).
+//		Select(tenant.FieldName).
 //		Scan(ctx, &v)
 func (tq *TenantQuery) Select(fields ...string) *TenantSelect {
 	tq.ctx.Fields = append(tq.ctx.Fields, fields...)
