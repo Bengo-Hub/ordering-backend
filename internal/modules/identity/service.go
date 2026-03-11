@@ -13,7 +13,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
-// DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
+// DefaultTenantSlug is the default tenant slug for the ordering service (e.g. urban-loft).
 // This matches config.DefaultTenantSlug but is defined here to avoid circular dependencies.
 const DefaultTenantSlug = config.DefaultTenantSlug
 

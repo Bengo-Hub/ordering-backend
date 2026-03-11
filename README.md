@@ -27,6 +27,11 @@
 
 **Frontend**: Integrates with **Ordering PWA** (Progressive Web App) for customer-facing online ordering.
 
+## Tenant and SSO
+
+- **Default tenant slug** is `urban-loft` (config: `DefaultTenantSlug`). Used as fallback when no tenant is provided (e.g. default org in UI).
+- **JIT tenant sync:** On each request with tenant context (from JWT or URL), middleware ensures the tenant exists in the local DB by calling auth-api `GET /api/v1/tenants/by-slug/{slug}` and upserting. This avoids "tenant not found" after SSO login. See auth-api docs for the uniform tenant sync workflow across Go backends.
+
 ## Multi-Business Type Support
 
 This service is configurable to support various business types beyond food delivery:
