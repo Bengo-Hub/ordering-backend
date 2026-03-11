@@ -10,8 +10,9 @@ import (
 
 const namespace = ""
 
-// DefaultTenantSlug is the default tenant slug for the ordering service (empty = no default).
-const DefaultTenantSlug = ""
+// DefaultTenantSlug is the default tenant slug for the ordering service (e.g. fallback for UI or default org).
+// App context default is urban-loft; codevertex is the platform owner tenant.
+const DefaultTenantSlug = "urban-loft"
 
 // Config captures environment configuration for the Ordering service backend.
 // Note: Empty envconfig tags on nested structs prevent field names from being added to the key prefix.

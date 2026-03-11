@@ -40,6 +40,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
+	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
@@ -49,7 +50,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
-	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
 type App struct {
@@ -298,7 +298,7 @@ func New(ctx context.Context) (*App, error) {
 	auditLogger := audit.New(ormClient, log)
 	log.Info("app: audit logger initialized")
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, tenantSyncer)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

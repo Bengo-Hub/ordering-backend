@@ -18,8 +18,8 @@ import (
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
-	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
+	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
@@ -27,6 +27,7 @@ import (
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
+	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
 // New constructs the chi router with global middleware and base routes.
@@ -58,6 +59,7 @@ func New(
 	auditLogger *audit.Logger,
 	securityConfig config.SecurityConfig,
 	allowedOrigins []string,
+	tenantSyncer *tenant.Syncer,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -158,6 +160,21 @@ func New(
 			v1.Route("/{tenant}", func(tenant chi.Router) {
 				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
 				tenant.Use(httpware.TenantV2(tenantCfg))
+
+				// JIT tenant sync: ensure tenant exists in local DB when slug is in context (avoids "tenant not found" after SSO)
+				if tenantSyncer != nil {
+					tenant.Use(func(next http.Handler) http.Handler {
+						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+							slug := httpware.GetTenantSlug(r.Context())
+							if slug != "" {
+								if _, err := tenantSyncer.SyncTenant(r.Context(), slug); err != nil {
+									log.Warn("tenant sync failed during request", zap.String("tenant_slug", slug), zap.Error(err))
+								}
+							}
+							next.ServeHTTP(w, r)
+						})
+					})
+				}
 
 				// Apply auth-service middleware (excluding /auth/*, /webhooks/*)
 				if authMiddleware != nil {
