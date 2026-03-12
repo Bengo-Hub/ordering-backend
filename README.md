@@ -111,18 +111,18 @@ Port mapping:
 
 - Local development runs on **http://localhost:4000** by default.
 - Treasury (`treasury-api`) and Notifications (`notifications-api`) services occupy ports **4001** and **4002** respectively when running locally.
-- In cloud/cluster deployments, all backend services are configured to listen on **port 4000** for ingress uniformity. Helm values set `FOOD_DELIVERY_HTTP_PORT` to override the default.
+- In cloud/cluster deployments, all backend services are configured to listen on **port 4000** for ingress uniformity. Helm values set `HTTP_PORT` to override the default.
 
 ### Required Environment Variables
 
-All variables are prefixed with `FOOD_DELIVERY_` to avoid collisions.
+The service uses **standard env keys** (no prefix) aligned with other Go backends. In cluster, `devops-k8s` sets these via Helm.
 
 | Variable | Purpose | Default |
 | -------- | ------- | ------- |
-| `FOOD_DELIVERY_POSTGRES_URL` | PostgreSQL connection string | `postgres://postgres:postgres@localhost:5432/food_delivery?sslmode=disable` |
-| `FOOD_DELIVERY_REDIS_ADDR` | Redis endpoint | `localhost:6379` |
-| `FOOD_DELIVERY_NATS_URL` | NATS connection string | `nats://localhost:4222` |
-| `FOOD_DELIVERY_HTTP_PORT` | HTTP listen port | `8080` |
+| `POSTGRES_URL` | PostgreSQL connection string | `postgres://postgres:postgres@localhost:5432/food_delivery?sslmode=disable` |
+| `REDIS_ADDR` | Redis endpoint | `localhost:6379` |
+| `EVENTS_NATS_URL` | NATS connection string (event bus) | `nats://localhost:4222` |
+| `HTTP_PORT` | HTTP listen port | `8080` |
 
 ### Make Targets
 
