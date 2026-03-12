@@ -679,8 +679,8 @@ LOGISTICS_SERVICE_URL=http://logistics-service.logistics.svc.cluster.local:8080
 INVENTORY_SERVICE_URL=http://inventory-service.inventory.svc.cluster.local:8080
 NOTIFICATIONS_SERVICE_URL=http://notifications-service.notifications.svc.cluster.local:8080
 
-# NATS
-NATS_URL=nats://nats.nats.svc.cluster.local:4222
+# NATS (standard key used by all Go services)
+EVENTS_NATS_URL=nats://nats.messaging.svc.cluster.local:4222
 
 # External URLs (public)
 AUTH_SERVICE_PUBLIC_URL=https://sso.codevertexitsolutions.com
