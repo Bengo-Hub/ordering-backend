@@ -75,7 +75,8 @@ type RedisConfig struct {
 }
 
 type EventsConfig struct {
-	NATSURL    string `envconfig:"NATS_URL" default:"nats://127.0.0.1:4222"`
+	// EVENTS_NATS_URL standardized across all Go services (ordering loads Events via Process("", &cfg.Events) so tag is full key)
+	NATSURL    string `envconfig:"EVENTS_NATS_URL" default:"nats://127.0.0.1:4222"`
 	StreamName string `envconfig:"NATS_STREAM" default:"ordering"`
 
 	// Outbox publisher settings
