@@ -176,13 +176,14 @@ func New(
 					})
 				}
 
-				// Apply auth-service middleware (excluding /auth/*, /webhooks/*)
+				// Apply auth-service middleware. Skip only for truly public routes (not /auth/me or /auth/logout).
 				if authMiddleware != nil {
 					tenant.Use(func(next http.Handler) http.Handler {
 						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 							path := r.URL.Path
-							// Skip auth for public routes: auth, webhooks, tenant config, cafes, menu (catalog)
-							if strings.Contains(path, "/auth/") || strings.Contains(path, "/webhooks/") ||
+							// Skip auth for public routes: webhooks, tenant config, cafes, menu (catalog).
+							// Do NOT skip /auth/ — GET /auth/me and POST /auth/logout require a valid JWT.
+							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/cafes") || strings.Contains(path, "/menu") {
 								next.ServeHTTP(w, r)
 								return
