@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -56,6 +57,13 @@ func main() {
 	defer client.Close()
 
 	syncer := tenant.NewSyncer(client)
+	// Sync platform org (codevertex) so tenant row exists; seed continues if auth-api unavailable.
+	var codevertexTenantID uuid.UUID
+	if id, err := syncer.SyncTenant(ctx, "codevertex"); err != nil {
+		log.Printf("  [SKIP] sync codevertex (platform org): %v", err)
+	} else {
+		codevertexTenantID = id
+	}
 	tenantUUID, err := syncer.SyncTenant(ctx, "urban-loft")
 	if err != nil {
 		log.Fatalf("sync tenant: %v", err)
@@ -63,6 +71,13 @@ func main() {
 
 	if err := runSeed(ctx, client, tenantUUID); err != nil {
 		log.Fatalf("seed data: %v", err)
+	}
+
+	// Seed platform admin user for codevertex (global admin) when SEED_PLATFORM_ADMIN_USER_ID is set.
+	if codevertexTenantID != uuid.Nil {
+		if err := seedPlatformAdminForCodevertex(ctx, client, codevertexTenantID); err != nil {
+			log.Printf("  [SKIP] seed platform admin for codevertex: %v", err)
+		}
 	}
 
 	log.Println("database seed completed successfully")
@@ -601,6 +616,76 @@ func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID,
 		return err
 	}
 	return nil
+}
+
+// seedPlatformAdminForCodevertex creates or updates the platform org admin user in ordering-backend
+// so they have all permissions (superuser + admin roles). Requires SEED_PLATFORM_ADMIN_USER_ID (UUID from auth-api).
+func seedPlatformAdminForCodevertex(ctx context.Context, client *ent.Client, codevertexTenantID uuid.UUID) error {
+	platformAdminIDStr := os.Getenv("SEED_PLATFORM_ADMIN_USER_ID")
+	if platformAdminIDStr == "" {
+		return fmt.Errorf("SEED_PLATFORM_ADMIN_USER_ID not set — skip platform admin seed")
+	}
+	platformAdminID, err := uuid.Parse(platformAdminIDStr)
+	if err != nil {
+		return fmt.Errorf("invalid SEED_PLATFORM_ADMIN_USER_ID: %w", err)
+	}
+	email := os.Getenv("SEED_PLATFORM_ADMIN_EMAIL")
+	if email == "" {
+		email = "admin@codevertexitsolutions.com"
+	}
+
+	tx, err := client.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	now := time.Now().UTC()
+	roleIDs := []string{"superuser", "admin"}
+	_, err = tx.User.Get(ctx, platformAdminID)
+	switch {
+	case ent.IsNotFound(err):
+		_, err = tx.User.Create().
+			SetID(platformAdminID).
+			SetTenantID(codevertexTenantID).
+			SetEmail(email).
+			SetPasswordHash("").
+			SetFullName("Platform Admin").
+			SetStatus("active").
+			SetLocale("en").
+			SetTimezone("Africa/Nairobi").
+			SetPrimaryRole("superuser").
+			SetCreatedAt(now).
+			SetUpdatedAt(now).
+			AddRoleIDs(roleIDs...).
+			Save(ctx)
+		if err != nil {
+			return err
+		}
+		log.Printf("  ✓ Created platform admin user for codevertex: %s", email)
+	case err != nil:
+		return err
+	default:
+		_, err = tx.User.UpdateOneID(platformAdminID).
+			SetTenantID(codevertexTenantID).
+			SetEmail(email).
+			SetFullName("Platform Admin").
+			SetStatus("active").
+			SetPrimaryRole("superuser").
+			SetUpdatedAt(now).
+			ClearRoles().
+			AddRoleIDs(roleIDs...).
+			Save(ctx)
+		if err != nil {
+			return err
+		}
+		log.Printf("  ✓ Updated platform admin user for codevertex: %s", email)
+	}
+	return tx.Commit()
 }
 
 func upsertUserPreference(ctx context.Context, tx *ent.Tx, userID uuid.UUID, timezone string) error {
