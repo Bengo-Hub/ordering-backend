@@ -408,6 +408,9 @@ func (r *mockOrderingRepo) ListOrders(_ context.Context, _ OrderFilter) ([]Order
 func (r *mockOrderingRepo) GenerateOrderNumber(_ context.Context, _, _ uuid.UUID) (string, error) {
 	return "", errors.New("not implemented")
 }
+func (r *mockOrderingRepo) GetAnalyticsSummary(_ context.Context, _ uuid.UUID, _, _ time.Time) (*AnalyticsSummary, error) {
+	return nil, errors.New("not implemented")
+}
 
 // --- OrderItem stubs ---
 
@@ -524,6 +527,14 @@ func (r *mockOrderingRepo) CreateLoyaltyTransaction(_ context.Context, _ *Loyalt
 }
 func (r *mockOrderingRepo) ListLoyaltyTransactions(_ context.Context, _ uuid.UUID, _, _ int) ([]LoyaltyTransaction, int, error) {
 	return nil, 0, errors.New("not implemented")
+}
+
+func (r *mockOrderingRepo) GetTenantByID(_ context.Context, _ uuid.UUID) (*Tenant, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (r *mockOrderingRepo) GetMenuItemByID(_ context.Context, _, _ uuid.UUID) (*catalog.MenuItem, error) {
+	return nil, errors.New("not implemented")
 }
 
 // ---------------------------------------------------------------------------

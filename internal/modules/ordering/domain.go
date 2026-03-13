@@ -186,6 +186,13 @@ type CustomerAddress struct {
 	UpdatedAt          time.Time  `json:"updatedAt"`
 }
 
+// Tenant represents a minimalist view of a tenant.
+type Tenant struct {
+	ID   uuid.UUID `json:"id"`
+	Slug string    `json:"slug"`
+	Name string    `json:"name"`
+}
+
 // PromoCodeType represents the type of discount.
 type PromoCodeType string
 
@@ -391,4 +398,29 @@ type CartSummary struct {
 	LoyaltyPointsRedeemed int     `json:"loyaltyPointsRedeemed"`
 	LoyaltyDiscount       float64 `json:"loyaltyDiscount"`
 	GrandTotal            float64 `json:"grandTotal"`
+}
+
+// AnalyticsSummary represents high-level metrics for the dashboard.
+type AnalyticsSummary struct {
+	TotalRevenue      float64            `json:"totalRevenue"`
+	TotalOrders       int                `json:"totalOrders"`
+	OrdersByStatus    map[string]int     `json:"ordersByStatus"`
+	RevenueByCurrency map[string]float64 `json:"revenueByCurrency"`
+	TopSellingItems   []ItemSalesSummary `json:"topSellingItems"`
+	Trend             []DailyMetric      `json:"trend"`
+}
+
+// ItemSalesSummary represents sales metrics for a single item.
+type ItemSalesSummary struct {
+	MenuItemID   uuid.UUID `json:"menuItemId"`
+	NameSnapshot string    `json:"nameSnapshot"`
+	Quantity     int       `json:"quantity"`
+	Revenue      float64   `json:"revenue"`
+}
+
+// DailyMetric represents a metric for a specific day.
+type DailyMetric struct {
+	Date    string  `json:"date"`
+	Orders  int     `json:"orders"`
+	Revenue float64 `json:"revenue"`
 }

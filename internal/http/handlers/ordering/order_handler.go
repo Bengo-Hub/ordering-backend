@@ -57,6 +57,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Use(auth.RequirePermissions(identity.PermissionOrdersManage))
 
 		adminRouter.Get("/", h.AdminListOrders)
+		adminRouter.Get("/summary", h.GetAnalyticsSummary)
 		adminRouter.Get("/{orderId}", h.AdminGetOrder)
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
@@ -942,4 +943,47 @@ func (h *OrderHandler) AdminCancelOrder(w http.ResponseWriter, r *http.Request) 
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// GetAnalyticsSummary returns aggregated metrics for the dashboard.
+// @Summary Get analytics summary (admin)
+// @Description Returns high-level metrics (revenue, orders, trends)
+// @Tags Admin Orders
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param date_from query string false "Start date (RFC3339)"
+// @Param date_to query string false "End date (RFC3339)"
+// @Success 200 {object} ordering.AnalyticsSummary
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 403 {object} handlers.ErrorResponse
+// @Router /admin/orders/summary [get]
+func (h *OrderHandler) GetAnalyticsSummary(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	dateFrom := time.Now().AddDate(0, 0, -30) // Default last 30 days
+	if df := r.URL.Query().Get("date_from"); df != "" {
+		if p, err := time.Parse(time.RFC3339, df); err == nil {
+			dateFrom = p
+		}
+	}
+
+	dateTo := time.Now()
+	if dt := r.URL.Query().Get("date_to"); dt != "" {
+		if p, err := time.Parse(time.RFC3339, dt); err == nil {
+			dateTo = p
+		}
+	}
+
+	summary, err := h.orderService.GetAnalyticsSummary(r.Context(), tenantID, dateFrom, dateTo)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, summary)
 }
