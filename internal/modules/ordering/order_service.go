@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/platform/events"
+	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 )
 
 // OrderService provides order business logic.
@@ -19,6 +20,7 @@ type OrderService struct {
 	loyaltySvc     *LoyaltyService
 	stateMachine   *OrderStateMachine
 	eventPublisher *events.Publisher
+	inventoryClient *inventory.Client
 	logger         *zap.Logger
 }
 
@@ -28,15 +30,17 @@ func NewOrderService(
 	cartSvc *CartService,
 	promoSvc *PromoService,
 	loyaltySvc *LoyaltyService,
+	inventoryClient *inventory.Client,
 	logger *zap.Logger,
 ) *OrderService {
 	return &OrderService{
-		repo:         repo,
-		cartSvc:      cartSvc,
-		promoSvc:     promoSvc,
-		loyaltySvc:   loyaltySvc,
-		stateMachine: NewOrderStateMachine(),
-		logger:       logger,
+		repo:            repo,
+		cartSvc:         cartSvc,
+		promoSvc:        promoSvc,
+		loyaltySvc:      loyaltySvc,
+		inventoryClient: inventoryClient,
+		stateMachine:    NewOrderStateMachine(),
+		logger:          logger,
 	}
 }
 
@@ -284,6 +288,86 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	return order, nil
 }
 
+// processStockConsumption handles background ingredient deduction from inventory based on recipes.
+func (s *OrderService) processStockConsumption(ctx context.Context, order *Order) {
+	if s.inventoryClient == nil {
+		s.logger.Warn("inventory client not initialized, skipping stock consumption", zap.String("orderID", order.ID.String()))
+		return
+	}
+
+	// Fetch tenant details for slug
+	tenant, err := s.repo.GetTenantByID(ctx, order.TenantID)
+	if err != nil {
+		s.logger.Error("failed to get tenant for stock consumption", zap.Error(err), zap.String("tenantID", order.TenantID.String()))
+		return
+	}
+
+	// Fetch order items if not loaded
+	if len(order.Items) == 0 {
+		items, err := s.repo.ListOrderItems(ctx, order.ID)
+		if err != nil {
+			s.logger.Error("failed to list order items for stock consumption", zap.Error(err), zap.String("orderID", order.ID.String()))
+			return
+		}
+		order.Items = items
+	}
+
+	consumptionMap := make(map[string]float64) // SKU -> Quantity
+
+	for _, item := range order.Items {
+		// Get menu item to find its SKU code
+		menuItem, err := s.repo.GetMenuItemByID(ctx, order.TenantID, item.MenuItemID)
+		if err != nil {
+			s.logger.Warn("failed to get menu item for recipe lookup", zap.Error(err), zap.String("menuItemID", item.MenuItemID.String()))
+			continue
+		}
+
+		// Lookup recipe by SKU
+		recipe, err := s.inventoryClient.GetRecipeBySKU(ctx, tenant.Slug, menuItem.SKU)
+		if err != nil {
+			// It's possible some items don't have recipes associated
+			s.logger.Debug("no recipe found for menu item", zap.String("sku", menuItem.SKU))
+			continue
+		}
+
+		// Calculate ingredient needs: (ingredient.qty / recipe.output_qty) * order_item.qty
+		for _, ing := range recipe.Ingredients {
+			neededQty := (ing.Quantity / recipe.OutputQty) * float64(item.Quantity)
+			consumptionMap[ing.SKU] += neededQty
+		}
+	}
+
+	if len(consumptionMap) == 0 {
+		return
+	}
+
+	// Convert map to consumption request items
+	consumptionItems := make([]inventory.ConsumptionItem, 0, len(consumptionMap))
+	for sku, qty := range consumptionMap {
+		consumptionItems = append(consumptionItems, inventory.ConsumptionItem{
+			SKU:      sku,
+			Quantity: qty,
+		})
+	}
+
+	req := inventory.ConsumptionRequest{
+		TenantID: order.TenantID,
+		OrderID:  order.ID,
+		Items:    consumptionItems,
+		Reason:   "sale",
+	}
+
+	resp, err := s.inventoryClient.RecordConsumption(ctx, tenant.Slug, req)
+	if err != nil {
+		s.logger.Error("failed to record stock consumption in inventory service", zap.Error(err), zap.String("orderID", order.ID.String()))
+		return
+	}
+
+	s.logger.Info("stock consumption recorded successfully",
+		zap.String("orderID", order.ID.String()),
+		zap.String("consumptionID", resp.ID.String()))
+}
+
 // GetOrder retrieves an order by ID.
 func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
@@ -324,6 +408,11 @@ func (s *OrderService) ListOrders(ctx context.Context, filter OrderFilter) ([]Or
 	return s.repo.ListOrders(ctx, filter)
 }
 
+// GetAnalyticsSummary returns aggregated metrics for the dashboard.
+func (s *OrderService) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
+	return s.repo.GetAnalyticsSummary(ctx, tenantID, dateFrom, dateTo)
+}
+
 // UpdateOrderStatus transitions an order to a new status.
 func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus OrderStatus, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
@@ -354,6 +443,8 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
 			s.logger.Error("failed to award loyalty points", zap.Error(err))
 		}
+		// Process stock consumption based on recipes (BOM)
+		go s.processStockConsumption(context.Background(), order)
 	case OrderStatusCancelled:
 		order.CancelledAt = &now
 	}

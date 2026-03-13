@@ -11,7 +11,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/google/uuid"
+	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
 // EntRepository implements Repository using Ent ORM.
@@ -536,6 +538,97 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 	return result, total, nil
 }
 
+
+// --- Analytics ---
+
+func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
+	orders, err := r.client.Order.Query().
+		Where(
+			order.TenantID(tenantID),
+			order.CreatedAtGTE(dateFrom),
+			order.CreatedAtLTE(dateTo),
+		).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	summary := &AnalyticsSummary{
+		TotalOrders:       0,
+		TotalRevenue:      0,
+		OrdersByStatus:    make(map[string]int),
+		RevenueByCurrency: make(map[string]float64),
+		TopSellingItems:   make([]ItemSalesSummary, 0),
+		Trend:             make([]DailyMetric, 0),
+	}
+
+	trendMap := make(map[string]*DailyMetric)
+
+	for _, o := range orders {
+		summary.TotalOrders++
+		summary.TotalRevenue += o.GrandTotal
+		summary.OrdersByStatus[string(o.Status)]++
+		summary.RevenueByCurrency[o.Currency] += o.GrandTotal
+
+		dateKey := o.CreatedAt.Format("2006-01-02")
+		if _, ok := trendMap[dateKey]; !ok {
+			trendMap[dateKey] = &DailyMetric{Date: dateKey}
+		}
+		trendMap[dateKey].Orders++
+		trendMap[dateKey].Revenue += o.GrandTotal
+	}
+
+	// Calculate cancelled orders
+	cancelledOrdersCount, err := r.client.Order.Query().
+		Where(
+			order.TenantID(tenantID),
+			order.CreatedAtGTE(dateFrom),
+			order.CreatedAtLTE(dateTo),
+			order.StatusEQ(order.StatusCancelled), // Fixed: Use order.StatusCancelled
+		).
+		Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+	summary.CancelledOrders = cancelledOrdersCount
+
+	// Simple aggregation for items (optimization: use direct SQL or items table list)
+	orderIDs := make([]uuid.UUID, len(orders))
+	for i, o := range orders {
+		orderIDs[i] = o.ID
+	}
+
+	if len(orderIDs) > 0 {
+		items, err := r.client.OrderItem.Query().
+			Where(orderitem.OrderIDIn(orderIDs...)).
+			All(ctx)
+		if err == nil {
+			itemStats := make(map[uuid.UUID]*ItemSalesSummary)
+			for _, it := range items {
+				if _, ok := itemStats[it.MenuItemID]; !ok {
+					itemStats[it.MenuItemID] = &ItemSalesSummary{
+						MenuItemID:   it.MenuItemID,
+						NameSnapshot: it.NameSnapshot,
+					}
+				}
+				itemStats[it.MenuItemID].Quantity += it.Quantity
+				itemStats[it.MenuItemID].Revenue += it.TotalPrice
+			}
+			for _, stats := range itemStats {
+				summary.TopSellingItems = append(summary.TopSellingItems, *stats)
+			}
+		}
+	}
+
+	// Populate trend from map
+	summary.Trend = make([]DailyMetric, 0, len(trendMap))
+	for _, m := range trendMap {
+		summary.Trend = append(summary.Trend, *m)
+	}
+
+	return summary, nil
+}
+
 func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, cafeID uuid.UUID) (string, error) {
 	// Get today's date prefix
 	today := time.Now().Format("20060102")
@@ -789,6 +882,87 @@ func entOrderToDomain(o *ent.Order) *Order {
 	return ord
 }
 
+func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
+	// 1. Fetch total counts and revenue
+	orders, err := r.client.Order.Query().
+		Where(
+			order.TenantID(tenantID),
+			order.CreatedAtGTE(dateFrom),
+			order.CreatedAtLTE(dateTo),
+		).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	summary := &AnalyticsSummary{
+		OrdersByStatus:    make(map[string]int),
+		RevenueByCurrency: make(map[string]float64),
+		Trend:             make([]DailyMetric, 0),
+	}
+
+	summary.TotalOrders = len(orders)
+	for _, o := range orders {
+		summary.TotalRevenue += o.GrandTotal
+		summary.OrdersByStatus[string(o.Status)]++
+		summary.RevenueByCurrency[o.Currency] += o.GrandTotal
+	}
+
+	// 2. Trend (group by day)
+	trendMap := make(map[string]*DailyMetric)
+	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
+		dateStr := d.Format("2006-01-02")
+		trendMap[dateStr] = &DailyMetric{Date: dateStr}
+	}
+
+	for _, o := range orders {
+		dateStr := o.CreatedAt.Format("2006-01-02")
+		if m, ok := trendMap[dateStr]; ok {
+			m.Orders++
+			m.Revenue += o.GrandTotal
+		}
+	}
+
+	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
+		summary.Trend = append(summary.Trend, *trendMap[d.Format("2006-01-02")])
+	}
+
+	// 3. Top Selling Items
+	var itemSales []struct {
+		MenuItemID   uuid.UUID `json:"menu_item_id"`
+		NameSnapshot string    `json:"name_snapshot"`
+		Quantity     int       `json:"quantity"`
+		Revenue      float64   `json:"revenue"`
+	}
+
+	// Ent raw query for aggregation
+	err = r.client.OrderItem.Query().
+		Where(
+			orderitem.HasOrderWith(
+				order.TenantID(tenantID),
+				order.CreatedAtGTE(dateFrom),
+				order.CreatedAtLTE(dateTo),
+				order.StatusNotIn(order.StatusCancelled),
+			),
+		).
+		GroupBy(orderitem.FieldMenuItemID, orderitem.FieldNameSnapshot).
+		Aggregate(ent.Sum(orderitem.FieldQuantity), ent.Sum(orderitem.FieldTotalPrice)).
+		Scan(ctx, &itemSales)
+
+	if err == nil {
+		for _, s := range itemSales {
+			summary.TopSellingItems = append(summary.TopSellingItems, ItemSalesSummary{
+				MenuItemID:   s.MenuItemID,
+				NameSnapshot: s.NameSnapshot,
+				Quantity:     s.Quantity,
+				Revenue:      s.Revenue,
+			})
+		}
+	}
+
+	return summary, nil
+}
+
 func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	oi := &OrderItem{
 		ID:           item.ID,
@@ -827,4 +1001,53 @@ func entOrderEventToDomain(e *ent.OrderEvent) *OrderEvent {
 	}
 
 	return event
+}
+
+// --- Cross-module Lookups ---
+
+func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error) {
+	t, err := r.client.Tenant.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &Tenant{
+		ID:   t.ID,
+		Slug: t.Slug,
+		Name: t.Name,
+	}, nil
+}
+
+func (r *EntRepository) GetMenuItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.MenuItem, error) {
+	mi, err := r.client.MenuItem.Query().
+		Where(
+			menuitem.ID(id),
+			menuitem.TenantID(tenantID),
+		).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entMenuItemToDomain(mi), nil
+}
+
+func entMenuItemToDomain(mi *ent.MenuItem) *catalog.MenuItem {
+	cm := &catalog.MenuItem{
+		ID:              mi.ID,
+		TenantID:        mi.TenantID,
+		Name:            mi.Name,
+		Description:     mi.Description,
+		BasePrice:       mi.BasePrice,
+		Currency:        mi.Currency,
+		IsAvailable:     mi.IsAvailable,
+		SKU:             mi.Sku,
+		DisplayOrder:    mi.DisplayOrder,
+		CreatedAt:       mi.CreatedAt,
+		UpdatedAt:       mi.UpdatedAt,
+	}
+
+	if mi.LeadTimeMinutes != nil {
+		cm.LeadTimeMinutes = *mi.LeadTimeMinutes
+	}
+
+	return cm
 }

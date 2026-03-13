@@ -182,13 +182,16 @@ func New(ctx context.Context) (*App, error) {
 	catalogSvc := catalog.NewService(catalogRepo, log)
 	catalogHandler := cataloghandler.New(log, catalogSvc, ormClient)
 
+	// Initialize inventory client (for stock availability and reservations)
+	inventoryClient := inventory.NewClient(cfg.Inventory, log)
+
 	// Initialize ordering module
 	orderingRepo := ordering.NewEntRepository(ormClient)
 	cartSvc := ordering.NewCartService(orderingRepo, catalogSvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
-	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, log)
+	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, inventoryClient, log)
 
 	// Create ordering handlers
 	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
@@ -218,10 +221,6 @@ func New(ctx context.Context) (*App, error) {
 	// Create fulfilment handlers
 	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc)
 	fulfilmentWebhookHandler := fulfilmenthandler.NewWebhookHandler(log, fulfilmentWebhookSvc)
-
-	// Initialize inventory client (for stock availability and reservations)
-	inventoryClient := inventory.NewClient(cfg.Inventory, log)
-	_ = inventoryClient // Available for use in services that need stock checks
 
 	// Initialize external notifications client (for sending to notifications-service)
 	notificationsClient := extnotifications.NewClient(cfg.Notifications, log)

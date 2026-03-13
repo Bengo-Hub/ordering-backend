@@ -2,8 +2,10 @@ package ordering
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
 // Repository defines the interface for ordering data persistence.
@@ -35,6 +37,7 @@ type Repository interface {
 	UpdateOrder(ctx context.Context, order *Order) error
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
 	GenerateOrderNumber(ctx context.Context, tenantID, cafeID uuid.UUID) (string, error)
+	GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error)
 
 	// OrderItem operations
 	CreateOrderItem(ctx context.Context, item *OrderItem) error
@@ -81,4 +84,8 @@ type Repository interface {
 	// LoyaltyTransaction operations
 	CreateLoyaltyTransaction(ctx context.Context, tx *LoyaltyTransaction) error
 	ListLoyaltyTransactions(ctx context.Context, accountID uuid.UUID, limit, offset int) ([]LoyaltyTransaction, int, error)
+
+	// Global/Cross-module lookups for stock processing
+	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
+	GetMenuItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.MenuItem, error)
 }
