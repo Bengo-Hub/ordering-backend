@@ -62,6 +62,10 @@ func (rl *RateLimiter) Check(ctx context.Context, key string, limit int, window 
 		return &RateLimitResult{Allowed: true, Remaining: limit}, nil
 	}
 
+	// Create a short-lived context for the Redis operation to fail fast
+	redisCtx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
+	defer cancel()
+
 	now := time.Now()
 	windowStart := now.Add(-window)
 	redisKey := rl.config.KeyPrefix + key
@@ -70,13 +74,13 @@ func (rl *RateLimiter) Check(ctx context.Context, key string, limit int, window 
 	pipe := rl.redis.Pipeline()
 
 	// Remove old entries outside the window
-	pipe.ZRemRangeByScore(ctx, redisKey, "0", strconv.FormatInt(windowStart.UnixMilli(), 10))
+	pipe.ZRemRangeByScore(redisCtx, redisKey, "0", strconv.FormatInt(windowStart.UnixMilli(), 10))
 
 	// Count current entries in window
-	countCmd := pipe.ZCard(ctx, redisKey)
+	countCmd := pipe.ZCard(redisCtx, redisKey)
 
 	// Execute pipeline
-	_, err := pipe.Exec(ctx)
+	_, err := pipe.Exec(redisCtx)
 	if err != nil && err != redis.Nil {
 		rl.logger.Error("Rate limiter pipeline error", zap.Error(err), zap.String("key", key))
 		// On Redis error, allow the request (fail open)
@@ -88,7 +92,7 @@ func (rl *RateLimiter) Check(ctx context.Context, key string, limit int, window 
 
 	if remaining <= 0 {
 		// Rate limited - find when the oldest entry expires
-		oldest, err := rl.redis.ZRangeWithScores(ctx, redisKey, 0, 0).Result()
+		oldest, err := rl.redis.ZRangeWithScores(redisCtx, redisKey, 0, 0).Result()
 		if err == nil && len(oldest) > 0 {
 			oldestTime := time.UnixMilli(int64(oldest[0].Score))
 			retryAt := oldestTime.Add(window)
@@ -107,7 +111,7 @@ func (rl *RateLimiter) Check(ctx context.Context, key string, limit int, window 
 	}
 
 	// Add current request to the window
-	err = rl.redis.ZAdd(ctx, redisKey, redis.Z{
+	err = rl.redis.ZAdd(redisCtx, redisKey, redis.Z{
 		Score:  float64(now.UnixMilli()),
 		Member: fmt.Sprintf("%d:%d", now.UnixNano(), now.Nanosecond()),
 	}).Err()
@@ -116,7 +120,7 @@ func (rl *RateLimiter) Check(ctx context.Context, key string, limit int, window 
 	}
 
 	// Set TTL on the key
-	rl.redis.Expire(ctx, redisKey, window+time.Minute)
+	rl.redis.Expire(redisCtx, redisKey, window+time.Minute)
 
 	return &RateLimitResult{
 		Allowed:   true,

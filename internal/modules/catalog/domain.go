@@ -190,6 +190,7 @@ type PublicCategory struct {
 
 // CafeSummary is a minimal cafe/outlet for listing (id and display name).
 type CafeSummary struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID       uuid.UUID `json:"id"`
+	Name     string    `json:"name"`
+	ImageURL string    `json:"imageUrl,omitempty"`
 }
