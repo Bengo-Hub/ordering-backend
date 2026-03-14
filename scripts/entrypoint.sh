@@ -8,6 +8,15 @@ echo "=========================================="
 echo "Ordering-Backend Service Startup"
 echo "=========================================="
 
+# Sync media assets to persistent volume if mounted
+if [ -d "/media" ] && [ -d "/app/media" ]; then
+  echo "📁 Synchronizing media assets to persistent volume..."
+  # -n: do not overwrite existing files
+  # -r: recursive
+  cp -rn /app/media/* /media/ 2>/dev/null || true
+  echo "✅ Media synchronization complete"
+fi
+
 # Wait for database to be ready (with timeout)
 echo "Waiting for database connection..."
 # 60 retries * 5s = 5 minutes

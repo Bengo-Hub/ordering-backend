@@ -59,6 +59,7 @@ func New(
 	auditLogger *audit.Logger,
 	securityConfig config.SecurityConfig,
 	allowedOrigins []string,
+	mediaHandler *handlers.MediaHandler,
 	tenantSyncer *tenant.Syncer,
 ) http.Handler {
 	r := chi.NewRouter()
@@ -106,6 +107,10 @@ func New(
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
+	
+	if mediaHandler != nil {
+		r.Post("/api/v1/media/upload", mediaHandler.Upload)
+	}
 
 	// Local media storage: menu images and uploads (ORDERING_MEDIA_ROOT). Production: use persistent volume mount.
 	if mediaRoot != "" {
