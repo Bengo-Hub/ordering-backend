@@ -404,6 +404,7 @@ type CartSummary struct {
 type AnalyticsSummary struct {
 	TotalRevenue      float64            `json:"totalRevenue"`
 	TotalOrders       int                `json:"totalOrders"`
+	CancelledOrders    int                `json:"cancelledOrders"`
 	OrdersByStatus    map[string]int     `json:"ordersByStatus"`
 	RevenueByCurrency map[string]float64 `json:"revenueByCurrency"`
 	TopSellingItems   []ItemSalesSummary `json:"topSellingItems"`

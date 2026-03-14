@@ -556,6 +556,7 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 	summary := &AnalyticsSummary{
 		TotalOrders:       0,
 		TotalRevenue:      0,
+		CancelledOrders:   0,
 		OrdersByStatus:    make(map[string]int),
 		RevenueByCurrency: make(map[string]float64),
 		TopSellingItems:   make([]ItemSalesSummary, 0),
@@ -563,39 +564,34 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 	}
 
 	trendMap := make(map[string]*DailyMetric)
+	// Pre-fill trend map with all dates in range
+	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
+		dateStr := d.Format("2006-01-02")
+		trendMap[dateStr] = &DailyMetric{Date: dateStr}
+	}
 
 	for _, o := range orders {
 		summary.TotalOrders++
 		summary.TotalRevenue += o.GrandTotal
 		summary.OrdersByStatus[string(o.Status)]++
 		summary.RevenueByCurrency[o.Currency] += o.GrandTotal
+		if o.Status == order.StatusCancelled {
+			summary.CancelledOrders++
+		}
 
 		dateKey := o.CreatedAt.Format("2006-01-02")
-		if _, ok := trendMap[dateKey]; !ok {
-			trendMap[dateKey] = &DailyMetric{Date: dateKey}
+		if m, ok := trendMap[dateKey]; ok {
+			m.Orders++
+			m.Revenue += o.GrandTotal
 		}
-		trendMap[dateKey].Orders++
-		trendMap[dateKey].Revenue += o.GrandTotal
 	}
 
-	// Calculate cancelled orders
-	cancelledOrdersCount, err := r.client.Order.Query().
-		Where(
-			order.TenantID(tenantID),
-			order.CreatedAtGTE(dateFrom),
-			order.CreatedAtLTE(dateTo),
-			order.StatusEQ(order.StatusCancelled), // Fixed: Use order.StatusCancelled
-		).
-		Count(ctx)
-	if err != nil {
-		return nil, err
-	}
-	summary.CancelledOrders = cancelledOrdersCount
-
-	// Simple aggregation for items (optimization: use direct SQL or items table list)
-	orderIDs := make([]uuid.UUID, len(orders))
-	for i, o := range orders {
-		orderIDs[i] = o.ID
+	// Simple aggregation for items
+	orderIDs := make([]uuid.UUID, 0)
+	for _, o := range orders {
+		if o.Status != order.StatusCancelled {
+			orderIDs = append(orderIDs, o.ID)
+		}
 	}
 
 	if len(orderIDs) > 0 {
@@ -620,10 +616,10 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 		}
 	}
 
-	// Populate trend from map
-	summary.Trend = make([]DailyMetric, 0, len(trendMap))
-	for _, m := range trendMap {
-		summary.Trend = append(summary.Trend, *m)
+	// Populate trend from map in chronological order
+	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
+		dateStr := d.Format("2006-01-02")
+		summary.Trend = append(summary.Trend, *trendMap[dateStr])
 	}
 
 	return summary, nil
@@ -882,86 +878,6 @@ func entOrderToDomain(o *ent.Order) *Order {
 	return ord
 }
 
-func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
-	// 1. Fetch total counts and revenue
-	orders, err := r.client.Order.Query().
-		Where(
-			order.TenantID(tenantID),
-			order.CreatedAtGTE(dateFrom),
-			order.CreatedAtLTE(dateTo),
-		).
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	summary := &AnalyticsSummary{
-		OrdersByStatus:    make(map[string]int),
-		RevenueByCurrency: make(map[string]float64),
-		Trend:             make([]DailyMetric, 0),
-	}
-
-	summary.TotalOrders = len(orders)
-	for _, o := range orders {
-		summary.TotalRevenue += o.GrandTotal
-		summary.OrdersByStatus[string(o.Status)]++
-		summary.RevenueByCurrency[o.Currency] += o.GrandTotal
-	}
-
-	// 2. Trend (group by day)
-	trendMap := make(map[string]*DailyMetric)
-	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
-		dateStr := d.Format("2006-01-02")
-		trendMap[dateStr] = &DailyMetric{Date: dateStr}
-	}
-
-	for _, o := range orders {
-		dateStr := o.CreatedAt.Format("2006-01-02")
-		if m, ok := trendMap[dateStr]; ok {
-			m.Orders++
-			m.Revenue += o.GrandTotal
-		}
-	}
-
-	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
-		summary.Trend = append(summary.Trend, *trendMap[d.Format("2006-01-02")])
-	}
-
-	// 3. Top Selling Items
-	var itemSales []struct {
-		MenuItemID   uuid.UUID `json:"menu_item_id"`
-		NameSnapshot string    `json:"name_snapshot"`
-		Quantity     int       `json:"quantity"`
-		Revenue      float64   `json:"revenue"`
-	}
-
-	// Ent raw query for aggregation
-	err = r.client.OrderItem.Query().
-		Where(
-			orderitem.HasOrderWith(
-				order.TenantID(tenantID),
-				order.CreatedAtGTE(dateFrom),
-				order.CreatedAtLTE(dateTo),
-				order.StatusNotIn(order.StatusCancelled),
-			),
-		).
-		GroupBy(orderitem.FieldMenuItemID, orderitem.FieldNameSnapshot).
-		Aggregate(ent.Sum(orderitem.FieldQuantity), ent.Sum(orderitem.FieldTotalPrice)).
-		Scan(ctx, &itemSales)
-
-	if err == nil {
-		for _, s := range itemSales {
-			summary.TopSellingItems = append(summary.TopSellingItems, ItemSalesSummary{
-				MenuItemID:   s.MenuItemID,
-				NameSnapshot: s.NameSnapshot,
-				Quantity:     s.Quantity,
-				Revenue:      s.Revenue,
-			})
-		}
-	}
-
-	return summary, nil
-}
 
 func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	oi := &OrderItem{

@@ -773,13 +773,40 @@ func menuItemUUID(tenantSlug, sku string) uuid.UUID {
 
 // Category icon paths under /media/icons/ (must exist in media folder).
 const (
-	mediaMenuPlaceholder = "/media/menu/placeholder-food.svg"
+	mediaMenuPlaceholder = "/media/images/outlets/menu/placeholder-food.svg"
 	iconCoffee           = "/media/icons/coffee.svg"
 	iconLeaf             = "/media/icons/leaf.svg"
 	iconStar             = "/media/icons/star.svg"
 	iconBriefcase        = "/media/icons/briefcase.svg"
 	iconCalendar         = "/media/icons/calendar.svg"
 	iconAward            = "/media/icons/award.svg"
+
+	// Colored Icons
+	iconCakeColored  = "/media/icons/cake-colored.svg"
+	iconPizzaColored = "/media/icons/pizza-colored.svg"
+	iconFreshColored = "/media/icons/fresh-colored.svg"
+	iconCardColored  = "/media/icons/card-colored.svg"
+
+	// Menu Item Images
+	imgEspresso    = "/media/images/outlets/menu/espresso.jpg"
+	imgCappuccino  = "/media/images/outlets/menu/cappuccino.jpg"
+	imgHotCoffee   = "/media/images/outlets/menu/hot coffee.jpeg"
+	imgIcedLatte   = "/media/images/outlets/menu/icedlatte.jpeg"
+	imgCocktail    = "/media/images/outlets/menu/cocktail.jpeg"
+	imgMilkshake   = "/media/images/outlets/menu/milkshake.jpeg"
+	imgBurger      = "/media/images/outlets/menu/burger.jpg"
+	imgPizza       = "/media/images/outlets/menu/margherita-pizza.jpg"
+	imgChicken     = "/media/images/outlets/menu/chicken.jpeg"
+	imgChickenUgali = "/media/images/outlets/menu/chicken_ugali.jpeg"
+	imgPilau       = "/media/images/outlets/menu/pilau.jpeg"
+	imgFish        = "/media/images/outlets/menu/fish.jpeg"
+	imgSalad       = "/media/images/outlets/menu/salad.jpg"
+	imgBreakfast   = "/media/images/outlets/menu/breakfast.jpg"
+	imgOats        = "/media/images/outlets/menu/oats.jpeg"
+	imgDessert     = "/media/images/outlets/menu/dessert.jpeg"
+	imgLavaCake    = "/media/images/outlets/menu/chocolate-lava-cake.jpg"
+	imgMain1       = "/media/images/outlets/menu/main-course-1.jpg"
+	imgMain2       = "/media/images/outlets/menu/main-course-2.jpg"
 )
 
 type categoryDef struct {
@@ -793,12 +820,13 @@ type categoryDef struct {
 var menuCategories = []categoryDef{
 	{"hot-beverages", "Hot Beverages", "Espresso drinks, teas, and other hot beverages", 1, iconCoffee},
 	{"cold-beverages", "Cold Beverages", "Iced coffees, frappes, smoothies, and fresh juices", 2, iconLeaf},
-	{"pastries", "Pastries & Bakery", "Croissants, muffins, cakes, and baked goods", 3, iconStar},
+	{"pastries", "Pastries & Bakery", "Croissants, muffins, cakes, and baked goods", 3, iconCakeColored},
 	{"sandwiches", "Sandwiches & Wraps", "Paninis, wraps, and classic sandwiches", 4, iconBriefcase},
-	{"salads", "Salads", "Fresh salads and greens", 5, iconLeaf},
+	{"salads", "Salads", "Fresh salads and greens", 5, iconFreshColored},
 	{"main-courses", "Main Courses", "Grills, curries, rice dishes, and hearty mains", 6, iconBriefcase},
 	{"light-bites", "Light Bites", "Samosas, spring rolls, and quick snacks", 7, iconAward},
 	{"breakfast", "Breakfast", "Full breakfasts, pancakes, oats, and morning meals", 8, iconCalendar},
+	{"pizza", "Pizza", "Delicious artisanal pizzas", 9, iconPizzaColored},
 }
 
 type menuItemDef struct {
@@ -813,67 +841,71 @@ type menuItemDef struct {
 }
 
 var menuItems = []menuItemDef{
-	// Hot Beverages — all paths under /media/; placeholder where no asset exists
-	{"BEV-ESP-001", "Espresso", "Single shot of rich espresso", "hot-beverages", 250, 5, 1, mediaMenuPlaceholder},
-	{"BEV-ESP-002", "Double Espresso", "Double shot espresso", "hot-beverages", 350, 5, 2, mediaMenuPlaceholder},
-	{"BEV-LAT-001", "Caffe Latte", "Espresso with steamed milk", "hot-beverages", 400, 7, 3, mediaMenuPlaceholder},
-	{"BEV-CAP-001", "Cappuccino", "Espresso with frothed milk and cocoa", "hot-beverages", 400, 7, 4, mediaMenuPlaceholder},
-	{"BEV-AME-001", "Americano", "Espresso with hot water", "hot-beverages", 300, 5, 5, mediaMenuPlaceholder},
-	{"BEV-MOC-001", "Mocha", "Espresso, chocolate, steamed milk, whipped cream", "hot-beverages", 450, 8, 6, mediaMenuPlaceholder},
-	{"BEV-MAC-001", "Macchiato", "Espresso with a dash of milk foam", "hot-beverages", 350, 5, 7, mediaMenuPlaceholder},
-	{"BEV-TEA-001", "Kenya AA Black Tea", "Premium Kenyan black tea", "hot-beverages", 200, 5, 8, mediaMenuPlaceholder},
-	{"BEV-TEA-002", "Masala Chai", "Spiced tea latte with cardamom and ginger", "hot-beverages", 300, 7, 9, mediaMenuPlaceholder},
-	{"BEV-HOT-001", "Hot Chocolate", "Rich hot chocolate with whipped cream", "hot-beverages", 400, 7, 10, mediaMenuPlaceholder},
+	// Hot Beverages
+	{"BEV-ESP-001", "Espresso", "Single shot of rich espresso", "hot-beverages", 250, 5, 1, imgEspresso},
+	{"BEV-ESP-002", "Double Espresso", "Double shot espresso", "hot-beverages", 350, 5, 2, imgEspresso},
+	{"BEV-LAT-001", "Caffe Latte", "Espresso with steamed milk", "hot-beverages", 400, 7, 3, imgCappuccino},
+	{"BEV-CAP-001", "Cappuccino", "Espresso with frothed milk and cocoa", "hot-beverages", 400, 7, 4, imgCappuccino},
+	{"BEV-AME-001", "Americano", "Espresso with hot water", "hot-beverages", 300, 5, 5, imgHotCoffee},
+	{"BEV-MOC-001", "Mocha", "Espresso, chocolate, steamed milk, whipped cream", "hot-beverages", 450, 8, 6, imgHotCoffee},
+	{"BEV-MAC-001", "Macchiato", "Espresso with a dash of milk foam", "hot-beverages", 350, 5, 7, imgEspresso},
+	{"BEV-TEA-001", "Kenya AA Black Tea", "Premium Kenyan black tea", "hot-beverages", 200, 5, 8, imgHotCoffee},
+	{"BEV-TEA-002", "Masala Chai", "Spiced tea latte with cardamom and ginger", "hot-beverages", 300, 7, 9, imgHotCoffee},
+	{"BEV-HOT-001", "Hot Chocolate", "Rich hot chocolate with whipped cream", "hot-beverages", 400, 7, 10, imgHotCoffee},
 
 	// Cold Beverages
-	{"BEV-ICE-001", "Iced Latte", "Chilled espresso with cold milk over ice", "cold-beverages", 450, 5, 1, mediaMenuPlaceholder},
-	{"BEV-ICE-002", "Iced Americano", "Espresso over ice with cold water", "cold-beverages", 350, 5, 2, mediaMenuPlaceholder},
-	{"BEV-FRP-001", "Caramel Frappe", "Blended iced coffee with caramel drizzle", "cold-beverages", 500, 8, 3, mediaMenuPlaceholder},
-	{"BEV-FRP-002", "Vanilla Frappe", "Blended iced coffee with vanilla", "cold-beverages", 500, 8, 4, mediaMenuPlaceholder},
-	{"BEV-SMO-001", "Mango Smoothie", "Fresh mango blended with yoghurt", "cold-beverages", 450, 7, 5, mediaMenuPlaceholder},
-	{"BEV-SMO-002", "Mixed Berry Smoothie", "Strawberry, blueberry, and banana blend", "cold-beverages", 500, 7, 6, mediaMenuPlaceholder},
-	{"BEV-JCE-001", "Fresh Orange Juice", "Freshly squeezed orange juice", "cold-beverages", 350, 7, 7, mediaMenuPlaceholder},
+	{"BEV-ICE-001", "Iced Latte", "Chilled espresso with cold milk over ice", "cold-beverages", 450, 5, 1, imgIcedLatte},
+	{"BEV-ICE-002", "Iced Americano", "Espresso over ice with cold water", "cold-beverages", 350, 5, 2, imgIcedLatte},
+	{"BEV-FRP-001", "Caramel Frappe", "Blended iced coffee with caramel drizzle", "cold-beverages", 500, 8, 3, imgMilkshake},
+	{"BEV-FRP-002", "Vanilla Frappe", "Blended iced coffee with vanilla", "cold-beverages", 500, 8, 4, imgMilkshake},
+	{"BEV-SMO-001", "Mango Smoothie", "Fresh mango blended with yoghurt", "cold-beverages", 450, 7, 5, imgCocktail},
+	{"BEV-SMO-002", "Mixed Berry Smoothie", "Strawberry, blueberry, and banana blend", "cold-beverages", 500, 7, 6, imgCocktail},
+	{"BEV-JCE-001", "Fresh Orange Juice", "Freshly squeezed orange juice", "cold-beverages", 350, 7, 7, imgCocktail},
 
 	// Pastries & Bakery
-	{"PST-CRO-001", "Butter Croissant", "Flaky French butter croissant", "pastries", 250, 3, 1, mediaMenuPlaceholder},
-	{"PST-CRO-002", "Chocolate Croissant", "Croissant filled with dark chocolate", "pastries", 300, 3, 2, mediaMenuPlaceholder},
-	{"PST-MUF-001", "Blueberry Muffin", "Moist muffin loaded with blueberries", "pastries", 280, 3, 3, mediaMenuPlaceholder},
-	{"PST-MUF-002", "Banana Walnut Muffin", "Banana muffin with crunchy walnuts", "pastries", 280, 3, 4, mediaMenuPlaceholder},
-	{"PST-CKE-001", "Carrot Cake Slice", "Spiced carrot cake with cream cheese frosting", "pastries", 350, 3, 5, mediaMenuPlaceholder},
-	{"PST-CKE-002", "Red Velvet Cake Slice", "Classic red velvet with vanilla cream cheese", "pastries", 400, 3, 6, mediaMenuPlaceholder},
-	{"PST-CKE-003", "Chocolate Fudge Cake Slice", "Rich chocolate fudge layer cake", "pastries", 400, 3, 7, mediaMenuPlaceholder},
-	{"PST-DAN-001", "Danish Pastry", "Flaky pastry with custard and fruit", "pastries", 300, 3, 8, mediaMenuPlaceholder},
-	{"PST-SCO-001", "Classic Scone", "Buttermilk scone with clotted cream and jam", "pastries", 250, 3, 9, mediaMenuPlaceholder},
+	{"PST-CRO-001", "Butter Croissant", "Flaky French butter croissant", "pastries", 250, 3, 1, imgDessert},
+	{"PST-CRO-002", "Chocolate Croissant", "Croissant filled with dark chocolate", "pastries", 300, 3, 2, imgDessert},
+	{"PST-MUF-001", "Blueberry Muffin", "Moist muffin loaded with blueberries", "pastries", 280, 3, 3, imgDessert},
+	{"PST-MUF-002", "Banana Walnut Muffin", "Banana muffin with crunchy walnuts", "pastries", 280, 3, 4, imgDessert},
+	{"PST-CKE-001", "Carrot Cake Slice", "Spiced carrot cake with cream cheese frosting", "pastries", 350, 3, 5, imgLavaCake},
+	{"PST-CKE-002", "Red Velvet Cake Slice", "Classic red velvet with vanilla cream cheese", "pastries", 400, 3, 6, imgLavaCake},
+	{"PST-CKE-003", "Chocolate Fudge Cake Slice", "Rich chocolate fudge layer cake", "pastries", 400, 3, 7, imgLavaCake},
+	{"PST-DAN-001", "Danish Pastry", "Flaky pastry with custard and fruit", "pastries", 300, 3, 8, imgDessert},
+	{"PST-SCO-001", "Classic Scone", "Buttermilk scone with clotted cream and jam", "pastries", 250, 3, 9, imgDessert},
 
 	// Sandwiches & Wraps
-	{"SND-CLB-001", "Club Sandwich", "Triple-decker with chicken, bacon, lettuce, tomato", "sandwiches", 650, 12, 1, mediaMenuPlaceholder},
-	{"SND-GRL-001", "Grilled Chicken Panini", "Grilled chicken, pesto, mozzarella on ciabatta", "sandwiches", 600, 12, 2, mediaMenuPlaceholder},
-	{"SND-VEG-001", "Veggie Wrap", "Hummus, avocado, roasted vegetables in tortilla", "sandwiches", 500, 10, 3, mediaMenuPlaceholder},
-	{"SND-BLT-001", "BLT Sandwich", "Bacon, lettuce, tomato on toasted sourdough", "sandwiches", 550, 10, 4, mediaMenuPlaceholder},
-	{"SND-TUN-001", "Tuna Melt", "Tuna salad with melted cheddar on rye bread", "sandwiches", 550, 12, 5, mediaMenuPlaceholder},
+	{"SND-CLB-001", "Club Sandwich", "Triple-decker with chicken, bacon, lettuce, tomato", "sandwiches", 650, 12, 1, imgMain1},
+	{"SND-GRL-001", "Grilled Chicken Panini", "Grilled chicken, pesto, mozzarella on ciabatta", "sandwiches", 600, 12, 2, imgChicken},
+	{"SND-VEG-001", "Veggie Wrap", "Hummus, avocado, roasted vegetables in tortilla", "sandwiches", 500, 10, 3, imgSalad},
+	{"SND-BLT-001", "BLT Sandwich", "Bacon, lettuce, tomato on toasted sourdough", "sandwiches", 550, 10, 4, imgMain1},
+	{"SND-TUN-001", "Tuna Melt", "Tuna salad with melted cheddar on rye bread", "sandwiches", 550, 12, 5, imgMain1},
 
 	// Salads
-	{"SAL-CES-001", "Caesar Salad", "Romaine, croutons, parmesan, caesar dressing", "salads", 500, 8, 1, mediaMenuPlaceholder},
-	{"SAL-GRK-001", "Greek Salad", "Cucumber, tomato, olives, feta, olive oil", "salads", 450, 8, 2, mediaMenuPlaceholder},
+	{"SAL-CES-001", "Caesar Salad", "Romaine, croutons, parmesan, caesar dressing", "salads", 500, 8, 1, imgSalad},
+	{"SAL-GRK-001", "Greek Salad", "Cucumber, tomato, olives, feta, olive oil", "salads", 450, 8, 2, imgSalad},
 
 	// Light Bites
-	{"BTE-SAM-001", "Samosa (3pc)", "Crispy vegetable samosas with tamarind chutney", "light-bites", 300, 5, 1, mediaMenuPlaceholder},
-	{"BTE-SPR-001", "Spring Rolls (4pc)", "Crispy vegetable spring rolls with sweet chilli sauce", "light-bites", 350, 5, 2, mediaMenuPlaceholder},
+	{"BTE-SAM-001", "Samosa (3pc)", "Crispy vegetable samosas with tamarind chutney", "light-bites", 300, 5, 1, imgMain2},
+	{"BTE-SPR-001", "Spring Rolls (4pc)", "Crispy vegetable spring rolls with sweet chilli sauce", "light-bites", 350, 5, 2, imgMain2},
 
 	// Main Courses
-	{"MIN-GRL-001", "Grilled Beef Fillet", "250g beef fillet with pepper sauce, mash and seasonal veg", "main-courses", 1200, 25, 1, mediaMenuPlaceholder},
-	{"MIN-GRL-002", "Grilled Chicken Breast", "Herb-marinated chicken with gravy, rice and vegetables", "main-courses", 750, 20, 2, mediaMenuPlaceholder},
-	{"MIN-CUR-001", "Chicken Curry", "Spiced chicken curry with basmati rice and naan", "main-courses", 650, 18, 3, mediaMenuPlaceholder},
-	{"MIN-CUR-002", "Beef Stew", "Tender beef stew with potatoes and carrots, served with ugali or rice", "main-courses", 600, 20, 4, mediaMenuPlaceholder},
-	{"MIN-SEA-001", "Fish and Chips", "Beer-battered fish with chips and tartar sauce", "main-courses", 750, 18, 5, mediaMenuPlaceholder},
-	{"MIN-PAS-001", "Spaghetti Bolognese", "Classic beef bolognese with parmesan and garlic bread", "main-courses", 550, 15, 6, mediaMenuPlaceholder},
-	{"MIN-RIC-001", "Pilau Rice Bowl", "Spiced pilau rice with choice of beef, chicken or veg", "main-courses", 500, 12, 7, mediaMenuPlaceholder},
+	{"MIN-GRL-001", "Grilled Beef Fillet", "250g beef fillet with pepper sauce, mash and seasonal veg", "main-courses", 1200, 25, 1, imgMain1},
+	{"MIN-GRL-002", "Grilled Chicken Breast", "Herb-marinated chicken with gravy, rice and vegetables", "main-courses", 750, 20, 2, imgChickenUgali},
+	{"MIN-CUR-001", "Chicken Curry", "Spiced chicken curry with basmati rice and naan", "main-courses", 650, 18, 3, imgChicken},
+	{"MIN-CUR-002", "Beef Stew", "Tender beef stew with potatoes and carrots, served with ugali or rice", "main-courses", 600, 20, 4, imgPilau},
+	{"MIN-SEA-001", "Fish and Chips", "Beer-battered fish with chips and tartar sauce", "main-courses", 750, 18, 5, imgFish},
+	{"MIN-PAS-001", "Spaghetti Bolognese", "Classic beef bolognese with parmesan and garlic bread", "main-courses", 550, 15, 6, imgMain1},
+	{"MIN-RIC-001", "Pilau Rice Bowl", "Spiced pilau rice with choice of beef, chicken or veg", "main-courses", 500, 12, 7, imgPilau},
 
 	// Breakfast
-	{"BRK-FUL-001", "Full English Breakfast", "Eggs, bacon, sausage, beans, toast, tomato", "breakfast", 800, 20, 1, mediaMenuPlaceholder},
-	{"BRK-PAN-001", "Pancake Stack", "Fluffy pancakes with maple syrup and berries", "breakfast", 550, 15, 2, mediaMenuPlaceholder},
-	{"BRK-AVT-001", "Avocado Toast", "Smashed avocado on sourdough with poached egg", "breakfast", 500, 12, 3, mediaMenuPlaceholder},
-	{"BRK-OAT-001", "Overnight Oats", "Oats soaked in almond milk with fresh fruits and honey", "breakfast", 400, 3, 4, mediaMenuPlaceholder},
+	{"BRK-FUL-001", "Full English Breakfast", "Eggs, bacon, sausage, beans, toast, tomato", "breakfast", 800, 20, 1, imgBreakfast},
+	{"BRK-PAN-001", "Pancake Stack", "Fluffy pancakes with maple syrup and berries", "breakfast", 550, 15, 2, imgBreakfast},
+	{"BRK-AVT-001", "Avocado Toast", "Smashed avocado on sourdough with poached egg", "breakfast", 500, 12, 3, imgBreakfast},
+	{"BRK-OAT-001", "Overnight Oats", "Oats soaked in almond milk with fresh fruits and honey", "breakfast", 400, 3, 4, imgOats},
+
+	// Pizza
+	{"PIZ-MAR-001", "Margherita Pizza", "Fresh mozzarella, tomato sauce, and basil", "pizza", 800, 15, 1, imgPizza},
+	{"PIZ-PEP-001", "Pepperoni Pizza", "Classic pepperoni with mozzarella and tomato sauce", "pizza", 1000, 15, 2, imgPizza},
 }
 
 func seedMenuCategories(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.UUID) error {
@@ -926,9 +958,6 @@ func seedMenuItems(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.UUID) 
 		if err != nil {
 			return fmt.Errorf("check menu item %s: %w", item.SKU, err)
 		}
-		if exists {
-			continue
-		}
 
 		catID, ok := catIDMap[item.CategorySlug]
 		if !ok {
@@ -938,6 +967,19 @@ func seedMenuItems(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.UUID) 
 		imgURL := item.ImageURL
 		if imgURL == "" {
 			imgURL = mediaMenuPlaceholder
+		}
+
+		if exists {
+			// Update existing item image and category (in case it changed)
+			_, err = tx.MenuItem.UpdateOneID(itemID).
+				SetCafeID(cafeID).
+				SetCategoryID(catID).
+				SetImageURL(imgURL).
+				Save(ctx)
+			if err != nil {
+				return fmt.Errorf("update menu item %s: %w", item.SKU, err)
+			}
+			continue
 		}
 		_, err = tx.MenuItem.Create().
 			SetID(itemID).

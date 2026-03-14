@@ -660,9 +660,21 @@ func (s *Service) ListCafes(ctx context.Context, tenantID uuid.UUID) ([]CafeSumm
 	}
 	out := make([]CafeSummary, len(ids))
 	for i, id := range ids {
-		out[i] = CafeSummary{ID: id, Name: cafeDisplayName(id)}
+		out[i] = CafeSummary{
+			ID:       id,
+			Name:     cafeDisplayName(id),
+			ImageURL: cafeImageURL(id),
+		}
 	}
 	return out, nil
+}
+
+func cafeImageURL(id uuid.UUID) string {
+	busiaID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
+	if id == busiaID {
+		return "/media/images/outlets/urban-loft-kiambu.jpeg"
+	}
+	return ""
 }
 
 // cafeDisplayName returns a display name for the cafe (default "Outlet"; known seed cafes can be mapped).

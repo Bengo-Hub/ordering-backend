@@ -57,7 +57,7 @@ type HTTPConfig struct {
 	WriteTimeout time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout  time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
 	// Browser origins that may call this API (frontends). Not the API host itself.
-	AllowedOrigins []string `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com,https://notifications.codevertexitsolutions.com,http://localhost:3001,http://127.0.0.1:3001"`
+	AllowedOrigins []string `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com,https://notifications.codevertexitsolutions.com,http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"`
 }
 
 type PostgresConfig struct {
