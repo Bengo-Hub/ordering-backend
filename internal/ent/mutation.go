@@ -16597,7 +16597,7 @@ func (m *MenuCategoryMutation) TenantID() (r uuid.UUID, exists bool) {
 // OldTenantID returns the old "tenant_id" field's value of the MenuCategory entity.
 // If the MenuCategory object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MenuCategoryMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *MenuCategoryMutation) OldTenantID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
 	}
@@ -16611,9 +16611,22 @@ func (m *MenuCategoryMutation) OldTenantID(ctx context.Context) (v uuid.UUID, er
 	return oldValue.TenantID, nil
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *MenuCategoryMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.clearedFields[menucategory.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *MenuCategoryMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[menucategory.FieldTenantID]
+	return ok
+}
+
 // ResetTenantID resets all changes to the "tenant_id" field.
 func (m *MenuCategoryMutation) ResetTenantID() {
 	m.tenant_id = nil
+	delete(m.clearedFields, menucategory.FieldTenantID)
 }
 
 // SetCafeID sets the "cafe_id" field.
@@ -16633,7 +16646,7 @@ func (m *MenuCategoryMutation) CafeID() (r uuid.UUID, exists bool) {
 // OldCafeID returns the old "cafe_id" field's value of the MenuCategory entity.
 // If the MenuCategory object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MenuCategoryMutation) OldCafeID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *MenuCategoryMutation) OldCafeID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCafeID is only allowed on UpdateOne operations")
 	}
@@ -16647,9 +16660,22 @@ func (m *MenuCategoryMutation) OldCafeID(ctx context.Context) (v uuid.UUID, err 
 	return oldValue.CafeID, nil
 }
 
+// ClearCafeID clears the value of the "cafe_id" field.
+func (m *MenuCategoryMutation) ClearCafeID() {
+	m.cafe_id = nil
+	m.clearedFields[menucategory.FieldCafeID] = struct{}{}
+}
+
+// CafeIDCleared returns if the "cafe_id" field was cleared in this mutation.
+func (m *MenuCategoryMutation) CafeIDCleared() bool {
+	_, ok := m.clearedFields[menucategory.FieldCafeID]
+	return ok
+}
+
 // ResetCafeID resets all changes to the "cafe_id" field.
 func (m *MenuCategoryMutation) ResetCafeID() {
 	m.cafe_id = nil
+	delete(m.clearedFields, menucategory.FieldCafeID)
 }
 
 // SetParentID sets the "parent_id" field.
@@ -17380,6 +17406,12 @@ func (m *MenuCategoryMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *MenuCategoryMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(menucategory.FieldTenantID) {
+		fields = append(fields, menucategory.FieldTenantID)
+	}
+	if m.FieldCleared(menucategory.FieldCafeID) {
+		fields = append(fields, menucategory.FieldCafeID)
+	}
 	if m.FieldCleared(menucategory.FieldParentID) {
 		fields = append(fields, menucategory.FieldParentID)
 	}
@@ -17403,6 +17435,12 @@ func (m *MenuCategoryMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *MenuCategoryMutation) ClearField(name string) error {
 	switch name {
+	case menucategory.FieldTenantID:
+		m.ClearTenantID()
+		return nil
+	case menucategory.FieldCafeID:
+		m.ClearCafeID()
+		return nil
 	case menucategory.FieldParentID:
 		m.ClearParentID()
 		return nil

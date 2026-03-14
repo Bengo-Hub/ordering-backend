@@ -9,8 +9,8 @@ import (
 // Category represents a menu category for organizing items.
 type Category struct {
 	ID           uuid.UUID   `json:"id"`
-	TenantID     uuid.UUID   `json:"tenantId"`
-	CafeID       uuid.UUID   `json:"cafeId"`
+	TenantID     *uuid.UUID  `json:"tenantId,omitempty"`
+	CafeID       *uuid.UUID  `json:"cafeId,omitempty"`
 	ParentID     *uuid.UUID  `json:"parentId,omitempty"`
 	Name         string      `json:"name"`
 	Description  string      `json:"description,omitempty"`

@@ -44,6 +44,12 @@ func (mcu *MenuCategoryUpdate) SetNillableTenantID(u *uuid.UUID) *MenuCategoryUp
 	return mcu
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (mcu *MenuCategoryUpdate) ClearTenantID() *MenuCategoryUpdate {
+	mcu.mutation.ClearTenantID()
+	return mcu
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (mcu *MenuCategoryUpdate) SetCafeID(u uuid.UUID) *MenuCategoryUpdate {
 	mcu.mutation.SetCafeID(u)
@@ -55,6 +61,12 @@ func (mcu *MenuCategoryUpdate) SetNillableCafeID(u *uuid.UUID) *MenuCategoryUpda
 	if u != nil {
 		mcu.SetCafeID(*u)
 	}
+	return mcu
+}
+
+// ClearCafeID clears the value of the "cafe_id" field.
+func (mcu *MenuCategoryUpdate) ClearCafeID() *MenuCategoryUpdate {
+	mcu.mutation.ClearCafeID()
 	return mcu
 }
 
@@ -327,8 +339,14 @@ func (mcu *MenuCategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mcu.mutation.TenantID(); ok {
 		_spec.SetField(menucategory.FieldTenantID, field.TypeUUID, value)
 	}
+	if mcu.mutation.TenantIDCleared() {
+		_spec.ClearField(menucategory.FieldTenantID, field.TypeUUID)
+	}
 	if value, ok := mcu.mutation.CafeID(); ok {
 		_spec.SetField(menucategory.FieldCafeID, field.TypeUUID, value)
+	}
+	if mcu.mutation.CafeIDCleared() {
+		_spec.ClearField(menucategory.FieldCafeID, field.TypeUUID)
 	}
 	if value, ok := mcu.mutation.Name(); ok {
 		_spec.SetField(menucategory.FieldName, field.TypeString, value)
@@ -510,6 +528,12 @@ func (mcuo *MenuCategoryUpdateOne) SetNillableTenantID(u *uuid.UUID) *MenuCatego
 	return mcuo
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (mcuo *MenuCategoryUpdateOne) ClearTenantID() *MenuCategoryUpdateOne {
+	mcuo.mutation.ClearTenantID()
+	return mcuo
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (mcuo *MenuCategoryUpdateOne) SetCafeID(u uuid.UUID) *MenuCategoryUpdateOne {
 	mcuo.mutation.SetCafeID(u)
@@ -521,6 +545,12 @@ func (mcuo *MenuCategoryUpdateOne) SetNillableCafeID(u *uuid.UUID) *MenuCategory
 	if u != nil {
 		mcuo.SetCafeID(*u)
 	}
+	return mcuo
+}
+
+// ClearCafeID clears the value of the "cafe_id" field.
+func (mcuo *MenuCategoryUpdateOne) ClearCafeID() *MenuCategoryUpdateOne {
+	mcuo.mutation.ClearCafeID()
 	return mcuo
 }
 
@@ -823,8 +853,14 @@ func (mcuo *MenuCategoryUpdateOne) sqlSave(ctx context.Context) (_node *MenuCate
 	if value, ok := mcuo.mutation.TenantID(); ok {
 		_spec.SetField(menucategory.FieldTenantID, field.TypeUUID, value)
 	}
+	if mcuo.mutation.TenantIDCleared() {
+		_spec.ClearField(menucategory.FieldTenantID, field.TypeUUID)
+	}
 	if value, ok := mcuo.mutation.CafeID(); ok {
 		_spec.SetField(menucategory.FieldCafeID, field.TypeUUID, value)
+	}
+	if mcuo.mutation.CafeIDCleared() {
+		_spec.ClearField(menucategory.FieldCafeID, field.TypeUUID)
 	}
 	if value, ok := mcuo.mutation.Name(); ok {
 		_spec.SetField(menucategory.FieldName, field.TypeString, value)

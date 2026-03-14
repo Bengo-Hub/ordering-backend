@@ -663,8 +663,8 @@ var (
 	// MenuCategoriesColumns holds the columns for the "menu_categories" table.
 	MenuCategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "tenant_id", Type: field.TypeUUID},
-		{Name: "cafe_id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "cafe_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
