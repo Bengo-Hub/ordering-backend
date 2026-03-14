@@ -53,8 +53,8 @@ func (h *Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	category, err := h.service.CreateCategory(r.Context(), catalog.CreateCategoryRequest{
-		TenantID:     tenantID,
-		CafeID:       cafeID,
+		TenantID:     &tenantID,
+		CafeID:       &cafeID,
 		ParentID:     parentID,
 		Name:         req.Name,
 		Description:  req.Description,

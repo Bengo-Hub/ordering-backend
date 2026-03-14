@@ -137,7 +137,7 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 	}
 
 	cafeUUID := cafeUUID("urban-loft", "busia")
-	if err = seedMenuCategories(ctx, tx, tenantUUID, cafeUUID); err != nil {
+	if err = seedMenuCategories(ctx, tx); err != nil {
 		return err
 	}
 
@@ -763,8 +763,8 @@ func cafeUUID(tenantSlug, outletSlug string) uuid.UUID {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:"+tenantSlug+":"+outletSlug))
 }
 
-func categoryUUID(tenantSlug, slug string) uuid.UUID {
-	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:category:"+tenantSlug+":"+slug))
+func categoryUUID(slug string) uuid.UUID {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:global:category:"+slug))
 }
 
 func menuItemUUID(tenantSlug, sku string) uuid.UUID {
@@ -774,18 +774,33 @@ func menuItemUUID(tenantSlug, sku string) uuid.UUID {
 // Category icon paths under /media/icons/ (must exist in media folder).
 const (
 	mediaMenuPlaceholder = "/media/images/outlets/menu/placeholder-food.svg"
-	iconCoffee           = "/media/icons/coffee.svg"
-	iconLeaf             = "/media/icons/leaf.svg"
-	iconStar             = "/media/icons/star.svg"
-	iconBriefcase        = "/media/icons/briefcase.svg"
-	iconCalendar         = "/media/icons/calendar.svg"
-	iconAward            = "/media/icons/award.svg"
+	iconCoffee           = "/media/icons/coffee-colored.svg"
+	iconLeaf             = "/media/icons/fresh-colored.svg"
+	iconStar             = "/media/icons/cake-colored.svg"
+	iconBriefcase        = "/media/icons/sandwich-colored.svg"
+	iconCalendar         = "/media/icons/breakfast-colored.svg"
+	iconAward            = "/media/icons/snack-colored.svg"
 
 	// Colored Icons
 	iconCakeColored  = "/media/icons/cake-colored.svg"
 	iconPizzaColored = "/media/icons/pizza-colored.svg"
 	iconFreshColored = "/media/icons/fresh-colored.svg"
 	iconCardColored  = "/media/icons/card-colored.svg"
+	iconBurgerColored = "/media/icons/burger-colored.svg"
+	iconJuiceColored = "/media/icons/juice-colored.svg"
+	iconDrumstickColored = "/media/icons/drumstick-colored.svg"
+	iconSushiColored = "/media/icons/sushi-colored.svg"
+	iconGroceryColored = "/media/icons/grocery-colored.svg"
+	iconMedicineColored = "/media/icons/medicine-colored.svg"
+	iconGiftColored = "/media/icons/gift-colored.svg"
+	iconFlowerColored = "/media/icons/flower-colored.svg"
+	iconLiquorColored = "/media/icons/liquor-colored.svg"
+	iconChineseColored = "/media/icons/chinese-colored.svg"
+	iconCurryColored = "/media/icons/curry-colored.svg"
+	iconDessertColored = "/media/icons/dessert-colored.svg"
+	iconRetailColored = "/media/icons/retail-colored.svg"
+	iconElectronicsColored = "/media/icons/electronics-colored.svg"
+	iconFashionColored = "/media/icons/fashion-colored.svg"
 
 	// Menu Item Images
 	imgEspresso    = "/media/images/outlets/menu/espresso.jpg"
@@ -819,14 +834,27 @@ type categoryDef struct {
 
 var menuCategories = []categoryDef{
 	{"hot-beverages", "Hot Beverages", "Espresso drinks, teas, and other hot beverages", 1, iconCoffee},
-	{"cold-beverages", "Cold Beverages", "Iced coffees, frappes, smoothies, and fresh juices", 2, iconLeaf},
+	{"cold-beverages", "Cold Beverages", "Iced coffees, frappes, smoothies, and fresh juices", 2, iconJuiceColored},
 	{"pastries", "Pastries & Bakery", "Croissants, muffins, cakes, and baked goods", 3, iconCakeColored},
 	{"sandwiches", "Sandwiches & Wraps", "Paninis, wraps, and classic sandwiches", 4, iconBriefcase},
 	{"salads", "Salads", "Fresh salads and greens", 5, iconFreshColored},
-	{"main-courses", "Main Courses", "Grills, curries, rice dishes, and hearty mains", 6, iconBriefcase},
+	{"main-courses", "Main Courses", "Grills, curries, rice dishes, and hearty mains", 6, iconBurgerColored},
 	{"light-bites", "Light Bites", "Samosas, spring rolls, and quick snacks", 7, iconAward},
 	{"breakfast", "Breakfast", "Full breakfasts, pancakes, oats, and morning meals", 8, iconCalendar},
 	{"pizza", "Pizza", "Delicious artisanal pizzas", 9, iconPizzaColored},
+	{"chicken", "Chicken", "Fried and grilled chicken specialties", 10, iconDrumstickColored},
+	{"sushi", "Sushi", "Fresh sushi and Japanese delicacies", 11, iconSushiColored},
+	{"grocery", "Grocery", "Fresh produce and household essentials", 12, iconGroceryColored},
+	{"pharmacy", "Pharmacy", "Medicine and health services", 13, iconMedicineColored},
+	{"gifts", "Gifts", "Special gifts and hampers", 14, iconGiftColored},
+	{"flowers", "Flowers", "Fresh flower bouquets", 15, iconFlowerColored},
+	{"alcohol", "Alcohol", "Wines, spirits, and beers", 16, iconLiquorColored},
+	{"chinese", "Chinese", "Authentic Chinese cuisine", 17, iconChineseColored},
+	{"indian", "Indian", "Flavorful Indian curries and specialities", 18, iconCurryColored},
+	{"desserts", "Desserts", "Sweet treats and delights", 19, iconDessertColored},
+	{"retail", "Retail", "Shopping and fashion", 20, iconRetailColored},
+	{"electronics", "Electronics", "Devices and accessories", 21, iconElectronicsColored},
+	{"fashion", "Fashion", "Clothing and apparel", 22, iconFashionColored},
 }
 
 type menuItemDef struct {
@@ -908,9 +936,9 @@ var menuItems = []menuItemDef{
 	{"PIZ-PEP-001", "Pepperoni Pizza", "Classic pepperoni with mozzarella and tomato sauce", "pizza", 1000, 15, 2, imgPizza},
 }
 
-func seedMenuCategories(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.UUID) error {
+func seedMenuCategories(ctx context.Context, tx *ent.Tx) error {
 	for _, cat := range menuCategories {
-		catID := categoryUUID("urban-loft", cat.Slug)
+		catID := categoryUUID(cat.Slug)
 
 		_, err := tx.MenuCategory.Get(ctx, catID)
 		if err == nil {
@@ -925,8 +953,6 @@ func seedMenuCategories(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.U
 
 		create := tx.MenuCategory.Create().
 			SetID(catID).
-			SetTenantID(tenantID).
-			SetCafeID(cafeID).
 			SetName(cat.Name).
 			SetDescription(cat.Description).
 			SetDisplayOrder(cat.DisplayOrder).
@@ -946,7 +972,7 @@ func seedMenuCategories(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.U
 func seedMenuItems(ctx context.Context, tx *ent.Tx, tenantID, cafeID uuid.UUID) error {
 	catIDMap := make(map[string]uuid.UUID, len(menuCategories))
 	for _, cat := range menuCategories {
-		catIDMap[cat.Slug] = categoryUUID("urban-loft", cat.Slug)
+		catIDMap[cat.Slug] = categoryUUID(cat.Slug)
 	}
 
 	for _, item := range menuItems {

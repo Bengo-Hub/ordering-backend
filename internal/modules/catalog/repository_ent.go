@@ -29,8 +29,8 @@ func NewEntRepository(client *ent.Client) *EntRepository {
 
 func (r *EntRepository) CreateCategory(ctx context.Context, category *Category) error {
 	builder := r.client.MenuCategory.Create().
-		SetTenantID(category.TenantID).
-		SetCafeID(category.CafeID).
+		SetNillableTenantID(category.TenantID).
+		SetNillableCafeID(category.CafeID).
 		SetName(category.Name).
 		SetDescription(category.Description).
 		SetDisplayOrder(category.DisplayOrder).
@@ -709,11 +709,11 @@ func (r *EntRepository) DeleteSchedule(ctx context.Context, scheduleID uuid.UUID
 
 func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicMenuRequest) ([]PublicMenuItem, int, error) {
 	filter := MenuItemFilter{
-		TenantID:   req.TenantID,
-		Search:     req.Search,
-		Locale:     req.Locale,
-		Limit:      req.Limit,
-		Offset:     req.Offset,
+		TenantID: req.TenantID,
+		Search:   req.Search,
+		Locale:   req.Locale,
+		Limit:    req.Limit,
+		Offset:   req.Offset,
 	}
 	if req.CafeID != nil {
 		filter.CafeID = req.CafeID
@@ -771,11 +771,14 @@ func (r *EntRepository) GetDistinctCafeIDs(ctx context.Context, tenantID uuid.UU
 	var out []uuid.UUID
 	for _, c := range cats {
 		id := c.CafeID
-		if _, ok := seen[id]; ok {
+		if id == nil {
 			continue
 		}
-		seen[id] = struct{}{}
-		out = append(out, id)
+		if _, ok := seen[*id]; ok {
+			continue
+		}
+		seen[*id] = struct{}{}
+		out = append(out, *id)
 	}
 	return out, nil
 }

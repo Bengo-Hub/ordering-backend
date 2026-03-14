@@ -22,8 +22,12 @@ func (MenuCategory) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 		field.UUID("tenant_id", uuid.UUID{}).
+			Optional().
+			Nillable().
 			Comment("Reference to tenant"),
 		field.UUID("cafe_id", uuid.UUID{}).
+			Optional().
+			Nillable().
 			Comment("Reference to cafe/outlet"),
 		field.UUID("parent_id", uuid.UUID{}).
 			Optional().

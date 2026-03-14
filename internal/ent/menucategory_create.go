@@ -31,9 +31,25 @@ func (mcc *MenuCategoryCreate) SetTenantID(u uuid.UUID) *MenuCategoryCreate {
 	return mcc
 }
 
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (mcc *MenuCategoryCreate) SetNillableTenantID(u *uuid.UUID) *MenuCategoryCreate {
+	if u != nil {
+		mcc.SetTenantID(*u)
+	}
+	return mcc
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (mcc *MenuCategoryCreate) SetCafeID(u uuid.UUID) *MenuCategoryCreate {
 	mcc.mutation.SetCafeID(u)
+	return mcc
+}
+
+// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
+func (mcc *MenuCategoryCreate) SetNillableCafeID(u *uuid.UUID) *MenuCategoryCreate {
+	if u != nil {
+		mcc.SetCafeID(*u)
+	}
 	return mcc
 }
 
@@ -249,12 +265,6 @@ func (mcc *MenuCategoryCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mcc *MenuCategoryCreate) check() error {
-	if _, ok := mcc.mutation.TenantID(); !ok {
-		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "MenuCategory.tenant_id"`)}
-	}
-	if _, ok := mcc.mutation.CafeID(); !ok {
-		return &ValidationError{Name: "cafe_id", err: errors.New(`ent: missing required field "MenuCategory.cafe_id"`)}
-	}
 	if _, ok := mcc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "MenuCategory.name"`)}
 	}
@@ -318,11 +328,11 @@ func (mcc *MenuCategoryCreate) createSpec() (*MenuCategory, *sqlgraph.CreateSpec
 	}
 	if value, ok := mcc.mutation.TenantID(); ok {
 		_spec.SetField(menucategory.FieldTenantID, field.TypeUUID, value)
-		_node.TenantID = value
+		_node.TenantID = &value
 	}
 	if value, ok := mcc.mutation.CafeID(); ok {
 		_spec.SetField(menucategory.FieldCafeID, field.TypeUUID, value)
-		_node.CafeID = value
+		_node.CafeID = &value
 	}
 	if value, ok := mcc.mutation.Name(); ok {
 		_spec.SetField(menucategory.FieldName, field.TypeString, value)
@@ -465,6 +475,12 @@ func (u *MenuCategoryUpsert) UpdateTenantID() *MenuCategoryUpsert {
 	return u
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (u *MenuCategoryUpsert) ClearTenantID() *MenuCategoryUpsert {
+	u.SetNull(menucategory.FieldTenantID)
+	return u
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (u *MenuCategoryUpsert) SetCafeID(v uuid.UUID) *MenuCategoryUpsert {
 	u.Set(menucategory.FieldCafeID, v)
@@ -474,6 +490,12 @@ func (u *MenuCategoryUpsert) SetCafeID(v uuid.UUID) *MenuCategoryUpsert {
 // UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
 func (u *MenuCategoryUpsert) UpdateCafeID() *MenuCategoryUpsert {
 	u.SetExcluded(menucategory.FieldCafeID)
+	return u
+}
+
+// ClearCafeID clears the value of the "cafe_id" field.
+func (u *MenuCategoryUpsert) ClearCafeID() *MenuCategoryUpsert {
+	u.SetNull(menucategory.FieldCafeID)
 	return u
 }
 
@@ -650,6 +672,13 @@ func (u *MenuCategoryUpsertOne) UpdateTenantID() *MenuCategoryUpsertOne {
 	})
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (u *MenuCategoryUpsertOne) ClearTenantID() *MenuCategoryUpsertOne {
+	return u.Update(func(s *MenuCategoryUpsert) {
+		s.ClearTenantID()
+	})
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (u *MenuCategoryUpsertOne) SetCafeID(v uuid.UUID) *MenuCategoryUpsertOne {
 	return u.Update(func(s *MenuCategoryUpsert) {
@@ -661,6 +690,13 @@ func (u *MenuCategoryUpsertOne) SetCafeID(v uuid.UUID) *MenuCategoryUpsertOne {
 func (u *MenuCategoryUpsertOne) UpdateCafeID() *MenuCategoryUpsertOne {
 	return u.Update(func(s *MenuCategoryUpsert) {
 		s.UpdateCafeID()
+	})
+}
+
+// ClearCafeID clears the value of the "cafe_id" field.
+func (u *MenuCategoryUpsertOne) ClearCafeID() *MenuCategoryUpsertOne {
+	return u.Update(func(s *MenuCategoryUpsert) {
+		s.ClearCafeID()
 	})
 }
 
@@ -1022,6 +1058,13 @@ func (u *MenuCategoryUpsertBulk) UpdateTenantID() *MenuCategoryUpsertBulk {
 	})
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (u *MenuCategoryUpsertBulk) ClearTenantID() *MenuCategoryUpsertBulk {
+	return u.Update(func(s *MenuCategoryUpsert) {
+		s.ClearTenantID()
+	})
+}
+
 // SetCafeID sets the "cafe_id" field.
 func (u *MenuCategoryUpsertBulk) SetCafeID(v uuid.UUID) *MenuCategoryUpsertBulk {
 	return u.Update(func(s *MenuCategoryUpsert) {
@@ -1033,6 +1076,13 @@ func (u *MenuCategoryUpsertBulk) SetCafeID(v uuid.UUID) *MenuCategoryUpsertBulk 
 func (u *MenuCategoryUpsertBulk) UpdateCafeID() *MenuCategoryUpsertBulk {
 	return u.Update(func(s *MenuCategoryUpsert) {
 		s.UpdateCafeID()
+	})
+}
+
+// ClearCafeID clears the value of the "cafe_id" field.
+func (u *MenuCategoryUpsertBulk) ClearCafeID() *MenuCategoryUpsertBulk {
+	return u.Update(func(s *MenuCategoryUpsert) {
+		s.ClearCafeID()
 	})
 }
 

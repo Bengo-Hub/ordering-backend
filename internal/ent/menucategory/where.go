@@ -146,6 +146,16 @@ func TenantIDLTE(v uuid.UUID) predicate.MenuCategory {
 	return predicate.MenuCategory(sql.FieldLTE(FieldTenantID, v))
 }
 
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.MenuCategory {
+	return predicate.MenuCategory(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.MenuCategory {
+	return predicate.MenuCategory(sql.FieldNotNull(FieldTenantID))
+}
+
 // CafeIDEQ applies the EQ predicate on the "cafe_id" field.
 func CafeIDEQ(v uuid.UUID) predicate.MenuCategory {
 	return predicate.MenuCategory(sql.FieldEQ(FieldCafeID, v))
@@ -184,6 +194,16 @@ func CafeIDLT(v uuid.UUID) predicate.MenuCategory {
 // CafeIDLTE applies the LTE predicate on the "cafe_id" field.
 func CafeIDLTE(v uuid.UUID) predicate.MenuCategory {
 	return predicate.MenuCategory(sql.FieldLTE(FieldCafeID, v))
+}
+
+// CafeIDIsNil applies the IsNil predicate on the "cafe_id" field.
+func CafeIDIsNil() predicate.MenuCategory {
+	return predicate.MenuCategory(sql.FieldIsNull(FieldCafeID))
+}
+
+// CafeIDNotNil applies the NotNil predicate on the "cafe_id" field.
+func CafeIDNotNil() predicate.MenuCategory {
+	return predicate.MenuCategory(sql.FieldNotNull(FieldCafeID))
 }
 
 // ParentIDEQ applies the EQ predicate on the "parent_id" field.

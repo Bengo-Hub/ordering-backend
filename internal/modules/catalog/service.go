@@ -26,8 +26,8 @@ func NewService(repo Repository, logger *zap.Logger) *Service {
 
 // CreateCategoryRequest represents a request to create a category.
 type CreateCategoryRequest struct {
-	TenantID     uuid.UUID
-	CafeID       uuid.UUID
+	TenantID     *uuid.UUID
+	CafeID       *uuid.UUID
 	ParentID     *uuid.UUID
 	Name         string
 	Description  string
@@ -44,19 +44,30 @@ func (s *Service) CreateCategory(ctx context.Context, req CreateCategoryRequest)
 	}
 
 	// Check for duplicate name in same cafe
-	existing, err := s.repo.GetCategoryByName(ctx, req.TenantID, req.CafeID, req.Name)
+	var tenantID, cafeID uuid.UUID
+	if req.TenantID != nil {
+		tenantID = *req.TenantID
+	}
+	if req.CafeID != nil {
+		cafeID = *req.CafeID
+	}
+	existing, err := s.repo.GetCategoryByName(ctx, tenantID, cafeID, req.Name)
 	if err == nil && existing != nil {
 		return nil, ErrCategoryAlreadyExists
 	}
 
 	// Validate parent category exists if specified
 	if req.ParentID != nil {
-		parent, err := s.repo.GetCategory(ctx, req.TenantID, *req.ParentID)
+		var tenantID uuid.UUID
+		if req.TenantID != nil {
+			tenantID = *req.TenantID
+		}
+		parent, err := s.repo.GetCategory(ctx, tenantID, *req.ParentID)
 		if err != nil {
 			return nil, ErrInvalidCategoryParent
 		}
 		// Ensure parent is in same cafe
-		if parent.CafeID != req.CafeID {
+		if (parent.CafeID == nil && req.CafeID != nil) || (parent.CafeID != nil && req.CafeID == nil) || (parent.CafeID != nil && req.CafeID != nil && *parent.CafeID != *req.CafeID) {
 			return nil, ErrInvalidCategoryParent
 		}
 	}
@@ -121,7 +132,14 @@ func (s *Service) UpdateCategory(ctx context.Context, req UpdateCategoryRequest)
 		}
 		// Check for duplicate name if changed
 		if name != category.Name {
-			existing, err := s.repo.GetCategoryByName(ctx, req.TenantID, category.CafeID, name)
+			var tenantID, cafeID uuid.UUID
+			if category.TenantID != nil {
+				tenantID = *category.TenantID
+			}
+			if category.CafeID != nil {
+				cafeID = *category.CafeID
+			}
+			existing, err := s.repo.GetCategoryByName(ctx, tenantID, cafeID, name)
 			if err == nil && existing != nil && existing.ID != category.ID {
 				return nil, ErrCategoryAlreadyExists
 			}
@@ -152,7 +170,7 @@ func (s *Service) UpdateCategory(ctx context.Context, req UpdateCategoryRequest)
 		if err != nil {
 			return nil, ErrInvalidCategoryParent
 		}
-		if parent.CafeID != category.CafeID {
+		if (parent.CafeID == nil && category.CafeID != nil) || (parent.CafeID != nil && category.CafeID == nil) || (parent.CafeID != nil && category.CafeID != nil && *parent.CafeID != *category.CafeID) {
 			return nil, ErrInvalidCategoryParent
 		}
 		category.ParentID = req.ParentID
@@ -240,7 +258,7 @@ func (s *Service) CreateMenuItem(ctx context.Context, req CreateMenuItemRequest)
 	if err != nil {
 		return nil, ErrInvalidCategory
 	}
-	if category.CafeID != req.CafeID {
+	if (category.CafeID == nil && req.CafeID != uuid.Nil) || (category.CafeID != nil && *category.CafeID != req.CafeID) {
 		return nil, ErrInvalidCategory
 	}
 
@@ -370,7 +388,7 @@ func (s *Service) UpdateMenuItem(ctx context.Context, req UpdateMenuItemRequest)
 		if err != nil {
 			return nil, ErrInvalidCategory
 		}
-		if category.CafeID != item.CafeID {
+		if (category.CafeID == nil && item.CafeID != uuid.Nil) || (category.CafeID != nil && *category.CafeID != item.CafeID) {
 			return nil, ErrInvalidCategory
 		}
 		item.CategoryID = *req.CategoryID

@@ -19,9 +19,9 @@ type MenuCategory struct {
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to tenant
-	TenantID uuid.UUID `json:"tenant_id,omitempty"`
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// Reference to cafe/outlet
-	CafeID uuid.UUID `json:"cafe_id,omitempty"`
+	CafeID *uuid.UUID `json:"cafe_id,omitempty"`
 	// Parent category for hierarchy
 	ParentID *uuid.UUID `json:"parent_id,omitempty"`
 	// Name holds the value of the "name" field.
@@ -91,7 +91,7 @@ func (*MenuCategory) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case menucategory.FieldParentID:
+		case menucategory.FieldTenantID, menucategory.FieldCafeID, menucategory.FieldParentID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case menucategory.FieldIsActive:
 			values[i] = new(sql.NullBool)
@@ -101,7 +101,7 @@ func (*MenuCategory) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case menucategory.FieldCreatedAt, menucategory.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case menucategory.FieldID, menucategory.FieldTenantID, menucategory.FieldCafeID:
+		case menucategory.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -125,16 +125,18 @@ func (mc *MenuCategory) assignValues(columns []string, values []any) error {
 				mc.ID = *value
 			}
 		case menucategory.FieldTenantID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
-			} else if value != nil {
-				mc.TenantID = *value
+			} else if value.Valid {
+				mc.TenantID = new(uuid.UUID)
+				*mc.TenantID = *value.S.(*uuid.UUID)
 			}
 		case menucategory.FieldCafeID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field cafe_id", values[i])
-			} else if value != nil {
-				mc.CafeID = *value
+			} else if value.Valid {
+				mc.CafeID = new(uuid.UUID)
+				*mc.CafeID = *value.S.(*uuid.UUID)
 			}
 		case menucategory.FieldParentID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -236,11 +238,15 @@ func (mc *MenuCategory) String() string {
 	var builder strings.Builder
 	builder.WriteString("MenuCategory(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", mc.ID))
-	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", mc.TenantID))
+	if v := mc.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("cafe_id=")
-	builder.WriteString(fmt.Sprintf("%v", mc.CafeID))
+	if v := mc.CafeID; v != nil {
+		builder.WriteString("cafe_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := mc.ParentID; v != nil {
 		builder.WriteString("parent_id=")
