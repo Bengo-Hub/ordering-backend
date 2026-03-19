@@ -15,7 +15,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
-	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
 	"github.com/google/uuid"
 )
 
@@ -361,25 +360,6 @@ func (oau *OrderAssignmentUpdate) AddDeliveryWindows(d ...*DeliveryWindow) *Orde
 	return oau.AddDeliveryWindowIDs(ids...)
 }
 
-// SetProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID.
-func (oau *OrderAssignmentUpdate) SetProofOfDeliveryID(id uuid.UUID) *OrderAssignmentUpdate {
-	oau.mutation.SetProofOfDeliveryID(id)
-	return oau
-}
-
-// SetNillableProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableProofOfDeliveryID(id *uuid.UUID) *OrderAssignmentUpdate {
-	if id != nil {
-		oau = oau.SetProofOfDeliveryID(*id)
-	}
-	return oau
-}
-
-// SetProofOfDelivery sets the "proof_of_delivery" edge to the ProofOfDelivery entity.
-func (oau *OrderAssignmentUpdate) SetProofOfDelivery(p *ProofOfDelivery) *OrderAssignmentUpdate {
-	return oau.SetProofOfDeliveryID(p.ID)
-}
-
 // Mutation returns the OrderAssignmentMutation object of the builder.
 func (oau *OrderAssignmentUpdate) Mutation() *OrderAssignmentMutation {
 	return oau.mutation
@@ -410,12 +390,6 @@ func (oau *OrderAssignmentUpdate) RemoveDeliveryWindows(d ...*DeliveryWindow) *O
 		ids[i] = d[i].ID
 	}
 	return oau.RemoveDeliveryWindowIDs(ids...)
-}
-
-// ClearProofOfDelivery clears the "proof_of_delivery" edge to the ProofOfDelivery entity.
-func (oau *OrderAssignmentUpdate) ClearProofOfDelivery() *OrderAssignmentUpdate {
-	oau.mutation.ClearProofOfDelivery()
-	return oau
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -663,35 +637,6 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if oau.mutation.ProofOfDeliveryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   orderassignment.ProofOfDeliveryTable,
-			Columns: []string{orderassignment.ProofOfDeliveryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(proofofdelivery.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := oau.mutation.ProofOfDeliveryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   orderassignment.ProofOfDeliveryTable,
-			Columns: []string{orderassignment.ProofOfDeliveryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(proofofdelivery.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1048,25 +993,6 @@ func (oauo *OrderAssignmentUpdateOne) AddDeliveryWindows(d ...*DeliveryWindow) *
 	return oauo.AddDeliveryWindowIDs(ids...)
 }
 
-// SetProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID.
-func (oauo *OrderAssignmentUpdateOne) SetProofOfDeliveryID(id uuid.UUID) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetProofOfDeliveryID(id)
-	return oauo
-}
-
-// SetNillableProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableProofOfDeliveryID(id *uuid.UUID) *OrderAssignmentUpdateOne {
-	if id != nil {
-		oauo = oauo.SetProofOfDeliveryID(*id)
-	}
-	return oauo
-}
-
-// SetProofOfDelivery sets the "proof_of_delivery" edge to the ProofOfDelivery entity.
-func (oauo *OrderAssignmentUpdateOne) SetProofOfDelivery(p *ProofOfDelivery) *OrderAssignmentUpdateOne {
-	return oauo.SetProofOfDeliveryID(p.ID)
-}
-
 // Mutation returns the OrderAssignmentMutation object of the builder.
 func (oauo *OrderAssignmentUpdateOne) Mutation() *OrderAssignmentMutation {
 	return oauo.mutation
@@ -1097,12 +1023,6 @@ func (oauo *OrderAssignmentUpdateOne) RemoveDeliveryWindows(d ...*DeliveryWindow
 		ids[i] = d[i].ID
 	}
 	return oauo.RemoveDeliveryWindowIDs(ids...)
-}
-
-// ClearProofOfDelivery clears the "proof_of_delivery" edge to the ProofOfDelivery entity.
-func (oauo *OrderAssignmentUpdateOne) ClearProofOfDelivery() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearProofOfDelivery()
-	return oauo
 }
 
 // Where appends a list predicates to the OrderAssignmentUpdate builder.
@@ -1380,35 +1300,6 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if oauo.mutation.ProofOfDeliveryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   orderassignment.ProofOfDeliveryTable,
-			Columns: []string{orderassignment.ProofOfDeliveryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(proofofdelivery.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := oauo.mutation.ProofOfDeliveryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   orderassignment.ProofOfDeliveryTable,
-			Columns: []string{orderassignment.ProofOfDeliveryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(proofofdelivery.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

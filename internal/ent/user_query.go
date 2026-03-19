@@ -11,19 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
-	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
-	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -33,25 +28,19 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx                   *QueryContext
-	order                 []user.OrderOption
-	inters                []Interceptor
-	predicates            []predicate.User
-	withTenant            *TenantQuery
-	withRoles             *RoleQuery
-	withSessions          *SessionQuery
-	withDevices           *DeviceQuery
-	withOauthAccounts     *OAuthAccountQuery
-	withTwoFactorSettings *TwoFactorSettingQuery
-	withBackupCodes       *BackupCodeQuery
-	withPreferences       *UserPreferenceQuery
-	withProfile           *UserProfileQuery
-	withCarts             *CartQuery
-	withOrders            *OrderQuery
-	withAddresses         *CustomerAddressQuery
-	withLoyaltyAccount    *LoyaltyAccountQuery
-	withPaymentMethods    *PaymentMethodQuery
-	withFKs               bool
+	ctx                *QueryContext
+	order              []user.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.User
+	withTenant         *TenantQuery
+	withRoles          *RoleQuery
+	withPreferences    *UserPreferenceQuery
+	withProfile        *UserProfileQuery
+	withCarts          *CartQuery
+	withOrders         *OrderQuery
+	withAddresses      *CustomerAddressQuery
+	withLoyaltyAccount *LoyaltyAccountQuery
+	withFavoriteItems  *CatalogItemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -125,116 +114,6 @@ func (uq *UserQuery) QueryRoles() *RoleQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(role.Table, role.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, user.RolesTable, user.RolesPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QuerySessions chains the current query on the "sessions" edge.
-func (uq *UserQuery) QuerySessions() *SessionQuery {
-	query := (&SessionClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(session.Table, session.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.SessionsTable, user.SessionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryDevices chains the current query on the "devices" edge.
-func (uq *UserQuery) QueryDevices() *DeviceQuery {
-	query := (&DeviceClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(device.Table, device.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.DevicesTable, user.DevicesPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryOauthAccounts chains the current query on the "oauth_accounts" edge.
-func (uq *UserQuery) QueryOauthAccounts() *OAuthAccountQuery {
-	query := (&OAuthAccountClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(oauthaccount.Table, oauthaccount.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.OauthAccountsTable, user.OauthAccountsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryTwoFactorSettings chains the current query on the "two_factor_settings" edge.
-func (uq *UserQuery) QueryTwoFactorSettings() *TwoFactorSettingQuery {
-	query := (&TwoFactorSettingClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(twofactorsetting.Table, twofactorsetting.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, user.TwoFactorSettingsTable, user.TwoFactorSettingsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryBackupCodes chains the current query on the "backup_codes" edge.
-func (uq *UserQuery) QueryBackupCodes() *BackupCodeQuery {
-	query := (&BackupCodeClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(backupcode.Table, backupcode.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.BackupCodesTable, user.BackupCodesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -374,9 +253,9 @@ func (uq *UserQuery) QueryLoyaltyAccount() *LoyaltyAccountQuery {
 	return query
 }
 
-// QueryPaymentMethods chains the current query on the "payment_methods" edge.
-func (uq *UserQuery) QueryPaymentMethods() *PaymentMethodQuery {
-	query := (&PaymentMethodClient{config: uq.config}).Query()
+// QueryFavoriteItems chains the current query on the "favorite_items" edge.
+func (uq *UserQuery) QueryFavoriteItems() *CatalogItemQuery {
+	query := (&CatalogItemClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -387,8 +266,8 @@ func (uq *UserQuery) QueryPaymentMethods() *PaymentMethodQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(paymentmethod.Table, paymentmethod.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentMethodsTable, user.PaymentMethodsColumn),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.FavoriteItemsTable, user.FavoriteItemsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -583,25 +462,20 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:                uq.config,
-		ctx:                   uq.ctx.Clone(),
-		order:                 append([]user.OrderOption{}, uq.order...),
-		inters:                append([]Interceptor{}, uq.inters...),
-		predicates:            append([]predicate.User{}, uq.predicates...),
-		withTenant:            uq.withTenant.Clone(),
-		withRoles:             uq.withRoles.Clone(),
-		withSessions:          uq.withSessions.Clone(),
-		withDevices:           uq.withDevices.Clone(),
-		withOauthAccounts:     uq.withOauthAccounts.Clone(),
-		withTwoFactorSettings: uq.withTwoFactorSettings.Clone(),
-		withBackupCodes:       uq.withBackupCodes.Clone(),
-		withPreferences:       uq.withPreferences.Clone(),
-		withProfile:           uq.withProfile.Clone(),
-		withCarts:             uq.withCarts.Clone(),
-		withOrders:            uq.withOrders.Clone(),
-		withAddresses:         uq.withAddresses.Clone(),
-		withLoyaltyAccount:    uq.withLoyaltyAccount.Clone(),
-		withPaymentMethods:    uq.withPaymentMethods.Clone(),
+		config:             uq.config,
+		ctx:                uq.ctx.Clone(),
+		order:              append([]user.OrderOption{}, uq.order...),
+		inters:             append([]Interceptor{}, uq.inters...),
+		predicates:         append([]predicate.User{}, uq.predicates...),
+		withTenant:         uq.withTenant.Clone(),
+		withRoles:          uq.withRoles.Clone(),
+		withPreferences:    uq.withPreferences.Clone(),
+		withProfile:        uq.withProfile.Clone(),
+		withCarts:          uq.withCarts.Clone(),
+		withOrders:         uq.withOrders.Clone(),
+		withAddresses:      uq.withAddresses.Clone(),
+		withLoyaltyAccount: uq.withLoyaltyAccount.Clone(),
+		withFavoriteItems:  uq.withFavoriteItems.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -627,61 +501,6 @@ func (uq *UserQuery) WithRoles(opts ...func(*RoleQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withRoles = query
-	return uq
-}
-
-// WithSessions tells the query-builder to eager-load the nodes that are connected to
-// the "sessions" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithSessions(opts ...func(*SessionQuery)) *UserQuery {
-	query := (&SessionClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withSessions = query
-	return uq
-}
-
-// WithDevices tells the query-builder to eager-load the nodes that are connected to
-// the "devices" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithDevices(opts ...func(*DeviceQuery)) *UserQuery {
-	query := (&DeviceClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withDevices = query
-	return uq
-}
-
-// WithOauthAccounts tells the query-builder to eager-load the nodes that are connected to
-// the "oauth_accounts" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithOauthAccounts(opts ...func(*OAuthAccountQuery)) *UserQuery {
-	query := (&OAuthAccountClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withOauthAccounts = query
-	return uq
-}
-
-// WithTwoFactorSettings tells the query-builder to eager-load the nodes that are connected to
-// the "two_factor_settings" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithTwoFactorSettings(opts ...func(*TwoFactorSettingQuery)) *UserQuery {
-	query := (&TwoFactorSettingClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withTwoFactorSettings = query
-	return uq
-}
-
-// WithBackupCodes tells the query-builder to eager-load the nodes that are connected to
-// the "backup_codes" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithBackupCodes(opts ...func(*BackupCodeQuery)) *UserQuery {
-	query := (&BackupCodeClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withBackupCodes = query
 	return uq
 }
 
@@ -751,14 +570,14 @@ func (uq *UserQuery) WithLoyaltyAccount(opts ...func(*LoyaltyAccountQuery)) *Use
 	return uq
 }
 
-// WithPaymentMethods tells the query-builder to eager-load the nodes that are connected to
-// the "payment_methods" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithPaymentMethods(opts ...func(*PaymentMethodQuery)) *UserQuery {
-	query := (&PaymentMethodClient{config: uq.config}).Query()
+// WithFavoriteItems tells the query-builder to eager-load the nodes that are connected to
+// the "favorite_items" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithFavoriteItems(opts ...func(*CatalogItemQuery)) *UserQuery {
+	query := (&CatalogItemClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withPaymentMethods = query
+	uq.withFavoriteItems = query
 	return uq
 }
 
@@ -839,31 +658,19 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [14]bool{
+		loadedTypes = [9]bool{
 			uq.withTenant != nil,
 			uq.withRoles != nil,
-			uq.withSessions != nil,
-			uq.withDevices != nil,
-			uq.withOauthAccounts != nil,
-			uq.withTwoFactorSettings != nil,
-			uq.withBackupCodes != nil,
 			uq.withPreferences != nil,
 			uq.withProfile != nil,
 			uq.withCarts != nil,
 			uq.withOrders != nil,
 			uq.withAddresses != nil,
 			uq.withLoyaltyAccount != nil,
-			uq.withPaymentMethods != nil,
+			uq.withFavoriteItems != nil,
 		}
 	)
-	if uq.withTwoFactorSettings != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -892,40 +699,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadRoles(ctx, query, nodes,
 			func(n *User) { n.Edges.Roles = []*Role{} },
 			func(n *User, e *Role) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withSessions; query != nil {
-		if err := uq.loadSessions(ctx, query, nodes,
-			func(n *User) { n.Edges.Sessions = []*Session{} },
-			func(n *User, e *Session) { n.Edges.Sessions = append(n.Edges.Sessions, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withDevices; query != nil {
-		if err := uq.loadDevices(ctx, query, nodes,
-			func(n *User) { n.Edges.Devices = []*Device{} },
-			func(n *User, e *Device) { n.Edges.Devices = append(n.Edges.Devices, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withOauthAccounts; query != nil {
-		if err := uq.loadOauthAccounts(ctx, query, nodes,
-			func(n *User) { n.Edges.OauthAccounts = []*OAuthAccount{} },
-			func(n *User, e *OAuthAccount) { n.Edges.OauthAccounts = append(n.Edges.OauthAccounts, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withTwoFactorSettings; query != nil {
-		if err := uq.loadTwoFactorSettings(ctx, query, nodes, nil,
-			func(n *User, e *TwoFactorSetting) { n.Edges.TwoFactorSettings = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withBackupCodes; query != nil {
-		if err := uq.loadBackupCodes(ctx, query, nodes,
-			func(n *User) { n.Edges.BackupCodes = []*BackupCode{} },
-			func(n *User, e *BackupCode) { n.Edges.BackupCodes = append(n.Edges.BackupCodes, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -968,10 +741,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withPaymentMethods; query != nil {
-		if err := uq.loadPaymentMethods(ctx, query, nodes,
-			func(n *User) { n.Edges.PaymentMethods = []*PaymentMethod{} },
-			func(n *User, e *PaymentMethod) { n.Edges.PaymentMethods = append(n.Edges.PaymentMethods, e) }); err != nil {
+	if query := uq.withFavoriteItems; query != nil {
+		if err := uq.loadFavoriteItems(ctx, query, nodes,
+			func(n *User) { n.Edges.FavoriteItems = []*CatalogItem{} },
+			func(n *User, e *CatalogItem) { n.Edges.FavoriteItems = append(n.Edges.FavoriteItems, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1065,191 +838,6 @@ func (uq *UserQuery) loadRoles(ctx context.Context, query *RoleQuery, nodes []*U
 		for kn := range nodes {
 			assign(kn, n)
 		}
-	}
-	return nil
-}
-func (uq *UserQuery) loadSessions(ctx context.Context, query *SessionQuery, nodes []*User, init func(*User), assign func(*User, *Session)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(session.FieldUserID)
-	}
-	query.Where(predicate.Session(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.SessionsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes []*User, init func(*User), assign func(*User, *Device)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*User)
-	nids := make(map[uuid.UUID]map[*User]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(user.DevicesTable)
-		s.Join(joinT).On(s.C(device.FieldID), joinT.C(user.DevicesPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(user.DevicesPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(user.DevicesPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Device](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "devices" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
-}
-func (uq *UserQuery) loadOauthAccounts(ctx context.Context, query *OAuthAccountQuery, nodes []*User, init func(*User), assign func(*User, *OAuthAccount)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.OAuthAccount(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.OauthAccountsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_oauth_accounts
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_oauth_accounts" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_oauth_accounts" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadTwoFactorSettings(ctx context.Context, query *TwoFactorSettingQuery, nodes []*User, init func(*User), assign func(*User, *TwoFactorSetting)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
-	for i := range nodes {
-		if nodes[i].two_factor_setting_user == nil {
-			continue
-		}
-		fk := *nodes[i].two_factor_setting_user
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(twofactorsetting.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "two_factor_setting_user" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (uq *UserQuery) loadBackupCodes(ctx context.Context, query *BackupCodeQuery, nodes []*User, init func(*User), assign func(*User, *BackupCode)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.BackupCode(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.BackupCodesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.backup_code_user
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "backup_code_user" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "backup_code_user" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }
@@ -1429,33 +1017,64 @@ func (uq *UserQuery) loadLoyaltyAccount(ctx context.Context, query *LoyaltyAccou
 	}
 	return nil
 }
-func (uq *UserQuery) loadPaymentMethods(ctx context.Context, query *PaymentMethodQuery, nodes []*User, init func(*User), assign func(*User, *PaymentMethod)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+func (uq *UserQuery) loadFavoriteItems(ctx context.Context, query *CatalogItemQuery, nodes []*User, init func(*User), assign func(*User, *CatalogItem)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*User)
+	nids := make(map[uuid.UUID]map[*User]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
 		if init != nil {
-			init(nodes[i])
+			init(node)
 		}
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(paymentmethod.FieldUserID)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(user.FavoriteItemsTable)
+		s.Join(joinT).On(s.C(catalogitem.FieldID), joinT.C(user.FavoriteItemsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(user.FavoriteItemsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(user.FavoriteItemsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(predicate.PaymentMethod(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.PaymentMethodsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*CatalogItem](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected "favorite_items" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

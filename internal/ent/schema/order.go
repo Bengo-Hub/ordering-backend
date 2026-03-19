@@ -25,8 +25,8 @@ func (Order) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Comment("Reference to tenant"),
-		field.UUID("cafe_id", uuid.UUID{}).
-			Comment("Reference to cafe/outlet"),
+		field.UUID("outlet_id", uuid.UUID{}).
+			Comment("Reference to outlet"),
 		field.UUID("customer_id", uuid.UUID{}).
 			Comment("Reference to customer user"),
 		field.UUID("cart_id", uuid.UUID{}).
@@ -42,6 +42,10 @@ func (Order) Fields() []ent.Field {
 		field.Enum("payment_status").
 			Values("pending", "authorized", "paid", "failed", "refunded", "partially_refunded").
 			Default("pending"),
+		field.UUID("payment_intent_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Comment("Reference to treasury-api payment intent; payment details from treasury-api."),
 		field.String("currency").
 			Default("KES").
 			MaxLen(3),
@@ -140,9 +144,12 @@ func (Order) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("items", OrderItem.Type),
 		edge.To("events", OrderEvent.Type),
-		edge.To("payment_intents", PaymentIntent.Type),
-		edge.To("payments", Payment.Type),
 		edge.To("assignments", OrderAssignment.Type),
+		edge.From("outlet", Outlet.Type).
+			Ref("orders").
+			Field("outlet_id").
+			Unique().
+			Required(),
 		edge.From("customer", User.Type).
 			Ref("orders").
 			Field("customer_id").
@@ -167,13 +174,13 @@ func (Order) Annotations() []schema.Annotation {
 // Indexes of the Order.
 func (Order) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "cafe_id"),
+		index.Fields("tenant_id", "outlet_id"),
 		index.Fields("tenant_id", "customer_id"),
 		index.Fields("tenant_id", "status"),
 		index.Fields("tenant_id", "payment_status"),
 		// Composite index for common filtering patterns
 		index.Fields("tenant_id", "status", "created_at"),
-		index.Fields("tenant_id", "cafe_id", "status"),
+		index.Fields("tenant_id", "outlet_id", "status"),
 		index.Fields("tenant_id", "customer_id", "status"),
 		index.Fields("order_number").
 			Unique(),

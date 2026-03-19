@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
@@ -23,8 +24,8 @@ type Order struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to tenant
 	TenantID uuid.UUID `json:"tenant_id,omitempty"`
-	// Reference to cafe/outlet
-	CafeID uuid.UUID `json:"cafe_id,omitempty"`
+	// Reference to outlet
+	OutletID uuid.UUID `json:"outlet_id,omitempty"`
 	// Reference to customer user
 	CustomerID uuid.UUID `json:"customer_id,omitempty"`
 	// Reference to source cart
@@ -35,6 +36,8 @@ type Order struct {
 	Status order.Status `json:"status,omitempty"`
 	// PaymentStatus holds the value of the "payment_status" field.
 	PaymentStatus order.PaymentStatus `json:"payment_status,omitempty"`
+	// Reference to treasury-api payment intent; payment details from treasury-api.
+	PaymentIntentID *uuid.UUID `json:"payment_intent_id,omitempty"`
 	// Currency holds the value of the "currency" field.
 	Currency string `json:"currency,omitempty"`
 	// Sum of item prices before discounts
@@ -103,19 +106,17 @@ type OrderEdges struct {
 	Items []*OrderItem `json:"items,omitempty"`
 	// Events holds the value of the events edge.
 	Events []*OrderEvent `json:"events,omitempty"`
-	// PaymentIntents holds the value of the payment_intents edge.
-	PaymentIntents []*PaymentIntent `json:"payment_intents,omitempty"`
-	// Payments holds the value of the payments edge.
-	Payments []*Payment `json:"payments,omitempty"`
 	// Assignments holds the value of the assignments edge.
 	Assignments []*OrderAssignment `json:"assignments,omitempty"`
+	// Outlet holds the value of the outlet edge.
+	Outlet *Outlet `json:"outlet,omitempty"`
 	// Customer holds the value of the customer edge.
 	Customer *User `json:"customer,omitempty"`
 	// DeliveryAddress holds the value of the delivery_address edge.
 	DeliveryAddress *CustomerAddress `json:"delivery_address,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [6]bool
 }
 
 // ItemsOrErr returns the Items value or an error if the edge
@@ -136,31 +137,24 @@ func (e OrderEdges) EventsOrErr() ([]*OrderEvent, error) {
 	return nil, &NotLoadedError{edge: "events"}
 }
 
-// PaymentIntentsOrErr returns the PaymentIntents value or an error if the edge
-// was not loaded in eager-loading.
-func (e OrderEdges) PaymentIntentsOrErr() ([]*PaymentIntent, error) {
-	if e.loadedTypes[2] {
-		return e.PaymentIntents, nil
-	}
-	return nil, &NotLoadedError{edge: "payment_intents"}
-}
-
-// PaymentsOrErr returns the Payments value or an error if the edge
-// was not loaded in eager-loading.
-func (e OrderEdges) PaymentsOrErr() ([]*Payment, error) {
-	if e.loadedTypes[3] {
-		return e.Payments, nil
-	}
-	return nil, &NotLoadedError{edge: "payments"}
-}
-
 // AssignmentsOrErr returns the Assignments value or an error if the edge
 // was not loaded in eager-loading.
 func (e OrderEdges) AssignmentsOrErr() ([]*OrderAssignment, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[2] {
 		return e.Assignments, nil
 	}
 	return nil, &NotLoadedError{edge: "assignments"}
+}
+
+// OutletOrErr returns the Outlet value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e OrderEdges) OutletOrErr() (*Outlet, error) {
+	if e.Outlet != nil {
+		return e.Outlet, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: outlet.Label}
+	}
+	return nil, &NotLoadedError{edge: "outlet"}
 }
 
 // CustomerOrErr returns the Customer value or an error if the edge
@@ -168,7 +162,7 @@ func (e OrderEdges) AssignmentsOrErr() ([]*OrderAssignment, error) {
 func (e OrderEdges) CustomerOrErr() (*User, error) {
 	if e.Customer != nil {
 		return e.Customer, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "customer"}
@@ -179,7 +173,7 @@ func (e OrderEdges) CustomerOrErr() (*User, error) {
 func (e OrderEdges) DeliveryAddressOrErr() (*CustomerAddress, error) {
 	if e.DeliveryAddress != nil {
 		return e.DeliveryAddress, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: customeraddress.Label}
 	}
 	return nil, &NotLoadedError{edge: "delivery_address"}
@@ -190,7 +184,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldCartID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
+		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
@@ -202,7 +196,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case order.FieldID, order.FieldTenantID, order.FieldCafeID, order.FieldCustomerID:
+		case order.FieldID, order.FieldTenantID, order.FieldOutletID, order.FieldCustomerID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -231,11 +225,11 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				o.TenantID = *value
 			}
-		case order.FieldCafeID:
+		case order.FieldOutletID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field cafe_id", values[i])
+				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value != nil {
-				o.CafeID = *value
+				o.OutletID = *value
 			}
 		case order.FieldCustomerID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -267,6 +261,13 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field payment_status", values[i])
 			} else if value.Valid {
 				o.PaymentStatus = order.PaymentStatus(value.String)
+			}
+		case order.FieldPaymentIntentID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field payment_intent_id", values[i])
+			} else if value.Valid {
+				o.PaymentIntentID = new(uuid.UUID)
+				*o.PaymentIntentID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldCurrency:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -471,19 +472,14 @@ func (o *Order) QueryEvents() *OrderEventQuery {
 	return NewOrderClient(o.config).QueryEvents(o)
 }
 
-// QueryPaymentIntents queries the "payment_intents" edge of the Order entity.
-func (o *Order) QueryPaymentIntents() *PaymentIntentQuery {
-	return NewOrderClient(o.config).QueryPaymentIntents(o)
-}
-
-// QueryPayments queries the "payments" edge of the Order entity.
-func (o *Order) QueryPayments() *PaymentQuery {
-	return NewOrderClient(o.config).QueryPayments(o)
-}
-
 // QueryAssignments queries the "assignments" edge of the Order entity.
 func (o *Order) QueryAssignments() *OrderAssignmentQuery {
 	return NewOrderClient(o.config).QueryAssignments(o)
+}
+
+// QueryOutlet queries the "outlet" edge of the Order entity.
+func (o *Order) QueryOutlet() *OutletQuery {
+	return NewOrderClient(o.config).QueryOutlet(o)
 }
 
 // QueryCustomer queries the "customer" edge of the Order entity.
@@ -522,8 +518,8 @@ func (o *Order) String() string {
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.TenantID))
 	builder.WriteString(", ")
-	builder.WriteString("cafe_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.CafeID))
+	builder.WriteString("outlet_id=")
+	builder.WriteString(fmt.Sprintf("%v", o.OutletID))
 	builder.WriteString(", ")
 	builder.WriteString("customer_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.CustomerID))
@@ -541,6 +537,11 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("payment_status=")
 	builder.WriteString(fmt.Sprintf("%v", o.PaymentStatus))
+	builder.WriteString(", ")
+	if v := o.PaymentIntentID; v != nil {
+		builder.WriteString("payment_intent_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("currency=")
 	builder.WriteString(o.Currency)

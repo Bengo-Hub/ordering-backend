@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -97,19 +97,19 @@ func (dtu *DietaryTagUpdate) ClearIconURL() *DietaryTagUpdate {
 	return dtu
 }
 
-// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
-func (dtu *DietaryTagUpdate) AddMenuItemIDs(ids ...uuid.UUID) *DietaryTagUpdate {
-	dtu.mutation.AddMenuItemIDs(ids...)
+// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
+func (dtu *DietaryTagUpdate) AddCatalogItemIDs(ids ...uuid.UUID) *DietaryTagUpdate {
+	dtu.mutation.AddCatalogItemIDs(ids...)
 	return dtu
 }
 
-// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
-func (dtu *DietaryTagUpdate) AddMenuItems(m ...*MenuItem) *DietaryTagUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
+func (dtu *DietaryTagUpdate) AddCatalogItems(c ...*CatalogItem) *DietaryTagUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return dtu.AddMenuItemIDs(ids...)
+	return dtu.AddCatalogItemIDs(ids...)
 }
 
 // Mutation returns the DietaryTagMutation object of the builder.
@@ -117,25 +117,25 @@ func (dtu *DietaryTagUpdate) Mutation() *DietaryTagMutation {
 	return dtu.mutation
 }
 
-// ClearMenuItems clears all "menu_items" edges to the MenuItem entity.
-func (dtu *DietaryTagUpdate) ClearMenuItems() *DietaryTagUpdate {
-	dtu.mutation.ClearMenuItems()
+// ClearCatalogItems clears all "catalog_items" edges to the CatalogItem entity.
+func (dtu *DietaryTagUpdate) ClearCatalogItems() *DietaryTagUpdate {
+	dtu.mutation.ClearCatalogItems()
 	return dtu
 }
 
-// RemoveMenuItemIDs removes the "menu_items" edge to MenuItem entities by IDs.
-func (dtu *DietaryTagUpdate) RemoveMenuItemIDs(ids ...uuid.UUID) *DietaryTagUpdate {
-	dtu.mutation.RemoveMenuItemIDs(ids...)
+// RemoveCatalogItemIDs removes the "catalog_items" edge to CatalogItem entities by IDs.
+func (dtu *DietaryTagUpdate) RemoveCatalogItemIDs(ids ...uuid.UUID) *DietaryTagUpdate {
+	dtu.mutation.RemoveCatalogItemIDs(ids...)
 	return dtu
 }
 
-// RemoveMenuItems removes "menu_items" edges to MenuItem entities.
-func (dtu *DietaryTagUpdate) RemoveMenuItems(m ...*MenuItem) *DietaryTagUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// RemoveCatalogItems removes "catalog_items" edges to CatalogItem entities.
+func (dtu *DietaryTagUpdate) RemoveCatalogItems(c ...*CatalogItem) *DietaryTagUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return dtu.RemoveMenuItemIDs(ids...)
+	return dtu.RemoveCatalogItemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -215,28 +215,28 @@ func (dtu *DietaryTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if dtu.mutation.IconURLCleared() {
 		_spec.ClearField(dietarytag.FieldIconURL, field.TypeString)
 	}
-	if dtu.mutation.MenuItemsCleared() {
+	if dtu.mutation.CatalogItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dtu.mutation.RemovedMenuItemsIDs(); len(nodes) > 0 && !dtu.mutation.MenuItemsCleared() {
+	if nodes := dtu.mutation.RemovedCatalogItemsIDs(); len(nodes) > 0 && !dtu.mutation.CatalogItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -244,15 +244,15 @@ func (dtu *DietaryTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dtu.mutation.MenuItemsIDs(); len(nodes) > 0 {
+	if nodes := dtu.mutation.CatalogItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -348,19 +348,19 @@ func (dtuo *DietaryTagUpdateOne) ClearIconURL() *DietaryTagUpdateOne {
 	return dtuo
 }
 
-// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
-func (dtuo *DietaryTagUpdateOne) AddMenuItemIDs(ids ...uuid.UUID) *DietaryTagUpdateOne {
-	dtuo.mutation.AddMenuItemIDs(ids...)
+// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
+func (dtuo *DietaryTagUpdateOne) AddCatalogItemIDs(ids ...uuid.UUID) *DietaryTagUpdateOne {
+	dtuo.mutation.AddCatalogItemIDs(ids...)
 	return dtuo
 }
 
-// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
-func (dtuo *DietaryTagUpdateOne) AddMenuItems(m ...*MenuItem) *DietaryTagUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
+func (dtuo *DietaryTagUpdateOne) AddCatalogItems(c ...*CatalogItem) *DietaryTagUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return dtuo.AddMenuItemIDs(ids...)
+	return dtuo.AddCatalogItemIDs(ids...)
 }
 
 // Mutation returns the DietaryTagMutation object of the builder.
@@ -368,25 +368,25 @@ func (dtuo *DietaryTagUpdateOne) Mutation() *DietaryTagMutation {
 	return dtuo.mutation
 }
 
-// ClearMenuItems clears all "menu_items" edges to the MenuItem entity.
-func (dtuo *DietaryTagUpdateOne) ClearMenuItems() *DietaryTagUpdateOne {
-	dtuo.mutation.ClearMenuItems()
+// ClearCatalogItems clears all "catalog_items" edges to the CatalogItem entity.
+func (dtuo *DietaryTagUpdateOne) ClearCatalogItems() *DietaryTagUpdateOne {
+	dtuo.mutation.ClearCatalogItems()
 	return dtuo
 }
 
-// RemoveMenuItemIDs removes the "menu_items" edge to MenuItem entities by IDs.
-func (dtuo *DietaryTagUpdateOne) RemoveMenuItemIDs(ids ...uuid.UUID) *DietaryTagUpdateOne {
-	dtuo.mutation.RemoveMenuItemIDs(ids...)
+// RemoveCatalogItemIDs removes the "catalog_items" edge to CatalogItem entities by IDs.
+func (dtuo *DietaryTagUpdateOne) RemoveCatalogItemIDs(ids ...uuid.UUID) *DietaryTagUpdateOne {
+	dtuo.mutation.RemoveCatalogItemIDs(ids...)
 	return dtuo
 }
 
-// RemoveMenuItems removes "menu_items" edges to MenuItem entities.
-func (dtuo *DietaryTagUpdateOne) RemoveMenuItems(m ...*MenuItem) *DietaryTagUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// RemoveCatalogItems removes "catalog_items" edges to CatalogItem entities.
+func (dtuo *DietaryTagUpdateOne) RemoveCatalogItems(c ...*CatalogItem) *DietaryTagUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return dtuo.RemoveMenuItemIDs(ids...)
+	return dtuo.RemoveCatalogItemIDs(ids...)
 }
 
 // Where appends a list predicates to the DietaryTagUpdate builder.
@@ -496,28 +496,28 @@ func (dtuo *DietaryTagUpdateOne) sqlSave(ctx context.Context) (_node *DietaryTag
 	if dtuo.mutation.IconURLCleared() {
 		_spec.ClearField(dietarytag.FieldIconURL, field.TypeString)
 	}
-	if dtuo.mutation.MenuItemsCleared() {
+	if dtuo.mutation.CatalogItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dtuo.mutation.RemovedMenuItemsIDs(); len(nodes) > 0 && !dtuo.mutation.MenuItemsCleared() {
+	if nodes := dtuo.mutation.RemovedCatalogItemsIDs(); len(nodes) > 0 && !dtuo.mutation.CatalogItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -525,15 +525,15 @@ func (dtuo *DietaryTagUpdateOne) sqlSave(ctx context.Context) (_node *DietaryTag
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dtuo.mutation.MenuItemsIDs(); len(nodes) > 0 {
+	if nodes := dtuo.mutation.CatalogItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

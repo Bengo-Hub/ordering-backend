@@ -35,20 +35,20 @@ type DietaryTag struct {
 
 // DietaryTagEdges holds the relations/edges for other nodes in the graph.
 type DietaryTagEdges struct {
-	// MenuItems holds the value of the menu_items edge.
-	MenuItems []*MenuItem `json:"menu_items,omitempty"`
+	// CatalogItems holds the value of the catalog_items edge.
+	CatalogItems []*CatalogItem `json:"catalog_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// MenuItemsOrErr returns the MenuItems value or an error if the edge
+// CatalogItemsOrErr returns the CatalogItems value or an error if the edge
 // was not loaded in eager-loading.
-func (e DietaryTagEdges) MenuItemsOrErr() ([]*MenuItem, error) {
+func (e DietaryTagEdges) CatalogItemsOrErr() ([]*CatalogItem, error) {
 	if e.loadedTypes[0] {
-		return e.MenuItems, nil
+		return e.CatalogItems, nil
 	}
-	return nil, &NotLoadedError{edge: "menu_items"}
+	return nil, &NotLoadedError{edge: "catalog_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -126,9 +126,9 @@ func (dt *DietaryTag) Value(name string) (ent.Value, error) {
 	return dt.selectValues.Get(name)
 }
 
-// QueryMenuItems queries the "menu_items" edge of the DietaryTag entity.
-func (dt *DietaryTag) QueryMenuItems() *MenuItemQuery {
-	return NewDietaryTagClient(dt.config).QueryMenuItems(dt)
+// QueryCatalogItems queries the "catalog_items" edge of the DietaryTag entity.
+func (dt *DietaryTag) QueryCatalogItems() *CatalogItemQuery {
+	return NewDietaryTagClient(dt.config).QueryCatalogItems(dt)
 }
 
 // Update returns a builder for updating this DietaryTag.

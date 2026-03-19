@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -20,11 +20,11 @@ import (
 // DietaryTagQuery is the builder for querying DietaryTag entities.
 type DietaryTagQuery struct {
 	config
-	ctx           *QueryContext
-	order         []dietarytag.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.DietaryTag
-	withMenuItems *MenuItemQuery
+	ctx              *QueryContext
+	order            []dietarytag.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.DietaryTag
+	withCatalogItems *CatalogItemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (dtq *DietaryTagQuery) Order(o ...dietarytag.OrderOption) *DietaryTagQuery 
 	return dtq
 }
 
-// QueryMenuItems chains the current query on the "menu_items" edge.
-func (dtq *DietaryTagQuery) QueryMenuItems() *MenuItemQuery {
-	query := (&MenuItemClient{config: dtq.config}).Query()
+// QueryCatalogItems chains the current query on the "catalog_items" edge.
+func (dtq *DietaryTagQuery) QueryCatalogItems() *CatalogItemQuery {
+	query := (&CatalogItemClient{config: dtq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := dtq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (dtq *DietaryTagQuery) QueryMenuItems() *MenuItemQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(dietarytag.Table, dietarytag.FieldID, selector),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, dietarytag.MenuItemsTable, dietarytag.MenuItemsPrimaryKey...),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, dietarytag.CatalogItemsTable, dietarytag.CatalogItemsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(dtq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (dtq *DietaryTagQuery) Clone() *DietaryTagQuery {
 		return nil
 	}
 	return &DietaryTagQuery{
-		config:        dtq.config,
-		ctx:           dtq.ctx.Clone(),
-		order:         append([]dietarytag.OrderOption{}, dtq.order...),
-		inters:        append([]Interceptor{}, dtq.inters...),
-		predicates:    append([]predicate.DietaryTag{}, dtq.predicates...),
-		withMenuItems: dtq.withMenuItems.Clone(),
+		config:           dtq.config,
+		ctx:              dtq.ctx.Clone(),
+		order:            append([]dietarytag.OrderOption{}, dtq.order...),
+		inters:           append([]Interceptor{}, dtq.inters...),
+		predicates:       append([]predicate.DietaryTag{}, dtq.predicates...),
+		withCatalogItems: dtq.withCatalogItems.Clone(),
 		// clone intermediate query.
 		sql:  dtq.sql.Clone(),
 		path: dtq.path,
 	}
 }
 
-// WithMenuItems tells the query-builder to eager-load the nodes that are connected to
-// the "menu_items" edge. The optional arguments are used to configure the query builder of the edge.
-func (dtq *DietaryTagQuery) WithMenuItems(opts ...func(*MenuItemQuery)) *DietaryTagQuery {
-	query := (&MenuItemClient{config: dtq.config}).Query()
+// WithCatalogItems tells the query-builder to eager-load the nodes that are connected to
+// the "catalog_items" edge. The optional arguments are used to configure the query builder of the edge.
+func (dtq *DietaryTagQuery) WithCatalogItems(opts ...func(*CatalogItemQuery)) *DietaryTagQuery {
+	query := (&CatalogItemClient{config: dtq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	dtq.withMenuItems = query
+	dtq.withCatalogItems = query
 	return dtq
 }
 
@@ -372,7 +372,7 @@ func (dtq *DietaryTagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		nodes       = []*DietaryTag{}
 		_spec       = dtq.querySpec()
 		loadedTypes = [1]bool{
-			dtq.withMenuItems != nil,
+			dtq.withCatalogItems != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (dtq *DietaryTagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := dtq.withMenuItems; query != nil {
-		if err := dtq.loadMenuItems(ctx, query, nodes,
-			func(n *DietaryTag) { n.Edges.MenuItems = []*MenuItem{} },
-			func(n *DietaryTag, e *MenuItem) { n.Edges.MenuItems = append(n.Edges.MenuItems, e) }); err != nil {
+	if query := dtq.withCatalogItems; query != nil {
+		if err := dtq.loadCatalogItems(ctx, query, nodes,
+			func(n *DietaryTag) { n.Edges.CatalogItems = []*CatalogItem{} },
+			func(n *DietaryTag, e *CatalogItem) { n.Edges.CatalogItems = append(n.Edges.CatalogItems, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (dtq *DietaryTagQuery) loadMenuItems(ctx context.Context, query *MenuItemQuery, nodes []*DietaryTag, init func(*DietaryTag), assign func(*DietaryTag, *MenuItem)) error {
+func (dtq *DietaryTagQuery) loadCatalogItems(ctx context.Context, query *CatalogItemQuery, nodes []*DietaryTag, init func(*DietaryTag), assign func(*DietaryTag, *CatalogItem)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*DietaryTag)
 	nids := make(map[uuid.UUID]map[*DietaryTag]struct{})
@@ -415,11 +415,11 @@ func (dtq *DietaryTagQuery) loadMenuItems(ctx context.Context, query *MenuItemQu
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(dietarytag.MenuItemsTable)
-		s.Join(joinT).On(s.C(menuitem.FieldID), joinT.C(dietarytag.MenuItemsPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(dietarytag.MenuItemsPrimaryKey[1]), edgeIDs...))
+		joinT := sql.Table(dietarytag.CatalogItemsTable)
+		s.Join(joinT).On(s.C(catalogitem.FieldID), joinT.C(dietarytag.CatalogItemsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(dietarytag.CatalogItemsPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(dietarytag.MenuItemsPrimaryKey[1]))
+		s.Select(joinT.C(dietarytag.CatalogItemsPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -449,14 +449,14 @@ func (dtq *DietaryTagQuery) loadMenuItems(ctx context.Context, query *MenuItemQu
 			}
 		})
 	})
-	neighbors, err := withInterceptors[[]*MenuItem](ctx, query, qr, query.inters)
+	neighbors, err := withInterceptors[[]*CatalogItem](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "menu_items" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "catalog_items" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

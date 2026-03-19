@@ -32,9 +32,9 @@ func (cc *CartCreate) SetTenantID(u uuid.UUID) *CartCreate {
 	return cc
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (cc *CartCreate) SetCafeID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (cc *CartCreate) SetOutletID(u uuid.UUID) *CartCreate {
+	cc.mutation.SetOutletID(u)
 	return cc
 }
 
@@ -336,8 +336,8 @@ func (cc *CartCreate) check() error {
 	if _, ok := cc.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Cart.tenant_id"`)}
 	}
-	if _, ok := cc.mutation.CafeID(); !ok {
-		return &ValidationError{Name: "cafe_id", err: errors.New(`ent: missing required field "Cart.cafe_id"`)}
+	if _, ok := cc.mutation.OutletID(); !ok {
+		return &ValidationError{Name: "outlet_id", err: errors.New(`ent: missing required field "Cart.outlet_id"`)}
 	}
 	if v, ok := cc.mutation.SessionID(); ok {
 		if err := cart.SessionIDValidator(v); err != nil {
@@ -421,9 +421,9 @@ func (cc *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := cc.mutation.CafeID(); ok {
-		_spec.SetField(cart.FieldCafeID, field.TypeUUID, value)
-		_node.CafeID = value
+	if value, ok := cc.mutation.OutletID(); ok {
+		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
+		_node.OutletID = value
 	}
 	if value, ok := cc.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)
@@ -570,15 +570,15 @@ func (u *CartUpsert) UpdateTenantID() *CartUpsert {
 	return u
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *CartUpsert) SetCafeID(v uuid.UUID) *CartUpsert {
-	u.Set(cart.FieldCafeID, v)
+// SetOutletID sets the "outlet_id" field.
+func (u *CartUpsert) SetOutletID(v uuid.UUID) *CartUpsert {
+	u.Set(cart.FieldOutletID, v)
 	return u
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *CartUpsert) UpdateCafeID() *CartUpsert {
-	u.SetExcluded(cart.FieldCafeID)
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *CartUpsert) UpdateOutletID() *CartUpsert {
+	u.SetExcluded(cart.FieldOutletID)
 	return u
 }
 
@@ -845,17 +845,17 @@ func (u *CartUpsertOne) UpdateTenantID() *CartUpsertOne {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *CartUpsertOne) SetCafeID(v uuid.UUID) *CartUpsertOne {
+// SetOutletID sets the "outlet_id" field.
+func (u *CartUpsertOne) SetOutletID(v uuid.UUID) *CartUpsertOne {
 	return u.Update(func(s *CartUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *CartUpsertOne) UpdateCafeID() *CartUpsertOne {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *CartUpsertOne) UpdateOutletID() *CartUpsertOne {
 	return u.Update(func(s *CartUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 
@@ -1322,17 +1322,17 @@ func (u *CartUpsertBulk) UpdateTenantID() *CartUpsertBulk {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *CartUpsertBulk) SetCafeID(v uuid.UUID) *CartUpsertBulk {
+// SetOutletID sets the "outlet_id" field.
+func (u *CartUpsertBulk) SetOutletID(v uuid.UUID) *CartUpsertBulk {
 	return u.Update(func(s *CartUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *CartUpsertBulk) UpdateCafeID() *CartUpsertBulk {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *CartUpsertBulk) UpdateOutletID() *CartUpsertBulk {
 	return u.Update(func(s *CartUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 

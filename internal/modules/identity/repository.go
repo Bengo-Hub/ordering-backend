@@ -30,13 +30,6 @@ type Repository interface {
 	FindTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 	UpsertTenant(ctx context.Context, tenant *Tenant) error
 
-	CreateSession(ctx context.Context, session *Session) error
-	UpdateSession(ctx context.Context, session *Session) error
-	FindSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
-	FindSessionByToken(ctx context.Context, refreshToken string) (*Session, error)
-	DeleteSession(ctx context.Context, id uuid.UUID) error
-	DeleteSessionsByUser(ctx context.Context, userID uuid.UUID) error
-
 	ListOrdersByUser(ctx context.Context, userID uuid.UUID) ([]*OrderSummary, error)
-	Seed(ctx context.Context, users []*User, sessions []*Session, orders []*OrderSummary) error
+	Seed(ctx context.Context, users []*User, _ []*OrderSummary) error
 }

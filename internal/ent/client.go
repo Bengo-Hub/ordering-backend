@@ -17,50 +17,34 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/ordering-backend/internal/ent/auditlog"
-	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitemasset"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
-	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
-	"github.com/bengobox/ordering-backend/internal/ent/logisticsevent"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
-	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
-	"github.com/bengobox/ordering-backend/internal/ent/notificationevent"
-	"github.com/bengobox/ordering-backend/internal/ent/notificationsubscription"
-	"github.com/bengobox/ordering-backend/internal/ent/notificationtemplate"
-	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
-	"github.com/bengobox/ordering-backend/internal/ent/payment"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
-	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
-	"github.com/bengobox/ordering-backend/internal/ent/refund"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/slametric"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
-	"github.com/bengobox/ordering-backend/internal/ent/treasuryevent"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -73,12 +57,18 @@ type Client struct {
 	Schema *migrate.Schema
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
-	// BackupCode is the client for interacting with the BackupCode builders.
-	BackupCode *BackupCodeClient
 	// Cart is the client for interacting with the Cart builders.
 	Cart *CartClient
 	// CartItem is the client for interacting with the CartItem builders.
 	CartItem *CartItemClient
+	// CatalogCategory is the client for interacting with the CatalogCategory builders.
+	CatalogCategory *CatalogCategoryClient
+	// CatalogItem is the client for interacting with the CatalogItem builders.
+	CatalogItem *CatalogItemClient
+	// CatalogItemAsset is the client for interacting with the CatalogItemAsset builders.
+	CatalogItemAsset *CatalogItemAssetClient
+	// CatalogItemSchedule is the client for interacting with the CatalogItemSchedule builders.
+	CatalogItemSchedule *CatalogItemScheduleClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
 	// DataDeletionJob is the client for interacting with the DataDeletionJob builders.
@@ -89,36 +79,12 @@ type Client struct {
 	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
-	// Device is the client for interacting with the Device builders.
-	Device *DeviceClient
 	// DietaryTag is the client for interacting with the DietaryTag builders.
 	DietaryTag *DietaryTagClient
-	// LogisticsEvent is the client for interacting with the LogisticsEvent builders.
-	LogisticsEvent *LogisticsEventClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
 	LoyaltyAccount *LoyaltyAccountClient
 	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
 	LoyaltyTransaction *LoyaltyTransactionClient
-	// MenuCategory is the client for interacting with the MenuCategory builders.
-	MenuCategory *MenuCategoryClient
-	// MenuItem is the client for interacting with the MenuItem builders.
-	MenuItem *MenuItemClient
-	// MenuItemAsset is the client for interacting with the MenuItemAsset builders.
-	MenuItemAsset *MenuItemAssetClient
-	// MenuItemSchedule is the client for interacting with the MenuItemSchedule builders.
-	MenuItemSchedule *MenuItemScheduleClient
-	// MenuItemTranslation is the client for interacting with the MenuItemTranslation builders.
-	MenuItemTranslation *MenuItemTranslationClient
-	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
-	MenuItemVariant *MenuItemVariantClient
-	// NotificationEvent is the client for interacting with the NotificationEvent builders.
-	NotificationEvent *NotificationEventClient
-	// NotificationSubscription is the client for interacting with the NotificationSubscription builders.
-	NotificationSubscription *NotificationSubscriptionClient
-	// NotificationTemplate is the client for interacting with the NotificationTemplate builders.
-	NotificationTemplate *NotificationTemplateClient
-	// OAuthAccount is the client for interacting with the OAuthAccount builders.
-	OAuthAccount *OAuthAccountClient
 	// Order is the client for interacting with the Order builders.
 	Order *OrderClient
 	// OrderAssignment is the client for interacting with the OrderAssignment builders.
@@ -129,38 +95,24 @@ type Client struct {
 	OrderItem *OrderItemClient
 	// OutboxEvent is the client for interacting with the OutboxEvent builders.
 	OutboxEvent *OutboxEventClient
-	// Payment is the client for interacting with the Payment builders.
-	Payment *PaymentClient
-	// PaymentIntent is the client for interacting with the PaymentIntent builders.
-	PaymentIntent *PaymentIntentClient
-	// PaymentMethod is the client for interacting with the PaymentMethod builders.
-	PaymentMethod *PaymentMethodClient
+	// Outlet is the client for interacting with the Outlet builders.
+	Outlet *OutletClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// PromoCode is the client for interacting with the PromoCode builders.
 	PromoCode *PromoCodeClient
 	// PromoRedemption is the client for interacting with the PromoRedemption builders.
 	PromoRedemption *PromoRedemptionClient
-	// ProofOfDelivery is the client for interacting with the ProofOfDelivery builders.
-	ProofOfDelivery *ProofOfDeliveryClient
-	// Refund is the client for interacting with the Refund builders.
-	Refund *RefundClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// SLAMetric is the client for interacting with the SLAMetric builders.
 	SLAMetric *SLAMetricClient
-	// Session is the client for interacting with the Session builders.
-	Session *SessionClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
 	// TenantSetting is the client for interacting with the TenantSetting builders.
 	TenantSetting *TenantSettingClient
 	// TenantSyncEvent is the client for interacting with the TenantSyncEvent builders.
 	TenantSyncEvent *TenantSyncEventClient
-	// TreasuryEvent is the client for interacting with the TreasuryEvent builders.
-	TreasuryEvent *TreasuryEventClient
-	// TwoFactorSetting is the client for interacting with the TwoFactorSetting builders.
-	TwoFactorSetting *TwoFactorSettingClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserPreference is the client for interacting with the UserPreference builders.
@@ -179,50 +131,34 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AuditLog = NewAuditLogClient(c.config)
-	c.BackupCode = NewBackupCodeClient(c.config)
 	c.Cart = NewCartClient(c.config)
 	c.CartItem = NewCartItemClient(c.config)
+	c.CatalogCategory = NewCatalogCategoryClient(c.config)
+	c.CatalogItem = NewCatalogItemClient(c.config)
+	c.CatalogItemAsset = NewCatalogItemAssetClient(c.config)
+	c.CatalogItemSchedule = NewCatalogItemScheduleClient(c.config)
 	c.CustomerAddress = NewCustomerAddressClient(c.config)
 	c.DataDeletionJob = NewDataDeletionJobClient(c.config)
 	c.DataExportJob = NewDataExportJobClient(c.config)
 	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
-	c.Device = NewDeviceClient(c.config)
 	c.DietaryTag = NewDietaryTagClient(c.config)
-	c.LogisticsEvent = NewLogisticsEventClient(c.config)
 	c.LoyaltyAccount = NewLoyaltyAccountClient(c.config)
 	c.LoyaltyTransaction = NewLoyaltyTransactionClient(c.config)
-	c.MenuCategory = NewMenuCategoryClient(c.config)
-	c.MenuItem = NewMenuItemClient(c.config)
-	c.MenuItemAsset = NewMenuItemAssetClient(c.config)
-	c.MenuItemSchedule = NewMenuItemScheduleClient(c.config)
-	c.MenuItemTranslation = NewMenuItemTranslationClient(c.config)
-	c.MenuItemVariant = NewMenuItemVariantClient(c.config)
-	c.NotificationEvent = NewNotificationEventClient(c.config)
-	c.NotificationSubscription = NewNotificationSubscriptionClient(c.config)
-	c.NotificationTemplate = NewNotificationTemplateClient(c.config)
-	c.OAuthAccount = NewOAuthAccountClient(c.config)
 	c.Order = NewOrderClient(c.config)
 	c.OrderAssignment = NewOrderAssignmentClient(c.config)
 	c.OrderEvent = NewOrderEventClient(c.config)
 	c.OrderItem = NewOrderItemClient(c.config)
 	c.OutboxEvent = NewOutboxEventClient(c.config)
-	c.Payment = NewPaymentClient(c.config)
-	c.PaymentIntent = NewPaymentIntentClient(c.config)
-	c.PaymentMethod = NewPaymentMethodClient(c.config)
+	c.Outlet = NewOutletClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.PromoCode = NewPromoCodeClient(c.config)
 	c.PromoRedemption = NewPromoRedemptionClient(c.config)
-	c.ProofOfDelivery = NewProofOfDeliveryClient(c.config)
-	c.Refund = NewRefundClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.SLAMetric = NewSLAMetricClient(c.config)
-	c.Session = NewSessionClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
 	c.TenantSetting = NewTenantSettingClient(c.config)
 	c.TenantSyncEvent = NewTenantSyncEventClient(c.config)
-	c.TreasuryEvent = NewTreasuryEventClient(c.config)
-	c.TwoFactorSetting = NewTwoFactorSettingClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserPreference = NewUserPreferenceClient(c.config)
 	c.UserProfile = NewUserProfileClient(c.config)
@@ -316,56 +252,40 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                      ctx,
-		config:                   cfg,
-		AuditLog:                 NewAuditLogClient(cfg),
-		BackupCode:               NewBackupCodeClient(cfg),
-		Cart:                     NewCartClient(cfg),
-		CartItem:                 NewCartItemClient(cfg),
-		CustomerAddress:          NewCustomerAddressClient(cfg),
-		DataDeletionJob:          NewDataDeletionJobClient(cfg),
-		DataExportJob:            NewDataExportJobClient(cfg),
-		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
-		DeliveryWindow:           NewDeliveryWindowClient(cfg),
-		Device:                   NewDeviceClient(cfg),
-		DietaryTag:               NewDietaryTagClient(cfg),
-		LogisticsEvent:           NewLogisticsEventClient(cfg),
-		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
-		MenuCategory:             NewMenuCategoryClient(cfg),
-		MenuItem:                 NewMenuItemClient(cfg),
-		MenuItemAsset:            NewMenuItemAssetClient(cfg),
-		MenuItemSchedule:         NewMenuItemScheduleClient(cfg),
-		MenuItemTranslation:      NewMenuItemTranslationClient(cfg),
-		MenuItemVariant:          NewMenuItemVariantClient(cfg),
-		NotificationEvent:        NewNotificationEventClient(cfg),
-		NotificationSubscription: NewNotificationSubscriptionClient(cfg),
-		NotificationTemplate:     NewNotificationTemplateClient(cfg),
-		OAuthAccount:             NewOAuthAccountClient(cfg),
-		Order:                    NewOrderClient(cfg),
-		OrderAssignment:          NewOrderAssignmentClient(cfg),
-		OrderEvent:               NewOrderEventClient(cfg),
-		OrderItem:                NewOrderItemClient(cfg),
-		OutboxEvent:              NewOutboxEventClient(cfg),
-		Payment:                  NewPaymentClient(cfg),
-		PaymentIntent:            NewPaymentIntentClient(cfg),
-		PaymentMethod:            NewPaymentMethodClient(cfg),
-		Permission:               NewPermissionClient(cfg),
-		PromoCode:                NewPromoCodeClient(cfg),
-		PromoRedemption:          NewPromoRedemptionClient(cfg),
-		ProofOfDelivery:          NewProofOfDeliveryClient(cfg),
-		Refund:                   NewRefundClient(cfg),
-		Role:                     NewRoleClient(cfg),
-		SLAMetric:                NewSLAMetricClient(cfg),
-		Session:                  NewSessionClient(cfg),
-		Tenant:                   NewTenantClient(cfg),
-		TenantSetting:            NewTenantSettingClient(cfg),
-		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
-		TreasuryEvent:            NewTreasuryEventClient(cfg),
-		TwoFactorSetting:         NewTwoFactorSettingClient(cfg),
-		User:                     NewUserClient(cfg),
-		UserPreference:           NewUserPreferenceClient(cfg),
-		UserProfile:              NewUserProfileClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AuditLog:            NewAuditLogClient(cfg),
+		Cart:                NewCartClient(cfg),
+		CartItem:            NewCartItemClient(cfg),
+		CatalogCategory:     NewCatalogCategoryClient(cfg),
+		CatalogItem:         NewCatalogItemClient(cfg),
+		CatalogItemAsset:    NewCatalogItemAssetClient(cfg),
+		CatalogItemSchedule: NewCatalogItemScheduleClient(cfg),
+		CustomerAddress:     NewCustomerAddressClient(cfg),
+		DataDeletionJob:     NewDataDeletionJobClient(cfg),
+		DataExportJob:       NewDataExportJobClient(cfg),
+		DataSubjectRequest:  NewDataSubjectRequestClient(cfg),
+		DeliveryWindow:      NewDeliveryWindowClient(cfg),
+		DietaryTag:          NewDietaryTagClient(cfg),
+		LoyaltyAccount:      NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:  NewLoyaltyTransactionClient(cfg),
+		Order:               NewOrderClient(cfg),
+		OrderAssignment:     NewOrderAssignmentClient(cfg),
+		OrderEvent:          NewOrderEventClient(cfg),
+		OrderItem:           NewOrderItemClient(cfg),
+		OutboxEvent:         NewOutboxEventClient(cfg),
+		Outlet:              NewOutletClient(cfg),
+		Permission:          NewPermissionClient(cfg),
+		PromoCode:           NewPromoCodeClient(cfg),
+		PromoRedemption:     NewPromoRedemptionClient(cfg),
+		Role:                NewRoleClient(cfg),
+		SLAMetric:           NewSLAMetricClient(cfg),
+		Tenant:              NewTenantClient(cfg),
+		TenantSetting:       NewTenantSettingClient(cfg),
+		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
+		User:                NewUserClient(cfg),
+		UserPreference:      NewUserPreferenceClient(cfg),
+		UserProfile:         NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -383,56 +303,40 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                      ctx,
-		config:                   cfg,
-		AuditLog:                 NewAuditLogClient(cfg),
-		BackupCode:               NewBackupCodeClient(cfg),
-		Cart:                     NewCartClient(cfg),
-		CartItem:                 NewCartItemClient(cfg),
-		CustomerAddress:          NewCustomerAddressClient(cfg),
-		DataDeletionJob:          NewDataDeletionJobClient(cfg),
-		DataExportJob:            NewDataExportJobClient(cfg),
-		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
-		DeliveryWindow:           NewDeliveryWindowClient(cfg),
-		Device:                   NewDeviceClient(cfg),
-		DietaryTag:               NewDietaryTagClient(cfg),
-		LogisticsEvent:           NewLogisticsEventClient(cfg),
-		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
-		MenuCategory:             NewMenuCategoryClient(cfg),
-		MenuItem:                 NewMenuItemClient(cfg),
-		MenuItemAsset:            NewMenuItemAssetClient(cfg),
-		MenuItemSchedule:         NewMenuItemScheduleClient(cfg),
-		MenuItemTranslation:      NewMenuItemTranslationClient(cfg),
-		MenuItemVariant:          NewMenuItemVariantClient(cfg),
-		NotificationEvent:        NewNotificationEventClient(cfg),
-		NotificationSubscription: NewNotificationSubscriptionClient(cfg),
-		NotificationTemplate:     NewNotificationTemplateClient(cfg),
-		OAuthAccount:             NewOAuthAccountClient(cfg),
-		Order:                    NewOrderClient(cfg),
-		OrderAssignment:          NewOrderAssignmentClient(cfg),
-		OrderEvent:               NewOrderEventClient(cfg),
-		OrderItem:                NewOrderItemClient(cfg),
-		OutboxEvent:              NewOutboxEventClient(cfg),
-		Payment:                  NewPaymentClient(cfg),
-		PaymentIntent:            NewPaymentIntentClient(cfg),
-		PaymentMethod:            NewPaymentMethodClient(cfg),
-		Permission:               NewPermissionClient(cfg),
-		PromoCode:                NewPromoCodeClient(cfg),
-		PromoRedemption:          NewPromoRedemptionClient(cfg),
-		ProofOfDelivery:          NewProofOfDeliveryClient(cfg),
-		Refund:                   NewRefundClient(cfg),
-		Role:                     NewRoleClient(cfg),
-		SLAMetric:                NewSLAMetricClient(cfg),
-		Session:                  NewSessionClient(cfg),
-		Tenant:                   NewTenantClient(cfg),
-		TenantSetting:            NewTenantSettingClient(cfg),
-		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
-		TreasuryEvent:            NewTreasuryEventClient(cfg),
-		TwoFactorSetting:         NewTwoFactorSettingClient(cfg),
-		User:                     NewUserClient(cfg),
-		UserPreference:           NewUserPreferenceClient(cfg),
-		UserProfile:              NewUserProfileClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AuditLog:            NewAuditLogClient(cfg),
+		Cart:                NewCartClient(cfg),
+		CartItem:            NewCartItemClient(cfg),
+		CatalogCategory:     NewCatalogCategoryClient(cfg),
+		CatalogItem:         NewCatalogItemClient(cfg),
+		CatalogItemAsset:    NewCatalogItemAssetClient(cfg),
+		CatalogItemSchedule: NewCatalogItemScheduleClient(cfg),
+		CustomerAddress:     NewCustomerAddressClient(cfg),
+		DataDeletionJob:     NewDataDeletionJobClient(cfg),
+		DataExportJob:       NewDataExportJobClient(cfg),
+		DataSubjectRequest:  NewDataSubjectRequestClient(cfg),
+		DeliveryWindow:      NewDeliveryWindowClient(cfg),
+		DietaryTag:          NewDietaryTagClient(cfg),
+		LoyaltyAccount:      NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:  NewLoyaltyTransactionClient(cfg),
+		Order:               NewOrderClient(cfg),
+		OrderAssignment:     NewOrderAssignmentClient(cfg),
+		OrderEvent:          NewOrderEventClient(cfg),
+		OrderItem:           NewOrderItemClient(cfg),
+		OutboxEvent:         NewOutboxEventClient(cfg),
+		Outlet:              NewOutletClient(cfg),
+		Permission:          NewPermissionClient(cfg),
+		PromoCode:           NewPromoCodeClient(cfg),
+		PromoRedemption:     NewPromoRedemptionClient(cfg),
+		Role:                NewRoleClient(cfg),
+		SLAMetric:           NewSLAMetricClient(cfg),
+		Tenant:              NewTenantClient(cfg),
+		TenantSetting:       NewTenantSettingClient(cfg),
+		TenantSyncEvent:     NewTenantSyncEventClient(cfg),
+		User:                NewUserClient(cfg),
+		UserPreference:      NewUserPreferenceClient(cfg),
+		UserProfile:         NewUserProfileClient(cfg),
 	}, nil
 }
 
@@ -462,17 +366,13 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AuditLog, c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress,
+		c.AuditLog, c.Cart, c.CartItem, c.CatalogCategory, c.CatalogItem,
+		c.CatalogItemAsset, c.CatalogItemSchedule, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.Device, c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.MenuCategory, c.MenuItem, c.MenuItemAsset,
-		c.MenuItemSchedule, c.MenuItemTranslation, c.MenuItemVariant,
-		c.NotificationEvent, c.NotificationSubscription, c.NotificationTemplate,
-		c.OAuthAccount, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OutboxEvent, c.Payment, c.PaymentIntent, c.PaymentMethod, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.ProofOfDelivery, c.Refund, c.Role,
-		c.SLAMetric, c.Session, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.TreasuryEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
+		c.DietaryTag, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OutboxEvent, c.Outlet,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.Role, c.SLAMetric, c.Tenant,
+		c.TenantSetting, c.TenantSyncEvent, c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Use(hooks...)
 	}
@@ -482,17 +382,13 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AuditLog, c.BackupCode, c.Cart, c.CartItem, c.CustomerAddress,
+		c.AuditLog, c.Cart, c.CartItem, c.CatalogCategory, c.CatalogItem,
+		c.CatalogItemAsset, c.CatalogItemSchedule, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.Device, c.DietaryTag, c.LogisticsEvent, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.MenuCategory, c.MenuItem, c.MenuItemAsset,
-		c.MenuItemSchedule, c.MenuItemTranslation, c.MenuItemVariant,
-		c.NotificationEvent, c.NotificationSubscription, c.NotificationTemplate,
-		c.OAuthAccount, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OutboxEvent, c.Payment, c.PaymentIntent, c.PaymentMethod, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.ProofOfDelivery, c.Refund, c.Role,
-		c.SLAMetric, c.Session, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.TreasuryEvent, c.TwoFactorSetting, c.User, c.UserPreference, c.UserProfile,
+		c.DietaryTag, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OutboxEvent, c.Outlet,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.Role, c.SLAMetric, c.Tenant,
+		c.TenantSetting, c.TenantSyncEvent, c.User, c.UserPreference, c.UserProfile,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -503,12 +399,18 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AuditLogMutation:
 		return c.AuditLog.mutate(ctx, m)
-	case *BackupCodeMutation:
-		return c.BackupCode.mutate(ctx, m)
 	case *CartMutation:
 		return c.Cart.mutate(ctx, m)
 	case *CartItemMutation:
 		return c.CartItem.mutate(ctx, m)
+	case *CatalogCategoryMutation:
+		return c.CatalogCategory.mutate(ctx, m)
+	case *CatalogItemMutation:
+		return c.CatalogItem.mutate(ctx, m)
+	case *CatalogItemAssetMutation:
+		return c.CatalogItemAsset.mutate(ctx, m)
+	case *CatalogItemScheduleMutation:
+		return c.CatalogItemSchedule.mutate(ctx, m)
 	case *CustomerAddressMutation:
 		return c.CustomerAddress.mutate(ctx, m)
 	case *DataDeletionJobMutation:
@@ -519,36 +421,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DataSubjectRequest.mutate(ctx, m)
 	case *DeliveryWindowMutation:
 		return c.DeliveryWindow.mutate(ctx, m)
-	case *DeviceMutation:
-		return c.Device.mutate(ctx, m)
 	case *DietaryTagMutation:
 		return c.DietaryTag.mutate(ctx, m)
-	case *LogisticsEventMutation:
-		return c.LogisticsEvent.mutate(ctx, m)
 	case *LoyaltyAccountMutation:
 		return c.LoyaltyAccount.mutate(ctx, m)
 	case *LoyaltyTransactionMutation:
 		return c.LoyaltyTransaction.mutate(ctx, m)
-	case *MenuCategoryMutation:
-		return c.MenuCategory.mutate(ctx, m)
-	case *MenuItemMutation:
-		return c.MenuItem.mutate(ctx, m)
-	case *MenuItemAssetMutation:
-		return c.MenuItemAsset.mutate(ctx, m)
-	case *MenuItemScheduleMutation:
-		return c.MenuItemSchedule.mutate(ctx, m)
-	case *MenuItemTranslationMutation:
-		return c.MenuItemTranslation.mutate(ctx, m)
-	case *MenuItemVariantMutation:
-		return c.MenuItemVariant.mutate(ctx, m)
-	case *NotificationEventMutation:
-		return c.NotificationEvent.mutate(ctx, m)
-	case *NotificationSubscriptionMutation:
-		return c.NotificationSubscription.mutate(ctx, m)
-	case *NotificationTemplateMutation:
-		return c.NotificationTemplate.mutate(ctx, m)
-	case *OAuthAccountMutation:
-		return c.OAuthAccount.mutate(ctx, m)
 	case *OrderMutation:
 		return c.Order.mutate(ctx, m)
 	case *OrderAssignmentMutation:
@@ -559,38 +437,24 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OrderItem.mutate(ctx, m)
 	case *OutboxEventMutation:
 		return c.OutboxEvent.mutate(ctx, m)
-	case *PaymentMutation:
-		return c.Payment.mutate(ctx, m)
-	case *PaymentIntentMutation:
-		return c.PaymentIntent.mutate(ctx, m)
-	case *PaymentMethodMutation:
-		return c.PaymentMethod.mutate(ctx, m)
+	case *OutletMutation:
+		return c.Outlet.mutate(ctx, m)
 	case *PermissionMutation:
 		return c.Permission.mutate(ctx, m)
 	case *PromoCodeMutation:
 		return c.PromoCode.mutate(ctx, m)
 	case *PromoRedemptionMutation:
 		return c.PromoRedemption.mutate(ctx, m)
-	case *ProofOfDeliveryMutation:
-		return c.ProofOfDelivery.mutate(ctx, m)
-	case *RefundMutation:
-		return c.Refund.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *SLAMetricMutation:
 		return c.SLAMetric.mutate(ctx, m)
-	case *SessionMutation:
-		return c.Session.mutate(ctx, m)
 	case *TenantMutation:
 		return c.Tenant.mutate(ctx, m)
 	case *TenantSettingMutation:
 		return c.TenantSetting.mutate(ctx, m)
 	case *TenantSyncEventMutation:
 		return c.TenantSyncEvent.mutate(ctx, m)
-	case *TreasuryEventMutation:
-		return c.TreasuryEvent.mutate(ctx, m)
-	case *TwoFactorSettingMutation:
-		return c.TwoFactorSetting.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *UserPreferenceMutation:
@@ -732,155 +596,6 @@ func (c *AuditLogClient) mutate(ctx context.Context, m *AuditLogMutation) (Value
 		return (&AuditLogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AuditLog mutation op: %q", m.Op())
-	}
-}
-
-// BackupCodeClient is a client for the BackupCode schema.
-type BackupCodeClient struct {
-	config
-}
-
-// NewBackupCodeClient returns a client for the BackupCode from the given config.
-func NewBackupCodeClient(c config) *BackupCodeClient {
-	return &BackupCodeClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `backupcode.Hooks(f(g(h())))`.
-func (c *BackupCodeClient) Use(hooks ...Hook) {
-	c.hooks.BackupCode = append(c.hooks.BackupCode, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `backupcode.Intercept(f(g(h())))`.
-func (c *BackupCodeClient) Intercept(interceptors ...Interceptor) {
-	c.inters.BackupCode = append(c.inters.BackupCode, interceptors...)
-}
-
-// Create returns a builder for creating a BackupCode entity.
-func (c *BackupCodeClient) Create() *BackupCodeCreate {
-	mutation := newBackupCodeMutation(c.config, OpCreate)
-	return &BackupCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of BackupCode entities.
-func (c *BackupCodeClient) CreateBulk(builders ...*BackupCodeCreate) *BackupCodeCreateBulk {
-	return &BackupCodeCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *BackupCodeClient) MapCreateBulk(slice any, setFunc func(*BackupCodeCreate, int)) *BackupCodeCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &BackupCodeCreateBulk{err: fmt.Errorf("calling to BackupCodeClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*BackupCodeCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &BackupCodeCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for BackupCode.
-func (c *BackupCodeClient) Update() *BackupCodeUpdate {
-	mutation := newBackupCodeMutation(c.config, OpUpdate)
-	return &BackupCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *BackupCodeClient) UpdateOne(bc *BackupCode) *BackupCodeUpdateOne {
-	mutation := newBackupCodeMutation(c.config, OpUpdateOne, withBackupCode(bc))
-	return &BackupCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *BackupCodeClient) UpdateOneID(id uuid.UUID) *BackupCodeUpdateOne {
-	mutation := newBackupCodeMutation(c.config, OpUpdateOne, withBackupCodeID(id))
-	return &BackupCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for BackupCode.
-func (c *BackupCodeClient) Delete() *BackupCodeDelete {
-	mutation := newBackupCodeMutation(c.config, OpDelete)
-	return &BackupCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *BackupCodeClient) DeleteOne(bc *BackupCode) *BackupCodeDeleteOne {
-	return c.DeleteOneID(bc.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BackupCodeClient) DeleteOneID(id uuid.UUID) *BackupCodeDeleteOne {
-	builder := c.Delete().Where(backupcode.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &BackupCodeDeleteOne{builder}
-}
-
-// Query returns a query builder for BackupCode.
-func (c *BackupCodeClient) Query() *BackupCodeQuery {
-	return &BackupCodeQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeBackupCode},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a BackupCode entity by its id.
-func (c *BackupCodeClient) Get(ctx context.Context, id uuid.UUID) (*BackupCode, error) {
-	return c.Query().Where(backupcode.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *BackupCodeClient) GetX(ctx context.Context, id uuid.UUID) *BackupCode {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a BackupCode.
-func (c *BackupCodeClient) QueryUser(bc *BackupCode) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := bc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(backupcode.Table, backupcode.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, backupcode.UserTable, backupcode.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(bc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *BackupCodeClient) Hooks() []Hook {
-	return c.hooks.BackupCode
-}
-
-// Interceptors returns the client interceptors.
-func (c *BackupCodeClient) Interceptors() []Interceptor {
-	return c.inters.BackupCode
-}
-
-func (c *BackupCodeClient) mutate(ctx context.Context, m *BackupCodeMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&BackupCodeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&BackupCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&BackupCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&BackupCodeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown BackupCode mutation op: %q", m.Op())
 	}
 }
 
@@ -1173,31 +888,15 @@ func (c *CartItemClient) QueryCart(ci *CartItem) *CartQuery {
 	return query
 }
 
-// QueryMenuItem queries the menu_item edge of a CartItem.
-func (c *CartItemClient) QueryMenuItem(ci *CartItem) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
+// QueryCatalogItem queries the catalog_item edge of a CartItem.
+func (c *CartItemClient) QueryCatalogItem(ci *CartItem) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ci.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(cartitem.Table, cartitem.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.MenuItemTable, cartitem.MenuItemColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryVariant queries the variant edge of a CartItem.
-func (c *CartItemClient) QueryVariant(ci *CartItem) *MenuItemVariantQuery {
-	query := (&MenuItemVariantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(cartitem.Table, cartitem.FieldID, id),
-			sqlgraph.To(menuitemvariant.Table, menuitemvariant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.VariantTable, cartitem.VariantColumn),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.CatalogItemTable, cartitem.CatalogItemColumn),
 		)
 		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
 		return fromV, nil
@@ -1227,6 +926,746 @@ func (c *CartItemClient) mutate(ctx context.Context, m *CartItemMutation) (Value
 		return (&CartItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CartItem mutation op: %q", m.Op())
+	}
+}
+
+// CatalogCategoryClient is a client for the CatalogCategory schema.
+type CatalogCategoryClient struct {
+	config
+}
+
+// NewCatalogCategoryClient returns a client for the CatalogCategory from the given config.
+func NewCatalogCategoryClient(c config) *CatalogCategoryClient {
+	return &CatalogCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `catalogcategory.Hooks(f(g(h())))`.
+func (c *CatalogCategoryClient) Use(hooks ...Hook) {
+	c.hooks.CatalogCategory = append(c.hooks.CatalogCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `catalogcategory.Intercept(f(g(h())))`.
+func (c *CatalogCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CatalogCategory = append(c.inters.CatalogCategory, interceptors...)
+}
+
+// Create returns a builder for creating a CatalogCategory entity.
+func (c *CatalogCategoryClient) Create() *CatalogCategoryCreate {
+	mutation := newCatalogCategoryMutation(c.config, OpCreate)
+	return &CatalogCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CatalogCategory entities.
+func (c *CatalogCategoryClient) CreateBulk(builders ...*CatalogCategoryCreate) *CatalogCategoryCreateBulk {
+	return &CatalogCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CatalogCategoryClient) MapCreateBulk(slice any, setFunc func(*CatalogCategoryCreate, int)) *CatalogCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CatalogCategoryCreateBulk{err: fmt.Errorf("calling to CatalogCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CatalogCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CatalogCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CatalogCategory.
+func (c *CatalogCategoryClient) Update() *CatalogCategoryUpdate {
+	mutation := newCatalogCategoryMutation(c.config, OpUpdate)
+	return &CatalogCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CatalogCategoryClient) UpdateOne(cc *CatalogCategory) *CatalogCategoryUpdateOne {
+	mutation := newCatalogCategoryMutation(c.config, OpUpdateOne, withCatalogCategory(cc))
+	return &CatalogCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CatalogCategoryClient) UpdateOneID(id uuid.UUID) *CatalogCategoryUpdateOne {
+	mutation := newCatalogCategoryMutation(c.config, OpUpdateOne, withCatalogCategoryID(id))
+	return &CatalogCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CatalogCategory.
+func (c *CatalogCategoryClient) Delete() *CatalogCategoryDelete {
+	mutation := newCatalogCategoryMutation(c.config, OpDelete)
+	return &CatalogCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CatalogCategoryClient) DeleteOne(cc *CatalogCategory) *CatalogCategoryDeleteOne {
+	return c.DeleteOneID(cc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CatalogCategoryClient) DeleteOneID(id uuid.UUID) *CatalogCategoryDeleteOne {
+	builder := c.Delete().Where(catalogcategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CatalogCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for CatalogCategory.
+func (c *CatalogCategoryClient) Query() *CatalogCategoryQuery {
+	return &CatalogCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCatalogCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CatalogCategory entity by its id.
+func (c *CatalogCategoryClient) Get(ctx context.Context, id uuid.UUID) (*CatalogCategory, error) {
+	return c.Query().Where(catalogcategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CatalogCategoryClient) GetX(ctx context.Context, id uuid.UUID) *CatalogCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryOutlet queries the outlet edge of a CatalogCategory.
+func (c *CatalogCategoryClient) QueryOutlet(cc *CatalogCategory) *OutletQuery {
+	query := (&OutletClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogcategory.Table, catalogcategory.FieldID, id),
+			sqlgraph.To(outlet.Table, outlet.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogcategory.OutletTable, catalogcategory.OutletColumn),
+		)
+		fromV = sqlgraph.Neighbors(cc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryItems queries the items edge of a CatalogCategory.
+func (c *CatalogCategoryClient) QueryItems(cc *CatalogCategory) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogcategory.Table, catalogcategory.FieldID, id),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, catalogcategory.ItemsTable, catalogcategory.ItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParent queries the parent edge of a CatalogCategory.
+func (c *CatalogCategoryClient) QueryParent(cc *CatalogCategory) *CatalogCategoryQuery {
+	query := (&CatalogCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogcategory.Table, catalogcategory.FieldID, id),
+			sqlgraph.To(catalogcategory.Table, catalogcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogcategory.ParentTable, catalogcategory.ParentColumn),
+		)
+		fromV = sqlgraph.Neighbors(cc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChildren queries the children edge of a CatalogCategory.
+func (c *CatalogCategoryClient) QueryChildren(cc *CatalogCategory) *CatalogCategoryQuery {
+	query := (&CatalogCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogcategory.Table, catalogcategory.FieldID, id),
+			sqlgraph.To(catalogcategory.Table, catalogcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, catalogcategory.ChildrenTable, catalogcategory.ChildrenColumn),
+		)
+		fromV = sqlgraph.Neighbors(cc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CatalogCategoryClient) Hooks() []Hook {
+	return c.hooks.CatalogCategory
+}
+
+// Interceptors returns the client interceptors.
+func (c *CatalogCategoryClient) Interceptors() []Interceptor {
+	return c.inters.CatalogCategory
+}
+
+func (c *CatalogCategoryClient) mutate(ctx context.Context, m *CatalogCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CatalogCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CatalogCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CatalogCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CatalogCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CatalogCategory mutation op: %q", m.Op())
+	}
+}
+
+// CatalogItemClient is a client for the CatalogItem schema.
+type CatalogItemClient struct {
+	config
+}
+
+// NewCatalogItemClient returns a client for the CatalogItem from the given config.
+func NewCatalogItemClient(c config) *CatalogItemClient {
+	return &CatalogItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `catalogitem.Hooks(f(g(h())))`.
+func (c *CatalogItemClient) Use(hooks ...Hook) {
+	c.hooks.CatalogItem = append(c.hooks.CatalogItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `catalogitem.Intercept(f(g(h())))`.
+func (c *CatalogItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CatalogItem = append(c.inters.CatalogItem, interceptors...)
+}
+
+// Create returns a builder for creating a CatalogItem entity.
+func (c *CatalogItemClient) Create() *CatalogItemCreate {
+	mutation := newCatalogItemMutation(c.config, OpCreate)
+	return &CatalogItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CatalogItem entities.
+func (c *CatalogItemClient) CreateBulk(builders ...*CatalogItemCreate) *CatalogItemCreateBulk {
+	return &CatalogItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CatalogItemClient) MapCreateBulk(slice any, setFunc func(*CatalogItemCreate, int)) *CatalogItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CatalogItemCreateBulk{err: fmt.Errorf("calling to CatalogItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CatalogItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CatalogItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CatalogItem.
+func (c *CatalogItemClient) Update() *CatalogItemUpdate {
+	mutation := newCatalogItemMutation(c.config, OpUpdate)
+	return &CatalogItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CatalogItemClient) UpdateOne(ci *CatalogItem) *CatalogItemUpdateOne {
+	mutation := newCatalogItemMutation(c.config, OpUpdateOne, withCatalogItem(ci))
+	return &CatalogItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CatalogItemClient) UpdateOneID(id uuid.UUID) *CatalogItemUpdateOne {
+	mutation := newCatalogItemMutation(c.config, OpUpdateOne, withCatalogItemID(id))
+	return &CatalogItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CatalogItem.
+func (c *CatalogItemClient) Delete() *CatalogItemDelete {
+	mutation := newCatalogItemMutation(c.config, OpDelete)
+	return &CatalogItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CatalogItemClient) DeleteOne(ci *CatalogItem) *CatalogItemDeleteOne {
+	return c.DeleteOneID(ci.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CatalogItemClient) DeleteOneID(id uuid.UUID) *CatalogItemDeleteOne {
+	builder := c.Delete().Where(catalogitem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CatalogItemDeleteOne{builder}
+}
+
+// Query returns a query builder for CatalogItem.
+func (c *CatalogItemClient) Query() *CatalogItemQuery {
+	return &CatalogItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCatalogItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CatalogItem entity by its id.
+func (c *CatalogItemClient) Get(ctx context.Context, id uuid.UUID) (*CatalogItem, error) {
+	return c.Query().Where(catalogitem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CatalogItemClient) GetX(ctx context.Context, id uuid.UUID) *CatalogItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryOutlet queries the outlet edge of a CatalogItem.
+func (c *CatalogItemClient) QueryOutlet(ci *CatalogItem) *OutletQuery {
+	query := (&OutletClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(outlet.Table, outlet.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogitem.OutletTable, catalogitem.OutletColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCategory queries the category edge of a CatalogItem.
+func (c *CatalogItemClient) QueryCategory(ci *CatalogItem) *CatalogCategoryQuery {
+	query := (&CatalogCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(catalogcategory.Table, catalogcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogitem.CategoryTable, catalogitem.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDietaryTags queries the dietary_tags edge of a CatalogItem.
+func (c *CatalogItemClient) QueryDietaryTags(ci *CatalogItem) *DietaryTagQuery {
+	query := (&DietaryTagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(dietarytag.Table, dietarytag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, catalogitem.DietaryTagsTable, catalogitem.DietaryTagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAssets queries the assets edge of a CatalogItem.
+func (c *CatalogItemClient) QueryAssets(ci *CatalogItem) *CatalogItemAssetQuery {
+	query := (&CatalogItemAssetClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(catalogitemasset.Table, catalogitemasset.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, catalogitem.AssetsTable, catalogitem.AssetsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySchedules queries the schedules edge of a CatalogItem.
+func (c *CatalogItemClient) QuerySchedules(ci *CatalogItem) *CatalogItemScheduleQuery {
+	query := (&CatalogItemScheduleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(catalogitemschedule.Table, catalogitemschedule.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, catalogitem.SchedulesTable, catalogitem.SchedulesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCartItems queries the cart_items edge of a CatalogItem.
+func (c *CatalogItemClient) QueryCartItems(ci *CatalogItem) *CartItemQuery {
+	query := (&CartItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(cartitem.Table, cartitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, catalogitem.CartItemsTable, catalogitem.CartItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFavoritedBy queries the favorited_by edge of a CatalogItem.
+func (c *CatalogItemClient) QueryFavoritedBy(ci *CatalogItem) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitem.Table, catalogitem.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, catalogitem.FavoritedByTable, catalogitem.FavoritedByPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CatalogItemClient) Hooks() []Hook {
+	return c.hooks.CatalogItem
+}
+
+// Interceptors returns the client interceptors.
+func (c *CatalogItemClient) Interceptors() []Interceptor {
+	return c.inters.CatalogItem
+}
+
+func (c *CatalogItemClient) mutate(ctx context.Context, m *CatalogItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CatalogItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CatalogItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CatalogItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CatalogItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CatalogItem mutation op: %q", m.Op())
+	}
+}
+
+// CatalogItemAssetClient is a client for the CatalogItemAsset schema.
+type CatalogItemAssetClient struct {
+	config
+}
+
+// NewCatalogItemAssetClient returns a client for the CatalogItemAsset from the given config.
+func NewCatalogItemAssetClient(c config) *CatalogItemAssetClient {
+	return &CatalogItemAssetClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `catalogitemasset.Hooks(f(g(h())))`.
+func (c *CatalogItemAssetClient) Use(hooks ...Hook) {
+	c.hooks.CatalogItemAsset = append(c.hooks.CatalogItemAsset, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `catalogitemasset.Intercept(f(g(h())))`.
+func (c *CatalogItemAssetClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CatalogItemAsset = append(c.inters.CatalogItemAsset, interceptors...)
+}
+
+// Create returns a builder for creating a CatalogItemAsset entity.
+func (c *CatalogItemAssetClient) Create() *CatalogItemAssetCreate {
+	mutation := newCatalogItemAssetMutation(c.config, OpCreate)
+	return &CatalogItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CatalogItemAsset entities.
+func (c *CatalogItemAssetClient) CreateBulk(builders ...*CatalogItemAssetCreate) *CatalogItemAssetCreateBulk {
+	return &CatalogItemAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CatalogItemAssetClient) MapCreateBulk(slice any, setFunc func(*CatalogItemAssetCreate, int)) *CatalogItemAssetCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CatalogItemAssetCreateBulk{err: fmt.Errorf("calling to CatalogItemAssetClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CatalogItemAssetCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CatalogItemAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CatalogItemAsset.
+func (c *CatalogItemAssetClient) Update() *CatalogItemAssetUpdate {
+	mutation := newCatalogItemAssetMutation(c.config, OpUpdate)
+	return &CatalogItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CatalogItemAssetClient) UpdateOne(cia *CatalogItemAsset) *CatalogItemAssetUpdateOne {
+	mutation := newCatalogItemAssetMutation(c.config, OpUpdateOne, withCatalogItemAsset(cia))
+	return &CatalogItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CatalogItemAssetClient) UpdateOneID(id uuid.UUID) *CatalogItemAssetUpdateOne {
+	mutation := newCatalogItemAssetMutation(c.config, OpUpdateOne, withCatalogItemAssetID(id))
+	return &CatalogItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CatalogItemAsset.
+func (c *CatalogItemAssetClient) Delete() *CatalogItemAssetDelete {
+	mutation := newCatalogItemAssetMutation(c.config, OpDelete)
+	return &CatalogItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CatalogItemAssetClient) DeleteOne(cia *CatalogItemAsset) *CatalogItemAssetDeleteOne {
+	return c.DeleteOneID(cia.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CatalogItemAssetClient) DeleteOneID(id uuid.UUID) *CatalogItemAssetDeleteOne {
+	builder := c.Delete().Where(catalogitemasset.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CatalogItemAssetDeleteOne{builder}
+}
+
+// Query returns a query builder for CatalogItemAsset.
+func (c *CatalogItemAssetClient) Query() *CatalogItemAssetQuery {
+	return &CatalogItemAssetQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCatalogItemAsset},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CatalogItemAsset entity by its id.
+func (c *CatalogItemAssetClient) Get(ctx context.Context, id uuid.UUID) (*CatalogItemAsset, error) {
+	return c.Query().Where(catalogitemasset.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CatalogItemAssetClient) GetX(ctx context.Context, id uuid.UUID) *CatalogItemAsset {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCatalogItem queries the catalog_item edge of a CatalogItemAsset.
+func (c *CatalogItemAssetClient) QueryCatalogItem(cia *CatalogItemAsset) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cia.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitemasset.Table, catalogitemasset.FieldID, id),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogitemasset.CatalogItemTable, catalogitemasset.CatalogItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(cia.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CatalogItemAssetClient) Hooks() []Hook {
+	return c.hooks.CatalogItemAsset
+}
+
+// Interceptors returns the client interceptors.
+func (c *CatalogItemAssetClient) Interceptors() []Interceptor {
+	return c.inters.CatalogItemAsset
+}
+
+func (c *CatalogItemAssetClient) mutate(ctx context.Context, m *CatalogItemAssetMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CatalogItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CatalogItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CatalogItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CatalogItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CatalogItemAsset mutation op: %q", m.Op())
+	}
+}
+
+// CatalogItemScheduleClient is a client for the CatalogItemSchedule schema.
+type CatalogItemScheduleClient struct {
+	config
+}
+
+// NewCatalogItemScheduleClient returns a client for the CatalogItemSchedule from the given config.
+func NewCatalogItemScheduleClient(c config) *CatalogItemScheduleClient {
+	return &CatalogItemScheduleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `catalogitemschedule.Hooks(f(g(h())))`.
+func (c *CatalogItemScheduleClient) Use(hooks ...Hook) {
+	c.hooks.CatalogItemSchedule = append(c.hooks.CatalogItemSchedule, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `catalogitemschedule.Intercept(f(g(h())))`.
+func (c *CatalogItemScheduleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CatalogItemSchedule = append(c.inters.CatalogItemSchedule, interceptors...)
+}
+
+// Create returns a builder for creating a CatalogItemSchedule entity.
+func (c *CatalogItemScheduleClient) Create() *CatalogItemScheduleCreate {
+	mutation := newCatalogItemScheduleMutation(c.config, OpCreate)
+	return &CatalogItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CatalogItemSchedule entities.
+func (c *CatalogItemScheduleClient) CreateBulk(builders ...*CatalogItemScheduleCreate) *CatalogItemScheduleCreateBulk {
+	return &CatalogItemScheduleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CatalogItemScheduleClient) MapCreateBulk(slice any, setFunc func(*CatalogItemScheduleCreate, int)) *CatalogItemScheduleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CatalogItemScheduleCreateBulk{err: fmt.Errorf("calling to CatalogItemScheduleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CatalogItemScheduleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CatalogItemScheduleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CatalogItemSchedule.
+func (c *CatalogItemScheduleClient) Update() *CatalogItemScheduleUpdate {
+	mutation := newCatalogItemScheduleMutation(c.config, OpUpdate)
+	return &CatalogItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CatalogItemScheduleClient) UpdateOne(cis *CatalogItemSchedule) *CatalogItemScheduleUpdateOne {
+	mutation := newCatalogItemScheduleMutation(c.config, OpUpdateOne, withCatalogItemSchedule(cis))
+	return &CatalogItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CatalogItemScheduleClient) UpdateOneID(id uuid.UUID) *CatalogItemScheduleUpdateOne {
+	mutation := newCatalogItemScheduleMutation(c.config, OpUpdateOne, withCatalogItemScheduleID(id))
+	return &CatalogItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CatalogItemSchedule.
+func (c *CatalogItemScheduleClient) Delete() *CatalogItemScheduleDelete {
+	mutation := newCatalogItemScheduleMutation(c.config, OpDelete)
+	return &CatalogItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CatalogItemScheduleClient) DeleteOne(cis *CatalogItemSchedule) *CatalogItemScheduleDeleteOne {
+	return c.DeleteOneID(cis.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CatalogItemScheduleClient) DeleteOneID(id uuid.UUID) *CatalogItemScheduleDeleteOne {
+	builder := c.Delete().Where(catalogitemschedule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CatalogItemScheduleDeleteOne{builder}
+}
+
+// Query returns a query builder for CatalogItemSchedule.
+func (c *CatalogItemScheduleClient) Query() *CatalogItemScheduleQuery {
+	return &CatalogItemScheduleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCatalogItemSchedule},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CatalogItemSchedule entity by its id.
+func (c *CatalogItemScheduleClient) Get(ctx context.Context, id uuid.UUID) (*CatalogItemSchedule, error) {
+	return c.Query().Where(catalogitemschedule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CatalogItemScheduleClient) GetX(ctx context.Context, id uuid.UUID) *CatalogItemSchedule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCatalogItem queries the catalog_item edge of a CatalogItemSchedule.
+func (c *CatalogItemScheduleClient) QueryCatalogItem(cis *CatalogItemSchedule) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cis.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(catalogitemschedule.Table, catalogitemschedule.FieldID, id),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, catalogitemschedule.CatalogItemTable, catalogitemschedule.CatalogItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(cis.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CatalogItemScheduleClient) Hooks() []Hook {
+	return c.hooks.CatalogItemSchedule
+}
+
+// Interceptors returns the client interceptors.
+func (c *CatalogItemScheduleClient) Interceptors() []Interceptor {
+	return c.inters.CatalogItemSchedule
+}
+
+func (c *CatalogItemScheduleClient) mutate(ctx context.Context, m *CatalogItemScheduleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CatalogItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CatalogItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CatalogItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CatalogItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CatalogItemSchedule mutation op: %q", m.Op())
 	}
 }
 
@@ -1943,155 +2382,6 @@ func (c *DeliveryWindowClient) mutate(ctx context.Context, m *DeliveryWindowMuta
 	}
 }
 
-// DeviceClient is a client for the Device schema.
-type DeviceClient struct {
-	config
-}
-
-// NewDeviceClient returns a client for the Device from the given config.
-func NewDeviceClient(c config) *DeviceClient {
-	return &DeviceClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `device.Hooks(f(g(h())))`.
-func (c *DeviceClient) Use(hooks ...Hook) {
-	c.hooks.Device = append(c.hooks.Device, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `device.Intercept(f(g(h())))`.
-func (c *DeviceClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Device = append(c.inters.Device, interceptors...)
-}
-
-// Create returns a builder for creating a Device entity.
-func (c *DeviceClient) Create() *DeviceCreate {
-	mutation := newDeviceMutation(c.config, OpCreate)
-	return &DeviceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Device entities.
-func (c *DeviceClient) CreateBulk(builders ...*DeviceCreate) *DeviceCreateBulk {
-	return &DeviceCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *DeviceClient) MapCreateBulk(slice any, setFunc func(*DeviceCreate, int)) *DeviceCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &DeviceCreateBulk{err: fmt.Errorf("calling to DeviceClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*DeviceCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &DeviceCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Device.
-func (c *DeviceClient) Update() *DeviceUpdate {
-	mutation := newDeviceMutation(c.config, OpUpdate)
-	return &DeviceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *DeviceClient) UpdateOne(d *Device) *DeviceUpdateOne {
-	mutation := newDeviceMutation(c.config, OpUpdateOne, withDevice(d))
-	return &DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *DeviceClient) UpdateOneID(id uuid.UUID) *DeviceUpdateOne {
-	mutation := newDeviceMutation(c.config, OpUpdateOne, withDeviceID(id))
-	return &DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Device.
-func (c *DeviceClient) Delete() *DeviceDelete {
-	mutation := newDeviceMutation(c.config, OpDelete)
-	return &DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *DeviceClient) DeleteOne(d *Device) *DeviceDeleteOne {
-	return c.DeleteOneID(d.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *DeviceClient) DeleteOneID(id uuid.UUID) *DeviceDeleteOne {
-	builder := c.Delete().Where(device.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &DeviceDeleteOne{builder}
-}
-
-// Query returns a query builder for Device.
-func (c *DeviceClient) Query() *DeviceQuery {
-	return &DeviceQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeDevice},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Device entity by its id.
-func (c *DeviceClient) Get(ctx context.Context, id uuid.UUID) (*Device, error) {
-	return c.Query().Where(device.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *DeviceClient) GetX(ctx context.Context, id uuid.UUID) *Device {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a Device.
-func (c *DeviceClient) QueryUser(d *Device) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(device.Table, device.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, device.UserTable, device.UserPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *DeviceClient) Hooks() []Hook {
-	return c.hooks.Device
-}
-
-// Interceptors returns the client interceptors.
-func (c *DeviceClient) Interceptors() []Interceptor {
-	return c.inters.Device
-}
-
-func (c *DeviceClient) mutate(ctx context.Context, m *DeviceMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&DeviceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&DeviceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Device mutation op: %q", m.Op())
-	}
-}
-
 // DietaryTagClient is a client for the DietaryTag schema.
 type DietaryTagClient struct {
 	config
@@ -2200,15 +2490,15 @@ func (c *DietaryTagClient) GetX(ctx context.Context, id int) *DietaryTag {
 	return obj
 }
 
-// QueryMenuItems queries the menu_items edge of a DietaryTag.
-func (c *DietaryTagClient) QueryMenuItems(dt *DietaryTag) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
+// QueryCatalogItems queries the catalog_items edge of a DietaryTag.
+func (c *DietaryTagClient) QueryCatalogItems(dt *DietaryTag) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := dt.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(dietarytag.Table, dietarytag.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, dietarytag.MenuItemsTable, dietarytag.MenuItemsPrimaryKey...),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, dietarytag.CatalogItemsTable, dietarytag.CatalogItemsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(dt.driver.Dialect(), step)
 		return fromV, nil
@@ -2238,139 +2528,6 @@ func (c *DietaryTagClient) mutate(ctx context.Context, m *DietaryTagMutation) (V
 		return (&DietaryTagDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DietaryTag mutation op: %q", m.Op())
-	}
-}
-
-// LogisticsEventClient is a client for the LogisticsEvent schema.
-type LogisticsEventClient struct {
-	config
-}
-
-// NewLogisticsEventClient returns a client for the LogisticsEvent from the given config.
-func NewLogisticsEventClient(c config) *LogisticsEventClient {
-	return &LogisticsEventClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `logisticsevent.Hooks(f(g(h())))`.
-func (c *LogisticsEventClient) Use(hooks ...Hook) {
-	c.hooks.LogisticsEvent = append(c.hooks.LogisticsEvent, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `logisticsevent.Intercept(f(g(h())))`.
-func (c *LogisticsEventClient) Intercept(interceptors ...Interceptor) {
-	c.inters.LogisticsEvent = append(c.inters.LogisticsEvent, interceptors...)
-}
-
-// Create returns a builder for creating a LogisticsEvent entity.
-func (c *LogisticsEventClient) Create() *LogisticsEventCreate {
-	mutation := newLogisticsEventMutation(c.config, OpCreate)
-	return &LogisticsEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of LogisticsEvent entities.
-func (c *LogisticsEventClient) CreateBulk(builders ...*LogisticsEventCreate) *LogisticsEventCreateBulk {
-	return &LogisticsEventCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *LogisticsEventClient) MapCreateBulk(slice any, setFunc func(*LogisticsEventCreate, int)) *LogisticsEventCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &LogisticsEventCreateBulk{err: fmt.Errorf("calling to LogisticsEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*LogisticsEventCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &LogisticsEventCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for LogisticsEvent.
-func (c *LogisticsEventClient) Update() *LogisticsEventUpdate {
-	mutation := newLogisticsEventMutation(c.config, OpUpdate)
-	return &LogisticsEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *LogisticsEventClient) UpdateOne(le *LogisticsEvent) *LogisticsEventUpdateOne {
-	mutation := newLogisticsEventMutation(c.config, OpUpdateOne, withLogisticsEvent(le))
-	return &LogisticsEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *LogisticsEventClient) UpdateOneID(id uuid.UUID) *LogisticsEventUpdateOne {
-	mutation := newLogisticsEventMutation(c.config, OpUpdateOne, withLogisticsEventID(id))
-	return &LogisticsEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for LogisticsEvent.
-func (c *LogisticsEventClient) Delete() *LogisticsEventDelete {
-	mutation := newLogisticsEventMutation(c.config, OpDelete)
-	return &LogisticsEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *LogisticsEventClient) DeleteOne(le *LogisticsEvent) *LogisticsEventDeleteOne {
-	return c.DeleteOneID(le.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *LogisticsEventClient) DeleteOneID(id uuid.UUID) *LogisticsEventDeleteOne {
-	builder := c.Delete().Where(logisticsevent.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &LogisticsEventDeleteOne{builder}
-}
-
-// Query returns a query builder for LogisticsEvent.
-func (c *LogisticsEventClient) Query() *LogisticsEventQuery {
-	return &LogisticsEventQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeLogisticsEvent},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a LogisticsEvent entity by its id.
-func (c *LogisticsEventClient) Get(ctx context.Context, id uuid.UUID) (*LogisticsEvent, error) {
-	return c.Query().Where(logisticsevent.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *LogisticsEventClient) GetX(ctx context.Context, id uuid.UUID) *LogisticsEvent {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *LogisticsEventClient) Hooks() []Hook {
-	return c.hooks.LogisticsEvent
-}
-
-// Interceptors returns the client interceptors.
-func (c *LogisticsEventClient) Interceptors() []Interceptor {
-	return c.inters.LogisticsEvent
-}
-
-func (c *LogisticsEventClient) mutate(ctx context.Context, m *LogisticsEventMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&LogisticsEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&LogisticsEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&LogisticsEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&LogisticsEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown LogisticsEvent mutation op: %q", m.Op())
 	}
 }
 
@@ -2688,1592 +2845,6 @@ func (c *LoyaltyTransactionClient) mutate(ctx context.Context, m *LoyaltyTransac
 	}
 }
 
-// MenuCategoryClient is a client for the MenuCategory schema.
-type MenuCategoryClient struct {
-	config
-}
-
-// NewMenuCategoryClient returns a client for the MenuCategory from the given config.
-func NewMenuCategoryClient(c config) *MenuCategoryClient {
-	return &MenuCategoryClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menucategory.Hooks(f(g(h())))`.
-func (c *MenuCategoryClient) Use(hooks ...Hook) {
-	c.hooks.MenuCategory = append(c.hooks.MenuCategory, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menucategory.Intercept(f(g(h())))`.
-func (c *MenuCategoryClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuCategory = append(c.inters.MenuCategory, interceptors...)
-}
-
-// Create returns a builder for creating a MenuCategory entity.
-func (c *MenuCategoryClient) Create() *MenuCategoryCreate {
-	mutation := newMenuCategoryMutation(c.config, OpCreate)
-	return &MenuCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuCategory entities.
-func (c *MenuCategoryClient) CreateBulk(builders ...*MenuCategoryCreate) *MenuCategoryCreateBulk {
-	return &MenuCategoryCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuCategoryClient) MapCreateBulk(slice any, setFunc func(*MenuCategoryCreate, int)) *MenuCategoryCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuCategoryCreateBulk{err: fmt.Errorf("calling to MenuCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuCategoryCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuCategoryCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuCategory.
-func (c *MenuCategoryClient) Update() *MenuCategoryUpdate {
-	mutation := newMenuCategoryMutation(c.config, OpUpdate)
-	return &MenuCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuCategoryClient) UpdateOne(mc *MenuCategory) *MenuCategoryUpdateOne {
-	mutation := newMenuCategoryMutation(c.config, OpUpdateOne, withMenuCategory(mc))
-	return &MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuCategoryClient) UpdateOneID(id uuid.UUID) *MenuCategoryUpdateOne {
-	mutation := newMenuCategoryMutation(c.config, OpUpdateOne, withMenuCategoryID(id))
-	return &MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuCategory.
-func (c *MenuCategoryClient) Delete() *MenuCategoryDelete {
-	mutation := newMenuCategoryMutation(c.config, OpDelete)
-	return &MenuCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuCategoryClient) DeleteOne(mc *MenuCategory) *MenuCategoryDeleteOne {
-	return c.DeleteOneID(mc.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuCategoryClient) DeleteOneID(id uuid.UUID) *MenuCategoryDeleteOne {
-	builder := c.Delete().Where(menucategory.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuCategoryDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuCategory.
-func (c *MenuCategoryClient) Query() *MenuCategoryQuery {
-	return &MenuCategoryQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuCategory},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuCategory entity by its id.
-func (c *MenuCategoryClient) Get(ctx context.Context, id uuid.UUID) (*MenuCategory, error) {
-	return c.Query().Where(menucategory.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuCategoryClient) GetX(ctx context.Context, id uuid.UUID) *MenuCategory {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryItems queries the items edge of a MenuCategory.
-func (c *MenuCategoryClient) QueryItems(mc *MenuCategory) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menucategory.ItemsTable, menucategory.ItemsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryParent queries the parent edge of a MenuCategory.
-func (c *MenuCategoryClient) QueryParent(mc *MenuCategory) *MenuCategoryQuery {
-	query := (&MenuCategoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
-			sqlgraph.To(menucategory.Table, menucategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menucategory.ParentTable, menucategory.ParentColumn),
-		)
-		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryChildren queries the children edge of a MenuCategory.
-func (c *MenuCategoryClient) QueryChildren(mc *MenuCategory) *MenuCategoryQuery {
-	query := (&MenuCategoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menucategory.Table, menucategory.FieldID, id),
-			sqlgraph.To(menucategory.Table, menucategory.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menucategory.ChildrenTable, menucategory.ChildrenColumn),
-		)
-		fromV = sqlgraph.Neighbors(mc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuCategoryClient) Hooks() []Hook {
-	return c.hooks.MenuCategory
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuCategoryClient) Interceptors() []Interceptor {
-	return c.inters.MenuCategory
-}
-
-func (c *MenuCategoryClient) mutate(ctx context.Context, m *MenuCategoryMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuCategory mutation op: %q", m.Op())
-	}
-}
-
-// MenuItemClient is a client for the MenuItem schema.
-type MenuItemClient struct {
-	config
-}
-
-// NewMenuItemClient returns a client for the MenuItem from the given config.
-func NewMenuItemClient(c config) *MenuItemClient {
-	return &MenuItemClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuitem.Hooks(f(g(h())))`.
-func (c *MenuItemClient) Use(hooks ...Hook) {
-	c.hooks.MenuItem = append(c.hooks.MenuItem, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuitem.Intercept(f(g(h())))`.
-func (c *MenuItemClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuItem = append(c.inters.MenuItem, interceptors...)
-}
-
-// Create returns a builder for creating a MenuItem entity.
-func (c *MenuItemClient) Create() *MenuItemCreate {
-	mutation := newMenuItemMutation(c.config, OpCreate)
-	return &MenuItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuItem entities.
-func (c *MenuItemClient) CreateBulk(builders ...*MenuItemCreate) *MenuItemCreateBulk {
-	return &MenuItemCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuItemClient) MapCreateBulk(slice any, setFunc func(*MenuItemCreate, int)) *MenuItemCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuItemCreateBulk{err: fmt.Errorf("calling to MenuItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuItemCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuItemCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuItem.
-func (c *MenuItemClient) Update() *MenuItemUpdate {
-	mutation := newMenuItemMutation(c.config, OpUpdate)
-	return &MenuItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuItemClient) UpdateOne(mi *MenuItem) *MenuItemUpdateOne {
-	mutation := newMenuItemMutation(c.config, OpUpdateOne, withMenuItem(mi))
-	return &MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuItemClient) UpdateOneID(id uuid.UUID) *MenuItemUpdateOne {
-	mutation := newMenuItemMutation(c.config, OpUpdateOne, withMenuItemID(id))
-	return &MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuItem.
-func (c *MenuItemClient) Delete() *MenuItemDelete {
-	mutation := newMenuItemMutation(c.config, OpDelete)
-	return &MenuItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuItemClient) DeleteOne(mi *MenuItem) *MenuItemDeleteOne {
-	return c.DeleteOneID(mi.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuItemClient) DeleteOneID(id uuid.UUID) *MenuItemDeleteOne {
-	builder := c.Delete().Where(menuitem.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuItemDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuItem.
-func (c *MenuItemClient) Query() *MenuItemQuery {
-	return &MenuItemQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuItem},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuItem entity by its id.
-func (c *MenuItemClient) Get(ctx context.Context, id uuid.UUID) (*MenuItem, error) {
-	return c.Query().Where(menuitem.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuItemClient) GetX(ctx context.Context, id uuid.UUID) *MenuItem {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryCategory queries the category edge of a MenuItem.
-func (c *MenuItemClient) QueryCategory(mi *MenuItem) *MenuCategoryQuery {
-	query := (&MenuCategoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(menucategory.Table, menucategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuitem.CategoryTable, menuitem.CategoryColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryVariants queries the variants edge of a MenuItem.
-func (c *MenuItemClient) QueryVariants(mi *MenuItem) *MenuItemVariantQuery {
-	query := (&MenuItemVariantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(menuitemvariant.Table, menuitemvariant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.VariantsTable, menuitem.VariantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTranslations queries the translations edge of a MenuItem.
-func (c *MenuItemClient) QueryTranslations(mi *MenuItem) *MenuItemTranslationQuery {
-	query := (&MenuItemTranslationClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(menuitemtranslation.Table, menuitemtranslation.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.TranslationsTable, menuitem.TranslationsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDietaryTags queries the dietary_tags edge of a MenuItem.
-func (c *MenuItemClient) QueryDietaryTags(mi *MenuItem) *DietaryTagQuery {
-	query := (&DietaryTagClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(dietarytag.Table, dietarytag.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, menuitem.DietaryTagsTable, menuitem.DietaryTagsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAssets queries the assets edge of a MenuItem.
-func (c *MenuItemClient) QueryAssets(mi *MenuItem) *MenuItemAssetQuery {
-	query := (&MenuItemAssetClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(menuitemasset.Table, menuitemasset.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.AssetsTable, menuitem.AssetsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySchedules queries the schedules edge of a MenuItem.
-func (c *MenuItemClient) QuerySchedules(mi *MenuItem) *MenuItemScheduleQuery {
-	query := (&MenuItemScheduleClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(menuitemschedule.Table, menuitemschedule.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.SchedulesTable, menuitem.SchedulesColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCartItems queries the cart_items edge of a MenuItem.
-func (c *MenuItemClient) QueryCartItems(mi *MenuItem) *CartItemQuery {
-	query := (&CartItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitem.Table, menuitem.FieldID, id),
-			sqlgraph.To(cartitem.Table, cartitem.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitem.CartItemsTable, menuitem.CartItemsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuItemClient) Hooks() []Hook {
-	return c.hooks.MenuItem
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuItemClient) Interceptors() []Interceptor {
-	return c.inters.MenuItem
-}
-
-func (c *MenuItemClient) mutate(ctx context.Context, m *MenuItemMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuItem mutation op: %q", m.Op())
-	}
-}
-
-// MenuItemAssetClient is a client for the MenuItemAsset schema.
-type MenuItemAssetClient struct {
-	config
-}
-
-// NewMenuItemAssetClient returns a client for the MenuItemAsset from the given config.
-func NewMenuItemAssetClient(c config) *MenuItemAssetClient {
-	return &MenuItemAssetClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuitemasset.Hooks(f(g(h())))`.
-func (c *MenuItemAssetClient) Use(hooks ...Hook) {
-	c.hooks.MenuItemAsset = append(c.hooks.MenuItemAsset, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuitemasset.Intercept(f(g(h())))`.
-func (c *MenuItemAssetClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuItemAsset = append(c.inters.MenuItemAsset, interceptors...)
-}
-
-// Create returns a builder for creating a MenuItemAsset entity.
-func (c *MenuItemAssetClient) Create() *MenuItemAssetCreate {
-	mutation := newMenuItemAssetMutation(c.config, OpCreate)
-	return &MenuItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuItemAsset entities.
-func (c *MenuItemAssetClient) CreateBulk(builders ...*MenuItemAssetCreate) *MenuItemAssetCreateBulk {
-	return &MenuItemAssetCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuItemAssetClient) MapCreateBulk(slice any, setFunc func(*MenuItemAssetCreate, int)) *MenuItemAssetCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuItemAssetCreateBulk{err: fmt.Errorf("calling to MenuItemAssetClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuItemAssetCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuItemAssetCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuItemAsset.
-func (c *MenuItemAssetClient) Update() *MenuItemAssetUpdate {
-	mutation := newMenuItemAssetMutation(c.config, OpUpdate)
-	return &MenuItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuItemAssetClient) UpdateOne(mia *MenuItemAsset) *MenuItemAssetUpdateOne {
-	mutation := newMenuItemAssetMutation(c.config, OpUpdateOne, withMenuItemAsset(mia))
-	return &MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuItemAssetClient) UpdateOneID(id uuid.UUID) *MenuItemAssetUpdateOne {
-	mutation := newMenuItemAssetMutation(c.config, OpUpdateOne, withMenuItemAssetID(id))
-	return &MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuItemAsset.
-func (c *MenuItemAssetClient) Delete() *MenuItemAssetDelete {
-	mutation := newMenuItemAssetMutation(c.config, OpDelete)
-	return &MenuItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuItemAssetClient) DeleteOne(mia *MenuItemAsset) *MenuItemAssetDeleteOne {
-	return c.DeleteOneID(mia.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuItemAssetClient) DeleteOneID(id uuid.UUID) *MenuItemAssetDeleteOne {
-	builder := c.Delete().Where(menuitemasset.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuItemAssetDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuItemAsset.
-func (c *MenuItemAssetClient) Query() *MenuItemAssetQuery {
-	return &MenuItemAssetQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuItemAsset},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuItemAsset entity by its id.
-func (c *MenuItemAssetClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemAsset, error) {
-	return c.Query().Where(menuitemasset.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuItemAssetClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemAsset {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMenuItem queries the menu_item edge of a MenuItemAsset.
-func (c *MenuItemAssetClient) QueryMenuItem(mia *MenuItemAsset) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mia.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitemasset.Table, menuitemasset.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuitemasset.MenuItemTable, menuitemasset.MenuItemColumn),
-		)
-		fromV = sqlgraph.Neighbors(mia.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuItemAssetClient) Hooks() []Hook {
-	return c.hooks.MenuItemAsset
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuItemAssetClient) Interceptors() []Interceptor {
-	return c.inters.MenuItemAsset
-}
-
-func (c *MenuItemAssetClient) mutate(ctx context.Context, m *MenuItemAssetMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuItemAssetCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuItemAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuItemAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuItemAssetDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuItemAsset mutation op: %q", m.Op())
-	}
-}
-
-// MenuItemScheduleClient is a client for the MenuItemSchedule schema.
-type MenuItemScheduleClient struct {
-	config
-}
-
-// NewMenuItemScheduleClient returns a client for the MenuItemSchedule from the given config.
-func NewMenuItemScheduleClient(c config) *MenuItemScheduleClient {
-	return &MenuItemScheduleClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuitemschedule.Hooks(f(g(h())))`.
-func (c *MenuItemScheduleClient) Use(hooks ...Hook) {
-	c.hooks.MenuItemSchedule = append(c.hooks.MenuItemSchedule, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuitemschedule.Intercept(f(g(h())))`.
-func (c *MenuItemScheduleClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuItemSchedule = append(c.inters.MenuItemSchedule, interceptors...)
-}
-
-// Create returns a builder for creating a MenuItemSchedule entity.
-func (c *MenuItemScheduleClient) Create() *MenuItemScheduleCreate {
-	mutation := newMenuItemScheduleMutation(c.config, OpCreate)
-	return &MenuItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuItemSchedule entities.
-func (c *MenuItemScheduleClient) CreateBulk(builders ...*MenuItemScheduleCreate) *MenuItemScheduleCreateBulk {
-	return &MenuItemScheduleCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuItemScheduleClient) MapCreateBulk(slice any, setFunc func(*MenuItemScheduleCreate, int)) *MenuItemScheduleCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuItemScheduleCreateBulk{err: fmt.Errorf("calling to MenuItemScheduleClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuItemScheduleCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuItemScheduleCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuItemSchedule.
-func (c *MenuItemScheduleClient) Update() *MenuItemScheduleUpdate {
-	mutation := newMenuItemScheduleMutation(c.config, OpUpdate)
-	return &MenuItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuItemScheduleClient) UpdateOne(mis *MenuItemSchedule) *MenuItemScheduleUpdateOne {
-	mutation := newMenuItemScheduleMutation(c.config, OpUpdateOne, withMenuItemSchedule(mis))
-	return &MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuItemScheduleClient) UpdateOneID(id uuid.UUID) *MenuItemScheduleUpdateOne {
-	mutation := newMenuItemScheduleMutation(c.config, OpUpdateOne, withMenuItemScheduleID(id))
-	return &MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuItemSchedule.
-func (c *MenuItemScheduleClient) Delete() *MenuItemScheduleDelete {
-	mutation := newMenuItemScheduleMutation(c.config, OpDelete)
-	return &MenuItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuItemScheduleClient) DeleteOne(mis *MenuItemSchedule) *MenuItemScheduleDeleteOne {
-	return c.DeleteOneID(mis.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuItemScheduleClient) DeleteOneID(id uuid.UUID) *MenuItemScheduleDeleteOne {
-	builder := c.Delete().Where(menuitemschedule.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuItemScheduleDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuItemSchedule.
-func (c *MenuItemScheduleClient) Query() *MenuItemScheduleQuery {
-	return &MenuItemScheduleQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuItemSchedule},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuItemSchedule entity by its id.
-func (c *MenuItemScheduleClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemSchedule, error) {
-	return c.Query().Where(menuitemschedule.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuItemScheduleClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemSchedule {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMenuItem queries the menu_item edge of a MenuItemSchedule.
-func (c *MenuItemScheduleClient) QueryMenuItem(mis *MenuItemSchedule) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mis.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitemschedule.Table, menuitemschedule.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuitemschedule.MenuItemTable, menuitemschedule.MenuItemColumn),
-		)
-		fromV = sqlgraph.Neighbors(mis.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuItemScheduleClient) Hooks() []Hook {
-	return c.hooks.MenuItemSchedule
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuItemScheduleClient) Interceptors() []Interceptor {
-	return c.inters.MenuItemSchedule
-}
-
-func (c *MenuItemScheduleClient) mutate(ctx context.Context, m *MenuItemScheduleMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuItemScheduleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuItemScheduleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuItemScheduleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuItemScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuItemSchedule mutation op: %q", m.Op())
-	}
-}
-
-// MenuItemTranslationClient is a client for the MenuItemTranslation schema.
-type MenuItemTranslationClient struct {
-	config
-}
-
-// NewMenuItemTranslationClient returns a client for the MenuItemTranslation from the given config.
-func NewMenuItemTranslationClient(c config) *MenuItemTranslationClient {
-	return &MenuItemTranslationClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuitemtranslation.Hooks(f(g(h())))`.
-func (c *MenuItemTranslationClient) Use(hooks ...Hook) {
-	c.hooks.MenuItemTranslation = append(c.hooks.MenuItemTranslation, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuitemtranslation.Intercept(f(g(h())))`.
-func (c *MenuItemTranslationClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuItemTranslation = append(c.inters.MenuItemTranslation, interceptors...)
-}
-
-// Create returns a builder for creating a MenuItemTranslation entity.
-func (c *MenuItemTranslationClient) Create() *MenuItemTranslationCreate {
-	mutation := newMenuItemTranslationMutation(c.config, OpCreate)
-	return &MenuItemTranslationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuItemTranslation entities.
-func (c *MenuItemTranslationClient) CreateBulk(builders ...*MenuItemTranslationCreate) *MenuItemTranslationCreateBulk {
-	return &MenuItemTranslationCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuItemTranslationClient) MapCreateBulk(slice any, setFunc func(*MenuItemTranslationCreate, int)) *MenuItemTranslationCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuItemTranslationCreateBulk{err: fmt.Errorf("calling to MenuItemTranslationClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuItemTranslationCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuItemTranslationCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuItemTranslation.
-func (c *MenuItemTranslationClient) Update() *MenuItemTranslationUpdate {
-	mutation := newMenuItemTranslationMutation(c.config, OpUpdate)
-	return &MenuItemTranslationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuItemTranslationClient) UpdateOne(mit *MenuItemTranslation) *MenuItemTranslationUpdateOne {
-	mutation := newMenuItemTranslationMutation(c.config, OpUpdateOne, withMenuItemTranslation(mit))
-	return &MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuItemTranslationClient) UpdateOneID(id uuid.UUID) *MenuItemTranslationUpdateOne {
-	mutation := newMenuItemTranslationMutation(c.config, OpUpdateOne, withMenuItemTranslationID(id))
-	return &MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuItemTranslation.
-func (c *MenuItemTranslationClient) Delete() *MenuItemTranslationDelete {
-	mutation := newMenuItemTranslationMutation(c.config, OpDelete)
-	return &MenuItemTranslationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuItemTranslationClient) DeleteOne(mit *MenuItemTranslation) *MenuItemTranslationDeleteOne {
-	return c.DeleteOneID(mit.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuItemTranslationClient) DeleteOneID(id uuid.UUID) *MenuItemTranslationDeleteOne {
-	builder := c.Delete().Where(menuitemtranslation.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuItemTranslationDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuItemTranslation.
-func (c *MenuItemTranslationClient) Query() *MenuItemTranslationQuery {
-	return &MenuItemTranslationQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuItemTranslation},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuItemTranslation entity by its id.
-func (c *MenuItemTranslationClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemTranslation, error) {
-	return c.Query().Where(menuitemtranslation.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuItemTranslationClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemTranslation {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMenuItem queries the menu_item edge of a MenuItemTranslation.
-func (c *MenuItemTranslationClient) QueryMenuItem(mit *MenuItemTranslation) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mit.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitemtranslation.Table, menuitemtranslation.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuitemtranslation.MenuItemTable, menuitemtranslation.MenuItemColumn),
-		)
-		fromV = sqlgraph.Neighbors(mit.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuItemTranslationClient) Hooks() []Hook {
-	return c.hooks.MenuItemTranslation
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuItemTranslationClient) Interceptors() []Interceptor {
-	return c.inters.MenuItemTranslation
-}
-
-func (c *MenuItemTranslationClient) mutate(ctx context.Context, m *MenuItemTranslationMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuItemTranslationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuItemTranslationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuItemTranslationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuItemTranslationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuItemTranslation mutation op: %q", m.Op())
-	}
-}
-
-// MenuItemVariantClient is a client for the MenuItemVariant schema.
-type MenuItemVariantClient struct {
-	config
-}
-
-// NewMenuItemVariantClient returns a client for the MenuItemVariant from the given config.
-func NewMenuItemVariantClient(c config) *MenuItemVariantClient {
-	return &MenuItemVariantClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuitemvariant.Hooks(f(g(h())))`.
-func (c *MenuItemVariantClient) Use(hooks ...Hook) {
-	c.hooks.MenuItemVariant = append(c.hooks.MenuItemVariant, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuitemvariant.Intercept(f(g(h())))`.
-func (c *MenuItemVariantClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuItemVariant = append(c.inters.MenuItemVariant, interceptors...)
-}
-
-// Create returns a builder for creating a MenuItemVariant entity.
-func (c *MenuItemVariantClient) Create() *MenuItemVariantCreate {
-	mutation := newMenuItemVariantMutation(c.config, OpCreate)
-	return &MenuItemVariantCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuItemVariant entities.
-func (c *MenuItemVariantClient) CreateBulk(builders ...*MenuItemVariantCreate) *MenuItemVariantCreateBulk {
-	return &MenuItemVariantCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *MenuItemVariantClient) MapCreateBulk(slice any, setFunc func(*MenuItemVariantCreate, int)) *MenuItemVariantCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &MenuItemVariantCreateBulk{err: fmt.Errorf("calling to MenuItemVariantClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*MenuItemVariantCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &MenuItemVariantCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuItemVariant.
-func (c *MenuItemVariantClient) Update() *MenuItemVariantUpdate {
-	mutation := newMenuItemVariantMutation(c.config, OpUpdate)
-	return &MenuItemVariantUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuItemVariantClient) UpdateOne(miv *MenuItemVariant) *MenuItemVariantUpdateOne {
-	mutation := newMenuItemVariantMutation(c.config, OpUpdateOne, withMenuItemVariant(miv))
-	return &MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuItemVariantClient) UpdateOneID(id uuid.UUID) *MenuItemVariantUpdateOne {
-	mutation := newMenuItemVariantMutation(c.config, OpUpdateOne, withMenuItemVariantID(id))
-	return &MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuItemVariant.
-func (c *MenuItemVariantClient) Delete() *MenuItemVariantDelete {
-	mutation := newMenuItemVariantMutation(c.config, OpDelete)
-	return &MenuItemVariantDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuItemVariantClient) DeleteOne(miv *MenuItemVariant) *MenuItemVariantDeleteOne {
-	return c.DeleteOneID(miv.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuItemVariantClient) DeleteOneID(id uuid.UUID) *MenuItemVariantDeleteOne {
-	builder := c.Delete().Where(menuitemvariant.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuItemVariantDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuItemVariant.
-func (c *MenuItemVariantClient) Query() *MenuItemVariantQuery {
-	return &MenuItemVariantQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMenuItemVariant},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuItemVariant entity by its id.
-func (c *MenuItemVariantClient) Get(ctx context.Context, id uuid.UUID) (*MenuItemVariant, error) {
-	return c.Query().Where(menuitemvariant.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuItemVariantClient) GetX(ctx context.Context, id uuid.UUID) *MenuItemVariant {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMenuItem queries the menu_item edge of a MenuItemVariant.
-func (c *MenuItemVariantClient) QueryMenuItem(miv *MenuItemVariant) *MenuItemQuery {
-	query := (&MenuItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := miv.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitemvariant.Table, menuitemvariant.FieldID, id),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuitemvariant.MenuItemTable, menuitemvariant.MenuItemColumn),
-		)
-		fromV = sqlgraph.Neighbors(miv.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCartItems queries the cart_items edge of a MenuItemVariant.
-func (c *MenuItemVariantClient) QueryCartItems(miv *MenuItemVariant) *CartItemQuery {
-	query := (&CartItemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := miv.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuitemvariant.Table, menuitemvariant.FieldID, id),
-			sqlgraph.To(cartitem.Table, cartitem.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menuitemvariant.CartItemsTable, menuitemvariant.CartItemsColumn),
-		)
-		fromV = sqlgraph.Neighbors(miv.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuItemVariantClient) Hooks() []Hook {
-	return c.hooks.MenuItemVariant
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuItemVariantClient) Interceptors() []Interceptor {
-	return c.inters.MenuItemVariant
-}
-
-func (c *MenuItemVariantClient) mutate(ctx context.Context, m *MenuItemVariantMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuItemVariantCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuItemVariantUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuItemVariantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuItemVariantDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuItemVariant mutation op: %q", m.Op())
-	}
-}
-
-// NotificationEventClient is a client for the NotificationEvent schema.
-type NotificationEventClient struct {
-	config
-}
-
-// NewNotificationEventClient returns a client for the NotificationEvent from the given config.
-func NewNotificationEventClient(c config) *NotificationEventClient {
-	return &NotificationEventClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `notificationevent.Hooks(f(g(h())))`.
-func (c *NotificationEventClient) Use(hooks ...Hook) {
-	c.hooks.NotificationEvent = append(c.hooks.NotificationEvent, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `notificationevent.Intercept(f(g(h())))`.
-func (c *NotificationEventClient) Intercept(interceptors ...Interceptor) {
-	c.inters.NotificationEvent = append(c.inters.NotificationEvent, interceptors...)
-}
-
-// Create returns a builder for creating a NotificationEvent entity.
-func (c *NotificationEventClient) Create() *NotificationEventCreate {
-	mutation := newNotificationEventMutation(c.config, OpCreate)
-	return &NotificationEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of NotificationEvent entities.
-func (c *NotificationEventClient) CreateBulk(builders ...*NotificationEventCreate) *NotificationEventCreateBulk {
-	return &NotificationEventCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *NotificationEventClient) MapCreateBulk(slice any, setFunc func(*NotificationEventCreate, int)) *NotificationEventCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &NotificationEventCreateBulk{err: fmt.Errorf("calling to NotificationEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*NotificationEventCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &NotificationEventCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for NotificationEvent.
-func (c *NotificationEventClient) Update() *NotificationEventUpdate {
-	mutation := newNotificationEventMutation(c.config, OpUpdate)
-	return &NotificationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *NotificationEventClient) UpdateOne(ne *NotificationEvent) *NotificationEventUpdateOne {
-	mutation := newNotificationEventMutation(c.config, OpUpdateOne, withNotificationEvent(ne))
-	return &NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *NotificationEventClient) UpdateOneID(id uuid.UUID) *NotificationEventUpdateOne {
-	mutation := newNotificationEventMutation(c.config, OpUpdateOne, withNotificationEventID(id))
-	return &NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for NotificationEvent.
-func (c *NotificationEventClient) Delete() *NotificationEventDelete {
-	mutation := newNotificationEventMutation(c.config, OpDelete)
-	return &NotificationEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *NotificationEventClient) DeleteOne(ne *NotificationEvent) *NotificationEventDeleteOne {
-	return c.DeleteOneID(ne.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *NotificationEventClient) DeleteOneID(id uuid.UUID) *NotificationEventDeleteOne {
-	builder := c.Delete().Where(notificationevent.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &NotificationEventDeleteOne{builder}
-}
-
-// Query returns a query builder for NotificationEvent.
-func (c *NotificationEventClient) Query() *NotificationEventQuery {
-	return &NotificationEventQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeNotificationEvent},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a NotificationEvent entity by its id.
-func (c *NotificationEventClient) Get(ctx context.Context, id uuid.UUID) (*NotificationEvent, error) {
-	return c.Query().Where(notificationevent.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *NotificationEventClient) GetX(ctx context.Context, id uuid.UUID) *NotificationEvent {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *NotificationEventClient) Hooks() []Hook {
-	return c.hooks.NotificationEvent
-}
-
-// Interceptors returns the client interceptors.
-func (c *NotificationEventClient) Interceptors() []Interceptor {
-	return c.inters.NotificationEvent
-}
-
-func (c *NotificationEventClient) mutate(ctx context.Context, m *NotificationEventMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&NotificationEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&NotificationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&NotificationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&NotificationEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown NotificationEvent mutation op: %q", m.Op())
-	}
-}
-
-// NotificationSubscriptionClient is a client for the NotificationSubscription schema.
-type NotificationSubscriptionClient struct {
-	config
-}
-
-// NewNotificationSubscriptionClient returns a client for the NotificationSubscription from the given config.
-func NewNotificationSubscriptionClient(c config) *NotificationSubscriptionClient {
-	return &NotificationSubscriptionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `notificationsubscription.Hooks(f(g(h())))`.
-func (c *NotificationSubscriptionClient) Use(hooks ...Hook) {
-	c.hooks.NotificationSubscription = append(c.hooks.NotificationSubscription, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `notificationsubscription.Intercept(f(g(h())))`.
-func (c *NotificationSubscriptionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.NotificationSubscription = append(c.inters.NotificationSubscription, interceptors...)
-}
-
-// Create returns a builder for creating a NotificationSubscription entity.
-func (c *NotificationSubscriptionClient) Create() *NotificationSubscriptionCreate {
-	mutation := newNotificationSubscriptionMutation(c.config, OpCreate)
-	return &NotificationSubscriptionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of NotificationSubscription entities.
-func (c *NotificationSubscriptionClient) CreateBulk(builders ...*NotificationSubscriptionCreate) *NotificationSubscriptionCreateBulk {
-	return &NotificationSubscriptionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *NotificationSubscriptionClient) MapCreateBulk(slice any, setFunc func(*NotificationSubscriptionCreate, int)) *NotificationSubscriptionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &NotificationSubscriptionCreateBulk{err: fmt.Errorf("calling to NotificationSubscriptionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*NotificationSubscriptionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &NotificationSubscriptionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for NotificationSubscription.
-func (c *NotificationSubscriptionClient) Update() *NotificationSubscriptionUpdate {
-	mutation := newNotificationSubscriptionMutation(c.config, OpUpdate)
-	return &NotificationSubscriptionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *NotificationSubscriptionClient) UpdateOne(ns *NotificationSubscription) *NotificationSubscriptionUpdateOne {
-	mutation := newNotificationSubscriptionMutation(c.config, OpUpdateOne, withNotificationSubscription(ns))
-	return &NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *NotificationSubscriptionClient) UpdateOneID(id uuid.UUID) *NotificationSubscriptionUpdateOne {
-	mutation := newNotificationSubscriptionMutation(c.config, OpUpdateOne, withNotificationSubscriptionID(id))
-	return &NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for NotificationSubscription.
-func (c *NotificationSubscriptionClient) Delete() *NotificationSubscriptionDelete {
-	mutation := newNotificationSubscriptionMutation(c.config, OpDelete)
-	return &NotificationSubscriptionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *NotificationSubscriptionClient) DeleteOne(ns *NotificationSubscription) *NotificationSubscriptionDeleteOne {
-	return c.DeleteOneID(ns.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *NotificationSubscriptionClient) DeleteOneID(id uuid.UUID) *NotificationSubscriptionDeleteOne {
-	builder := c.Delete().Where(notificationsubscription.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &NotificationSubscriptionDeleteOne{builder}
-}
-
-// Query returns a query builder for NotificationSubscription.
-func (c *NotificationSubscriptionClient) Query() *NotificationSubscriptionQuery {
-	return &NotificationSubscriptionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeNotificationSubscription},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a NotificationSubscription entity by its id.
-func (c *NotificationSubscriptionClient) Get(ctx context.Context, id uuid.UUID) (*NotificationSubscription, error) {
-	return c.Query().Where(notificationsubscription.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *NotificationSubscriptionClient) GetX(ctx context.Context, id uuid.UUID) *NotificationSubscription {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *NotificationSubscriptionClient) Hooks() []Hook {
-	return c.hooks.NotificationSubscription
-}
-
-// Interceptors returns the client interceptors.
-func (c *NotificationSubscriptionClient) Interceptors() []Interceptor {
-	return c.inters.NotificationSubscription
-}
-
-func (c *NotificationSubscriptionClient) mutate(ctx context.Context, m *NotificationSubscriptionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&NotificationSubscriptionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&NotificationSubscriptionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&NotificationSubscriptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&NotificationSubscriptionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown NotificationSubscription mutation op: %q", m.Op())
-	}
-}
-
-// NotificationTemplateClient is a client for the NotificationTemplate schema.
-type NotificationTemplateClient struct {
-	config
-}
-
-// NewNotificationTemplateClient returns a client for the NotificationTemplate from the given config.
-func NewNotificationTemplateClient(c config) *NotificationTemplateClient {
-	return &NotificationTemplateClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `notificationtemplate.Hooks(f(g(h())))`.
-func (c *NotificationTemplateClient) Use(hooks ...Hook) {
-	c.hooks.NotificationTemplate = append(c.hooks.NotificationTemplate, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `notificationtemplate.Intercept(f(g(h())))`.
-func (c *NotificationTemplateClient) Intercept(interceptors ...Interceptor) {
-	c.inters.NotificationTemplate = append(c.inters.NotificationTemplate, interceptors...)
-}
-
-// Create returns a builder for creating a NotificationTemplate entity.
-func (c *NotificationTemplateClient) Create() *NotificationTemplateCreate {
-	mutation := newNotificationTemplateMutation(c.config, OpCreate)
-	return &NotificationTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of NotificationTemplate entities.
-func (c *NotificationTemplateClient) CreateBulk(builders ...*NotificationTemplateCreate) *NotificationTemplateCreateBulk {
-	return &NotificationTemplateCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *NotificationTemplateClient) MapCreateBulk(slice any, setFunc func(*NotificationTemplateCreate, int)) *NotificationTemplateCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &NotificationTemplateCreateBulk{err: fmt.Errorf("calling to NotificationTemplateClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*NotificationTemplateCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &NotificationTemplateCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for NotificationTemplate.
-func (c *NotificationTemplateClient) Update() *NotificationTemplateUpdate {
-	mutation := newNotificationTemplateMutation(c.config, OpUpdate)
-	return &NotificationTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *NotificationTemplateClient) UpdateOne(nt *NotificationTemplate) *NotificationTemplateUpdateOne {
-	mutation := newNotificationTemplateMutation(c.config, OpUpdateOne, withNotificationTemplate(nt))
-	return &NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *NotificationTemplateClient) UpdateOneID(id uuid.UUID) *NotificationTemplateUpdateOne {
-	mutation := newNotificationTemplateMutation(c.config, OpUpdateOne, withNotificationTemplateID(id))
-	return &NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for NotificationTemplate.
-func (c *NotificationTemplateClient) Delete() *NotificationTemplateDelete {
-	mutation := newNotificationTemplateMutation(c.config, OpDelete)
-	return &NotificationTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *NotificationTemplateClient) DeleteOne(nt *NotificationTemplate) *NotificationTemplateDeleteOne {
-	return c.DeleteOneID(nt.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *NotificationTemplateClient) DeleteOneID(id uuid.UUID) *NotificationTemplateDeleteOne {
-	builder := c.Delete().Where(notificationtemplate.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &NotificationTemplateDeleteOne{builder}
-}
-
-// Query returns a query builder for NotificationTemplate.
-func (c *NotificationTemplateClient) Query() *NotificationTemplateQuery {
-	return &NotificationTemplateQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeNotificationTemplate},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a NotificationTemplate entity by its id.
-func (c *NotificationTemplateClient) Get(ctx context.Context, id uuid.UUID) (*NotificationTemplate, error) {
-	return c.Query().Where(notificationtemplate.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *NotificationTemplateClient) GetX(ctx context.Context, id uuid.UUID) *NotificationTemplate {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *NotificationTemplateClient) Hooks() []Hook {
-	return c.hooks.NotificationTemplate
-}
-
-// Interceptors returns the client interceptors.
-func (c *NotificationTemplateClient) Interceptors() []Interceptor {
-	return c.inters.NotificationTemplate
-}
-
-func (c *NotificationTemplateClient) mutate(ctx context.Context, m *NotificationTemplateMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&NotificationTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&NotificationTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&NotificationTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&NotificationTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown NotificationTemplate mutation op: %q", m.Op())
-	}
-}
-
-// OAuthAccountClient is a client for the OAuthAccount schema.
-type OAuthAccountClient struct {
-	config
-}
-
-// NewOAuthAccountClient returns a client for the OAuthAccount from the given config.
-func NewOAuthAccountClient(c config) *OAuthAccountClient {
-	return &OAuthAccountClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `oauthaccount.Hooks(f(g(h())))`.
-func (c *OAuthAccountClient) Use(hooks ...Hook) {
-	c.hooks.OAuthAccount = append(c.hooks.OAuthAccount, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `oauthaccount.Intercept(f(g(h())))`.
-func (c *OAuthAccountClient) Intercept(interceptors ...Interceptor) {
-	c.inters.OAuthAccount = append(c.inters.OAuthAccount, interceptors...)
-}
-
-// Create returns a builder for creating a OAuthAccount entity.
-func (c *OAuthAccountClient) Create() *OAuthAccountCreate {
-	mutation := newOAuthAccountMutation(c.config, OpCreate)
-	return &OAuthAccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of OAuthAccount entities.
-func (c *OAuthAccountClient) CreateBulk(builders ...*OAuthAccountCreate) *OAuthAccountCreateBulk {
-	return &OAuthAccountCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *OAuthAccountClient) MapCreateBulk(slice any, setFunc func(*OAuthAccountCreate, int)) *OAuthAccountCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &OAuthAccountCreateBulk{err: fmt.Errorf("calling to OAuthAccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*OAuthAccountCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &OAuthAccountCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for OAuthAccount.
-func (c *OAuthAccountClient) Update() *OAuthAccountUpdate {
-	mutation := newOAuthAccountMutation(c.config, OpUpdate)
-	return &OAuthAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *OAuthAccountClient) UpdateOne(oa *OAuthAccount) *OAuthAccountUpdateOne {
-	mutation := newOAuthAccountMutation(c.config, OpUpdateOne, withOAuthAccount(oa))
-	return &OAuthAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *OAuthAccountClient) UpdateOneID(id uuid.UUID) *OAuthAccountUpdateOne {
-	mutation := newOAuthAccountMutation(c.config, OpUpdateOne, withOAuthAccountID(id))
-	return &OAuthAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for OAuthAccount.
-func (c *OAuthAccountClient) Delete() *OAuthAccountDelete {
-	mutation := newOAuthAccountMutation(c.config, OpDelete)
-	return &OAuthAccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *OAuthAccountClient) DeleteOne(oa *OAuthAccount) *OAuthAccountDeleteOne {
-	return c.DeleteOneID(oa.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *OAuthAccountClient) DeleteOneID(id uuid.UUID) *OAuthAccountDeleteOne {
-	builder := c.Delete().Where(oauthaccount.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &OAuthAccountDeleteOne{builder}
-}
-
-// Query returns a query builder for OAuthAccount.
-func (c *OAuthAccountClient) Query() *OAuthAccountQuery {
-	return &OAuthAccountQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeOAuthAccount},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a OAuthAccount entity by its id.
-func (c *OAuthAccountClient) Get(ctx context.Context, id uuid.UUID) (*OAuthAccount, error) {
-	return c.Query().Where(oauthaccount.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *OAuthAccountClient) GetX(ctx context.Context, id uuid.UUID) *OAuthAccount {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a OAuthAccount.
-func (c *OAuthAccountClient) QueryUser(oa *OAuthAccount) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := oa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(oauthaccount.Table, oauthaccount.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, oauthaccount.UserTable, oauthaccount.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(oa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *OAuthAccountClient) Hooks() []Hook {
-	return c.hooks.OAuthAccount
-}
-
-// Interceptors returns the client interceptors.
-func (c *OAuthAccountClient) Interceptors() []Interceptor {
-	return c.inters.OAuthAccount
-}
-
-func (c *OAuthAccountClient) mutate(ctx context.Context, m *OAuthAccountMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&OAuthAccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&OAuthAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&OAuthAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&OAuthAccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown OAuthAccount mutation op: %q", m.Op())
-	}
-}
-
 // OrderClient is a client for the Order schema.
 type OrderClient struct {
 	config
@@ -4414,38 +2985,6 @@ func (c *OrderClient) QueryEvents(o *Order) *OrderEventQuery {
 	return query
 }
 
-// QueryPaymentIntents queries the payment_intents edge of a Order.
-func (c *OrderClient) QueryPaymentIntents(o *Order) *PaymentIntentQuery {
-	query := (&PaymentIntentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := o.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(order.Table, order.FieldID, id),
-			sqlgraph.To(paymentintent.Table, paymentintent.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, order.PaymentIntentsTable, order.PaymentIntentsColumn),
-		)
-		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryPayments queries the payments edge of a Order.
-func (c *OrderClient) QueryPayments(o *Order) *PaymentQuery {
-	query := (&PaymentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := o.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(order.Table, order.FieldID, id),
-			sqlgraph.To(payment.Table, payment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, order.PaymentsTable, order.PaymentsColumn),
-		)
-		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryAssignments queries the assignments edge of a Order.
 func (c *OrderClient) QueryAssignments(o *Order) *OrderAssignmentQuery {
 	query := (&OrderAssignmentClient{config: c.config}).Query()
@@ -4455,6 +2994,22 @@ func (c *OrderClient) QueryAssignments(o *Order) *OrderAssignmentQuery {
 			sqlgraph.From(order.Table, order.FieldID, id),
 			sqlgraph.To(orderassignment.Table, orderassignment.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, order.AssignmentsTable, order.AssignmentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOutlet queries the outlet edge of a Order.
+func (c *OrderClient) QueryOutlet(o *Order) *OutletQuery {
+	query := (&OutletClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := o.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, id),
+			sqlgraph.To(outlet.Table, outlet.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, order.OutletTable, order.OutletColumn),
 		)
 		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
 		return fromV, nil
@@ -4652,22 +3207,6 @@ func (c *OrderAssignmentClient) QueryDeliveryWindows(oa *OrderAssignment) *Deliv
 			sqlgraph.From(orderassignment.Table, orderassignment.FieldID, id),
 			sqlgraph.To(deliverywindow.Table, deliverywindow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, orderassignment.DeliveryWindowsTable, orderassignment.DeliveryWindowsColumn),
-		)
-		fromV = sqlgraph.Neighbors(oa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProofOfDelivery queries the proof_of_delivery edge of a OrderAssignment.
-func (c *OrderAssignmentClient) QueryProofOfDelivery(oa *OrderAssignment) *ProofOfDeliveryQuery {
-	query := (&ProofOfDeliveryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := oa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(orderassignment.Table, orderassignment.FieldID, id),
-			sqlgraph.To(proofofdelivery.Table, proofofdelivery.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, orderassignment.ProofOfDeliveryTable, orderassignment.ProofOfDeliveryColumn),
 		)
 		fromV = sqlgraph.Neighbors(oa.driver.Dialect(), step)
 		return fromV, nil
@@ -5131,107 +3670,107 @@ func (c *OutboxEventClient) mutate(ctx context.Context, m *OutboxEventMutation) 
 	}
 }
 
-// PaymentClient is a client for the Payment schema.
-type PaymentClient struct {
+// OutletClient is a client for the Outlet schema.
+type OutletClient struct {
 	config
 }
 
-// NewPaymentClient returns a client for the Payment from the given config.
-func NewPaymentClient(c config) *PaymentClient {
-	return &PaymentClient{config: c}
+// NewOutletClient returns a client for the Outlet from the given config.
+func NewOutletClient(c config) *OutletClient {
+	return &OutletClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `payment.Hooks(f(g(h())))`.
-func (c *PaymentClient) Use(hooks ...Hook) {
-	c.hooks.Payment = append(c.hooks.Payment, hooks...)
+// A call to `Use(f, g, h)` equals to `outlet.Hooks(f(g(h())))`.
+func (c *OutletClient) Use(hooks ...Hook) {
+	c.hooks.Outlet = append(c.hooks.Outlet, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `payment.Intercept(f(g(h())))`.
-func (c *PaymentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Payment = append(c.inters.Payment, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `outlet.Intercept(f(g(h())))`.
+func (c *OutletClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Outlet = append(c.inters.Outlet, interceptors...)
 }
 
-// Create returns a builder for creating a Payment entity.
-func (c *PaymentClient) Create() *PaymentCreate {
-	mutation := newPaymentMutation(c.config, OpCreate)
-	return &PaymentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Outlet entity.
+func (c *OutletClient) Create() *OutletCreate {
+	mutation := newOutletMutation(c.config, OpCreate)
+	return &OutletCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Payment entities.
-func (c *PaymentClient) CreateBulk(builders ...*PaymentCreate) *PaymentCreateBulk {
-	return &PaymentCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Outlet entities.
+func (c *OutletClient) CreateBulk(builders ...*OutletCreate) *OutletCreateBulk {
+	return &OutletCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *PaymentClient) MapCreateBulk(slice any, setFunc func(*PaymentCreate, int)) *PaymentCreateBulk {
+func (c *OutletClient) MapCreateBulk(slice any, setFunc func(*OutletCreate, int)) *OutletCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &PaymentCreateBulk{err: fmt.Errorf("calling to PaymentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &OutletCreateBulk{err: fmt.Errorf("calling to OutletClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*PaymentCreate, rv.Len())
+	builders := make([]*OutletCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &PaymentCreateBulk{config: c.config, builders: builders}
+	return &OutletCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Payment.
-func (c *PaymentClient) Update() *PaymentUpdate {
-	mutation := newPaymentMutation(c.config, OpUpdate)
-	return &PaymentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Outlet.
+func (c *OutletClient) Update() *OutletUpdate {
+	mutation := newOutletMutation(c.config, OpUpdate)
+	return &OutletUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *PaymentClient) UpdateOne(pa *Payment) *PaymentUpdateOne {
-	mutation := newPaymentMutation(c.config, OpUpdateOne, withPayment(pa))
-	return &PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *OutletClient) UpdateOne(o *Outlet) *OutletUpdateOne {
+	mutation := newOutletMutation(c.config, OpUpdateOne, withOutlet(o))
+	return &OutletUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PaymentClient) UpdateOneID(id uuid.UUID) *PaymentUpdateOne {
-	mutation := newPaymentMutation(c.config, OpUpdateOne, withPaymentID(id))
-	return &PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *OutletClient) UpdateOneID(id uuid.UUID) *OutletUpdateOne {
+	mutation := newOutletMutation(c.config, OpUpdateOne, withOutletID(id))
+	return &OutletUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Payment.
-func (c *PaymentClient) Delete() *PaymentDelete {
-	mutation := newPaymentMutation(c.config, OpDelete)
-	return &PaymentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Outlet.
+func (c *OutletClient) Delete() *OutletDelete {
+	mutation := newOutletMutation(c.config, OpDelete)
+	return &OutletDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *PaymentClient) DeleteOne(pa *Payment) *PaymentDeleteOne {
-	return c.DeleteOneID(pa.ID)
+func (c *OutletClient) DeleteOne(o *Outlet) *OutletDeleteOne {
+	return c.DeleteOneID(o.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PaymentClient) DeleteOneID(id uuid.UUID) *PaymentDeleteOne {
-	builder := c.Delete().Where(payment.ID(id))
+func (c *OutletClient) DeleteOneID(id uuid.UUID) *OutletDeleteOne {
+	builder := c.Delete().Where(outlet.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &PaymentDeleteOne{builder}
+	return &OutletDeleteOne{builder}
 }
 
-// Query returns a query builder for Payment.
-func (c *PaymentClient) Query() *PaymentQuery {
-	return &PaymentQuery{
+// Query returns a query builder for Outlet.
+func (c *OutletClient) Query() *OutletQuery {
+	return &OutletQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypePayment},
+		ctx:    &QueryContext{Type: TypeOutlet},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Payment entity by its id.
-func (c *PaymentClient) Get(ctx context.Context, id uuid.UUID) (*Payment, error) {
-	return c.Query().Where(payment.ID(id)).Only(ctx)
+// Get returns a Outlet entity by its id.
+func (c *OutletClient) Get(ctx context.Context, id uuid.UUID) (*Outlet, error) {
+	return c.Query().Where(outlet.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PaymentClient) GetX(ctx context.Context, id uuid.UUID) *Payment {
+func (c *OutletClient) GetX(ctx context.Context, id uuid.UUID) *Outlet {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -5239,422 +3778,92 @@ func (c *PaymentClient) GetX(ctx context.Context, id uuid.UUID) *Payment {
 	return obj
 }
 
-// QueryPaymentIntent queries the payment_intent edge of a Payment.
-func (c *PaymentClient) QueryPaymentIntent(pa *Payment) *PaymentIntentQuery {
-	query := (&PaymentIntentClient{config: c.config}).Query()
+// QueryTenant queries the tenant edge of a Outlet.
+func (c *OutletClient) QueryTenant(o *Outlet) *TenantQuery {
+	query := (&TenantClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pa.ID
+		id := o.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(payment.Table, payment.FieldID, id),
-			sqlgraph.To(paymentintent.Table, paymentintent.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, payment.PaymentIntentTable, payment.PaymentIntentColumn),
+			sqlgraph.From(outlet.Table, outlet.FieldID, id),
+			sqlgraph.To(tenant.Table, tenant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, outlet.TenantTable, outlet.TenantColumn),
 		)
-		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
-// QueryOrder queries the order edge of a Payment.
-func (c *PaymentClient) QueryOrder(pa *Payment) *OrderQuery {
+// QueryCatalogCategories queries the catalog_categories edge of a Outlet.
+func (c *OutletClient) QueryCatalogCategories(o *Outlet) *CatalogCategoryQuery {
+	query := (&CatalogCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := o.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(outlet.Table, outlet.FieldID, id),
+			sqlgraph.To(catalogcategory.Table, catalogcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, outlet.CatalogCategoriesTable, outlet.CatalogCategoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCatalogItems queries the catalog_items edge of a Outlet.
+func (c *OutletClient) QueryCatalogItems(o *Outlet) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := o.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(outlet.Table, outlet.FieldID, id),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, outlet.CatalogItemsTable, outlet.CatalogItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOrders queries the orders edge of a Outlet.
+func (c *OutletClient) QueryOrders(o *Outlet) *OrderQuery {
 	query := (&OrderClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pa.ID
+		id := o.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(payment.Table, payment.FieldID, id),
+			sqlgraph.From(outlet.Table, outlet.FieldID, id),
 			sqlgraph.To(order.Table, order.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, payment.OrderTable, payment.OrderColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, outlet.OrdersTable, outlet.OrdersColumn),
 		)
-		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryRefunds queries the refunds edge of a Payment.
-func (c *PaymentClient) QueryRefunds(pa *Payment) *RefundQuery {
-	query := (&RefundClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(payment.Table, payment.FieldID, id),
-			sqlgraph.To(refund.Table, refund.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, payment.RefundsTable, payment.RefundsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *PaymentClient) Hooks() []Hook {
-	return c.hooks.Payment
+func (c *OutletClient) Hooks() []Hook {
+	return c.hooks.Outlet
 }
 
 // Interceptors returns the client interceptors.
-func (c *PaymentClient) Interceptors() []Interceptor {
-	return c.inters.Payment
+func (c *OutletClient) Interceptors() []Interceptor {
+	return c.inters.Outlet
 }
 
-func (c *PaymentClient) mutate(ctx context.Context, m *PaymentMutation) (Value, error) {
+func (c *OutletClient) mutate(ctx context.Context, m *OutletMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&PaymentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&OutletCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&PaymentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&OutletUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&OutletUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&PaymentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&OutletDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Payment mutation op: %q", m.Op())
-	}
-}
-
-// PaymentIntentClient is a client for the PaymentIntent schema.
-type PaymentIntentClient struct {
-	config
-}
-
-// NewPaymentIntentClient returns a client for the PaymentIntent from the given config.
-func NewPaymentIntentClient(c config) *PaymentIntentClient {
-	return &PaymentIntentClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `paymentintent.Hooks(f(g(h())))`.
-func (c *PaymentIntentClient) Use(hooks ...Hook) {
-	c.hooks.PaymentIntent = append(c.hooks.PaymentIntent, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `paymentintent.Intercept(f(g(h())))`.
-func (c *PaymentIntentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.PaymentIntent = append(c.inters.PaymentIntent, interceptors...)
-}
-
-// Create returns a builder for creating a PaymentIntent entity.
-func (c *PaymentIntentClient) Create() *PaymentIntentCreate {
-	mutation := newPaymentIntentMutation(c.config, OpCreate)
-	return &PaymentIntentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of PaymentIntent entities.
-func (c *PaymentIntentClient) CreateBulk(builders ...*PaymentIntentCreate) *PaymentIntentCreateBulk {
-	return &PaymentIntentCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PaymentIntentClient) MapCreateBulk(slice any, setFunc func(*PaymentIntentCreate, int)) *PaymentIntentCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PaymentIntentCreateBulk{err: fmt.Errorf("calling to PaymentIntentClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PaymentIntentCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PaymentIntentCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for PaymentIntent.
-func (c *PaymentIntentClient) Update() *PaymentIntentUpdate {
-	mutation := newPaymentIntentMutation(c.config, OpUpdate)
-	return &PaymentIntentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PaymentIntentClient) UpdateOne(pi *PaymentIntent) *PaymentIntentUpdateOne {
-	mutation := newPaymentIntentMutation(c.config, OpUpdateOne, withPaymentIntent(pi))
-	return &PaymentIntentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PaymentIntentClient) UpdateOneID(id uuid.UUID) *PaymentIntentUpdateOne {
-	mutation := newPaymentIntentMutation(c.config, OpUpdateOne, withPaymentIntentID(id))
-	return &PaymentIntentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for PaymentIntent.
-func (c *PaymentIntentClient) Delete() *PaymentIntentDelete {
-	mutation := newPaymentIntentMutation(c.config, OpDelete)
-	return &PaymentIntentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PaymentIntentClient) DeleteOne(pi *PaymentIntent) *PaymentIntentDeleteOne {
-	return c.DeleteOneID(pi.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PaymentIntentClient) DeleteOneID(id uuid.UUID) *PaymentIntentDeleteOne {
-	builder := c.Delete().Where(paymentintent.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PaymentIntentDeleteOne{builder}
-}
-
-// Query returns a query builder for PaymentIntent.
-func (c *PaymentIntentClient) Query() *PaymentIntentQuery {
-	return &PaymentIntentQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePaymentIntent},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a PaymentIntent entity by its id.
-func (c *PaymentIntentClient) Get(ctx context.Context, id uuid.UUID) (*PaymentIntent, error) {
-	return c.Query().Where(paymentintent.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PaymentIntentClient) GetX(ctx context.Context, id uuid.UUID) *PaymentIntent {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryOrder queries the order edge of a PaymentIntent.
-func (c *PaymentIntentClient) QueryOrder(pi *PaymentIntent) *OrderQuery {
-	query := (&OrderClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(paymentintent.Table, paymentintent.FieldID, id),
-			sqlgraph.To(order.Table, order.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, paymentintent.OrderTable, paymentintent.OrderColumn),
-		)
-		fromV = sqlgraph.Neighbors(pi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryPaymentMethod queries the payment_method edge of a PaymentIntent.
-func (c *PaymentIntentClient) QueryPaymentMethod(pi *PaymentIntent) *PaymentMethodQuery {
-	query := (&PaymentMethodClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(paymentintent.Table, paymentintent.FieldID, id),
-			sqlgraph.To(paymentmethod.Table, paymentmethod.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, paymentintent.PaymentMethodTable, paymentintent.PaymentMethodColumn),
-		)
-		fromV = sqlgraph.Neighbors(pi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryPayments queries the payments edge of a PaymentIntent.
-func (c *PaymentIntentClient) QueryPayments(pi *PaymentIntent) *PaymentQuery {
-	query := (&PaymentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pi.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(paymentintent.Table, paymentintent.FieldID, id),
-			sqlgraph.To(payment.Table, payment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, paymentintent.PaymentsTable, paymentintent.PaymentsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pi.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PaymentIntentClient) Hooks() []Hook {
-	return c.hooks.PaymentIntent
-}
-
-// Interceptors returns the client interceptors.
-func (c *PaymentIntentClient) Interceptors() []Interceptor {
-	return c.inters.PaymentIntent
-}
-
-func (c *PaymentIntentClient) mutate(ctx context.Context, m *PaymentIntentMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PaymentIntentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PaymentIntentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PaymentIntentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PaymentIntentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown PaymentIntent mutation op: %q", m.Op())
-	}
-}
-
-// PaymentMethodClient is a client for the PaymentMethod schema.
-type PaymentMethodClient struct {
-	config
-}
-
-// NewPaymentMethodClient returns a client for the PaymentMethod from the given config.
-func NewPaymentMethodClient(c config) *PaymentMethodClient {
-	return &PaymentMethodClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `paymentmethod.Hooks(f(g(h())))`.
-func (c *PaymentMethodClient) Use(hooks ...Hook) {
-	c.hooks.PaymentMethod = append(c.hooks.PaymentMethod, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `paymentmethod.Intercept(f(g(h())))`.
-func (c *PaymentMethodClient) Intercept(interceptors ...Interceptor) {
-	c.inters.PaymentMethod = append(c.inters.PaymentMethod, interceptors...)
-}
-
-// Create returns a builder for creating a PaymentMethod entity.
-func (c *PaymentMethodClient) Create() *PaymentMethodCreate {
-	mutation := newPaymentMethodMutation(c.config, OpCreate)
-	return &PaymentMethodCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of PaymentMethod entities.
-func (c *PaymentMethodClient) CreateBulk(builders ...*PaymentMethodCreate) *PaymentMethodCreateBulk {
-	return &PaymentMethodCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PaymentMethodClient) MapCreateBulk(slice any, setFunc func(*PaymentMethodCreate, int)) *PaymentMethodCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PaymentMethodCreateBulk{err: fmt.Errorf("calling to PaymentMethodClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PaymentMethodCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PaymentMethodCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for PaymentMethod.
-func (c *PaymentMethodClient) Update() *PaymentMethodUpdate {
-	mutation := newPaymentMethodMutation(c.config, OpUpdate)
-	return &PaymentMethodUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PaymentMethodClient) UpdateOne(pm *PaymentMethod) *PaymentMethodUpdateOne {
-	mutation := newPaymentMethodMutation(c.config, OpUpdateOne, withPaymentMethod(pm))
-	return &PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PaymentMethodClient) UpdateOneID(id uuid.UUID) *PaymentMethodUpdateOne {
-	mutation := newPaymentMethodMutation(c.config, OpUpdateOne, withPaymentMethodID(id))
-	return &PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for PaymentMethod.
-func (c *PaymentMethodClient) Delete() *PaymentMethodDelete {
-	mutation := newPaymentMethodMutation(c.config, OpDelete)
-	return &PaymentMethodDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PaymentMethodClient) DeleteOne(pm *PaymentMethod) *PaymentMethodDeleteOne {
-	return c.DeleteOneID(pm.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PaymentMethodClient) DeleteOneID(id uuid.UUID) *PaymentMethodDeleteOne {
-	builder := c.Delete().Where(paymentmethod.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PaymentMethodDeleteOne{builder}
-}
-
-// Query returns a query builder for PaymentMethod.
-func (c *PaymentMethodClient) Query() *PaymentMethodQuery {
-	return &PaymentMethodQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePaymentMethod},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a PaymentMethod entity by its id.
-func (c *PaymentMethodClient) Get(ctx context.Context, id uuid.UUID) (*PaymentMethod, error) {
-	return c.Query().Where(paymentmethod.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PaymentMethodClient) GetX(ctx context.Context, id uuid.UUID) *PaymentMethod {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a PaymentMethod.
-func (c *PaymentMethodClient) QueryUser(pm *PaymentMethod) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pm.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(paymentmethod.Table, paymentmethod.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, paymentmethod.UserTable, paymentmethod.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(pm.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryPaymentIntents queries the payment_intents edge of a PaymentMethod.
-func (c *PaymentMethodClient) QueryPaymentIntents(pm *PaymentMethod) *PaymentIntentQuery {
-	query := (&PaymentIntentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pm.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(paymentmethod.Table, paymentmethod.FieldID, id),
-			sqlgraph.To(paymentintent.Table, paymentintent.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, paymentmethod.PaymentIntentsTable, paymentmethod.PaymentIntentsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pm.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PaymentMethodClient) Hooks() []Hook {
-	return c.hooks.PaymentMethod
-}
-
-// Interceptors returns the client interceptors.
-func (c *PaymentMethodClient) Interceptors() []Interceptor {
-	return c.inters.PaymentMethod
-}
-
-func (c *PaymentMethodClient) mutate(ctx context.Context, m *PaymentMethodMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PaymentMethodCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PaymentMethodUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PaymentMethodDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown PaymentMethod mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown Outlet mutation op: %q", m.Op())
 	}
 }
 
@@ -6105,304 +4314,6 @@ func (c *PromoRedemptionClient) mutate(ctx context.Context, m *PromoRedemptionMu
 	}
 }
 
-// ProofOfDeliveryClient is a client for the ProofOfDelivery schema.
-type ProofOfDeliveryClient struct {
-	config
-}
-
-// NewProofOfDeliveryClient returns a client for the ProofOfDelivery from the given config.
-func NewProofOfDeliveryClient(c config) *ProofOfDeliveryClient {
-	return &ProofOfDeliveryClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `proofofdelivery.Hooks(f(g(h())))`.
-func (c *ProofOfDeliveryClient) Use(hooks ...Hook) {
-	c.hooks.ProofOfDelivery = append(c.hooks.ProofOfDelivery, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `proofofdelivery.Intercept(f(g(h())))`.
-func (c *ProofOfDeliveryClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ProofOfDelivery = append(c.inters.ProofOfDelivery, interceptors...)
-}
-
-// Create returns a builder for creating a ProofOfDelivery entity.
-func (c *ProofOfDeliveryClient) Create() *ProofOfDeliveryCreate {
-	mutation := newProofOfDeliveryMutation(c.config, OpCreate)
-	return &ProofOfDeliveryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ProofOfDelivery entities.
-func (c *ProofOfDeliveryClient) CreateBulk(builders ...*ProofOfDeliveryCreate) *ProofOfDeliveryCreateBulk {
-	return &ProofOfDeliveryCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ProofOfDeliveryClient) MapCreateBulk(slice any, setFunc func(*ProofOfDeliveryCreate, int)) *ProofOfDeliveryCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ProofOfDeliveryCreateBulk{err: fmt.Errorf("calling to ProofOfDeliveryClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ProofOfDeliveryCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ProofOfDeliveryCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ProofOfDelivery.
-func (c *ProofOfDeliveryClient) Update() *ProofOfDeliveryUpdate {
-	mutation := newProofOfDeliveryMutation(c.config, OpUpdate)
-	return &ProofOfDeliveryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ProofOfDeliveryClient) UpdateOne(pod *ProofOfDelivery) *ProofOfDeliveryUpdateOne {
-	mutation := newProofOfDeliveryMutation(c.config, OpUpdateOne, withProofOfDelivery(pod))
-	return &ProofOfDeliveryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ProofOfDeliveryClient) UpdateOneID(id uuid.UUID) *ProofOfDeliveryUpdateOne {
-	mutation := newProofOfDeliveryMutation(c.config, OpUpdateOne, withProofOfDeliveryID(id))
-	return &ProofOfDeliveryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ProofOfDelivery.
-func (c *ProofOfDeliveryClient) Delete() *ProofOfDeliveryDelete {
-	mutation := newProofOfDeliveryMutation(c.config, OpDelete)
-	return &ProofOfDeliveryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ProofOfDeliveryClient) DeleteOne(pod *ProofOfDelivery) *ProofOfDeliveryDeleteOne {
-	return c.DeleteOneID(pod.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProofOfDeliveryClient) DeleteOneID(id uuid.UUID) *ProofOfDeliveryDeleteOne {
-	builder := c.Delete().Where(proofofdelivery.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ProofOfDeliveryDeleteOne{builder}
-}
-
-// Query returns a query builder for ProofOfDelivery.
-func (c *ProofOfDeliveryClient) Query() *ProofOfDeliveryQuery {
-	return &ProofOfDeliveryQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeProofOfDelivery},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a ProofOfDelivery entity by its id.
-func (c *ProofOfDeliveryClient) Get(ctx context.Context, id uuid.UUID) (*ProofOfDelivery, error) {
-	return c.Query().Where(proofofdelivery.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ProofOfDeliveryClient) GetX(ctx context.Context, id uuid.UUID) *ProofOfDelivery {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAssignment queries the assignment edge of a ProofOfDelivery.
-func (c *ProofOfDeliveryClient) QueryAssignment(pod *ProofOfDelivery) *OrderAssignmentQuery {
-	query := (&OrderAssignmentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pod.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(proofofdelivery.Table, proofofdelivery.FieldID, id),
-			sqlgraph.To(orderassignment.Table, orderassignment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, proofofdelivery.AssignmentTable, proofofdelivery.AssignmentColumn),
-		)
-		fromV = sqlgraph.Neighbors(pod.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ProofOfDeliveryClient) Hooks() []Hook {
-	return c.hooks.ProofOfDelivery
-}
-
-// Interceptors returns the client interceptors.
-func (c *ProofOfDeliveryClient) Interceptors() []Interceptor {
-	return c.inters.ProofOfDelivery
-}
-
-func (c *ProofOfDeliveryClient) mutate(ctx context.Context, m *ProofOfDeliveryMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ProofOfDeliveryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ProofOfDeliveryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ProofOfDeliveryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ProofOfDeliveryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown ProofOfDelivery mutation op: %q", m.Op())
-	}
-}
-
-// RefundClient is a client for the Refund schema.
-type RefundClient struct {
-	config
-}
-
-// NewRefundClient returns a client for the Refund from the given config.
-func NewRefundClient(c config) *RefundClient {
-	return &RefundClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `refund.Hooks(f(g(h())))`.
-func (c *RefundClient) Use(hooks ...Hook) {
-	c.hooks.Refund = append(c.hooks.Refund, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `refund.Intercept(f(g(h())))`.
-func (c *RefundClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Refund = append(c.inters.Refund, interceptors...)
-}
-
-// Create returns a builder for creating a Refund entity.
-func (c *RefundClient) Create() *RefundCreate {
-	mutation := newRefundMutation(c.config, OpCreate)
-	return &RefundCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Refund entities.
-func (c *RefundClient) CreateBulk(builders ...*RefundCreate) *RefundCreateBulk {
-	return &RefundCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *RefundClient) MapCreateBulk(slice any, setFunc func(*RefundCreate, int)) *RefundCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &RefundCreateBulk{err: fmt.Errorf("calling to RefundClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*RefundCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &RefundCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Refund.
-func (c *RefundClient) Update() *RefundUpdate {
-	mutation := newRefundMutation(c.config, OpUpdate)
-	return &RefundUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *RefundClient) UpdateOne(r *Refund) *RefundUpdateOne {
-	mutation := newRefundMutation(c.config, OpUpdateOne, withRefund(r))
-	return &RefundUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *RefundClient) UpdateOneID(id uuid.UUID) *RefundUpdateOne {
-	mutation := newRefundMutation(c.config, OpUpdateOne, withRefundID(id))
-	return &RefundUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Refund.
-func (c *RefundClient) Delete() *RefundDelete {
-	mutation := newRefundMutation(c.config, OpDelete)
-	return &RefundDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *RefundClient) DeleteOne(r *Refund) *RefundDeleteOne {
-	return c.DeleteOneID(r.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *RefundClient) DeleteOneID(id uuid.UUID) *RefundDeleteOne {
-	builder := c.Delete().Where(refund.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &RefundDeleteOne{builder}
-}
-
-// Query returns a query builder for Refund.
-func (c *RefundClient) Query() *RefundQuery {
-	return &RefundQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeRefund},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Refund entity by its id.
-func (c *RefundClient) Get(ctx context.Context, id uuid.UUID) (*Refund, error) {
-	return c.Query().Where(refund.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *RefundClient) GetX(ctx context.Context, id uuid.UUID) *Refund {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryPayment queries the payment edge of a Refund.
-func (c *RefundClient) QueryPayment(r *Refund) *PaymentQuery {
-	query := (&PaymentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(refund.Table, refund.FieldID, id),
-			sqlgraph.To(payment.Table, payment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, refund.PaymentTable, refund.PaymentColumn),
-		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *RefundClient) Hooks() []Hook {
-	return c.hooks.Refund
-}
-
-// Interceptors returns the client interceptors.
-func (c *RefundClient) Interceptors() []Interceptor {
-	return c.inters.Refund
-}
-
-func (c *RefundClient) mutate(ctx context.Context, m *RefundMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&RefundCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&RefundUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&RefundUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&RefundDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Refund mutation op: %q", m.Op())
-	}
-}
-
 // RoleClient is a client for the Role schema.
 type RoleClient struct {
 	config
@@ -6701,171 +4612,6 @@ func (c *SLAMetricClient) mutate(ctx context.Context, m *SLAMetricMutation) (Val
 	}
 }
 
-// SessionClient is a client for the Session schema.
-type SessionClient struct {
-	config
-}
-
-// NewSessionClient returns a client for the Session from the given config.
-func NewSessionClient(c config) *SessionClient {
-	return &SessionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `session.Hooks(f(g(h())))`.
-func (c *SessionClient) Use(hooks ...Hook) {
-	c.hooks.Session = append(c.hooks.Session, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `session.Intercept(f(g(h())))`.
-func (c *SessionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Session = append(c.inters.Session, interceptors...)
-}
-
-// Create returns a builder for creating a Session entity.
-func (c *SessionClient) Create() *SessionCreate {
-	mutation := newSessionMutation(c.config, OpCreate)
-	return &SessionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Session entities.
-func (c *SessionClient) CreateBulk(builders ...*SessionCreate) *SessionCreateBulk {
-	return &SessionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *SessionClient) MapCreateBulk(slice any, setFunc func(*SessionCreate, int)) *SessionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &SessionCreateBulk{err: fmt.Errorf("calling to SessionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*SessionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &SessionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Session.
-func (c *SessionClient) Update() *SessionUpdate {
-	mutation := newSessionMutation(c.config, OpUpdate)
-	return &SessionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *SessionClient) UpdateOne(s *Session) *SessionUpdateOne {
-	mutation := newSessionMutation(c.config, OpUpdateOne, withSession(s))
-	return &SessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *SessionClient) UpdateOneID(id uuid.UUID) *SessionUpdateOne {
-	mutation := newSessionMutation(c.config, OpUpdateOne, withSessionID(id))
-	return &SessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Session.
-func (c *SessionClient) Delete() *SessionDelete {
-	mutation := newSessionMutation(c.config, OpDelete)
-	return &SessionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *SessionClient) DeleteOne(s *Session) *SessionDeleteOne {
-	return c.DeleteOneID(s.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SessionClient) DeleteOneID(id uuid.UUID) *SessionDeleteOne {
-	builder := c.Delete().Where(session.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &SessionDeleteOne{builder}
-}
-
-// Query returns a query builder for Session.
-func (c *SessionClient) Query() *SessionQuery {
-	return &SessionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeSession},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Session entity by its id.
-func (c *SessionClient) Get(ctx context.Context, id uuid.UUID) (*Session, error) {
-	return c.Query().Where(session.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *SessionClient) GetX(ctx context.Context, id uuid.UUID) *Session {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTenant queries the tenant edge of a Session.
-func (c *SessionClient) QueryTenant(s *Session) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldID, id),
-			sqlgraph.To(tenant.Table, tenant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, session.TenantTable, session.TenantColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUser queries the user edge of a Session.
-func (c *SessionClient) QueryUser(s *Session) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, session.UserTable, session.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *SessionClient) Hooks() []Hook {
-	return c.hooks.Session
-}
-
-// Interceptors returns the client interceptors.
-func (c *SessionClient) Interceptors() []Interceptor {
-	return c.inters.Session
-}
-
-func (c *SessionClient) mutate(ctx context.Context, m *SessionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&SessionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&SessionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&SessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&SessionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Session mutation op: %q", m.Op())
-	}
-}
-
 // TenantClient is a client for the Tenant schema.
 type TenantClient struct {
 	config
@@ -7006,15 +4752,15 @@ func (c *TenantClient) QueryUsers(t *Tenant) *UserQuery {
 	return query
 }
 
-// QuerySessions queries the sessions edge of a Tenant.
-func (c *TenantClient) QuerySessions(t *Tenant) *SessionQuery {
-	query := (&SessionClient{config: c.config}).Query()
+// QueryOutlets queries the outlets edge of a Tenant.
+func (c *TenantClient) QueryOutlets(t *Tenant) *OutletQuery {
+	query := (&OutletClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(tenant.Table, tenant.FieldID, id),
-			sqlgraph.To(session.Table, session.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, tenant.SessionsTable, tenant.SessionsColumn),
+			sqlgraph.To(outlet.Table, outlet.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tenant.OutletsTable, tenant.OutletsColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -7361,288 +5107,6 @@ func (c *TenantSyncEventClient) mutate(ctx context.Context, m *TenantSyncEventMu
 	}
 }
 
-// TreasuryEventClient is a client for the TreasuryEvent schema.
-type TreasuryEventClient struct {
-	config
-}
-
-// NewTreasuryEventClient returns a client for the TreasuryEvent from the given config.
-func NewTreasuryEventClient(c config) *TreasuryEventClient {
-	return &TreasuryEventClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `treasuryevent.Hooks(f(g(h())))`.
-func (c *TreasuryEventClient) Use(hooks ...Hook) {
-	c.hooks.TreasuryEvent = append(c.hooks.TreasuryEvent, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `treasuryevent.Intercept(f(g(h())))`.
-func (c *TreasuryEventClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TreasuryEvent = append(c.inters.TreasuryEvent, interceptors...)
-}
-
-// Create returns a builder for creating a TreasuryEvent entity.
-func (c *TreasuryEventClient) Create() *TreasuryEventCreate {
-	mutation := newTreasuryEventMutation(c.config, OpCreate)
-	return &TreasuryEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TreasuryEvent entities.
-func (c *TreasuryEventClient) CreateBulk(builders ...*TreasuryEventCreate) *TreasuryEventCreateBulk {
-	return &TreasuryEventCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *TreasuryEventClient) MapCreateBulk(slice any, setFunc func(*TreasuryEventCreate, int)) *TreasuryEventCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &TreasuryEventCreateBulk{err: fmt.Errorf("calling to TreasuryEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*TreasuryEventCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &TreasuryEventCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TreasuryEvent.
-func (c *TreasuryEventClient) Update() *TreasuryEventUpdate {
-	mutation := newTreasuryEventMutation(c.config, OpUpdate)
-	return &TreasuryEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TreasuryEventClient) UpdateOne(te *TreasuryEvent) *TreasuryEventUpdateOne {
-	mutation := newTreasuryEventMutation(c.config, OpUpdateOne, withTreasuryEvent(te))
-	return &TreasuryEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *TreasuryEventClient) UpdateOneID(id uuid.UUID) *TreasuryEventUpdateOne {
-	mutation := newTreasuryEventMutation(c.config, OpUpdateOne, withTreasuryEventID(id))
-	return &TreasuryEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TreasuryEvent.
-func (c *TreasuryEventClient) Delete() *TreasuryEventDelete {
-	mutation := newTreasuryEventMutation(c.config, OpDelete)
-	return &TreasuryEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *TreasuryEventClient) DeleteOne(te *TreasuryEvent) *TreasuryEventDeleteOne {
-	return c.DeleteOneID(te.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TreasuryEventClient) DeleteOneID(id uuid.UUID) *TreasuryEventDeleteOne {
-	builder := c.Delete().Where(treasuryevent.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &TreasuryEventDeleteOne{builder}
-}
-
-// Query returns a query builder for TreasuryEvent.
-func (c *TreasuryEventClient) Query() *TreasuryEventQuery {
-	return &TreasuryEventQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeTreasuryEvent},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a TreasuryEvent entity by its id.
-func (c *TreasuryEventClient) Get(ctx context.Context, id uuid.UUID) (*TreasuryEvent, error) {
-	return c.Query().Where(treasuryevent.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TreasuryEventClient) GetX(ctx context.Context, id uuid.UUID) *TreasuryEvent {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *TreasuryEventClient) Hooks() []Hook {
-	return c.hooks.TreasuryEvent
-}
-
-// Interceptors returns the client interceptors.
-func (c *TreasuryEventClient) Interceptors() []Interceptor {
-	return c.inters.TreasuryEvent
-}
-
-func (c *TreasuryEventClient) mutate(ctx context.Context, m *TreasuryEventMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&TreasuryEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&TreasuryEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&TreasuryEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&TreasuryEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown TreasuryEvent mutation op: %q", m.Op())
-	}
-}
-
-// TwoFactorSettingClient is a client for the TwoFactorSetting schema.
-type TwoFactorSettingClient struct {
-	config
-}
-
-// NewTwoFactorSettingClient returns a client for the TwoFactorSetting from the given config.
-func NewTwoFactorSettingClient(c config) *TwoFactorSettingClient {
-	return &TwoFactorSettingClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `twofactorsetting.Hooks(f(g(h())))`.
-func (c *TwoFactorSettingClient) Use(hooks ...Hook) {
-	c.hooks.TwoFactorSetting = append(c.hooks.TwoFactorSetting, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `twofactorsetting.Intercept(f(g(h())))`.
-func (c *TwoFactorSettingClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TwoFactorSetting = append(c.inters.TwoFactorSetting, interceptors...)
-}
-
-// Create returns a builder for creating a TwoFactorSetting entity.
-func (c *TwoFactorSettingClient) Create() *TwoFactorSettingCreate {
-	mutation := newTwoFactorSettingMutation(c.config, OpCreate)
-	return &TwoFactorSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TwoFactorSetting entities.
-func (c *TwoFactorSettingClient) CreateBulk(builders ...*TwoFactorSettingCreate) *TwoFactorSettingCreateBulk {
-	return &TwoFactorSettingCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *TwoFactorSettingClient) MapCreateBulk(slice any, setFunc func(*TwoFactorSettingCreate, int)) *TwoFactorSettingCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &TwoFactorSettingCreateBulk{err: fmt.Errorf("calling to TwoFactorSettingClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*TwoFactorSettingCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &TwoFactorSettingCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TwoFactorSetting.
-func (c *TwoFactorSettingClient) Update() *TwoFactorSettingUpdate {
-	mutation := newTwoFactorSettingMutation(c.config, OpUpdate)
-	return &TwoFactorSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TwoFactorSettingClient) UpdateOne(tfs *TwoFactorSetting) *TwoFactorSettingUpdateOne {
-	mutation := newTwoFactorSettingMutation(c.config, OpUpdateOne, withTwoFactorSetting(tfs))
-	return &TwoFactorSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *TwoFactorSettingClient) UpdateOneID(id int) *TwoFactorSettingUpdateOne {
-	mutation := newTwoFactorSettingMutation(c.config, OpUpdateOne, withTwoFactorSettingID(id))
-	return &TwoFactorSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TwoFactorSetting.
-func (c *TwoFactorSettingClient) Delete() *TwoFactorSettingDelete {
-	mutation := newTwoFactorSettingMutation(c.config, OpDelete)
-	return &TwoFactorSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *TwoFactorSettingClient) DeleteOne(tfs *TwoFactorSetting) *TwoFactorSettingDeleteOne {
-	return c.DeleteOneID(tfs.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TwoFactorSettingClient) DeleteOneID(id int) *TwoFactorSettingDeleteOne {
-	builder := c.Delete().Where(twofactorsetting.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &TwoFactorSettingDeleteOne{builder}
-}
-
-// Query returns a query builder for TwoFactorSetting.
-func (c *TwoFactorSettingClient) Query() *TwoFactorSettingQuery {
-	return &TwoFactorSettingQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeTwoFactorSetting},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a TwoFactorSetting entity by its id.
-func (c *TwoFactorSettingClient) Get(ctx context.Context, id int) (*TwoFactorSetting, error) {
-	return c.Query().Where(twofactorsetting.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TwoFactorSettingClient) GetX(ctx context.Context, id int) *TwoFactorSetting {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a TwoFactorSetting.
-func (c *TwoFactorSettingClient) QueryUser(tfs *TwoFactorSetting) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := tfs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(twofactorsetting.Table, twofactorsetting.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, twofactorsetting.UserTable, twofactorsetting.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(tfs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *TwoFactorSettingClient) Hooks() []Hook {
-	return c.hooks.TwoFactorSetting
-}
-
-// Interceptors returns the client interceptors.
-func (c *TwoFactorSettingClient) Interceptors() []Interceptor {
-	return c.inters.TwoFactorSetting
-}
-
-func (c *TwoFactorSettingClient) mutate(ctx context.Context, m *TwoFactorSettingMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&TwoFactorSettingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&TwoFactorSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&TwoFactorSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&TwoFactorSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown TwoFactorSetting mutation op: %q", m.Op())
-	}
-}
-
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -7783,86 +5247,6 @@ func (c *UserClient) QueryRoles(u *User) *RoleQuery {
 	return query
 }
 
-// QuerySessions queries the sessions edge of a User.
-func (c *UserClient) QuerySessions(u *User) *SessionQuery {
-	query := (&SessionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(session.Table, session.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.SessionsTable, user.SessionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDevices queries the devices edge of a User.
-func (c *UserClient) QueryDevices(u *User) *DeviceQuery {
-	query := (&DeviceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(device.Table, device.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.DevicesTable, user.DevicesPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryOauthAccounts queries the oauth_accounts edge of a User.
-func (c *UserClient) QueryOauthAccounts(u *User) *OAuthAccountQuery {
-	query := (&OAuthAccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(oauthaccount.Table, oauthaccount.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.OauthAccountsTable, user.OauthAccountsColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTwoFactorSettings queries the two_factor_settings edge of a User.
-func (c *UserClient) QueryTwoFactorSettings(u *User) *TwoFactorSettingQuery {
-	query := (&TwoFactorSettingClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(twofactorsetting.Table, twofactorsetting.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, user.TwoFactorSettingsTable, user.TwoFactorSettingsColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryBackupCodes queries the backup_codes edge of a User.
-func (c *UserClient) QueryBackupCodes(u *User) *BackupCodeQuery {
-	query := (&BackupCodeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(backupcode.Table, backupcode.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.BackupCodesTable, user.BackupCodesColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryPreferences queries the preferences edge of a User.
 func (c *UserClient) QueryPreferences(u *User) *UserPreferenceQuery {
 	query := (&UserPreferenceClient{config: c.config}).Query()
@@ -7959,15 +5343,15 @@ func (c *UserClient) QueryLoyaltyAccount(u *User) *LoyaltyAccountQuery {
 	return query
 }
 
-// QueryPaymentMethods queries the payment_methods edge of a User.
-func (c *UserClient) QueryPaymentMethods(u *User) *PaymentMethodQuery {
-	query := (&PaymentMethodClient{config: c.config}).Query()
+// QueryFavoriteItems queries the favorite_items edge of a User.
+func (c *UserClient) QueryFavoriteItems(u *User) *CatalogItemQuery {
+	query := (&CatalogItemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(paymentmethod.Table, paymentmethod.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentMethodsTable, user.PaymentMethodsColumn),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.FavoriteItemsTable, user.FavoriteItemsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -8301,27 +5685,20 @@ func (c *UserProfileClient) mutate(ctx context.Context, m *UserProfileMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AuditLog, BackupCode, Cart, CartItem, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, Device, DietaryTag,
-		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
-		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		NotificationEvent, NotificationSubscription, NotificationTemplate,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
-		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
-		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
-		UserProfile []ent.Hook
+		AuditLog, Cart, CartItem, CatalogCategory, CatalogItem, CatalogItemAsset,
+		CatalogItemSchedule, CustomerAddress, DataDeletionJob, DataExportJob,
+		DataSubjectRequest, DeliveryWindow, DietaryTag, LoyaltyAccount,
+		LoyaltyTransaction, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
+		Outlet, Permission, PromoCode, PromoRedemption, Role, SLAMetric, Tenant,
+		TenantSetting, TenantSyncEvent, User, UserPreference, UserProfile []ent.Hook
 	}
 	inters struct {
-		AuditLog, BackupCode, Cart, CartItem, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, Device, DietaryTag,
-		LogisticsEvent, LoyaltyAccount, LoyaltyTransaction, MenuCategory, MenuItem,
-		MenuItemAsset, MenuItemSchedule, MenuItemTranslation, MenuItemVariant,
-		NotificationEvent, NotificationSubscription, NotificationTemplate,
-		OAuthAccount, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
-		Payment, PaymentIntent, PaymentMethod, Permission, PromoCode, PromoRedemption,
-		ProofOfDelivery, Refund, Role, SLAMetric, Session, Tenant, TenantSetting,
-		TenantSyncEvent, TreasuryEvent, TwoFactorSetting, User, UserPreference,
+		AuditLog, Cart, CartItem, CatalogCategory, CatalogItem, CatalogItemAsset,
+		CatalogItemSchedule, CustomerAddress, DataDeletionJob, DataExportJob,
+		DataSubjectRequest, DeliveryWindow, DietaryTag, LoyaltyAccount,
+		LoyaltyTransaction, Order, OrderAssignment, OrderEvent, OrderItem, OutboxEvent,
+		Outlet, Permission, PromoCode, PromoRedemption, Role, SLAMetric, Tenant,
+		TenantSetting, TenantSyncEvent, User, UserPreference,
 		UserProfile []ent.Interceptor
 	}
 )

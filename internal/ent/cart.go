@@ -21,8 +21,8 @@ type Cart struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to tenant
 	TenantID uuid.UUID `json:"tenant_id,omitempty"`
-	// Reference to cafe/outlet
-	CafeID uuid.UUID `json:"cafe_id,omitempty"`
+	// Reference to outlet
+	OutletID uuid.UUID `json:"outlet_id,omitempty"`
 	// Reference to user (null for guest carts)
 	UserID *uuid.UUID `json:"user_id,omitempty"`
 	// Session ID for guest carts
@@ -101,7 +101,7 @@ func (*Cart) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case cart.FieldExpiresAt, cart.FieldCreatedAt, cart.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case cart.FieldID, cart.FieldTenantID, cart.FieldCafeID:
+		case cart.FieldID, cart.FieldTenantID, cart.FieldOutletID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -130,11 +130,11 @@ func (c *Cart) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				c.TenantID = *value
 			}
-		case cart.FieldCafeID:
+		case cart.FieldOutletID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field cafe_id", values[i])
+				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value != nil {
-				c.CafeID = *value
+				c.OutletID = *value
 			}
 		case cart.FieldUserID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -266,8 +266,8 @@ func (c *Cart) String() string {
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", c.TenantID))
 	builder.WriteString(", ")
-	builder.WriteString("cafe_id=")
-	builder.WriteString(fmt.Sprintf("%v", c.CafeID))
+	builder.WriteString("outlet_id=")
+	builder.WriteString(fmt.Sprintf("%v", c.OutletID))
 	builder.WriteString(", ")
 	if v := c.UserID; v != nil {
 		builder.WriteString("user_id=")

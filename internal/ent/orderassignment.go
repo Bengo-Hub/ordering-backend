@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
-	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
 	"github.com/google/uuid"
 )
 
@@ -71,11 +70,9 @@ type OrderAssignmentEdges struct {
 	Order *Order `json:"order,omitempty"`
 	// DeliveryWindows holds the value of the delivery_windows edge.
 	DeliveryWindows []*DeliveryWindow `json:"delivery_windows,omitempty"`
-	// ProofOfDelivery holds the value of the proof_of_delivery edge.
-	ProofOfDelivery *ProofOfDelivery `json:"proof_of_delivery,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // OrderOrErr returns the Order value or an error if the edge
@@ -96,17 +93,6 @@ func (e OrderAssignmentEdges) DeliveryWindowsOrErr() ([]*DeliveryWindow, error) 
 		return e.DeliveryWindows, nil
 	}
 	return nil, &NotLoadedError{edge: "delivery_windows"}
-}
-
-// ProofOfDeliveryOrErr returns the ProofOfDelivery value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e OrderAssignmentEdges) ProofOfDeliveryOrErr() (*ProofOfDelivery, error) {
-	if e.ProofOfDelivery != nil {
-		return e.ProofOfDelivery, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: proofofdelivery.Label}
-	}
-	return nil, &NotLoadedError{edge: "proof_of_delivery"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -287,11 +273,6 @@ func (oa *OrderAssignment) QueryOrder() *OrderQuery {
 // QueryDeliveryWindows queries the "delivery_windows" edge of the OrderAssignment entity.
 func (oa *OrderAssignment) QueryDeliveryWindows() *DeliveryWindowQuery {
 	return NewOrderAssignmentClient(oa.config).QueryDeliveryWindows(oa)
-}
-
-// QueryProofOfDelivery queries the "proof_of_delivery" edge of the OrderAssignment entity.
-func (oa *OrderAssignment) QueryProofOfDelivery() *ProofOfDeliveryQuery {
-	return NewOrderAssignmentClient(oa.config).QueryProofOfDelivery(oa)
 }
 
 // Update returns a builder for updating this OrderAssignment.

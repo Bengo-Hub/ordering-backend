@@ -24,7 +24,7 @@ func NewPromoService(repo Repository, logger *zap.Logger) *PromoService {
 }
 
 // ValidatePromoCode validates a promo code for the given cart.
-func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, cafeID uuid.UUID, code string, subtotal float64, userID *uuid.UUID) (*PromoValidationResult, error) {
+func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID uuid.UUID, code string, subtotal float64, userID *uuid.UUID) (*PromoValidationResult, error) {
 	code = strings.ToUpper(strings.TrimSpace(code))
 	if code == "" {
 		return &PromoValidationResult{
@@ -50,11 +50,11 @@ func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, cafeID u
 		}, nil
 	}
 
-	// Check cafe restriction
-	if promo.CafeID != nil && *promo.CafeID != cafeID {
+	// Check outlet restriction
+	if promo.OutletID != nil && *promo.OutletID != outletID {
 		return &PromoValidationResult{
 			Valid:        false,
-			ErrorMessage: "promo code is not valid for this cafe",
+			ErrorMessage: "promo code is not valid for this outlet",
 		}, nil
 	}
 
@@ -168,7 +168,7 @@ func (s *PromoService) ApplyPromoToCart(ctx context.Context, tenantID, cartID uu
 	}
 
 	// Validate promo code
-	result, err := s.ValidatePromoCode(ctx, tenantID, cart.CafeID, code, subtotal, userID)
+	result, err := s.ValidatePromoCode(ctx, tenantID, cart.OutletID, code, subtotal, userID)
 	if err != nil {
 		return nil, err
 	}

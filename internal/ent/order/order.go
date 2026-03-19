@@ -18,8 +18,8 @@ const (
 	FieldID = "id"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
 	FieldTenantID = "tenant_id"
-	// FieldCafeID holds the string denoting the cafe_id field in the database.
-	FieldCafeID = "cafe_id"
+	// FieldOutletID holds the string denoting the outlet_id field in the database.
+	FieldOutletID = "outlet_id"
 	// FieldCustomerID holds the string denoting the customer_id field in the database.
 	FieldCustomerID = "customer_id"
 	// FieldCartID holds the string denoting the cart_id field in the database.
@@ -30,6 +30,8 @@ const (
 	FieldStatus = "status"
 	// FieldPaymentStatus holds the string denoting the payment_status field in the database.
 	FieldPaymentStatus = "payment_status"
+	// FieldPaymentIntentID holds the string denoting the payment_intent_id field in the database.
+	FieldPaymentIntentID = "payment_intent_id"
 	// FieldCurrency holds the string denoting the currency field in the database.
 	FieldCurrency = "currency"
 	// FieldSubtotal holds the string denoting the subtotal field in the database.
@@ -90,12 +92,10 @@ const (
 	EdgeItems = "items"
 	// EdgeEvents holds the string denoting the events edge name in mutations.
 	EdgeEvents = "events"
-	// EdgePaymentIntents holds the string denoting the payment_intents edge name in mutations.
-	EdgePaymentIntents = "payment_intents"
-	// EdgePayments holds the string denoting the payments edge name in mutations.
-	EdgePayments = "payments"
 	// EdgeAssignments holds the string denoting the assignments edge name in mutations.
 	EdgeAssignments = "assignments"
+	// EdgeOutlet holds the string denoting the outlet edge name in mutations.
+	EdgeOutlet = "outlet"
 	// EdgeCustomer holds the string denoting the customer edge name in mutations.
 	EdgeCustomer = "customer"
 	// EdgeDeliveryAddress holds the string denoting the delivery_address edge name in mutations.
@@ -116,20 +116,6 @@ const (
 	EventsInverseTable = "order_events"
 	// EventsColumn is the table column denoting the events relation/edge.
 	EventsColumn = "order_id"
-	// PaymentIntentsTable is the table that holds the payment_intents relation/edge.
-	PaymentIntentsTable = "payment_intents"
-	// PaymentIntentsInverseTable is the table name for the PaymentIntent entity.
-	// It exists in this package in order to avoid circular dependency with the "paymentintent" package.
-	PaymentIntentsInverseTable = "payment_intents"
-	// PaymentIntentsColumn is the table column denoting the payment_intents relation/edge.
-	PaymentIntentsColumn = "order_id"
-	// PaymentsTable is the table that holds the payments relation/edge.
-	PaymentsTable = "payments"
-	// PaymentsInverseTable is the table name for the Payment entity.
-	// It exists in this package in order to avoid circular dependency with the "payment" package.
-	PaymentsInverseTable = "payments"
-	// PaymentsColumn is the table column denoting the payments relation/edge.
-	PaymentsColumn = "order_id"
 	// AssignmentsTable is the table that holds the assignments relation/edge.
 	AssignmentsTable = "order_assignments"
 	// AssignmentsInverseTable is the table name for the OrderAssignment entity.
@@ -137,6 +123,13 @@ const (
 	AssignmentsInverseTable = "order_assignments"
 	// AssignmentsColumn is the table column denoting the assignments relation/edge.
 	AssignmentsColumn = "order_id"
+	// OutletTable is the table that holds the outlet relation/edge.
+	OutletTable = "orders"
+	// OutletInverseTable is the table name for the Outlet entity.
+	// It exists in this package in order to avoid circular dependency with the "outlet" package.
+	OutletInverseTable = "outlets"
+	// OutletColumn is the table column denoting the outlet relation/edge.
+	OutletColumn = "outlet_id"
 	// CustomerTable is the table that holds the customer relation/edge.
 	CustomerTable = "orders"
 	// CustomerInverseTable is the table name for the User entity.
@@ -157,12 +150,13 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldTenantID,
-	FieldCafeID,
+	FieldOutletID,
 	FieldCustomerID,
 	FieldCartID,
 	FieldOrderNumber,
 	FieldStatus,
 	FieldPaymentStatus,
+	FieldPaymentIntentID,
 	FieldCurrency,
 	FieldSubtotal,
 	FieldDiscountTotal,
@@ -343,9 +337,9 @@ func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
-// ByCafeID orders the results by the cafe_id field.
-func ByCafeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCafeID, opts...).ToFunc()
+// ByOutletID orders the results by the outlet_id field.
+func ByOutletID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOutletID, opts...).ToFunc()
 }
 
 // ByCustomerID orders the results by the customer_id field.
@@ -371,6 +365,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByPaymentStatus orders the results by the payment_status field.
 func ByPaymentStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPaymentStatus, opts...).ToFunc()
+}
+
+// ByPaymentIntentID orders the results by the payment_intent_id field.
+func ByPaymentIntentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaymentIntentID, opts...).ToFunc()
 }
 
 // ByCurrency orders the results by the currency field.
@@ -536,34 +535,6 @@ func ByEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByPaymentIntentsCount orders the results by payment_intents count.
-func ByPaymentIntentsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPaymentIntentsStep(), opts...)
-	}
-}
-
-// ByPaymentIntents orders the results by payment_intents terms.
-func ByPaymentIntents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPaymentIntentsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByPaymentsCount orders the results by payments count.
-func ByPaymentsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPaymentsStep(), opts...)
-	}
-}
-
-// ByPayments orders the results by payments terms.
-func ByPayments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPaymentsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByAssignmentsCount orders the results by assignments count.
 func ByAssignmentsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -575,6 +546,13 @@ func ByAssignmentsCount(opts ...sql.OrderTermOption) OrderOption {
 func ByAssignments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newAssignmentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByOutletField orders the results by outlet field.
+func ByOutletField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOutletStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -605,25 +583,18 @@ func newEventsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, EventsTable, EventsColumn),
 	)
 }
-func newPaymentIntentsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PaymentIntentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PaymentIntentsTable, PaymentIntentsColumn),
-	)
-}
-func newPaymentsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PaymentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PaymentsTable, PaymentsColumn),
-	)
-}
 func newAssignmentsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AssignmentsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AssignmentsTable, AssignmentsColumn),
+	)
+}
+func newOutletStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OutletInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, OutletTable, OutletColumn),
 	)
 }
 func newCustomerStep() *sqlgraph.Step {

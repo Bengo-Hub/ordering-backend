@@ -61,9 +61,9 @@ func TenantID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldTenantID, v))
 }
 
-// CafeID applies equality check predicate on the "cafe_id" field. It's identical to CafeIDEQ.
-func CafeID(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldCafeID, v))
+// OutletID applies equality check predicate on the "outlet_id" field. It's identical to OutletIDEQ.
+func OutletID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldOutletID, v))
 }
 
 // CustomerID applies equality check predicate on the "customer_id" field. It's identical to CustomerIDEQ.
@@ -79,6 +79,11 @@ func CartID(v uuid.UUID) predicate.Order {
 // OrderNumber applies equality check predicate on the "order_number" field. It's identical to OrderNumberEQ.
 func OrderNumber(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldOrderNumber, v))
+}
+
+// PaymentIntentID applies equality check predicate on the "payment_intent_id" field. It's identical to PaymentIntentIDEQ.
+func PaymentIntentID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPaymentIntentID, v))
 }
 
 // Currency applies equality check predicate on the "currency" field. It's identical to CurrencyEQ.
@@ -251,44 +256,24 @@ func TenantIDLTE(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldTenantID, v))
 }
 
-// CafeIDEQ applies the EQ predicate on the "cafe_id" field.
-func CafeIDEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldCafeID, v))
+// OutletIDEQ applies the EQ predicate on the "outlet_id" field.
+func OutletIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldOutletID, v))
 }
 
-// CafeIDNEQ applies the NEQ predicate on the "cafe_id" field.
-func CafeIDNEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldCafeID, v))
+// OutletIDNEQ applies the NEQ predicate on the "outlet_id" field.
+func OutletIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldOutletID, v))
 }
 
-// CafeIDIn applies the In predicate on the "cafe_id" field.
-func CafeIDIn(vs ...uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldCafeID, vs...))
+// OutletIDIn applies the In predicate on the "outlet_id" field.
+func OutletIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldOutletID, vs...))
 }
 
-// CafeIDNotIn applies the NotIn predicate on the "cafe_id" field.
-func CafeIDNotIn(vs ...uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldCafeID, vs...))
-}
-
-// CafeIDGT applies the GT predicate on the "cafe_id" field.
-func CafeIDGT(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldCafeID, v))
-}
-
-// CafeIDGTE applies the GTE predicate on the "cafe_id" field.
-func CafeIDGTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldCafeID, v))
-}
-
-// CafeIDLT applies the LT predicate on the "cafe_id" field.
-func CafeIDLT(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldCafeID, v))
-}
-
-// CafeIDLTE applies the LTE predicate on the "cafe_id" field.
-func CafeIDLTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldCafeID, v))
+// OutletIDNotIn applies the NotIn predicate on the "outlet_id" field.
+func OutletIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldOutletID, vs...))
 }
 
 // CustomerIDEQ applies the EQ predicate on the "customer_id" field.
@@ -464,6 +449,56 @@ func PaymentStatusIn(vs ...PaymentStatus) predicate.Order {
 // PaymentStatusNotIn applies the NotIn predicate on the "payment_status" field.
 func PaymentStatusNotIn(vs ...PaymentStatus) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldPaymentStatus, vs...))
+}
+
+// PaymentIntentIDEQ applies the EQ predicate on the "payment_intent_id" field.
+func PaymentIntentIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDNEQ applies the NEQ predicate on the "payment_intent_id" field.
+func PaymentIntentIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDIn applies the In predicate on the "payment_intent_id" field.
+func PaymentIntentIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldPaymentIntentID, vs...))
+}
+
+// PaymentIntentIDNotIn applies the NotIn predicate on the "payment_intent_id" field.
+func PaymentIntentIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldPaymentIntentID, vs...))
+}
+
+// PaymentIntentIDGT applies the GT predicate on the "payment_intent_id" field.
+func PaymentIntentIDGT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDGTE applies the GTE predicate on the "payment_intent_id" field.
+func PaymentIntentIDGTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDLT applies the LT predicate on the "payment_intent_id" field.
+func PaymentIntentIDLT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDLTE applies the LTE predicate on the "payment_intent_id" field.
+func PaymentIntentIDLTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldPaymentIntentID, v))
+}
+
+// PaymentIntentIDIsNil applies the IsNil predicate on the "payment_intent_id" field.
+func PaymentIntentIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldPaymentIntentID))
+}
+
+// PaymentIntentIDNotNil applies the NotNil predicate on the "payment_intent_id" field.
+func PaymentIntentIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldPaymentIntentID))
 }
 
 // CurrencyEQ applies the EQ predicate on the "currency" field.
@@ -1862,52 +1897,6 @@ func HasEventsWith(preds ...predicate.OrderEvent) predicate.Order {
 	})
 }
 
-// HasPaymentIntents applies the HasEdge predicate on the "payment_intents" edge.
-func HasPaymentIntents() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PaymentIntentsTable, PaymentIntentsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPaymentIntentsWith applies the HasEdge predicate on the "payment_intents" edge with a given conditions (other predicates).
-func HasPaymentIntentsWith(preds ...predicate.PaymentIntent) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		step := newPaymentIntentsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasPayments applies the HasEdge predicate on the "payments" edge.
-func HasPayments() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PaymentsTable, PaymentsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPaymentsWith applies the HasEdge predicate on the "payments" edge with a given conditions (other predicates).
-func HasPaymentsWith(preds ...predicate.Payment) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		step := newPaymentsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasAssignments applies the HasEdge predicate on the "assignments" edge.
 func HasAssignments() predicate.Order {
 	return predicate.Order(func(s *sql.Selector) {
@@ -1923,6 +1912,29 @@ func HasAssignments() predicate.Order {
 func HasAssignmentsWith(preds ...predicate.OrderAssignment) predicate.Order {
 	return predicate.Order(func(s *sql.Selector) {
 		step := newAssignmentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasOutlet applies the HasEdge predicate on the "outlet" edge.
+func HasOutlet() predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, OutletTable, OutletColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOutletWith applies the HasEdge predicate on the "outlet" edge with a given conditions (other predicates).
+func HasOutletWith(preds ...predicate.Outlet) predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := newOutletStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

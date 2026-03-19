@@ -22,11 +22,11 @@ type OrderItem struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to order
 	OrderID uuid.UUID `json:"order_id,omitempty"`
-	// Reference to menu item
-	MenuItemID uuid.UUID `json:"menu_item_id,omitempty"`
-	// Reference to menu item variant
+	// Reference to catalog item
+	CatalogItemID uuid.UUID `json:"catalog_item_id,omitempty"`
+	// Reference to catalog item variant
 	VariantID *uuid.UUID `json:"variant_id,omitempty"`
-	// Menu item name at time of order
+	// Catalog item name at time of order
 	NameSnapshot string `json:"name_snapshot,omitempty"`
 	// Variant name at time of order
 	VariantNameSnapshot string `json:"variant_name_snapshot,omitempty"`
@@ -87,7 +87,7 @@ func (*OrderItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case orderitem.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case orderitem.FieldID, orderitem.FieldOrderID, orderitem.FieldMenuItemID:
+		case orderitem.FieldID, orderitem.FieldOrderID, orderitem.FieldCatalogItemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -116,11 +116,11 @@ func (oi *OrderItem) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				oi.OrderID = *value
 			}
-		case orderitem.FieldMenuItemID:
+		case orderitem.FieldCatalogItemID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field menu_item_id", values[i])
+				return fmt.Errorf("unexpected type %T for field catalog_item_id", values[i])
 			} else if value != nil {
-				oi.MenuItemID = *value
+				oi.CatalogItemID = *value
 			}
 		case orderitem.FieldVariantID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -231,8 +231,8 @@ func (oi *OrderItem) String() string {
 	builder.WriteString("order_id=")
 	builder.WriteString(fmt.Sprintf("%v", oi.OrderID))
 	builder.WriteString(", ")
-	builder.WriteString("menu_item_id=")
-	builder.WriteString(fmt.Sprintf("%v", oi.MenuItemID))
+	builder.WriteString("catalog_item_id=")
+	builder.WriteString(fmt.Sprintf("%v", oi.CatalogItemID))
 	builder.WriteString(", ")
 	if v := oi.VariantID; v != nil {
 		builder.WriteString("variant_id=")

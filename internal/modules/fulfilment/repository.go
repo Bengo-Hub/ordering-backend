@@ -21,18 +21,6 @@ type Repository interface {
 	GetCurrentDeliveryWindow(ctx context.Context, assignmentID uuid.UUID) (*DeliveryWindow, error)
 	UpdateDeliveryWindow(ctx context.Context, window *DeliveryWindow) error
 	MarkPreviousWindowsNotCurrent(ctx context.Context, assignmentID uuid.UUID) error
-
-	// Proof of Delivery operations
-	CreateProofOfDelivery(ctx context.Context, pod *ProofOfDelivery) error
-	GetProofOfDelivery(ctx context.Context, tenantID, orderID uuid.UUID) (*ProofOfDelivery, error)
-	GetProofOfDeliveryByAssignment(ctx context.Context, assignmentID uuid.UUID) (*ProofOfDelivery, error)
-	UpdateProofOfDelivery(ctx context.Context, pod *ProofOfDelivery) error
-
-	// Logistics Event operations
-	CreateLogisticsEvent(ctx context.Context, event *LogisticsEvent) error
-	GetLogisticsEventByExternalID(ctx context.Context, externalID string) (*LogisticsEvent, error)
-	UpdateLogisticsEvent(ctx context.Context, event *LogisticsEvent) error
-	ListPendingLogisticsEvents(ctx context.Context, limit int) ([]LogisticsEvent, error)
 }
 
 // AssignmentFilter defines filtering options for listing assignments.

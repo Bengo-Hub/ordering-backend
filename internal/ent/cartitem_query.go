@@ -12,8 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -21,13 +20,12 @@ import (
 // CartItemQuery is the builder for querying CartItem entities.
 type CartItemQuery struct {
 	config
-	ctx          *QueryContext
-	order        []cartitem.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.CartItem
-	withCart     *CartQuery
-	withMenuItem *MenuItemQuery
-	withVariant  *MenuItemVariantQuery
+	ctx             *QueryContext
+	order           []cartitem.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.CartItem
+	withCart        *CartQuery
+	withCatalogItem *CatalogItemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -86,9 +84,9 @@ func (ciq *CartItemQuery) QueryCart() *CartQuery {
 	return query
 }
 
-// QueryMenuItem chains the current query on the "menu_item" edge.
-func (ciq *CartItemQuery) QueryMenuItem() *MenuItemQuery {
-	query := (&MenuItemClient{config: ciq.config}).Query()
+// QueryCatalogItem chains the current query on the "catalog_item" edge.
+func (ciq *CartItemQuery) QueryCatalogItem() *CatalogItemQuery {
+	query := (&CatalogItemClient{config: ciq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := ciq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -99,30 +97,8 @@ func (ciq *CartItemQuery) QueryMenuItem() *MenuItemQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(cartitem.Table, cartitem.FieldID, selector),
-			sqlgraph.To(menuitem.Table, menuitem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.MenuItemTable, cartitem.MenuItemColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(ciq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryVariant chains the current query on the "variant" edge.
-func (ciq *CartItemQuery) QueryVariant() *MenuItemVariantQuery {
-	query := (&MenuItemVariantClient{config: ciq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := ciq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := ciq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(cartitem.Table, cartitem.FieldID, selector),
-			sqlgraph.To(menuitemvariant.Table, menuitemvariant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.VariantTable, cartitem.VariantColumn),
+			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, cartitem.CatalogItemTable, cartitem.CatalogItemColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(ciq.driver.Dialect(), step)
 		return fromU, nil
@@ -317,14 +293,13 @@ func (ciq *CartItemQuery) Clone() *CartItemQuery {
 		return nil
 	}
 	return &CartItemQuery{
-		config:       ciq.config,
-		ctx:          ciq.ctx.Clone(),
-		order:        append([]cartitem.OrderOption{}, ciq.order...),
-		inters:       append([]Interceptor{}, ciq.inters...),
-		predicates:   append([]predicate.CartItem{}, ciq.predicates...),
-		withCart:     ciq.withCart.Clone(),
-		withMenuItem: ciq.withMenuItem.Clone(),
-		withVariant:  ciq.withVariant.Clone(),
+		config:          ciq.config,
+		ctx:             ciq.ctx.Clone(),
+		order:           append([]cartitem.OrderOption{}, ciq.order...),
+		inters:          append([]Interceptor{}, ciq.inters...),
+		predicates:      append([]predicate.CartItem{}, ciq.predicates...),
+		withCart:        ciq.withCart.Clone(),
+		withCatalogItem: ciq.withCatalogItem.Clone(),
 		// clone intermediate query.
 		sql:  ciq.sql.Clone(),
 		path: ciq.path,
@@ -342,25 +317,14 @@ func (ciq *CartItemQuery) WithCart(opts ...func(*CartQuery)) *CartItemQuery {
 	return ciq
 }
 
-// WithMenuItem tells the query-builder to eager-load the nodes that are connected to
-// the "menu_item" edge. The optional arguments are used to configure the query builder of the edge.
-func (ciq *CartItemQuery) WithMenuItem(opts ...func(*MenuItemQuery)) *CartItemQuery {
-	query := (&MenuItemClient{config: ciq.config}).Query()
+// WithCatalogItem tells the query-builder to eager-load the nodes that are connected to
+// the "catalog_item" edge. The optional arguments are used to configure the query builder of the edge.
+func (ciq *CartItemQuery) WithCatalogItem(opts ...func(*CatalogItemQuery)) *CartItemQuery {
+	query := (&CatalogItemClient{config: ciq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	ciq.withMenuItem = query
-	return ciq
-}
-
-// WithVariant tells the query-builder to eager-load the nodes that are connected to
-// the "variant" edge. The optional arguments are used to configure the query builder of the edge.
-func (ciq *CartItemQuery) WithVariant(opts ...func(*MenuItemVariantQuery)) *CartItemQuery {
-	query := (&MenuItemVariantClient{config: ciq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	ciq.withVariant = query
+	ciq.withCatalogItem = query
 	return ciq
 }
 
@@ -442,10 +406,9 @@ func (ciq *CartItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ca
 	var (
 		nodes       = []*CartItem{}
 		_spec       = ciq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [2]bool{
 			ciq.withCart != nil,
-			ciq.withMenuItem != nil,
-			ciq.withVariant != nil,
+			ciq.withCatalogItem != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -472,15 +435,9 @@ func (ciq *CartItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ca
 			return nil, err
 		}
 	}
-	if query := ciq.withMenuItem; query != nil {
-		if err := ciq.loadMenuItem(ctx, query, nodes, nil,
-			func(n *CartItem, e *MenuItem) { n.Edges.MenuItem = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := ciq.withVariant; query != nil {
-		if err := ciq.loadVariant(ctx, query, nodes, nil,
-			func(n *CartItem, e *MenuItemVariant) { n.Edges.Variant = e }); err != nil {
+	if query := ciq.withCatalogItem; query != nil {
+		if err := ciq.loadCatalogItem(ctx, query, nodes, nil,
+			func(n *CartItem, e *CatalogItem) { n.Edges.CatalogItem = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -516,11 +473,11 @@ func (ciq *CartItemQuery) loadCart(ctx context.Context, query *CartQuery, nodes 
 	}
 	return nil
 }
-func (ciq *CartItemQuery) loadMenuItem(ctx context.Context, query *MenuItemQuery, nodes []*CartItem, init func(*CartItem), assign func(*CartItem, *MenuItem)) error {
+func (ciq *CartItemQuery) loadCatalogItem(ctx context.Context, query *CatalogItemQuery, nodes []*CartItem, init func(*CartItem), assign func(*CartItem, *CatalogItem)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*CartItem)
 	for i := range nodes {
-		fk := nodes[i].MenuItemID
+		fk := nodes[i].CatalogItemID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -529,7 +486,7 @@ func (ciq *CartItemQuery) loadMenuItem(ctx context.Context, query *MenuItemQuery
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(menuitem.IDIn(ids...))
+	query.Where(catalogitem.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -537,39 +494,7 @@ func (ciq *CartItemQuery) loadMenuItem(ctx context.Context, query *MenuItemQuery
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "menu_item_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (ciq *CartItemQuery) loadVariant(ctx context.Context, query *MenuItemVariantQuery, nodes []*CartItem, init func(*CartItem), assign func(*CartItem, *MenuItemVariant)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*CartItem)
-	for i := range nodes {
-		if nodes[i].VariantID == nil {
-			continue
-		}
-		fk := *nodes[i].VariantID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(menuitemvariant.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "variant_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "catalog_item_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -606,11 +531,8 @@ func (ciq *CartItemQuery) querySpec() *sqlgraph.QuerySpec {
 		if ciq.withCart != nil {
 			_spec.Node.AddColumnOnce(cartitem.FieldCartID)
 		}
-		if ciq.withMenuItem != nil {
-			_spec.Node.AddColumnOnce(cartitem.FieldMenuItemID)
-		}
-		if ciq.withVariant != nil {
-			_spec.Node.AddColumnOnce(cartitem.FieldVariantID)
+		if ciq.withCatalogItem != nil {
+			_spec.Node.AddColumnOnce(cartitem.FieldCatalogItemID)
 		}
 	}
 	if ps := ciq.predicates; len(ps) > 0 {

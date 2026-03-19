@@ -18,31 +18,31 @@ import (
 
 // ---------------------------------------------------------------------------
 // Mock catalog repository – implements catalog.Repository
-// Only GetMenuItem is backed by real data; every other method returns a
+// Only GetCatalogItem is backed by real data; every other method returns a
 // reasonable zero-value or an error so the binary compiles.
 // ---------------------------------------------------------------------------
 
 type mockCatalogRepo struct {
 	mu    sync.RWMutex
-	items map[uuid.UUID]*catalog.MenuItem // keyed by item ID
+	items map[uuid.UUID]*catalog.CatalogItem // keyed by item ID
 }
 
 func newMockCatalogRepo() *mockCatalogRepo {
-	return &mockCatalogRepo{items: make(map[uuid.UUID]*catalog.MenuItem)}
+	return &mockCatalogRepo{items: make(map[uuid.UUID]*catalog.CatalogItem)}
 }
 
-func (r *mockCatalogRepo) seedMenuItem(item *catalog.MenuItem) {
+func (r *mockCatalogRepo) seedCatalogItem(item *catalog.CatalogItem) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.items[item.ID] = item
 }
 
-func (r *mockCatalogRepo) GetMenuItem(_ context.Context, _, itemID uuid.UUID) (*catalog.MenuItem, error) {
+func (r *mockCatalogRepo) GetCatalogItem(_ context.Context, _, itemID uuid.UUID) (*catalog.CatalogItem, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	item, ok := r.items[itemID]
 	if !ok {
-		return nil, catalog.ErrMenuItemNotFound
+		return nil, catalog.ErrCatalogItemNotFound
 	}
 	return item, nil
 }
@@ -55,9 +55,6 @@ func (r *mockCatalogRepo) CreateCategory(_ context.Context, _ *catalog.Category)
 func (r *mockCatalogRepo) GetCategory(_ context.Context, _, _ uuid.UUID) (*catalog.Category, error) {
 	return nil, errors.New("not implemented")
 }
-func (r *mockCatalogRepo) GetCategoryByName(_ context.Context, _, _ uuid.UUID, _ string) (*catalog.Category, error) {
-	return nil, errors.New("not implemented")
-}
 func (r *mockCatalogRepo) ListCategories(_ context.Context, _ catalog.CategoryFilter) ([]catalog.Category, int, error) {
 	return nil, 0, errors.New("not implemented")
 }
@@ -67,56 +64,20 @@ func (r *mockCatalogRepo) UpdateCategory(_ context.Context, _ *catalog.Category)
 func (r *mockCatalogRepo) DeleteCategory(_ context.Context, _, _ uuid.UUID) error {
 	return errors.New("not implemented")
 }
-func (r *mockCatalogRepo) CountCategoryItems(_ context.Context, _ uuid.UUID) (int, error) {
-	return 0, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) CountCategoryChildren(_ context.Context, _ uuid.UUID) (int, error) {
-	return 0, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) CreateMenuItem(_ context.Context, _ *catalog.MenuItem) error {
+func (r *mockCatalogRepo) CreateCatalogItem(_ context.Context, _ *catalog.CatalogItem) error {
 	return errors.New("not implemented")
 }
-func (r *mockCatalogRepo) GetMenuItemBySKU(_ context.Context, _ uuid.UUID, _ string) (*catalog.MenuItem, error) {
-	return nil, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) ListMenuItems(_ context.Context, _ catalog.MenuItemFilter) ([]catalog.MenuItem, int, error) {
+func (r *mockCatalogRepo) ListCatalogItems(_ context.Context, _ catalog.CatalogItemFilter) ([]catalog.CatalogItem, int, error) {
 	return nil, 0, errors.New("not implemented")
 }
-func (r *mockCatalogRepo) UpdateMenuItem(_ context.Context, _ *catalog.MenuItem) error {
+func (r *mockCatalogRepo) UpdateCatalogItem(_ context.Context, _ *catalog.CatalogItem) error {
 	return errors.New("not implemented")
 }
-func (r *mockCatalogRepo) DeleteMenuItem(_ context.Context, _, _ uuid.UUID) error {
+func (r *mockCatalogRepo) DeleteCatalogItem(_ context.Context, _, _ uuid.UUID) error {
 	return errors.New("not implemented")
 }
-func (r *mockCatalogRepo) CreateVariant(_ context.Context, _ *catalog.Variant) error {
-	return errors.New("not implemented")
-}
-func (r *mockCatalogRepo) GetVariant(_ context.Context, _ uuid.UUID) (*catalog.Variant, error) {
-	return nil, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) ListVariants(_ context.Context, _ uuid.UUID) ([]catalog.Variant, error) {
-	return nil, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) UpdateVariant(_ context.Context, _ *catalog.Variant) error {
-	return errors.New("not implemented")
-}
-func (r *mockCatalogRepo) DeleteVariant(_ context.Context, _ uuid.UUID) error {
-	return errors.New("not implemented")
-}
-func (r *mockCatalogRepo) CreateTranslation(_ context.Context, _ *catalog.Translation) error {
-	return errors.New("not implemented")
-}
-func (r *mockCatalogRepo) GetTranslation(_ context.Context, _ uuid.UUID, _ string) (*catalog.Translation, error) {
-	return nil, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) ListTranslations(_ context.Context, _ uuid.UUID) ([]catalog.Translation, error) {
-	return nil, errors.New("not implemented")
-}
-func (r *mockCatalogRepo) UpdateTranslation(_ context.Context, _ *catalog.Translation) error {
-	return errors.New("not implemented")
-}
-func (r *mockCatalogRepo) DeleteTranslation(_ context.Context, _ uuid.UUID, _ string) error {
-	return errors.New("not implemented")
+func (r *mockCatalogRepo) ToggleFavorite(_ context.Context, _, _ uuid.UUID) (bool, error) {
+	return false, errors.New("not implemented")
 }
 func (r *mockCatalogRepo) CreateDietaryTag(_ context.Context, _ *catalog.DietaryTag) error {
 	return errors.New("not implemented")
@@ -166,10 +127,16 @@ func (r *mockCatalogRepo) UpdateSchedule(_ context.Context, _ *catalog.Schedule)
 func (r *mockCatalogRepo) DeleteSchedule(_ context.Context, _ uuid.UUID) error {
 	return errors.New("not implemented")
 }
-func (r *mockCatalogRepo) GetPublicMenu(_ context.Context, _ catalog.PublicMenuRequest) ([]catalog.PublicMenuItem, int, error) {
+func (r *mockCatalogRepo) GetPublicMenu(_ context.Context, _ catalog.PublicCatalogRequest) ([]catalog.PublicCatalogItem, int, error) {
 	return nil, 0, errors.New("not implemented")
 }
 func (r *mockCatalogRepo) GetPublicCategories(_ context.Context, _, _ uuid.UUID) ([]catalog.PublicCategory, error) {
+	return nil, errors.New("not implemented")
+}
+func (r *mockCatalogRepo) GetDistinctOutletIDs(_ context.Context, _ uuid.UUID) ([]uuid.UUID, error) {
+	return nil, errors.New("not implemented")
+}
+func (r *mockCatalogRepo) GetOutlet(_ context.Context, _, _ uuid.UUID) (*catalog.OutletSummary, error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -223,11 +190,11 @@ func (r *mockOrderingRepo) GetCart(_ context.Context, _, cartID uuid.UUID) (*Car
 	return &c, nil
 }
 
-func (r *mockOrderingRepo) GetActiveCartByUser(_ context.Context, tenantID, cafeID, userID uuid.UUID) (*Cart, error) {
+func (r *mockOrderingRepo) GetActiveCartByUser(_ context.Context, tenantID, outletID, userID uuid.UUID) (*Cart, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	for _, cart := range r.carts {
-		if cart.TenantID == tenantID && cart.CafeID == cafeID &&
+		if cart.TenantID == tenantID && cart.OutletID == outletID &&
 			cart.UserID != nil && *cart.UserID == userID &&
 			cart.Status == CartStatusActive {
 			c := *cart
@@ -237,11 +204,11 @@ func (r *mockOrderingRepo) GetActiveCartByUser(_ context.Context, tenantID, cafe
 	return nil, ErrCartNotFound
 }
 
-func (r *mockOrderingRepo) GetActiveCartBySession(_ context.Context, tenantID, cafeID uuid.UUID, sessionID string) (*Cart, error) {
+func (r *mockOrderingRepo) GetActiveCartBySession(_ context.Context, tenantID, outletID uuid.UUID, sessionID string) (*Cart, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	for _, cart := range r.carts {
-		if cart.TenantID == tenantID && cart.CafeID == cafeID &&
+		if cart.TenantID == tenantID && cart.OutletID == outletID &&
 			cart.SessionID == sessionID &&
 			cart.Status == CartStatusActive {
 			c := *cart
@@ -322,12 +289,12 @@ func (r *mockOrderingRepo) GetCartItem(_ context.Context, cartID, itemID uuid.UU
 	return nil, ErrCartItemNotFound
 }
 
-func (r *mockOrderingRepo) GetCartItemByMenuItem(_ context.Context, cartID, menuItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error) {
+func (r *mockOrderingRepo) GetCartItemByCatalogItem(_ context.Context, cartID, catalogItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	for i := range r.cartItems[cartID] {
 		ci := &r.cartItems[cartID][i]
-		if ci.MenuItemID == menuItemID {
+		if ci.CatalogItemID == catalogItemID {
 			if variantID == nil && ci.VariantID == nil {
 				item := *ci
 				return &item, nil
@@ -533,7 +500,7 @@ func (r *mockOrderingRepo) GetTenantByID(_ context.Context, _ uuid.UUID) (*Tenan
 	return nil, errors.New("not implemented")
 }
 
-func (r *mockOrderingRepo) GetMenuItemByID(_ context.Context, _, _ uuid.UUID) (*catalog.MenuItem, error) {
+func (r *mockOrderingRepo) GetCatalogItemByID(_ context.Context, _, _ uuid.UUID) (*catalog.CatalogItem, error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -550,7 +517,7 @@ type testHarness struct {
 
 	// Reusable IDs shared across tests.
 	tenantID uuid.UUID
-	cafeID   uuid.UUID
+	outletID uuid.UUID
 	userID   uuid.UUID
 }
 
@@ -568,37 +535,37 @@ func newTestHarness(t *testing.T) *testHarness {
 		catalogRepo: catalogRepo,
 		logger:      logger,
 		tenantID:    uuid.New(),
-		cafeID:      uuid.New(),
+		outletID:    uuid.New(),
 		userID:      uuid.New(),
 	}
 }
 
-// seedAvailableMenuItem inserts a menu item into the catalog mock and returns it.
-func (h *testHarness) seedAvailableMenuItem(basePrice float64, variants ...catalog.Variant) *catalog.MenuItem {
-	item := &catalog.MenuItem{
+// seedAvailableCatalogItem inserts a catalog item into the catalog mock and returns it.
+func (h *testHarness) seedAvailableCatalogItem(basePrice float64, variants ...catalog.Variant) *catalog.CatalogItem {
+	item := &catalog.CatalogItem{
 		ID:          uuid.New(),
 		TenantID:    h.tenantID,
-		CafeID:      h.cafeID,
+		OutletID:      h.outletID,
 		Name:        fmt.Sprintf("Test Item %s", uuid.New().String()[:8]),
 		BasePrice:   basePrice,
 		IsAvailable: true,
 		Variants:    variants,
 	}
-	h.catalogRepo.seedMenuItem(item)
+	h.catalogRepo.seedCatalogItem(item)
 	return item
 }
 
-// seedUnavailableMenuItem inserts an unavailable menu item.
-func (h *testHarness) seedUnavailableMenuItem(basePrice float64) *catalog.MenuItem {
-	item := &catalog.MenuItem{
+// seedUnavailableCatalogItem inserts an unavailable catalog item.
+func (h *testHarness) seedUnavailableCatalogItem(basePrice float64) *catalog.CatalogItem {
+	item := &catalog.CatalogItem{
 		ID:          uuid.New(),
 		TenantID:    h.tenantID,
-		CafeID:      h.cafeID,
+		OutletID:    h.outletID,
 		Name:        "Unavailable Item",
 		BasePrice:   basePrice,
 		IsAvailable: false,
 	}
-	h.catalogRepo.seedMenuItem(item)
+	h.catalogRepo.seedCatalogItem(item)
 	return item
 }
 
@@ -630,7 +597,7 @@ func TestGetOrCreateCart(t *testing.T) {
 			check: func(t *testing.T, h *testHarness, cart *Cart) {
 				assert.NotEqual(t, uuid.Nil, cart.ID)
 				assert.Equal(t, h.tenantID, cart.TenantID)
-				assert.Equal(t, h.cafeID, cart.CafeID)
+				assert.Equal(t, h.outletID, cart.OutletID)
 				assert.Equal(t, &h.userID, cart.UserID)
 				assert.Equal(t, CartStatusActive, cart.Status)
 				assert.Equal(t, DefaultCurrency, cart.Currency)
@@ -657,7 +624,7 @@ func TestGetOrCreateCart(t *testing.T) {
 			setup: func(h *testHarness) {
 				// Pre-create a cart for this user.
 				ctx := context.Background()
-				_, _ = h.svc.GetOrCreateCart(ctx, h.tenantID, h.cafeID, &h.userID, "")
+				_, _ = h.svc.GetOrCreateCart(ctx, h.tenantID, h.outletID, &h.userID, "")
 			},
 			userID: func(h *testHarness) *uuid.UUID {
 				return &h.userID
@@ -684,7 +651,7 @@ func TestGetOrCreateCart(t *testing.T) {
 				expired := time.Now().Add(-1 * time.Hour)
 				cart := &Cart{
 					TenantID:  h.tenantID,
-					CafeID:    h.cafeID,
+					OutletID:  h.outletID,
 					UserID:    &h.userID,
 					Status:    CartStatusActive,
 					Currency:  DefaultCurrency,
@@ -731,7 +698,7 @@ func TestGetOrCreateCart(t *testing.T) {
 			tc.setup(h)
 
 			ctx := context.Background()
-			cart, err := h.svc.GetOrCreateCart(ctx, h.tenantID, h.cafeID, tc.userID(h), tc.sessionID)
+			cart, err := h.svc.GetOrCreateCart(ctx, h.tenantID, h.outletID, tc.userID(h), tc.sessionID)
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
@@ -757,12 +724,12 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "adds new item to cart",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedAvailableMenuItem(250.0)
+				ci := h.seedAvailableCatalogItem(250.0)
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: ci.ID,
 					Quantity:   2,
 					Notes:      "extra spicy",
 				}
@@ -780,12 +747,12 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "rejects zero quantity",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   0,
 				}
 			},
@@ -795,12 +762,12 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "rejects negative quantity",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   -1,
 				}
 			},
@@ -810,16 +777,16 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "rejects unavailable menu item",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedUnavailableMenuItem(100.0)
+				mi := h.seedUnavailableCatalogItem(100.0)
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				}
 			},
-			wantErr: ErrMenuItemUnavailable,
+			wantErr: ErrCatalogItemUnavailable,
 			check:   nil,
 		},
 		{
@@ -827,20 +794,20 @@ func TestAddItem(t *testing.T) {
 			setup: func(h *testHarness) AddItemRequest {
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: uuid.New(), // does not exist
+					CatalogItemID: uuid.New(), // does not exist
 					Quantity:   1,
 				}
 			},
-			wantErr: ErrMenuItemUnavailable,
+			wantErr: ErrCatalogItemUnavailable,
 			check:   nil,
 		},
 		{
 			name: "adds item with valid variant and price delta",
 			setup: func(h *testHarness) AddItemRequest {
 				variantID := uuid.New()
-				mi := h.seedAvailableMenuItem(200.0, catalog.Variant{
+				mi := h.seedAvailableCatalogItem(200.0, catalog.Variant{
 					ID:          variantID,
 					Name:        "Large",
 					PriceDelta:  50.0,
@@ -848,9 +815,9 @@ func TestAddItem(t *testing.T) {
 				})
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantID),
 					Quantity:   1,
 				}
@@ -866,7 +833,7 @@ func TestAddItem(t *testing.T) {
 			name: "rejects unavailable variant",
 			setup: func(h *testHarness) AddItemRequest {
 				variantID := uuid.New()
-				mi := h.seedAvailableMenuItem(200.0, catalog.Variant{
+				mi := h.seedAvailableCatalogItem(200.0, catalog.Variant{
 					ID:          variantID,
 					Name:        "XL",
 					PriceDelta:  100.0,
@@ -874,9 +841,9 @@ func TestAddItem(t *testing.T) {
 				})
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantID),
 					Quantity:   1,
 				}
@@ -887,7 +854,7 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "rejects non-existent variant ID",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedAvailableMenuItem(200.0, catalog.Variant{
+				mi := h.seedAvailableCatalogItem(200.0, catalog.Variant{
 					ID:          uuid.New(),
 					Name:        "Small",
 					PriceDelta:  -20.0,
@@ -895,9 +862,9 @@ func TestAddItem(t *testing.T) {
 				})
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(uuid.New()), // different ID
 					Quantity:   1,
 				}
@@ -908,23 +875,23 @@ func TestAddItem(t *testing.T) {
 		{
 			name: "deduplicates same menu item by incrementing quantity",
 			setup: func(h *testHarness) AddItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				// First add.
 				_, _ = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   3,
 					Notes:      "first add",
 				})
 				// Return the second add request for the same item.
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   2,
 					Notes:      "second add",
 				}
@@ -941,7 +908,7 @@ func TestAddItem(t *testing.T) {
 			name: "deduplicates same item with same variant",
 			setup: func(h *testHarness) AddItemRequest {
 				variantID := uuid.New()
-				mi := h.seedAvailableMenuItem(200.0, catalog.Variant{
+				mi := h.seedAvailableCatalogItem(200.0, catalog.Variant{
 					ID:          variantID,
 					Name:        "Large",
 					PriceDelta:  50.0,
@@ -950,17 +917,17 @@ func TestAddItem(t *testing.T) {
 				ctx := context.Background()
 				_, _ = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantID),
 					Quantity:   1,
 				})
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantID),
 					Quantity:   2,
 				}
@@ -977,24 +944,24 @@ func TestAddItem(t *testing.T) {
 			setup: func(h *testHarness) AddItemRequest {
 				variantA := uuid.New()
 				variantB := uuid.New()
-				mi := h.seedAvailableMenuItem(200.0,
+				mi := h.seedAvailableCatalogItem(200.0,
 					catalog.Variant{ID: variantA, Name: "Small", PriceDelta: 0, IsAvailable: true},
 					catalog.Variant{ID: variantB, Name: "Large", PriceDelta: 100, IsAvailable: true},
 				)
 				ctx := context.Background()
 				_, _ = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantA),
 					Quantity:   1,
 				})
 				return AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					VariantID:  ptrUUID(variantB),
 					Quantity:   1,
 				}
@@ -1038,13 +1005,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "updates quantity",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(150.0)
+				mi := h.seedAvailableCatalogItem(150.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   2,
 				})
 				require.NoError(t, err)
@@ -1066,13 +1033,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "removes item when quantity set to zero",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   3,
 				})
 				require.NoError(t, err)
@@ -1092,13 +1059,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "removes item when quantity set to negative",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1117,13 +1084,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "updates notes only",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 					Notes:      "original notes",
 				})
@@ -1145,13 +1112,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "rejects update on checked-out cart",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1173,13 +1140,13 @@ func TestUpdateItem(t *testing.T) {
 		{
 			name: "returns error for non-existent item",
 			setup: func(h *testHarness) UpdateItemRequest {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1227,13 +1194,13 @@ func TestRemoveItem(t *testing.T) {
 		{
 			name: "removes item from cart",
 			setup: func(h *testHarness) (uuid.UUID, uuid.UUID) {
-				mi := h.seedAvailableMenuItem(200.0)
+				mi := h.seedAvailableCatalogItem(200.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   3,
 				})
 				require.NoError(t, err)
@@ -1248,29 +1215,29 @@ func TestRemoveItem(t *testing.T) {
 		{
 			name: "removes one item, keeps others",
 			setup: func(h *testHarness) (uuid.UUID, uuid.UUID) {
-				mi1 := h.seedAvailableMenuItem(100.0)
-				mi2 := h.seedAvailableMenuItem(200.0)
+				mi1 := h.seedAvailableCatalogItem(100.0)
+				mi2 := h.seedAvailableCatalogItem(200.0)
 				ctx := context.Background()
 				_, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi1.ID,
+					CatalogItemID: mi1.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi2.ID,
+					CatalogItemID: mi2.ID,
 					Quantity:   2,
 				})
 				require.NoError(t, err)
 				// Remove the first item (mi1).
 				var mi1ItemID uuid.UUID
 				for _, item := range cart.Items {
-					if item.MenuItemID == mi1.ID {
+					if item.CatalogItemID == mi1.ID {
 						mi1ItemID = item.ID
 						break
 					}
@@ -1286,13 +1253,13 @@ func TestRemoveItem(t *testing.T) {
 		{
 			name: "rejects removal from checked-out cart",
 			setup: func(h *testHarness) (uuid.UUID, uuid.UUID) {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1340,21 +1307,21 @@ func TestClearCart(t *testing.T) {
 		{
 			name: "clears all items and resets totals",
 			setup: func(h *testHarness) uuid.UUID {
-				mi1 := h.seedAvailableMenuItem(100.0)
-				mi2 := h.seedAvailableMenuItem(250.0)
+				mi1 := h.seedAvailableCatalogItem(100.0)
+				mi2 := h.seedAvailableCatalogItem(250.0)
 				ctx := context.Background()
 				_, _ = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi1.ID,
+					CatalogItemID: mi1.ID,
 					Quantity:   2,
 				})
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi2.ID,
+					CatalogItemID: mi2.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1374,13 +1341,13 @@ func TestClearCart(t *testing.T) {
 		{
 			name: "rejects clear on checked-out cart",
 			setup: func(h *testHarness) uuid.UUID {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1434,21 +1401,21 @@ func TestGetCartSummary(t *testing.T) {
 		{
 			name: "calculates correct totals with items only",
 			setup: func(h *testHarness) uuid.UUID {
-				mi1 := h.seedAvailableMenuItem(100.0)
-				mi2 := h.seedAvailableMenuItem(200.0)
+				mi1 := h.seedAvailableCatalogItem(100.0)
+				mi2 := h.seedAvailableCatalogItem(200.0)
 				ctx := context.Background()
 				_, _ = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi1.ID,
+					CatalogItemID: mi1.ID,
 					Quantity:   3, // 300
 				})
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi2.ID,
+					CatalogItemID: mi2.ID,
 					Quantity:   2, // 400
 				})
 				require.NoError(t, err)
@@ -1468,13 +1435,13 @@ func TestGetCartSummary(t *testing.T) {
 		{
 			name: "calculates grand total with loyalty points and delivery fee",
 			setup: func(h *testHarness) uuid.UUID {
-				mi := h.seedAvailableMenuItem(500.0)
+				mi := h.seedAvailableCatalogItem(500.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   1, // 500
 				})
 				require.NoError(t, err)
@@ -1545,14 +1512,14 @@ func TestMergeGuestCart(t *testing.T) {
 			name:      "merges guest items into empty user cart",
 			sessionID: "guest-sess-merge-1",
 			setup: func(h *testHarness, sessionID string) {
-				mi := h.seedAvailableMenuItem(300.0)
+				mi := h.seedAvailableCatalogItem(300.0)
 				ctx := context.Background()
 				// Create guest cart with items.
 				_, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					SessionID:  sessionID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   2,
 				})
 				require.NoError(t, err)
@@ -1581,15 +1548,15 @@ func TestMergeGuestCart(t *testing.T) {
 			name:      "merges guest items and combines quantities for matching items",
 			sessionID: "guest-sess-merge-2",
 			setup: func(h *testHarness, sessionID string) {
-				mi := h.seedAvailableMenuItem(100.0)
+				mi := h.seedAvailableCatalogItem(100.0)
 				ctx := context.Background()
 
 				// User already has this item in their cart.
 				_, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   3,
 				})
 				require.NoError(t, err)
@@ -1597,9 +1564,9 @@ func TestMergeGuestCart(t *testing.T) {
 				// Guest also has the same item.
 				_, err = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					SessionID:  sessionID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   2,
 				})
 				require.NoError(t, err)
@@ -1615,16 +1582,16 @@ func TestMergeGuestCart(t *testing.T) {
 			name:      "merges guest cart with different items into user cart",
 			sessionID: "guest-sess-merge-3",
 			setup: func(h *testHarness, sessionID string) {
-				mi1 := h.seedAvailableMenuItem(100.0)
-				mi2 := h.seedAvailableMenuItem(200.0)
+				mi1 := h.seedAvailableCatalogItem(100.0)
+				mi2 := h.seedAvailableCatalogItem(200.0)
 				ctx := context.Background()
 
 				// User has item 1.
 				_, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi1.ID,
+					CatalogItemID: mi1.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1632,9 +1599,9 @@ func TestMergeGuestCart(t *testing.T) {
 				// Guest has item 2.
 				_, err = h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					SessionID:  sessionID,
-					MenuItemID: mi2.ID,
+					CatalogItemID: mi2.ID,
 					Quantity:   1,
 				})
 				require.NoError(t, err)
@@ -1664,7 +1631,7 @@ func TestMergeGuestCart(t *testing.T) {
 			tc.setup(h, tc.sessionID)
 
 			ctx := context.Background()
-			cart, err := h.svc.MergeGuestCart(ctx, h.tenantID, h.cafeID, tc.sessionID, h.userID)
+			cart, err := h.svc.MergeGuestCart(ctx, h.tenantID, h.outletID, tc.sessionID, h.userID)
 
 			if tc.wantErr != nil {
 				require.Error(t, err)
@@ -1690,13 +1657,13 @@ func TestGetCart(t *testing.T) {
 		{
 			name: "retrieves cart by ID with items loaded",
 			setup: func(h *testHarness) uuid.UUID {
-				mi := h.seedAvailableMenuItem(150.0)
+				mi := h.seedAvailableCatalogItem(150.0)
 				ctx := context.Background()
 				cart, err := h.svc.AddItem(ctx, AddItemRequest{
 					TenantID:   h.tenantID,
-					CafeID:     h.cafeID,
+					OutletID:     h.outletID,
 					UserID:     &h.userID,
-					MenuItemID: mi.ID,
+					CatalogItemID: mi.ID,
 					Quantity:   2,
 				})
 				require.NoError(t, err)

@@ -13,8 +13,8 @@ import (
 	atlasmigrate "ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
-	_ "github.com/lib/pq"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 )
 
 func main() {

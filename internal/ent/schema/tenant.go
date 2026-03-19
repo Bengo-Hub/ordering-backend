@@ -72,7 +72,8 @@ func (Tenant) Fields() []ent.Field {
 			Comment("Staff count band: 1-5 | 6-20 | 21-100 | 100+"),
 		field.String("use_case").
 			Optional().
-			Comment("Primary business use case: food_delivery | logistics | cafe_restaurant | retail | other"),
+			Nillable().
+			Comment("Primary business use case: hospitality | retail | quick_service | manufacturing | warehousing | services | e_commerce | other"),
 
 		// ── Subscription Tier Cache ────────────────────────────────────────────
 		// Denormalized from subscription-api for fast JWT enrichment and auth checks.
@@ -120,7 +121,7 @@ func (Tenant) Edges() []ent.Edge {
 		edge.To("settings", TenantSetting.Type).
 			Unique(),
 		edge.To("users", User.Type),
-		edge.To("sessions", Session.Type),
+		edge.To("outlets", Outlet.Type),
 		edge.To("sync_events", TenantSyncEvent.Type),
 	}
 }

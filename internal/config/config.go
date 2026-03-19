@@ -29,8 +29,9 @@ type Config struct {
 	Treasury      TreasuryConfig      `envconfig:""`
 	Logistics     LogisticsConfig     `envconfig:""`
 	Inventory     InventoryConfig     `envconfig:""`
-	Notifications NotificationsConfig `envconfig:""`
-	Superset      SupersetConfig      `envconfig:""`
+	Notifications  NotificationsConfig  `envconfig:""`
+	Subscriptions  SubscriptionsConfig  `envconfig:""`
+	Superset       SupersetConfig       `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
 	Media         MediaConfig         `envconfig:""`
 }
@@ -148,6 +149,13 @@ type NotificationsConfig struct {
 	RequestTimeout time.Duration `envconfig:"NOTIFICATIONS_REQUEST_TIMEOUT" default:"10s"`
 }
 
+type SubscriptionsConfig struct {
+	// Subscriptions service URL
+	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4006"`
+	APIKey         string        `envconfig:"SUBSCRIPTIONS_API_KEY"`
+	RequestTimeout time.Duration `envconfig:"SUBSCRIPTIONS_REQUEST_TIMEOUT" default:"10s"`
+}
+
 type SupersetConfig struct {
 	// Superset service URL
 	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.com"`
@@ -229,6 +237,9 @@ func Load() (*Config, error) {
 	}
 	if err := envconfig.Process(namespace, &cfg.Notifications); err != nil {
 		return nil, fmt.Errorf("config: failed to load notifications config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Subscriptions); err != nil {
+		return nil, fmt.Errorf("config: failed to load subscriptions config: %w", err)
 	}
 	if err := envconfig.Process(namespace, &cfg.Superset); err != nil {
 		return nil, fmt.Errorf("config: failed to load superset config: %w", err)

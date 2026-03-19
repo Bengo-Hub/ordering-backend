@@ -40,7 +40,7 @@ func (DietaryTag) Fields() []ent.Field {
 // Edges of the DietaryTag.
 func (DietaryTag) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("menu_items", MenuItem.Type).
+		edge.From("catalog_items", CatalogItem.Type).
 			Ref("dietary_tags"),
 	}
 }

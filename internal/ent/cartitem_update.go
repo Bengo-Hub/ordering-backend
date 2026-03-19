@@ -14,8 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -47,16 +46,16 @@ func (ciu *CartItemUpdate) SetNillableCartID(u *uuid.UUID) *CartItemUpdate {
 	return ciu
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (ciu *CartItemUpdate) SetMenuItemID(u uuid.UUID) *CartItemUpdate {
-	ciu.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (ciu *CartItemUpdate) SetCatalogItemID(u uuid.UUID) *CartItemUpdate {
+	ciu.mutation.SetCatalogItemID(u)
 	return ciu
 }
 
-// SetNillableMenuItemID sets the "menu_item_id" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableMenuItemID(u *uuid.UUID) *CartItemUpdate {
+// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
+func (ciu *CartItemUpdate) SetNillableCatalogItemID(u *uuid.UUID) *CartItemUpdate {
 	if u != nil {
-		ciu.SetMenuItemID(*u)
+		ciu.SetCatalogItemID(*u)
 	}
 	return ciu
 }
@@ -239,14 +238,9 @@ func (ciu *CartItemUpdate) SetCart(c *Cart) *CartItemUpdate {
 	return ciu.SetCartID(c.ID)
 }
 
-// SetMenuItem sets the "menu_item" edge to the MenuItem entity.
-func (ciu *CartItemUpdate) SetMenuItem(m *MenuItem) *CartItemUpdate {
-	return ciu.SetMenuItemID(m.ID)
-}
-
-// SetVariant sets the "variant" edge to the MenuItemVariant entity.
-func (ciu *CartItemUpdate) SetVariant(m *MenuItemVariant) *CartItemUpdate {
-	return ciu.SetVariantID(m.ID)
+// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
+func (ciu *CartItemUpdate) SetCatalogItem(c *CatalogItem) *CartItemUpdate {
+	return ciu.SetCatalogItemID(c.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
@@ -260,15 +254,9 @@ func (ciu *CartItemUpdate) ClearCart() *CartItemUpdate {
 	return ciu
 }
 
-// ClearMenuItem clears the "menu_item" edge to the MenuItem entity.
-func (ciu *CartItemUpdate) ClearMenuItem() *CartItemUpdate {
-	ciu.mutation.ClearMenuItem()
-	return ciu
-}
-
-// ClearVariant clears the "variant" edge to the MenuItemVariant entity.
-func (ciu *CartItemUpdate) ClearVariant() *CartItemUpdate {
-	ciu.mutation.ClearVariant()
+// ClearCatalogItem clears the "catalog_item" edge to the CatalogItem entity.
+func (ciu *CartItemUpdate) ClearCatalogItem() *CartItemUpdate {
+	ciu.mutation.ClearCatalogItem()
 	return ciu
 }
 
@@ -333,8 +321,8 @@ func (ciu *CartItemUpdate) check() error {
 	if _, ok := ciu.mutation.CartID(); ciu.mutation.CartCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "CartItem.cart"`)
 	}
-	if _, ok := ciu.mutation.MenuItemID(); ciu.mutation.MenuItemCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "CartItem.menu_item"`)
+	if _, ok := ciu.mutation.CatalogItemID(); ciu.mutation.CatalogItemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "CartItem.catalog_item"`)
 	}
 	return nil
 }
@@ -350,6 +338,12 @@ func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := ciu.mutation.VariantID(); ok {
+		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
+	}
+	if ciu.mutation.VariantIDCleared() {
+		_spec.ClearField(cartitem.FieldVariantID, field.TypeUUID)
 	}
 	if value, ok := ciu.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
@@ -433,57 +427,28 @@ func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ciu.mutation.MenuItemCleared() {
+	if ciu.mutation.CatalogItemCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   cartitem.MenuItemTable,
-			Columns: []string{cartitem.MenuItemColumn},
+			Table:   cartitem.CatalogItemTable,
+			Columns: []string{cartitem.CatalogItemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ciu.mutation.MenuItemIDs(); len(nodes) > 0 {
+	if nodes := ciu.mutation.CatalogItemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   cartitem.MenuItemTable,
-			Columns: []string{cartitem.MenuItemColumn},
+			Table:   cartitem.CatalogItemTable,
+			Columns: []string{cartitem.CatalogItemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ciu.mutation.VariantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.VariantTable,
-			Columns: []string{cartitem.VariantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitemvariant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ciu.mutation.VariantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.VariantTable,
-			Columns: []string{cartitem.VariantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitemvariant.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -525,16 +490,16 @@ func (ciuo *CartItemUpdateOne) SetNillableCartID(u *uuid.UUID) *CartItemUpdateOn
 	return ciuo
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (ciuo *CartItemUpdateOne) SetMenuItemID(u uuid.UUID) *CartItemUpdateOne {
-	ciuo.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (ciuo *CartItemUpdateOne) SetCatalogItemID(u uuid.UUID) *CartItemUpdateOne {
+	ciuo.mutation.SetCatalogItemID(u)
 	return ciuo
 }
 
-// SetNillableMenuItemID sets the "menu_item_id" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableMenuItemID(u *uuid.UUID) *CartItemUpdateOne {
+// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
+func (ciuo *CartItemUpdateOne) SetNillableCatalogItemID(u *uuid.UUID) *CartItemUpdateOne {
 	if u != nil {
-		ciuo.SetMenuItemID(*u)
+		ciuo.SetCatalogItemID(*u)
 	}
 	return ciuo
 }
@@ -717,14 +682,9 @@ func (ciuo *CartItemUpdateOne) SetCart(c *Cart) *CartItemUpdateOne {
 	return ciuo.SetCartID(c.ID)
 }
 
-// SetMenuItem sets the "menu_item" edge to the MenuItem entity.
-func (ciuo *CartItemUpdateOne) SetMenuItem(m *MenuItem) *CartItemUpdateOne {
-	return ciuo.SetMenuItemID(m.ID)
-}
-
-// SetVariant sets the "variant" edge to the MenuItemVariant entity.
-func (ciuo *CartItemUpdateOne) SetVariant(m *MenuItemVariant) *CartItemUpdateOne {
-	return ciuo.SetVariantID(m.ID)
+// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
+func (ciuo *CartItemUpdateOne) SetCatalogItem(c *CatalogItem) *CartItemUpdateOne {
+	return ciuo.SetCatalogItemID(c.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
@@ -738,15 +698,9 @@ func (ciuo *CartItemUpdateOne) ClearCart() *CartItemUpdateOne {
 	return ciuo
 }
 
-// ClearMenuItem clears the "menu_item" edge to the MenuItem entity.
-func (ciuo *CartItemUpdateOne) ClearMenuItem() *CartItemUpdateOne {
-	ciuo.mutation.ClearMenuItem()
-	return ciuo
-}
-
-// ClearVariant clears the "variant" edge to the MenuItemVariant entity.
-func (ciuo *CartItemUpdateOne) ClearVariant() *CartItemUpdateOne {
-	ciuo.mutation.ClearVariant()
+// ClearCatalogItem clears the "catalog_item" edge to the CatalogItem entity.
+func (ciuo *CartItemUpdateOne) ClearCatalogItem() *CartItemUpdateOne {
+	ciuo.mutation.ClearCatalogItem()
 	return ciuo
 }
 
@@ -824,8 +778,8 @@ func (ciuo *CartItemUpdateOne) check() error {
 	if _, ok := ciuo.mutation.CartID(); ciuo.mutation.CartCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "CartItem.cart"`)
 	}
-	if _, ok := ciuo.mutation.MenuItemID(); ciuo.mutation.MenuItemCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "CartItem.menu_item"`)
+	if _, ok := ciuo.mutation.CatalogItemID(); ciuo.mutation.CatalogItemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "CartItem.catalog_item"`)
 	}
 	return nil
 }
@@ -858,6 +812,12 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := ciuo.mutation.VariantID(); ok {
+		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
+	}
+	if ciuo.mutation.VariantIDCleared() {
+		_spec.ClearField(cartitem.FieldVariantID, field.TypeUUID)
 	}
 	if value, ok := ciuo.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
@@ -941,57 +901,28 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ciuo.mutation.MenuItemCleared() {
+	if ciuo.mutation.CatalogItemCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   cartitem.MenuItemTable,
-			Columns: []string{cartitem.MenuItemColumn},
+			Table:   cartitem.CatalogItemTable,
+			Columns: []string{cartitem.CatalogItemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ciuo.mutation.MenuItemIDs(); len(nodes) > 0 {
+	if nodes := ciuo.mutation.CatalogItemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   cartitem.MenuItemTable,
-			Columns: []string{cartitem.MenuItemColumn},
+			Table:   cartitem.CatalogItemTable,
+			Columns: []string{cartitem.CatalogItemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ciuo.mutation.VariantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.VariantTable,
-			Columns: []string{cartitem.VariantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitemvariant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ciuo.mutation.VariantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.VariantTable,
-			Columns: []string{cartitem.VariantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitemvariant.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

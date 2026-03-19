@@ -61,9 +61,9 @@ func TenantID(v uuid.UUID) predicate.PromoCode {
 	return predicate.PromoCode(sql.FieldEQ(FieldTenantID, v))
 }
 
-// CafeID applies equality check predicate on the "cafe_id" field. It's identical to CafeIDEQ.
-func CafeID(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldEQ(FieldCafeID, v))
+// OutletID applies equality check predicate on the "outlet_id" field. It's identical to OutletIDEQ.
+func OutletID(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldEQ(FieldOutletID, v))
 }
 
 // Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
@@ -181,54 +181,54 @@ func TenantIDLTE(v uuid.UUID) predicate.PromoCode {
 	return predicate.PromoCode(sql.FieldLTE(FieldTenantID, v))
 }
 
-// CafeIDEQ applies the EQ predicate on the "cafe_id" field.
-func CafeIDEQ(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldEQ(FieldCafeID, v))
+// OutletIDEQ applies the EQ predicate on the "outlet_id" field.
+func OutletIDEQ(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldEQ(FieldOutletID, v))
 }
 
-// CafeIDNEQ applies the NEQ predicate on the "cafe_id" field.
-func CafeIDNEQ(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldNEQ(FieldCafeID, v))
+// OutletIDNEQ applies the NEQ predicate on the "outlet_id" field.
+func OutletIDNEQ(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldNEQ(FieldOutletID, v))
 }
 
-// CafeIDIn applies the In predicate on the "cafe_id" field.
-func CafeIDIn(vs ...uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldIn(FieldCafeID, vs...))
+// OutletIDIn applies the In predicate on the "outlet_id" field.
+func OutletIDIn(vs ...uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldIn(FieldOutletID, vs...))
 }
 
-// CafeIDNotIn applies the NotIn predicate on the "cafe_id" field.
-func CafeIDNotIn(vs ...uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldNotIn(FieldCafeID, vs...))
+// OutletIDNotIn applies the NotIn predicate on the "outlet_id" field.
+func OutletIDNotIn(vs ...uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldNotIn(FieldOutletID, vs...))
 }
 
-// CafeIDGT applies the GT predicate on the "cafe_id" field.
-func CafeIDGT(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldGT(FieldCafeID, v))
+// OutletIDGT applies the GT predicate on the "outlet_id" field.
+func OutletIDGT(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldGT(FieldOutletID, v))
 }
 
-// CafeIDGTE applies the GTE predicate on the "cafe_id" field.
-func CafeIDGTE(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldGTE(FieldCafeID, v))
+// OutletIDGTE applies the GTE predicate on the "outlet_id" field.
+func OutletIDGTE(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldGTE(FieldOutletID, v))
 }
 
-// CafeIDLT applies the LT predicate on the "cafe_id" field.
-func CafeIDLT(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldLT(FieldCafeID, v))
+// OutletIDLT applies the LT predicate on the "outlet_id" field.
+func OutletIDLT(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldLT(FieldOutletID, v))
 }
 
-// CafeIDLTE applies the LTE predicate on the "cafe_id" field.
-func CafeIDLTE(v uuid.UUID) predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldLTE(FieldCafeID, v))
+// OutletIDLTE applies the LTE predicate on the "outlet_id" field.
+func OutletIDLTE(v uuid.UUID) predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldLTE(FieldOutletID, v))
 }
 
-// CafeIDIsNil applies the IsNil predicate on the "cafe_id" field.
-func CafeIDIsNil() predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldIsNull(FieldCafeID))
+// OutletIDIsNil applies the IsNil predicate on the "outlet_id" field.
+func OutletIDIsNil() predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldIsNull(FieldOutletID))
 }
 
-// CafeIDNotNil applies the NotNil predicate on the "cafe_id" field.
-func CafeIDNotNil() predicate.PromoCode {
-	return predicate.PromoCode(sql.FieldNotNull(FieldCafeID))
+// OutletIDNotNil applies the NotNil predicate on the "outlet_id" field.
+func OutletIDNotNil() predicate.PromoCode {
+	return predicate.PromoCode(sql.FieldNotNull(FieldOutletID))
 }
 
 // CodeEQ applies the EQ predicate on the "code" field.

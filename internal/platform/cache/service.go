@@ -20,7 +20,7 @@ type Service struct {
 // CacheConfig holds caching configuration settings.
 type CacheConfig struct {
 	DefaultTTL      time.Duration
-	MenuItemTTL     time.Duration
+	CatalogItemTTL  time.Duration
 	CategoryTTL     time.Duration
 	UserProfileTTL  time.Duration
 	LoyaltyTTL      time.Duration
@@ -33,7 +33,7 @@ type CacheConfig struct {
 func DefaultCacheConfig() CacheConfig {
 	return CacheConfig{
 		DefaultTTL:     15 * time.Minute,
-		MenuItemTTL:    30 * time.Minute,
+		CatalogItemTTL: 30 * time.Minute,
 		CategoryTTL:    1 * time.Hour,
 		UserProfileTTL: 10 * time.Minute,
 		LoyaltyTTL:     5 * time.Minute,
@@ -221,19 +221,19 @@ func (s *Service) SetNX(ctx context.Context, key string, value interface{}, ttl 
 // CacheKeys provides constants for common cache key patterns.
 type CacheKeys struct{}
 
-// MenuItem returns a cache key for a menu item.
-func (CacheKeys) MenuItem(tenantID, itemID string) string {
-	return fmt.Sprintf("menu:item:%s:%s", tenantID, itemID)
+// CatalogItem returns a cache key for a catalog item.
+func (CacheKeys) CatalogItem(tenantID, itemID string) string {
+	return fmt.Sprintf("catalog:item:%s:%s", tenantID, itemID)
 }
 
-// MenuCategory returns a cache key for a menu category.
-func (CacheKeys) MenuCategory(tenantID, categoryID string) string {
-	return fmt.Sprintf("menu:category:%s:%s", tenantID, categoryID)
+// CatalogCategory returns a cache key for a catalog category.
+func (CacheKeys) CatalogCategory(tenantID, categoryID string) string {
+	return fmt.Sprintf("catalog:category:%s:%s", tenantID, categoryID)
 }
 
-// MenuItemsByCafe returns a cache key for all menu items in a cafe.
-func (CacheKeys) MenuItemsByCafe(tenantID, cafeID string) string {
-	return fmt.Sprintf("menu:cafe:%s:%s:items", tenantID, cafeID)
+// CatalogItemsByCafe returns a cache key for all catalog items in a cafe.
+func (CacheKeys) CatalogItemsByCafe(tenantID, cafeID string) string {
+	return fmt.Sprintf("catalog:cafe:%s:%s:items", tenantID, cafeID)
 }
 
 // UserProfile returns a cache key for a user profile.

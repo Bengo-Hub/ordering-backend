@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -391,19 +391,19 @@ func (tu *TenantUpdate) AddUsers(u ...*User) *TenantUpdate {
 	return tu.AddUserIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (tu *TenantUpdate) AddSessionIDs(ids ...uuid.UUID) *TenantUpdate {
-	tu.mutation.AddSessionIDs(ids...)
+// AddOutletIDs adds the "outlets" edge to the Outlet entity by IDs.
+func (tu *TenantUpdate) AddOutletIDs(ids ...uuid.UUID) *TenantUpdate {
+	tu.mutation.AddOutletIDs(ids...)
 	return tu
 }
 
-// AddSessions adds the "sessions" edges to the Session entity.
-func (tu *TenantUpdate) AddSessions(s ...*Session) *TenantUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddOutlets adds the "outlets" edges to the Outlet entity.
+func (tu *TenantUpdate) AddOutlets(o ...*Outlet) *TenantUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return tu.AddSessionIDs(ids...)
+	return tu.AddOutletIDs(ids...)
 }
 
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by IDs.
@@ -453,25 +453,25 @@ func (tu *TenantUpdate) RemoveUsers(u ...*User) *TenantUpdate {
 	return tu.RemoveUserIDs(ids...)
 }
 
-// ClearSessions clears all "sessions" edges to the Session entity.
-func (tu *TenantUpdate) ClearSessions() *TenantUpdate {
-	tu.mutation.ClearSessions()
+// ClearOutlets clears all "outlets" edges to the Outlet entity.
+func (tu *TenantUpdate) ClearOutlets() *TenantUpdate {
+	tu.mutation.ClearOutlets()
 	return tu
 }
 
-// RemoveSessionIDs removes the "sessions" edge to Session entities by IDs.
-func (tu *TenantUpdate) RemoveSessionIDs(ids ...uuid.UUID) *TenantUpdate {
-	tu.mutation.RemoveSessionIDs(ids...)
+// RemoveOutletIDs removes the "outlets" edge to Outlet entities by IDs.
+func (tu *TenantUpdate) RemoveOutletIDs(ids ...uuid.UUID) *TenantUpdate {
+	tu.mutation.RemoveOutletIDs(ids...)
 	return tu
 }
 
-// RemoveSessions removes "sessions" edges to Session entities.
-func (tu *TenantUpdate) RemoveSessions(s ...*Session) *TenantUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveOutlets removes "outlets" edges to Outlet entities.
+func (tu *TenantUpdate) RemoveOutlets(o ...*Outlet) *TenantUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return tu.RemoveSessionIDs(ids...)
+	return tu.RemoveOutletIDs(ids...)
 }
 
 // ClearSyncEvents clears all "sync_events" edges to the TenantSyncEvent entity.
@@ -734,28 +734,28 @@ func (tu *TenantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tu.mutation.SessionsCleared() {
+	if tu.mutation.OutletsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.RemovedSessionsIDs(); len(nodes) > 0 && !tu.mutation.SessionsCleared() {
+	if nodes := tu.mutation.RemovedOutletsIDs(); len(nodes) > 0 && !tu.mutation.OutletsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -763,15 +763,15 @@ func (tu *TenantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.SessionsIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.OutletsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1202,19 +1202,19 @@ func (tuo *TenantUpdateOne) AddUsers(u ...*User) *TenantUpdateOne {
 	return tuo.AddUserIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (tuo *TenantUpdateOne) AddSessionIDs(ids ...uuid.UUID) *TenantUpdateOne {
-	tuo.mutation.AddSessionIDs(ids...)
+// AddOutletIDs adds the "outlets" edge to the Outlet entity by IDs.
+func (tuo *TenantUpdateOne) AddOutletIDs(ids ...uuid.UUID) *TenantUpdateOne {
+	tuo.mutation.AddOutletIDs(ids...)
 	return tuo
 }
 
-// AddSessions adds the "sessions" edges to the Session entity.
-func (tuo *TenantUpdateOne) AddSessions(s ...*Session) *TenantUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddOutlets adds the "outlets" edges to the Outlet entity.
+func (tuo *TenantUpdateOne) AddOutlets(o ...*Outlet) *TenantUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return tuo.AddSessionIDs(ids...)
+	return tuo.AddOutletIDs(ids...)
 }
 
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by IDs.
@@ -1264,25 +1264,25 @@ func (tuo *TenantUpdateOne) RemoveUsers(u ...*User) *TenantUpdateOne {
 	return tuo.RemoveUserIDs(ids...)
 }
 
-// ClearSessions clears all "sessions" edges to the Session entity.
-func (tuo *TenantUpdateOne) ClearSessions() *TenantUpdateOne {
-	tuo.mutation.ClearSessions()
+// ClearOutlets clears all "outlets" edges to the Outlet entity.
+func (tuo *TenantUpdateOne) ClearOutlets() *TenantUpdateOne {
+	tuo.mutation.ClearOutlets()
 	return tuo
 }
 
-// RemoveSessionIDs removes the "sessions" edge to Session entities by IDs.
-func (tuo *TenantUpdateOne) RemoveSessionIDs(ids ...uuid.UUID) *TenantUpdateOne {
-	tuo.mutation.RemoveSessionIDs(ids...)
+// RemoveOutletIDs removes the "outlets" edge to Outlet entities by IDs.
+func (tuo *TenantUpdateOne) RemoveOutletIDs(ids ...uuid.UUID) *TenantUpdateOne {
+	tuo.mutation.RemoveOutletIDs(ids...)
 	return tuo
 }
 
-// RemoveSessions removes "sessions" edges to Session entities.
-func (tuo *TenantUpdateOne) RemoveSessions(s ...*Session) *TenantUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveOutlets removes "outlets" edges to Outlet entities.
+func (tuo *TenantUpdateOne) RemoveOutlets(o ...*Outlet) *TenantUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return tuo.RemoveSessionIDs(ids...)
+	return tuo.RemoveOutletIDs(ids...)
 }
 
 // ClearSyncEvents clears all "sync_events" edges to the TenantSyncEvent entity.
@@ -1575,28 +1575,28 @@ func (tuo *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tuo.mutation.SessionsCleared() {
+	if tuo.mutation.OutletsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.RemovedSessionsIDs(); len(nodes) > 0 && !tuo.mutation.SessionsCleared() {
+	if nodes := tuo.mutation.RemovedOutletsIDs(); len(nodes) > 0 && !tuo.mutation.OutletsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1604,15 +1604,15 @@ func (tuo *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.SessionsIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.OutletsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

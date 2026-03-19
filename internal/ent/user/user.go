@@ -51,16 +51,6 @@ const (
 	EdgeTenant = "tenant"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
 	EdgeRoles = "roles"
-	// EdgeSessions holds the string denoting the sessions edge name in mutations.
-	EdgeSessions = "sessions"
-	// EdgeDevices holds the string denoting the devices edge name in mutations.
-	EdgeDevices = "devices"
-	// EdgeOauthAccounts holds the string denoting the oauth_accounts edge name in mutations.
-	EdgeOauthAccounts = "oauth_accounts"
-	// EdgeTwoFactorSettings holds the string denoting the two_factor_settings edge name in mutations.
-	EdgeTwoFactorSettings = "two_factor_settings"
-	// EdgeBackupCodes holds the string denoting the backup_codes edge name in mutations.
-	EdgeBackupCodes = "backup_codes"
 	// EdgePreferences holds the string denoting the preferences edge name in mutations.
 	EdgePreferences = "preferences"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
@@ -73,8 +63,8 @@ const (
 	EdgeAddresses = "addresses"
 	// EdgeLoyaltyAccount holds the string denoting the loyalty_account edge name in mutations.
 	EdgeLoyaltyAccount = "loyalty_account"
-	// EdgePaymentMethods holds the string denoting the payment_methods edge name in mutations.
-	EdgePaymentMethods = "payment_methods"
+	// EdgeFavoriteItems holds the string denoting the favorite_items edge name in mutations.
+	EdgeFavoriteItems = "favorite_items"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -89,39 +79,6 @@ const (
 	// RolesInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
 	RolesInverseTable = "roles"
-	// SessionsTable is the table that holds the sessions relation/edge.
-	SessionsTable = "sessions"
-	// SessionsInverseTable is the table name for the Session entity.
-	// It exists in this package in order to avoid circular dependency with the "session" package.
-	SessionsInverseTable = "sessions"
-	// SessionsColumn is the table column denoting the sessions relation/edge.
-	SessionsColumn = "user_id"
-	// DevicesTable is the table that holds the devices relation/edge. The primary key declared below.
-	DevicesTable = "user_devices"
-	// DevicesInverseTable is the table name for the Device entity.
-	// It exists in this package in order to avoid circular dependency with the "device" package.
-	DevicesInverseTable = "devices"
-	// OauthAccountsTable is the table that holds the oauth_accounts relation/edge.
-	OauthAccountsTable = "oauth_accounts"
-	// OauthAccountsInverseTable is the table name for the OAuthAccount entity.
-	// It exists in this package in order to avoid circular dependency with the "oauthaccount" package.
-	OauthAccountsInverseTable = "oauth_accounts"
-	// OauthAccountsColumn is the table column denoting the oauth_accounts relation/edge.
-	OauthAccountsColumn = "user_oauth_accounts"
-	// TwoFactorSettingsTable is the table that holds the two_factor_settings relation/edge.
-	TwoFactorSettingsTable = "users"
-	// TwoFactorSettingsInverseTable is the table name for the TwoFactorSetting entity.
-	// It exists in this package in order to avoid circular dependency with the "twofactorsetting" package.
-	TwoFactorSettingsInverseTable = "two_factor_settings"
-	// TwoFactorSettingsColumn is the table column denoting the two_factor_settings relation/edge.
-	TwoFactorSettingsColumn = "two_factor_setting_user"
-	// BackupCodesTable is the table that holds the backup_codes relation/edge.
-	BackupCodesTable = "backup_codes"
-	// BackupCodesInverseTable is the table name for the BackupCode entity.
-	// It exists in this package in order to avoid circular dependency with the "backupcode" package.
-	BackupCodesInverseTable = "backup_codes"
-	// BackupCodesColumn is the table column denoting the backup_codes relation/edge.
-	BackupCodesColumn = "backup_code_user"
 	// PreferencesTable is the table that holds the preferences relation/edge.
 	PreferencesTable = "user_preferences"
 	// PreferencesInverseTable is the table name for the UserPreference entity.
@@ -164,13 +121,11 @@ const (
 	LoyaltyAccountInverseTable = "loyalty_accounts"
 	// LoyaltyAccountColumn is the table column denoting the loyalty_account relation/edge.
 	LoyaltyAccountColumn = "user_id"
-	// PaymentMethodsTable is the table that holds the payment_methods relation/edge.
-	PaymentMethodsTable = "payment_methods"
-	// PaymentMethodsInverseTable is the table name for the PaymentMethod entity.
-	// It exists in this package in order to avoid circular dependency with the "paymentmethod" package.
-	PaymentMethodsInverseTable = "payment_methods"
-	// PaymentMethodsColumn is the table column denoting the payment_methods relation/edge.
-	PaymentMethodsColumn = "user_id"
+	// FavoriteItemsTable is the table that holds the favorite_items relation/edge. The primary key declared below.
+	FavoriteItemsTable = "user_favorite_items"
+	// FavoriteItemsInverseTable is the table name for the CatalogItem entity.
+	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
+	FavoriteItemsInverseTable = "catalog_items"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -194,30 +149,19 @@ var Columns = []string{
 	FieldUpdatedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"two_factor_setting_user",
-}
-
 var (
 	// RolesPrimaryKey and RolesColumn2 are the table columns denoting the
 	// primary key for the roles relation (M2M).
 	RolesPrimaryKey = []string{"user_id", "role_id"}
-	// DevicesPrimaryKey and DevicesColumn2 are the table columns denoting the
-	// primary key for the devices relation (M2M).
-	DevicesPrimaryKey = []string{"user_id", "device_id"}
+	// FavoriteItemsPrimaryKey and FavoriteItemsColumn2 are the table columns denoting the
+	// primary key for the favorite_items relation (M2M).
+	FavoriteItemsPrimaryKey = []string{"user_id", "catalog_item_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -353,69 +297,6 @@ func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// BySessionsCount orders the results by sessions count.
-func BySessionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSessionsStep(), opts...)
-	}
-}
-
-// BySessions orders the results by sessions terms.
-func BySessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByDevicesCount orders the results by devices count.
-func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newDevicesStep(), opts...)
-	}
-}
-
-// ByDevices orders the results by devices terms.
-func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByOauthAccountsCount orders the results by oauth_accounts count.
-func ByOauthAccountsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOauthAccountsStep(), opts...)
-	}
-}
-
-// ByOauthAccounts orders the results by oauth_accounts terms.
-func ByOauthAccounts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOauthAccountsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByTwoFactorSettingsField orders the results by two_factor_settings field.
-func ByTwoFactorSettingsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTwoFactorSettingsStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByBackupCodesCount orders the results by backup_codes count.
-func ByBackupCodesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newBackupCodesStep(), opts...)
-	}
-}
-
-// ByBackupCodes orders the results by backup_codes terms.
-func ByBackupCodes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBackupCodesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByPreferencesField orders the results by preferences field.
 func ByPreferencesField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -479,17 +360,17 @@ func ByLoyaltyAccountField(field string, opts ...sql.OrderTermOption) OrderOptio
 	}
 }
 
-// ByPaymentMethodsCount orders the results by payment_methods count.
-func ByPaymentMethodsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByFavoriteItemsCount orders the results by favorite_items count.
+func ByFavoriteItemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPaymentMethodsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newFavoriteItemsStep(), opts...)
 	}
 }
 
-// ByPaymentMethods orders the results by payment_methods terms.
-func ByPaymentMethods(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByFavoriteItems orders the results by favorite_items terms.
+func ByFavoriteItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPaymentMethodsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newFavoriteItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newTenantStep() *sqlgraph.Step {
@@ -504,41 +385,6 @@ func newRolesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RolesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, RolesTable, RolesPrimaryKey...),
-	)
-}
-func newSessionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SessionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SessionsTable, SessionsColumn),
-	)
-}
-func newDevicesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(DevicesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, DevicesTable, DevicesPrimaryKey...),
-	)
-}
-func newOauthAccountsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OauthAccountsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, OauthAccountsTable, OauthAccountsColumn),
-	)
-}
-func newTwoFactorSettingsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TwoFactorSettingsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, TwoFactorSettingsTable, TwoFactorSettingsColumn),
-	)
-}
-func newBackupCodesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BackupCodesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, BackupCodesTable, BackupCodesColumn),
 	)
 }
 func newPreferencesStep() *sqlgraph.Step {
@@ -583,10 +429,10 @@ func newLoyaltyAccountStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2O, false, LoyaltyAccountTable, LoyaltyAccountColumn),
 	)
 }
-func newPaymentMethodsStep() *sqlgraph.Step {
+func newFavoriteItemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PaymentMethodsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PaymentMethodsTable, PaymentMethodsColumn),
+		sqlgraph.To(FavoriteItemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, FavoriteItemsTable, FavoriteItemsPrimaryKey...),
 	)
 }

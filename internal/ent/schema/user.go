@@ -71,14 +71,6 @@ func (User) Edges() []ent.Edge {
 			Required().
 			Unique(),
 		edge.To("roles", Role.Type),
-		edge.To("sessions", Session.Type),
-		edge.To("devices", Device.Type),
-		edge.To("oauth_accounts", OAuthAccount.Type),
-		edge.From("two_factor_settings", TwoFactorSetting.Type).
-			Ref("user").
-			Unique(),
-		edge.From("backup_codes", BackupCode.Type).
-			Ref("user"),
 		edge.To("preferences", UserPreference.Type).Unique(),
 		edge.To("profile", UserProfile.Type).Unique(),
 		// Ordering module edges
@@ -86,8 +78,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("orders", Order.Type),
 		edge.To("addresses", CustomerAddress.Type),
 		edge.To("loyalty_account", LoyaltyAccount.Type).Unique(),
-		// Payments module edges
-		edge.To("payment_methods", PaymentMethod.Type),
+		edge.To("favorite_items", CatalogItem.Type),
 	}
 }
 

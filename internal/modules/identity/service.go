@@ -145,10 +145,16 @@ func (s *Service) updateUserFromAuthService(ctx context.Context, user *User, aut
 	user.UpdatedAt = now
 	user.LastLoginAt = &now
 
-	// Extract and merge roles from auth-service
+	// Extract and merge roles and permissions from auth-service
 	rolesFromAuth := extractRolesFromAuthServiceUser(authUserData, user.Email)
+	permissionsFromAuth := extractPermissionsFromAuthServiceUser(authUserData)
 	if len(rolesFromAuth) > 0 {
 		user.Roles = mergeRoles(user.Roles, rolesFromAuth)
+	}
+	if len(permissionsFromAuth) > 0 {
+		user.Permissions = mergePermissions(user.Permissions, permissionsFromAuth)
+	} else if len(rolesFromAuth) > 0 {
+		// Fallback to role-based permission consolidation only if no explicit permissions were provided
 		user.Permissions = ConsolidatePermissions(user.Roles)
 	}
 
@@ -184,11 +190,19 @@ func (s *Service) createUserFromAuthService(ctx context.Context, authServiceUser
 		status = "active"
 	}
 
-	// Determine roles
+	// Determine roles and permissions
 	roles := []Role{RoleCustomer} // Default role
 	rolesFromAuth := extractRolesFromAuthServiceUser(authUserData, email)
 	if len(rolesFromAuth) > 0 {
 		roles = mergeRoles(roles, rolesFromAuth)
+	}
+	
+	permissionsFromAuth := extractPermissionsFromAuthServiceUser(authUserData)
+	var permissions []Permission
+	if len(permissionsFromAuth) > 0 {
+		permissions = permissionsFromAuth
+	} else {
+		permissions = ConsolidatePermissions(roles)
 	}
 
 	now := s.now()
@@ -201,7 +215,7 @@ func (s *Service) createUserFromAuthService(ctx context.Context, authServiceUser
 		Phone:             phone,
 		Status:            status,
 		Roles:             roles,
-		Permissions:       ConsolidatePermissions(roles),
+		Permissions:       permissions,
 		SyncStatus:        "synced",
 		SyncAt:            &now,
 		Preferences: Preferences{
@@ -274,6 +288,46 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 	return roles
 }
 
+// extractPermissionsFromAuthServiceUser extracts permissions from auth-service user data.
+func extractPermissionsFromAuthServiceUser(authUserData map[string]interface{}) []Permission {
+	var permissions []Permission
+
+	// Check for permissions array
+	if permsData, ok := authUserData["permissions"].([]interface{}); ok {
+		for _, p := range permsData {
+			if permStr, ok := p.(string); ok {
+				permissions = append(permissions, Permission(permStr))
+			}
+		}
+	}
+
+	// Also check for string permissions (not just array)
+	if permsData, ok := authUserData["permissions"].([]string); ok {
+		for _, permStr := range permsData {
+			permissions = append(permissions, Permission(permStr))
+		}
+	}
+
+	return permissions
+}
+
+// mergePermissions merges two permission slices, removing duplicates.
+func mergePermissions(existing []Permission, newPerms []Permission) []Permission {
+	permMap := make(map[Permission]bool)
+	for _, p := range existing {
+		permMap[p] = true
+	}
+	for _, p := range newPerms {
+		permMap[p] = true
+	}
+
+	var merged []Permission
+	for p := range permMap {
+		merged = append(merged, p)
+	}
+	return merged
+}
+
 // mergeRoles merges two role slices, removing duplicates.
 func mergeRoles(existing []Role, newRoles []Role) []Role {
 	roleMap := make(map[Role]bool)
@@ -296,10 +350,6 @@ func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*User, error) {
 	return s.repo.FindUserByID(ctx, id)
 }
 
-// GetSession returns a session by identifier.
-func (s *Service) GetSession(ctx context.Context, id uuid.UUID) (*Session, error) {
-	return s.repo.FindSessionByID(ctx, id)
-}
 
 // GetOrders returns order summaries.
 func (s *Service) GetOrders(ctx context.Context, userID uuid.UUID) ([]*OrderSummary, error) {
@@ -357,54 +407,6 @@ func (s *Service) UpdatePreferences(ctx context.Context, id uuid.UUID, input Pre
 	return user, nil
 }
 
-// UpdateSecurity toggles MFA configuration.
-func (s *Service) UpdateSecurity(ctx context.Context, id uuid.UUID, input SecurityUpdateInput) (*User, error) {
-	user, err := s.repo.FindUserByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	if input.EnableTwoFactor && input.DisableTwoFactor {
-		return nil, ErrTwoFactorConflict
-	}
-
-	if input.EnableTwoFactor {
-		user.TwoFactorEnabled = true
-	} else if input.DisableTwoFactor {
-		user.TwoFactorEnabled = false
-	}
-
-	user.UpdatedAt = s.now()
-
-	if err := s.repo.UpdateUser(ctx, user); err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-// VerifyAccessToken validates the JWT access token (legacy path for backward compatibility).
-func (s *Service) VerifyAccessToken(ctx context.Context, token string) (*Claims, error) {
-	claims, err := s.tokenSigner.VerifyAccessToken(token)
-	if err != nil {
-		return nil, err
-	}
-
-	// Confirm session still valid.
-	sessionID, err := uuid.Parse(claims.SessionID)
-	if err != nil {
-		return nil, ErrInvalidCredentials
-	}
-	session, err := s.repo.FindSessionByID(ctx, sessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	if session.RevokedAt != nil || session.ExpiresAt.Before(s.now()) {
-		return nil, ErrInvalidCredentials
-	}
-
-	return claims, nil
-}
 
 // RequestMeta captures HTTP metadata for session logging.
 type RequestMeta struct {
@@ -426,8 +428,3 @@ type PreferencesUpdateInput struct {
 	Notifications *NotificationPreferences
 }
 
-// SecurityUpdateInput toggles 2FA configuration.
-type SecurityUpdateInput struct {
-	EnableTwoFactor  bool
-	DisableTwoFactor bool
-}

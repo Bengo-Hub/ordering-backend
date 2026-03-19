@@ -35,14 +35,11 @@
 - ❌ **Users/tenants/outlets**: All identity data owned by `auth-service`. Ordering service references via `user_id`, `tenant_id`, `outlet_id`. User data synced via events.
 
 **Cross-Service Data Ownership Pattern**:
-- Each service owns and manages all data related to its domain
-- Other services reference data via IDs and tenant mapping
-- Before creating/referencing data in another service:
-  1. Check tenant has that service enabled in their subscription plan
-  2. Verify tenant exists in target service (if tenant-specific)
-  3. Either push data via API or redirect to target service UI
-  4. Store only reference IDs locally, never duplicate data
-
+- Each service owns and manages all data related to its domain.
+- Ordering-backend references external entities via IDs (UUIDs).
+- Redundant tables (PoD, Payments, Notifications) have been removed from the schema.
+- Service availability checks integrated into workflows.
+- Single Source of Truth enforced per **shared-docs/CROSS-SERVICE-DATA-OWNERSHIP.md**.
 ---
 
 ## Technology Stack
@@ -112,7 +109,7 @@
   - **User Events**: Consume `auth.user.created`, `auth.user.updated`, `auth.user.deactivated` events to sync user data
   - **Tenant Events**: Consume `auth.tenant.created`, `auth.tenant.updated`, `auth.outlet.created` events
   - **Superuser Handling**: Superusers from auth-service bypass all RBAC/permission checks across all services
-  - **MFA Enforcement**: MFA state managed by auth-service, cafe backend respects MFA requirements
+  - **MFA Enforcement**: MFA state managed by auth-service, ordering-backend respects MFA requirements
   - **Service-to-Service Auth**: API key authentication for service-to-service calls
   - **Tenant Auto-Discovery**: When a user attempts to register/login with a `tenant_slug` that doesn't exist in auth-service, the cafe service automatically pulls full tenant details from the local database and creates the tenant in auth-service with the **same UUID and slug** before proceeding. This ensures tenant IDs match across all services. This is a public operation (no authentication required) and works for all billing plans (free or paid), unlike other services that may require proper billing plans before tenant sync.
 - **Tenant Sync**: Webhook events to logistics, inventory, POS, treasury, notifications services (these services may require proper billing plans before tenant sync)
@@ -204,7 +201,7 @@
   - Rider queries: `GET /v1/{tenant}/fleet-members` (all rider data from logistics-service)
   - Task status: Subscribe to `logistics.task.*` events
   - Live tracking: WebSocket/SSE streams from logistics-service
-  - **Important**: Cafe backend stores only `rider_id` references, never rider profiles or fleet data
+  - **Important**: Ordering-backend stores only `rider_id` references, never rider profiles or fleet data
 - **inventory-service**: Stock availability queries (references inventory SKUs, no duplication)
 - **treasury-api**: Payment processing (payment intents, webhooks, refunds)
 
@@ -255,7 +252,7 @@
   - Live tracking: WebSocket/SSE streams from logistics-service
   - Proof of delivery: Receive `logistics.task.completed` events
 
-**Note**: Cafe backend does NOT store rider profiles, fleet data, or delivery task details. Only references.
+**Note**: Ordering-backend does NOT store rider profiles, fleet data, or delivery task details. Only references.
 
 
 
@@ -537,4 +534,4 @@ See `docs/sprints/` folder for detailed sprint plans:
 - [Sprint Plans](docs/sprints/)
 
 ## Google Auth Sync Workflow
-For Google OAuth, the `cafe-backend` handles the callback, exchanges the code for a token/profile, and then **synchronously calls auth-service** (`SyncUser` endpoint) to ensure the user identity exists in the central auth system. The local `users` table is then updated/created with the `auth_service_user_id`.
+For Google OAuth, ordering-backend handles the callback, exchanges the code for a token/profile, and then **synchronously calls auth-service** (`SyncUser` endpoint) to ensure the user identity exists in the central auth system. The local `users` table is then updated/created with the `auth_service_user_id`.

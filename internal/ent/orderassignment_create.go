@@ -15,7 +15,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
-	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
 	"github.com/google/uuid"
 )
 
@@ -295,25 +294,6 @@ func (oac *OrderAssignmentCreate) AddDeliveryWindows(d ...*DeliveryWindow) *Orde
 	return oac.AddDeliveryWindowIDs(ids...)
 }
 
-// SetProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID.
-func (oac *OrderAssignmentCreate) SetProofOfDeliveryID(id uuid.UUID) *OrderAssignmentCreate {
-	oac.mutation.SetProofOfDeliveryID(id)
-	return oac
-}
-
-// SetNillableProofOfDeliveryID sets the "proof_of_delivery" edge to the ProofOfDelivery entity by ID if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableProofOfDeliveryID(id *uuid.UUID) *OrderAssignmentCreate {
-	if id != nil {
-		oac = oac.SetProofOfDeliveryID(*id)
-	}
-	return oac
-}
-
-// SetProofOfDelivery sets the "proof_of_delivery" edge to the ProofOfDelivery entity.
-func (oac *OrderAssignmentCreate) SetProofOfDelivery(p *ProofOfDelivery) *OrderAssignmentCreate {
-	return oac.SetProofOfDeliveryID(p.ID)
-}
-
 // Mutation returns the OrderAssignmentMutation object of the builder.
 func (oac *OrderAssignmentCreate) Mutation() *OrderAssignmentMutation {
 	return oac.mutation
@@ -573,22 +553,6 @@ func (oac *OrderAssignmentCreate) createSpec() (*OrderAssignment, *sqlgraph.Crea
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oac.mutation.ProofOfDeliveryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   orderassignment.ProofOfDeliveryTable,
-			Columns: []string{orderassignment.ProofOfDeliveryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(proofofdelivery.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

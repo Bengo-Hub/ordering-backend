@@ -44,16 +44,16 @@ func (oiu *OrderItemUpdate) SetNillableOrderID(u *uuid.UUID) *OrderItemUpdate {
 	return oiu
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (oiu *OrderItemUpdate) SetMenuItemID(u uuid.UUID) *OrderItemUpdate {
-	oiu.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (oiu *OrderItemUpdate) SetCatalogItemID(u uuid.UUID) *OrderItemUpdate {
+	oiu.mutation.SetCatalogItemID(u)
 	return oiu
 }
 
-// SetNillableMenuItemID sets the "menu_item_id" field if the given value is not nil.
-func (oiu *OrderItemUpdate) SetNillableMenuItemID(u *uuid.UUID) *OrderItemUpdate {
+// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
+func (oiu *OrderItemUpdate) SetNillableCatalogItemID(u *uuid.UUID) *OrderItemUpdate {
 	if u != nil {
-		oiu.SetMenuItemID(*u)
+		oiu.SetCatalogItemID(*u)
 	}
 	return oiu
 }
@@ -308,8 +308,8 @@ func (oiu *OrderItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := oiu.mutation.MenuItemID(); ok {
-		_spec.SetField(orderitem.FieldMenuItemID, field.TypeUUID, value)
+	if value, ok := oiu.mutation.CatalogItemID(); ok {
+		_spec.SetField(orderitem.FieldCatalogItemID, field.TypeUUID, value)
 	}
 	if value, ok := oiu.mutation.VariantID(); ok {
 		_spec.SetField(orderitem.FieldVariantID, field.TypeUUID, value)
@@ -430,16 +430,16 @@ func (oiuo *OrderItemUpdateOne) SetNillableOrderID(u *uuid.UUID) *OrderItemUpdat
 	return oiuo
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (oiuo *OrderItemUpdateOne) SetMenuItemID(u uuid.UUID) *OrderItemUpdateOne {
-	oiuo.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (oiuo *OrderItemUpdateOne) SetCatalogItemID(u uuid.UUID) *OrderItemUpdateOne {
+	oiuo.mutation.SetCatalogItemID(u)
 	return oiuo
 }
 
-// SetNillableMenuItemID sets the "menu_item_id" field if the given value is not nil.
-func (oiuo *OrderItemUpdateOne) SetNillableMenuItemID(u *uuid.UUID) *OrderItemUpdateOne {
+// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
+func (oiuo *OrderItemUpdateOne) SetNillableCatalogItemID(u *uuid.UUID) *OrderItemUpdateOne {
 	if u != nil {
-		oiuo.SetMenuItemID(*u)
+		oiuo.SetCatalogItemID(*u)
 	}
 	return oiuo
 }
@@ -724,8 +724,8 @@ func (oiuo *OrderItemUpdateOne) sqlSave(ctx context.Context) (_node *OrderItem, 
 			}
 		}
 	}
-	if value, ok := oiuo.mutation.MenuItemID(); ok {
-		_spec.SetField(orderitem.FieldMenuItemID, field.TypeUUID, value)
+	if value, ok := oiuo.mutation.CatalogItemID(); ok {
+		_spec.SetField(orderitem.FieldCatalogItemID, field.TypeUUID, value)
 	}
 	if value, ok := oiuo.mutation.VariantID(); ok {
 		_spec.SetField(orderitem.FieldVariantID, field.TypeUUID, value)

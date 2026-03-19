@@ -23,15 +23,15 @@ func (CartItem) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("cart_id", uuid.UUID{}).
 			Comment("Reference to cart"),
-		field.UUID("menu_item_id", uuid.UUID{}).
-			Comment("Reference to menu item"),
+		field.UUID("catalog_item_id", uuid.UUID{}).
+			Comment("Reference to catalog item"),
 		field.UUID("variant_id", uuid.UUID{}).
 			Optional().
 			Nillable().
-			Comment("Reference to menu item variant"),
+			Comment("Reference to catalog item variant"),
 		field.String("name_snapshot").
 			MaxLen(255).
-			Comment("Menu item name at time of adding to cart"),
+			Comment("Catalog item name at time of adding to cart"),
 		field.String("variant_name_snapshot").
 			Optional().
 			MaxLen(255).
@@ -70,15 +70,11 @@ func (CartItem) Edges() []ent.Edge {
 			Field("cart_id").
 			Unique().
 			Required(),
-		edge.From("menu_item", MenuItem.Type).
+		edge.From("catalog_item", CatalogItem.Type).
 			Ref("cart_items").
-			Field("menu_item_id").
+			Field("catalog_item_id").
 			Unique().
 			Required(),
-		edge.From("variant", MenuItemVariant.Type).
-			Ref("cart_items").
-			Field("variant_id").
-			Unique(),
 	}
 }
 
@@ -86,8 +82,6 @@ func (CartItem) Edges() []ent.Edge {
 func (CartItem) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("cart_id"),
-		index.Fields("menu_item_id"),
-		index.Fields("cart_id", "menu_item_id", "variant_id").
-			Unique(),
+		index.Fields("catalog_item_id"),
 	}
 }

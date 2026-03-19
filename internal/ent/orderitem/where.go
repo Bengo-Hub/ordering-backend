@@ -61,9 +61,9 @@ func OrderID(v uuid.UUID) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldEQ(FieldOrderID, v))
 }
 
-// MenuItemID applies equality check predicate on the "menu_item_id" field. It's identical to MenuItemIDEQ.
-func MenuItemID(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldEQ(FieldMenuItemID, v))
+// CatalogItemID applies equality check predicate on the "catalog_item_id" field. It's identical to CatalogItemIDEQ.
+func CatalogItemID(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldCatalogItemID, v))
 }
 
 // VariantID applies equality check predicate on the "variant_id" field. It's identical to VariantIDEQ.
@@ -126,44 +126,44 @@ func OrderIDNotIn(vs ...uuid.UUID) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldNotIn(FieldOrderID, vs...))
 }
 
-// MenuItemIDEQ applies the EQ predicate on the "menu_item_id" field.
-func MenuItemIDEQ(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldEQ(FieldMenuItemID, v))
+// CatalogItemIDEQ applies the EQ predicate on the "catalog_item_id" field.
+func CatalogItemIDEQ(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldCatalogItemID, v))
 }
 
-// MenuItemIDNEQ applies the NEQ predicate on the "menu_item_id" field.
-func MenuItemIDNEQ(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldNEQ(FieldMenuItemID, v))
+// CatalogItemIDNEQ applies the NEQ predicate on the "catalog_item_id" field.
+func CatalogItemIDNEQ(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNEQ(FieldCatalogItemID, v))
 }
 
-// MenuItemIDIn applies the In predicate on the "menu_item_id" field.
-func MenuItemIDIn(vs ...uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldIn(FieldMenuItemID, vs...))
+// CatalogItemIDIn applies the In predicate on the "catalog_item_id" field.
+func CatalogItemIDIn(vs ...uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIn(FieldCatalogItemID, vs...))
 }
 
-// MenuItemIDNotIn applies the NotIn predicate on the "menu_item_id" field.
-func MenuItemIDNotIn(vs ...uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldNotIn(FieldMenuItemID, vs...))
+// CatalogItemIDNotIn applies the NotIn predicate on the "catalog_item_id" field.
+func CatalogItemIDNotIn(vs ...uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotIn(FieldCatalogItemID, vs...))
 }
 
-// MenuItemIDGT applies the GT predicate on the "menu_item_id" field.
-func MenuItemIDGT(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldGT(FieldMenuItemID, v))
+// CatalogItemIDGT applies the GT predicate on the "catalog_item_id" field.
+func CatalogItemIDGT(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGT(FieldCatalogItemID, v))
 }
 
-// MenuItemIDGTE applies the GTE predicate on the "menu_item_id" field.
-func MenuItemIDGTE(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldGTE(FieldMenuItemID, v))
+// CatalogItemIDGTE applies the GTE predicate on the "catalog_item_id" field.
+func CatalogItemIDGTE(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGTE(FieldCatalogItemID, v))
 }
 
-// MenuItemIDLT applies the LT predicate on the "menu_item_id" field.
-func MenuItemIDLT(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldLT(FieldMenuItemID, v))
+// CatalogItemIDLT applies the LT predicate on the "catalog_item_id" field.
+func CatalogItemIDLT(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLT(FieldCatalogItemID, v))
 }
 
-// MenuItemIDLTE applies the LTE predicate on the "menu_item_id" field.
-func MenuItemIDLTE(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldLTE(FieldMenuItemID, v))
+// CatalogItemIDLTE applies the LTE predicate on the "catalog_item_id" field.
+func CatalogItemIDLTE(v uuid.UUID) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLTE(FieldCatalogItemID, v))
 }
 
 // VariantIDEQ applies the EQ predicate on the "variant_id" field.

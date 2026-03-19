@@ -10,12 +10,14 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/migrate"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
@@ -47,6 +49,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 	"github.com/bengobox/ordering-backend/internal/shared/logger"
@@ -120,7 +123,7 @@ func New(ctx context.Context) (*App, error) {
 
 	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
 	ormClient := ent.NewClient(ent.Driver(drv))
-	if err := ormClient.Schema.Create(ctx); err != nil {
+	if err := ormClient.Schema.Create(ctx, schema.WithDir(migrate.Dir)); err != nil {
 		return nil, fmt.Errorf("app: ent schema create: %w", err)
 	}
 
@@ -168,6 +171,13 @@ func New(ctx context.Context) (*App, error) {
 			if err := eventHandler.SubscribeToAuthEvents(natsConn); err != nil {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}
+
+			// Initialize NATS event subscribers for proactive provisioning
+			eventSub := events.NewSubscriber(natsConn, log)
+			branchSub := tenant.NewBranchSubscriber(ormClient, log)
+			if err := branchSub.RegisterSubscribers(eventSub); err != nil {
+				log.Error("failed to register branch subscribers", zap.Error(err))
+			}
 		}
 	}
 
@@ -185,13 +195,16 @@ func New(ctx context.Context) (*App, error) {
 	// Initialize inventory client (for stock availability and reservations)
 	inventoryClient := inventory.NewClient(cfg.Inventory, log)
 
+	// Initialize subscriptions client (for subscription enforcement on order creation)
+	subscriptionsClient := subscriptions.NewClient(cfg.Subscriptions, log)
+
 	// Initialize ordering module
 	orderingRepo := ordering.NewEntRepository(ormClient)
 	cartSvc := ordering.NewCartService(orderingRepo, catalogSvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
-	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, inventoryClient, log)
+	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, inventoryClient, subscriptionsClient, log)
 
 	// Create ordering handlers
 	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
@@ -200,9 +213,9 @@ func New(ctx context.Context) (*App, error) {
 	loyaltyHandler := orderinghandler.NewLoyaltyHandler(log, loyaltySvc)
 	addressHandler := orderinghandler.NewAddressHandler(log, addressSvc)
 
-	// Initialize payments module
+	// Initialize payments module (treasury-api is source of truth; ordering only keeps payment_intent_id on Order)
 	treasuryClient := treasury.NewClient(cfg.Treasury, log)
-	paymentsRepo := payments.NewEntRepository(ormClient)
+	paymentsRepo := payments.NewTreasuryRepository(treasuryClient)
 	paymentSvc := payments.NewPaymentService(paymentsRepo, treasuryClient, log)
 	paymentMethodSvc := payments.NewPaymentMethodService(paymentsRepo, log)
 	paymentWebhookSvc := payments.NewWebhookService(paymentsRepo, cfg.Treasury.WebhookSecret, log)
@@ -258,8 +271,8 @@ func New(ctx context.Context) (*App, error) {
 		}
 	}
 
-	// Initialize notifications module (local notification events storage)
-	notificationsRepo := notifications.NewEntRepository(ormClient)
+	// Initialize notifications module (notifications-api is source of truth; no local storage)
+	notificationsRepo := notifications.NewStubRepository()
 	notificationsSvc := notifications.NewService(notificationsRepo, log)
 	notificationsHandler := notificationshandler.NewHandler(log, notificationsSvc)
 

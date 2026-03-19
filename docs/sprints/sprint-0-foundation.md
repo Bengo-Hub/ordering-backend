@@ -7,7 +7,7 @@
 
 ## Overview
 
-Sprint 0 establishes the foundational infrastructure, project structure, and core identity management capabilities for the Cafe backend service.
+Sprint 0 establishes the foundational infrastructure, project structure, and core identity management capabilities for the ordering-backend service.
 
 ---
 
@@ -30,7 +30,7 @@ Sprint 0 establishes the foundational infrastructure, project structure, and cor
 
 **Project Structure**:
 ```
-cafe-backend/
+ordering-backend/
 ├── cmd/
 │   ├── api/              # Main application entry point
 │   ├── migrate/          # Database migration tool

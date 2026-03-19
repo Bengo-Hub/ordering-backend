@@ -17,8 +17,8 @@ const (
 	FieldID = "id"
 	// FieldOrderID holds the string denoting the order_id field in the database.
 	FieldOrderID = "order_id"
-	// FieldMenuItemID holds the string denoting the menu_item_id field in the database.
-	FieldMenuItemID = "menu_item_id"
+	// FieldCatalogItemID holds the string denoting the catalog_item_id field in the database.
+	FieldCatalogItemID = "catalog_item_id"
 	// FieldVariantID holds the string denoting the variant_id field in the database.
 	FieldVariantID = "variant_id"
 	// FieldNameSnapshot holds the string denoting the name_snapshot field in the database.
@@ -56,7 +56,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldOrderID,
-	FieldMenuItemID,
+	FieldCatalogItemID,
 	FieldVariantID,
 	FieldNameSnapshot,
 	FieldVariantNameSnapshot,
@@ -107,9 +107,9 @@ func ByOrderID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrderID, opts...).ToFunc()
 }
 
-// ByMenuItemID orders the results by the menu_item_id field.
-func ByMenuItemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMenuItemID, opts...).ToFunc()
+// ByCatalogItemID orders the results by the catalog_item_id field.
+func ByCatalogItemID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCatalogItemID, opts...).ToFunc()
 }
 
 // ByVariantID orders the results by the variant_id field.

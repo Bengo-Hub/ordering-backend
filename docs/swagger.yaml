@@ -42,11 +42,11 @@ definitions:
     properties:
       assetType:
         $ref: '#/definitions/catalog.AssetType'
+      catalogItemId:
+        type: string
       createdAt:
         type: string
       id:
-        type: string
-      menuItemId:
         type: string
       metadata:
         additionalProperties: true
@@ -62,29 +62,82 @@ definitions:
     x-enum-varnames:
     - AssetTypeImage
     - AssetTypeVideo
+  catalog.CatalogItem:
+    properties:
+      assets:
+        items:
+          $ref: '#/definitions/catalog.Asset'
+        type: array
+      basePrice:
+        description: Projected from inventory
+        type: number
+      category:
+        $ref: '#/definitions/catalog.Category'
+      categoryId:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      dietaryTags:
+        items:
+          $ref: '#/definitions/catalog.DietaryTag'
+        type: array
+      displayOrder:
+        type: integer
+      id:
+        type: string
+      inventoryItemId:
+        type: string
+      isAvailable:
+        type: boolean
+      isFavorite:
+        type: boolean
+      isFeatured:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      name:
+        description: Projected from inventory
+        type: string
+      outletId:
+        type: string
+      recipeId:
+        type: string
+      schedules:
+        items:
+          $ref: '#/definitions/catalog.Schedule'
+        type: array
+      sku:
+        type: string
+      tenantId:
+        type: string
+      updatedAt:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/catalog.Variant'
+        type: array
+    type: object
   catalog.Category:
     properties:
-      cafeId:
-        type: string
       children:
         items:
           $ref: '#/definitions/catalog.Category'
         type: array
       createdAt:
         type: string
-      description:
-        type: string
       displayOrder:
         type: integer
       id:
-        type: string
-      imageUrl:
         type: string
       isActive:
         type: boolean
       itemCount:
         type: integer
-      name:
+      outletId:
         type: string
       parentId:
         type: string
@@ -107,82 +160,16 @@ definitions:
       label:
         type: string
     type: object
-  catalog.MenuItem:
+  catalog.OutletSummary:
     properties:
-      assets:
-        items:
-          $ref: '#/definitions/catalog.Asset'
-        type: array
-      basePrice:
-        type: number
-      cafeId:
-        type: string
-      category:
-        $ref: '#/definitions/catalog.Category'
-      categoryId:
-        type: string
-      createdAt:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      dietaryTags:
-        items:
-          $ref: '#/definitions/catalog.DietaryTag'
-        type: array
-      displayOrder:
-        type: integer
       id:
         type: string
       imageUrl:
         type: string
-      isAvailable:
-        type: boolean
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      nutrition:
-        additionalProperties: true
-        type: object
-      schedules:
-        items:
-          $ref: '#/definitions/catalog.Schedule'
-        type: array
-      sku:
-        type: string
-      tenantId:
-        type: string
-      translations:
-        items:
-          $ref: '#/definitions/catalog.Translation'
-        type: array
-      updatedAt:
-        type: string
-      variants:
-        items:
-          $ref: '#/definitions/catalog.Variant'
-        type: array
-    type: object
-  catalog.PublicCategory:
-    properties:
-      children:
-        items:
-          $ref: '#/definitions/catalog.PublicCategory'
-        type: array
-      description:
-        type: string
-      id:
-        type: string
-      imageUrl:
-        type: string
-      itemCount:
-        type: integer
       name:
         type: string
     type: object
-  catalog.PublicMenuItem:
+  catalog.PublicCatalogItem:
     properties:
       basePrice:
         type: number
@@ -202,25 +189,40 @@ definitions:
         type: string
       imageUrl:
         type: string
+      isFavorite:
+        type: boolean
       leadTimeMinutes:
         type: integer
       name:
         type: string
-      variants:
+    type: object
+  catalog.PublicCategory:
+    properties:
+      children:
         items:
-          $ref: '#/definitions/catalog.Variant'
+          $ref: '#/definitions/catalog.PublicCategory'
         type: array
+      description:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      itemCount:
+        type: integer
+      name:
+        type: string
     type: object
   catalog.Schedule:
     properties:
+      catalogItemId:
+        type: string
       createdAt:
         type: string
       dayOfWeek:
         description: 0=Sunday, 6=Saturday
         type: integer
       id:
-        type: string
-      menuItemId:
         type: string
       timeEnd:
         description: HH:MM format
@@ -229,43 +231,19 @@ definitions:
         description: HH:MM format
         type: string
     type: object
-  catalog.Translation:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      locale:
-        description: e.g., "en", "sw"
-        type: string
-      menuItemId:
-        type: string
-      name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   catalog.Variant:
     properties:
-      createdAt:
+      catalogItemId:
         type: string
-      displayOrder:
-        type: integer
       id:
         type: string
       isAvailable:
         type: boolean
-      menuItemId:
-        type: string
       name:
         type: string
       priceDelta:
         type: number
       sku:
-        type: string
-      updatedAt:
         type: string
     type: object
   cataloghandler.AddDietaryTagRequest:
@@ -273,68 +251,36 @@ definitions:
       code:
         type: string
     type: object
-  cataloghandler.CreateCategoryRequest:
+  cataloghandler.CreateCatalogItemRequest:
     properties:
-      cafeId:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isActive:
-        type: boolean
-      name:
-        type: string
-      parentId:
-        type: string
-    type: object
-  cataloghandler.CreateMenuItemRequest:
-    properties:
-      basePrice:
-        type: number
-      cafeId:
-        type: string
       categoryId:
         type: string
-      currency:
-        type: string
-      description:
-        type: string
       displayOrder:
         type: integer
-      imageUrl:
+      inventoryItemId:
         type: string
       isAvailable:
+        type: boolean
+      isFeatured:
         type: boolean
       leadTimeMinutes:
         type: integer
-      name:
+      outletId:
+        type: string
+      recipeId:
         type: string
       sku:
         type: string
     type: object
-  cataloghandler.CreateTranslationRequest:
-    properties:
-      description:
-        type: string
-      locale:
-        type: string
-      name:
-        type: string
-    type: object
-  cataloghandler.CreateVariantRequest:
+  cataloghandler.CreateCategoryRequest:
     properties:
       displayOrder:
         type: integer
-      isAvailable:
+      isActive:
         type: boolean
-      name:
+      outletId:
         type: string
-      priceDelta:
-        type: number
-      sku:
+      parentId:
         type: string
     type: object
   cataloghandler.ListResponse:
@@ -347,44 +293,32 @@ definitions:
       total:
         type: integer
     type: object
+  cataloghandler.UpdateCatalogItemRequest:
+    properties:
+      categoryId:
+        type: string
+      displayOrder:
+        type: integer
+      isAvailable:
+        type: boolean
+      isFeatured:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      recipeId:
+        type: string
+      sku:
+        type: string
+    type: object
   cataloghandler.UpdateCategoryRequest:
     properties:
       clearParent:
         type: boolean
-      description:
-        type: string
       displayOrder:
         type: integer
-      imageUrl:
-        type: string
       isActive:
         type: boolean
-      name:
-        type: string
       parentId:
-        type: string
-    type: object
-  cataloghandler.UpdateMenuItemRequest:
-    properties:
-      basePrice:
-        type: number
-      categoryId:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isAvailable:
-        type: boolean
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      sku:
         type: string
     type: object
   compliance.CreateDataSubjectRequestRequest:
@@ -608,6 +542,33 @@ definitions:
           type: string
         type: array
     type: object
+  config.PublicConfigResponse:
+    properties:
+      brand_palette:
+        additionalProperties:
+          type: string
+        type: object
+      features:
+        additionalProperties:
+          type: boolean
+        type: object
+      logo_url:
+        type: string
+      name:
+        type: string
+      primary_color:
+        type: string
+      secondary_color:
+        type: string
+      short_name:
+        type: string
+      support_email:
+        type: string
+      support_phone:
+        type: string
+      tagline:
+        type: string
+    type: object
   fulfilment.AssignmentStatus:
     enum:
     - pending
@@ -752,26 +713,26 @@ definitions:
     type: object
   identity.Permission:
     enum:
-    - orders:view
+    - orders:read
     - orders:manage
     - orders:refund
     - profile:update
     - preferences:update
-    - loyalty:view
+    - loyalty:read
     - loyalty:redeem
-    - catalog:view
+    - catalog:read
     - catalog:manage
-    - payments:view
+    - payments:read
     - payments:manage
-    - logistics:view
+    - logistics:read
     - logistics:dispatch
     - operations:kitchen
     - operations:inventory
-    - notifications:view
+    - notifications:read
     - notifications:manage
-    - analytics:view
+    - analytics:read
     - analytics:export
-    - support:view
+    - support:read
     - support:manage
     - riders:onboard
     - staff:invite
@@ -848,47 +809,12 @@ definitions:
     properties:
       session:
         $ref: '#/definitions/identityhandler.SessionResponsePayload'
-      user:
-        $ref: '#/definitions/identityhandler.UserResponsePayload'
-    type: object
-  identityhandler.GoogleCompleteRequest:
-    properties:
-      code:
-        example: auth-code
-        type: string
-      state:
-        example: customer
-        type: string
-    type: object
-  identityhandler.GoogleOAuthURLResponse:
-    properties:
-      url:
-        type: string
-    type: object
-  identityhandler.GoogleStartRequest:
-    properties:
-      redirectUri:
-        example: http://localhost:3000/auth/callback
-        type: string
-      role:
-        example: customer
-        type: string
-    type: object
-  identityhandler.LoginRequest:
-    properties:
-      email:
-        example: customer@demo.com
-        type: string
-      password:
-        example: demo1234
-        type: string
-      role:
-        example: customer
+      tenant_id:
         type: string
       tenant_slug:
-        description: Defaults to "urban-cafe" if not provided
-        example: urban-cafe
         type: string
+      user:
+        $ref: '#/definitions/identityhandler.UserResponsePayload'
     type: object
   identityhandler.NotificationPreferenceInput:
     properties:
@@ -919,29 +845,6 @@ definitions:
         type: string
       total:
         type: number
-    type: object
-  identityhandler.RefreshRequest:
-    properties:
-      refreshToken:
-        example: refresh-token
-        type: string
-    type: object
-  identityhandler.RegisterRequest:
-    properties:
-      email:
-        example: newuser@urban-cafe.com
-        type: string
-      password:
-        example: SecurePassword123!
-        type: string
-      profile:
-        additionalProperties: true
-        description: Optional profile data
-        type: object
-      tenant_slug:
-        description: Defaults to "urban-cafe" if not provided
-        example: urban-cafe
-        type: string
     type: object
   identityhandler.SessionResponsePayload:
     properties:
@@ -976,13 +879,6 @@ definitions:
       phone:
         example: "+254700000000"
         type: string
-    type: object
-  identityhandler.UpdateSecurityRequest:
-    properties:
-      disableTwoFactor:
-        type: boolean
-      enableTwoFactor:
-        type: boolean
     type: object
   identityhandler.UserPreferencesResponse:
     properties:
@@ -1041,10 +937,34 @@ definitions:
       priority:
         type: string
     type: object
+  ordering.AnalyticsSummary:
+    properties:
+      cancelledOrders:
+        type: integer
+      ordersByStatus:
+        additionalProperties:
+          type: integer
+        type: object
+      revenueByCurrency:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      topSellingItems:
+        items:
+          $ref: '#/definitions/ordering.ItemSalesSummary'
+        type: array
+      totalOrders:
+        type: integer
+      totalRevenue:
+        type: number
+      trend:
+        items:
+          $ref: '#/definitions/ordering.DailyMetric'
+        type: array
+    type: object
   ordering.Cart:
     properties:
-      cafeId:
-        type: string
       createdAt:
         type: string
       currency:
@@ -1063,6 +983,8 @@ definitions:
         type: array
       loyaltyPointsRedeemed:
         type: integer
+      outletId:
+        type: string
       promoCodeId:
         type: string
       sessionId:
@@ -1084,11 +1006,11 @@ definitions:
     properties:
       cartId:
         type: string
+      catalogItemId:
+        type: string
       createdAt:
         type: string
       id:
-        type: string
-      menuItemId:
         type: string
       metadata:
         additionalProperties: true
@@ -1180,6 +1102,26 @@ definitions:
       userId:
         type: string
     type: object
+  ordering.DailyMetric:
+    properties:
+      date:
+        type: string
+      orders:
+        type: integer
+      revenue:
+        type: number
+    type: object
+  ordering.ItemSalesSummary:
+    properties:
+      catalogItemId:
+        type: string
+      nameSnapshot:
+        type: string
+      quantity:
+        type: integer
+      revenue:
+        type: number
+    type: object
   ordering.LoyaltyTransaction:
     properties:
       accountId:
@@ -1216,8 +1158,6 @@ definitions:
     - LoyaltyTransactionTypeBonus
   ordering.Order:
     properties:
-      cafeId:
-        type: string
       cancellationReason:
         type: string
       cancelledAt:
@@ -1271,11 +1211,19 @@ definitions:
         type: object
       orderNumber:
         type: string
+      outletId:
+        type: string
       paymentStatus:
         $ref: '#/definitions/ordering.PaymentStatus'
       placedAt:
         type: string
       promoCodeId:
+        type: string
+      ratedAt:
+        type: string
+      rating:
+        type: integer
+      ratingComment:
         type: string
       readyAt:
         type: string
@@ -1334,9 +1282,9 @@ definitions:
     type: object
   ordering.OrderItem:
     properties:
-      id:
+      catalogItemId:
         type: string
-      menuItemId:
+      id:
         type: string
       metadata:
         additionalProperties: true
@@ -1441,11 +1389,11 @@ definitions:
     type: object
   orderinghandler.AddItemRequest:
     properties:
-      cafeId:
-        type: string
-      menuItemId:
+      catalogItemId:
         type: string
       notes:
+        type: string
+      outletId:
         type: string
       quantity:
         type: integer
@@ -1521,6 +1469,30 @@ definitions:
       postalCode:
         type: string
     type: object
+  orderinghandler.CreateOrderRequestDTO:
+    properties:
+      deliveryAddress:
+        type: string
+      deliveryLat:
+        type: number
+      deliveryLng:
+        type: number
+      deliveryNotes:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/orderinghandler.OrderItemDTO'
+        type: array
+      outletId:
+        type: string
+      paymentMethod:
+        description: '"mpesa" | "cod"'
+        type: string
+      promoCode:
+        type: string
+      scheduledAt:
+        type: string
+    type: object
   orderinghandler.ListOrdersResponse:
     properties:
       data:
@@ -1536,10 +1508,30 @@ definitions:
     type: object
   orderinghandler.MergeCartRequest:
     properties:
-      cafeId:
+      outletId:
         type: string
       sessionId:
         type: string
+    type: object
+  orderinghandler.OrderItemDTO:
+    properties:
+      catalogItemId:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      totalPrice:
+        type: number
+      unitPrice:
+        type: number
+    type: object
+  orderinghandler.RateOrderRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        type: integer
     type: object
   orderinghandler.RemovePromoRequest:
     properties:
@@ -2108,9 +2100,9 @@ paths:
         name: X-Tenant-ID
         required: true
         type: string
-      - description: Filter by cafe ID
+      - description: Filter by outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         type: string
       - description: Filter by customer ID
         in: query
@@ -2315,6 +2307,46 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Update order status
+      tags:
+      - Admin Orders
+  /admin/orders/summary:
+    get:
+      description: Returns high-level metrics (revenue, orders, trends)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Start date (RFC3339)
+        in: query
+        name: date_from
+        type: string
+      - description: End date (RFC3339)
+        in: query
+        name: date_to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.AnalyticsSummary'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get analytics summary (admin)
       tags:
       - Admin Orders
   /admin/refunds:
@@ -2828,101 +2860,10 @@ paths:
       summary: Handle logistics webhook
       tags:
       - Webhooks
-  /auth/google/complete:
-    post:
-      consumes:
-      - application/json
-      description: Exchanges the Google authorization code for tokens, creates a user
-        if required, and issues session credentials.
-      parameters:
-      - description: Google OAuth completion request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/identityhandler.GoogleCompleteRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/identityhandler.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Complete Google OAuth sign-in
-      tags:
-      - Auth
-  /auth/google/start:
-    post:
-      consumes:
-      - application/json
-      description: Generates a Google OAuth consent URL for the requested role.
-      parameters:
-      - description: Google OAuth start request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/identityhandler.GoogleStartRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/identityhandler.GoogleOAuthURLResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Start Google OAuth sign-in
-      tags:
-      - Auth
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticates a user with email/password credentials and issues
-        session tokens scoped to the selected role.
-      parameters:
-      - description: Login request payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/identityhandler.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/identityhandler.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Sign in with email and password
-      tags:
-      - Auth
   /auth/logout:
     post:
-      description: Revokes the active session belonging to the authenticated user.
+      description: Acknowledges logout. The real sign-out happens at the SSO authorize
+        endpoint.
       produces:
       - application/json
       responses:
@@ -2941,8 +2882,7 @@ paths:
       - Auth
   /auth/me:
     get:
-      description: Returns the authenticated user's profile, preferences, and current
-        session metadata.
+      description: Returns the authenticated user's profile, preferences, and metadata.
       produces:
       - application/json
       responses:
@@ -2959,68 +2899,44 @@ paths:
       summary: Get current authenticated user
       tags:
       - Auth
-  /auth/refresh:
-    post:
-      consumes:
-      - application/json
-      description: Issues a fresh access token and refresh token pair using a valid
-        refresh token.
-      parameters:
-      - description: Refresh token request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/identityhandler.RefreshRequest'
+  /cafes:
+    get:
+      description: Returns distinct cafes (outlets) that have menu data for the tenant
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/identityhandler.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Refresh session tokens
+            items:
+              $ref: '#/definitions/catalog.OutletSummary'
+            type: array
+      summary: List cafes for tenant
       tags:
-      - Auth
-  /auth/register:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new user account via auth-service and issues session
-        tokens.
+      - Menu
+  /cafes/{id}:
+    get:
+      description: Returns one cafe/outlet if it belongs to the tenant
       parameters:
-      - description: Registration request payload
-        in: body
-        name: payload
+      - description: Cafe ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/identityhandler.RegisterRequest'
+        type: string
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/identityhandler.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "409":
-          description: Conflict
+            $ref: '#/definitions/catalog.OutletSummary'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Register a new user
+      summary: Get cafe by ID
       tags:
-      - Auth
+      - Menu
   /cart:
     delete:
       description: Removes all items from the current user's cart
@@ -3037,7 +2953,7 @@ paths:
         type: string
       - description: Cafe ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       responses:
@@ -3071,7 +2987,7 @@ paths:
         type: string
       - description: Cafe ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       produces:
@@ -3279,9 +3195,9 @@ paths:
         name: X-Tenant-ID
         required: true
         type: string
-      - description: Cafe ID
+      - description: Outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       produces:
@@ -3315,9 +3231,9 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Filter by cafe ID
+      - description: Filter by outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         type: string
       - description: Filter by parent ID
         in: query
@@ -3515,9 +3431,9 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Filter by cafe ID
+      - description: Filter by outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         type: string
       - description: Filter by category ID
         in: query
@@ -3572,14 +3488,14 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/cataloghandler.CreateMenuItemRequest'
+          $ref: '#/definitions/cataloghandler.CreateCatalogItemRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/catalog.MenuItem'
+            $ref: '#/definitions/catalog.CatalogItem'
         "400":
           description: Bad Request
           schema:
@@ -3638,7 +3554,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/catalog.MenuItem'
+            $ref: '#/definitions/catalog.CatalogItem'
         "404":
           description: Not Found
           schema:
@@ -3666,14 +3582,14 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/cataloghandler.UpdateMenuItemRequest'
+          $ref: '#/definitions/cataloghandler.UpdateCatalogItemRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/catalog.MenuItem'
+            $ref: '#/definitions/catalog.CatalogItem'
         "400":
           description: Bad Request
           schema:
@@ -3754,148 +3670,6 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Remove dietary tag from item
-      tags:
-      - Catalog
-  /catalog/items/{id}/translations:
-    get:
-      description: Lists all translations for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/catalog.Translation'
-            type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: List menu item translations
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a localized translation for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Translation data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/cataloghandler.CreateTranslationRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/catalog.Translation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Create a menu item translation
-      tags:
-      - Catalog
-  /catalog/items/{id}/variants:
-    get:
-      description: Lists all variants for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/catalog.Variant'
-            type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: List menu item variants
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a new variant (e.g., size, flavor) for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Variant data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/cataloghandler.CreateVariantRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/catalog.Variant'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Create a menu item variant
       tags:
       - Catalog
   /checkout:
@@ -3983,6 +3757,30 @@ paths:
       summary: Validate checkout
       tags:
       - Checkout
+  /config:
+    get:
+      description: Returns tenant display name and optional brand (logo_url, primary_color,
+        secondary_color) for theming
+      parameters:
+      - description: Tenant slug (e.g. urban-loft)
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/config.PublicConfigResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get tenant public config (brand)
+      tags:
+      - Config
   /customers/orders/summary:
     get:
       description: Returns a collection of recent order summaries for the authenticated
@@ -4157,12 +3955,13 @@ paths:
       - Loyalty
   /menu/categories:
     get:
-      description: Lists active menu categories for public display
+      description: Lists active menu categories for public display. Tenant can be
+        provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. outlet_id is
+        optional; when omitted, the first outlet for the tenant is used.
       parameters:
-      - description: Cafe ID
+      - description: Outlet ID (optional; defaults to first outlet)
         in: query
-        name: cafe_id
-        required: true
+        name: outlet_id
         type: string
       produces:
       - application/json
@@ -4181,9 +3980,9 @@ paths:
       description: Lists available menu items for public display with localization
         support
       parameters:
-      - description: Filter by cafe ID
+      - description: Filter by outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         type: string
       - description: Filter by category ID
         in: query
@@ -4234,12 +4033,43 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/catalog.PublicMenuItem'
+            $ref: '#/definitions/catalog.PublicCatalogItem'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get a public menu item
+      tags:
+      - Menu
+  /menu/items/{id}/favorite:
+    post:
+      description: Adds or removes a menu item from the current user's favorites
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Toggle favorite status
       tags:
       - Menu
   /metrics:
@@ -4305,6 +4135,50 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: List orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Creates an order directly from items (outletId, items, deliveryAddress,
+        paymentMethod). Alternative to cart + checkout flow.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CreateOrderRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create order from items
       tags:
       - Orders
   /orders/{orderId}:
@@ -4403,6 +4277,55 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Cancel order
+      tags:
+      - Orders
+  /orders/{orderId}/rate:
+    post:
+      consumes:
+      - application/json
+      description: Allows a customer to rate a delivered or completed order (1-5 stars)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Rating payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.RateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Rate an order
       tags:
       - Orders
   /payment-methods:
@@ -4857,39 +4780,6 @@ paths:
       security:
       - bearerAuth: []
       summary: Update profile information
-      tags:
-      - Users
-  /users/security:
-    post:
-      consumes:
-      - application/json
-      description: Enables or disables two-factor authentication for the authenticated
-        user.
-      parameters:
-      - description: Security update payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/identityhandler.UpdateSecurityRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/identityhandler.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Update account security settings
       tags:
       - Users
   /webhooks/mpesa/callback:

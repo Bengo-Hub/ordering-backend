@@ -13,8 +13,8 @@ type Repository interface {
 	// Cart operations
 	CreateCart(ctx context.Context, cart *Cart) error
 	GetCart(ctx context.Context, tenantID, cartID uuid.UUID) (*Cart, error)
-	GetActiveCartByUser(ctx context.Context, tenantID, cafeID, userID uuid.UUID) (*Cart, error)
-	GetActiveCartBySession(ctx context.Context, tenantID, cafeID uuid.UUID, sessionID string) (*Cart, error)
+	GetActiveCartByUser(ctx context.Context, tenantID, outletID, userID uuid.UUID) (*Cart, error)
+	GetActiveCartBySession(ctx context.Context, tenantID, outletID uuid.UUID, sessionID string) (*Cart, error)
 	UpdateCart(ctx context.Context, cart *Cart) error
 	DeleteCart(ctx context.Context, tenantID, cartID uuid.UUID) error
 	ListCarts(ctx context.Context, filter CartFilter) ([]Cart, int, error)
@@ -23,7 +23,7 @@ type Repository interface {
 	// CartItem operations
 	CreateCartItem(ctx context.Context, item *CartItem) error
 	GetCartItem(ctx context.Context, cartID, itemID uuid.UUID) (*CartItem, error)
-	GetCartItemByMenuItem(ctx context.Context, cartID, menuItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error)
+	GetCartItemByCatalogItem(ctx context.Context, cartID, catalogItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error)
 	UpdateCartItem(ctx context.Context, item *CartItem) error
 	DeleteCartItem(ctx context.Context, cartID, itemID uuid.UUID) error
 	ListCartItems(ctx context.Context, cartID uuid.UUID) ([]CartItem, error)
@@ -36,7 +36,7 @@ type Repository interface {
 	GetOrderByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*Order, error)
 	UpdateOrder(ctx context.Context, order *Order) error
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
-	GenerateOrderNumber(ctx context.Context, tenantID, cafeID uuid.UUID) (string, error)
+	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
 	GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error)
 
 	// OrderItem operations
@@ -87,5 +87,5 @@ type Repository interface {
 
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
-	GetMenuItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.MenuItem, error)
+	GetCatalogItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.CatalogItem, error)
 }

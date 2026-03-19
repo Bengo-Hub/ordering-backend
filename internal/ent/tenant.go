@@ -42,8 +42,8 @@ type Tenant struct {
 	BrandColors map[string]interface{} `json:"brand_colors,omitempty"`
 	// Staff count band: 1-5 | 6-20 | 21-100 | 100+
 	OrgSize string `json:"org_size,omitempty"`
-	// Primary business use case: food_delivery | logistics | cafe_restaurant | retail | other
-	UseCase string `json:"use_case,omitempty"`
+	// Primary business use case: hospitality | retail | quick_service | manufacturing | warehousing | services | e_commerce | other
+	UseCase *string `json:"use_case,omitempty"`
 	// Active plan code: STARTER | GROWTH | PROFESSIONAL
 	SubscriptionPlan string `json:"subscription_plan,omitempty"`
 	// ACTIVE | TRIAL | EXPIRED | CANCELLED
@@ -72,8 +72,8 @@ type TenantEdges struct {
 	Settings *TenantSetting `json:"settings,omitempty"`
 	// Users holds the value of the users edge.
 	Users []*User `json:"users,omitempty"`
-	// Sessions holds the value of the sessions edge.
-	Sessions []*Session `json:"sessions,omitempty"`
+	// Outlets holds the value of the outlets edge.
+	Outlets []*Outlet `json:"outlets,omitempty"`
 	// SyncEvents holds the value of the sync_events edge.
 	SyncEvents []*TenantSyncEvent `json:"sync_events,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -101,13 +101,13 @@ func (e TenantEdges) UsersOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "users"}
 }
 
-// SessionsOrErr returns the Sessions value or an error if the edge
+// OutletsOrErr returns the Outlets value or an error if the edge
 // was not loaded in eager-loading.
-func (e TenantEdges) SessionsOrErr() ([]*Session, error) {
+func (e TenantEdges) OutletsOrErr() ([]*Outlet, error) {
 	if e.loadedTypes[2] {
-		return e.Sessions, nil
+		return e.Outlets, nil
 	}
-	return nil, &NotLoadedError{edge: "sessions"}
+	return nil, &NotLoadedError{edge: "outlets"}
 }
 
 // SyncEventsOrErr returns the SyncEvents value or an error if the edge
@@ -225,7 +225,8 @@ func (t *Tenant) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field use_case", values[i])
 			} else if value.Valid {
-				t.UseCase = value.String
+				t.UseCase = new(string)
+				*t.UseCase = value.String
 			}
 		case tenant.FieldSubscriptionPlan:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -303,9 +304,9 @@ func (t *Tenant) QueryUsers() *UserQuery {
 	return NewTenantClient(t.config).QueryUsers(t)
 }
 
-// QuerySessions queries the "sessions" edge of the Tenant entity.
-func (t *Tenant) QuerySessions() *SessionQuery {
-	return NewTenantClient(t.config).QuerySessions(t)
+// QueryOutlets queries the "outlets" edge of the Tenant entity.
+func (t *Tenant) QueryOutlets() *OutletQuery {
+	return NewTenantClient(t.config).QueryOutlets(t)
 }
 
 // QuerySyncEvents queries the "sync_events" edge of the Tenant entity.
@@ -369,8 +370,10 @@ func (t *Tenant) String() string {
 	builder.WriteString("org_size=")
 	builder.WriteString(t.OrgSize)
 	builder.WriteString(", ")
-	builder.WriteString("use_case=")
-	builder.WriteString(t.UseCase)
+	if v := t.UseCase; v != nil {
+		builder.WriteString("use_case=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("subscription_plan=")
 	builder.WriteString(t.SubscriptionPlan)

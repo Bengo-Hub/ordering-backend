@@ -11,19 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
-	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
-	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -293,85 +288,6 @@ func (uu *UserUpdate) AddRoles(r ...*Role) *UserUpdate {
 	return uu.AddRoleIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (uu *UserUpdate) AddSessionIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddSessionIDs(ids...)
-	return uu
-}
-
-// AddSessions adds the "sessions" edges to the Session entity.
-func (uu *UserUpdate) AddSessions(s ...*Session) *UserUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uu.AddSessionIDs(ids...)
-}
-
-// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
-func (uu *UserUpdate) AddDeviceIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddDeviceIDs(ids...)
-	return uu
-}
-
-// AddDevices adds the "devices" edges to the Device entity.
-func (uu *UserUpdate) AddDevices(d ...*Device) *UserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
-	}
-	return uu.AddDeviceIDs(ids...)
-}
-
-// AddOauthAccountIDs adds the "oauth_accounts" edge to the OAuthAccount entity by IDs.
-func (uu *UserUpdate) AddOauthAccountIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddOauthAccountIDs(ids...)
-	return uu
-}
-
-// AddOauthAccounts adds the "oauth_accounts" edges to the OAuthAccount entity.
-func (uu *UserUpdate) AddOauthAccounts(o ...*OAuthAccount) *UserUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return uu.AddOauthAccountIDs(ids...)
-}
-
-// SetTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID.
-func (uu *UserUpdate) SetTwoFactorSettingsID(id int) *UserUpdate {
-	uu.mutation.SetTwoFactorSettingsID(id)
-	return uu
-}
-
-// SetNillableTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableTwoFactorSettingsID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetTwoFactorSettingsID(*id)
-	}
-	return uu
-}
-
-// SetTwoFactorSettings sets the "two_factor_settings" edge to the TwoFactorSetting entity.
-func (uu *UserUpdate) SetTwoFactorSettings(t *TwoFactorSetting) *UserUpdate {
-	return uu.SetTwoFactorSettingsID(t.ID)
-}
-
-// AddBackupCodeIDs adds the "backup_codes" edge to the BackupCode entity by IDs.
-func (uu *UserUpdate) AddBackupCodeIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddBackupCodeIDs(ids...)
-	return uu
-}
-
-// AddBackupCodes adds the "backup_codes" edges to the BackupCode entity.
-func (uu *UserUpdate) AddBackupCodes(b ...*BackupCode) *UserUpdate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return uu.AddBackupCodeIDs(ids...)
-}
-
 // SetPreferencesID sets the "preferences" edge to the UserPreference entity by ID.
 func (uu *UserUpdate) SetPreferencesID(id int) *UserUpdate {
 	uu.mutation.SetPreferencesID(id)
@@ -474,19 +390,19 @@ func (uu *UserUpdate) SetLoyaltyAccount(l *LoyaltyAccount) *UserUpdate {
 	return uu.SetLoyaltyAccountID(l.ID)
 }
 
-// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
-func (uu *UserUpdate) AddPaymentMethodIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddPaymentMethodIDs(ids...)
+// AddFavoriteItemIDs adds the "favorite_items" edge to the CatalogItem entity by IDs.
+func (uu *UserUpdate) AddFavoriteItemIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddFavoriteItemIDs(ids...)
 	return uu
 }
 
-// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
-func (uu *UserUpdate) AddPaymentMethods(p ...*PaymentMethod) *UserUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddFavoriteItems adds the "favorite_items" edges to the CatalogItem entity.
+func (uu *UserUpdate) AddFavoriteItems(c ...*CatalogItem) *UserUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uu.AddPaymentMethodIDs(ids...)
+	return uu.AddFavoriteItemIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -519,96 +435,6 @@ func (uu *UserUpdate) RemoveRoles(r ...*Role) *UserUpdate {
 		ids[i] = r[i].ID
 	}
 	return uu.RemoveRoleIDs(ids...)
-}
-
-// ClearSessions clears all "sessions" edges to the Session entity.
-func (uu *UserUpdate) ClearSessions() *UserUpdate {
-	uu.mutation.ClearSessions()
-	return uu
-}
-
-// RemoveSessionIDs removes the "sessions" edge to Session entities by IDs.
-func (uu *UserUpdate) RemoveSessionIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveSessionIDs(ids...)
-	return uu
-}
-
-// RemoveSessions removes "sessions" edges to Session entities.
-func (uu *UserUpdate) RemoveSessions(s ...*Session) *UserUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uu.RemoveSessionIDs(ids...)
-}
-
-// ClearDevices clears all "devices" edges to the Device entity.
-func (uu *UserUpdate) ClearDevices() *UserUpdate {
-	uu.mutation.ClearDevices()
-	return uu
-}
-
-// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
-func (uu *UserUpdate) RemoveDeviceIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveDeviceIDs(ids...)
-	return uu
-}
-
-// RemoveDevices removes "devices" edges to Device entities.
-func (uu *UserUpdate) RemoveDevices(d ...*Device) *UserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
-	}
-	return uu.RemoveDeviceIDs(ids...)
-}
-
-// ClearOauthAccounts clears all "oauth_accounts" edges to the OAuthAccount entity.
-func (uu *UserUpdate) ClearOauthAccounts() *UserUpdate {
-	uu.mutation.ClearOauthAccounts()
-	return uu
-}
-
-// RemoveOauthAccountIDs removes the "oauth_accounts" edge to OAuthAccount entities by IDs.
-func (uu *UserUpdate) RemoveOauthAccountIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveOauthAccountIDs(ids...)
-	return uu
-}
-
-// RemoveOauthAccounts removes "oauth_accounts" edges to OAuthAccount entities.
-func (uu *UserUpdate) RemoveOauthAccounts(o ...*OAuthAccount) *UserUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return uu.RemoveOauthAccountIDs(ids...)
-}
-
-// ClearTwoFactorSettings clears the "two_factor_settings" edge to the TwoFactorSetting entity.
-func (uu *UserUpdate) ClearTwoFactorSettings() *UserUpdate {
-	uu.mutation.ClearTwoFactorSettings()
-	return uu
-}
-
-// ClearBackupCodes clears all "backup_codes" edges to the BackupCode entity.
-func (uu *UserUpdate) ClearBackupCodes() *UserUpdate {
-	uu.mutation.ClearBackupCodes()
-	return uu
-}
-
-// RemoveBackupCodeIDs removes the "backup_codes" edge to BackupCode entities by IDs.
-func (uu *UserUpdate) RemoveBackupCodeIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveBackupCodeIDs(ids...)
-	return uu
-}
-
-// RemoveBackupCodes removes "backup_codes" edges to BackupCode entities.
-func (uu *UserUpdate) RemoveBackupCodes(b ...*BackupCode) *UserUpdate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return uu.RemoveBackupCodeIDs(ids...)
 }
 
 // ClearPreferences clears the "preferences" edge to the UserPreference entity.
@@ -692,25 +518,25 @@ func (uu *UserUpdate) ClearLoyaltyAccount() *UserUpdate {
 	return uu
 }
 
-// ClearPaymentMethods clears all "payment_methods" edges to the PaymentMethod entity.
-func (uu *UserUpdate) ClearPaymentMethods() *UserUpdate {
-	uu.mutation.ClearPaymentMethods()
+// ClearFavoriteItems clears all "favorite_items" edges to the CatalogItem entity.
+func (uu *UserUpdate) ClearFavoriteItems() *UserUpdate {
+	uu.mutation.ClearFavoriteItems()
 	return uu
 }
 
-// RemovePaymentMethodIDs removes the "payment_methods" edge to PaymentMethod entities by IDs.
-func (uu *UserUpdate) RemovePaymentMethodIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemovePaymentMethodIDs(ids...)
+// RemoveFavoriteItemIDs removes the "favorite_items" edge to CatalogItem entities by IDs.
+func (uu *UserUpdate) RemoveFavoriteItemIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveFavoriteItemIDs(ids...)
 	return uu
 }
 
-// RemovePaymentMethods removes "payment_methods" edges to PaymentMethod entities.
-func (uu *UserUpdate) RemovePaymentMethods(p ...*PaymentMethod) *UserUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveFavoriteItems removes "favorite_items" edges to CatalogItem entities.
+func (uu *UserUpdate) RemoveFavoriteItems(c ...*CatalogItem) *UserUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uu.RemovePaymentMethodIDs(ids...)
+	return uu.RemoveFavoriteItemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -906,215 +732,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.SessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedSessionsIDs(); len(nodes) > 0 && !uu.mutation.SessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.SessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.DevicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !uu.mutation.DevicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.DevicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.OauthAccountsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedOauthAccountsIDs(); len(nodes) > 0 && !uu.mutation.OauthAccountsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.OauthAccountsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.TwoFactorSettingsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   user.TwoFactorSettingsTable,
-			Columns: []string{user.TwoFactorSettingsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twofactorsetting.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.TwoFactorSettingsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   user.TwoFactorSettingsTable,
-			Columns: []string{user.TwoFactorSettingsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twofactorsetting.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.BackupCodesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedBackupCodesIDs(); len(nodes) > 0 && !uu.mutation.BackupCodesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.BackupCodesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1344,28 +961,28 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.PaymentMethodsCleared() {
+	if uu.mutation.FavoriteItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedPaymentMethodsIDs(); len(nodes) > 0 && !uu.mutation.PaymentMethodsCleared() {
+	if nodes := uu.mutation.RemovedFavoriteItemsIDs(); len(nodes) > 0 && !uu.mutation.FavoriteItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1373,15 +990,15 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.FavoriteItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1659,85 +1276,6 @@ func (uuo *UserUpdateOne) AddRoles(r ...*Role) *UserUpdateOne {
 	return uuo.AddRoleIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (uuo *UserUpdateOne) AddSessionIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddSessionIDs(ids...)
-	return uuo
-}
-
-// AddSessions adds the "sessions" edges to the Session entity.
-func (uuo *UserUpdateOne) AddSessions(s ...*Session) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uuo.AddSessionIDs(ids...)
-}
-
-// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
-func (uuo *UserUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddDeviceIDs(ids...)
-	return uuo
-}
-
-// AddDevices adds the "devices" edges to the Device entity.
-func (uuo *UserUpdateOne) AddDevices(d ...*Device) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
-	}
-	return uuo.AddDeviceIDs(ids...)
-}
-
-// AddOauthAccountIDs adds the "oauth_accounts" edge to the OAuthAccount entity by IDs.
-func (uuo *UserUpdateOne) AddOauthAccountIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddOauthAccountIDs(ids...)
-	return uuo
-}
-
-// AddOauthAccounts adds the "oauth_accounts" edges to the OAuthAccount entity.
-func (uuo *UserUpdateOne) AddOauthAccounts(o ...*OAuthAccount) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return uuo.AddOauthAccountIDs(ids...)
-}
-
-// SetTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID.
-func (uuo *UserUpdateOne) SetTwoFactorSettingsID(id int) *UserUpdateOne {
-	uuo.mutation.SetTwoFactorSettingsID(id)
-	return uuo
-}
-
-// SetNillableTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableTwoFactorSettingsID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetTwoFactorSettingsID(*id)
-	}
-	return uuo
-}
-
-// SetTwoFactorSettings sets the "two_factor_settings" edge to the TwoFactorSetting entity.
-func (uuo *UserUpdateOne) SetTwoFactorSettings(t *TwoFactorSetting) *UserUpdateOne {
-	return uuo.SetTwoFactorSettingsID(t.ID)
-}
-
-// AddBackupCodeIDs adds the "backup_codes" edge to the BackupCode entity by IDs.
-func (uuo *UserUpdateOne) AddBackupCodeIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddBackupCodeIDs(ids...)
-	return uuo
-}
-
-// AddBackupCodes adds the "backup_codes" edges to the BackupCode entity.
-func (uuo *UserUpdateOne) AddBackupCodes(b ...*BackupCode) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return uuo.AddBackupCodeIDs(ids...)
-}
-
 // SetPreferencesID sets the "preferences" edge to the UserPreference entity by ID.
 func (uuo *UserUpdateOne) SetPreferencesID(id int) *UserUpdateOne {
 	uuo.mutation.SetPreferencesID(id)
@@ -1840,19 +1378,19 @@ func (uuo *UserUpdateOne) SetLoyaltyAccount(l *LoyaltyAccount) *UserUpdateOne {
 	return uuo.SetLoyaltyAccountID(l.ID)
 }
 
-// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
-func (uuo *UserUpdateOne) AddPaymentMethodIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddPaymentMethodIDs(ids...)
+// AddFavoriteItemIDs adds the "favorite_items" edge to the CatalogItem entity by IDs.
+func (uuo *UserUpdateOne) AddFavoriteItemIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddFavoriteItemIDs(ids...)
 	return uuo
 }
 
-// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
-func (uuo *UserUpdateOne) AddPaymentMethods(p ...*PaymentMethod) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddFavoriteItems adds the "favorite_items" edges to the CatalogItem entity.
+func (uuo *UserUpdateOne) AddFavoriteItems(c ...*CatalogItem) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uuo.AddPaymentMethodIDs(ids...)
+	return uuo.AddFavoriteItemIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1885,96 +1423,6 @@ func (uuo *UserUpdateOne) RemoveRoles(r ...*Role) *UserUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return uuo.RemoveRoleIDs(ids...)
-}
-
-// ClearSessions clears all "sessions" edges to the Session entity.
-func (uuo *UserUpdateOne) ClearSessions() *UserUpdateOne {
-	uuo.mutation.ClearSessions()
-	return uuo
-}
-
-// RemoveSessionIDs removes the "sessions" edge to Session entities by IDs.
-func (uuo *UserUpdateOne) RemoveSessionIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveSessionIDs(ids...)
-	return uuo
-}
-
-// RemoveSessions removes "sessions" edges to Session entities.
-func (uuo *UserUpdateOne) RemoveSessions(s ...*Session) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uuo.RemoveSessionIDs(ids...)
-}
-
-// ClearDevices clears all "devices" edges to the Device entity.
-func (uuo *UserUpdateOne) ClearDevices() *UserUpdateOne {
-	uuo.mutation.ClearDevices()
-	return uuo
-}
-
-// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
-func (uuo *UserUpdateOne) RemoveDeviceIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveDeviceIDs(ids...)
-	return uuo
-}
-
-// RemoveDevices removes "devices" edges to Device entities.
-func (uuo *UserUpdateOne) RemoveDevices(d ...*Device) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
-	}
-	return uuo.RemoveDeviceIDs(ids...)
-}
-
-// ClearOauthAccounts clears all "oauth_accounts" edges to the OAuthAccount entity.
-func (uuo *UserUpdateOne) ClearOauthAccounts() *UserUpdateOne {
-	uuo.mutation.ClearOauthAccounts()
-	return uuo
-}
-
-// RemoveOauthAccountIDs removes the "oauth_accounts" edge to OAuthAccount entities by IDs.
-func (uuo *UserUpdateOne) RemoveOauthAccountIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveOauthAccountIDs(ids...)
-	return uuo
-}
-
-// RemoveOauthAccounts removes "oauth_accounts" edges to OAuthAccount entities.
-func (uuo *UserUpdateOne) RemoveOauthAccounts(o ...*OAuthAccount) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return uuo.RemoveOauthAccountIDs(ids...)
-}
-
-// ClearTwoFactorSettings clears the "two_factor_settings" edge to the TwoFactorSetting entity.
-func (uuo *UserUpdateOne) ClearTwoFactorSettings() *UserUpdateOne {
-	uuo.mutation.ClearTwoFactorSettings()
-	return uuo
-}
-
-// ClearBackupCodes clears all "backup_codes" edges to the BackupCode entity.
-func (uuo *UserUpdateOne) ClearBackupCodes() *UserUpdateOne {
-	uuo.mutation.ClearBackupCodes()
-	return uuo
-}
-
-// RemoveBackupCodeIDs removes the "backup_codes" edge to BackupCode entities by IDs.
-func (uuo *UserUpdateOne) RemoveBackupCodeIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveBackupCodeIDs(ids...)
-	return uuo
-}
-
-// RemoveBackupCodes removes "backup_codes" edges to BackupCode entities.
-func (uuo *UserUpdateOne) RemoveBackupCodes(b ...*BackupCode) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return uuo.RemoveBackupCodeIDs(ids...)
 }
 
 // ClearPreferences clears the "preferences" edge to the UserPreference entity.
@@ -2058,25 +1506,25 @@ func (uuo *UserUpdateOne) ClearLoyaltyAccount() *UserUpdateOne {
 	return uuo
 }
 
-// ClearPaymentMethods clears all "payment_methods" edges to the PaymentMethod entity.
-func (uuo *UserUpdateOne) ClearPaymentMethods() *UserUpdateOne {
-	uuo.mutation.ClearPaymentMethods()
+// ClearFavoriteItems clears all "favorite_items" edges to the CatalogItem entity.
+func (uuo *UserUpdateOne) ClearFavoriteItems() *UserUpdateOne {
+	uuo.mutation.ClearFavoriteItems()
 	return uuo
 }
 
-// RemovePaymentMethodIDs removes the "payment_methods" edge to PaymentMethod entities by IDs.
-func (uuo *UserUpdateOne) RemovePaymentMethodIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemovePaymentMethodIDs(ids...)
+// RemoveFavoriteItemIDs removes the "favorite_items" edge to CatalogItem entities by IDs.
+func (uuo *UserUpdateOne) RemoveFavoriteItemIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveFavoriteItemIDs(ids...)
 	return uuo
 }
 
-// RemovePaymentMethods removes "payment_methods" edges to PaymentMethod entities.
-func (uuo *UserUpdateOne) RemovePaymentMethods(p ...*PaymentMethod) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveFavoriteItems removes "favorite_items" edges to CatalogItem entities.
+func (uuo *UserUpdateOne) RemoveFavoriteItems(c ...*CatalogItem) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uuo.RemovePaymentMethodIDs(ids...)
+	return uuo.RemoveFavoriteItemIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2309,215 +1757,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.SessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedSessionsIDs(); len(nodes) > 0 && !uuo.mutation.SessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.SessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.DevicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !uuo.mutation.DevicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.DevicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.OauthAccountsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedOauthAccountsIDs(); len(nodes) > 0 && !uuo.mutation.OauthAccountsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.OauthAccountsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.TwoFactorSettingsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   user.TwoFactorSettingsTable,
-			Columns: []string{user.TwoFactorSettingsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twofactorsetting.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.TwoFactorSettingsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   user.TwoFactorSettingsTable,
-			Columns: []string{user.TwoFactorSettingsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twofactorsetting.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.BackupCodesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedBackupCodesIDs(); len(nodes) > 0 && !uuo.mutation.BackupCodesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.BackupCodesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if uuo.mutation.PreferencesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -2740,28 +1979,28 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.PaymentMethodsCleared() {
+	if uuo.mutation.FavoriteItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedPaymentMethodsIDs(); len(nodes) > 0 && !uuo.mutation.PaymentMethodsCleared() {
+	if nodes := uuo.mutation.RemovedFavoriteItemsIDs(); len(nodes) > 0 && !uuo.mutation.FavoriteItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2769,15 +2008,15 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.FavoriteItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

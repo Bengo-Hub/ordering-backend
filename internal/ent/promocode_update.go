@@ -45,23 +45,23 @@ func (pcu *PromoCodeUpdate) SetNillableTenantID(u *uuid.UUID) *PromoCodeUpdate {
 	return pcu
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (pcu *PromoCodeUpdate) SetCafeID(u uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (pcu *PromoCodeUpdate) SetOutletID(u uuid.UUID) *PromoCodeUpdate {
+	pcu.mutation.SetOutletID(u)
 	return pcu
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableCafeID(u *uuid.UUID) *PromoCodeUpdate {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (pcu *PromoCodeUpdate) SetNillableOutletID(u *uuid.UUID) *PromoCodeUpdate {
 	if u != nil {
-		pcu.SetCafeID(*u)
+		pcu.SetOutletID(*u)
 	}
 	return pcu
 }
 
-// ClearCafeID clears the value of the "cafe_id" field.
-func (pcu *PromoCodeUpdate) ClearCafeID() *PromoCodeUpdate {
-	pcu.mutation.ClearCafeID()
+// ClearOutletID clears the value of the "outlet_id" field.
+func (pcu *PromoCodeUpdate) ClearOutletID() *PromoCodeUpdate {
+	pcu.mutation.ClearOutletID()
 	return pcu
 }
 
@@ -505,11 +505,11 @@ func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pcu.mutation.TenantID(); ok {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := pcu.mutation.CafeID(); ok {
-		_spec.SetField(promocode.FieldCafeID, field.TypeUUID, value)
+	if value, ok := pcu.mutation.OutletID(); ok {
+		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
 	}
-	if pcu.mutation.CafeIDCleared() {
-		_spec.ClearField(promocode.FieldCafeID, field.TypeUUID)
+	if pcu.mutation.OutletIDCleared() {
+		_spec.ClearField(promocode.FieldOutletID, field.TypeUUID)
 	}
 	if value, ok := pcu.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)
@@ -699,23 +699,23 @@ func (pcuo *PromoCodeUpdateOne) SetNillableTenantID(u *uuid.UUID) *PromoCodeUpda
 	return pcuo
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (pcuo *PromoCodeUpdateOne) SetCafeID(u uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (pcuo *PromoCodeUpdateOne) SetOutletID(u uuid.UUID) *PromoCodeUpdateOne {
+	pcuo.mutation.SetOutletID(u)
 	return pcuo
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableCafeID(u *uuid.UUID) *PromoCodeUpdateOne {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (pcuo *PromoCodeUpdateOne) SetNillableOutletID(u *uuid.UUID) *PromoCodeUpdateOne {
 	if u != nil {
-		pcuo.SetCafeID(*u)
+		pcuo.SetOutletID(*u)
 	}
 	return pcuo
 }
 
-// ClearCafeID clears the value of the "cafe_id" field.
-func (pcuo *PromoCodeUpdateOne) ClearCafeID() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearCafeID()
+// ClearOutletID clears the value of the "outlet_id" field.
+func (pcuo *PromoCodeUpdateOne) ClearOutletID() *PromoCodeUpdateOne {
+	pcuo.mutation.ClearOutletID()
 	return pcuo
 }
 
@@ -1189,11 +1189,11 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 	if value, ok := pcuo.mutation.TenantID(); ok {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := pcuo.mutation.CafeID(); ok {
-		_spec.SetField(promocode.FieldCafeID, field.TypeUUID, value)
+	if value, ok := pcuo.mutation.OutletID(); ok {
+		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
 	}
-	if pcuo.mutation.CafeIDCleared() {
-		_spec.ClearField(promocode.FieldCafeID, field.TypeUUID)
+	if pcuo.mutation.OutletIDCleared() {
+		_spec.ClearField(promocode.FieldOutletID, field.TypeUUID)
 	}
 	if value, ok := pcuo.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)

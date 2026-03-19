@@ -12,7 +12,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	entorder "github.com/bengobox/ordering-backend/internal/ent/order"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
@@ -413,14 +412,14 @@ func (r *EntRepository) GetUserOrders(ctx context.Context, tenantID, userID uuid
 	result := make([]map[string]interface{}, len(orders))
 	for i, o := range orders {
 		result[i] = map[string]interface{}{
-			"id":            o.ID.String(),
-			"order_number":  o.OrderNumber,
-			"status":        o.Status,
-			"subtotal":      o.Subtotal,
-			"grand_total":   o.GrandTotal,
-			"currency":      o.Currency,
-			"created_at":    o.CreatedAt,
-			"updated_at":    o.UpdatedAt,
+			"id":           o.ID.String(),
+			"order_number": o.OrderNumber,
+			"status":       o.Status,
+			"subtotal":     o.Subtotal,
+			"grand_total":  o.GrandTotal,
+			"currency":     o.Currency,
+			"created_at":   o.CreatedAt,
+			"updated_at":   o.UpdatedAt,
 		}
 	}
 	return result, nil
@@ -504,28 +503,9 @@ func (r *EntRepository) GetUserLoyaltyData(ctx context.Context, tenantID, userID
 }
 
 func (r *EntRepository) GetUserPaymentMethods(ctx context.Context, tenantID, userID uuid.UUID) ([]map[string]interface{}, error) {
-	methods, err := r.client.PaymentMethod.Query().
-		Where(
-			paymentmethod.TenantID(tenantID),
-			paymentmethod.UserID(userID),
-		).
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]map[string]interface{}, len(methods))
-	for i, m := range methods {
-		result[i] = map[string]interface{}{
-			"id":         m.ID.String(),
-			"provider":   m.Provider,
-			"Type":       m.Type,
-			"mask":       m.Mask,
-			"is_default": m.IsDefault,
-			"created_at": m.CreatedAt,
-		}
-	}
-	return result, nil
+	// Payment methods are owned by treasury-api; ordering-backend does not store them.
+	// For GDPR export, frontend or compliance tooling should call treasury-api for payment method data.
+	return nil, nil
 }
 
 // --- User Data Deletion ---
@@ -577,17 +557,8 @@ func (r *EntRepository) HardDeleteUser(ctx context.Context, tenantID, userID uui
 	}
 	summary["addresses"] = n
 
-	// Delete user's payment methods
-	n, err = r.client.PaymentMethod.Delete().
-		Where(
-			paymentmethod.TenantID(tenantID),
-			paymentmethod.UserID(userID),
-		).
-		Exec(ctx)
-	if err != nil {
-		return nil, err
-	}
-	summary["payment_methods"] = n
+	// Payment methods are owned by treasury-api; ordering-backend does not store or delete them.
+	summary["payment_methods"] = 0
 
 	// Note: Orders are typically retained for legal/accounting purposes
 	// They should be anonymized rather than deleted

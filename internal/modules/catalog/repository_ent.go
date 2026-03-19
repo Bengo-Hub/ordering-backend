@@ -2,16 +2,14 @@ package catalog
 
 import (
 	"context"
-	"strings"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitemasset"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
-	"github.com/bengobox/ordering-backend/internal/ent/menucategory"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemasset"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemschedule"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemtranslation"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
 
@@ -28,14 +26,11 @@ func NewEntRepository(client *ent.Client) *EntRepository {
 // --- Category Methods ---
 
 func (r *EntRepository) CreateCategory(ctx context.Context, category *Category) error {
-	builder := r.client.MenuCategory.Create().
+	builder := r.client.CatalogCategory.Create().
 		SetNillableTenantID(category.TenantID).
-		SetNillableCafeID(category.CafeID).
-		SetName(category.Name).
-		SetDescription(category.Description).
+		SetNillableOutletID(category.OutletID).
 		SetDisplayOrder(category.DisplayOrder).
-		SetIsActive(category.IsActive).
-		SetImageURL(category.ImageURL)
+		SetIsActive(category.IsActive)
 
 	if category.ParentID != nil {
 		builder.SetParentID(*category.ParentID)
@@ -53,10 +48,10 @@ func (r *EntRepository) CreateCategory(ctx context.Context, category *Category) 
 }
 
 func (r *EntRepository) GetCategory(ctx context.Context, tenantID, categoryID uuid.UUID) (*Category, error) {
-	cat, err := r.client.MenuCategory.Query().
+	cat, err := r.client.CatalogCategory.Query().
 		Where(
-			menucategory.ID(categoryID),
-			menucategory.TenantID(tenantID),
+			catalogcategory.ID(categoryID),
+			catalogcategory.TenantID(tenantID),
 		).
 		WithChildren().
 		Only(ctx)
@@ -69,38 +64,19 @@ func (r *EntRepository) GetCategory(ctx context.Context, tenantID, categoryID uu
 	return entCategoryToDomain(cat), nil
 }
 
-func (r *EntRepository) GetCategoryByName(ctx context.Context, tenantID, cafeID uuid.UUID, name string) (*Category, error) {
-	cat, err := r.client.MenuCategory.Query().
-		Where(
-			menucategory.TenantID(tenantID),
-			menucategory.CafeID(cafeID),
-			menucategory.NameEqualFold(name),
-		).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrCategoryNotFound
-		}
-		return nil, err
-	}
-	return entCategoryToDomain(cat), nil
-}
 
 func (r *EntRepository) ListCategories(ctx context.Context, filter CategoryFilter) ([]Category, int, error) {
-	query := r.client.MenuCategory.Query().
-		Where(menucategory.TenantID(filter.TenantID))
+	query := r.client.CatalogCategory.Query().
+		Where(catalogcategory.TenantID(filter.TenantID))
 
-	if filter.CafeID != nil {
-		query = query.Where(menucategory.CafeID(*filter.CafeID))
+	if filter.OutletID != nil {
+		query = query.Where(catalogcategory.OutletID(*filter.OutletID))
 	}
 	if filter.ParentID != nil {
-		query = query.Where(menucategory.ParentID(*filter.ParentID))
+		query = query.Where(catalogcategory.ParentID(*filter.ParentID))
 	}
 	if filter.IsActive != nil {
-		query = query.Where(menucategory.IsActive(*filter.IsActive))
-	}
-	if filter.Search != "" {
-		query = query.Where(menucategory.NameContainsFold(filter.Search))
+		query = query.Where(catalogcategory.IsActive(*filter.IsActive))
 	}
 
 	total, err := query.Count(ctx)
@@ -108,7 +84,7 @@ func (r *EntRepository) ListCategories(ctx context.Context, filter CategoryFilte
 		return nil, 0, err
 	}
 
-	query = query.Order(ent.Asc(menucategory.FieldDisplayOrder))
+	query = query.Order(ent.Asc(catalogcategory.FieldDisplayOrder))
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
 	}
@@ -129,12 +105,9 @@ func (r *EntRepository) ListCategories(ctx context.Context, filter CategoryFilte
 }
 
 func (r *EntRepository) UpdateCategory(ctx context.Context, category *Category) error {
-	builder := r.client.MenuCategory.UpdateOneID(category.ID).
-		SetName(category.Name).
-		SetDescription(category.Description).
+	builder := r.client.CatalogCategory.UpdateOneID(category.ID).
 		SetDisplayOrder(category.DisplayOrder).
-		SetIsActive(category.IsActive).
-		SetImageURL(category.ImageURL)
+		SetIsActive(category.IsActive)
 
 	if category.ParentID != nil {
 		builder.SetParentID(*category.ParentID)
@@ -155,10 +128,10 @@ func (r *EntRepository) UpdateCategory(ctx context.Context, category *Category) 
 }
 
 func (r *EntRepository) DeleteCategory(ctx context.Context, tenantID, categoryID uuid.UUID) error {
-	_, err := r.client.MenuCategory.Delete().
+	_, err := r.client.CatalogCategory.Delete().
 		Where(
-			menucategory.ID(categoryID),
-			menucategory.TenantID(tenantID),
+			catalogcategory.ID(categoryID),
+			catalogcategory.TenantID(tenantID),
 		).Exec(ctx)
 	if err != nil {
 		return err
@@ -167,37 +140,48 @@ func (r *EntRepository) DeleteCategory(ctx context.Context, tenantID, categoryID
 }
 
 func (r *EntRepository) CountCategoryItems(ctx context.Context, categoryID uuid.UUID) (int, error) {
-	return r.client.MenuItem.Query().
-		Where(menuitem.CategoryID(categoryID)).
+	return r.client.CatalogItem.Query().
+		Where(catalogitem.CategoryID(categoryID)).
 		Count(ctx)
 }
 
 func (r *EntRepository) CountCategoryChildren(ctx context.Context, categoryID uuid.UUID) (int, error) {
-	return r.client.MenuCategory.Query().
-		Where(menucategory.ParentID(categoryID)).
+	return r.client.CatalogCategory.Query().
+		Where(catalogcategory.ParentID(categoryID)).
 		Count(ctx)
 }
 
-// --- MenuItem Methods ---
+// --- CatalogItem Methods ---
 
-func (r *EntRepository) CreateMenuItem(ctx context.Context, item *MenuItem) error {
-	builder := r.client.MenuItem.Create().
+func (r *EntRepository) GetCatalogItemBySKU(ctx context.Context, tenantID uuid.UUID, sku string) (*CatalogItem, error) {
+	item, err := r.client.CatalogItem.Query().
+		Where(
+			catalogitem.TenantID(tenantID),
+			catalogitem.Sku(sku),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrCatalogItemNotFound
+		}
+		return nil, err
+	}
+	return entCatalogItemToDomain(item), nil
+}
+
+func (r *EntRepository) CreateCatalogItem(ctx context.Context, item *CatalogItem) error {
+	builder := r.client.CatalogItem.Create().
 		SetTenantID(item.TenantID).
-		SetCafeID(item.CafeID).
+		SetOutletID(item.OutletID).
 		SetCategoryID(item.CategoryID).
 		SetName(item.Name).
 		SetDescription(item.Description).
 		SetBasePrice(item.BasePrice).
-		SetCurrency(item.Currency).
+		SetCurrency(DefaultCurrency). // Standardized as per requirements
 		SetIsAvailable(item.IsAvailable).
 		SetLeadTimeMinutes(item.LeadTimeMinutes).
-		SetImageURL(item.ImageURL).
 		SetSku(item.SKU).
 		SetDisplayOrder(item.DisplayOrder)
-
-	if item.Nutrition != nil {
-		builder.SetNutritionJSON(item.Nutrition)
-	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -210,70 +194,44 @@ func (r *EntRepository) CreateMenuItem(ctx context.Context, item *MenuItem) erro
 	return nil
 }
 
-func (r *EntRepository) GetMenuItem(ctx context.Context, tenantID, itemID uuid.UUID) (*MenuItem, error) {
-	item, err := r.client.MenuItem.Query().
+func (r *EntRepository) GetCatalogItem(ctx context.Context, tenantID, itemID uuid.UUID) (*CatalogItem, error) {
+	item, err := r.client.CatalogItem.Query().
 		Where(
-			menuitem.ID(itemID),
-			menuitem.TenantID(tenantID),
+			catalogitem.ID(itemID),
+			catalogitem.TenantID(tenantID),
 		).
 		WithCategory().
-		WithVariants().
-		WithTranslations().
 		WithDietaryTags().
 		WithAssets().
 		WithSchedules().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrMenuItemNotFound
+			return nil, ErrCatalogItemNotFound
 		}
 		return nil, err
 	}
-	return entMenuItemToDomain(item), nil
+	return entCatalogItemToDomain(item), nil
 }
 
-func (r *EntRepository) GetMenuItemBySKU(ctx context.Context, tenantID uuid.UUID, sku string) (*MenuItem, error) {
-	item, err := r.client.MenuItem.Query().
-		Where(
-			menuitem.TenantID(tenantID),
-			menuitem.Sku(sku),
-		).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrMenuItemNotFound
-		}
-		return nil, err
-	}
-	return entMenuItemToDomain(item), nil
-}
 
-func (r *EntRepository) ListMenuItems(ctx context.Context, filter MenuItemFilter) ([]MenuItem, int, error) {
-	query := r.client.MenuItem.Query().
-		Where(menuitem.TenantID(filter.TenantID))
+func (r *EntRepository) ListCatalogItems(ctx context.Context, filter CatalogItemFilter) ([]CatalogItem, int, error) {
+	query := r.client.CatalogItem.Query().
+		Where(catalogitem.TenantID(filter.TenantID))
 
-	if filter.CafeID != nil {
-		query = query.Where(menuitem.CafeID(*filter.CafeID))
+	if filter.OutletID != nil {
+		query = query.Where(catalogitem.OutletID(*filter.OutletID))
 	}
 	if filter.CategoryID != nil {
-		query = query.Where(menuitem.CategoryID(*filter.CategoryID))
+		query = query.Where(catalogitem.CategoryID(*filter.CategoryID))
 	}
 	if filter.IsAvailable != nil {
-		query = query.Where(menuitem.IsAvailable(*filter.IsAvailable))
+		query = query.Where(catalogitem.IsAvailable(*filter.IsAvailable))
 	}
 	if filter.Search != "" {
 		query = query.Where(
-			menuitem.Or(
-				menuitem.NameContainsFold(filter.Search),
-				menuitem.DescriptionContainsFold(filter.Search),
-			),
+			catalogitem.SkuContainsFold(filter.Search),
 		)
-	}
-	if filter.MinPrice != nil {
-		query = query.Where(menuitem.BasePriceGTE(*filter.MinPrice))
-	}
-	if filter.MaxPrice != nil {
-		query = query.Where(menuitem.BasePriceLTE(*filter.MaxPrice))
 	}
 
 	total, err := query.Count(ctx)
@@ -281,7 +239,7 @@ func (r *EntRepository) ListMenuItems(ctx context.Context, filter MenuItemFilter
 		return nil, 0, err
 	}
 
-	query = query.Order(ent.Asc(menuitem.FieldDisplayOrder))
+	query = query.Order(ent.Asc(catalogitem.FieldDisplayOrder))
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
 	}
@@ -289,44 +247,45 @@ func (r *EntRepository) ListMenuItems(ctx context.Context, filter MenuItemFilter
 		query = query.Offset(filter.Offset)
 	}
 
+	if filter.UserID != nil {
+		query = query.WithFavoritedBy(func(q *ent.UserQuery) {
+			q.Where(user.ID(*filter.UserID))
+		})
+		if filter.FavoriteOnly {
+			query = query.Where(catalogitem.HasFavoritedByWith(user.ID(*filter.UserID)))
+		}
+	}
+
 	items, err := query.
 		WithCategory().
-		WithVariants().
-		WithTranslations().
 		WithDietaryTags().
 		All(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	result := make([]MenuItem, len(items))
+	result := make([]CatalogItem, len(items))
 	for i, item := range items {
-		result[i] = *entMenuItemToDomain(item)
+		result[i] = *entCatalogItemToDomain(item)
 	}
 	return result, total, nil
 }
 
-func (r *EntRepository) UpdateMenuItem(ctx context.Context, item *MenuItem) error {
-	builder := r.client.MenuItem.UpdateOneID(item.ID).
+func (r *EntRepository) UpdateCatalogItem(ctx context.Context, item *CatalogItem) error {
+	builder := r.client.CatalogItem.UpdateOneID(item.ID).
 		SetName(item.Name).
 		SetDescription(item.Description).
 		SetBasePrice(item.BasePrice).
-		SetCurrency(item.Currency).
 		SetIsAvailable(item.IsAvailable).
 		SetLeadTimeMinutes(item.LeadTimeMinutes).
-		SetImageURL(item.ImageURL).
 		SetSku(item.SKU).
 		SetDisplayOrder(item.DisplayOrder).
 		SetCategoryID(item.CategoryID)
 
-	if item.Nutrition != nil {
-		builder.SetNutritionJSON(item.Nutrition)
-	}
-
 	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrMenuItemNotFound
+			return ErrCatalogItemNotFound
 		}
 		return err
 	}
@@ -335,160 +294,43 @@ func (r *EntRepository) UpdateMenuItem(ctx context.Context, item *MenuItem) erro
 	return nil
 }
 
-func (r *EntRepository) DeleteMenuItem(ctx context.Context, tenantID, itemID uuid.UUID) error {
-	_, err := r.client.MenuItem.Delete().
+func (r *EntRepository) DeleteCatalogItem(ctx context.Context, tenantID, itemID uuid.UUID) error {
+	_, err := r.client.CatalogItem.Delete().
 		Where(
-			menuitem.ID(itemID),
-			menuitem.TenantID(tenantID),
+			catalogitem.ID(itemID),
+			catalogitem.TenantID(tenantID),
 		).Exec(ctx)
 	return err
 }
 
-// --- Variant Methods ---
-
-func (r *EntRepository) CreateVariant(ctx context.Context, variant *Variant) error {
-	created, err := r.client.MenuItemVariant.Create().
-		SetMenuItemID(variant.MenuItemID).
-		SetName(variant.Name).
-		SetPriceDelta(variant.PriceDelta).
-		SetIsAvailable(variant.IsAvailable).
-		SetSku(variant.SKU).
-		SetDisplayOrder(variant.DisplayOrder).
-		Save(ctx)
+func (r *EntRepository) ToggleFavorite(ctx context.Context, userID, itemID uuid.UUID) (bool, error) {
+	// Check if user has favorited this item
+	exists, err := r.client.User.Query().
+		Where(user.ID(userID)).
+		QueryFavoriteItems().
+		Where(catalogitem.ID(itemID)).
+		Exist(ctx)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	variant.ID = created.ID
-	variant.CreatedAt = created.CreatedAt
-	variant.UpdatedAt = created.UpdatedAt
-	return nil
-}
-
-func (r *EntRepository) GetVariant(ctx context.Context, variantID uuid.UUID) (*Variant, error) {
-	v, err := r.client.MenuItemVariant.Get(ctx, variantID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrVariantNotFound
-		}
-		return nil, err
-	}
-	return entVariantToDomain(v), nil
-}
-
-func (r *EntRepository) ListVariants(ctx context.Context, menuItemID uuid.UUID) ([]Variant, error) {
-	variants, err := r.client.MenuItemVariant.Query().
-		Where(menuitemvariant.MenuItemID(menuItemID)).
-		Order(ent.Asc(menuitemvariant.FieldDisplayOrder)).
-		All(ctx)
-	if err != nil {
-		return nil, err
+	if exists {
+		// Remove from favorites
+		err = r.client.User.UpdateOneID(userID).
+			RemoveFavoriteItemIDs(itemID).
+			Exec(ctx)
+		return false, err
 	}
 
-	result := make([]Variant, len(variants))
-	for i, v := range variants {
-		result[i] = *entVariantToDomain(v)
-	}
-	return result, nil
-}
-
-func (r *EntRepository) UpdateVariant(ctx context.Context, variant *Variant) error {
-	updated, err := r.client.MenuItemVariant.UpdateOneID(variant.ID).
-		SetName(variant.Name).
-		SetPriceDelta(variant.PriceDelta).
-		SetIsAvailable(variant.IsAvailable).
-		SetSku(variant.SKU).
-		SetDisplayOrder(variant.DisplayOrder).
-		Save(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return ErrVariantNotFound
-		}
-		return err
-	}
-
-	variant.UpdatedAt = updated.UpdatedAt
-	return nil
-}
-
-func (r *EntRepository) DeleteVariant(ctx context.Context, variantID uuid.UUID) error {
-	return r.client.MenuItemVariant.DeleteOneID(variantID).Exec(ctx)
+	// Add to favorites
+	err = r.client.User.UpdateOneID(userID).
+		AddFavoriteItemIDs(itemID).
+		Exec(ctx)
+	return true, err
 }
 
 // --- Translation Methods ---
 
-func (r *EntRepository) CreateTranslation(ctx context.Context, translation *Translation) error {
-	created, err := r.client.MenuItemTranslation.Create().
-		SetMenuItemID(translation.MenuItemID).
-		SetLocale(translation.Locale).
-		SetName(translation.Name).
-		SetDescription(translation.Description).
-		Save(ctx)
-	if err != nil {
-		return err
-	}
-
-	translation.ID = created.ID
-	translation.CreatedAt = created.CreatedAt
-	translation.UpdatedAt = created.UpdatedAt
-	return nil
-}
-
-func (r *EntRepository) GetTranslation(ctx context.Context, menuItemID uuid.UUID, locale string) (*Translation, error) {
-	t, err := r.client.MenuItemTranslation.Query().
-		Where(
-			menuitemtranslation.MenuItemID(menuItemID),
-			menuitemtranslation.Locale(locale),
-		).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrTranslationNotFound
-		}
-		return nil, err
-	}
-	return entTranslationToDomain(t), nil
-}
-
-func (r *EntRepository) ListTranslations(ctx context.Context, menuItemID uuid.UUID) ([]Translation, error) {
-	translations, err := r.client.MenuItemTranslation.Query().
-		Where(menuitemtranslation.MenuItemID(menuItemID)).
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]Translation, len(translations))
-	for i, t := range translations {
-		result[i] = *entTranslationToDomain(t)
-	}
-	return result, nil
-}
-
-func (r *EntRepository) UpdateTranslation(ctx context.Context, translation *Translation) error {
-	updated, err := r.client.MenuItemTranslation.UpdateOneID(translation.ID).
-		SetName(translation.Name).
-		SetDescription(translation.Description).
-		Save(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return ErrTranslationNotFound
-		}
-		return err
-	}
-
-	translation.UpdatedAt = updated.UpdatedAt
-	return nil
-}
-
-func (r *EntRepository) DeleteTranslation(ctx context.Context, menuItemID uuid.UUID, locale string) error {
-	_, err := r.client.MenuItemTranslation.Delete().
-		Where(
-			menuitemtranslation.MenuItemID(menuItemID),
-			menuitemtranslation.Locale(locale),
-		).Exec(ctx)
-	return err
-}
 
 // --- DietaryTag Methods ---
 
@@ -542,7 +384,7 @@ func (r *EntRepository) DeleteDietaryTag(ctx context.Context, code string) error
 	return err
 }
 
-func (r *EntRepository) AddDietaryTagToItem(ctx context.Context, menuItemID uuid.UUID, tagCode string) error {
+func (r *EntRepository) AddDietaryTagToItem(ctx context.Context, catalogItemID uuid.UUID, tagCode string) error {
 	// Look up tag by code to get its ID
 	tag, err := r.client.DietaryTag.Query().
 		Where(dietarytag.Code(tagCode)).
@@ -553,12 +395,12 @@ func (r *EntRepository) AddDietaryTagToItem(ctx context.Context, menuItemID uuid
 		}
 		return err
 	}
-	return r.client.MenuItem.UpdateOneID(menuItemID).
+	return r.client.CatalogItem.UpdateOneID(catalogItemID).
 		AddDietaryTagIDs(tag.ID).
 		Exec(ctx)
 }
 
-func (r *EntRepository) RemoveDietaryTagFromItem(ctx context.Context, menuItemID uuid.UUID, tagCode string) error {
+func (r *EntRepository) RemoveDietaryTagFromItem(ctx context.Context, catalogItemID uuid.UUID, tagCode string) error {
 	// Look up tag by code to get its ID
 	tag, err := r.client.DietaryTag.Query().
 		Where(dietarytag.Code(tagCode)).
@@ -569,19 +411,19 @@ func (r *EntRepository) RemoveDietaryTagFromItem(ctx context.Context, menuItemID
 		}
 		return err
 	}
-	return r.client.MenuItem.UpdateOneID(menuItemID).
+	return r.client.CatalogItem.UpdateOneID(catalogItemID).
 		RemoveDietaryTagIDs(tag.ID).
 		Exec(ctx)
 }
 
-func (r *EntRepository) ListItemDietaryTags(ctx context.Context, menuItemID uuid.UUID) ([]DietaryTag, error) {
-	item, err := r.client.MenuItem.Query().
-		Where(menuitem.ID(menuItemID)).
+func (r *EntRepository) ListItemDietaryTags(ctx context.Context, catalogItemID uuid.UUID) ([]DietaryTag, error) {
+	item, err := r.client.CatalogItem.Query().
+		Where(catalogitem.ID(catalogItemID)).
 		WithDietaryTags().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrMenuItemNotFound
+			return nil, ErrCatalogItemNotFound
 		}
 		return nil, err
 	}
@@ -596,8 +438,8 @@ func (r *EntRepository) ListItemDietaryTags(ctx context.Context, menuItemID uuid
 // --- Asset Methods ---
 
 func (r *EntRepository) CreateAsset(ctx context.Context, asset *Asset) error {
-	created, err := r.client.MenuItemAsset.Create().
-		SetMenuItemID(asset.MenuItemID).
+	created, err := r.client.CatalogItemAsset.Create().
+		SetCatalogItemID(asset.CatalogItemID).
 		SetAssetType(string(asset.AssetType)).
 		SetURL(asset.URL).
 		SetMetadata(asset.Metadata).
@@ -612,7 +454,7 @@ func (r *EntRepository) CreateAsset(ctx context.Context, asset *Asset) error {
 }
 
 func (r *EntRepository) GetAsset(ctx context.Context, assetID uuid.UUID) (*Asset, error) {
-	a, err := r.client.MenuItemAsset.Get(ctx, assetID)
+	a, err := r.client.CatalogItemAsset.Get(ctx, assetID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrAssetNotFound
@@ -622,9 +464,9 @@ func (r *EntRepository) GetAsset(ctx context.Context, assetID uuid.UUID) (*Asset
 	return entAssetToDomain(a), nil
 }
 
-func (r *EntRepository) ListAssets(ctx context.Context, menuItemID uuid.UUID) ([]Asset, error) {
-	assets, err := r.client.MenuItemAsset.Query().
-		Where(menuitemasset.MenuItemID(menuItemID)).
+func (r *EntRepository) ListAssets(ctx context.Context, catalogItemID uuid.UUID) ([]Asset, error) {
+	assets, err := r.client.CatalogItemAsset.Query().
+		Where(catalogitemasset.CatalogItemID(catalogItemID)).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -638,14 +480,14 @@ func (r *EntRepository) ListAssets(ctx context.Context, menuItemID uuid.UUID) ([
 }
 
 func (r *EntRepository) DeleteAsset(ctx context.Context, assetID uuid.UUID) error {
-	return r.client.MenuItemAsset.DeleteOneID(assetID).Exec(ctx)
+	return r.client.CatalogItemAsset.DeleteOneID(assetID).Exec(ctx)
 }
 
 // --- Schedule Methods ---
 
 func (r *EntRepository) CreateSchedule(ctx context.Context, schedule *Schedule) error {
-	created, err := r.client.MenuItemSchedule.Create().
-		SetMenuItemID(schedule.MenuItemID).
+	created, err := r.client.CatalogItemSchedule.Create().
+		SetCatalogItemID(schedule.CatalogItemID).
 		SetDayOfWeek(schedule.DayOfWeek).
 		SetTimeStart(schedule.TimeStart).
 		SetTimeEnd(schedule.TimeEnd).
@@ -660,7 +502,7 @@ func (r *EntRepository) CreateSchedule(ctx context.Context, schedule *Schedule) 
 }
 
 func (r *EntRepository) GetSchedule(ctx context.Context, scheduleID uuid.UUID) (*Schedule, error) {
-	s, err := r.client.MenuItemSchedule.Get(ctx, scheduleID)
+	s, err := r.client.CatalogItemSchedule.Get(ctx, scheduleID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrScheduleNotFound
@@ -670,10 +512,10 @@ func (r *EntRepository) GetSchedule(ctx context.Context, scheduleID uuid.UUID) (
 	return entScheduleToDomain(s), nil
 }
 
-func (r *EntRepository) ListSchedules(ctx context.Context, menuItemID uuid.UUID) ([]Schedule, error) {
-	schedules, err := r.client.MenuItemSchedule.Query().
-		Where(menuitemschedule.MenuItemID(menuItemID)).
-		Order(ent.Asc(menuitemschedule.FieldDayOfWeek), ent.Asc(menuitemschedule.FieldTimeStart)).
+func (r *EntRepository) ListSchedules(ctx context.Context, catalogItemID uuid.UUID) ([]Schedule, error) {
+	schedules, err := r.client.CatalogItemSchedule.Query().
+		Where(catalogitemschedule.CatalogItemID(catalogItemID)).
+		Order(ent.Asc(catalogitemschedule.FieldDayOfWeek), ent.Asc(catalogitemschedule.FieldTimeStart)).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -687,7 +529,7 @@ func (r *EntRepository) ListSchedules(ctx context.Context, menuItemID uuid.UUID)
 }
 
 func (r *EntRepository) UpdateSchedule(ctx context.Context, schedule *Schedule) error {
-	_, err := r.client.MenuItemSchedule.UpdateOneID(schedule.ID).
+	_, err := r.client.CatalogItemSchedule.UpdateOneID(schedule.ID).
 		SetDayOfWeek(schedule.DayOfWeek).
 		SetTimeStart(schedule.TimeStart).
 		SetTimeEnd(schedule.TimeEnd).
@@ -702,21 +544,21 @@ func (r *EntRepository) UpdateSchedule(ctx context.Context, schedule *Schedule) 
 }
 
 func (r *EntRepository) DeleteSchedule(ctx context.Context, scheduleID uuid.UUID) error {
-	return r.client.MenuItemSchedule.DeleteOneID(scheduleID).Exec(ctx)
+	return r.client.CatalogItemSchedule.DeleteOneID(scheduleID).Exec(ctx)
 }
 
 // --- Public API Methods ---
 
-func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicMenuRequest) ([]PublicMenuItem, int, error) {
-	filter := MenuItemFilter{
+func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicCatalogRequest) ([]PublicCatalogItem, int, error) {
+	filter := CatalogItemFilter{
 		TenantID: req.TenantID,
 		Search:   req.Search,
 		Locale:   req.Locale,
 		Limit:    req.Limit,
 		Offset:   req.Offset,
 	}
-	if req.CafeID != nil {
-		filter.CafeID = req.CafeID
+	if req.OutletID != nil {
+		filter.OutletID = req.OutletID
 	}
 	if req.CategoryID != nil {
 		filter.CategoryID = req.CategoryID
@@ -724,27 +566,28 @@ func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicMenuRequest
 	isAvailable := true
 	filter.IsAvailable = &isAvailable
 
-	if filter.TenantID == uuid.Nil {
-		return []PublicMenuItem{}, 0, nil
+	if req.UserID != nil {
+		filter.UserID = req.UserID
+		filter.FavoriteOnly = req.FavoriteOnly
 	}
 
-	items, total, err := r.ListMenuItems(ctx, filter)
+	items, total, err := r.ListCatalogItems(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	result := make([]PublicMenuItem, len(items))
+	result := make([]PublicCatalogItem, len(items))
 	for i, item := range items {
-		result[i] = toPublicMenuItem(item, req.Locale)
+		result[i] = toPublicCatalogItem(item, req.Locale)
 	}
 	return result, total, nil
 }
 
-func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, cafeID uuid.UUID) ([]PublicCategory, error) {
+func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, outletID uuid.UUID) ([]PublicCategory, error) {
 	isActive := true
 	cats, _, err := r.ListCategories(ctx, CategoryFilter{
 		TenantID: tenantID,
-		CafeID:   &cafeID,
+		OutletID: &outletID,
 		IsActive: &isActive,
 	})
 	if err != nil {
@@ -758,44 +601,49 @@ func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, cafeI
 	return result, nil
 }
 
-// GetDistinctCafeIDs returns distinct cafe IDs that have menu categories for the tenant.
-func (r *EntRepository) GetDistinctCafeIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
-	cats, err := r.client.MenuCategory.Query().
-		Where(menucategory.TenantID(tenantID)).
-		Select(menucategory.FieldCafeID).
+// GetDistinctOutletIDs returns distinct outlet IDs that have catalog categories for the tenant.
+func (r *EntRepository) GetDistinctOutletIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
+	// Let's use a more robust way to get distinct UUIDs
+	items, err := r.client.CatalogCategory.Query().
+		Where(catalogcategory.TenantID(tenantID)).
+		Select(catalogcategory.FieldOutletID).
 		All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	seen := make(map[uuid.UUID]struct{})
-	var out []uuid.UUID
-	for _, c := range cats {
-		id := c.CafeID
-		if id == nil {
-			continue
+	uniqueMap := make(map[uuid.UUID]bool)
+	var ids []uuid.UUID
+	for _, it := range items {
+		if it.OutletID != nil {
+			if !uniqueMap[*it.OutletID] {
+				uniqueMap[*it.OutletID] = true
+				ids = append(ids, *it.OutletID)
+			}
 		}
-		if _, ok := seen[*id]; ok {
-			continue
-		}
-		seen[*id] = struct{}{}
-		out = append(out, *id)
 	}
-	return out, nil
+	return ids, nil
+}
+
+// GetOutlet retrieves display information for an outlet.
+func (r *EntRepository) GetOutlet(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletSummary, error) {
+	// For now, we project the outlet display info from its categories/items
+	// This is a placeholder; real implementation would query outlet metadata
+	return &OutletSummary{
+		ID:   outletID,
+		Name: "Outlet",
+	}, nil
 }
 
 // --- Conversion Helpers ---
 
-func entCategoryToDomain(ec *ent.MenuCategory) *Category {
+func entCategoryToDomain(ec *ent.CatalogCategory) *Category {
 	cat := &Category{
 		ID:           ec.ID,
 		TenantID:     ec.TenantID,
-		CafeID:       ec.CafeID,
+		OutletID:     ec.OutletID,
 		ParentID:     ec.ParentID,
-		Name:         ec.Name,
-		Description:  ec.Description,
 		DisplayOrder: ec.DisplayOrder,
 		IsActive:     ec.IsActive,
-		ImageURL:     ec.ImageURL,
 		CreatedAt:    ec.CreatedAt,
 		UpdatedAt:    ec.UpdatedAt,
 	}
@@ -810,46 +658,32 @@ func entCategoryToDomain(ec *ent.MenuCategory) *Category {
 	return cat
 }
 
-func entMenuItemToDomain(ei *ent.MenuItem) *MenuItem {
+func entCatalogItemToDomain(ei *ent.CatalogItem) *CatalogItem {
 	leadTimeMinutes := 0
 	if ei.LeadTimeMinutes != nil {
 		leadTimeMinutes = *ei.LeadTimeMinutes
 	}
-	item := &MenuItem{
+	item := &CatalogItem{
 		ID:              ei.ID,
 		TenantID:        ei.TenantID,
-		CafeID:          ei.CafeID,
+		OutletID:        ei.OutletID,
+		InventoryItemID: ei.InventoryItemID,
 		CategoryID:      ei.CategoryID,
 		Name:            ei.Name,
-		Description:     ei.Description,
 		BasePrice:       ei.BasePrice,
-		Currency:        ei.Currency,
 		IsAvailable:     ei.IsAvailable,
+		IsFeatured:      ei.IsFeatured,
 		LeadTimeMinutes: leadTimeMinutes,
-		ImageURL:        ei.ImageURL,
-		Nutrition:       ei.NutritionJSON,
+		RecipeID:        ei.RecipeID,
 		SKU:             ei.Sku,
 		DisplayOrder:    ei.DisplayOrder,
+		IsFavorite:      len(ei.Edges.FavoritedBy) > 0,
 		CreatedAt:       ei.CreatedAt,
 		UpdatedAt:       ei.UpdatedAt,
 	}
 
 	if ei.Edges.Category != nil {
 		item.Category = entCategoryToDomain(ei.Edges.Category)
-	}
-
-	if ei.Edges.Variants != nil {
-		item.Variants = make([]Variant, len(ei.Edges.Variants))
-		for i, v := range ei.Edges.Variants {
-			item.Variants[i] = *entVariantToDomain(v)
-		}
-	}
-
-	if ei.Edges.Translations != nil {
-		item.Translations = make([]Translation, len(ei.Edges.Translations))
-		for i, t := range ei.Edges.Translations {
-			item.Translations[i] = *entTranslationToDomain(t)
-		}
 	}
 
 	if ei.Edges.DietaryTags != nil {
@@ -876,32 +710,6 @@ func entMenuItemToDomain(ei *ent.MenuItem) *MenuItem {
 	return item
 }
 
-func entVariantToDomain(ev *ent.MenuItemVariant) *Variant {
-	return &Variant{
-		ID:           ev.ID,
-		MenuItemID:   ev.MenuItemID,
-		Name:         ev.Name,
-		PriceDelta:   ev.PriceDelta,
-		IsAvailable:  ev.IsAvailable,
-		SKU:          ev.Sku,
-		DisplayOrder: ev.DisplayOrder,
-		CreatedAt:    ev.CreatedAt,
-		UpdatedAt:    ev.UpdatedAt,
-	}
-}
-
-func entTranslationToDomain(et *ent.MenuItemTranslation) *Translation {
-	return &Translation{
-		ID:          et.ID,
-		MenuItemID:  et.MenuItemID,
-		Locale:      et.Locale,
-		Name:        et.Name,
-		Description: et.Description,
-		CreatedAt:   et.CreatedAt,
-		UpdatedAt:   et.UpdatedAt,
-	}
-}
-
 func entDietaryTagToDomain(edt *ent.DietaryTag) *DietaryTag {
 	return &DietaryTag{
 		Code:        edt.Code,
@@ -912,10 +720,10 @@ func entDietaryTagToDomain(edt *ent.DietaryTag) *DietaryTag {
 	}
 }
 
-func entAssetToDomain(ea *ent.MenuItemAsset) *Asset {
+func entAssetToDomain(ea *ent.CatalogItemAsset) *Asset {
 	return &Asset{
 		ID:         ea.ID,
-		MenuItemID: ea.MenuItemID,
+		CatalogItemID: ea.CatalogItemID,
 		AssetType:  AssetType(ea.AssetType),
 		URL:        ea.URL,
 		Metadata:   ea.Metadata,
@@ -923,10 +731,10 @@ func entAssetToDomain(ea *ent.MenuItemAsset) *Asset {
 	}
 }
 
-func entScheduleToDomain(es *ent.MenuItemSchedule) *Schedule {
+func entScheduleToDomain(es *ent.CatalogItemSchedule) *Schedule {
 	return &Schedule{
 		ID:         es.ID,
-		MenuItemID: es.MenuItemID,
+		CatalogItemID: es.CatalogItemID,
 		DayOfWeek:  es.DayOfWeek,
 		TimeStart:  es.TimeStart,
 		TimeEnd:    es.TimeEnd,
@@ -934,35 +742,20 @@ func entScheduleToDomain(es *ent.MenuItemSchedule) *Schedule {
 	}
 }
 
-func toPublicMenuItem(item MenuItem, locale string) PublicMenuItem {
-	pm := PublicMenuItem{
+func toPublicCatalogItem(item CatalogItem, locale string) PublicCatalogItem {
+	pm := PublicCatalogItem{
 		ID:              item.ID,
 		CategoryID:      item.CategoryID,
 		Name:            item.Name,
-		Description:     item.Description,
 		BasePrice:       item.BasePrice,
-		Currency:        item.Currency,
-		ImageURL:        item.ImageURL,
+		Currency:        DefaultCurrency,
 		LeadTimeMinutes: item.LeadTimeMinutes,
-		Variants:        item.Variants,
 		DietaryTags:     item.DietaryTags,
+		IsFavorite:      item.IsFavorite,
 	}
 
 	if item.Category != nil {
-		pm.CategoryName = item.Category.Name
-	}
-
-	// Apply translation if available
-	if locale != "" && locale != LocaleEnglish {
-		for _, t := range item.Translations {
-			if strings.EqualFold(t.Locale, locale) {
-				pm.Name = t.Name
-				if t.Description != "" {
-					pm.Description = t.Description
-				}
-				break
-			}
-		}
+		// pm.CategoryName = item.Category.Name // Category Name also hydration
 	}
 
 	return pm
@@ -970,11 +763,9 @@ func toPublicMenuItem(item MenuItem, locale string) PublicMenuItem {
 
 func toPublicCategory(cat Category) PublicCategory {
 	pc := PublicCategory{
-		ID:          cat.ID,
-		Name:        cat.Name,
-		Description: cat.Description,
-		ImageURL:    cat.ImageURL,
-		ItemCount:   cat.ItemCount,
+		ID:        cat.ID,
+		ItemCount: cat.ItemCount,
+		// Name, Description, ImageURL etc. will be populated by hydration logic
 	}
 
 	if cat.Children != nil {

@@ -15,7 +15,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
-	"github.com/bengobox/ordering-backend/internal/ent/proofofdelivery"
 	"github.com/google/uuid"
 )
 
@@ -28,7 +27,6 @@ type OrderAssignmentQuery struct {
 	predicates          []predicate.OrderAssignment
 	withOrder           *OrderQuery
 	withDeliveryWindows *DeliveryWindowQuery
-	withProofOfDelivery *ProofOfDeliveryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,28 +100,6 @@ func (oaq *OrderAssignmentQuery) QueryDeliveryWindows() *DeliveryWindowQuery {
 			sqlgraph.From(orderassignment.Table, orderassignment.FieldID, selector),
 			sqlgraph.To(deliverywindow.Table, deliverywindow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, orderassignment.DeliveryWindowsTable, orderassignment.DeliveryWindowsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(oaq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryProofOfDelivery chains the current query on the "proof_of_delivery" edge.
-func (oaq *OrderAssignmentQuery) QueryProofOfDelivery() *ProofOfDeliveryQuery {
-	query := (&ProofOfDeliveryClient{config: oaq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oaq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := oaq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(orderassignment.Table, orderassignment.FieldID, selector),
-			sqlgraph.To(proofofdelivery.Table, proofofdelivery.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, orderassignment.ProofOfDeliveryTable, orderassignment.ProofOfDeliveryColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(oaq.driver.Dialect(), step)
 		return fromU, nil
@@ -325,7 +301,6 @@ func (oaq *OrderAssignmentQuery) Clone() *OrderAssignmentQuery {
 		predicates:          append([]predicate.OrderAssignment{}, oaq.predicates...),
 		withOrder:           oaq.withOrder.Clone(),
 		withDeliveryWindows: oaq.withDeliveryWindows.Clone(),
-		withProofOfDelivery: oaq.withProofOfDelivery.Clone(),
 		// clone intermediate query.
 		sql:  oaq.sql.Clone(),
 		path: oaq.path,
@@ -351,17 +326,6 @@ func (oaq *OrderAssignmentQuery) WithDeliveryWindows(opts ...func(*DeliveryWindo
 		opt(query)
 	}
 	oaq.withDeliveryWindows = query
-	return oaq
-}
-
-// WithProofOfDelivery tells the query-builder to eager-load the nodes that are connected to
-// the "proof_of_delivery" edge. The optional arguments are used to configure the query builder of the edge.
-func (oaq *OrderAssignmentQuery) WithProofOfDelivery(opts ...func(*ProofOfDeliveryQuery)) *OrderAssignmentQuery {
-	query := (&ProofOfDeliveryClient{config: oaq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	oaq.withProofOfDelivery = query
 	return oaq
 }
 
@@ -443,10 +407,9 @@ func (oaq *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	var (
 		nodes       = []*OrderAssignment{}
 		_spec       = oaq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [2]bool{
 			oaq.withOrder != nil,
 			oaq.withDeliveryWindows != nil,
-			oaq.withProofOfDelivery != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -479,12 +442,6 @@ func (oaq *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 			func(n *OrderAssignment, e *DeliveryWindow) {
 				n.Edges.DeliveryWindows = append(n.Edges.DeliveryWindows, e)
 			}); err != nil {
-			return nil, err
-		}
-	}
-	if query := oaq.withProofOfDelivery; query != nil {
-		if err := oaq.loadProofOfDelivery(ctx, query, nodes, nil,
-			func(n *OrderAssignment, e *ProofOfDelivery) { n.Edges.ProofOfDelivery = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -535,33 +492,6 @@ func (oaq *OrderAssignmentQuery) loadDeliveryWindows(ctx context.Context, query 
 	}
 	query.Where(predicate.DeliveryWindow(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(orderassignment.DeliveryWindowsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.AssignmentID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "assignment_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (oaq *OrderAssignmentQuery) loadProofOfDelivery(ctx context.Context, query *ProofOfDeliveryQuery, nodes []*OrderAssignment, init func(*OrderAssignment), assign func(*OrderAssignment, *ProofOfDelivery)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*OrderAssignment)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(proofofdelivery.FieldAssignmentID)
-	}
-	query.Where(predicate.ProofOfDelivery(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(orderassignment.ProofOfDeliveryColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

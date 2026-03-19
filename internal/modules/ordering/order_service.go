@@ -8,20 +8,24 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // OrderService provides order business logic.
 type OrderService struct {
-	repo           Repository
-	cartSvc        *CartService
-	promoSvc       *PromoService
-	loyaltySvc     *LoyaltyService
-	stateMachine   *OrderStateMachine
-	eventPublisher *events.Publisher
-	inventoryClient *inventory.Client
-	logger         *zap.Logger
+	repo                Repository
+	cartSvc             *CartService
+	promoSvc            *PromoService
+	loyaltySvc          *LoyaltyService
+	stateMachine        *OrderStateMachine
+	eventPublisher      *events.Publisher
+	inventoryClient     *inventory.Client
+	subscriptionsClient *subscriptions.Client
+	logger              *zap.Logger
 }
 
 // NewOrderService creates a new order service.
@@ -31,16 +35,18 @@ func NewOrderService(
 	promoSvc *PromoService,
 	loyaltySvc *LoyaltyService,
 	inventoryClient *inventory.Client,
+	subscriptionsClient *subscriptions.Client,
 	logger *zap.Logger,
 ) *OrderService {
 	return &OrderService{
-		repo:            repo,
-		cartSvc:         cartSvc,
-		promoSvc:        promoSvc,
-		loyaltySvc:      loyaltySvc,
-		inventoryClient: inventoryClient,
-		stateMachine:    NewOrderStateMachine(),
-		logger:          logger,
+		repo:                repo,
+		cartSvc:             cartSvc,
+		promoSvc:            promoSvc,
+		loyaltySvc:          loyaltySvc,
+		inventoryClient:     inventoryClient,
+		subscriptionsClient: subscriptionsClient,
+		stateMachine:        NewOrderStateMachine(),
+		logger:              logger,
 	}
 }
 
@@ -50,8 +56,33 @@ func (s *OrderService) SetEventPublisher(publisher *events.Publisher) {
 	s.eventPublisher = publisher
 }
 
+// checkSubscription enforces that the tenant has an active subscription before
+// allowing order creation. Platform owners bypass this check entirely.
+func (s *OrderService) checkSubscription(ctx context.Context, tenantID uuid.UUID) error {
+	if httpware.IsPlatformOwner(ctx) {
+		return nil
+	}
+	if s.subscriptionsClient == nil {
+		return nil // subscriptions enforcement disabled
+	}
+	// Extract bearer token from auth claims for the inter-service call
+	bearerToken := ""
+	if claims, ok := authclient.ClaimsFromContext(ctx); ok {
+		_ = claims // token is passed via X-API-Key header from client config
+	}
+	if !s.subscriptionsClient.IsSubscriptionActive(ctx, tenantID, bearerToken) {
+		return ErrSubscriptionRequired
+	}
+	return nil
+}
+
 // Checkout creates an order from a cart.
 func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Order, error) {
+	// Enforce active subscription
+	if err := s.checkSubscription(ctx, req.TenantID); err != nil {
+		return nil, err
+	}
+
 	// Check for idempotency
 	if req.IdempotencyKey != "" {
 		existingOrder, err := s.repo.GetOrderByIdempotencyKey(ctx, req.TenantID, req.IdempotencyKey)
@@ -91,7 +122,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	var promoCodeID *uuid.UUID
 	var discountTotal float64 = cart.DiscountTotal
 	if req.PromoCode != "" {
-		result, err := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, cart.CafeID, req.PromoCode, cart.Subtotal, &req.UserID)
+		result, err := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, cart.OutletID, req.PromoCode, cart.Subtotal, &req.UserID)
 		if err != nil || !result.Valid {
 			return nil, ErrPromoCodeNotFound
 		}
@@ -115,7 +146,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	grandTotal := cart.Subtotal - discountTotal - loyaltyDiscount + cart.TaxTotal + cart.DeliveryFee
 
 	// Generate order number
-	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, cart.CafeID)
+	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, cart.OutletID)
 	if err != nil {
 		s.logger.Error("failed to generate order number", zap.Error(err))
 		return nil, err
@@ -128,7 +159,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	now := time.Now()
 	order := &Order{
 		TenantID:              req.TenantID,
-		CafeID:                cart.CafeID,
+		OutletID:              cart.OutletID,
 		CustomerID:            req.UserID,
 		CartID:                &cart.ID,
 		OrderNumber:           orderNumber,
@@ -159,10 +190,10 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Create order items from cart items
 	for _, cartItem := range cart.Items {
 		orderItem := &OrderItem{
-			OrderID:      order.ID,
-			MenuItemID:   cartItem.MenuItemID,
-			VariantID:    cartItem.VariantID,
-			NameSnapshot: cartItem.NameSnapshot,
+			OrderID:       order.ID,
+			CatalogItemID: cartItem.CatalogItemID,
+			VariantID:     cartItem.VariantID,
+			NameSnapshot:  cartItem.NameSnapshot,
 			Quantity:     cartItem.Quantity,
 			UnitPrice:    cartItem.UnitPrice,
 			TotalPrice:   cartItem.TotalPrice,
@@ -210,6 +241,11 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 
 // CreateOrderFromItems creates an order directly from a list of items (convenience endpoint for frontend).
 func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrderFromItemsRequest) (*Order, error) {
+	// Enforce active subscription
+	if err := s.checkSubscription(ctx, req.TenantID); err != nil {
+		return nil, err
+	}
+
 	if len(req.Items) == 0 {
 		return nil, ErrCartEmpty
 	}
@@ -223,7 +259,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	discountTotal := 0.0
 	grandTotal := subtotal - discountTotal + deliveryFee
 
-	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.CafeID)
+	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.OutletID)
 	if err != nil {
 		s.logger.Error("failed to generate order number", zap.Error(err))
 		return nil, err
@@ -238,7 +274,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	now := time.Now()
 	order := &Order{
 		TenantID:            req.TenantID,
-		CafeID:              req.CafeID,
+		OutletID:            req.OutletID,
 		CustomerID:          req.UserID,
 		CartID:              nil,
 		OrderNumber:         orderNumber,
@@ -265,9 +301,9 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 	for _, it := range req.Items {
 		orderItem := &OrderItem{
-			OrderID:      order.ID,
-			MenuItemID:   it.MenuItemID,
-			NameSnapshot: it.Name,
+			OrderID:       order.ID,
+			CatalogItemID: it.CatalogItemID,
+			NameSnapshot:  it.Name,
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
@@ -315,18 +351,18 @@ func (s *OrderService) processStockConsumption(ctx context.Context, order *Order
 	consumptionMap := make(map[string]float64) // SKU -> Quantity
 
 	for _, item := range order.Items {
-		// Get menu item to find its SKU code
-		menuItem, err := s.repo.GetMenuItemByID(ctx, order.TenantID, item.MenuItemID)
+		// Get catalog item to find its SKU code
+		catalogItem, err := s.repo.GetCatalogItemByID(ctx, order.TenantID, item.CatalogItemID)
 		if err != nil {
-			s.logger.Warn("failed to get menu item for recipe lookup", zap.Error(err), zap.String("menuItemID", item.MenuItemID.String()))
+			s.logger.Warn("failed to get catalog item for recipe lookup", zap.Error(err), zap.String("catalogItemID", item.CatalogItemID.String()))
 			continue
 		}
 
 		// Lookup recipe by SKU
-		recipe, err := s.inventoryClient.GetRecipeBySKU(ctx, tenant.Slug, menuItem.SKU)
+		recipe, err := s.inventoryClient.GetRecipeBySKU(ctx, tenant.Slug, catalogItem.SKU)
 		if err != nil {
 			// It's possible some items don't have recipes associated
-			s.logger.Debug("no recipe found for menu item", zap.String("sku", menuItem.SKU))
+			s.logger.Debug("no recipe found for catalog item", zap.String("sku", catalogItem.SKU))
 			continue
 		}
 
@@ -626,7 +662,7 @@ func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, it
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
 		CustomerID:  order.CustomerID,
-		CafeID:      order.CafeID,
+		OutletID:    order.OutletID,
 		TotalAmount: order.GrandTotal,
 		Currency:    order.Currency,
 		ItemCount:   itemCount,
@@ -678,7 +714,7 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 	data := events.OrderReadyData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CafeID:      order.CafeID,
+		OutletID:    order.OutletID,
 		CustomerID:  order.CustomerID,
 	}
 

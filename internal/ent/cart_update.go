@@ -45,16 +45,16 @@ func (cu *CartUpdate) SetNillableTenantID(u *uuid.UUID) *CartUpdate {
 	return cu
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (cu *CartUpdate) SetCafeID(u uuid.UUID) *CartUpdate {
-	cu.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (cu *CartUpdate) SetOutletID(u uuid.UUID) *CartUpdate {
+	cu.mutation.SetOutletID(u)
 	return cu
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableCafeID(u *uuid.UUID) *CartUpdate {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (cu *CartUpdate) SetNillableOutletID(u *uuid.UUID) *CartUpdate {
 	if u != nil {
-		cu.SetCafeID(*u)
+		cu.SetOutletID(*u)
 	}
 	return cu
 }
@@ -401,8 +401,8 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.TenantID(); ok {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cu.mutation.CafeID(); ok {
-		_spec.SetField(cart.FieldCafeID, field.TypeUUID, value)
+	if value, ok := cu.mutation.OutletID(); ok {
+		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
 	}
 	if value, ok := cu.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)
@@ -569,16 +569,16 @@ func (cuo *CartUpdateOne) SetNillableTenantID(u *uuid.UUID) *CartUpdateOne {
 	return cuo
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (cuo *CartUpdateOne) SetCafeID(u uuid.UUID) *CartUpdateOne {
-	cuo.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (cuo *CartUpdateOne) SetOutletID(u uuid.UUID) *CartUpdateOne {
+	cuo.mutation.SetOutletID(u)
 	return cuo
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableCafeID(u *uuid.UUID) *CartUpdateOne {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (cuo *CartUpdateOne) SetNillableOutletID(u *uuid.UUID) *CartUpdateOne {
 	if u != nil {
-		cuo.SetCafeID(*u)
+		cuo.SetOutletID(*u)
 	}
 	return cuo
 }
@@ -955,8 +955,8 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 	if value, ok := cuo.mutation.TenantID(); ok {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cuo.mutation.CafeID(); ok {
-		_spec.SetField(cart.FieldCafeID, field.TypeUUID, value)
+	if value, ok := cuo.mutation.OutletID(); ok {
+		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
 	}
 	if value, ok := cuo.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)

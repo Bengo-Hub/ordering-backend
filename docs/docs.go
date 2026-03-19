@@ -475,8 +475,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Filter by cafe ID",
-                        "name": "cafe_id",
+                        "description": "Filter by outlet ID",
+                        "name": "outlet_id",
                         "in": "query"
                     },
                     {
@@ -539,6 +539,66 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/summary": {
+            "get": {
+                "description": "Returns high-level metrics (revenue, orders, trends)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Get analytics summary (admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339)",
+                        "name": "date_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339)",
+                        "name": "date_to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.AnalyticsSummary"
                         }
                     },
                     "401": {
@@ -1561,144 +1621,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/google/complete": {
-            "post": {
-                "description": "Exchanges the Google authorization code for tokens, creates a user if required, and issues session credentials.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Complete Google OAuth sign-in",
-                "parameters": [
-                    {
-                        "description": "Google OAuth completion request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.GoogleCompleteRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/google/start": {
-            "post": {
-                "description": "Generates a Google OAuth consent URL for the requested role.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Start Google OAuth sign-in",
-                "parameters": [
-                    {
-                        "description": "Google OAuth start request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.GoogleStartRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.GoogleOAuthURLResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "description": "Authenticates a user with email/password credentials and issues session tokens scoped to the selected role.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Sign in with email and password",
-                "parameters": [
-                    {
-                        "description": "Login request payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/logout": {
             "post": {
                 "security": [
@@ -1706,7 +1628,7 @@ const docTemplate = `{
                         "bearerAuth": []
                     }
                 ],
-                "description": "Revokes the active session belonging to the authenticated user.",
+                "description": "Acknowledges logout. The real sign-out happens at the SSO authorize endpoint.",
                 "produces": [
                     "application/json"
                 ],
@@ -1737,7 +1659,7 @@ const docTemplate = `{
                         "bearerAuth": []
                     }
                 ],
-                "description": "Returns the authenticated user's profile, preferences, and current session metadata.",
+                "description": "Returns the authenticated user's profile, preferences, and metadata.",
                 "produces": [
                     "application/json"
                 ],
@@ -1761,91 +1683,57 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh": {
-            "post": {
-                "description": "Issues a fresh access token and refresh token pair using a valid refresh token.",
-                "consumes": [
-                    "application/json"
-                ],
+        "/cafes": {
+            "get": {
+                "description": "Returns distinct cafes (outlets) that have menu data for the tenant",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Menu"
                 ],
-                "summary": "Refresh session tokens",
+                "summary": "List cafes for tenant",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/catalog.OutletSummary"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cafes/{id}": {
+            "get": {
+                "description": "Returns one cafe/outlet if it belongs to the tenant",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Get cafe by ID",
                 "parameters": [
                     {
-                        "description": "Refresh token request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.RefreshRequest"
-                        }
+                        "type": "string",
+                        "description": "Cafe ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
+                            "$ref": "#/definitions/catalog.OutletSummary"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "description": "Creates a new user account via auth-service and issues session tokens.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "Registration request payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.RegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -1881,7 +1769,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Cafe ID",
-                        "name": "cafe_id",
+                        "name": "outlet_id",
                         "in": "query",
                         "required": true
                     }
@@ -1937,7 +1825,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Cafe ID",
-                        "name": "cafe_id",
+                        "name": "outlet_id",
                         "in": "query",
                         "required": true
                     }
@@ -2240,8 +2128,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Cafe ID",
-                        "name": "cafe_id",
+                        "description": "Outlet ID",
+                        "name": "outlet_id",
                         "in": "query",
                         "required": true
                     }
@@ -2294,8 +2182,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Filter by cafe ID",
-                        "name": "cafe_id",
+                        "description": "Filter by outlet ID",
+                        "name": "outlet_id",
                         "in": "query"
                     },
                     {
@@ -2594,8 +2482,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Filter by cafe ID",
-                        "name": "cafe_id",
+                        "description": "Filter by outlet ID",
+                        "name": "outlet_id",
                         "in": "query"
                     },
                     {
@@ -2676,7 +2564,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cataloghandler.CreateMenuItemRequest"
+                            "$ref": "#/definitions/cataloghandler.CreateCatalogItemRequest"
                         }
                     }
                 ],
@@ -2684,7 +2572,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/catalog.MenuItem"
+                            "$ref": "#/definitions/catalog.CatalogItem"
                         }
                     },
                     "400": {
@@ -2738,7 +2626,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/catalog.MenuItem"
+                            "$ref": "#/definitions/catalog.CatalogItem"
                         }
                     },
                     "404": {
@@ -2782,7 +2670,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cataloghandler.UpdateMenuItemRequest"
+                            "$ref": "#/definitions/cataloghandler.UpdateCatalogItemRequest"
                         }
                     }
                 ],
@@ -2790,7 +2678,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/catalog.MenuItem"
+                            "$ref": "#/definitions/catalog.CatalogItem"
                         }
                     },
                     "400": {
@@ -2948,218 +2836,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/catalog/items/{id}/translations": {
-            "get": {
-                "description": "Lists all translations for a menu item",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "List menu item translations",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/catalog.Translation"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a localized translation for a menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Create a menu item translation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Translation data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.CreateTranslationRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.Translation"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/items/{id}/variants": {
-            "get": {
-                "description": "Lists all variants for a menu item",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "List menu item variants",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/catalog.Variant"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new variant (e.g., size, flavor) for a menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Create a menu item variant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Variant data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.CreateVariantRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.Variant"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/checkout": {
             "post": {
                 "description": "Creates an order from the current cart",
@@ -3280,6 +2956,41 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/config": {
+            "get": {
+                "description": "Returns tenant display name and optional brand (logo_url, primary_color, secondary_color) for theming",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Config"
+                ],
+                "summary": "Get tenant public config (brand)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug (e.g. urban-loft)",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/config.PublicConfigResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -3548,7 +3259,7 @@ const docTemplate = `{
         },
         "/menu/categories": {
             "get": {
-                "description": "Lists active menu categories for public display",
+                "description": "Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. outlet_id is optional; when omitted, the first outlet for the tenant is used.",
                 "produces": [
                     "application/json"
                 ],
@@ -3559,10 +3270,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Cafe ID",
-                        "name": "cafe_id",
-                        "in": "query",
-                        "required": true
+                        "description": "Outlet ID (optional; defaults to first outlet)",
+                        "name": "outlet_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3591,8 +3301,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Filter by cafe ID",
-                        "name": "cafe_id",
+                        "description": "Filter by outlet ID",
+                        "name": "outlet_id",
                         "in": "query"
                     },
                     {
@@ -3665,7 +3375,53 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/catalog.PublicMenuItem"
+                            "$ref": "#/definitions/catalog.PublicCatalogItem"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/items/{id}/favorite": {
+            "post": {
+                "description": "Adds or removes a menu item from the current user's favorites",
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Toggle favorite status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
@@ -3768,6 +3524,70 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates an order directly from items (outletId, items, deliveryAddress, paymentMethod). Alternative to cart + checkout flow.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create order from items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Order data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orderinghandler.CreateOrderRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -3908,6 +3728,79 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{orderId}/rate": {
+            "post": {
+                "description": "Allows a customer to rate a delivered or completed order (1-5 stars)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Rate an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Rating payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orderinghandler.RateOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -4621,57 +4514,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/security": {
-            "post": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Enables or disables two-factor authentication for the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Update account security settings",
-                "parameters": [
-                    {
-                        "description": "Security update payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.UpdateSecurityRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/webhooks/mpesa/callback": {
             "post": {
                 "consumes": [
@@ -4834,13 +4676,13 @@ const docTemplate = `{
                 "assetType": {
                     "$ref": "#/definitions/catalog.AssetType"
                 },
+                "catalogItemId": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "menuItemId": {
                     "type": "string"
                 },
                 "metadata": {
@@ -4863,12 +4705,97 @@ const docTemplate = `{
                 "AssetTypeVideo"
             ]
         },
+        "catalog.CatalogItem": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.Asset"
+                    }
+                },
+                "basePrice": {
+                    "description": "Projected from inventory",
+                    "type": "number"
+                },
+                "category": {
+                    "$ref": "#/definitions/catalog.Category"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dietaryTags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.DietaryTag"
+                    }
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inventoryItemId": {
+                    "type": "string"
+                },
+                "isAvailable": {
+                    "type": "boolean"
+                },
+                "isFavorite": {
+                    "type": "boolean"
+                },
+                "isFeatured": {
+                    "type": "boolean"
+                },
+                "leadTimeMinutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Projected from inventory",
+                    "type": "string"
+                },
+                "outletId": {
+                    "type": "string"
+                },
+                "recipeId": {
+                    "type": "string"
+                },
+                "schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.Schedule"
+                    }
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "variants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.Variant"
+                    }
+                }
+            }
+        },
         "catalog.Category": {
             "type": "object",
             "properties": {
-                "cafeId": {
-                    "type": "string"
-                },
                 "children": {
                     "type": "array",
                     "items": {
@@ -4878,16 +4805,10 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "displayOrder": {
                     "type": "integer"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "imageUrl": {
                     "type": "string"
                 },
                 "isActive": {
@@ -4896,7 +4817,7 @@ const docTemplate = `{
                 "itemCount": {
                     "type": "integer"
                 },
-                "name": {
+                "outletId": {
                     "type": "string"
                 },
                 "parentId": {
@@ -4931,120 +4852,21 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.MenuItem": {
+        "catalog.OutletSummary": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Asset"
-                    }
-                },
-                "basePrice": {
-                    "type": "number"
-                },
-                "cafeId": {
-                    "type": "string"
-                },
-                "category": {
-                    "$ref": "#/definitions/catalog.Category"
-                },
-                "categoryId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "dietaryTags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.DietaryTag"
-                    }
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "string"
                 },
                 "imageUrl": {
                     "type": "string"
                 },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nutrition": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "schedules": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Schedule"
-                    }
-                },
-                "sku": {
-                    "type": "string"
-                },
-                "tenantId": {
-                    "type": "string"
-                },
-                "translations": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Translation"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "variants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Variant"
-                    }
-                }
-            }
-        },
-        "catalog.PublicCategory": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.PublicCategory"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "itemCount": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 }
             }
         },
-        "catalog.PublicMenuItem": {
+        "catalog.PublicCatalogItem": {
             "type": "object",
             "properties": {
                 "basePrice": {
@@ -5074,23 +4896,49 @@ const docTemplate = `{
                 "imageUrl": {
                     "type": "string"
                 },
+                "isFavorite": {
+                    "type": "boolean"
+                },
                 "leadTimeMinutes": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
-                },
-                "variants": {
+                }
+            }
+        },
+        "catalog.PublicCategory": {
+            "type": "object",
+            "properties": {
+                "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/catalog.Variant"
+                        "$ref": "#/definitions/catalog.PublicCategory"
                     }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "itemCount": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
         "catalog.Schedule": {
             "type": "object",
             "properties": {
+                "catalogItemId": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -5099,9 +4947,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "menuItemId": {
                     "type": "string"
                 },
                 "timeEnd": {
@@ -5114,50 +4959,17 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.Translation": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "locale": {
-                    "description": "e.g., \"en\", \"sw\"",
-                    "type": "string"
-                },
-                "menuItemId": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "catalog.Variant": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "catalogItemId": {
                     "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
                 },
                 "isAvailable": {
                     "type": "boolean"
-                },
-                "menuItemId": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -5166,9 +4978,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "sku": {
-                    "type": "string"
-                },
-                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -5181,63 +4990,31 @@ const docTemplate = `{
                 }
             }
         },
-        "cataloghandler.CreateCategoryRequest": {
+        "cataloghandler.CreateCatalogItemRequest": {
             "type": "object",
             "properties": {
-                "cafeId": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.CreateMenuItemRequest": {
-            "type": "object",
-            "properties": {
-                "basePrice": {
-                    "type": "number"
-                },
-                "cafeId": {
-                    "type": "string"
-                },
                 "categoryId": {
                     "type": "string"
                 },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
                 "displayOrder": {
                     "type": "integer"
                 },
-                "imageUrl": {
+                "inventoryItemId": {
                     "type": "string"
                 },
                 "isAvailable": {
+                    "type": "boolean"
+                },
+                "isFeatured": {
                     "type": "boolean"
                 },
                 "leadTimeMinutes": {
                     "type": "integer"
                 },
-                "name": {
+                "outletId": {
+                    "type": "string"
+                },
+                "recipeId": {
                     "type": "string"
                 },
                 "sku": {
@@ -5245,36 +5022,19 @@ const docTemplate = `{
                 }
             }
         },
-        "cataloghandler.CreateTranslationRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "locale": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.CreateVariantRequest": {
+        "cataloghandler.CreateCategoryRequest": {
             "type": "object",
             "properties": {
                 "displayOrder": {
                     "type": "integer"
                 },
-                "isAvailable": {
+                "isActive": {
                     "type": "boolean"
                 },
-                "name": {
+                "outletId": {
                     "type": "string"
                 },
-                "priceDelta": {
-                    "type": "number"
-                },
-                "sku": {
+                "parentId": {
                     "type": "string"
                 }
             }
@@ -5294,63 +5054,45 @@ const docTemplate = `{
                 }
             }
         },
+        "cataloghandler.UpdateCatalogItemRequest": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "isAvailable": {
+                    "type": "boolean"
+                },
+                "isFeatured": {
+                    "type": "boolean"
+                },
+                "leadTimeMinutes": {
+                    "type": "integer"
+                },
+                "recipeId": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
         "cataloghandler.UpdateCategoryRequest": {
             "type": "object",
             "properties": {
                 "clearParent": {
                     "type": "boolean"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "displayOrder": {
                     "type": "integer"
-                },
-                "imageUrl": {
-                    "type": "string"
                 },
                 "isActive": {
                     "type": "boolean"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "parentId": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.UpdateMenuItemRequest": {
-            "type": "object",
-            "properties": {
-                "basePrice": {
-                    "type": "number"
-                },
-                "categoryId": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "sku": {
                     "type": "string"
                 }
             }
@@ -5666,6 +5408,47 @@ const docTemplate = `{
                 }
             }
         },
+        "config.PublicConfigResponse": {
+            "type": "object",
+            "properties": {
+                "brand_palette": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "features": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "primary_color": {
+                    "type": "string"
+                },
+                "secondary_color": {
+                    "type": "string"
+                },
+                "short_name": {
+                    "type": "string"
+                },
+                "support_email": {
+                    "type": "string"
+                },
+                "support_phone": {
+                    "type": "string"
+                },
+                "tagline": {
+                    "type": "string"
+                }
+            }
+        },
         "fulfilment.AssignmentStatus": {
             "type": "string",
             "enum": [
@@ -5869,26 +5652,26 @@ const docTemplate = `{
         "identity.Permission": {
             "type": "string",
             "enum": [
-                "orders:view",
+                "orders:read",
                 "orders:manage",
                 "orders:refund",
                 "profile:update",
                 "preferences:update",
-                "loyalty:view",
+                "loyalty:read",
                 "loyalty:redeem",
-                "catalog:view",
+                "catalog:read",
                 "catalog:manage",
-                "payments:view",
+                "payments:read",
                 "payments:manage",
-                "logistics:view",
+                "logistics:read",
                 "logistics:dispatch",
                 "operations:kitchen",
                 "operations:inventory",
-                "notifications:view",
+                "notifications:read",
                 "notifications:manage",
-                "analytics:view",
+                "analytics:read",
                 "analytics:export",
-                "support:view",
+                "support:read",
                 "support:manage",
                 "riders:onboard",
                 "staff:invite",
@@ -5974,64 +5757,14 @@ const docTemplate = `{
                 "session": {
                     "$ref": "#/definitions/identityhandler.SessionResponsePayload"
                 },
-                "user": {
-                    "$ref": "#/definitions/identityhandler.UserResponsePayload"
-                }
-            }
-        },
-        "identityhandler.GoogleCompleteRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "auth-code"
-                },
-                "state": {
-                    "type": "string",
-                    "example": "customer"
-                }
-            }
-        },
-        "identityhandler.GoogleOAuthURLResponse": {
-            "type": "object",
-            "properties": {
-                "url": {
+                "tenant_id": {
                     "type": "string"
-                }
-            }
-        },
-        "identityhandler.GoogleStartRequest": {
-            "type": "object",
-            "properties": {
-                "redirectUri": {
-                    "type": "string",
-                    "example": "http://localhost:3000/auth/callback"
-                },
-                "role": {
-                    "type": "string",
-                    "example": "customer"
-                }
-            }
-        },
-        "identityhandler.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "customer@demo.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "demo1234"
-                },
-                "role": {
-                    "type": "string",
-                    "example": "customer"
                 },
                 "tenant_slug": {
-                    "description": "Defaults to \"urban-cafe\" if not provided",
-                    "type": "string",
-                    "example": "urban-cafe"
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/identityhandler.UserResponsePayload"
                 }
             }
         },
@@ -6077,38 +5810,6 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "number"
-                }
-            }
-        },
-        "identityhandler.RefreshRequest": {
-            "type": "object",
-            "properties": {
-                "refreshToken": {
-                    "type": "string",
-                    "example": "refresh-token"
-                }
-            }
-        },
-        "identityhandler.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "newuser@urban-cafe.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "SecurePassword123!"
-                },
-                "profile": {
-                    "description": "Optional profile data",
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "tenant_slug": {
-                    "description": "Defaults to \"urban-cafe\" if not provided",
-                    "type": "string",
-                    "example": "urban-cafe"
                 }
             }
         },
@@ -6159,17 +5860,6 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "example": "+254700000000"
-                }
-            }
-        },
-        "identityhandler.UpdateSecurityRequest": {
-            "type": "object",
-            "properties": {
-                "disableTwoFactor": {
-                    "type": "boolean"
-                },
-                "enableTwoFactor": {
-                    "type": "boolean"
                 }
             }
         },
@@ -6260,12 +5950,48 @@ const docTemplate = `{
                 }
             }
         },
+        "ordering.AnalyticsSummary": {
+            "type": "object",
+            "properties": {
+                "cancelledOrders": {
+                    "type": "integer"
+                },
+                "ordersByStatus": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "revenueByCurrency": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "topSellingItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ordering.ItemSalesSummary"
+                    }
+                },
+                "totalOrders": {
+                    "type": "integer"
+                },
+                "totalRevenue": {
+                    "type": "number"
+                },
+                "trend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ordering.DailyMetric"
+                    }
+                }
+            }
+        },
         "ordering.Cart": {
             "type": "object",
             "properties": {
-                "cafeId": {
-                    "type": "string"
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -6292,6 +6018,9 @@ const docTemplate = `{
                 },
                 "loyaltyPointsRedeemed": {
                     "type": "integer"
+                },
+                "outletId": {
+                    "type": "string"
                 },
                 "promoCodeId": {
                     "type": "string"
@@ -6325,13 +6054,13 @@ const docTemplate = `{
                 "cartId": {
                     "type": "string"
                 },
+                "catalogItemId": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "menuItemId": {
                     "type": "string"
                 },
                 "metadata": {
@@ -6467,6 +6196,37 @@ const docTemplate = `{
                 }
             }
         },
+        "ordering.DailyMetric": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "orders": {
+                    "type": "integer"
+                },
+                "revenue": {
+                    "type": "number"
+                }
+            }
+        },
+        "ordering.ItemSalesSummary": {
+            "type": "object",
+            "properties": {
+                "catalogItemId": {
+                    "type": "string"
+                },
+                "nameSnapshot": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "revenue": {
+                    "type": "number"
+                }
+            }
+        },
         "ordering.LoyaltyTransaction": {
             "type": "object",
             "properties": {
@@ -6517,9 +6277,6 @@ const docTemplate = `{
         "ordering.Order": {
             "type": "object",
             "properties": {
-                "cafeId": {
-                    "type": "string"
-                },
                 "cancellationReason": {
                     "type": "string"
                 },
@@ -6599,6 +6356,9 @@ const docTemplate = `{
                 "orderNumber": {
                     "type": "string"
                 },
+                "outletId": {
+                    "type": "string"
+                },
                 "paymentStatus": {
                     "$ref": "#/definitions/ordering.PaymentStatus"
                 },
@@ -6606,6 +6366,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "promoCodeId": {
+                    "type": "string"
+                },
+                "ratedAt": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "ratingComment": {
                     "type": "string"
                 },
                 "readyAt": {
@@ -6690,10 +6459,10 @@ const docTemplate = `{
         "ordering.OrderItem": {
             "type": "object",
             "properties": {
-                "id": {
+                "catalogItemId": {
                     "type": "string"
                 },
-                "menuItemId": {
+                "id": {
                     "type": "string"
                 },
                 "metadata": {
@@ -6835,13 +6604,13 @@ const docTemplate = `{
         "orderinghandler.AddItemRequest": {
             "type": "object",
             "properties": {
-                "cafeId": {
-                    "type": "string"
-                },
-                "menuItemId": {
+                "catalogItemId": {
                     "type": "string"
                 },
                 "notes": {
+                    "type": "string"
+                },
+                "outletId": {
                     "type": "string"
                 },
                 "quantity": {
@@ -6958,6 +6727,42 @@ const docTemplate = `{
                 }
             }
         },
+        "orderinghandler.CreateOrderRequestDTO": {
+            "type": "object",
+            "properties": {
+                "deliveryAddress": {
+                    "type": "string"
+                },
+                "deliveryLat": {
+                    "type": "number"
+                },
+                "deliveryLng": {
+                    "type": "number"
+                },
+                "deliveryNotes": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/orderinghandler.OrderItemDTO"
+                    }
+                },
+                "outletId": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "description": "\"mpesa\" | \"cod\"",
+                    "type": "string"
+                },
+                "promoCode": {
+                    "type": "string"
+                },
+                "scheduledAt": {
+                    "type": "string"
+                }
+            }
+        },
         "orderinghandler.ListOrdersResponse": {
             "type": "object",
             "properties": {
@@ -6981,11 +6786,42 @@ const docTemplate = `{
         "orderinghandler.MergeCartRequest": {
             "type": "object",
             "properties": {
-                "cafeId": {
+                "outletId": {
                     "type": "string"
                 },
                 "sessionId": {
                     "type": "string"
+                }
+            }
+        },
+        "orderinghandler.OrderItemDTO": {
+            "type": "object",
+            "properties": {
+                "catalogItemId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "totalPrice": {
+                    "type": "number"
+                },
+                "unitPrice": {
+                    "type": "number"
+                }
+            }
+        },
+        "orderinghandler.RateOrderRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
                 }
             }
         },

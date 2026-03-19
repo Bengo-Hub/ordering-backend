@@ -10,10 +10,10 @@ var (
 	ErrCategoryHasChildren   = errors.New("cannot delete category with subcategories")
 	ErrInvalidCategoryParent = errors.New("invalid parent category")
 
-	// MenuItem errors
-	ErrMenuItemNotFound      = errors.New("menu item not found")
-	ErrMenuItemAlreadyExists = errors.New("menu item with this SKU already exists")
-	ErrInvalidCategory       = errors.New("invalid category for menu item")
+	// CatalogItem errors
+	ErrCatalogItemNotFound      = errors.New("catalog item not found")
+	ErrCatalogItemAlreadyExists = errors.New("catalog item with this SKU already exists")
+	ErrInvalidCategory          = errors.New("invalid category for catalog item")
 	ErrInvalidPrice          = errors.New("price must be non-negative")
 	ErrInvalidSKU            = errors.New("invalid SKU format")
 

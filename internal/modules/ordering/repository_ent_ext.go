@@ -195,8 +195,8 @@ func (r *EntRepository) CreatePromoCode(ctx context.Context, promo *PromoCode) e
 		SetIsActive(promo.IsActive).
 		SetFirstOrderOnly(promo.FirstOrderOnly)
 
-	if promo.CafeID != nil {
-		builder.SetCafeID(*promo.CafeID)
+	if promo.OutletID != nil {
+		builder.SetOutletID(*promo.OutletID)
 	}
 	if promo.MaxDiscountAmount != nil {
 		builder.SetMaxDiscountAmount(*promo.MaxDiscountAmount)
@@ -278,10 +278,10 @@ func (r *EntRepository) UpdatePromoCode(ctx context.Context, promo *PromoCode) e
 		SetIsActive(promo.IsActive).
 		SetFirstOrderOnly(promo.FirstOrderOnly)
 
-	if promo.CafeID != nil {
-		builder.SetCafeID(*promo.CafeID)
+	if promo.OutletID != nil {
+		builder.SetOutletID(*promo.OutletID)
 	} else {
-		builder.ClearCafeID()
+		builder.ClearOutletID()
 	}
 	if promo.MaxDiscountAmount != nil {
 		builder.SetMaxDiscountAmount(*promo.MaxDiscountAmount)
@@ -615,8 +615,8 @@ func entPromoCodeToDomain(p *ent.PromoCode) *PromoCode {
 		UpdatedAt:      p.UpdatedAt,
 	}
 
-	if p.CafeID != nil {
-		promo.CafeID = p.CafeID
+	if p.OutletID != nil {
+		promo.OutletID = p.OutletID
 	}
 	if p.MaxDiscountAmount != nil {
 		promo.MaxDiscountAmount = p.MaxDiscountAmount

@@ -11,7 +11,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
@@ -31,7 +31,7 @@ func NewEntRepository(client *ent.Client) *EntRepository {
 func (r *EntRepository) CreateCart(ctx context.Context, c *Cart) error {
 	builder := r.client.Cart.Create().
 		SetTenantID(c.TenantID).
-		SetCafeID(c.CafeID).
+		SetOutletID(c.OutletID).
 		SetStatus(cart.Status(c.Status)).
 		SetCurrency(c.Currency).
 		SetSubtotal(c.Subtotal).
@@ -80,11 +80,11 @@ func (r *EntRepository) GetCart(ctx context.Context, tenantID, cartID uuid.UUID)
 	return entCartToDomain(c), nil
 }
 
-func (r *EntRepository) GetActiveCartByUser(ctx context.Context, tenantID, cafeID, userID uuid.UUID) (*Cart, error) {
+func (r *EntRepository) GetActiveCartByUser(ctx context.Context, tenantID, outletID, userID uuid.UUID) (*Cart, error) {
 	c, err := r.client.Cart.Query().
 		Where(
 			cart.TenantID(tenantID),
-			cart.CafeID(cafeID),
+			cart.OutletID(outletID),
 			cart.UserID(userID),
 			cart.StatusEQ(cart.StatusActive),
 		).
@@ -99,11 +99,11 @@ func (r *EntRepository) GetActiveCartByUser(ctx context.Context, tenantID, cafeI
 	return entCartToDomain(c), nil
 }
 
-func (r *EntRepository) GetActiveCartBySession(ctx context.Context, tenantID, cafeID uuid.UUID, sessionID string) (*Cart, error) {
+func (r *EntRepository) GetActiveCartBySession(ctx context.Context, tenantID, outletID uuid.UUID, sessionID string) (*Cart, error) {
 	c, err := r.client.Cart.Query().
 		Where(
 			cart.TenantID(tenantID),
-			cart.CafeID(cafeID),
+			cart.OutletID(outletID),
 			cart.SessionID(sessionID),
 			cart.StatusEQ(cart.StatusActive),
 		).
@@ -161,8 +161,8 @@ func (r *EntRepository) ListCarts(ctx context.Context, filter CartFilter) ([]Car
 	query := r.client.Cart.Query().
 		Where(cart.TenantID(filter.TenantID))
 
-	if filter.CafeID != nil {
-		query = query.Where(cart.CafeID(*filter.CafeID))
+	if filter.OutletID != nil {
+		query = query.Where(cart.OutletID(*filter.OutletID))
 	}
 	if filter.UserID != nil {
 		query = query.Where(cart.UserID(*filter.UserID))
@@ -216,7 +216,7 @@ func (r *EntRepository) ExpireOldCarts(ctx context.Context, tenantID uuid.UUID) 
 func (r *EntRepository) CreateCartItem(ctx context.Context, item *CartItem) error {
 	builder := r.client.CartItem.Create().
 		SetCartID(item.CartID).
-		SetMenuItemID(item.MenuItemID).
+		SetCatalogItemID(item.CatalogItemID).
 		SetNameSnapshot(item.NameSnapshot).
 		SetQuantity(item.Quantity).
 		SetUnitPrice(item.UnitPrice).
@@ -257,11 +257,11 @@ func (r *EntRepository) GetCartItem(ctx context.Context, cartID, itemID uuid.UUI
 	return entCartItemToDomain(item), nil
 }
 
-func (r *EntRepository) GetCartItemByMenuItem(ctx context.Context, cartID, menuItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error) {
+func (r *EntRepository) GetCartItemByCatalogItem(ctx context.Context, cartID, catalogItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error) {
 	query := r.client.CartItem.Query().
 		Where(
 			cartitem.CartID(cartID),
-			cartitem.MenuItemID(menuItemID),
+			cartitem.CatalogItemID(catalogItemID),
 		)
 
 	if variantID != nil {
@@ -339,7 +339,7 @@ func (r *EntRepository) ClearCartItems(ctx context.Context, cartID uuid.UUID) er
 func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	builder := r.client.Order.Create().
 		SetTenantID(o.TenantID).
-		SetCafeID(o.CafeID).
+		SetOutletID(o.OutletID).
 		SetCustomerID(o.CustomerID).
 		SetOrderNumber(o.OrderNumber).
 		SetStatus(order.Status(o.Status)).
@@ -491,8 +491,8 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 	query := r.client.Order.Query().
 		Where(order.TenantID(filter.TenantID))
 
-	if filter.CafeID != nil {
-		query = query.Where(order.CafeID(*filter.CafeID))
+	if filter.OutletID != nil {
+		query = query.Where(order.OutletID(*filter.OutletID))
 	}
 	if filter.CustomerID != nil {
 		query = query.Where(order.CustomerID(*filter.CustomerID))
@@ -601,14 +601,14 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 		if err == nil {
 			itemStats := make(map[uuid.UUID]*ItemSalesSummary)
 			for _, it := range items {
-				if _, ok := itemStats[it.MenuItemID]; !ok {
-					itemStats[it.MenuItemID] = &ItemSalesSummary{
-						MenuItemID:   it.MenuItemID,
-						NameSnapshot: it.NameSnapshot,
+				if _, ok := itemStats[it.CatalogItemID]; !ok {
+					itemStats[it.CatalogItemID] = &ItemSalesSummary{
+						CatalogItemID: it.CatalogItemID,
+						NameSnapshot:  it.NameSnapshot,
 					}
 				}
-				itemStats[it.MenuItemID].Quantity += it.Quantity
-				itemStats[it.MenuItemID].Revenue += it.TotalPrice
+				itemStats[it.CatalogItemID].Quantity += it.Quantity
+				itemStats[it.CatalogItemID].Revenue += it.TotalPrice
 			}
 			for _, stats := range itemStats {
 				summary.TopSellingItems = append(summary.TopSellingItems, *stats)
@@ -625,15 +625,15 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 	return summary, nil
 }
 
-func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, cafeID uuid.UUID) (string, error) {
+func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error) {
 	// Get today's date prefix
 	today := time.Now().Format("20060102")
 
-	// Count orders today for this cafe
+	// Count orders today for this outlet
 	count, err := r.client.Order.Query().
 		Where(
 			order.TenantID(tenantID),
-			order.CafeID(cafeID),
+			order.OutletID(outletID),
 			order.CreatedAtGTE(time.Now().Truncate(24*time.Hour)),
 		).
 		Count(ctx)
@@ -650,7 +650,7 @@ func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, cafeI
 func (r *EntRepository) CreateOrderItem(ctx context.Context, item *OrderItem) error {
 	builder := r.client.OrderItem.Create().
 		SetOrderID(item.OrderID).
-		SetMenuItemID(item.MenuItemID).
+		SetCatalogItemID(item.CatalogItemID).
 		SetNameSnapshot(item.NameSnapshot).
 		SetQuantity(item.Quantity).
 		SetUnitPrice(item.UnitPrice).
@@ -762,7 +762,7 @@ func entCartToDomain(c *ent.Cart) *Cart {
 	cart := &Cart{
 		ID:                    c.ID,
 		TenantID:              c.TenantID,
-		CafeID:                c.CafeID,
+		OutletID:              c.OutletID,
 		SessionID:             c.SessionID,
 		Status:                CartStatus(c.Status),
 		Currency:              c.Currency,
@@ -790,9 +790,9 @@ func entCartToDomain(c *ent.Cart) *Cart {
 
 func entCartItemToDomain(item *ent.CartItem) *CartItem {
 	ci := &CartItem{
-		ID:           item.ID,
-		CartID:       item.CartID,
-		MenuItemID:   item.MenuItemID,
+		ID:            item.ID,
+		CartID:        item.CartID,
+		CatalogItemID: item.CatalogItemID,
 		NameSnapshot: item.NameSnapshot,
 		Quantity:     item.Quantity,
 		UnitPrice:    item.UnitPrice,
@@ -814,7 +814,7 @@ func entOrderToDomain(o *ent.Order) *Order {
 	ord := &Order{
 		ID:                    o.ID,
 		TenantID:              o.TenantID,
-		CafeID:                o.CafeID,
+		OutletID:              o.OutletID,
 		CustomerID:            o.CustomerID,
 		OrderNumber:           o.OrderNumber,
 		Status:                OrderStatus(o.Status),
@@ -883,7 +883,7 @@ func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	oi := &OrderItem{
 		ID:           item.ID,
 		OrderID:      item.OrderID,
-		MenuItemID:   item.MenuItemID,
+		CatalogItemID: item.CatalogItemID,
 		NameSnapshot: item.NameSnapshot,
 		Quantity:     item.Quantity,
 		UnitPrice:    item.UnitPrice,
@@ -933,37 +933,44 @@ func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenan
 	}, nil
 }
 
-func (r *EntRepository) GetMenuItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.MenuItem, error) {
-	mi, err := r.client.MenuItem.Query().
+func (r *EntRepository) GetCatalogItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.CatalogItem, error) {
+	ci, err := r.client.CatalogItem.Query().
 		Where(
-			menuitem.ID(id),
-			menuitem.TenantID(tenantID),
+			catalogitem.ID(id),
+			catalogitem.TenantID(tenantID),
 		).
 		Only(ctx)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, catalog.ErrCatalogItemNotFound
+		}
 		return nil, err
 	}
-	return entMenuItemToDomain(mi), nil
+	return entCatalogItemToDomain(ci), nil
 }
 
-func entMenuItemToDomain(mi *ent.MenuItem) *catalog.MenuItem {
-	cm := &catalog.MenuItem{
-		ID:              mi.ID,
-		TenantID:        mi.TenantID,
-		Name:            mi.Name,
-		Description:     mi.Description,
-		BasePrice:       mi.BasePrice,
-		Currency:        mi.Currency,
-		IsAvailable:     mi.IsAvailable,
-		SKU:             mi.Sku,
-		DisplayOrder:    mi.DisplayOrder,
-		CreatedAt:       mi.CreatedAt,
-		UpdatedAt:       mi.UpdatedAt,
+func entCatalogItemToDomain(ci *ent.CatalogItem) *catalog.CatalogItem {
+	leadTimeMinutes := 0
+	if ci.LeadTimeMinutes != nil {
+		leadTimeMinutes = *ci.LeadTimeMinutes
 	}
-
-	if mi.LeadTimeMinutes != nil {
-		cm.LeadTimeMinutes = *mi.LeadTimeMinutes
+	return &catalog.CatalogItem{
+		ID:              ci.ID,
+		TenantID:        ci.TenantID,
+		OutletID:        ci.OutletID,
+		InventoryItemID: ci.InventoryItemID,
+		CategoryID:      ci.CategoryID,
+		Name:            ci.Name,
+		Description:     ci.Description,
+		BasePrice:       ci.BasePrice,
+		Currency:        ci.Currency,
+		IsAvailable:     ci.IsAvailable,
+		IsFeatured:      ci.IsFeatured,
+		LeadTimeMinutes: leadTimeMinutes,
+		RecipeID:        ci.RecipeID,
+		SKU:             ci.Sku,
+		DisplayOrder:    ci.DisplayOrder,
+		CreatedAt:       ci.CreatedAt,
+		UpdatedAt:       ci.UpdatedAt,
 	}
-
-	return cm
 }
