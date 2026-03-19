@@ -1,10 +1,10 @@
-# Sprint 9 – MVP Launch (March 17, 2026)
+# Sprint 9 – MVP Launch (March 27, 2026)
 
 **Progress (March 2026)**: Backend scan done. Seed has urban-loft tenant and Busia (via menu categories/items). GET /api/v1/{tenant}/cafes returns outlets; treasury webhook with HMAC and cart/order endpoints present. CORS updated to include ordersapp and theurbanloftcafe.com. Inventory reservation on order placement not yet wired. **Tenant/brand**: Public GET /api/v1/{tenant}/config added; returns tenant display name, logo_url (from metadata), primary_color, secondary_color from TenantSetting.BrandPalette; auth skipped for /config, /cafes, /menu so tenant-scoped catalog remains public. Frontend may alternatively use auth-api GET /api/v1/tenants/by-slug/{slug} for tenant display info.
 
 **RBAC**: Ordering-backend has its own RBAC: roles and permissions in DB (ent Permission, Role, User with M2M). Authentication relies on auth-api JWT (validated by middleware); user sync from auth-service via NATS events. Seed includes roles (customer, rider, staff, admin, superuser) and permissions including semantic (e.g. orders:view, catalog:manage) and CRUD-style (add, read, read_own, change, change_own, delete, manage, manage_own) for orders and catalog. **Redis**: Redis is in use for rate limiting and auth config (e.g. JWKS). Permission/session cache is not implemented in the identity module; **Redis cache for permissions is recommended** for high traffic (e.g. cache user permissions by user ID with TTL). **Events/background jobs**: Outbox publisher (Transactional Outbox) runs in background; NATS used for order events (order.created, order.status.changed, order.ready, order.completed, order.cancelled), auth user sync, and logistics/fulfilment. Event publishing is used in order service; background outbox drains to NATS.
 
-**Duration**: March 6 – March 17, 2026 (10 working days)  
+**Duration**: March 6 – March 27, 2026 (10 working days)
 **Status**: 🔴 In Progress  
 **Goal**: Ship a working E2E customer ordering flow for the Busia outlet under the `urban-loft` tenant.
 
@@ -12,7 +12,7 @@
 
 ## Hard Deadline Constraints
 
-- **March 17**: Public launch of `ordersapp.codevertexitsolutions.com` and `orderingapi.codevertexitsolutions.com`
+- **March 27**: Public launch of `ordersapp.codevertexitsolutions.com` and `orderingapi.codevertexitsolutions.com`
 - **Tenant**: `urban-loft` only
 - **Outlet**: Busia only (remove or deactivate all mock outlets including Kiambu)
 - **Scope**: Customer ordering flow only. Admin/staff dashboards are best-effort.
@@ -188,7 +188,7 @@ Specific backend tasks:
 - [ ] Smoke test all critical path endpoints on staging
 - [ ] Load test: 50 concurrent orders (verify no deadlocks or timeouts)
 
-### Launch Day (March 17)
+### Launch Day (March 27)
 
 - [ ] Deploy final image via ArgoCD
 - [ ] Verify `/healthz` returns 200
