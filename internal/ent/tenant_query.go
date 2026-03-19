@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -29,7 +29,7 @@ type TenantQuery struct {
 	predicates     []predicate.Tenant
 	withSettings   *TenantSettingQuery
 	withUsers      *UserQuery
-	withSessions   *SessionQuery
+	withOutlets    *OutletQuery
 	withSyncEvents *TenantSyncEventQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -111,9 +111,9 @@ func (tq *TenantQuery) QueryUsers() *UserQuery {
 	return query
 }
 
-// QuerySessions chains the current query on the "sessions" edge.
-func (tq *TenantQuery) QuerySessions() *SessionQuery {
-	query := (&SessionClient{config: tq.config}).Query()
+// QueryOutlets chains the current query on the "outlets" edge.
+func (tq *TenantQuery) QueryOutlets() *OutletQuery {
+	query := (&OutletClient{config: tq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -124,8 +124,8 @@ func (tq *TenantQuery) QuerySessions() *SessionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(tenant.Table, tenant.FieldID, selector),
-			sqlgraph.To(session.Table, session.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, tenant.SessionsTable, tenant.SessionsColumn),
+			sqlgraph.To(outlet.Table, outlet.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tenant.OutletsTable, tenant.OutletsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,7 +349,7 @@ func (tq *TenantQuery) Clone() *TenantQuery {
 		predicates:     append([]predicate.Tenant{}, tq.predicates...),
 		withSettings:   tq.withSettings.Clone(),
 		withUsers:      tq.withUsers.Clone(),
-		withSessions:   tq.withSessions.Clone(),
+		withOutlets:    tq.withOutlets.Clone(),
 		withSyncEvents: tq.withSyncEvents.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
@@ -379,14 +379,14 @@ func (tq *TenantQuery) WithUsers(opts ...func(*UserQuery)) *TenantQuery {
 	return tq
 }
 
-// WithSessions tells the query-builder to eager-load the nodes that are connected to
-// the "sessions" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TenantQuery) WithSessions(opts ...func(*SessionQuery)) *TenantQuery {
-	query := (&SessionClient{config: tq.config}).Query()
+// WithOutlets tells the query-builder to eager-load the nodes that are connected to
+// the "outlets" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TenantQuery) WithOutlets(opts ...func(*OutletQuery)) *TenantQuery {
+	query := (&OutletClient{config: tq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withSessions = query
+	tq.withOutlets = query
 	return tq
 }
 
@@ -482,7 +482,7 @@ func (tq *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenan
 		loadedTypes = [4]bool{
 			tq.withSettings != nil,
 			tq.withUsers != nil,
-			tq.withSessions != nil,
+			tq.withOutlets != nil,
 			tq.withSyncEvents != nil,
 		}
 	)
@@ -517,10 +517,10 @@ func (tq *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenan
 			return nil, err
 		}
 	}
-	if query := tq.withSessions; query != nil {
-		if err := tq.loadSessions(ctx, query, nodes,
-			func(n *Tenant) { n.Edges.Sessions = []*Session{} },
-			func(n *Tenant, e *Session) { n.Edges.Sessions = append(n.Edges.Sessions, e) }); err != nil {
+	if query := tq.withOutlets; query != nil {
+		if err := tq.loadOutlets(ctx, query, nodes,
+			func(n *Tenant) { n.Edges.Outlets = []*Outlet{} },
+			func(n *Tenant, e *Outlet) { n.Edges.Outlets = append(n.Edges.Outlets, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -572,7 +572,6 @@ func (tq *TenantQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(user.FieldTenantID)
 	}
@@ -593,7 +592,7 @@ func (tq *TenantQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []
 	}
 	return nil
 }
-func (tq *TenantQuery) loadSessions(ctx context.Context, query *SessionQuery, nodes []*Tenant, init func(*Tenant), assign func(*Tenant, *Session)) error {
+func (tq *TenantQuery) loadOutlets(ctx context.Context, query *OutletQuery, nodes []*Tenant, init func(*Tenant), assign func(*Tenant, *Outlet)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Tenant)
 	for i := range nodes {
@@ -604,10 +603,10 @@ func (tq *TenantQuery) loadSessions(ctx context.Context, query *SessionQuery, no
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(session.FieldTenantID)
+		query.ctx.AppendFieldOnce(outlet.FieldTenantID)
 	}
-	query.Where(predicate.Session(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(tenant.SessionsColumn), fks...))
+	query.Where(predicate.Outlet(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(tenant.OutletsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

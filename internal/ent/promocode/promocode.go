@@ -18,8 +18,8 @@ const (
 	FieldID = "id"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
 	FieldTenantID = "tenant_id"
-	// FieldCafeID holds the string denoting the cafe_id field in the database.
-	FieldCafeID = "cafe_id"
+	// FieldOutletID holds the string denoting the outlet_id field in the database.
+	FieldOutletID = "outlet_id"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
 	// FieldName holds the string denoting the name field in the database.
@@ -75,7 +75,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldTenantID,
-	FieldCafeID,
+	FieldOutletID,
 	FieldCode,
 	FieldName,
 	FieldDescription,
@@ -168,9 +168,9 @@ func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
-// ByCafeID orders the results by the cafe_id field.
-func ByCafeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCafeID, opts...).ToFunc()
+// ByOutletID orders the results by the outlet_id field.
+func ByOutletID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOutletID, opts...).ToFunc()
 }
 
 // ByCode orders the results by the code field.

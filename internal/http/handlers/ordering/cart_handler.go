@@ -49,11 +49,11 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 
 // AddItemRequest represents a request to add an item to cart.
 type AddItemRequest struct {
-	CafeID     string  `json:"cafeId"`
-	MenuItemID string  `json:"menuItemId"`
-	VariantID  *string `json:"variantId,omitempty"`
-	Quantity   int     `json:"quantity"`
-	Notes      string  `json:"notes,omitempty"`
+	OutletID      string  `json:"outletId"`
+	CatalogItemID string  `json:"catalogItemId"`
+	VariantID     *string `json:"variantId,omitempty"`
+	Quantity      int     `json:"quantity"`
+	Notes         string  `json:"notes,omitempty"`
 }
 
 // UpdateItemRequest represents a request to update a cart item.
@@ -64,7 +64,7 @@ type UpdateItemRequest struct {
 
 // MergeCartRequest represents a request to merge a guest cart.
 type MergeCartRequest struct {
-	CafeID    string `json:"cafeId"`
+	OutletID  string `json:"outletId"`
 	SessionID string `json:"sessionId"`
 }
 
@@ -87,7 +87,7 @@ func (h *CartHandler) handleError(w http.ResponseWriter, err error) {
 		handlers.RespondError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ordering.ErrInvalidQuantity),
-		errors.Is(err, ordering.ErrMenuItemUnavailable),
+		errors.Is(err, ordering.ErrCatalogItemUnavailable),
 		errors.Is(err, ordering.ErrVariantUnavailable),
 		errors.Is(err, ordering.ErrInvalidCartStatus),
 		errors.Is(err, ordering.ErrCartEmpty):
@@ -118,15 +118,15 @@ func getTenantID(r *http.Request) (uuid.UUID, error) {
 	return uuid.Parse(tenantIDStr)
 }
 
-func getCafeID(r *http.Request) (uuid.UUID, error) {
-	cafeIDStr := r.URL.Query().Get("cafe_id")
-	if cafeIDStr == "" {
-		cafeIDStr = r.Header.Get("X-Cafe-ID")
+func getOutletID(r *http.Request) (uuid.UUID, error) {
+	outletIDStr := r.URL.Query().Get("outlet_id")
+	if outletIDStr == "" {
+		outletIDStr = r.Header.Get("X-Outlet-ID")
 	}
-	if cafeIDStr == "" {
-		return uuid.Nil, errors.New("cafe ID required")
+	if outletIDStr == "" {
+		return uuid.Nil, errors.New("outlet ID required")
 	}
-	return uuid.Parse(cafeIDStr)
+	return uuid.Parse(outletIDStr)
 }
 
 func getUserFromContext(r *http.Request) (*identity.User, error) {
@@ -146,7 +146,7 @@ func getUserFromContext(r *http.Request) (*identity.User, error) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Param cafe_id query string true "Cafe ID"
+// @Param outlet_id query string true "Cafe ID"
 // @Success 200 {object} ordering.Cart
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
@@ -159,9 +159,9 @@ func (h *CartHandler) GetCurrentCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := getCafeID(r)
+	outletID, err := getOutletID(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id is required")
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
@@ -171,7 +171,7 @@ func (h *CartHandler) GetCurrentCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, cafeID, &user.ID, "")
+	cart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -212,15 +212,15 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := uuid.Parse(req.CafeID)
+	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
 		return
 	}
 
-	menuItemID, err := uuid.Parse(req.MenuItemID)
+	catalogItemID, err := uuid.Parse(req.CatalogItemID)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid menu item ID")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid catalog item ID")
 		return
 	}
 
@@ -235,13 +235,13 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
-		TenantID:   tenantID,
-		CafeID:     cafeID,
-		UserID:     &user.ID,
-		MenuItemID: menuItemID,
-		VariantID:  variantID,
-		Quantity:   req.Quantity,
-		Notes:      req.Notes,
+		TenantID:      tenantID,
+		OutletID:      outletID,
+		UserID:        &user.ID,
+		CatalogItemID: catalogItemID,
+		VariantID:     variantID,
+		Quantity:      req.Quantity,
+		Notes:         req.Notes,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -291,14 +291,14 @@ func (h *CartHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := getCafeID(r)
+	outletID, err := getOutletID(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id is required")
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
 	// Get user's cart first
-	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, cafeID, &user.ID, "")
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -350,14 +350,14 @@ func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := getCafeID(r)
+	outletID, err := getOutletID(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id is required")
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
 	// Get user's cart first
-	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, cafeID, &user.ID, "")
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -378,7 +378,7 @@ func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 // @Tags Cart
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Param cafe_id query string true "Cafe ID"
+// @Param outlet_id query string true "Cafe ID"
 // @Success 200 {object} ordering.Cart
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
@@ -396,14 +396,14 @@ func (h *CartHandler) ClearCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := getCafeID(r)
+	outletID, err := getOutletID(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id is required")
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
 	// Get user's cart first
-	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, cafeID, &user.ID, "")
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -425,7 +425,7 @@ func (h *CartHandler) ClearCart(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Param cafe_id query string true "Cafe ID"
+// @Param outlet_id query string true "Outlet ID"
 // @Success 200 {object} ordering.CartSummary
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
@@ -444,14 +444,14 @@ func (h *CartHandler) GetCartSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := getCafeID(r)
+	outletID, err := getOutletID(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "cafe_id is required")
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
 	// Get user's cart first
-	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, cafeID, &user.ID, "")
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -503,13 +503,13 @@ func (h *CartHandler) MergeGuestCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := uuid.Parse(req.CafeID)
+	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
 		return
 	}
 
-	cart, err := h.cartService.MergeGuestCart(r.Context(), tenantID, cafeID, req.SessionID, user.ID)
+	cart, err := h.cartService.MergeGuestCart(r.Context(), tenantID, outletID, req.SessionID, user.ID)
 	if err != nil {
 		h.handleError(w, err)
 		return

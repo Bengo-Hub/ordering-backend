@@ -11,10 +11,8 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -85,19 +83,7 @@ func (r *EntRepository) UpdateUser(ctx context.Context, usr *User) error {
 	tz := determineTimezone(usr)
 	metadata["timezone"] = tz
 
-	// Store auth_service_user_id and sync fields in metadata temporarily
-	// TODO: After Ent regeneration, use SetAuthServiceUserID, SetSyncStatus, SetSyncAt
-	if usr.AuthServiceUserID != nil {
-		metadata["auth_service_user_id"] = usr.AuthServiceUserID.String()
-	}
-	if usr.SyncStatus != "" {
-		metadata["sync_status"] = usr.SyncStatus
-	}
-	if usr.SyncAt != nil {
-		metadata["sync_at"] = usr.SyncAt.Format(time.RFC3339)
-	}
-
-	_, err := r.client.User.UpdateOneID(usr.ID).
+	builder := r.client.User.UpdateOneID(usr.ID).
 		SetFullName(usr.FullName).
 		SetStatus(usr.Status).
 		SetMetadata(metadata).
@@ -106,7 +92,14 @@ func (r *EntRepository) UpdateUser(ctx context.Context, usr *User) error {
 		SetLocale(locale).
 		SetTimezone(tz).
 		SetNillableLastLoginAt(usr.LastLoginAt).
-		Save(ctx)
+		SetNillableAuthServiceUserID(usr.AuthServiceUserID).
+		SetNillableSyncAt(usr.SyncAt)
+
+	if usr.SyncStatus != "" {
+		builder.SetSyncStatus(usr.SyncStatus)
+	}
+
+	_, err := builder.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("identity: update user: %w", err)
 	}
@@ -115,9 +108,6 @@ func (r *EntRepository) UpdateUser(ctx context.Context, usr *User) error {
 		return err
 	}
 	if err := r.syncUserRoles(ctx, usr.ID, usr.Roles); err != nil {
-		return err
-	}
-	if err := r.syncTwoFactor(ctx, usr.ID, usr); err != nil {
 		return err
 	}
 	return nil
@@ -134,8 +124,6 @@ func (r *EntRepository) FindUserByEmail(ctx context.Context, email string) (*Use
 		}).
 		WithPreferences().
 		WithProfile().
-		WithTwoFactorSettings().
-		WithBackupCodes().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -176,8 +164,6 @@ func (r *EntRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*User, 
 		}).
 		WithPreferences().
 		WithProfile().
-		WithTwoFactorSettings().
-		WithBackupCodes().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -196,8 +182,6 @@ func (r *EntRepository) ListUsers(ctx context.Context) ([]*User, error) {
 		WithRoles(func(q *ent.RoleQuery) { q.WithPermissions() }).
 		WithPreferences().
 		WithProfile().
-		WithTwoFactorSettings().
-		WithBackupCodes().
 		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("identity: list users: %w", err)
@@ -301,113 +285,6 @@ func (r *EntRepository) UpsertTenant(ctx context.Context, t *Tenant) error {
 	return nil
 }
 
-// CreateSession persists a new refresh session.
-func (r *EntRepository) CreateSession(ctx context.Context, s *Session) error {
-	if s == nil {
-		return errors.New("identity: nil session")
-	}
-
-	tenantID, userTenantErr := r.lookupTenantForUser(ctx, s.UserID)
-	if userTenantErr != nil {
-		return userTenantErr
-	}
-
-	// Upsert session: try update first, then create if not exists
-	_, err := r.client.Session.UpdateOneID(s.ID).
-		SetTenantID(tenantID).
-		SetUserID(s.UserID).
-		SetRefreshTokenHash(s.RefreshToken).
-		SetNillableUserAgent(optionalString(s.UserAgent)).
-		SetNillableIPAddress(optionalString(s.IP)).
-		SetUpdatedAt(s.UpdatedAt).
-		SetNillableRevokedAt(s.RevokedAt).
-		Save(ctx)
-	if err != nil {
-		// If not found, create new
-		if ent.IsNotFound(err) {
-			if err := r.client.Session.
-				Create().
-				SetID(s.ID).
-				SetTenantID(tenantID).
-				SetUserID(s.UserID).
-				SetRefreshTokenHash(s.RefreshToken).
-				SetNillableUserAgent(optionalString(s.UserAgent)).
-				SetNillableIPAddress(optionalString(s.IP)).
-				SetExpiresAt(s.ExpiresAt).
-				SetCreatedAt(s.CreatedAt).
-				SetUpdatedAt(s.UpdatedAt).
-				SetNillableRevokedAt(s.RevokedAt).
-				Exec(ctx); err != nil {
-				return fmt.Errorf("identity: create session: %w", err)
-			}
-		} else {
-			return fmt.Errorf("identity: update session: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// UpdateSession persists changes to an existing session.
-func (r *EntRepository) UpdateSession(ctx context.Context, s *Session) error {
-	if s == nil {
-		return errors.New("identity: nil session update")
-	}
-	if err := r.client.Session.UpdateOneID(s.ID).
-		SetRefreshTokenHash(s.RefreshToken).
-		SetNillableUserAgent(optionalString(s.UserAgent)).
-		SetNillableIPAddress(optionalString(s.IP)).
-		SetNillableRevokedAt(s.RevokedAt).
-		SetUpdatedAt(s.UpdatedAt).
-		Exec(ctx); err != nil {
-		return fmt.Errorf("identity: update session: %w", err)
-	}
-	return nil
-}
-
-// FindSessionByID fetches a session by identifier.
-func (r *EntRepository) FindSessionByID(ctx context.Context, id uuid.UUID) (*Session, error) {
-	s, err := r.client.Session.Get(ctx, id)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrSessionNotFound
-		}
-		return nil, fmt.Errorf("identity: find session: %w", err)
-	}
-	return mapEntSession(s), nil
-}
-
-// FindSessionByToken fetches a session by refresh token hash.
-func (r *EntRepository) FindSessionByToken(ctx context.Context, refreshToken string) (*Session, error) {
-	s, err := r.client.Session.
-		Query().
-		Where(session.RefreshTokenHashEQ(refreshToken)).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, ErrSessionNotFound
-		}
-		return nil, fmt.Errorf("identity: find session by token: %w", err)
-	}
-	return mapEntSession(s), nil
-}
-
-// DeleteSession removes a session by ID.
-func (r *EntRepository) DeleteSession(ctx context.Context, id uuid.UUID) error {
-	if err := r.client.Session.DeleteOneID(id).Exec(ctx); err != nil && !ent.IsNotFound(err) {
-		return fmt.Errorf("identity: delete session: %w", err)
-	}
-	return nil
-}
-
-// DeleteSessionsByUser removes all sessions for a user.
-func (r *EntRepository) DeleteSessionsByUser(ctx context.Context, userID uuid.UUID) error {
-	if _, err := r.client.Session.Delete().Where(session.UserIDEQ(userID)).Exec(ctx); err != nil {
-		return fmt.Errorf("identity: delete user sessions: %w", err)
-	}
-	return nil
-}
-
 // ListOrdersByUser returns order summaries. Orders are fetched via the ordering module's
 // ListOrders API; this stub satisfies the identity.Repository interface for profile data.
 func (r *EntRepository) ListOrdersByUser(context.Context, uuid.UUID) ([]*OrderSummary, error) {
@@ -415,7 +292,7 @@ func (r *EntRepository) ListOrdersByUser(context.Context, uuid.UUID) ([]*OrderSu
 }
 
 // Seed inserts bootstrap data using the Ent client.
-func (r *EntRepository) Seed(ctx context.Context, users []*User, sessions []*Session, _ []*OrderSummary) error {
+func (r *EntRepository) Seed(ctx context.Context, users []*User, _ []*OrderSummary) error {
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("identity: seed tx: %w", err)
@@ -431,13 +308,6 @@ func (r *EntRepository) Seed(ctx context.Context, users []*User, sessions []*Ses
 			return err
 		}
 		if err := upsertUser(ctx, tx.Client(), usr); err != nil {
-			_ = tx.Rollback()
-			return err
-		}
-	}
-
-	for _, s := range sessions {
-		if err := r.CreateSession(ctx, s); err != nil {
 			_ = tx.Rollback()
 			return err
 		}
@@ -503,43 +373,6 @@ func (r *EntRepository) syncUserPreferences(ctx context.Context, userID uuid.UUI
 	return nil
 }
 
-func (r *EntRepository) syncTwoFactor(ctx context.Context, userID uuid.UUID, usr *User) error {
-	if !usr.TwoFactorEnabled && usr.TwoFactorSecret == "" {
-		_, err := r.client.TwoFactorSetting.Delete().
-			Where(twofactorsetting.HasUserWith(user.IDEQ(userID))).
-			Exec(ctx)
-		if err != nil {
-			return fmt.Errorf("identity: clear two-factor: %w", err)
-		}
-		return nil
-	}
-
-	// Upsert two-factor setting: try update first, then create if not exists
-	_, err := r.client.TwoFactorSetting.Update().
-		Where(twofactorsetting.HasUserWith(user.IDEQ(userID))).
-		SetEnabled(usr.TwoFactorEnabled).
-		SetMethod("totp").
-		SetSecret(usr.TwoFactorSecret).
-		Save(ctx)
-	if err != nil {
-		// If not found, create new
-		if ent.IsNotFound(err) {
-			if err := r.client.TwoFactorSetting.
-				Create().
-				SetUserID(userID).
-				SetEnabled(usr.TwoFactorEnabled).
-				SetMethod("totp").
-				SetSecret(usr.TwoFactorSecret).
-				Exec(ctx); err != nil {
-				return err
-			}
-		} else {
-			return err
-		}
-	}
-	return nil
-}
-
 func (r *EntRepository) lookupTenantForUser(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
 	u, err := r.client.User.Get(ctx, userID)
 	if err != nil {
@@ -567,36 +400,11 @@ func mapEntUser(u *ent.User) *User {
 		perms = append(perms, p)
 	}
 
-	var prefs Preferences
-	if pref := u.Edges.Preferences; pref != nil {
-		prefs = Preferences{
-			Theme:    pref.Theme,
-			Language: pref.Language,
-			Notifications: NotificationPreferences{
-				Email: pref.NotifyEmail,
-				SMS:   pref.NotifySms,
-				Push:  pref.NotifyPush,
-			},
-		}
-	}
-
 	var avatarURL string
 	if profile := u.Edges.Profile; profile != nil {
 		avatarURL = profile.AvatarURL
 	}
-
-	var backupCodes []string
-	for _, bc := range u.Edges.BackupCodes {
-		backupCodes = append(backupCodes, bc.CodeHash)
-	}
-
-	var twoFactorEnabled bool
-	var twoFactorSecret string
-	if tf := u.Edges.TwoFactorSettings; tf != nil {
-		twoFactorEnabled = tf.Enabled
-		twoFactorSecret = tf.Secret
-	}
-
+ 
 	// Use direct field access from regenerated Ent code
 	var authServiceUserID *uuid.UUID
 	if u.AuthServiceUserID != uuid.Nil {
@@ -622,10 +430,6 @@ func mapEntUser(u *ent.User) *User {
 		LoyaltyPoints:        0,
 		AvailableCoupons:     0,
 		DefaultLocationLabel: "",
-		TwoFactorEnabled:     twoFactorEnabled,
-		TwoFactorSecret:      twoFactorSecret,
-		BackupCodes:          backupCodes,
-		Preferences:          prefs,
 		SyncStatus:           syncStatus,
 		SyncAt:               syncAt,
 		LastLoginAt:          optionalTime(u.LastLoginAt),
@@ -635,20 +439,7 @@ func mapEntUser(u *ent.User) *User {
 		Metadata:             u.Metadata,
 	}
 }
-
-func mapEntSession(s *ent.Session) *Session {
-	return &Session{
-		ID:           s.ID,
-		UserID:       s.UserID,
-		RefreshToken: s.RefreshTokenHash,
-		UserAgent:    s.UserAgent,
-		IP:           s.IPAddress,
-		ExpiresAt:    s.ExpiresAt,
-		CreatedAt:    s.CreatedAt,
-		UpdatedAt:    s.UpdatedAt,
-		RevokedAt:    optionalTime(s.RevokedAt),
-	}
-}
+ 
 
 func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 	// Use default tenant slug if not provided
@@ -837,10 +628,7 @@ func upsertUser(ctx context.Context, client *ent.Client, usr *User) error {
 
 	repo := NewEntRepository(client)
 
-	if err := repo.syncUserPreferences(ctx, usr.ID, usr.Preferences, tz); err != nil {
-		return err
-	}
-	if err := repo.syncTwoFactor(ctx, usr.ID, usr); err != nil {
+	if err := repo.syncUserRoles(ctx, usr.ID, usr.Roles); err != nil {
 		return err
 	}
 
@@ -869,22 +657,6 @@ func upsertUser(ctx context.Context, client *ent.Client, usr *User) error {
 				Exec(ctx); err != nil {
 				return fmt.Errorf("identity: create profile: %w", err)
 			}
-		}
-	}
-
-	for _, code := range usr.BackupCodes {
-		// Try to create backup code, ignore if already exists
-		err := client.BackupCode.
-			Create().
-			SetUserID(usr.ID).
-			SetCodeHash(code).
-			Exec(ctx)
-		if err != nil {
-			// Check if it's a unique constraint violation (code already exists)
-			if !strings.Contains(err.Error(), "duplicate key") && !strings.Contains(err.Error(), "UNIQUE constraint") {
-				return fmt.Errorf("identity: create backup code: %w", err)
-			}
-			// Code already exists, that's fine
 		}
 	}
 

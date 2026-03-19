@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
 	"github.com/google/uuid"
 )
 
@@ -78,19 +78,19 @@ func (dtc *DietaryTagCreate) SetNillableCreatedAt(t *time.Time) *DietaryTagCreat
 	return dtc
 }
 
-// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
-func (dtc *DietaryTagCreate) AddMenuItemIDs(ids ...uuid.UUID) *DietaryTagCreate {
-	dtc.mutation.AddMenuItemIDs(ids...)
+// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
+func (dtc *DietaryTagCreate) AddCatalogItemIDs(ids ...uuid.UUID) *DietaryTagCreate {
+	dtc.mutation.AddCatalogItemIDs(ids...)
 	return dtc
 }
 
-// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
-func (dtc *DietaryTagCreate) AddMenuItems(m ...*MenuItem) *DietaryTagCreate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
+func (dtc *DietaryTagCreate) AddCatalogItems(c ...*CatalogItem) *DietaryTagCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return dtc.AddMenuItemIDs(ids...)
+	return dtc.AddCatalogItemIDs(ids...)
 }
 
 // Mutation returns the DietaryTagMutation object of the builder.
@@ -207,15 +207,15 @@ func (dtc *DietaryTagCreate) createSpec() (*DietaryTag, *sqlgraph.CreateSpec) {
 		_spec.SetField(dietarytag.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := dtc.mutation.MenuItemsIDs(); len(nodes) > 0 {
+	if nodes := dtc.mutation.CatalogItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   dietarytag.MenuItemsTable,
-			Columns: dietarytag.MenuItemsPrimaryKey,
+			Table:   dietarytag.CatalogItemsTable,
+			Columns: dietarytag.CatalogItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -4,7 +4,7 @@
 
 This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal BengoBox microservices and external third-party services.
 
-**Last Updated**: February 16, 2026
+**Last Updated**: March 2026
 
 ---
 
@@ -20,7 +20,7 @@ This document provides detailed integration information for all external service
 | **POS Service** | Events | ✅ Implemented | Event publisher with catalog sync and pickup handoff |
 | **NATS JetStream** | Events | ✅ Implemented | Publisher and subscriber in `internal/platform/events/` |
 | **Redis** | Cache | ✅ Implemented | `internal/platform/cache/redis.go` |
-| **PostgreSQL** | Database | ✅ Implemented | Ent ORM with auto-migrations |
+| **PostgreSQL** | Database | ✅ Implemented | Ent ORM with **versioned Atlas migrations** at startup (`schema.WithDir(migrate.Dir)`) |
 
 ### Current Integration Implementations
 
@@ -174,7 +174,7 @@ This document provides detailed integration information for all external service
   - On `auth.user.created` event: Create local user with defaults
   - On `auth.user.updated` event: Update identity fields
   - On login: Verify sync status, update if needed
-  - **On Google OAuth**: `cafe-backend` fetches Google profile -> calls `auth-service` SyncUser (`POST /api/v1/users/sync`) -> updates local user with returned `auth_service_user_id`.
+  - **On Google OAuth**: ordering-backend (or the app using it) fetches Google profile → calls auth-service SyncUser (`POST /api/v1/users/sync`) → updates local user with returned `auth_service_user_id`.
 
 **Superuser Handling**:
 - Superusers from auth-service (role: `superuser`) bypass all RBAC/permission checks
@@ -304,8 +304,8 @@ This document provides detailed integration information for all external service
 
 **CRITICAL - Entity Ownership**: 
 - **All rider, driver, fleet, delivery task, shift, telemetry, and proof-of-delivery data is owned by `logistics-service`**
-- Cafe backend stores **ONLY** `rider_id` references in `order_assignments` table
-- **DO NOT** store rider profiles, fleet data, or delivery task details in cafe-backend
+- Ordering-backend stores **ONLY** `rider_id` references in `order_assignments` table
+- **DO NOT** store rider profiles, fleet data, or delivery task details in ordering-backend
 - **DO NOT** use the legacy `riderprofile` and `riderdocument` Ent schemas (they exist but are unused)
 - All rider/fleet queries must go to logistics-service APIs: `GET /v1/{tenant}/fleet-members`, `GET /v1/{tenant}/tasks`
 
@@ -316,10 +316,10 @@ This document provides detailed integration information for all external service
      - Check: `GET /v1/{tenant}/status` or `GET /api/v1/tenants/{tenant_id}/services` (from auth-service or subscription service)
      - If tenant doesn't have logistics service enabled, show error: "Logistics service not available for this tenant. Please upgrade your plan or contact support."
   2. **Rider Creation Options**:
-     - **Option A - API Push**: If tenant has logistics service enabled, cafe backend can push rider creation to logistics-service:
+     - **Option A - API Push**: If tenant has logistics service enabled, ordering-backend can push rider creation to logistics-service:
        - `POST /v1/{tenant}/fleet-members` with rider details
        - Logistics-service creates rider user in auth-service (if not exists) and stores rider profile
-       - Returns `rider_id` which cafe backend stores as reference in `order_assignments`
+       - Returns `rider_id` which ordering-backend stores as reference in `order_assignments`
      - **Option B - UI Redirect**: Redirect user to logistics-service UI for self-onboarding:
        - Redirect to: `https://logistics.codevertexitsolutions.com/{tenant_slug}/riders/onboard?return_url={cafe_url}`
        - User authenticates with existing auth-service credentials (SSO)
@@ -331,7 +331,7 @@ This document provides detailed integration information for all external service
   4. **Standalone Logistics Service**: If a tenant only uses logistics-service (no cafe service):
      - Rider onboarding happens directly in logistics-service UI
      - All rider management (profile, documents, shifts, earnings) in logistics-service
-     - No cafe-backend involvement needed
+     - No ordering-backend involvement needed
 
 **REST API Usage**:
 - `GET /v1/{tenant}/status` - Check if tenant has logistics service enabled
@@ -364,7 +364,7 @@ This document provides detailed integration information for all external service
 - Logistics service UI URL: `LOGISTICS_UI_URL` (for redirects)
 
 **Data Ownership**:
-- Cafe backend stores only `rider_id` reference in `order_assignments` table
+- Ordering-backend stores only `rider_id` reference in `order_assignments` table
 - No rider profiles, fleet data, or delivery task details stored locally
 - All rider queries go to logistics-service APIs
 
@@ -403,7 +403,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 - Inventory service base URL: `INVENTORY_SERVICE_BASE_URL` (environment variable)
 
 **Data Ownership**:
-- Cafe backend references inventory SKUs in `menu_items` table
+- Ordering-backend references inventory SKUs in `menu_items` table
 - No inventory balances or stock data stored locally
 
 ### POS Service
@@ -524,7 +524,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 **Use Case**: Payment status, delivery updates, settlement notifications
 
 **Implementation**:
-- Webhook endpoints in cafe backend
+- Webhook endpoints in ordering-backend
 - Signature verification (HMAC-SHA256)
 - Retry logic for failed deliveries
 - Idempotency handling
@@ -590,7 +590,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 ### Event Catalog
 
-#### Outbound Events (Published by Cafe Backend)
+#### Outbound Events (Published by Ordering-Backend)
 
 **cafe.order.created**
 ```json
@@ -639,7 +639,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 }
 ```
 
-#### Inbound Events (Consumed by Cafe Backend)
+#### Inbound Events (Consumed by Ordering-Backend)
 
 **logistics.task.assigned**
 ```json
@@ -767,7 +767,7 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 ## References
 
-- [Cross-Service Data Ownership](../CROSS-SERVICE-DATA-OWNERSHIP.md) - Architecture pattern for data ownership and user management across services
+- [Cross-Service Data Ownership](../../../shared-docs/CROSS-SERVICE-DATA-OWNERSHIP.md) — Canonical data ownership and reference-only pattern across services
 - [Auth Service Integration](../auth-service/auth-service/docs/integrations.md)
 - [Treasury App Integration](../finance-service/treasury-api/docs/integrations.md)
 - [Logistics Service Integration](../logistics-service/logistics-api/docs/integrations.md)

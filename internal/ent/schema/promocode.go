@@ -23,10 +23,10 @@ func (PromoCode) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Comment("Reference to tenant"),
-		field.UUID("cafe_id", uuid.UUID{}).
+		field.UUID("outlet_id", uuid.UUID{}).
 			Optional().
 			Nillable().
-			Comment("Specific cafe, null for all cafes"),
+			Comment("Specific outlet, null for all outlets"),
 		field.String("code").
 			MaxLen(50).
 			Comment("Promo code (case-insensitive)"),

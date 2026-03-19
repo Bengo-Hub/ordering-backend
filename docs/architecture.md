@@ -30,11 +30,8 @@
 
 ## Integration Points
 
-- **Inventory Service:** REST for stock availability checks, reservations (create/release/consume), and direct consumption (`internal/platform/inventory/client.go`)
-- **Logistics Service:** NATS event `ordering.order.ready` triggers delivery task creation; REST for task tracking and proof of delivery (`internal/platform/logistics/client.go`)
-- **Treasury Service:** REST for M-Pesa STK Push, payment status, refunds; webhooks for payment callbacks (`internal/platform/treasury/client.go`)
-- **Notifications Service:** REST for sending templated notifications (order confirmation, delivery updates) (`internal/platform/notifications/client.go`)
-- **Auth Service:** NATS event subscriptions (`auth.user.*`, `auth.tenant.*`) for identity sync (`internal/modules/identity/events.go`)
+- **Auth Service:** NATS event subscriptions (`auth.user.*`, `auth.tenant.*`) for identity sync (`internal/modules/identity/events.go`). Local authentication artifacts (sessions, MFA) have been removed in favor of SSO validation.
+- **Inventory & POS Services:** Ordering acts as a **Front-end Projector**, consuming the catalog from POS/Inventory to present a fulfillment-optimized view. It does not own master product data or variants.
 - **Maps & Geo:** External APIs (Mapbox/Google) abstracted behind `internal/platform/geo`
 - **Analytics:** Outbox pattern feeding data warehouse / analytics pipelines
 

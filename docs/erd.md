@@ -1,15 +1,16 @@
 # Ordering Service – Entity Relationship Overview
 
-This document provides a textual ERD for the BengoBox Ordering Service (online delivery orders only).  
-The schema supports multiple business types (food, retail, grocery, pharmacy, etc.) with flexible catalog, multi-delivery options, and group ordering.  
-The database structure is defined via Ent schemas—the Go source of truth that powers code generation and migrations.
+This document provides a textual ERD for the BengoBox Ordering Service (online delivery/shipping orders only).
+The schema supports **all business types** — food/hospitality, retail, grocery, pharmacy, electronics, e-commerce, etc. — through a flexible catalog projection model backed by `inventory-api` as the single source of truth for item master data.
+The database structure is defined via Ent schemas — the Go source of truth that powers code generation and migrations.
 
 > **Conventions**
 >
 > - All primary keys are UUIDs unless noted.
-> - `tenant_id` enforces multi-tenant isolation.
+> - `tenant_id` enforces multi-tenant isolation on every table.
 > - Timestamps use `TIMESTAMPTZ`.
 > - JSON metadata columns allow forward-compatible extension.
+> - `catalog_item_id` (not `menu_item_id`) is the canonical reference for order items.
 
 ---
 
@@ -17,170 +18,194 @@ The database structure is defined via Ent schemas—the Go source of truth that 
 
 | Table | Key Columns | Purpose / Relationships |
 |-------|-------------|-------------------------|
-| `tenants` | `id`, `slug`, `name`, `status`, `created_at`, `updated_at` | Master record for each organisation (e.g. Urban Café HQ); `slug` shared across all Go microservices for multi-tenant routing. Default tenant slug is `urban-cafe`. |
-| `tenant_settings` | `tenant_id (PK)`, `brand_palette`, `locales`, `features`, `updated_at` | JSON configuration (colors, localisation, feature toggles, default integration settings). |
-| `users` | `id`, `tenant_id`, `auth_service_user_id` (UUID, UNIQUE, FK reference to auth-service), `email`, `password_hash` (deprecated - auth handled by auth-service), `full_name`, `phone`, `status`, `primary_role`, `sync_status`, `sync_at`, `last_login_at`, `created_at`, `updated_at` | Core user profile. `auth_service_user_id` references auth-service user. Identity data (email, phone, status) synced from auth-service. Unique `(tenant_id, email)` and `auth_service_user_id`. |
-| `user_profiles` | `user_id (PK)`, `avatar_url`, `bio`, `preferences_json` | Extended profile metadata. |
-| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Canonical role catalogue (`customer`, `rider`, `staff`, `admin`, `superuser`). |
-| `permissions` | `code (PK)`, `name`, `module`, `description` | Fine-grained permission catalogue. |
-| `role_permissions` | `(role_code, permission_code) PK` | Many-to-many link for capability matrix. |
+| `tenants` | `id`, `slug`, `name`, `status`, `use_case`, `subscription_plan`, `tier_limits`, `metadata`, `created_at`, `updated_at` | Master record synced from auth-service. `slug` shared across all microservices. `use_case` drives UI hints (hospitality, retail, e_commerce, etc.). Default demo tenant slug: `urban-loft`. |
+| `tenant_settings` | `tenant_id (PK)`, `brand_palette`, `locales`, `features`, `updated_at` | JSON configuration (colors, localisation, feature toggles). |
+| `users` | `id`, `tenant_id`, `auth_service_user_id` (UUID UNIQUE), `email`, `full_name`, `phone`, `status`, `sync_status`, `sync_at`, `last_login_at`, `created_at`, `updated_at` | Core user profile. `auth_service_user_id` references auth-service user. Synced via `auth.user.*` events. Unique `(tenant_id, email)`. |
+| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Role catalogue: `customer`, `rider`, `staff`, `admin`, `superuser`. |
+| `permissions` | `code (PK)`, `name`, `module`, `description` | Fine-grained permission catalogue. Each entity has: `add`, `read`, `read_own`, `change`, `change_own`, `delete`, `manage`, `manage_own`. |
+| `role_permissions` | `(role_code, permission_code) PK` | Role → permission mapping. |
 | `user_roles` | `(user_id, role_code) PK`, `assigned_by`, `assigned_at` | User role assignments. |
-| `sessions` | — | **DEPRECATED**: Session and MFA artefacts live in `auth-service`. Cafe backend validates tokens via JWKS from auth-service (`https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json`). Local session table exists for migration compatibility but is not used in production. |
-| `user_preferences` | `user_id (PK)`, `theme`, `language`, `notify_email`, `notify_sms`, `notify_push`, `timezone`, `created_at`, `updated_at` | Personalisation settings retained for local UX. Identity data (email, phone, status) synced from auth-service via `auth.user.*` events. |
-| _Logistics Integration_ | — | **IMPORTANT**: Rider profiles, documents, availability, fleet management, and delivery task logic are centralized in `logistics-service`. Cafe backend stores only `rider_id` references in `order_assignments` table. All rider/fleet/driver data queries go directly to logistics-service APIs.  
-**Rider Creation**: Before creating a rider, check tenant has logistics service enabled. Options: (1) Push to logistics-service API `POST /v1/{tenant}/fleet-members`, or (2) Redirect to logistics-service UI for self-onboarding. Riders authenticate via auth-service (SSO), logistics-service stores all rider data.  
-**Tenant Service Availability**: Check tenant subscription plan features before creating/referencing data in any service (logistics, inventory, POS, treasury, notifications). |
-| _SSO Integration_ | — | **Production Auth-Service**: `https://sso.codevertexitsolutions.com/`  
-Authentication and token issuance delegated to auth-service (OIDC authority). All login/registration requests proxy to auth-service. Local tables store domain-specific extensions (profiles, preferences, cafe roles, loyalty points) while trust is established via JWT claims from auth-service.  
-**User Sync**: `auth_service_user_id` field references auth-service user. Sync via events: `auth.user.created`, `auth.user.updated`, `auth.user.deactivated`.  
-**Superuser Handling**: Superusers from auth-service bypass all RBAC/permission checks.  
-**Service-to-Service**: API key authentication for inter-service communication. |
-| _Note on Rider Entities_ | — | **REMOVED**: Ent schemas for `riderprofile` and `riderdocument` have been deleted. All rider data belongs to `logistics-service`. Cafe backend should only store `rider_id` references when linking orders to delivery tasks. |
+| `user_preferences` | `user_id (PK)`, `theme`, `language`, `notify_email`, `notify_sms`, `notify_push`, `timezone` | Personalisation settings. |
+| _SSO Integration_ | — | Auth delegated to auth-service (OIDC). JWT claims are **source of truth** for roles and permissions — local DB used for extensions only. `IsSuperuser` and `IsAdmin` bypass all RBAC checks. |
+| _Rider Data_ | — | **NOT OWNED HERE**: All rider, fleet, delivery task, and PoD data owned by `logistics-service`. Ordering stores only `rider_id` references. |
 
-## Catalog & Menu Management
+---
+
+## Catalog Management (Use-Case Agnostic)
+
+The catalog is a **tenant-scoped projection** of inventory-api master data. It is **not** limited to food/menu items — it adapts to any business type: hospitality (dishes), retail (products), grocery (packaged goods), pharmacy (medications), electronics, etc.
 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
-| `cafes` | `id`, `tenant_id`, `tenant_slug`, `name`, `slug`, `description`, `contact_email`, `phone`, `location`, `latitude`, `longitude`, `opening_hours`, `status`, `created_at`, `updated_at` | Individual outlets under a tenant, mirroring the shared outlet registry used by POS, inventory, and logistics services. |
-| `menu_categories` | `id`, `tenant_id`, `cafe_id`, `name`, `description`, `display_order`, `is_active`, `created_at`, `updated_at` | Category hierarchy. |
-| `menu_items` | `id`, `tenant_id`, `cafe_id`, `category_id`, `name`, `description`, `base_price`, `currency`, `is_available`, `lead_time_minutes`, `image_url`, `nutrition_json`, `created_at`, `updated_at` | Products available for ordering. |
-| `menu_item_variants` | `id`, `menu_item_id`, `name`, `price_delta`, `is_available`, `sku`, `created_at`, `updated_at` | Size/flavour variants inheriting from a menu item. |
-| `menu_item_translations` | `(menu_item_id, locale) PK`, `name`, `description`, `created_at`, `updated_at` | Localised copy. |
-| `dietary_tags` | `code (PK)`, `label`, `description` | e.g. vegan, gluten-free. |
-| `menu_item_dietary_tags` | `(menu_item_id, dietary_code) PK` | Many-to-many link. |
-| `menu_item_assets` | `id`, `menu_item_id`, `asset_type`, `url`, `metadata`, `created_at` | Additional media / CDN assets. |
-| `menu_item_schedules` | `id`, `menu_item_id`, `day_of_week`, `time_start`, `time_end`, `created_at` | Availability windows. |
+| `outlets` | `id`, `tenant_id`, `tenant_slug`, `name`, `slug`, `description`, `contact_email`, `phone`, `location`, `latitude`, `longitude`, `opening_hours`, `status`, `created_at`, `updated_at` | Physical or virtual outlet (store, restaurant, warehouse, etc.) under a tenant. **Projection** — master data owned by inventory-api (Warehouse entity) and auth-service. |
+| `catalog_categories` | `id`, `tenant_id`, `outlet_id` (optional), `name`, `description`, `parent_id` (optional), `display_order`, `is_active`, `created_at`, `updated_at` | Hierarchical item categories scoped to tenant/outlet. Use-case examples: Beverages/Food/Pastries (café), Electronics/Accessories (retail), Fresh Produce/Dairy (grocery). Synced from inventory-api or created locally. |
+| `catalog_items` | `id`, `tenant_id`, `outlet_id` (optional), `inventory_item_id` (ref to inventory-api), `category_id`, `recipe_id` (optional, ref to inventory-api recipe), `sku`, `name`, `description`, `image_url`, `base_price`, `currency`, `display_order`, `is_available`, `is_featured`, `lead_time_minutes`, `metadata`, `created_at`, `updated_at` | Fulfillment-ready projection of an inventory item. SKU links to `inventory-api` for stock checks and reservations. `inventory_item_id` is the master reference. Works for **any item type**: food dishes, grocery products, electronic goods, apparel, pharmacy items, etc. |
+| `dietary_tags` | `code (PK)`, `label`, `description` | Optional use-case tags — e.g., `vegan`, `gluten_free`, `organic`, `halal`. Applicable to hospitality/food items; ignored for other use cases. |
+| `catalog_item_dietary_tags` | `(catalog_item_id, dietary_code) PK` | Many-to-many link for dietary/attribute tagging. |
+| `catalog_item_assets` | `id`, `catalog_item_id`, `asset_type`, `url`, `display_order`, `is_primary`, `metadata`, `created_at` | CDN media assets per catalog item (images, videos). |
+| `catalog_item_schedules` | `id`, `catalog_item_id`, `day_of_week`, `time_start`, `time_end`, `is_active`, `created_at` | Time-based availability windows (e.g., lunch specials, seasonal promotions). |
 
+### Catalog Item Reference Chain
 
+```
+OrderItem.catalog_item_id
+    ↓
+CatalogItem (local projection per tenant/outlet)
+    ├── name, description, image_url, base_price  (display data)
+    ├── sku                                         (stock reference key)
+    ├── inventory_item_id                           (FK ref to inventory-api)
+    └── recipe_id (optional)                        (FK ref to inventory-api recipe)
 
-## Ordering & Checkout
+For stock ops: CatalogItem.sku / inventory_item_id → inventory-api REST API
+```
+
+### Multi-Use-Case Examples
+
+| Use Case | Catalog Category Examples | Catalog Item Examples |
+|----------|--------------------------|----------------------|
+| Hospitality (café/restaurant) | Hot Beverages, Mains, Desserts | Cappuccino, Club Sandwich, Cheesecake |
+| Grocery / Convenience | Fresh Produce, Dairy, Snacks | Avocado, Milk 1L, Doritos |
+| Electronics / Retail | Phones, Accessories, Laptops | iPhone 15, USB-C Cable, MacBook |
+| Pharmacy | OTC Medication, Supplements | Paracetamol 500mg, Vitamin C |
+| Flowers / Gifts | Arrangements, Gift Sets | Red Roses Bouquet, Birthday Hamper |
+
+---
+
+## Shopping Cart & Checkout
 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
-| `customer_addresses` | `id`, `tenant_id`, `user_id`, `label`, `address_line1`, `address_line2`, `city`, `county`, `postal_code`, `latitude`, `longitude`, `instructions`, `is_default`, `created_at`, `updated_at` | Saved delivery addresses. |
-| `carts` | `id`, `tenant_id`, `user_id`, `status`, `currency`, `subtotal`, `discount_total`, `tax_total`, `delivery_fee`, `loyalty_points_redeemed`, `expires_at`, `created_at`, `updated_at` | Active shopping carts. |
-| `cart_items` | `id`, `cart_id`, `menu_item_id`, `variant_id`, `name_snapshot`, `quantity`, `unit_price`, `total_price`, `notes`, `metadata`, `created_at`, `updated_at` | Line items within a cart. |
-| `orders` | `id`, `tenant_id`, `cafe_id`, `customer_id`, `cart_id`, `order_number`, `status`, `payment_status`, `currency`, `subtotal`, `discount_total`, `tax_total`, `delivery_fee`, `tip_total`, `grand_total`, `loyalty_points_earned`, `loyalty_points_redeemed`, `delivery_address_id`, `promo_code_id`, `instructions`, `channel`, `source`, `idempotency_key`, `placed_at`, `confirmed_at`, `ready_at`, `delivered_at`, `completed_at`, `cancelled_at`, `cancellation_reason`, `metadata`, `created_at`, `updated_at` | Canonical order record. `order_number` is human-readable. `idempotency_key` prevents duplicate order creation. |
-| `order_items` | `id`, `order_id`, `menu_item_id`, `variant_id`, `name_snapshot`, `quantity`, `unit_price`, `total_price`, `notes`, `metadata` | Order line items (with snapshot of product info). |
-| `order_events` | `id`, `order_id`, `event_type`, `payload`, `actor_user_id`, `occurred_at` | Audit events (status changes, notifications). |
-| `order_assignments` | `id`, `order_id`, `rider_id`, `status`, `assigned_at`, `accepted_at`, `picked_up_at`, `completed_at`, `rejected_reason`, `metadata` | Rider dispatch workflow. **Note**: `rider_id` is a reference to logistics-service fleet member ID, not a foreign key. All rider data is owned by logistics-service. |
-| `delivery_windows` | `id`, `order_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff` | Time commitments. |
-| `promo_codes` | `id`, `tenant_id`, `code`, `description`, `discount_type`, `discount_value`, `max_uses`, `usage_count`, `min_subtotal`, `starts_at`, `ends_at`, `metadata`, `created_at`, `updated_at` | Promotion catalogue. |
-| `promo_redemptions` | `id`, `promo_code_id`, `order_id`, `user_id`, `redeemed_at`, `discount_amount` | Historical redemptions. |
-| `loyalty_accounts` | `id`, `tenant_id`, `user_id`, `balance_points`, `lifetime_points`, `redeemed_points`, `tier`, `tier_progress`, `tier_expires_at`, `created_at`, `updated_at` | Customer loyalty balances with tier progression. |
-| `loyalty_transactions` | `id`, `account_id`, `order_id`, `points`, `transaction_type`, `description`, `occurred_at`, `metadata` | Earn/burn ledger. |
+| `customer_addresses` | `id`, `tenant_id`, `user_id`, `label`, `address_line1`, `city`, `county`, `postal_code`, `latitude`, `longitude`, `plus_code`, `instructions`, `contact_name`, `contact_phone`, `is_default`, `is_verified`, `created_at`, `updated_at` | Saved delivery addresses per customer. |
+| `carts` | `id`, `tenant_id`, `user_id`, `session_id` (guest), `status`, `currency`, `subtotal`, `discount_total`, `tax_total`, `delivery_fee`, `loyalty_points_redeemed`, `expires_at`, `created_at`, `updated_at` | Active shopping carts. Supports guest checkout via `session_id`. Status: `active`, `checked_out`, `abandoned`, `expired`. |
+| `cart_items` | `id`, `cart_id`, `catalog_item_id`, `variant_id` (optional), `name_snapshot`, `unit_price`, `quantity`, `total_price`, `notes`, `modifiers` (JSON), `metadata`, `created_at`, `updated_at` | Cart line items. `catalog_item_id` references the catalog projection. `name_snapshot` captured at add-to-cart time. |
+
+---
+
+## Orders
+
+| Table | Key Columns | Description |
+|-------|-------------|-------------|
+| `orders` | `id`, `tenant_id`, `outlet_id`, `customer_id`, `cart_id`, `order_number`, `status`, `payment_status`, `payment_intent_id` (ref to treasury-api), `currency`, `subtotal`, `discount_total`, `tax_total`, `delivery_fee`, `tip_total`, `grand_total`, `loyalty_points_earned`, `loyalty_points_redeemed`, `delivery_address_id`, `promo_code_id`, `instructions`, `channel`, `idempotency_key`, `placed_at`, `confirmed_at`, `ready_at`, `delivered_at`, `completed_at`, `cancelled_at`, `cancellation_reason`, `rating` (1-5), `rating_comment`, `rated_at`, `metadata`, `created_at`, `updated_at` | Canonical online delivery order. `outlet_id` is a reference (not FK) to the fulfilling outlet. `payment_intent_id` references treasury-api. |
+| `order_items` | `id`, `order_id`, `catalog_item_id`, `variant_id` (optional), `name_snapshot`, `variant_name_snapshot`, `unit_price`, `quantity`, `total_price`, `notes`, `modifiers` (JSON), `metadata` | Order line items. `catalog_item_id` is the canonical item reference (replaces legacy `menu_item_id`). `name_snapshot` and `unit_price` captured at order time. |
+| `order_events` | `id`, `order_id`, `event_type`, `payload`, `actor_user_id`, `occurred_at` | Audit trail for order lifecycle transitions. |
+| `order_assignments` | `id`, `order_id`, `logistics_task_id` (ref to logistics-api), `rider_id` (string ref — NOT FK), `status`, `assigned_at`, `accepted_at`, `picked_up_at`, `completed_at`, `cancelled_at`, `metadata` | Delivery dispatch. `rider_id` references logistics-service fleet member. |
+| `delivery_windows` | `id`, `order_id`, `assignment_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff`, `eta_minutes`, `distance_km`, `route_info` (JSON), `source`, `is_current` | Customer-facing ETA from logistics task updates. |
+
+### Order Status Flow
+
+```
+pending → confirmed → preparing → ready → out_for_delivery → delivered → completed
+                                       ↘ cancelled
+                                       ↘ refunded
+```
+
+### Payment Status Flow
+
+```
+pending → authorized → paid → completed
+                    ↘ failed
+                    ↘ refunded / partially_refunded
+```
+
+---
+
+## Promotions & Loyalty
+
+| Table | Key Columns | Description |
+|-------|-------------|-------------|
+| `promo_codes` | `id`, `tenant_id`, `outlet_id` (optional), `code`, `description`, `discount_type` (percentage/fixed_amount/free_delivery/free_item), `discount_value`, `max_discount_amount`, `min_subtotal`, `max_uses`, `max_uses_per_user`, `first_order_only`, `eligible_categories` (JSON), `eligible_items` (JSON), `starts_at`, `ends_at`, `metadata`, `created_at`, `updated_at` | Promotion catalogue. |
+| `promo_redemptions` | `id`, `promo_code_id`, `order_id`, `user_id`, `redeemed_at`, `discount_amount` | Historical redemption log. |
+| `loyalty_accounts` | `id`, `tenant_id`, `user_id` (UNIQUE), `balance_points`, `lifetime_points`, `redeemed_points`, `tier`, `tier_progress`, `tier_expires_at`, `created_at`, `updated_at` | Per-customer loyalty balance with tier progression (bronze/silver/gold/platinum). |
+| `loyalty_transactions` | `id`, `account_id`, `order_id`, `points`, `transaction_type` (earn/burn/adjust), `description`, `occurred_at`, `metadata` | Earn/burn ledger. |
+
+---
 
 ## Group Orders
 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
-| `group_orders` | `id`, `tenant_id`, `organizer_id`, `cafe_id`, `share_link`, `share_code`, `status`, `deadline`, `max_participants`, `split_method`, `delivery_address_id`, `created_at`, `updated_at`, `finalized_at` | Group ordering sessions for collaborative orders (office lunches, events). `split_method` can be 'equal', 'by_item', or 'custom'. |
-| `group_participants` | `id`, `group_order_id`, `user_id`, `participant_name`, `status`, `joined_at`, `items_count`, `contribution_amount` | Tracks participants in a group order. Guest participants can join using only a name (no user_id required). |
-| `group_contributions` | `id`, `group_order_id`, `participant_id`, `order_id`, `amount`, `payment_status`, `paid_at` | Individual payment contributions for group order split. Links to individual orders or payment records. |
+| `group_orders` | `id`, `tenant_id`, `organizer_id`, `outlet_id`, `share_link`, `share_code`, `status`, `deadline`, `max_participants`, `split_method`, `delivery_address_id`, `created_at`, `updated_at`, `finalized_at` | Collaborative ordering sessions (e.g., office lunch). `split_method`: equal, by_item, custom. |
+| `group_participants` | `id`, `group_order_id`, `user_id`, `participant_name`, `status`, `joined_at`, `items_count`, `contribution_amount` | Participants (registered or guest). |
+| `group_contributions` | `id`, `group_order_id`, `participant_id`, `order_id`, `amount`, `payment_status`, `paid_at` | Split payment contributions. |
+
+---
 
 ## Delivery Zones & Availability
 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
-| `delivery_zones` | `id`, `tenant_id`, `cafe_id`, `name`, `zone_polygon`, `delivery_fee`, `minimum_order`, `estimated_time_minutes`, `is_active`, `created_at`, `updated_at` | Geographic zones for delivery service areas. `zone_polygon` stored as PostGIS geometry (GeoJSON polygon). Different fees and minimums per zone. |
-| `zone_schedules` | `id`, `zone_id`, `day_of_week`, `time_start`, `time_end`, `is_available` | Time-based availability for delivery zones (e.g., lunch hours only, closed Sundays). |
-| `availability_checks` | `id`, `tenant_id`, `latitude`, `longitude`, `zone_id`, `is_serviceable`, `checked_at`, `user_id`, `session_id` | Audit log of delivery availability checks for analytics and zone expansion planning. |
-| `zone_waitlists` | `id`, `tenant_id`, `email`, `phone`, `address`, `latitude`, `longitude`, `subscribed_at`, `notified_at` | Waitlist for customers in areas not yet serviced. Used to prioritize zone expansion. |
+| `delivery_zones` | `id`, `tenant_id`, `outlet_id`, `name`, `zone_polygon` (GeoJSON), `delivery_fee`, `minimum_order`, `estimated_time_minutes`, `is_active`, `created_at`, `updated_at` | Geographic delivery service areas per outlet. |
+| `zone_schedules` | `id`, `zone_id`, `day_of_week`, `time_start`, `time_end`, `is_available` | Time-based zone availability. |
+| `availability_checks` | `id`, `tenant_id`, `latitude`, `longitude`, `zone_id`, `is_serviceable`, `checked_at`, `user_id`, `session_id` | Audit log of delivery availability checks. |
 
-## Payments & Treasury
+---
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `payment_methods` | `id`, `user_id`, `tenant_id`, `provider`, `type`, `mask`, `exp_month`, `exp_year`, `is_default`, `fingerprint`, `created_at`, `updated_at` | Tokenised payment instruments. |
-| `payment_intents` | `id`, `order_id`, `provider`, `client_secret`, `status`, `amount`, `currency`, `metadata`, `created_at`, `updated_at` | In-flight payment attempts. |
-| `payments` | `id`, `payment_intent_id`, `order_id`, `amount`, `currency`, `status`, `provider_reference`, `processed_at`, `captured_at`, `metadata` | Finalised payment records. |
-| `refunds` | `id`, `payment_id`, `amount`, `currency`, `status`, `reason`, `requested_at`, `processed_at`, `metadata` | Refund transactions. |
-| `payouts` | `id`, `tenant_id`, `recipient_type`, `recipient_id`, `amount`, `currency`, `status`, `scheduled_at`, `processed_at`, `metadata` | Payouts to riders/cafes. |
-| `settlements` | `id`, `tenant_id`, `cafe_id`, `period_start`, `period_end`, `gross_amount`, `net_amount`, `status`, `generated_at`, `metadata` | Periodic accounting for cafes. |
-| `treasury_events` | `id`, `external_id`, `event_type`, `payload`, `received_at`, `processed_at`, `status`, `error_message` | Webhook ingestion for treasury systems. |
-| _External Integration_ | — | The tables above synchronise with `treasury-api` for ledgering, billing documents, payout approvals, and financial reconciliation. |
+## Payments & Treasury (Reference-Only)
 
+**Data ownership**: Payment intents, transactions, refunds, and webhook events are **owned by treasury-api**. Ordering-backend stores only `payment_intent_id` reference and `payment_status`.
 
+| Table | Owner | Integration |
+|-------|-------|-------------|
+| `payment_intents`, `transactions`, `refunds` | `treasury-api` | Referenced via `orders.payment_intent_id`. |
 
-## Fulfilment & Logistics
+---
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `delivery_windows` | `id`, `order_id`, `eta_start`, `eta_end`, `actual_arrival`, `actual_dropoff` | Customer-facing ETA commitments sourced from logistics task updates. |
-| _Logistics Integration_ | — | **Entity Ownership**: All rider, driver, fleet, delivery task, shift, telemetry, proof-of-delivery, and dispatch rule data is owned by `logistics-service`. Cafe backend stores only task references (`logistics_task_id`) and `rider_id` references in `order_assignments`. All rider/fleet queries must go to logistics-service APIs (`GET /v1/{tenant}/fleet-members`, `GET /v1/{tenant}/tasks`). |
+## Fulfilment & Logistics (Reference-Only)
 
+**Data ownership**: Delivery tasks, PoD, and fleet data are **owned by logistics-api**. Ordering stores only task/rider references.
 
+| Table | Owner | Integration |
+|-------|-------|-------------|
+| `delivery_tasks`, `proof_of_delivery` | `logistics-api` | Referenced via `order_assignments.logistics_task_id`. |
 
-## Notifications & Engagement
-
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `notification_templates` | `id`, `tenant_id`, `channel`, `event_key`, `locale`, `subject`, `body`, `data_schema`, `is_active`, `created_at`, `updated_at` | Messaging templates. |
-| `notification_events` | `id`, `tenant_id`, `event_key`, `payload`, `status`, `attempts`, `last_attempt_at`, `created_at` | Pending notifications for async dispatch. |
-| `notification_subscriptions` | `id`, `tenant_id`, `user_id`, `channel`, `event_key`, `is_subscribed`, `updated_at` | Opt-in/opt-out preferences (complements `user_preferences`). |
-| _External Integration_ | — | Delivery and marketing messaging is delegated to `notifications-api`, which consumes events emitted from these tables and enforces channel delivery guarantees. |
+---
 
 ## Analytics, Support & Compliance
 
 | Table | Key Columns | Description |
 |-------|-------------|-------------|
-| `report_jobs` | `id`, `tenant_id`, `report_type`, `status`, `requested_by`, `parameters`, `result_url`, `requested_at`, `completed_at`, `error_message` | Long-running analytics jobs / exports. |
-| `support_tickets` | `id`, `tenant_id`, `user_id`, `category`, `priority`, `status`, `subject`, `description`, `assigned_to`, `created_at`, `updated_at`, `closed_at` | Support case management. |
-| `support_ticket_events` | `id`, `ticket_id`, `event_type`, `payload`, `actor_user_id`, `occurred_at` | Ticket history. |
-| `audit_logs` | `id`, `tenant_id`, `user_id`, `resource_type`, `resource_id`, `action`, `metadata`, `ip_address`, `user_agent`, `occurred_at` | Compliance logging. |
-| `data_subject_requests` | `id`, `tenant_id`, `user_id`, `request_type`, `status`, `submitted_at`, `processed_at`, `notes` | GDPR / DPA workflows. |
-| `backup_jobs` | `id`, `tenant_id`, `job_type`, `status`, `requested_by`, `storage_url`, `requested_at`, `completed_at`, `error_message` | Scheduled backups (daily snapshots, PITR exports) and their lifecycle. |
-| `backup_restores` | `id`, `backup_job_id`, `initiated_by`, `restore_point`, `status`, `started_at`, `completed_at`, `notes` | Restore activity with approvals and audit trail. |
-| `security_policies` | `id`, `tenant_id`, `password_policy_json`, `session_policy_json`, `created_at`, `updated_at` | Tenant-configurable security posture surfaced in admin settings. |
-
-## Integration & API Settings
-
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `integration_settings` | `id`, `tenant_id`, `service_code`, `status`, `config_json`, `created_at`, `updated_at` | Generic key/value configuration for treasury, notifications, POS, and future integrations. |
-| `integration_webhooks` | `id`, `integration_setting_id`, `url`, `auth_type`, `secret`, `event_filter`, `created_at`, `updated_at`, `last_delivery_status` | Outgoing webhook destinations per integration. |
-| `api_clients` | `id`, `tenant_id`, `name`, `client_id`, `client_secret_hash`, `scopes`, `last_used_at`, `created_at`, `updated_at`, `revoked_at` | API credentials for partners/internal tooling. |
-| `api_tokens` | `id`, `api_client_id`, `token_hash`, `expires_at`, `created_at`, `revoked_at`, `reason` | Rotatable tokens aligned with security policies. |
-| `tenant_sync_events` | `id`, `tenant_id`, `tenant_slug`, `destination_service`, `payload`, `synced_at`, `status` | Tracks outbound tenant/outlet discovery callbacks to ensure downstream services hydrate metadata before processing domain data. |
-
-## Cross-Cutting Utilities
-
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
-| `outbox_events` | `id`, `tenant_id`, `aggregate_type`, `aggregate_id`, `event_type`, `payload`, `status`, `attempts`, `last_attempt_at`, `created_at` | Reliable event publishing pattern. |
-| `media_assets` | `id`, `tenant_id`, `owner_type`, `owner_id`, `asset_type`, `url`, `metadata`, `created_at` | Generic file references (e.g., receipts, documents). |
-| `tenant_sync_events` | `id`, `tenant_id`, `tenant_slug`, `destination_service`, `payload`, `synced_at`, `status` | Tracks outbound tenant/outlet discovery callbacks so downstream services hydrate metadata before processing domain data. |
+| `audit_logs` | `id`, `tenant_id`, `user_id`, `resource_type`, `resource_id`, `action`, `metadata`, `ip_address`, `occurred_at` | Compliance audit trail. |
+| `data_subject_requests` | `id`, `tenant_id`, `user_id`, `request_type`, `status`, `submitted_at`, `processed_at`, `notes` | GDPR/DPA workflows. |
+| `data_deletion_jobs` | `id`, `tenant_id`, `user_id`, `status`, `scheduled_at`, `completed_at` | Scheduled data deletion jobs. |
+| `data_export_jobs` | `id`, `tenant_id`, `user_id`, `status`, `result_url`, `requested_at`, `completed_at` | Data portability exports. |
 
 ---
 
-## Diagram Notes
+## Cross-Cutting Infrastructure
 
-- Relationships follow standard relational conventions:
-  - `users.tenant_id -> tenants.id`
-  - `orders.customer_id -> users.id`
-  - `order_items.order_id -> orders.id`
-  - `menu_items.category_id -> menu_categories.id`
-  - `order_assignments.rider_id` - Reference to logistics-service fleet member ID (NOT a foreign key, rider data owned by logistics-service)
-  - `payments.payment_intent_id -> payment_intents.id`
-  - `support_ticket_events.ticket_id -> support_tickets.id`
-- Tenant/outlet discovery relies on webhook flows captured in `tenant_sync_events`, ensuring downstream services are provisioned before related domain records are written (no polling needed).
+| Table | Key Columns | Description |
+|-------|-------------|-------------|
+| `outbox_events` | `id`, `tenant_id`, `aggregate_type`, `aggregate_id`, `event_type`, `payload`, `status`, `attempts`, `last_attempt_at`, `published_at`, `error_message`, `created_at` | Transactional outbox for reliable NATS event publishing. Status: PENDING → PUBLISHED / FAILED. |
+| `tenant_sync_events` | `id`, `tenant_id`, `tenant_slug`, `destination_service`, `payload`, `synced_at`, `status` | Tracks outbound tenant/outlet provisioning to downstream services. |
 
-- Where `metadata` or `payload` columns appear they are stored as `JSONB` for flexible, validated schemas.
+---
 
-- Many tables include `created_at` / `updated_at` audit fields for tracking history even before formal audit logging is enabled.
+## Key Relationships
+
+```
+tenants.id ← users.tenant_id
+tenants.id ← outlets.tenant_id
+tenants.id ← catalog_categories.tenant_id
+tenants.id ← catalog_items.tenant_id
+tenants.id ← orders.tenant_id
+users.id ← orders.customer_id
+orders.id ← order_items.order_id
+catalog_items.id ← order_items.catalog_item_id          ← PRIMARY ITEM REFERENCE
+catalog_items.inventory_item_id → inventory-api items   ← MASTER DATA REFERENCE
+catalog_items.sku → inventory-api stock checks
+orders.id ← order_assignments.order_id
+order_assignments.logistics_task_id → logistics-api     ← REFERENCE ONLY
+orders.payment_intent_id → treasury-api                 ← REFERENCE ONLY
+```
 
 ---
 
 ## Seed Data Overview
 
-- **Demo Tenant**: `demo-tenant` (slug) - "Demo Tenant" (name) - for development/testing only
-- System roles: `customer`, `rider`, `staff`, `admin`, `superuser`.
-- Permissions grouped by module (auth, catalog, orders, payments, logistics, operations, notifications, analytics, support).
-- Default super admin account seeded for bootstrap with full permission set, scoped to the demo tenant.
-- **Demo Users**: Seeded idempotently via `cmd/seed/main.go` for testing purposes.
+- **Demo Tenant**: `urban-loft` (slug) — "Urban Loft Cafe" — synced from auth-service via UUID
+- **Roles**: `customer`, `rider`, `staff`, `admin`, `superuser`
+- **Permissions**: Django-style per entity — `{entity}:{add|read|read_own|change|change_own|delete|manage|manage_own}` for: `orders`, `catalog`, `payments`, `loyalty`, `notifications`, `analytics`, `support`, `logistics`
+- **Catalog items**: **NOT seeded here** — catalog items and categories are seeded in `inventory-api` (single source of truth). Ordering-backend catalog is populated from inventory-api via sync events or admin UI.
+- **Default admin**: Synced from auth-service via tenant sync on first login (JIT provisioning).
 
-**Note**: In production, tenants are created through normal registration flows. The seed data is provided for development/testing purposes only. All authentication operations require a `tenant_slug` parameter - there is no default tenant.
-
-Refer to `cmd/seed` for the initial data set and execution instructions in `README.md`.
-
-
+> Refer to `cmd/seed/main.go` for roles/permissions seed and `inventory-api/cmd/seed/main.go` for item/category seed.

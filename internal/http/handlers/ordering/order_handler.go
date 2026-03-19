@@ -107,11 +107,11 @@ type CreateOrderRequestDTO struct {
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
 type OrderItemDTO struct {
-	MenuItemID string  `json:"menuItemId"`
-	Name       string  `json:"name"`
-	Quantity   int     `json:"quantity"`
-	UnitPrice  float64 `json:"unitPrice"`
-	TotalPrice float64 `json:"totalPrice"`
+	CatalogItemID string  `json:"catalogItemId"`
+	Name          string  `json:"name"`
+	Quantity      int     `json:"quantity"`
+	UnitPrice     float64 `json:"unitPrice"`
+	TotalPrice    float64 `json:"totalPrice"`
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -126,6 +126,9 @@ type ListOrdersResponse struct {
 
 func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 	switch {
+	case errors.Is(err, ordering.ErrSubscriptionRequired):
+		handlers.RespondError(w, http.StatusPaymentRequired, err.Error())
+
 	case errors.Is(err, ordering.ErrOrderNotFound):
 		handlers.RespondError(w, http.StatusNotFound, err.Error())
 
@@ -408,7 +411,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := uuid.Parse(req.OutletID)
+	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
 		return
@@ -416,17 +419,17 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
 	for _, it := range req.Items {
-		menuItemID, err := uuid.Parse(it.MenuItemID)
+		catalogItemID, err := uuid.Parse(it.CatalogItemID)
 		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid menuItemId in items")
+			handlers.RespondError(w, http.StatusBadRequest, "invalid catalogItemId in items")
 			return
 		}
 		items = append(items, ordering.CreateOrderItemInput{
-			MenuItemID: menuItemID,
-			Name:       it.Name,
-			Quantity:   it.Quantity,
-			UnitPrice:  it.UnitPrice,
-			TotalPrice: it.TotalPrice,
+			CatalogItemID: catalogItemID,
+			Name:          it.Name,
+			Quantity:      it.Quantity,
+			UnitPrice:     it.UnitPrice,
+			TotalPrice:    it.TotalPrice,
 		})
 	}
 
@@ -437,7 +440,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
 		TenantID:        tenantID,
-		CafeID:          cafeID,
+		OutletID:        outletID,
 		UserID:          user.ID,
 		Items:           items,
 		DeliveryAddress: req.DeliveryAddress,
@@ -707,7 +710,7 @@ func (h *OrderHandler) RateOrder(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Param cafe_id query string false "Filter by cafe ID"
+// @Param outlet_id query string false "Filter by outlet ID"
 // @Param customer_id query string false "Filter by customer ID"
 // @Param status query string false "Filter by status"
 // @Param payment_status query string false "Filter by payment status"
@@ -738,9 +741,9 @@ func (h *OrderHandler) AdminListOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse optional filters
-	if cafeIDStr := r.URL.Query().Get("cafe_id"); cafeIDStr != "" {
-		if cafeID, err := uuid.Parse(cafeIDStr); err == nil {
-			filter.CafeID = &cafeID
+	if outletIDStr := r.URL.Query().Get("outlet_id"); outletIDStr != "" {
+		if outletID, err := uuid.Parse(outletIDStr); err == nil {
+			filter.OutletID = &outletID
 		}
 	}
 

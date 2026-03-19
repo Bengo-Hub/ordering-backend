@@ -1367,21 +1367,21 @@ func HasUsersWith(preds ...predicate.User) predicate.Tenant {
 	})
 }
 
-// HasSessions applies the HasEdge predicate on the "sessions" edge.
-func HasSessions() predicate.Tenant {
+// HasOutlets applies the HasEdge predicate on the "outlets" edge.
+func HasOutlets() predicate.Tenant {
 	return predicate.Tenant(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SessionsTable, SessionsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, OutletsTable, OutletsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSessionsWith applies the HasEdge predicate on the "sessions" edge with a given conditions (other predicates).
-func HasSessionsWith(preds ...predicate.Session) predicate.Tenant {
+// HasOutletsWith applies the HasEdge predicate on the "outlets" edge with a given conditions (other predicates).
+func HasOutletsWith(preds ...predicate.Outlet) predicate.Tenant {
 	return predicate.Tenant(func(s *sql.Selector) {
-		step := newSessionsStep()
+		step := newOutletsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

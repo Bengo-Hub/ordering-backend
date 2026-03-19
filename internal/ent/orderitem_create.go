@@ -31,9 +31,9 @@ func (oic *OrderItemCreate) SetOrderID(u uuid.UUID) *OrderItemCreate {
 	return oic
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (oic *OrderItemCreate) SetMenuItemID(u uuid.UUID) *OrderItemCreate {
-	oic.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (oic *OrderItemCreate) SetCatalogItemID(u uuid.UUID) *OrderItemCreate {
+	oic.mutation.SetCatalogItemID(u)
 	return oic
 }
 
@@ -198,8 +198,8 @@ func (oic *OrderItemCreate) check() error {
 	if _, ok := oic.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "OrderItem.order_id"`)}
 	}
-	if _, ok := oic.mutation.MenuItemID(); !ok {
-		return &ValidationError{Name: "menu_item_id", err: errors.New(`ent: missing required field "OrderItem.menu_item_id"`)}
+	if _, ok := oic.mutation.CatalogItemID(); !ok {
+		return &ValidationError{Name: "catalog_item_id", err: errors.New(`ent: missing required field "OrderItem.catalog_item_id"`)}
 	}
 	if _, ok := oic.mutation.NameSnapshot(); !ok {
 		return &ValidationError{Name: "name_snapshot", err: errors.New(`ent: missing required field "OrderItem.name_snapshot"`)}
@@ -275,9 +275,9 @@ func (oic *OrderItemCreate) createSpec() (*OrderItem, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := oic.mutation.MenuItemID(); ok {
-		_spec.SetField(orderitem.FieldMenuItemID, field.TypeUUID, value)
-		_node.MenuItemID = value
+	if value, ok := oic.mutation.CatalogItemID(); ok {
+		_spec.SetField(orderitem.FieldCatalogItemID, field.TypeUUID, value)
+		_node.CatalogItemID = value
 	}
 	if value, ok := oic.mutation.VariantID(); ok {
 		_spec.SetField(orderitem.FieldVariantID, field.TypeUUID, value)
@@ -400,15 +400,15 @@ func (u *OrderItemUpsert) UpdateOrderID() *OrderItemUpsert {
 	return u
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *OrderItemUpsert) SetMenuItemID(v uuid.UUID) *OrderItemUpsert {
-	u.Set(orderitem.FieldMenuItemID, v)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *OrderItemUpsert) SetCatalogItemID(v uuid.UUID) *OrderItemUpsert {
+	u.Set(orderitem.FieldCatalogItemID, v)
 	return u
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *OrderItemUpsert) UpdateMenuItemID() *OrderItemUpsert {
-	u.SetExcluded(orderitem.FieldMenuItemID)
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *OrderItemUpsert) UpdateCatalogItemID() *OrderItemUpsert {
+	u.SetExcluded(orderitem.FieldCatalogItemID)
 	return u
 }
 
@@ -633,17 +633,17 @@ func (u *OrderItemUpsertOne) UpdateOrderID() *OrderItemUpsertOne {
 	})
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *OrderItemUpsertOne) SetMenuItemID(v uuid.UUID) *OrderItemUpsertOne {
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *OrderItemUpsertOne) SetCatalogItemID(v uuid.UUID) *OrderItemUpsertOne {
 	return u.Update(func(s *OrderItemUpsert) {
-		s.SetMenuItemID(v)
+		s.SetCatalogItemID(v)
 	})
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *OrderItemUpsertOne) UpdateMenuItemID() *OrderItemUpsertOne {
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *OrderItemUpsertOne) UpdateCatalogItemID() *OrderItemUpsertOne {
 	return u.Update(func(s *OrderItemUpsert) {
-		s.UpdateMenuItemID()
+		s.UpdateCatalogItemID()
 	})
 }
 
@@ -1061,17 +1061,17 @@ func (u *OrderItemUpsertBulk) UpdateOrderID() *OrderItemUpsertBulk {
 	})
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *OrderItemUpsertBulk) SetMenuItemID(v uuid.UUID) *OrderItemUpsertBulk {
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *OrderItemUpsertBulk) SetCatalogItemID(v uuid.UUID) *OrderItemUpsertBulk {
 	return u.Update(func(s *OrderItemUpsert) {
-		s.SetMenuItemID(v)
+		s.SetCatalogItemID(v)
 	})
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *OrderItemUpsertBulk) UpdateMenuItemID() *OrderItemUpsertBulk {
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *OrderItemUpsertBulk) UpdateCatalogItemID() *OrderItemUpsertBulk {
 	return u.Update(func(s *OrderItemUpsert) {
-		s.UpdateMenuItemID()
+		s.UpdateCatalogItemID()
 	})
 }
 

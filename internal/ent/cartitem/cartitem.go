@@ -17,8 +17,8 @@ const (
 	FieldID = "id"
 	// FieldCartID holds the string denoting the cart_id field in the database.
 	FieldCartID = "cart_id"
-	// FieldMenuItemID holds the string denoting the menu_item_id field in the database.
-	FieldMenuItemID = "menu_item_id"
+	// FieldCatalogItemID holds the string denoting the catalog_item_id field in the database.
+	FieldCatalogItemID = "catalog_item_id"
 	// FieldVariantID holds the string denoting the variant_id field in the database.
 	FieldVariantID = "variant_id"
 	// FieldNameSnapshot holds the string denoting the name_snapshot field in the database.
@@ -43,10 +43,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeCart holds the string denoting the cart edge name in mutations.
 	EdgeCart = "cart"
-	// EdgeMenuItem holds the string denoting the menu_item edge name in mutations.
-	EdgeMenuItem = "menu_item"
-	// EdgeVariant holds the string denoting the variant edge name in mutations.
-	EdgeVariant = "variant"
+	// EdgeCatalogItem holds the string denoting the catalog_item edge name in mutations.
+	EdgeCatalogItem = "catalog_item"
 	// Table holds the table name of the cartitem in the database.
 	Table = "cart_items"
 	// CartTable is the table that holds the cart relation/edge.
@@ -56,27 +54,20 @@ const (
 	CartInverseTable = "carts"
 	// CartColumn is the table column denoting the cart relation/edge.
 	CartColumn = "cart_id"
-	// MenuItemTable is the table that holds the menu_item relation/edge.
-	MenuItemTable = "cart_items"
-	// MenuItemInverseTable is the table name for the MenuItem entity.
-	// It exists in this package in order to avoid circular dependency with the "menuitem" package.
-	MenuItemInverseTable = "menu_items"
-	// MenuItemColumn is the table column denoting the menu_item relation/edge.
-	MenuItemColumn = "menu_item_id"
-	// VariantTable is the table that holds the variant relation/edge.
-	VariantTable = "cart_items"
-	// VariantInverseTable is the table name for the MenuItemVariant entity.
-	// It exists in this package in order to avoid circular dependency with the "menuitemvariant" package.
-	VariantInverseTable = "menu_item_variants"
-	// VariantColumn is the table column denoting the variant relation/edge.
-	VariantColumn = "variant_id"
+	// CatalogItemTable is the table that holds the catalog_item relation/edge.
+	CatalogItemTable = "cart_items"
+	// CatalogItemInverseTable is the table name for the CatalogItem entity.
+	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
+	CatalogItemInverseTable = "catalog_items"
+	// CatalogItemColumn is the table column denoting the catalog_item relation/edge.
+	CatalogItemColumn = "catalog_item_id"
 )
 
 // Columns holds all SQL columns for cartitem fields.
 var Columns = []string{
 	FieldID,
 	FieldCartID,
-	FieldMenuItemID,
+	FieldCatalogItemID,
 	FieldVariantID,
 	FieldNameSnapshot,
 	FieldVariantNameSnapshot,
@@ -134,9 +125,9 @@ func ByCartID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCartID, opts...).ToFunc()
 }
 
-// ByMenuItemID orders the results by the menu_item_id field.
-func ByMenuItemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMenuItemID, opts...).ToFunc()
+// ByCatalogItemID orders the results by the catalog_item_id field.
+func ByCatalogItemID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCatalogItemID, opts...).ToFunc()
 }
 
 // ByVariantID orders the results by the variant_id field.
@@ -191,17 +182,10 @@ func ByCartField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByMenuItemField orders the results by menu_item field.
-func ByMenuItemField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByCatalogItemField orders the results by catalog_item field.
+func ByCatalogItemField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMenuItemStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByVariantField orders the results by variant field.
-func ByVariantField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newVariantStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newCatalogItemStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newCartStep() *sqlgraph.Step {
@@ -211,17 +195,10 @@ func newCartStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, CartTable, CartColumn),
 	)
 }
-func newMenuItemStep() *sqlgraph.Step {
+func newCatalogItemStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MenuItemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, MenuItemTable, MenuItemColumn),
-	)
-}
-func newVariantStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(VariantInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, VariantTable, VariantColumn),
+		sqlgraph.To(CatalogItemInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CatalogItemTable, CatalogItemColumn),
 	)
 }

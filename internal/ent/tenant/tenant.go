@@ -59,8 +59,8 @@ const (
 	EdgeSettings = "settings"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
-	// EdgeSessions holds the string denoting the sessions edge name in mutations.
-	EdgeSessions = "sessions"
+	// EdgeOutlets holds the string denoting the outlets edge name in mutations.
+	EdgeOutlets = "outlets"
 	// EdgeSyncEvents holds the string denoting the sync_events edge name in mutations.
 	EdgeSyncEvents = "sync_events"
 	// Table holds the table name of the tenant in the database.
@@ -79,13 +79,13 @@ const (
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
 	UsersColumn = "tenant_id"
-	// SessionsTable is the table that holds the sessions relation/edge.
-	SessionsTable = "sessions"
-	// SessionsInverseTable is the table name for the Session entity.
-	// It exists in this package in order to avoid circular dependency with the "session" package.
-	SessionsInverseTable = "sessions"
-	// SessionsColumn is the table column denoting the sessions relation/edge.
-	SessionsColumn = "tenant_id"
+	// OutletsTable is the table that holds the outlets relation/edge.
+	OutletsTable = "outlets"
+	// OutletsInverseTable is the table name for the Outlet entity.
+	// It exists in this package in order to avoid circular dependency with the "outlet" package.
+	OutletsInverseTable = "outlets"
+	// OutletsColumn is the table column denoting the outlets relation/edge.
+	OutletsColumn = "tenant_id"
 	// SyncEventsTable is the table that holds the sync_events relation/edge.
 	SyncEventsTable = "tenant_sync_events"
 	// SyncEventsInverseTable is the table name for the TenantSyncEvent entity.
@@ -267,17 +267,17 @@ func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// BySessionsCount orders the results by sessions count.
-func BySessionsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByOutletsCount orders the results by outlets count.
+func ByOutletsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSessionsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newOutletsStep(), opts...)
 	}
 }
 
-// BySessions orders the results by sessions terms.
-func BySessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByOutlets orders the results by outlets terms.
+func ByOutlets(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newOutletsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -308,11 +308,11 @@ func newUsersStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, UsersTable, UsersColumn),
 	)
 }
-func newSessionsStep() *sqlgraph.Step {
+func newOutletsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SessionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SessionsTable, SessionsColumn),
+		sqlgraph.To(OutletsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OutletsTable, OutletsColumn),
 	)
 }
 func newSyncEventsStep() *sqlgraph.Step {

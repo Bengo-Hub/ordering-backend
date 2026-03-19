@@ -36,9 +36,9 @@ func (h *Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cafeID, err := uuid.Parse(req.CafeID)
+	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
 		return
 	}
 
@@ -54,13 +54,10 @@ func (h *Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 
 	category, err := h.service.CreateCategory(r.Context(), catalog.CreateCategoryRequest{
 		TenantID:     &tenantID,
-		CafeID:       &cafeID,
+		OutletID:     &outletID,
 		ParentID:     parentID,
-		Name:         req.Name,
-		Description:  req.Description,
 		DisplayOrder: req.DisplayOrder,
 		IsActive:     req.IsActive,
-		ImageURL:     req.ImageURL,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -108,7 +105,7 @@ func (h *Handler) GetCategory(w http.ResponseWriter, r *http.Request) {
 // @Tags Catalog
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param cafe_id query string false "Filter by cafe ID"
+// @Param outlet_id query string false "Filter by outlet ID"
 // @Param parent_id query string false "Filter by parent ID"
 // @Param is_active query boolean false "Filter by active status"
 // @Param search query string false "Search by name"
@@ -131,10 +128,10 @@ func (h *Handler) ListCategories(w http.ResponseWriter, r *http.Request) {
 		Offset:   offset,
 	}
 
-	if cafeIDStr := r.URL.Query().Get("cafe_id"); cafeIDStr != "" {
-		cafeID, err := uuid.Parse(cafeIDStr)
+	if outletIDStr := r.URL.Query().Get("outlet_id"); outletIDStr != "" {
+		outletID, err := uuid.Parse(outletIDStr)
 		if err == nil {
-			filter.CafeID = &cafeID
+			filter.OutletID = &outletID
 		}
 	}
 
@@ -200,11 +197,8 @@ func (h *Handler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 	updateReq := catalog.UpdateCategoryRequest{
 		TenantID:     tenantID,
 		CategoryID:   categoryID,
-		Name:         req.Name,
-		Description:  req.Description,
 		DisplayOrder: req.DisplayOrder,
 		IsActive:     req.IsActive,
-		ImageURL:     req.ImageURL,
 		ClearParent:  req.ClearParent,
 	}
 
@@ -259,10 +253,10 @@ func (h *Handler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 
 // ListPublicCategories lists public categories (no auth required).
 // @Summary List public categories
-// @Description Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. cafe_id is optional; when omitted, the first outlet for the tenant is used.
+// @Description Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. outlet_id is optional; when omitted, the first outlet for the tenant is used.
 // @Tags Menu
 // @Produce json
-// @Param cafe_id query string false "Cafe ID (optional; defaults to first outlet)"
+// @Param outlet_id query string false "Outlet ID (optional; defaults to first outlet)"
 // @Success 200 {array} catalog.PublicCategory
 // @Router /menu/categories [get]
 func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
@@ -272,24 +266,24 @@ func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cafeID uuid.UUID
-	cafeIDStr := r.URL.Query().Get("cafe_id")
-	if cafeIDStr != "" {
-		cafeID, err = uuid.Parse(cafeIDStr)
+	var outletID uuid.UUID
+	outletIDStr := r.URL.Query().Get("outlet_id")
+	if outletIDStr != "" {
+		outletID, err = uuid.Parse(outletIDStr)
 		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid cafe_id")
+			handlers.RespondError(w, http.StatusBadRequest, "invalid outlet_id")
 			return
 		}
 	} else {
-		cafes, err := h.service.ListCafes(r.Context(), tenantID)
-		if err != nil || len(cafes) == 0 {
+		outlets, err := h.service.ListOutlets(r.Context(), tenantID)
+		if err != nil || len(outlets) == 0 {
 			handlers.RespondJSON(w, http.StatusOK, []catalog.PublicCategory{})
 			return
 		}
-		cafeID = cafes[0].ID
+		outletID = outlets[0].ID
 	}
 
-	categories, err := h.service.GetPublicCategories(r.Context(), tenantID, cafeID)
+	categories, err := h.service.GetPublicCategories(r.Context(), tenantID, outletID)
 	if err != nil {
 		h.handleError(w, err)
 		return

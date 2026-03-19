@@ -12,18 +12,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/backupcode"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
-	"github.com/bengobox/ordering-backend/internal/ent/device"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
-	"github.com/bengobox/ordering-backend/internal/ent/oauthaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentmethod"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -264,85 +259,6 @@ func (uc *UserCreate) AddRoles(r ...*Role) *UserCreate {
 	return uc.AddRoleIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (uc *UserCreate) AddSessionIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddSessionIDs(ids...)
-	return uc
-}
-
-// AddSessions adds the "sessions" edges to the Session entity.
-func (uc *UserCreate) AddSessions(s ...*Session) *UserCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uc.AddSessionIDs(ids...)
-}
-
-// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
-func (uc *UserCreate) AddDeviceIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddDeviceIDs(ids...)
-	return uc
-}
-
-// AddDevices adds the "devices" edges to the Device entity.
-func (uc *UserCreate) AddDevices(d ...*Device) *UserCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
-	}
-	return uc.AddDeviceIDs(ids...)
-}
-
-// AddOauthAccountIDs adds the "oauth_accounts" edge to the OAuthAccount entity by IDs.
-func (uc *UserCreate) AddOauthAccountIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddOauthAccountIDs(ids...)
-	return uc
-}
-
-// AddOauthAccounts adds the "oauth_accounts" edges to the OAuthAccount entity.
-func (uc *UserCreate) AddOauthAccounts(o ...*OAuthAccount) *UserCreate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return uc.AddOauthAccountIDs(ids...)
-}
-
-// SetTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID.
-func (uc *UserCreate) SetTwoFactorSettingsID(id int) *UserCreate {
-	uc.mutation.SetTwoFactorSettingsID(id)
-	return uc
-}
-
-// SetNillableTwoFactorSettingsID sets the "two_factor_settings" edge to the TwoFactorSetting entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableTwoFactorSettingsID(id *int) *UserCreate {
-	if id != nil {
-		uc = uc.SetTwoFactorSettingsID(*id)
-	}
-	return uc
-}
-
-// SetTwoFactorSettings sets the "two_factor_settings" edge to the TwoFactorSetting entity.
-func (uc *UserCreate) SetTwoFactorSettings(t *TwoFactorSetting) *UserCreate {
-	return uc.SetTwoFactorSettingsID(t.ID)
-}
-
-// AddBackupCodeIDs adds the "backup_codes" edge to the BackupCode entity by IDs.
-func (uc *UserCreate) AddBackupCodeIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddBackupCodeIDs(ids...)
-	return uc
-}
-
-// AddBackupCodes adds the "backup_codes" edges to the BackupCode entity.
-func (uc *UserCreate) AddBackupCodes(b ...*BackupCode) *UserCreate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return uc.AddBackupCodeIDs(ids...)
-}
-
 // SetPreferencesID sets the "preferences" edge to the UserPreference entity by ID.
 func (uc *UserCreate) SetPreferencesID(id int) *UserCreate {
 	uc.mutation.SetPreferencesID(id)
@@ -445,19 +361,19 @@ func (uc *UserCreate) SetLoyaltyAccount(l *LoyaltyAccount) *UserCreate {
 	return uc.SetLoyaltyAccountID(l.ID)
 }
 
-// AddPaymentMethodIDs adds the "payment_methods" edge to the PaymentMethod entity by IDs.
-func (uc *UserCreate) AddPaymentMethodIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddPaymentMethodIDs(ids...)
+// AddFavoriteItemIDs adds the "favorite_items" edge to the CatalogItem entity by IDs.
+func (uc *UserCreate) AddFavoriteItemIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddFavoriteItemIDs(ids...)
 	return uc
 }
 
-// AddPaymentMethods adds the "payment_methods" edges to the PaymentMethod entity.
-func (uc *UserCreate) AddPaymentMethods(p ...*PaymentMethod) *UserCreate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddFavoriteItems adds the "favorite_items" edges to the CatalogItem entity.
+func (uc *UserCreate) AddFavoriteItems(c ...*CatalogItem) *UserCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
 	}
-	return uc.AddPaymentMethodIDs(ids...)
+	return uc.AddFavoriteItemIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -703,87 +619,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.SessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SessionsTable,
-			Columns: []string{user.SessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.DevicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.DevicesTable,
-			Columns: user.DevicesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.OauthAccountsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.OauthAccountsTable,
-			Columns: []string{user.OauthAccountsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthaccount.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.TwoFactorSettingsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   user.TwoFactorSettingsTable,
-			Columns: []string{user.TwoFactorSettingsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twofactorsetting.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.two_factor_setting_user = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.BackupCodesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.BackupCodesTable,
-			Columns: []string{user.BackupCodesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(backupcode.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := uc.mutation.PreferencesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -880,15 +715,15 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.PaymentMethodsIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.FavoriteItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   user.PaymentMethodsTable,
-			Columns: []string{user.PaymentMethodsColumn},
+			Table:   user.FavoriteItemsTable,
+			Columns: user.FavoriteItemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentmethod.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

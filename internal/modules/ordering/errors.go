@@ -11,10 +11,10 @@ var (
 	ErrInvalidCartStatus   = errors.New("invalid cart status")
 
 	// CartItem errors
-	ErrCartItemNotFound    = errors.New("cart item not found")
-	ErrInvalidQuantity     = errors.New("quantity must be positive")
-	ErrMenuItemUnavailable = errors.New("menu item is not available")
-	ErrVariantUnavailable  = errors.New("variant is not available")
+	ErrCartItemNotFound       = errors.New("cart item not found")
+	ErrInvalidQuantity        = errors.New("quantity must be positive")
+	ErrCatalogItemUnavailable = errors.New("catalog item is not available")
+	ErrVariantUnavailable     = errors.New("variant is not available")
 
 	// Order errors
 	ErrOrderNotFound          = errors.New("order not found")
@@ -61,6 +61,9 @@ var (
 	ErrOrderNotRatable  = errors.New("order cannot be rated: must be delivered or completed")
 	ErrAlreadyRated     = errors.New("order has already been rated")
 	ErrInvalidRating    = errors.New("rating must be between 1 and 5")
+
+	// Subscription errors
+	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
 
 	// General errors
 	ErrInvalidTenant   = errors.New("invalid tenant")

@@ -1102,29 +1102,6 @@ func HasDeliveryWindowsWith(preds ...predicate.DeliveryWindow) predicate.OrderAs
 	})
 }
 
-// HasProofOfDelivery applies the HasEdge predicate on the "proof_of_delivery" edge.
-func HasProofOfDelivery() predicate.OrderAssignment {
-	return predicate.OrderAssignment(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, ProofOfDeliveryTable, ProofOfDeliveryColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProofOfDeliveryWith applies the HasEdge predicate on the "proof_of_delivery" edge with a given conditions (other predicates).
-func HasProofOfDeliveryWith(preds ...predicate.ProofOfDelivery) predicate.OrderAssignment {
-	return predicate.OrderAssignment(func(s *sql.Selector) {
-		step := newProofOfDeliveryStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.OrderAssignment) predicate.OrderAssignment {
 	return predicate.OrderAssignment(sql.AndPredicates(predicates...))

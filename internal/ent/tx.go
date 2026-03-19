@@ -14,12 +14,18 @@ type Tx struct {
 	config
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
-	// BackupCode is the client for interacting with the BackupCode builders.
-	BackupCode *BackupCodeClient
 	// Cart is the client for interacting with the Cart builders.
 	Cart *CartClient
 	// CartItem is the client for interacting with the CartItem builders.
 	CartItem *CartItemClient
+	// CatalogCategory is the client for interacting with the CatalogCategory builders.
+	CatalogCategory *CatalogCategoryClient
+	// CatalogItem is the client for interacting with the CatalogItem builders.
+	CatalogItem *CatalogItemClient
+	// CatalogItemAsset is the client for interacting with the CatalogItemAsset builders.
+	CatalogItemAsset *CatalogItemAssetClient
+	// CatalogItemSchedule is the client for interacting with the CatalogItemSchedule builders.
+	CatalogItemSchedule *CatalogItemScheduleClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
 	// DataDeletionJob is the client for interacting with the DataDeletionJob builders.
@@ -30,36 +36,12 @@ type Tx struct {
 	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
-	// Device is the client for interacting with the Device builders.
-	Device *DeviceClient
 	// DietaryTag is the client for interacting with the DietaryTag builders.
 	DietaryTag *DietaryTagClient
-	// LogisticsEvent is the client for interacting with the LogisticsEvent builders.
-	LogisticsEvent *LogisticsEventClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
 	LoyaltyAccount *LoyaltyAccountClient
 	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
 	LoyaltyTransaction *LoyaltyTransactionClient
-	// MenuCategory is the client for interacting with the MenuCategory builders.
-	MenuCategory *MenuCategoryClient
-	// MenuItem is the client for interacting with the MenuItem builders.
-	MenuItem *MenuItemClient
-	// MenuItemAsset is the client for interacting with the MenuItemAsset builders.
-	MenuItemAsset *MenuItemAssetClient
-	// MenuItemSchedule is the client for interacting with the MenuItemSchedule builders.
-	MenuItemSchedule *MenuItemScheduleClient
-	// MenuItemTranslation is the client for interacting with the MenuItemTranslation builders.
-	MenuItemTranslation *MenuItemTranslationClient
-	// MenuItemVariant is the client for interacting with the MenuItemVariant builders.
-	MenuItemVariant *MenuItemVariantClient
-	// NotificationEvent is the client for interacting with the NotificationEvent builders.
-	NotificationEvent *NotificationEventClient
-	// NotificationSubscription is the client for interacting with the NotificationSubscription builders.
-	NotificationSubscription *NotificationSubscriptionClient
-	// NotificationTemplate is the client for interacting with the NotificationTemplate builders.
-	NotificationTemplate *NotificationTemplateClient
-	// OAuthAccount is the client for interacting with the OAuthAccount builders.
-	OAuthAccount *OAuthAccountClient
 	// Order is the client for interacting with the Order builders.
 	Order *OrderClient
 	// OrderAssignment is the client for interacting with the OrderAssignment builders.
@@ -70,38 +52,24 @@ type Tx struct {
 	OrderItem *OrderItemClient
 	// OutboxEvent is the client for interacting with the OutboxEvent builders.
 	OutboxEvent *OutboxEventClient
-	// Payment is the client for interacting with the Payment builders.
-	Payment *PaymentClient
-	// PaymentIntent is the client for interacting with the PaymentIntent builders.
-	PaymentIntent *PaymentIntentClient
-	// PaymentMethod is the client for interacting with the PaymentMethod builders.
-	PaymentMethod *PaymentMethodClient
+	// Outlet is the client for interacting with the Outlet builders.
+	Outlet *OutletClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// PromoCode is the client for interacting with the PromoCode builders.
 	PromoCode *PromoCodeClient
 	// PromoRedemption is the client for interacting with the PromoRedemption builders.
 	PromoRedemption *PromoRedemptionClient
-	// ProofOfDelivery is the client for interacting with the ProofOfDelivery builders.
-	ProofOfDelivery *ProofOfDeliveryClient
-	// Refund is the client for interacting with the Refund builders.
-	Refund *RefundClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// SLAMetric is the client for interacting with the SLAMetric builders.
 	SLAMetric *SLAMetricClient
-	// Session is the client for interacting with the Session builders.
-	Session *SessionClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
 	// TenantSetting is the client for interacting with the TenantSetting builders.
 	TenantSetting *TenantSettingClient
 	// TenantSyncEvent is the client for interacting with the TenantSyncEvent builders.
 	TenantSyncEvent *TenantSyncEventClient
-	// TreasuryEvent is the client for interacting with the TreasuryEvent builders.
-	TreasuryEvent *TreasuryEventClient
-	// TwoFactorSetting is the client for interacting with the TwoFactorSetting builders.
-	TwoFactorSetting *TwoFactorSettingClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserPreference is the client for interacting with the UserPreference builders.
@@ -240,50 +208,34 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AuditLog = NewAuditLogClient(tx.config)
-	tx.BackupCode = NewBackupCodeClient(tx.config)
 	tx.Cart = NewCartClient(tx.config)
 	tx.CartItem = NewCartItemClient(tx.config)
+	tx.CatalogCategory = NewCatalogCategoryClient(tx.config)
+	tx.CatalogItem = NewCatalogItemClient(tx.config)
+	tx.CatalogItemAsset = NewCatalogItemAssetClient(tx.config)
+	tx.CatalogItemSchedule = NewCatalogItemScheduleClient(tx.config)
 	tx.CustomerAddress = NewCustomerAddressClient(tx.config)
 	tx.DataDeletionJob = NewDataDeletionJobClient(tx.config)
 	tx.DataExportJob = NewDataExportJobClient(tx.config)
 	tx.DataSubjectRequest = NewDataSubjectRequestClient(tx.config)
 	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
-	tx.Device = NewDeviceClient(tx.config)
 	tx.DietaryTag = NewDietaryTagClient(tx.config)
-	tx.LogisticsEvent = NewLogisticsEventClient(tx.config)
 	tx.LoyaltyAccount = NewLoyaltyAccountClient(tx.config)
 	tx.LoyaltyTransaction = NewLoyaltyTransactionClient(tx.config)
-	tx.MenuCategory = NewMenuCategoryClient(tx.config)
-	tx.MenuItem = NewMenuItemClient(tx.config)
-	tx.MenuItemAsset = NewMenuItemAssetClient(tx.config)
-	tx.MenuItemSchedule = NewMenuItemScheduleClient(tx.config)
-	tx.MenuItemTranslation = NewMenuItemTranslationClient(tx.config)
-	tx.MenuItemVariant = NewMenuItemVariantClient(tx.config)
-	tx.NotificationEvent = NewNotificationEventClient(tx.config)
-	tx.NotificationSubscription = NewNotificationSubscriptionClient(tx.config)
-	tx.NotificationTemplate = NewNotificationTemplateClient(tx.config)
-	tx.OAuthAccount = NewOAuthAccountClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
 	tx.OrderAssignment = NewOrderAssignmentClient(tx.config)
 	tx.OrderEvent = NewOrderEventClient(tx.config)
 	tx.OrderItem = NewOrderItemClient(tx.config)
 	tx.OutboxEvent = NewOutboxEventClient(tx.config)
-	tx.Payment = NewPaymentClient(tx.config)
-	tx.PaymentIntent = NewPaymentIntentClient(tx.config)
-	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
+	tx.Outlet = NewOutletClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.PromoCode = NewPromoCodeClient(tx.config)
 	tx.PromoRedemption = NewPromoRedemptionClient(tx.config)
-	tx.ProofOfDelivery = NewProofOfDeliveryClient(tx.config)
-	tx.Refund = NewRefundClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.SLAMetric = NewSLAMetricClient(tx.config)
-	tx.Session = NewSessionClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantSetting = NewTenantSettingClient(tx.config)
 	tx.TenantSyncEvent = NewTenantSyncEventClient(tx.config)
-	tx.TreasuryEvent = NewTreasuryEventClient(tx.config)
-	tx.TwoFactorSetting = NewTwoFactorSettingClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserPreference = NewUserPreferenceClient(tx.config)
 	tx.UserProfile = NewUserProfileClient(tx.config)

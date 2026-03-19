@@ -40,13 +40,19 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	// Public menu API (no auth required)
 	r.Route("/menu", func(menuRouter chi.Router) {
 		menuRouter.Get("/categories", h.ListPublicCategories)
-		menuRouter.Get("/items", h.ListPublicMenuItems)
-		menuRouter.Get("/items/{id}", h.GetPublicMenuItem)
+		menuRouter.Get("/items", h.ListPublicCatalogItems)
+		menuRouter.Get("/items/{id}", h.GetPublicCatalogItem)
+
+		// Auth required for toggling favorites
+		menuRouter.Group(func(authRouter chi.Router) {
+			authRouter.Use(auth.OptionalAuth) // Allow authenticated users to toggle
+			authRouter.Post("/items/{id}/favorite", h.ToggleFavorite)
+		})
 	})
 	// Public cafes/outlets list (no auth required)
 	r.Route("/cafes", func(cafesRouter chi.Router) {
-		cafesRouter.Get("/", h.ListCafes)
-		cafesRouter.Get("/{id}", h.GetCafe)
+		cafesRouter.Get("/", h.ListOutlets)
+		cafesRouter.Get("/{id}", h.GetOutlet)
 	})
 
 	// Admin catalog API (auth required)
@@ -65,29 +71,19 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
 			Delete("/categories/{id}", h.DeleteCategory)
 
-		// Menu Items
+		// Catalog Items
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/items", h.CreateMenuItem)
+			Post("/items", h.CreateCatalogItem)
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/items", h.ListMenuItems)
+			Get("/items", h.ListCatalogItems)
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/items/{id}", h.GetMenuItem)
+			Get("/items/{id}", h.GetCatalogItem)
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Put("/items/{id}", h.UpdateMenuItem)
+			Put("/items/{id}", h.UpdateCatalogItem)
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Delete("/items/{id}", h.DeleteMenuItem)
+			Delete("/items/{id}", h.DeleteCatalogItem)
 
-		// Variants
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/items/{id}/variants", h.CreateVariant)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/items/{id}/variants", h.ListVariants)
 
-		// Translations
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/items/{id}/translations", h.CreateTranslation)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/items/{id}/translations", h.ListTranslations)
 
 		// Dietary Tags
 		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
@@ -102,59 +98,41 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 // --- Request/Response Types ---
 
 type CreateCategoryRequest struct {
-	CafeID       string  `json:"cafeId"`
+	OutletID     string  `json:"outletId"`
 	ParentID     *string `json:"parentId,omitempty"`
-	Name         string  `json:"name"`
-	Description  string  `json:"description,omitempty"`
 	DisplayOrder int     `json:"displayOrder"`
 	IsActive     bool    `json:"isActive"`
-	ImageURL     string  `json:"imageUrl,omitempty"`
 }
 
 type UpdateCategoryRequest struct {
 	ParentID     *string `json:"parentId,omitempty"`
 	ClearParent  bool    `json:"clearParent,omitempty"`
-	Name         *string `json:"name,omitempty"`
-	Description  *string `json:"description,omitempty"`
 	DisplayOrder *int    `json:"displayOrder,omitempty"`
 	IsActive     *bool   `json:"isActive,omitempty"`
-	ImageURL     *string `json:"imageUrl,omitempty"`
 }
 
-type CreateMenuItemRequest struct {
-	CafeID          string  `json:"cafeId"`
+type CreateCatalogItemRequest struct {
+	OutletID        string  `json:"outletId"`
 	CategoryID      string  `json:"categoryId"`
-	Name            string  `json:"name"`
-	Description     string  `json:"description,omitempty"`
-	BasePrice       float64 `json:"basePrice"`
-	Currency        string  `json:"currency,omitempty"`
+	InventoryItemID string  `json:"inventoryItemId"`
+	RecipeID        *string `json:"recipeId,omitempty"`
 	IsAvailable     bool    `json:"isAvailable"`
+	IsFeatured      bool    `json:"isFeatured"`
 	LeadTimeMinutes int     `json:"leadTimeMinutes,omitempty"`
-	ImageURL        string  `json:"imageUrl,omitempty"`
 	SKU             string  `json:"sku,omitempty"`
 	DisplayOrder    int     `json:"displayOrder"`
 }
 
-type UpdateMenuItemRequest struct {
-	CategoryID      *string  `json:"categoryId,omitempty"`
-	Name            *string  `json:"name,omitempty"`
-	Description     *string  `json:"description,omitempty"`
-	BasePrice       *float64 `json:"basePrice,omitempty"`
-	Currency        *string  `json:"currency,omitempty"`
-	IsAvailable     *bool    `json:"isAvailable,omitempty"`
-	LeadTimeMinutes *int     `json:"leadTimeMinutes,omitempty"`
-	ImageURL        *string  `json:"imageUrl,omitempty"`
-	SKU             *string  `json:"sku,omitempty"`
-	DisplayOrder    *int     `json:"displayOrder,omitempty"`
+type UpdateCatalogItemRequest struct {
+	CategoryID      *string `json:"categoryId,omitempty"`
+	RecipeID        *string `json:"recipeId,omitempty"`
+	IsAvailable     *bool   `json:"isAvailable,omitempty"`
+	IsFeatured      *bool   `json:"isFeatured,omitempty"`
+	LeadTimeMinutes *int    `json:"leadTimeMinutes,omitempty"`
+	SKU             *string `json:"sku,omitempty"`
+	DisplayOrder    *int    `json:"displayOrder,omitempty"`
 }
 
-type CreateVariantRequest struct {
-	Name         string  `json:"name"`
-	PriceDelta   float64 `json:"priceDelta"`
-	IsAvailable  bool    `json:"isAvailable"`
-	SKU          string  `json:"sku,omitempty"`
-	DisplayOrder int     `json:"displayOrder"`
-}
 
 type CreateTranslationRequest struct {
 	Locale      string `json:"locale"`
@@ -182,8 +160,7 @@ func decodeJSON(r *http.Request, dst interface{}) error {
 func (h *Handler) handleError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, catalog.ErrCategoryNotFound),
-		errors.Is(err, catalog.ErrMenuItemNotFound),
-		errors.Is(err, catalog.ErrVariantNotFound),
+		errors.Is(err, catalog.ErrCatalogItemNotFound),
 		errors.Is(err, catalog.ErrTranslationNotFound),
 		errors.Is(err, catalog.ErrDietaryTagNotFound),
 		errors.Is(err, catalog.ErrAssetNotFound),
@@ -191,8 +168,7 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 		handlers.RespondError(w, http.StatusNotFound, err.Error())
 
 	case errors.Is(err, catalog.ErrCategoryAlreadyExists),
-		errors.Is(err, catalog.ErrMenuItemAlreadyExists),
-		errors.Is(err, catalog.ErrVariantAlreadyExists),
+		errors.Is(err, catalog.ErrCatalogItemAlreadyExists),
 		errors.Is(err, catalog.ErrTranslationAlreadyExists),
 		errors.Is(err, catalog.ErrDietaryTagAlreadyExists):
 		handlers.RespondError(w, http.StatusConflict, err.Error())
@@ -237,6 +213,19 @@ func getTenantID(r *http.Request) (uuid.UUID, error) {
 	return uuid.Parse(tenantIDStr)
 }
 
+func getUserID(r *http.Request) (uuid.UUID, error) {
+	// Try from context (set by auth middleware)
+	if val := r.Context().Value("user_id"); val != nil {
+		if id, ok := val.(uuid.UUID); ok {
+			return id, nil
+		}
+		if str, ok := val.(string); ok {
+			return uuid.Parse(str)
+		}
+	}
+	return uuid.Nil, errors.New("user ID not found")
+}
+
 // getTenantIDForPublic returns tenant UUID for public routes. It tries getTenantID first; if that fails (e.g. X-Tenant-ID is a slug like "tenant-urban-loft"), it resolves tenant by slug from context or URL when h.db is set.
 func (h *Handler) getTenantIDForPublic(r *http.Request) (uuid.UUID, error) {
 	id, err := getTenantID(r)
@@ -265,16 +254,6 @@ func (h *Handler) getTenantIDForPublic(r *http.Request) (uuid.UUID, error) {
 	return t.ID, nil
 }
 
-func getCafeID(r *http.Request) (uuid.UUID, error) {
-	cafeIDStr := r.URL.Query().Get("cafe_id")
-	if cafeIDStr == "" {
-		cafeIDStr = r.Header.Get("X-Cafe-ID")
-	}
-	if cafeIDStr == "" {
-		return uuid.Nil, nil // Optional
-	}
-	return uuid.Parse(cafeIDStr)
-}
 
 func getPagination(r *http.Request) (limit, offset, page int) {
 	limit = 50

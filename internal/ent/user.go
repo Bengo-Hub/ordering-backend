@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
-	"github.com/bengobox/ordering-backend/internal/ent/twofactorsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
@@ -58,9 +57,8 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges                   UserEdges `json:"edges"`
-	two_factor_setting_user *int
-	selectValues            sql.SelectValues
+	Edges        UserEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -69,16 +67,6 @@ type UserEdges struct {
 	Tenant *Tenant `json:"tenant,omitempty"`
 	// Roles holds the value of the roles edge.
 	Roles []*Role `json:"roles,omitempty"`
-	// Sessions holds the value of the sessions edge.
-	Sessions []*Session `json:"sessions,omitempty"`
-	// Devices holds the value of the devices edge.
-	Devices []*Device `json:"devices,omitempty"`
-	// OauthAccounts holds the value of the oauth_accounts edge.
-	OauthAccounts []*OAuthAccount `json:"oauth_accounts,omitempty"`
-	// TwoFactorSettings holds the value of the two_factor_settings edge.
-	TwoFactorSettings *TwoFactorSetting `json:"two_factor_settings,omitempty"`
-	// BackupCodes holds the value of the backup_codes edge.
-	BackupCodes []*BackupCode `json:"backup_codes,omitempty"`
 	// Preferences holds the value of the preferences edge.
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	// Profile holds the value of the profile edge.
@@ -91,11 +79,11 @@ type UserEdges struct {
 	Addresses []*CustomerAddress `json:"addresses,omitempty"`
 	// LoyaltyAccount holds the value of the loyalty_account edge.
 	LoyaltyAccount *LoyaltyAccount `json:"loyalty_account,omitempty"`
-	// PaymentMethods holds the value of the payment_methods edge.
-	PaymentMethods []*PaymentMethod `json:"payment_methods,omitempty"`
+	// FavoriteItems holds the value of the favorite_items edge.
+	FavoriteItems []*CatalogItem `json:"favorite_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [14]bool
+	loadedTypes [9]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -118,59 +106,12 @@ func (e UserEdges) RolesOrErr() ([]*Role, error) {
 	return nil, &NotLoadedError{edge: "roles"}
 }
 
-// SessionsOrErr returns the Sessions value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) SessionsOrErr() ([]*Session, error) {
-	if e.loadedTypes[2] {
-		return e.Sessions, nil
-	}
-	return nil, &NotLoadedError{edge: "sessions"}
-}
-
-// DevicesOrErr returns the Devices value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) DevicesOrErr() ([]*Device, error) {
-	if e.loadedTypes[3] {
-		return e.Devices, nil
-	}
-	return nil, &NotLoadedError{edge: "devices"}
-}
-
-// OauthAccountsOrErr returns the OauthAccounts value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) OauthAccountsOrErr() ([]*OAuthAccount, error) {
-	if e.loadedTypes[4] {
-		return e.OauthAccounts, nil
-	}
-	return nil, &NotLoadedError{edge: "oauth_accounts"}
-}
-
-// TwoFactorSettingsOrErr returns the TwoFactorSettings value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) TwoFactorSettingsOrErr() (*TwoFactorSetting, error) {
-	if e.TwoFactorSettings != nil {
-		return e.TwoFactorSettings, nil
-	} else if e.loadedTypes[5] {
-		return nil, &NotFoundError{label: twofactorsetting.Label}
-	}
-	return nil, &NotLoadedError{edge: "two_factor_settings"}
-}
-
-// BackupCodesOrErr returns the BackupCodes value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) BackupCodesOrErr() ([]*BackupCode, error) {
-	if e.loadedTypes[6] {
-		return e.BackupCodes, nil
-	}
-	return nil, &NotLoadedError{edge: "backup_codes"}
-}
-
 // PreferencesOrErr returns the Preferences value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) PreferencesOrErr() (*UserPreference, error) {
 	if e.Preferences != nil {
 		return e.Preferences, nil
-	} else if e.loadedTypes[7] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: userpreference.Label}
 	}
 	return nil, &NotLoadedError{edge: "preferences"}
@@ -181,7 +122,7 @@ func (e UserEdges) PreferencesOrErr() (*UserPreference, error) {
 func (e UserEdges) ProfileOrErr() (*UserProfile, error) {
 	if e.Profile != nil {
 		return e.Profile, nil
-	} else if e.loadedTypes[8] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: userprofile.Label}
 	}
 	return nil, &NotLoadedError{edge: "profile"}
@@ -190,7 +131,7 @@ func (e UserEdges) ProfileOrErr() (*UserProfile, error) {
 // CartsOrErr returns the Carts value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) CartsOrErr() ([]*Cart, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[4] {
 		return e.Carts, nil
 	}
 	return nil, &NotLoadedError{edge: "carts"}
@@ -199,7 +140,7 @@ func (e UserEdges) CartsOrErr() ([]*Cart, error) {
 // OrdersOrErr returns the Orders value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) OrdersOrErr() ([]*Order, error) {
-	if e.loadedTypes[10] {
+	if e.loadedTypes[5] {
 		return e.Orders, nil
 	}
 	return nil, &NotLoadedError{edge: "orders"}
@@ -208,7 +149,7 @@ func (e UserEdges) OrdersOrErr() ([]*Order, error) {
 // AddressesOrErr returns the Addresses value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) AddressesOrErr() ([]*CustomerAddress, error) {
-	if e.loadedTypes[11] {
+	if e.loadedTypes[6] {
 		return e.Addresses, nil
 	}
 	return nil, &NotLoadedError{edge: "addresses"}
@@ -219,19 +160,19 @@ func (e UserEdges) AddressesOrErr() ([]*CustomerAddress, error) {
 func (e UserEdges) LoyaltyAccountOrErr() (*LoyaltyAccount, error) {
 	if e.LoyaltyAccount != nil {
 		return e.LoyaltyAccount, nil
-	} else if e.loadedTypes[12] {
+	} else if e.loadedTypes[7] {
 		return nil, &NotFoundError{label: loyaltyaccount.Label}
 	}
 	return nil, &NotLoadedError{edge: "loyalty_account"}
 }
 
-// PaymentMethodsOrErr returns the PaymentMethods value or an error if the edge
+// FavoriteItemsOrErr returns the FavoriteItems value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) PaymentMethodsOrErr() ([]*PaymentMethod, error) {
-	if e.loadedTypes[13] {
-		return e.PaymentMethods, nil
+func (e UserEdges) FavoriteItemsOrErr() ([]*CatalogItem, error) {
+	if e.loadedTypes[8] {
+		return e.FavoriteItems, nil
 	}
-	return nil, &NotLoadedError{edge: "payment_methods"}
+	return nil, &NotLoadedError{edge: "favorite_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -247,8 +188,6 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case user.FieldID, user.FieldTenantID, user.FieldAuthServiceUserID:
 			values[i] = new(uuid.UUID)
-		case user.ForeignKeys[0]: // two_factor_setting_user
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -368,13 +307,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.UpdatedAt = value.Time
 			}
-		case user.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field two_factor_setting_user", value)
-			} else if value.Valid {
-				u.two_factor_setting_user = new(int)
-				*u.two_factor_setting_user = int(value.Int64)
-			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -396,31 +328,6 @@ func (u *User) QueryTenant() *TenantQuery {
 // QueryRoles queries the "roles" edge of the User entity.
 func (u *User) QueryRoles() *RoleQuery {
 	return NewUserClient(u.config).QueryRoles(u)
-}
-
-// QuerySessions queries the "sessions" edge of the User entity.
-func (u *User) QuerySessions() *SessionQuery {
-	return NewUserClient(u.config).QuerySessions(u)
-}
-
-// QueryDevices queries the "devices" edge of the User entity.
-func (u *User) QueryDevices() *DeviceQuery {
-	return NewUserClient(u.config).QueryDevices(u)
-}
-
-// QueryOauthAccounts queries the "oauth_accounts" edge of the User entity.
-func (u *User) QueryOauthAccounts() *OAuthAccountQuery {
-	return NewUserClient(u.config).QueryOauthAccounts(u)
-}
-
-// QueryTwoFactorSettings queries the "two_factor_settings" edge of the User entity.
-func (u *User) QueryTwoFactorSettings() *TwoFactorSettingQuery {
-	return NewUserClient(u.config).QueryTwoFactorSettings(u)
-}
-
-// QueryBackupCodes queries the "backup_codes" edge of the User entity.
-func (u *User) QueryBackupCodes() *BackupCodeQuery {
-	return NewUserClient(u.config).QueryBackupCodes(u)
 }
 
 // QueryPreferences queries the "preferences" edge of the User entity.
@@ -453,9 +360,9 @@ func (u *User) QueryLoyaltyAccount() *LoyaltyAccountQuery {
 	return NewUserClient(u.config).QueryLoyaltyAccount(u)
 }
 
-// QueryPaymentMethods queries the "payment_methods" edge of the User entity.
-func (u *User) QueryPaymentMethods() *PaymentMethodQuery {
-	return NewUserClient(u.config).QueryPaymentMethods(u)
+// QueryFavoriteItems queries the "favorite_items" edge of the User entity.
+func (u *User) QueryFavoriteItems() *CatalogItemQuery {
+	return NewUserClient(u.config).QueryFavoriteItems(u)
 }
 
 // Update returns a builder for updating this User.

@@ -9,14 +9,23 @@ import (
 // AuditLog is the predicate function for auditlog builders.
 type AuditLog func(*sql.Selector)
 
-// BackupCode is the predicate function for backupcode builders.
-type BackupCode func(*sql.Selector)
-
 // Cart is the predicate function for cart builders.
 type Cart func(*sql.Selector)
 
 // CartItem is the predicate function for cartitem builders.
 type CartItem func(*sql.Selector)
+
+// CatalogCategory is the predicate function for catalogcategory builders.
+type CatalogCategory func(*sql.Selector)
+
+// CatalogItem is the predicate function for catalogitem builders.
+type CatalogItem func(*sql.Selector)
+
+// CatalogItemAsset is the predicate function for catalogitemasset builders.
+type CatalogItemAsset func(*sql.Selector)
+
+// CatalogItemSchedule is the predicate function for catalogitemschedule builders.
+type CatalogItemSchedule func(*sql.Selector)
 
 // CustomerAddress is the predicate function for customeraddress builders.
 type CustomerAddress func(*sql.Selector)
@@ -33,50 +42,14 @@ type DataSubjectRequest func(*sql.Selector)
 // DeliveryWindow is the predicate function for deliverywindow builders.
 type DeliveryWindow func(*sql.Selector)
 
-// Device is the predicate function for device builders.
-type Device func(*sql.Selector)
-
 // DietaryTag is the predicate function for dietarytag builders.
 type DietaryTag func(*sql.Selector)
-
-// LogisticsEvent is the predicate function for logisticsevent builders.
-type LogisticsEvent func(*sql.Selector)
 
 // LoyaltyAccount is the predicate function for loyaltyaccount builders.
 type LoyaltyAccount func(*sql.Selector)
 
 // LoyaltyTransaction is the predicate function for loyaltytransaction builders.
 type LoyaltyTransaction func(*sql.Selector)
-
-// MenuCategory is the predicate function for menucategory builders.
-type MenuCategory func(*sql.Selector)
-
-// MenuItem is the predicate function for menuitem builders.
-type MenuItem func(*sql.Selector)
-
-// MenuItemAsset is the predicate function for menuitemasset builders.
-type MenuItemAsset func(*sql.Selector)
-
-// MenuItemSchedule is the predicate function for menuitemschedule builders.
-type MenuItemSchedule func(*sql.Selector)
-
-// MenuItemTranslation is the predicate function for menuitemtranslation builders.
-type MenuItemTranslation func(*sql.Selector)
-
-// MenuItemVariant is the predicate function for menuitemvariant builders.
-type MenuItemVariant func(*sql.Selector)
-
-// NotificationEvent is the predicate function for notificationevent builders.
-type NotificationEvent func(*sql.Selector)
-
-// NotificationSubscription is the predicate function for notificationsubscription builders.
-type NotificationSubscription func(*sql.Selector)
-
-// NotificationTemplate is the predicate function for notificationtemplate builders.
-type NotificationTemplate func(*sql.Selector)
-
-// OAuthAccount is the predicate function for oauthaccount builders.
-type OAuthAccount func(*sql.Selector)
 
 // Order is the predicate function for order builders.
 type Order func(*sql.Selector)
@@ -93,14 +66,8 @@ type OrderItem func(*sql.Selector)
 // OutboxEvent is the predicate function for outboxevent builders.
 type OutboxEvent func(*sql.Selector)
 
-// Payment is the predicate function for payment builders.
-type Payment func(*sql.Selector)
-
-// PaymentIntent is the predicate function for paymentintent builders.
-type PaymentIntent func(*sql.Selector)
-
-// PaymentMethod is the predicate function for paymentmethod builders.
-type PaymentMethod func(*sql.Selector)
+// Outlet is the predicate function for outlet builders.
+type Outlet func(*sql.Selector)
 
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
@@ -111,20 +78,11 @@ type PromoCode func(*sql.Selector)
 // PromoRedemption is the predicate function for promoredemption builders.
 type PromoRedemption func(*sql.Selector)
 
-// ProofOfDelivery is the predicate function for proofofdelivery builders.
-type ProofOfDelivery func(*sql.Selector)
-
-// Refund is the predicate function for refund builders.
-type Refund func(*sql.Selector)
-
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
 
 // SLAMetric is the predicate function for slametric builders.
 type SLAMetric func(*sql.Selector)
-
-// Session is the predicate function for session builders.
-type Session func(*sql.Selector)
 
 // Tenant is the predicate function for tenant builders.
 type Tenant func(*sql.Selector)
@@ -134,12 +92,6 @@ type TenantSetting func(*sql.Selector)
 
 // TenantSyncEvent is the predicate function for tenantsyncevent builders.
 type TenantSyncEvent func(*sql.Selector)
-
-// TreasuryEvent is the predicate function for treasuryevent builders.
-type TreasuryEvent func(*sql.Selector)
-
-// TwoFactorSetting is the predicate function for twofactorsetting builders.
-type TwoFactorSetting func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

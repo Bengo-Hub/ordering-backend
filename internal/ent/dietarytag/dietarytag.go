@@ -24,15 +24,15 @@ const (
 	FieldIconURL = "icon_url"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// EdgeMenuItems holds the string denoting the menu_items edge name in mutations.
-	EdgeMenuItems = "menu_items"
+	// EdgeCatalogItems holds the string denoting the catalog_items edge name in mutations.
+	EdgeCatalogItems = "catalog_items"
 	// Table holds the table name of the dietarytag in the database.
 	Table = "dietary_tags"
-	// MenuItemsTable is the table that holds the menu_items relation/edge. The primary key declared below.
-	MenuItemsTable = "menu_item_dietary_tags"
-	// MenuItemsInverseTable is the table name for the MenuItem entity.
-	// It exists in this package in order to avoid circular dependency with the "menuitem" package.
-	MenuItemsInverseTable = "menu_items"
+	// CatalogItemsTable is the table that holds the catalog_items relation/edge. The primary key declared below.
+	CatalogItemsTable = "catalog_item_dietary_tags"
+	// CatalogItemsInverseTable is the table name for the CatalogItem entity.
+	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
+	CatalogItemsInverseTable = "catalog_items"
 )
 
 // Columns holds all SQL columns for dietarytag fields.
@@ -46,9 +46,9 @@ var Columns = []string{
 }
 
 var (
-	// MenuItemsPrimaryKey and MenuItemsColumn2 are the table columns denoting the
-	// primary key for the menu_items relation (M2M).
-	MenuItemsPrimaryKey = []string{"menu_item_id", "dietary_tag_id"}
+	// CatalogItemsPrimaryKey and CatalogItemsColumn2 are the table columns denoting the
+	// primary key for the catalog_items relation (M2M).
+	CatalogItemsPrimaryKey = []string{"catalog_item_id", "dietary_tag_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -105,23 +105,23 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
-// ByMenuItemsCount orders the results by menu_items count.
-func ByMenuItemsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByCatalogItemsCount orders the results by catalog_items count.
+func ByCatalogItemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMenuItemsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newCatalogItemsStep(), opts...)
 	}
 }
 
-// ByMenuItems orders the results by menu_items terms.
-func ByMenuItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByCatalogItems orders the results by catalog_items terms.
+func ByCatalogItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMenuItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newCatalogItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newMenuItemsStep() *sqlgraph.Step {
+func newCatalogItemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MenuItemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, MenuItemsTable, MenuItemsPrimaryKey...),
+		sqlgraph.To(CatalogItemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, CatalogItemsTable, CatalogItemsPrimaryKey...),
 	)
 }

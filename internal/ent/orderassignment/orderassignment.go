@@ -58,8 +58,6 @@ const (
 	EdgeOrder = "order"
 	// EdgeDeliveryWindows holds the string denoting the delivery_windows edge name in mutations.
 	EdgeDeliveryWindows = "delivery_windows"
-	// EdgeProofOfDelivery holds the string denoting the proof_of_delivery edge name in mutations.
-	EdgeProofOfDelivery = "proof_of_delivery"
 	// Table holds the table name of the orderassignment in the database.
 	Table = "order_assignments"
 	// OrderTable is the table that holds the order relation/edge.
@@ -76,13 +74,6 @@ const (
 	DeliveryWindowsInverseTable = "delivery_windows"
 	// DeliveryWindowsColumn is the table column denoting the delivery_windows relation/edge.
 	DeliveryWindowsColumn = "assignment_id"
-	// ProofOfDeliveryTable is the table that holds the proof_of_delivery relation/edge.
-	ProofOfDeliveryTable = "proof_of_delivery"
-	// ProofOfDeliveryInverseTable is the table name for the ProofOfDelivery entity.
-	// It exists in this package in order to avoid circular dependency with the "proofofdelivery" package.
-	ProofOfDeliveryInverseTable = "proof_of_delivery"
-	// ProofOfDeliveryColumn is the table column denoting the proof_of_delivery relation/edge.
-	ProofOfDeliveryColumn = "assignment_id"
 )
 
 // Columns holds all SQL columns for orderassignment fields.
@@ -323,13 +314,6 @@ func ByDeliveryWindows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDeliveryWindowsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-
-// ByProofOfDeliveryField orders the results by proof_of_delivery field.
-func ByProofOfDeliveryField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProofOfDeliveryStep(), sql.OrderByField(field, opts...))
-	}
-}
 func newOrderStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -342,12 +326,5 @@ func newDeliveryWindowsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DeliveryWindowsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, DeliveryWindowsTable, DeliveryWindowsColumn),
-	)
-}
-func newProofOfDeliveryStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProofOfDeliveryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, ProofOfDeliveryTable, ProofOfDeliveryColumn),
 	)
 }

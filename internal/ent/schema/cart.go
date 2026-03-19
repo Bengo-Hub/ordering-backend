@@ -25,8 +25,8 @@ func (Cart) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Comment("Reference to tenant"),
-		field.UUID("cafe_id", uuid.UUID{}).
-			Comment("Reference to cafe/outlet"),
+		field.UUID("outlet_id", uuid.UUID{}).
+			Comment("Reference to outlet"),
 		field.UUID("user_id", uuid.UUID{}).
 			Optional().
 			Nillable().

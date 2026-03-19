@@ -17,8 +17,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
-	"github.com/bengobox/ordering-backend/internal/ent/payment"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
@@ -37,9 +36,9 @@ func (oc *OrderCreate) SetTenantID(u uuid.UUID) *OrderCreate {
 	return oc
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (oc *OrderCreate) SetCafeID(u uuid.UUID) *OrderCreate {
-	oc.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (oc *OrderCreate) SetOutletID(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetOutletID(u)
 	return oc
 }
 
@@ -93,6 +92,20 @@ func (oc *OrderCreate) SetPaymentStatus(os order.PaymentStatus) *OrderCreate {
 func (oc *OrderCreate) SetNillablePaymentStatus(os *order.PaymentStatus) *OrderCreate {
 	if os != nil {
 		oc.SetPaymentStatus(*os)
+	}
+	return oc
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (oc *OrderCreate) SetPaymentIntentID(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetPaymentIntentID(u)
+	return oc
+}
+
+// SetNillablePaymentIntentID sets the "payment_intent_id" field if the given value is not nil.
+func (oc *OrderCreate) SetNillablePaymentIntentID(u *uuid.UUID) *OrderCreate {
+	if u != nil {
+		oc.SetPaymentIntentID(*u)
 	}
 	return oc
 }
@@ -509,36 +522,6 @@ func (oc *OrderCreate) AddEvents(o ...*OrderEvent) *OrderCreate {
 	return oc.AddEventIDs(ids...)
 }
 
-// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
-func (oc *OrderCreate) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderCreate {
-	oc.mutation.AddPaymentIntentIDs(ids...)
-	return oc
-}
-
-// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
-func (oc *OrderCreate) AddPaymentIntents(p ...*PaymentIntent) *OrderCreate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return oc.AddPaymentIntentIDs(ids...)
-}
-
-// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
-func (oc *OrderCreate) AddPaymentIDs(ids ...uuid.UUID) *OrderCreate {
-	oc.mutation.AddPaymentIDs(ids...)
-	return oc
-}
-
-// AddPayments adds the "payments" edges to the Payment entity.
-func (oc *OrderCreate) AddPayments(p ...*Payment) *OrderCreate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return oc.AddPaymentIDs(ids...)
-}
-
 // AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
 func (oc *OrderCreate) AddAssignmentIDs(ids ...uuid.UUID) *OrderCreate {
 	oc.mutation.AddAssignmentIDs(ids...)
@@ -552,6 +535,11 @@ func (oc *OrderCreate) AddAssignments(o ...*OrderAssignment) *OrderCreate {
 		ids[i] = o[i].ID
 	}
 	return oc.AddAssignmentIDs(ids...)
+}
+
+// SetOutlet sets the "outlet" edge to the Outlet entity.
+func (oc *OrderCreate) SetOutlet(o *Outlet) *OrderCreate {
+	return oc.SetOutletID(o.ID)
 }
 
 // SetCustomer sets the "customer" edge to the User entity.
@@ -658,8 +646,8 @@ func (oc *OrderCreate) check() error {
 	if _, ok := oc.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Order.tenant_id"`)}
 	}
-	if _, ok := oc.mutation.CafeID(); !ok {
-		return &ValidationError{Name: "cafe_id", err: errors.New(`ent: missing required field "Order.cafe_id"`)}
+	if _, ok := oc.mutation.OutletID(); !ok {
+		return &ValidationError{Name: "outlet_id", err: errors.New(`ent: missing required field "Order.outlet_id"`)}
 	}
 	if _, ok := oc.mutation.CustomerID(); !ok {
 		return &ValidationError{Name: "customer_id", err: errors.New(`ent: missing required field "Order.customer_id"`)}
@@ -749,6 +737,9 @@ func (oc *OrderCreate) check() error {
 	if _, ok := oc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Order.updated_at"`)}
 	}
+	if _, ok := oc.mutation.OutletID(); !ok {
+		return &ValidationError{Name: "outlet", err: errors.New(`ent: missing required edge "Order.outlet"`)}
+	}
 	if _, ok := oc.mutation.CustomerID(); !ok {
 		return &ValidationError{Name: "customer", err: errors.New(`ent: missing required edge "Order.customer"`)}
 	}
@@ -792,10 +783,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := oc.mutation.CafeID(); ok {
-		_spec.SetField(order.FieldCafeID, field.TypeUUID, value)
-		_node.CafeID = value
-	}
 	if value, ok := oc.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)
 		_node.CartID = &value
@@ -811,6 +798,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
 		_node.PaymentStatus = value
+	}
+	if value, ok := oc.mutation.PaymentIntentID(); ok {
+		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)
+		_node.PaymentIntentID = &value
 	}
 	if value, ok := oc.mutation.Currency(); ok {
 		_spec.SetField(order.FieldCurrency, field.TypeString, value)
@@ -952,38 +943,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := oc.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.PaymentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := oc.mutation.AssignmentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -998,6 +957,23 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.OutletIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.OutletTable,
+			Columns: []string{order.OutletColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.OutletID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := oc.mutation.CustomerIDs(); len(nodes) > 0 {
@@ -1098,15 +1074,15 @@ func (u *OrderUpsert) UpdateTenantID() *OrderUpsert {
 	return u
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *OrderUpsert) SetCafeID(v uuid.UUID) *OrderUpsert {
-	u.Set(order.FieldCafeID, v)
+// SetOutletID sets the "outlet_id" field.
+func (u *OrderUpsert) SetOutletID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldOutletID, v)
 	return u
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateCafeID() *OrderUpsert {
-	u.SetExcluded(order.FieldCafeID)
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateOutletID() *OrderUpsert {
+	u.SetExcluded(order.FieldOutletID)
 	return u
 }
 
@@ -1173,6 +1149,24 @@ func (u *OrderUpsert) SetPaymentStatus(v order.PaymentStatus) *OrderUpsert {
 // UpdatePaymentStatus sets the "payment_status" field to the value that was provided on create.
 func (u *OrderUpsert) UpdatePaymentStatus() *OrderUpsert {
 	u.SetExcluded(order.FieldPaymentStatus)
+	return u
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (u *OrderUpsert) SetPaymentIntentID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldPaymentIntentID, v)
+	return u
+}
+
+// UpdatePaymentIntentID sets the "payment_intent_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePaymentIntentID() *OrderUpsert {
+	u.SetExcluded(order.FieldPaymentIntentID)
+	return u
+}
+
+// ClearPaymentIntentID clears the value of the "payment_intent_id" field.
+func (u *OrderUpsert) ClearPaymentIntentID() *OrderUpsert {
+	u.SetNull(order.FieldPaymentIntentID)
 	return u
 }
 
@@ -1715,17 +1709,17 @@ func (u *OrderUpsertOne) UpdateTenantID() *OrderUpsertOne {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *OrderUpsertOne) SetCafeID(v uuid.UUID) *OrderUpsertOne {
+// SetOutletID sets the "outlet_id" field.
+func (u *OrderUpsertOne) SetOutletID(v uuid.UUID) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateCafeID() *OrderUpsertOne {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateOutletID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 
@@ -1803,6 +1797,27 @@ func (u *OrderUpsertOne) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertOne
 func (u *OrderUpsertOne) UpdatePaymentStatus() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdatePaymentStatus()
+	})
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (u *OrderUpsertOne) SetPaymentIntentID(v uuid.UUID) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPaymentIntentID(v)
+	})
+}
+
+// UpdatePaymentIntentID sets the "payment_intent_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePaymentIntentID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePaymentIntentID()
+	})
+}
+
+// ClearPaymentIntentID clears the value of the "payment_intent_id" field.
+func (u *OrderUpsertOne) ClearPaymentIntentID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPaymentIntentID()
 	})
 }
 
@@ -2591,17 +2606,17 @@ func (u *OrderUpsertBulk) UpdateTenantID() *OrderUpsertBulk {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *OrderUpsertBulk) SetCafeID(v uuid.UUID) *OrderUpsertBulk {
+// SetOutletID sets the "outlet_id" field.
+func (u *OrderUpsertBulk) SetOutletID(v uuid.UUID) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateCafeID() *OrderUpsertBulk {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateOutletID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 
@@ -2679,6 +2694,27 @@ func (u *OrderUpsertBulk) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertBu
 func (u *OrderUpsertBulk) UpdatePaymentStatus() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdatePaymentStatus()
+	})
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (u *OrderUpsertBulk) SetPaymentIntentID(v uuid.UUID) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPaymentIntentID(v)
+	})
+}
+
+// UpdatePaymentIntentID sets the "payment_intent_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePaymentIntentID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePaymentIntentID()
+	})
+}
+
+// ClearPaymentIntentID clears the value of the "payment_intent_id" field.
+func (u *OrderUpsertBulk) ClearPaymentIntentID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPaymentIntentID()
 	})
 }
 

@@ -196,8 +196,8 @@ func normalizeResourceType(s string) string {
 		return "Item"
 	case "addresses":
 		return "Address"
-	case "menu":
-		return "MenuItem"
+	case "catalog":
+		return "CatalogItem"
 	case "categories":
 		return "Category"
 	case "promos", "promocodes":

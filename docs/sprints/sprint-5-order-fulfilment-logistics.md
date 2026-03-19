@@ -7,7 +7,7 @@
 
 ## Overview
 
-Sprint 5 focuses on integrating with the logistics service for delivery task creation, task status updates, and live driver tracking. **IMPORTANT**: All rider, driver, fleet, and delivery task data is owned by `logistics-service`. Cafe backend stores only `rider_id` references and consumes logistics-service APIs.
+Sprint 5 focuses on integrating with the logistics service for delivery task creation, task status updates, and live driver tracking. **IMPORTANT**: All rider, driver, fleet, and delivery task data is owned by `logistics-service`. Ordering-backend stores only `rider_id` references and consumes logistics-service APIs.
 
 ---
 
@@ -80,7 +80,7 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 - [x] Rider contact information (from logistics-service via `GetFleetMember`)
 - [x] Rider rating display (from logistics-service via `GetFleetMember`)
 - [x] Rider photo display (from logistics-service via `GetFleetMember`)
-- **Note**: All rider data comes from logistics-service, cafe backend only stores `rider_id` reference
+- **Note**: All rider data comes from logistics-service, ordering-backend only stores `rider_id` reference
 
 ### US-5.5: Proof of Delivery
 **As a** cafe administrator
@@ -186,7 +186,7 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 - Task creation: `POST /v1/{tenant}/tasks`
 - Rider queries: `GET /v1/{tenant}/fleet-members` (all rider data from logistics-service)
 - Task status: `GET /v1/{tenant}/tasks/{id}`
-- **DO NOT** store rider profiles or fleet data in cafe-backend
+- **DO NOT** store rider profiles or fleet data in ordering-backend
 
 **WebSocket/SSE**: Live driver location stream from logistics-service
 
@@ -241,7 +241,7 @@ Sprint 5 focuses on integrating with the logistics service for delivery task cre
 
 ## Dependencies
 
-- Logistics service for all rider/driver/fleet logic (cafe backend only stores `rider_id` references)
+- Logistics service for all rider/driver/fleet logic (ordering-backend only stores `rider_id` references)
 - WebSocket support in logistics service
 - NATS JetStream for events
 

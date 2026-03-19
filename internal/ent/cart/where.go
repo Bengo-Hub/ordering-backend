@@ -61,9 +61,9 @@ func TenantID(v uuid.UUID) predicate.Cart {
 	return predicate.Cart(sql.FieldEQ(FieldTenantID, v))
 }
 
-// CafeID applies equality check predicate on the "cafe_id" field. It's identical to CafeIDEQ.
-func CafeID(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldEQ(FieldCafeID, v))
+// OutletID applies equality check predicate on the "outlet_id" field. It's identical to OutletIDEQ.
+func OutletID(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldEQ(FieldOutletID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
@@ -166,44 +166,44 @@ func TenantIDLTE(v uuid.UUID) predicate.Cart {
 	return predicate.Cart(sql.FieldLTE(FieldTenantID, v))
 }
 
-// CafeIDEQ applies the EQ predicate on the "cafe_id" field.
-func CafeIDEQ(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldEQ(FieldCafeID, v))
+// OutletIDEQ applies the EQ predicate on the "outlet_id" field.
+func OutletIDEQ(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldEQ(FieldOutletID, v))
 }
 
-// CafeIDNEQ applies the NEQ predicate on the "cafe_id" field.
-func CafeIDNEQ(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldNEQ(FieldCafeID, v))
+// OutletIDNEQ applies the NEQ predicate on the "outlet_id" field.
+func OutletIDNEQ(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldNEQ(FieldOutletID, v))
 }
 
-// CafeIDIn applies the In predicate on the "cafe_id" field.
-func CafeIDIn(vs ...uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldIn(FieldCafeID, vs...))
+// OutletIDIn applies the In predicate on the "outlet_id" field.
+func OutletIDIn(vs ...uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldIn(FieldOutletID, vs...))
 }
 
-// CafeIDNotIn applies the NotIn predicate on the "cafe_id" field.
-func CafeIDNotIn(vs ...uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldNotIn(FieldCafeID, vs...))
+// OutletIDNotIn applies the NotIn predicate on the "outlet_id" field.
+func OutletIDNotIn(vs ...uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldNotIn(FieldOutletID, vs...))
 }
 
-// CafeIDGT applies the GT predicate on the "cafe_id" field.
-func CafeIDGT(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldGT(FieldCafeID, v))
+// OutletIDGT applies the GT predicate on the "outlet_id" field.
+func OutletIDGT(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldGT(FieldOutletID, v))
 }
 
-// CafeIDGTE applies the GTE predicate on the "cafe_id" field.
-func CafeIDGTE(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldGTE(FieldCafeID, v))
+// OutletIDGTE applies the GTE predicate on the "outlet_id" field.
+func OutletIDGTE(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldGTE(FieldOutletID, v))
 }
 
-// CafeIDLT applies the LT predicate on the "cafe_id" field.
-func CafeIDLT(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldLT(FieldCafeID, v))
+// OutletIDLT applies the LT predicate on the "outlet_id" field.
+func OutletIDLT(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldLT(FieldOutletID, v))
 }
 
-// CafeIDLTE applies the LTE predicate on the "cafe_id" field.
-func CafeIDLTE(v uuid.UUID) predicate.Cart {
-	return predicate.Cart(sql.FieldLTE(FieldCafeID, v))
+// OutletIDLTE applies the LTE predicate on the "outlet_id" field.
+func OutletIDLTE(v uuid.UUID) predicate.Cart {
+	return predicate.Cart(sql.FieldLTE(FieldOutletID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

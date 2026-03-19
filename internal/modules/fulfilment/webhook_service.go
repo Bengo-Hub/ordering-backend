@@ -3,11 +3,9 @@ package fulfilment
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
@@ -36,10 +34,10 @@ func NewWebhookService(
 }
 
 // ProcessWebhook processes an incoming logistics webhook.
+// Events are not stored locally; assignment state is updated only. PoD and event history live in logistics-api.
 func (s *WebhookService) ProcessWebhook(ctx context.Context, payload []byte, signature, ipAddress string, headers map[string]string) error {
 	// Verify signature
-	signatureValid := s.verifier.VerifySignature(payload, signature)
-	if !signatureValid && s.webhookSecret != "" {
+	if !s.verifier.VerifySignature(payload, signature) && s.webhookSecret != "" {
 		s.logger.Warn("invalid webhook signature",
 			zap.String("ip", ipAddress))
 		return ErrInvalidSignature
@@ -51,74 +49,11 @@ func (s *WebhookService) ProcessWebhook(ctx context.Context, payload []byte, sig
 		return fmt.Errorf("parse webhook payload: %w", err)
 	}
 
-	// Check for duplicate (idempotency)
-	existing, err := s.repo.GetLogisticsEventByExternalID(ctx, event.ID)
-	if err == nil && existing != nil {
-		if existing.Status == "processed" {
-			s.logger.Debug("event already processed",
-				zap.String("event_id", event.ID))
-			return nil
-		}
-	}
-
-	// Store event
-	logEvent := &LogisticsEvent{
-		ExternalID: event.ID,
-		EventType:  string(event.Type),
-		TenantID:   &event.TenantID,
-		Payload:    event.Data,
-		Headers:    headers,
-		Signature:  signature,
-		SignatureValid: &signatureValid,
-		Status:     "pending",
-		IPAddress:  ipAddress,
-		ReceivedAt: time.Now(),
-	}
-
-	// Extract task ID and order ID from event data
-	if taskIDStr, ok := event.Data["task_id"].(string); ok {
-		logEvent.LogisticsTaskID = taskIDStr
-
-		// Find assignment by task ID
-		assignment, err := s.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
-		if err == nil && assignment != nil {
-			logEvent.OrderID = &assignment.OrderID
-			logEvent.AssignmentID = &assignment.ID
-		}
-	}
-
-	if riderID, ok := event.Data["rider_id"].(string); ok {
-		logEvent.RiderID = riderID
-	}
-
-	if err := s.repo.CreateLogisticsEvent(ctx, logEvent); err != nil {
-		if !errors.Is(err, ErrEventAlreadyProcessed) {
-			return err
-		}
-	}
-
-	// Process event
-	if err := s.handleEvent(ctx, event, logEvent); err != nil {
-		// Update event with error
-		logEvent.Status = "failed"
-		logEvent.ErrorMessage = err.Error()
-		logEvent.RetryCount++
-		now := time.Now()
-		logEvent.LastRetryAt = &now
-		s.repo.UpdateLogisticsEvent(ctx, logEvent)
-		return err
-	}
-
-	// Mark as processed
-	logEvent.Status = "processed"
-	now := time.Now()
-	logEvent.ProcessedAt = &now
-	s.repo.UpdateLogisticsEvent(ctx, logEvent)
-
-	return nil
+	// Process event (idempotent: duplicate events re-apply same assignment updates).
+	return s.handleEvent(ctx, event)
 }
 
-func (s *WebhookService) handleEvent(ctx context.Context, event logistics.WebhookEvent, logEvent *LogisticsEvent) error {
+func (s *WebhookService) handleEvent(ctx context.Context, event logistics.WebhookEvent) error {
 	s.logger.Info("processing logistics event",
 		zap.String("event_id", event.ID),
 		zap.String("event_type", string(event.Type)))
@@ -340,6 +275,7 @@ func (s *WebhookService) handleRouteUpdated(ctx context.Context, event logistics
 	return s.repo.CreateDeliveryWindow(ctx, window)
 }
 
+// handlePODSubmitted: PoD is owned by logistics-api; we do not store it. Optionally ensure assignment is completed.
 func (s *WebhookService) handlePODSubmitted(ctx context.Context, event logistics.WebhookEvent) error {
 	podData, err := logistics.ParsePODEventData(event.Data)
 	if err != nil {
@@ -351,45 +287,12 @@ func (s *WebhookService) handlePODSubmitted(ctx context.Context, event logistics
 		return err
 	}
 
-	// Check if POD already exists
-	existing, _ := s.repo.GetProofOfDeliveryByAssignment(ctx, assignment.ID)
-	if existing != nil {
-		// Update existing POD
-		existing.SignatureURL = podData.SignatureURL
-		existing.PhotoURLs = podData.PhotoURLs
-		existing.OTPVerified = podData.OTPVerified
-		existing.RecipientName = podData.RecipientName
-		existing.RecipientRelation = podData.RecipientRelation
-		existing.RiderNotes = podData.RiderNotes
-		existing.DeliveryLatitude = &podData.DeliveryLatitude
-		existing.DeliveryLongitude = &podData.DeliveryLongitude
-		existing.DeliveredAt = podData.DeliveredAt
-
-		return s.repo.UpdateProofOfDelivery(ctx, existing)
+	// Ensure assignment marked completed if not already (PoD stored in logistics-api only).
+	if assignment.Status != AssignmentStatusCompleted {
+		now := time.Now()
+		assignment.Status = AssignmentStatusCompleted
+		assignment.CompletedAt = &now
+		return s.repo.UpdateAssignment(ctx, assignment)
 	}
-
-	// Create new POD
-	pod := &ProofOfDelivery{
-		TenantID:          assignment.TenantID,
-		OrderID:           assignment.OrderID,
-		AssignmentID:      assignment.ID,
-		LogisticsTaskID:   assignment.LogisticsTaskID,
-		Type:              PODType(podData.Type),
-		SignatureURL:      podData.SignatureURL,
-		PhotoURLs:         podData.PhotoURLs,
-		OTPVerified:       podData.OTPVerified,
-		RecipientName:     podData.RecipientName,
-		RecipientRelation: podData.RecipientRelation,
-		DeliveryLatitude:  &podData.DeliveryLatitude,
-		DeliveryLongitude: &podData.DeliveryLongitude,
-		RiderNotes:        podData.RiderNotes,
-		DeliveredAt:       podData.DeliveredAt,
-	}
-
-	return s.repo.CreateProofOfDelivery(ctx, pod)
-}
-
-// GetProofOfDelivery retrieves proof of delivery for an order.
-func (s *WebhookService) GetProofOfDelivery(ctx context.Context, tenantID, orderID uuid.UUID) (*ProofOfDelivery, error) {
-	return s.repo.GetProofOfDelivery(ctx, tenantID, orderID)
+	return nil
 }

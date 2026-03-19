@@ -92,17 +92,17 @@ This document defines the architecture pattern for data ownership and user manag
 - `notification_template_id` (UUID) - Reference to template
 - `notification_message_id` (UUID) - Reference to sent message
 
-### Cafe-Service
+### Ordering-Service
 **Owns**:
-- Cafe-specific user data (preferences, cafe roles, loyalty points)
-- Menu items and categories (references inventory SKUs)
+- Service-specific user data (preferences, ordering roles, loyalty points)
+- Catalogs (categories, catalog items, pricing, availability) - references inventory SKUs
 - Orders and carts
 - Promo codes and redemptions
 - Loyalty accounts and transactions
 
 **Other Services Reference**:
-- `order_id` (UUID) - Reference to cafe order
-- `cafe_id` (UUID) - Reference to cafe outlet
+- `order_id` (UUID) - Reference to ordering order
+- `outlet_id` (UUID) - Reference to outlet
 
 ---
 
@@ -112,52 +112,52 @@ This document defines the architecture pattern for data ownership and user manag
 
 **Example: Rider User Management**
 
-1. **User Identity** (auth-service):
-   - User created in auth-service with email, password, tenant membership
-   - Role: `rider` assigned in auth-service
-   - User authenticates via auth-service (SSO)
+1.  **User Identity** (auth-service):
+    - User created in auth-service with email, password, tenant membership
+    - Role: `rider` assigned in auth-service
+    - User authenticates via auth-service (SSO)
 
-2. **Rider Profile** (logistics-service):
-   - Rider-specific data stored in logistics-service:
-     - KYC documents (national ID, license)
-     - Vehicle information
-     - Shift availability
-     - Earnings and payouts
-   - Linked to auth-service user via `auth_service_user_id`
+2.  **Rider Profile** (logistics-service):
+    - Rider-specific data stored in logistics-service:
+      - KYC documents (national ID, license)
+      - Vehicle information
+      - Shift availability
+      - Earnings and payouts
+    - Linked to auth-service user via `auth_service_user_id`
 
-3. **Rider Creation Flow**:
+3.  **Rider Creation Flow**:
 
-   **From Cafe Service**:
-   ```
-   1. User initiates rider onboarding in cafe UI
-   2. Check tenant has logistics service enabled:
-      GET /api/v1/tenants/{tenant_id}/services
-      → Verify "logistics" in enabled_services
-   3. If not enabled: Show error "Logistics service not available. Upgrade plan."
-   4. If enabled, choose one:
-      Option A - API Push:
-        - POST /api/v1/cafe/riders/onboard (cafe-backend)
-        - Cafe-backend pushes to logistics-service:
-          POST /v1/{tenant}/fleet-members
-        - Logistics-service creates rider in auth-service (if needed)
-        - Returns rider_id
-        - Cafe stores rider_id reference
-      
-      Option B - UI Redirect:
-        - Redirect to: https://logistics.codevertexitsolutions.com/{tenant_slug}/riders/onboard?return_url={cafe_url}
-        - User authenticates with auth-service (SSO)
-        - User completes onboarding in logistics-service UI
-        - Logistics-service redirects back with rider_id
-   ```
+    **From Ordering Service**:
+    ```
+    1. User initiates rider onboarding in ordering UI
+    2. Check tenant has logistics service enabled:
+       GET /api/v1/tenants/{tenant_id}/services
+       → Verify "logistics" in enabled_services
+    3. If not enabled: Show error "Logistics service not available. Upgrade plan."
+    4. If enabled, choose one:
+       Option A - API Push:
+         - POST /api/v1/ordering/riders/onboard (ordering-backend)
+         - Ordering-backend pushes to logistics-service:
+           POST /v1/{tenant}/fleet-members
+         - Logistics-service creates rider in auth-service (if needed)
+         - Returns rider_id
+         - Ordering stores rider_id reference
+       
+       Option B - UI Redirect:
+         - Redirect to: https://logistics.codevertexitsolutions.com/{tenant_slug}/riders/onboard?return_url={ordering_url}
+         - User authenticates with auth-service (SSO)
+         - User completes onboarding in logistics-service UI
+         - Logistics-service redirects back with rider_id
+    ```
 
-   **Standalone Logistics Service**:
-   ```
-   1. User goes directly to logistics-service UI
-   2. User authenticates via auth-service (SSO)
-   3. User completes rider onboarding
-   4. All rider data stored in logistics-service
-   5. No cafe-service involvement
-   ```
+    **Standalone Logistics Service**:
+    ```
+    1. User goes directly to logistics-service UI
+    2. User authenticates via auth-service (SSO)
+    3. User completes rider onboarding
+    4. All rider data stored in logistics-service
+    5. No ordering-service involvement
+    ```
 
 ### Pattern 2: Tenant Service Availability Check
 
@@ -192,7 +192,7 @@ func createRider(ctx context.Context, tenantID uuid.UUID, riderData RiderData) e
     }
     
     // 4. Store only reference ID locally
-    return cafeRepo.StoreRiderReference(ctx, tenantID, riderID)
+    return orderingRepo.StoreRiderReference(ctx, tenantID, riderID)
 }
 ```
 
@@ -237,7 +237,7 @@ func registerUser(ctx context.Context, email, password, tenantSlug string) error
             ContactPhone: localTenant.ContactPhone,
             Metadata: localTenant.Metadata,
         }
-        tenantData.Metadata["source"] = "cafe-service"
+        tenantData.Metadata["source"] = "ordering-service"
         tenantData.Metadata["auto_created"] = true
         tenantData.Metadata["synced_at"] = time.Now().Format(time.RFC3339)
         
@@ -298,14 +298,14 @@ func getRiderDetails(ctx context.Context, riderID uuid.UUID) (*Rider, error) {
 ### Service Availability Check
 
 **Subscription Plans** define which services are available:
-- Starter Plan: cafe-service only
-- Growth Plan: cafe-service + logistics-service
-- Professional Plan: All services (cafe, logistics, inventory, POS, treasury, notifications)
+- Starter Plan: ordering-service only
+- Growth Plan: ordering-service + logistics-service
+- Professional Plan: All services (ordering, logistics, inventory, POS, treasury, notifications)
 
 **Before creating/referencing data in another service:**
-1. Check tenant subscription plan: `GET /api/v1/tenants/{tenant_id}/subscription`
-2. Verify service in plan features: `plan.features.includes("logistics")`
-3. If not available: Show error or redirect to upgrade
+1.  Check tenant subscription plan: `GET /api/v1/tenants/{tenant_id}/subscription`
+2.  Verify service in plan features: `plan.features.includes("logistics")`
+3.  If not available: Show error or redirect to upgrade
 
 ---
 
@@ -321,7 +321,7 @@ func getRiderDetails(ctx context.Context, riderID uuid.UUID) (*Rider, error) {
 ### Service-Specific Roles
 
 - **Auth-Service**: Global roles (`superuser`, `admin`, `user`)
-- **Cafe-Service**: Cafe-specific roles (`customer`, `staff`, `admin`)
+- **Ordering-Service**: Ordering-specific roles (`customer`, `staff`, `admin`)
 - **Logistics-Service**: Logistics-specific roles (`rider`, `fleet_manager`)
 - **Combined**: User can have multiple roles across services
 
@@ -329,25 +329,22 @@ func getRiderDetails(ctx context.Context, riderID uuid.UUID) (*Rider, error) {
 
 ## Examples
 
-### Example 1: Creating a Rider from Cafe Service
+### Example 1: Creating a Rider from Ordering Service
 
-**Scenario**: Tenant has cafe-service and logistics-service enabled
+**Scenario**: Tenant has ordering-service and logistics-service enabled
 
-1. User clicks "Become a Rider" in cafe UI
-2. Cafe-frontend checks tenant services: `GET /api/v1/tenants/{tenant_id}/services`
-3. If logistics enabled:
-   - Option A: Submit form to cafe-backend → pushes to logistics-service API
-   - Option B: Redirect to logistics-service UI for self-onboarding
-4. Logistics-service creates rider user in auth-service (if not exists)
-5. Logistics-service stores rider profile locally
-6. Returns `rider_id` to cafe service
-7. Cafe service stores `rider_id` reference
+1.  User clicks "Become a Rider" in ordering UI
+2.  Ordering-frontend checks tenant services: `GET /api/v1/tenants/{tenant_id}/services`
+3.  If logistics enabled:
+    - Option A: Submit form to ordering-backend → pushes to logistics-service API
+    - Option B: Redirect to logistics-service UI for self-onboarding
+4.  Logistics-service creates rider user in auth-service (if not exists)
+5.  Logistics-service stores rider profile locally
+6.  Returns `rider_id` to ordering service
+7.  Ordering service stores `rider_id` reference
 
 ### Example 2: Standalone Logistics Service
 
-**Scenario**: Tenant only has logistics-service (no cafe-service)
-
-1. User goes to logistics-service UI
 2. User authenticates via auth-service (SSO)
 3. User completes rider onboarding
 4. All rider data stored in logistics-service
@@ -379,7 +376,7 @@ func getRiderDetails(ctx context.Context, riderID uuid.UUID) (*Rider, error) {
 
 ## Migration Notes
 
-- Legacy `riderprofile` and `riderdocument` schemas in cafe-backend are **deprecated** and **unused**
+- Legacy `riderprofile` and `riderdocument` schemas in ordering-backend are **deprecated** and **unused**
 - All rider data migration should go to logistics-service
 - Cafe-backend should only store `rider_id` references going forward
 

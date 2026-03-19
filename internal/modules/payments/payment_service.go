@@ -67,9 +67,13 @@ func (s *PaymentService) CreatePaymentIntent(ctx context.Context, req CreatePaym
 		return nil, fmt.Errorf("create payment intent: %w", err)
 	}
 
-	// Create local intent record
+	// Build intent from treasury response (ordering-backend does not store intents; treasury-api is source of truth)
 	expiresAt := time.Now().Add(30 * time.Minute)
+	if treasuryResp.ExpiresAt != nil {
+		expiresAt = *treasuryResp.ExpiresAt
+	}
 	intent := &PaymentIntent{
+		ID:               treasuryResp.ID,
 		TenantID:         req.TenantID,
 		OrderID:          req.OrderID,
 		PaymentMethodID:  req.PaymentMethodID,
@@ -82,6 +86,8 @@ func (s *PaymentService) CreatePaymentIntent(ctx context.Context, req CreatePaym
 		Description:      req.Description,
 		IdempotencyKey:   req.IdempotencyKey,
 		ExpiresAt:        &expiresAt,
+		CreatedAt:        treasuryResp.CreatedAt,
+		UpdatedAt:        treasuryResp.CreatedAt,
 	}
 
 	if err := s.repo.CreatePaymentIntent(ctx, intent); err != nil {
@@ -135,9 +141,10 @@ func (s *PaymentService) InitiateMpesaPayment(ctx context.Context, req InitiateM
 		return nil, fmt.Errorf("initiate M-Pesa payment: %w", err)
 	}
 
-	// Create local intent record
+	// Build intent from treasury response (ordering-backend does not store intents; treasury-api is source of truth)
 	expiresAt := time.Now().Add(5 * time.Minute) // M-Pesa STK Push expires in ~2 minutes
 	intent := &PaymentIntent{
+		ID:                     treasuryResp.PaymentIntentID,
 		TenantID:               req.TenantID,
 		OrderID:                req.OrderID,
 		Provider:               ProviderMpesa,
@@ -149,6 +156,8 @@ func (s *PaymentService) InitiateMpesaPayment(ctx context.Context, req InitiateM
 		MpesaCheckoutRequestID: treasuryResp.CheckoutRequestID,
 		MpesaPhoneNumber:       req.PhoneNumber,
 		ExpiresAt:              &expiresAt,
+		CreatedAt:              time.Now(),
+		UpdatedAt:              time.Now(),
 	}
 
 	if err := s.repo.CreatePaymentIntent(ctx, intent); err != nil {
@@ -247,8 +256,9 @@ func (s *PaymentService) CreateRefund(ctx context.Context, req CreateRefundReque
 		return nil, fmt.Errorf("create refund: %w", err)
 	}
 
-	// Create local refund record
+	// Build refund from treasury response (ordering-backend does not store refunds; treasury-api is source of truth)
 	refund := &Refund{
+		ID:                treasuryResp.ID,
 		TenantID:          req.TenantID,
 		PaymentID:         req.PaymentID,
 		OrderID:           payment.OrderID,
@@ -262,6 +272,8 @@ func (s *PaymentService) CreateRefund(ctx context.Context, req CreateRefundReque
 		ProviderReference: treasuryResp.ProviderReference,
 		RequestedBy:       &req.RequestedBy,
 		RequestedAt:       time.Now(),
+		CreatedAt:         treasuryResp.CreatedAt,
+		UpdatedAt:         treasuryResp.CreatedAt,
 	}
 
 	if err := s.repo.CreateRefund(ctx, refund); err != nil {

@@ -106,15 +106,13 @@ func (OrderAssignment) Fields() []ent.Field {
 
 // Edges of the OrderAssignment.
 func (OrderAssignment) Edges() []ent.Edge {
-	return []ent.Edge{
+		return []ent.Edge{
 		edge.From("order", Order.Type).
 			Ref("assignments").
 			Field("order_id").
 			Unique().
 			Required(),
 		edge.To("delivery_windows", DeliveryWindow.Type),
-		edge.To("proof_of_delivery", ProofOfDelivery.Type).
-			Unique(),
 	}
 }
 

@@ -103,7 +103,7 @@ type OrderCreatedData struct {
 	CustomerID    uuid.UUID `json:"customer_id"`
 	CustomerEmail string    `json:"customer_email,omitempty"`
 	CustomerPhone string    `json:"customer_phone,omitempty"`
-	CafeID        uuid.UUID `json:"cafe_id"`
+	OutletID      uuid.UUID `json:"outlet_id"`
 	TotalAmount   float64   `json:"total_amount"`
 	Currency      string    `json:"currency"`
 	ItemCount     int       `json:"item_count"`
@@ -117,7 +117,7 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 		"customer_id":    data.CustomerID.String(),
 		"customer_email": data.CustomerEmail,
 		"customer_phone": data.CustomerPhone,
-		"cafe_id":        data.CafeID.String(),
+		"outlet_id":      data.OutletID.String(),
 		"total_amount":   data.TotalAmount,
 		"currency":       data.Currency,
 		"item_count":     data.ItemCount,
@@ -154,7 +154,7 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 type OrderReadyData struct {
 	OrderID         uuid.UUID                `json:"order_id"`
 	OrderNumber     string                   `json:"order_number"`
-	CafeID          uuid.UUID                `json:"cafe_id"`
+	OutletID        uuid.UUID                `json:"outlet_id"`
 	CustomerID      uuid.UUID                `json:"customer_id"`
 	DeliveryAddress map[string]interface{}   `json:"delivery_address,omitempty"`
 	Items           []map[string]interface{} `json:"items,omitempty"`
@@ -165,7 +165,7 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 	event := NewEvent("ordering.order.ready", tenantID, map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
-		"cafe_id":          data.CafeID.String(),
+		"outlet_id":        data.OutletID.String(),
 		"customer_id":      data.CustomerID.String(),
 		"delivery_address": data.DeliveryAddress,
 		"items":            data.Items,
@@ -345,7 +345,7 @@ type OrderForPickupData struct {
 	CustomerID    uuid.UUID                `json:"customer_id"`
 	CustomerName  string                   `json:"customer_name"`
 	CustomerPhone string                   `json:"customer_phone"`
-	CafeID        uuid.UUID                `json:"cafe_id"`
+	OutletID      uuid.UUID                `json:"outlet_id"`
 	Items         []map[string]interface{} `json:"items"`
 	PickupTime    *time.Time               `json:"pickup_time,omitempty"`
 	Notes         string                   `json:"notes,omitempty"`
@@ -359,7 +359,7 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 		"customer_id":    data.CustomerID.String(),
 		"customer_name":  data.CustomerName,
 		"customer_phone": data.CustomerPhone,
-		"cafe_id":        data.CafeID.String(),
+		"outlet_id":      data.OutletID.String(),
 		"items":          data.Items,
 		"notes":          data.Notes,
 	}

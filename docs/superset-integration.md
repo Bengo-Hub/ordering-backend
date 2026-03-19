@@ -1,8 +1,8 @@
-# Cafe Backend - Apache Superset Integration
+# Ordering-Backend – Apache Superset Integration
 
 ## Overview
 
-The Cafe backend integrates with the centralized Apache Superset instance for BI dashboards, analytics, and reporting. Superset is deployed as a centralized service accessible to all BengoBox services.
+The ordering-backend integrates with the centralized Apache Superset instance for BI dashboards, analytics, and reporting. Superset is deployed as a centralized service accessible to all BengoBox services.
 
 ---
 

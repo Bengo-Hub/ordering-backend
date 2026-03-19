@@ -20,7 +20,7 @@ const (
 type Cart struct {
 	ID                    uuid.UUID  `json:"id"`
 	TenantID              uuid.UUID  `json:"tenantId"`
-	CafeID                uuid.UUID  `json:"cafeId"`
+	OutletID              uuid.UUID  `json:"outletId"`
 	UserID                *uuid.UUID `json:"userId,omitempty"`
 	SessionID             string     `json:"sessionId,omitempty"`
 	Status                CartStatus `json:"status"`
@@ -41,7 +41,7 @@ type Cart struct {
 type CartItem struct {
 	ID           uuid.UUID              `json:"id"`
 	CartID       uuid.UUID              `json:"cartId"`
-	MenuItemID   uuid.UUID              `json:"menuItemId"`
+	CatalogItemID uuid.UUID              `json:"catalogItemId"`
 	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
 	NameSnapshot string                 `json:"nameSnapshot"`
 	Quantity     int                    `json:"quantity"`
@@ -95,7 +95,7 @@ const (
 type Order struct {
 	ID                    uuid.UUID              `json:"id"`
 	TenantID              uuid.UUID              `json:"tenantId"`
-	CafeID                uuid.UUID              `json:"cafeId"`
+	OutletID              uuid.UUID              `json:"outletId"`
 	CustomerID            uuid.UUID              `json:"customerId"`
 	CartID                *uuid.UUID             `json:"cartId,omitempty"`
 	OrderNumber           string                 `json:"orderNumber"`
@@ -138,7 +138,7 @@ type Order struct {
 type OrderItem struct {
 	ID           uuid.UUID              `json:"id"`
 	OrderID      uuid.UUID              `json:"orderId"`
-	MenuItemID   uuid.UUID              `json:"menuItemId"`
+	CatalogItemID uuid.UUID              `json:"catalogItemId"`
 	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
 	NameSnapshot string                 `json:"nameSnapshot"`
 	Quantity     int                    `json:"quantity"`
@@ -207,7 +207,7 @@ const (
 type PromoCode struct {
 	ID               uuid.UUID              `json:"id"`
 	TenantID         uuid.UUID              `json:"tenantId"`
-	CafeID           *uuid.UUID             `json:"cafeId,omitempty"`
+	OutletID         *uuid.UUID             `json:"outletId,omitempty"`
 	Code             string                 `json:"code"`
 	Name             string                 `json:"name"`
 	Description      string                 `json:"description,omitempty"`
@@ -299,7 +299,7 @@ const LoyaltyPointValue = 0.1 // 1 point = 0.1 KES
 // CartFilter defines filter options for listing carts.
 type CartFilter struct {
 	TenantID  uuid.UUID
-	CafeID    *uuid.UUID
+	OutletID  *uuid.UUID
 	UserID    *uuid.UUID
 	SessionID string
 	Status    *CartStatus
@@ -310,7 +310,7 @@ type CartFilter struct {
 // OrderFilter defines filter options for listing orders.
 type OrderFilter struct {
 	TenantID      uuid.UUID
-	CafeID        *uuid.UUID
+	OutletID      *uuid.UUID
 	CustomerID    *uuid.UUID
 	Status        *OrderStatus
 	PaymentStatus *PaymentStatus
@@ -324,10 +324,10 @@ type OrderFilter struct {
 // AddItemRequest represents a request to add an item to cart.
 type AddItemRequest struct {
 	TenantID   uuid.UUID
-	CafeID     uuid.UUID
+	OutletID   uuid.UUID
 	UserID     *uuid.UUID
 	SessionID  string
-	MenuItemID uuid.UUID
+	CatalogItemID uuid.UUID
 	VariantID  *uuid.UUID
 	Quantity   int
 	Notes      string
@@ -358,7 +358,7 @@ type CheckoutRequest struct {
 // CreateOrderFromItemsRequest is the request to create an order directly from a list of items (frontend contract).
 type CreateOrderFromItemsRequest struct {
 	TenantID        uuid.UUID
-	CafeID          uuid.UUID
+	OutletID        uuid.UUID
 	UserID          uuid.UUID
 	Items           []CreateOrderItemInput
 	DeliveryAddress string
@@ -372,7 +372,7 @@ type CreateOrderFromItemsRequest struct {
 
 // CreateOrderItemInput is a single line item when creating an order from items.
 type CreateOrderItemInput struct {
-	MenuItemID uuid.UUID
+	CatalogItemID uuid.UUID
 	Name       string
 	Quantity   int
 	UnitPrice  float64
@@ -413,7 +413,7 @@ type AnalyticsSummary struct {
 
 // ItemSalesSummary represents sales metrics for a single item.
 type ItemSalesSummary struct {
-	MenuItemID   uuid.UUID `json:"menuItemId"`
+	CatalogItemID   uuid.UUID `json:"catalogItemId"`
 	NameSnapshot string    `json:"nameSnapshot"`
 	Quantity     int       `json:"quantity"`
 	Revenue      float64   `json:"revenue"`

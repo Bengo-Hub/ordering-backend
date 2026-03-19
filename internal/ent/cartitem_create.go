@@ -14,8 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
 )
 
@@ -33,9 +32,9 @@ func (cic *CartItemCreate) SetCartID(u uuid.UUID) *CartItemCreate {
 	return cic
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (cic *CartItemCreate) SetMenuItemID(u uuid.UUID) *CartItemCreate {
-	cic.mutation.SetMenuItemID(u)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (cic *CartItemCreate) SetCatalogItemID(u uuid.UUID) *CartItemCreate {
+	cic.mutation.SetCatalogItemID(u)
 	return cic
 }
 
@@ -172,14 +171,9 @@ func (cic *CartItemCreate) SetCart(c *Cart) *CartItemCreate {
 	return cic.SetCartID(c.ID)
 }
 
-// SetMenuItem sets the "menu_item" edge to the MenuItem entity.
-func (cic *CartItemCreate) SetMenuItem(m *MenuItem) *CartItemCreate {
-	return cic.SetMenuItemID(m.ID)
-}
-
-// SetVariant sets the "variant" edge to the MenuItemVariant entity.
-func (cic *CartItemCreate) SetVariant(m *MenuItemVariant) *CartItemCreate {
-	return cic.SetVariantID(m.ID)
+// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
+func (cic *CartItemCreate) SetCatalogItem(c *CatalogItem) *CartItemCreate {
+	return cic.SetCatalogItemID(c.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
@@ -240,8 +234,8 @@ func (cic *CartItemCreate) check() error {
 	if _, ok := cic.mutation.CartID(); !ok {
 		return &ValidationError{Name: "cart_id", err: errors.New(`ent: missing required field "CartItem.cart_id"`)}
 	}
-	if _, ok := cic.mutation.MenuItemID(); !ok {
-		return &ValidationError{Name: "menu_item_id", err: errors.New(`ent: missing required field "CartItem.menu_item_id"`)}
+	if _, ok := cic.mutation.CatalogItemID(); !ok {
+		return &ValidationError{Name: "catalog_item_id", err: errors.New(`ent: missing required field "CartItem.catalog_item_id"`)}
 	}
 	if _, ok := cic.mutation.NameSnapshot(); !ok {
 		return &ValidationError{Name: "name_snapshot", err: errors.New(`ent: missing required field "CartItem.name_snapshot"`)}
@@ -284,8 +278,8 @@ func (cic *CartItemCreate) check() error {
 	if _, ok := cic.mutation.CartID(); !ok {
 		return &ValidationError{Name: "cart", err: errors.New(`ent: missing required edge "CartItem.cart"`)}
 	}
-	if _, ok := cic.mutation.MenuItemID(); !ok {
-		return &ValidationError{Name: "menu_item", err: errors.New(`ent: missing required edge "CartItem.menu_item"`)}
+	if _, ok := cic.mutation.CatalogItemID(); !ok {
+		return &ValidationError{Name: "catalog_item", err: errors.New(`ent: missing required edge "CartItem.catalog_item"`)}
 	}
 	return nil
 }
@@ -322,6 +316,10 @@ func (cic *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
 	if id, ok := cic.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := cic.mutation.VariantID(); ok {
+		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
+		_node.VariantID = &value
 	}
 	if value, ok := cic.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
@@ -380,38 +378,21 @@ func (cic *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
 		_node.CartID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cic.mutation.MenuItemIDs(); len(nodes) > 0 {
+	if nodes := cic.mutation.CatalogItemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   cartitem.MenuItemTable,
-			Columns: []string{cartitem.MenuItemColumn},
+			Table:   cartitem.CatalogItemTable,
+			Columns: []string{cartitem.CatalogItemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.MenuItemID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := cic.mutation.VariantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.VariantTable,
-			Columns: []string{cartitem.VariantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(menuitemvariant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.VariantID = &nodes[0]
+		_node.CatalogItemID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -478,15 +459,15 @@ func (u *CartItemUpsert) UpdateCartID() *CartItemUpsert {
 	return u
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *CartItemUpsert) SetMenuItemID(v uuid.UUID) *CartItemUpsert {
-	u.Set(cartitem.FieldMenuItemID, v)
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *CartItemUpsert) SetCatalogItemID(v uuid.UUID) *CartItemUpsert {
+	u.Set(cartitem.FieldCatalogItemID, v)
 	return u
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *CartItemUpsert) UpdateMenuItemID() *CartItemUpsert {
-	u.SetExcluded(cartitem.FieldMenuItemID)
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *CartItemUpsert) UpdateCatalogItemID() *CartItemUpsert {
+	u.SetExcluded(cartitem.FieldCatalogItemID)
 	return u
 }
 
@@ -723,17 +704,17 @@ func (u *CartItemUpsertOne) UpdateCartID() *CartItemUpsertOne {
 	})
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *CartItemUpsertOne) SetMenuItemID(v uuid.UUID) *CartItemUpsertOne {
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *CartItemUpsertOne) SetCatalogItemID(v uuid.UUID) *CartItemUpsertOne {
 	return u.Update(func(s *CartItemUpsert) {
-		s.SetMenuItemID(v)
+		s.SetCatalogItemID(v)
 	})
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *CartItemUpsertOne) UpdateMenuItemID() *CartItemUpsertOne {
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *CartItemUpsertOne) UpdateCatalogItemID() *CartItemUpsertOne {
 	return u.Update(func(s *CartItemUpsert) {
-		s.UpdateMenuItemID()
+		s.UpdateCatalogItemID()
 	})
 }
 
@@ -1165,17 +1146,17 @@ func (u *CartItemUpsertBulk) UpdateCartID() *CartItemUpsertBulk {
 	})
 }
 
-// SetMenuItemID sets the "menu_item_id" field.
-func (u *CartItemUpsertBulk) SetMenuItemID(v uuid.UUID) *CartItemUpsertBulk {
+// SetCatalogItemID sets the "catalog_item_id" field.
+func (u *CartItemUpsertBulk) SetCatalogItemID(v uuid.UUID) *CartItemUpsertBulk {
 	return u.Update(func(s *CartItemUpsert) {
-		s.SetMenuItemID(v)
+		s.SetCatalogItemID(v)
 	})
 }
 
-// UpdateMenuItemID sets the "menu_item_id" field to the value that was provided on create.
-func (u *CartItemUpsertBulk) UpdateMenuItemID() *CartItemUpsertBulk {
+// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
+func (u *CartItemUpsertBulk) UpdateCatalogItemID() *CartItemUpsertBulk {
 	return u.Update(func(s *CartItemUpsert) {
-		s.UpdateMenuItemID()
+		s.UpdateCatalogItemID()
 	})
 }
 

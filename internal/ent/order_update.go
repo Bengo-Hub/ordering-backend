@@ -16,8 +16,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
-	"github.com/bengobox/ordering-backend/internal/ent/payment"
-	"github.com/bengobox/ordering-backend/internal/ent/paymentintent"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
@@ -50,16 +49,16 @@ func (ou *OrderUpdate) SetNillableTenantID(u *uuid.UUID) *OrderUpdate {
 	return ou
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (ou *OrderUpdate) SetCafeID(u uuid.UUID) *OrderUpdate {
-	ou.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (ou *OrderUpdate) SetOutletID(u uuid.UUID) *OrderUpdate {
+	ou.mutation.SetOutletID(u)
 	return ou
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableCafeID(u *uuid.UUID) *OrderUpdate {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableOutletID(u *uuid.UUID) *OrderUpdate {
 	if u != nil {
-		ou.SetCafeID(*u)
+		ou.SetOutletID(*u)
 	}
 	return ou
 }
@@ -137,6 +136,26 @@ func (ou *OrderUpdate) SetNillablePaymentStatus(os *order.PaymentStatus) *OrderU
 	if os != nil {
 		ou.SetPaymentStatus(*os)
 	}
+	return ou
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (ou *OrderUpdate) SetPaymentIntentID(u uuid.UUID) *OrderUpdate {
+	ou.mutation.SetPaymentIntentID(u)
+	return ou
+}
+
+// SetNillablePaymentIntentID sets the "payment_intent_id" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillablePaymentIntentID(u *uuid.UUID) *OrderUpdate {
+	if u != nil {
+		ou.SetPaymentIntentID(*u)
+	}
+	return ou
+}
+
+// ClearPaymentIntentID clears the value of the "payment_intent_id" field.
+func (ou *OrderUpdate) ClearPaymentIntentID() *OrderUpdate {
+	ou.mutation.ClearPaymentIntentID()
 	return ou
 }
 
@@ -691,36 +710,6 @@ func (ou *OrderUpdate) AddEvents(o ...*OrderEvent) *OrderUpdate {
 	return ou.AddEventIDs(ids...)
 }
 
-// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
-func (ou *OrderUpdate) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderUpdate {
-	ou.mutation.AddPaymentIntentIDs(ids...)
-	return ou
-}
-
-// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
-func (ou *OrderUpdate) AddPaymentIntents(p ...*PaymentIntent) *OrderUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.AddPaymentIntentIDs(ids...)
-}
-
-// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
-func (ou *OrderUpdate) AddPaymentIDs(ids ...uuid.UUID) *OrderUpdate {
-	ou.mutation.AddPaymentIDs(ids...)
-	return ou
-}
-
-// AddPayments adds the "payments" edges to the Payment entity.
-func (ou *OrderUpdate) AddPayments(p ...*Payment) *OrderUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.AddPaymentIDs(ids...)
-}
-
 // AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
 func (ou *OrderUpdate) AddAssignmentIDs(ids ...uuid.UUID) *OrderUpdate {
 	ou.mutation.AddAssignmentIDs(ids...)
@@ -734,6 +723,11 @@ func (ou *OrderUpdate) AddAssignments(o ...*OrderAssignment) *OrderUpdate {
 		ids[i] = o[i].ID
 	}
 	return ou.AddAssignmentIDs(ids...)
+}
+
+// SetOutlet sets the "outlet" edge to the Outlet entity.
+func (ou *OrderUpdate) SetOutlet(o *Outlet) *OrderUpdate {
+	return ou.SetOutletID(o.ID)
 }
 
 // SetCustomer sets the "customer" edge to the User entity.
@@ -793,48 +787,6 @@ func (ou *OrderUpdate) RemoveEvents(o ...*OrderEvent) *OrderUpdate {
 	return ou.RemoveEventIDs(ids...)
 }
 
-// ClearPaymentIntents clears all "payment_intents" edges to the PaymentIntent entity.
-func (ou *OrderUpdate) ClearPaymentIntents() *OrderUpdate {
-	ou.mutation.ClearPaymentIntents()
-	return ou
-}
-
-// RemovePaymentIntentIDs removes the "payment_intents" edge to PaymentIntent entities by IDs.
-func (ou *OrderUpdate) RemovePaymentIntentIDs(ids ...uuid.UUID) *OrderUpdate {
-	ou.mutation.RemovePaymentIntentIDs(ids...)
-	return ou
-}
-
-// RemovePaymentIntents removes "payment_intents" edges to PaymentIntent entities.
-func (ou *OrderUpdate) RemovePaymentIntents(p ...*PaymentIntent) *OrderUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.RemovePaymentIntentIDs(ids...)
-}
-
-// ClearPayments clears all "payments" edges to the Payment entity.
-func (ou *OrderUpdate) ClearPayments() *OrderUpdate {
-	ou.mutation.ClearPayments()
-	return ou
-}
-
-// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
-func (ou *OrderUpdate) RemovePaymentIDs(ids ...uuid.UUID) *OrderUpdate {
-	ou.mutation.RemovePaymentIDs(ids...)
-	return ou
-}
-
-// RemovePayments removes "payments" edges to Payment entities.
-func (ou *OrderUpdate) RemovePayments(p ...*Payment) *OrderUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.RemovePaymentIDs(ids...)
-}
-
 // ClearAssignments clears all "assignments" edges to the OrderAssignment entity.
 func (ou *OrderUpdate) ClearAssignments() *OrderUpdate {
 	ou.mutation.ClearAssignments()
@@ -854,6 +806,12 @@ func (ou *OrderUpdate) RemoveAssignments(o ...*OrderAssignment) *OrderUpdate {
 		ids[i] = o[i].ID
 	}
 	return ou.RemoveAssignmentIDs(ids...)
+}
+
+// ClearOutlet clears the "outlet" edge to the Outlet entity.
+func (ou *OrderUpdate) ClearOutlet() *OrderUpdate {
+	ou.mutation.ClearOutlet()
+	return ou
 }
 
 // ClearCustomer clears the "customer" edge to the User entity.
@@ -946,6 +904,9 @@ func (ou *OrderUpdate) check() error {
 			return &ValidationError{Name: "rating", err: fmt.Errorf(`ent: validator failed for field "Order.rating": %w`, err)}
 		}
 	}
+	if _, ok := ou.mutation.OutletID(); ou.mutation.OutletCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Order.outlet"`)
+	}
 	if _, ok := ou.mutation.CustomerID(); ou.mutation.CustomerCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
 	}
@@ -967,9 +928,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.TenantID(); ok {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := ou.mutation.CafeID(); ok {
-		_spec.SetField(order.FieldCafeID, field.TypeUUID, value)
-	}
 	if value, ok := ou.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)
 	}
@@ -984,6 +942,12 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
+	}
+	if value, ok := ou.mutation.PaymentIntentID(); ok {
+		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)
+	}
+	if ou.mutation.PaymentIntentIDCleared() {
+		_spec.ClearField(order.FieldPaymentIntentID, field.TypeUUID)
 	}
 	if value, ok := ou.mutation.Currency(); ok {
 		_spec.SetField(order.FieldCurrency, field.TypeString, value)
@@ -1225,96 +1189,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ou.mutation.PaymentIntentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedPaymentIntentsIDs(); len(nodes) > 0 && !ou.mutation.PaymentIntentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ou.mutation.PaymentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !ou.mutation.PaymentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.PaymentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if ou.mutation.AssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1353,6 +1227,35 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ou.mutation.OutletCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.OutletTable,
+			Columns: []string{order.OutletColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.OutletIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.OutletTable,
+			Columns: []string{order.OutletColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1452,16 +1355,16 @@ func (ouo *OrderUpdateOne) SetNillableTenantID(u *uuid.UUID) *OrderUpdateOne {
 	return ouo
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (ouo *OrderUpdateOne) SetCafeID(u uuid.UUID) *OrderUpdateOne {
-	ouo.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (ouo *OrderUpdateOne) SetOutletID(u uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.SetOutletID(u)
 	return ouo
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableCafeID(u *uuid.UUID) *OrderUpdateOne {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableOutletID(u *uuid.UUID) *OrderUpdateOne {
 	if u != nil {
-		ouo.SetCafeID(*u)
+		ouo.SetOutletID(*u)
 	}
 	return ouo
 }
@@ -1539,6 +1442,26 @@ func (ouo *OrderUpdateOne) SetNillablePaymentStatus(os *order.PaymentStatus) *Or
 	if os != nil {
 		ouo.SetPaymentStatus(*os)
 	}
+	return ouo
+}
+
+// SetPaymentIntentID sets the "payment_intent_id" field.
+func (ouo *OrderUpdateOne) SetPaymentIntentID(u uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.SetPaymentIntentID(u)
+	return ouo
+}
+
+// SetNillablePaymentIntentID sets the "payment_intent_id" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillablePaymentIntentID(u *uuid.UUID) *OrderUpdateOne {
+	if u != nil {
+		ouo.SetPaymentIntentID(*u)
+	}
+	return ouo
+}
+
+// ClearPaymentIntentID clears the value of the "payment_intent_id" field.
+func (ouo *OrderUpdateOne) ClearPaymentIntentID() *OrderUpdateOne {
+	ouo.mutation.ClearPaymentIntentID()
 	return ouo
 }
 
@@ -2093,36 +2016,6 @@ func (ouo *OrderUpdateOne) AddEvents(o ...*OrderEvent) *OrderUpdateOne {
 	return ouo.AddEventIDs(ids...)
 }
 
-// AddPaymentIntentIDs adds the "payment_intents" edge to the PaymentIntent entity by IDs.
-func (ouo *OrderUpdateOne) AddPaymentIntentIDs(ids ...uuid.UUID) *OrderUpdateOne {
-	ouo.mutation.AddPaymentIntentIDs(ids...)
-	return ouo
-}
-
-// AddPaymentIntents adds the "payment_intents" edges to the PaymentIntent entity.
-func (ouo *OrderUpdateOne) AddPaymentIntents(p ...*PaymentIntent) *OrderUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.AddPaymentIntentIDs(ids...)
-}
-
-// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
-func (ouo *OrderUpdateOne) AddPaymentIDs(ids ...uuid.UUID) *OrderUpdateOne {
-	ouo.mutation.AddPaymentIDs(ids...)
-	return ouo
-}
-
-// AddPayments adds the "payments" edges to the Payment entity.
-func (ouo *OrderUpdateOne) AddPayments(p ...*Payment) *OrderUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.AddPaymentIDs(ids...)
-}
-
 // AddAssignmentIDs adds the "assignments" edge to the OrderAssignment entity by IDs.
 func (ouo *OrderUpdateOne) AddAssignmentIDs(ids ...uuid.UUID) *OrderUpdateOne {
 	ouo.mutation.AddAssignmentIDs(ids...)
@@ -2136,6 +2029,11 @@ func (ouo *OrderUpdateOne) AddAssignments(o ...*OrderAssignment) *OrderUpdateOne
 		ids[i] = o[i].ID
 	}
 	return ouo.AddAssignmentIDs(ids...)
+}
+
+// SetOutlet sets the "outlet" edge to the Outlet entity.
+func (ouo *OrderUpdateOne) SetOutlet(o *Outlet) *OrderUpdateOne {
+	return ouo.SetOutletID(o.ID)
 }
 
 // SetCustomer sets the "customer" edge to the User entity.
@@ -2195,48 +2093,6 @@ func (ouo *OrderUpdateOne) RemoveEvents(o ...*OrderEvent) *OrderUpdateOne {
 	return ouo.RemoveEventIDs(ids...)
 }
 
-// ClearPaymentIntents clears all "payment_intents" edges to the PaymentIntent entity.
-func (ouo *OrderUpdateOne) ClearPaymentIntents() *OrderUpdateOne {
-	ouo.mutation.ClearPaymentIntents()
-	return ouo
-}
-
-// RemovePaymentIntentIDs removes the "payment_intents" edge to PaymentIntent entities by IDs.
-func (ouo *OrderUpdateOne) RemovePaymentIntentIDs(ids ...uuid.UUID) *OrderUpdateOne {
-	ouo.mutation.RemovePaymentIntentIDs(ids...)
-	return ouo
-}
-
-// RemovePaymentIntents removes "payment_intents" edges to PaymentIntent entities.
-func (ouo *OrderUpdateOne) RemovePaymentIntents(p ...*PaymentIntent) *OrderUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.RemovePaymentIntentIDs(ids...)
-}
-
-// ClearPayments clears all "payments" edges to the Payment entity.
-func (ouo *OrderUpdateOne) ClearPayments() *OrderUpdateOne {
-	ouo.mutation.ClearPayments()
-	return ouo
-}
-
-// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
-func (ouo *OrderUpdateOne) RemovePaymentIDs(ids ...uuid.UUID) *OrderUpdateOne {
-	ouo.mutation.RemovePaymentIDs(ids...)
-	return ouo
-}
-
-// RemovePayments removes "payments" edges to Payment entities.
-func (ouo *OrderUpdateOne) RemovePayments(p ...*Payment) *OrderUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.RemovePaymentIDs(ids...)
-}
-
 // ClearAssignments clears all "assignments" edges to the OrderAssignment entity.
 func (ouo *OrderUpdateOne) ClearAssignments() *OrderUpdateOne {
 	ouo.mutation.ClearAssignments()
@@ -2256,6 +2112,12 @@ func (ouo *OrderUpdateOne) RemoveAssignments(o ...*OrderAssignment) *OrderUpdate
 		ids[i] = o[i].ID
 	}
 	return ouo.RemoveAssignmentIDs(ids...)
+}
+
+// ClearOutlet clears the "outlet" edge to the Outlet entity.
+func (ouo *OrderUpdateOne) ClearOutlet() *OrderUpdateOne {
+	ouo.mutation.ClearOutlet()
+	return ouo
 }
 
 // ClearCustomer clears the "customer" edge to the User entity.
@@ -2361,6 +2223,9 @@ func (ouo *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "rating", err: fmt.Errorf(`ent: validator failed for field "Order.rating": %w`, err)}
 		}
 	}
+	if _, ok := ouo.mutation.OutletID(); ouo.mutation.OutletCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Order.outlet"`)
+	}
 	if _, ok := ouo.mutation.CustomerID(); ouo.mutation.CustomerCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
 	}
@@ -2399,9 +2264,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if value, ok := ouo.mutation.TenantID(); ok {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := ouo.mutation.CafeID(); ok {
-		_spec.SetField(order.FieldCafeID, field.TypeUUID, value)
-	}
 	if value, ok := ouo.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)
 	}
@@ -2416,6 +2278,12 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
+	}
+	if value, ok := ouo.mutation.PaymentIntentID(); ok {
+		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)
+	}
+	if ouo.mutation.PaymentIntentIDCleared() {
+		_spec.ClearField(order.FieldPaymentIntentID, field.TypeUUID)
 	}
 	if value, ok := ouo.mutation.Currency(); ok {
 		_spec.SetField(order.FieldCurrency, field.TypeString, value)
@@ -2657,96 +2525,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ouo.mutation.PaymentIntentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedPaymentIntentsIDs(); len(nodes) > 0 && !ouo.mutation.PaymentIntentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.PaymentIntentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentIntentsTable,
-			Columns: []string{order.PaymentIntentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(paymentintent.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.PaymentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !ouo.mutation.PaymentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.PaymentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   order.PaymentsTable,
-			Columns: []string{order.PaymentsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if ouo.mutation.AssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -2785,6 +2563,35 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ouo.mutation.OutletCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.OutletTable,
+			Columns: []string{order.OutletColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.OutletIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.OutletTable,
+			Columns: []string{order.OutletColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

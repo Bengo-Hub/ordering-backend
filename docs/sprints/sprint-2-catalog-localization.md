@@ -10,12 +10,12 @@
 | Task | Status | Notes |
 |------|--------|-------|
 | Ent schema: MenuCategory | ✅ Complete | `internal/ent/schema/menucategory.go` |
-| Ent schema: MenuItem | ✅ Complete | `internal/ent/schema/menuitem.go` |
-| Ent schema: MenuItemVariant | ✅ Complete | `internal/ent/schema/menuitemvariant.go` |
-| Ent schema: MenuItemTranslation | ✅ Complete | `internal/ent/schema/menuitemtranslation.go` |
+| Ent schema: CatalogItem | ✅ Complete | `internal/ent/schema/menuitem.go` |
+| Ent schema: CatalogItemVariant | ✅ Complete | `internal/ent/schema/menuitemvariant.go` |
+| Ent schema: CatalogItemTranslation | ✅ Complete | `internal/ent/schema/menuitemtranslation.go` |
 | Ent schema: DietaryTag | ✅ Complete | `internal/ent/schema/dietarytag.go` |
-| Ent schema: MenuItemAsset | ✅ Complete | `internal/ent/schema/menuitemasset.go` |
-| Ent schema: MenuItemSchedule | ✅ Complete | `internal/ent/schema/menuitemschedule.go` |
+| Ent schema: CatalogItemAsset | ✅ Complete | `internal/ent/schema/menuitemasset.go` |
+| Ent schema: CatalogItemSchedule | ✅ Complete | `internal/ent/schema/menuitemschedule.go` |
 | Run Ent code generation | ✅ Complete | Generated code in `internal/ent/` |
 | Run database migrations | ✅ Complete | Ent auto-migration on startup |
 | Category CRUD endpoints | ✅ Complete | `internal/http/handlers/catalog/category_handler.go` |
@@ -360,7 +360,7 @@ Sprint 2 focuses on building the menu catalog system with full localization supp
 - [ ] Image upload and management (Deferred - Sprint 11, S3 integration)
 - [x] Dietary tag system (Tag management and item assignment)
 - [x] Public menu API (`/api/v1/menu/*` endpoints)
-- [x] Availability scheduling (`MenuItemSchedule` entity)
+- [x] Availability scheduling (`CatalogItemSchedule` entity)
 - [x] Database migrations (Ent auto-migration)
 - [ ] Integration tests (Ongoing)
 

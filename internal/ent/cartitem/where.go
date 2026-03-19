@@ -61,9 +61,9 @@ func CartID(v uuid.UUID) predicate.CartItem {
 	return predicate.CartItem(sql.FieldEQ(FieldCartID, v))
 }
 
-// MenuItemID applies equality check predicate on the "menu_item_id" field. It's identical to MenuItemIDEQ.
-func MenuItemID(v uuid.UUID) predicate.CartItem {
-	return predicate.CartItem(sql.FieldEQ(FieldMenuItemID, v))
+// CatalogItemID applies equality check predicate on the "catalog_item_id" field. It's identical to CatalogItemIDEQ.
+func CatalogItemID(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldEQ(FieldCatalogItemID, v))
 }
 
 // VariantID applies equality check predicate on the "variant_id" field. It's identical to VariantIDEQ.
@@ -131,24 +131,24 @@ func CartIDNotIn(vs ...uuid.UUID) predicate.CartItem {
 	return predicate.CartItem(sql.FieldNotIn(FieldCartID, vs...))
 }
 
-// MenuItemIDEQ applies the EQ predicate on the "menu_item_id" field.
-func MenuItemIDEQ(v uuid.UUID) predicate.CartItem {
-	return predicate.CartItem(sql.FieldEQ(FieldMenuItemID, v))
+// CatalogItemIDEQ applies the EQ predicate on the "catalog_item_id" field.
+func CatalogItemIDEQ(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldEQ(FieldCatalogItemID, v))
 }
 
-// MenuItemIDNEQ applies the NEQ predicate on the "menu_item_id" field.
-func MenuItemIDNEQ(v uuid.UUID) predicate.CartItem {
-	return predicate.CartItem(sql.FieldNEQ(FieldMenuItemID, v))
+// CatalogItemIDNEQ applies the NEQ predicate on the "catalog_item_id" field.
+func CatalogItemIDNEQ(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldNEQ(FieldCatalogItemID, v))
 }
 
-// MenuItemIDIn applies the In predicate on the "menu_item_id" field.
-func MenuItemIDIn(vs ...uuid.UUID) predicate.CartItem {
-	return predicate.CartItem(sql.FieldIn(FieldMenuItemID, vs...))
+// CatalogItemIDIn applies the In predicate on the "catalog_item_id" field.
+func CatalogItemIDIn(vs ...uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldIn(FieldCatalogItemID, vs...))
 }
 
-// MenuItemIDNotIn applies the NotIn predicate on the "menu_item_id" field.
-func MenuItemIDNotIn(vs ...uuid.UUID) predicate.CartItem {
-	return predicate.CartItem(sql.FieldNotIn(FieldMenuItemID, vs...))
+// CatalogItemIDNotIn applies the NotIn predicate on the "catalog_item_id" field.
+func CatalogItemIDNotIn(vs ...uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldNotIn(FieldCatalogItemID, vs...))
 }
 
 // VariantIDEQ applies the EQ predicate on the "variant_id" field.
@@ -169,6 +169,26 @@ func VariantIDIn(vs ...uuid.UUID) predicate.CartItem {
 // VariantIDNotIn applies the NotIn predicate on the "variant_id" field.
 func VariantIDNotIn(vs ...uuid.UUID) predicate.CartItem {
 	return predicate.CartItem(sql.FieldNotIn(FieldVariantID, vs...))
+}
+
+// VariantIDGT applies the GT predicate on the "variant_id" field.
+func VariantIDGT(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldGT(FieldVariantID, v))
+}
+
+// VariantIDGTE applies the GTE predicate on the "variant_id" field.
+func VariantIDGTE(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldGTE(FieldVariantID, v))
+}
+
+// VariantIDLT applies the LT predicate on the "variant_id" field.
+func VariantIDLT(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldLT(FieldVariantID, v))
+}
+
+// VariantIDLTE applies the LTE predicate on the "variant_id" field.
+func VariantIDLTE(v uuid.UUID) predicate.CartItem {
+	return predicate.CartItem(sql.FieldLTE(FieldVariantID, v))
 }
 
 // VariantIDIsNil applies the IsNil predicate on the "variant_id" field.
@@ -639,44 +659,21 @@ func HasCartWith(preds ...predicate.Cart) predicate.CartItem {
 	})
 }
 
-// HasMenuItem applies the HasEdge predicate on the "menu_item" edge.
-func HasMenuItem() predicate.CartItem {
+// HasCatalogItem applies the HasEdge predicate on the "catalog_item" edge.
+func HasCatalogItem() predicate.CartItem {
 	return predicate.CartItem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, MenuItemTable, MenuItemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CatalogItemTable, CatalogItemColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasMenuItemWith applies the HasEdge predicate on the "menu_item" edge with a given conditions (other predicates).
-func HasMenuItemWith(preds ...predicate.MenuItem) predicate.CartItem {
+// HasCatalogItemWith applies the HasEdge predicate on the "catalog_item" edge with a given conditions (other predicates).
+func HasCatalogItemWith(preds ...predicate.CatalogItem) predicate.CartItem {
 	return predicate.CartItem(func(s *sql.Selector) {
-		step := newMenuItemStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasVariant applies the HasEdge predicate on the "variant" edge.
-func HasVariant() predicate.CartItem {
-	return predicate.CartItem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, VariantTable, VariantColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasVariantWith applies the HasEdge predicate on the "variant" edge with a given conditions (other predicates).
-func HasVariantWith(preds ...predicate.MenuItemVariant) predicate.CartItem {
-	return predicate.CartItem(func(s *sql.Selector) {
-		step := newVariantStep()
+		step := newCatalogItemStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -395,21 +395,21 @@ func CreatedAtLTE(v time.Time) predicate.DietaryTag {
 	return predicate.DietaryTag(sql.FieldLTE(FieldCreatedAt, v))
 }
 
-// HasMenuItems applies the HasEdge predicate on the "menu_items" edge.
-func HasMenuItems() predicate.DietaryTag {
+// HasCatalogItems applies the HasEdge predicate on the "catalog_items" edge.
+func HasCatalogItems() predicate.DietaryTag {
 	return predicate.DietaryTag(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, MenuItemsTable, MenuItemsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, CatalogItemsTable, CatalogItemsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasMenuItemsWith applies the HasEdge predicate on the "menu_items" edge with a given conditions (other predicates).
-func HasMenuItemsWith(preds ...predicate.MenuItem) predicate.DietaryTag {
+// HasCatalogItemsWith applies the HasEdge predicate on the "catalog_items" edge with a given conditions (other predicates).
+func HasCatalogItemsWith(preds ...predicate.CatalogItem) predicate.DietaryTag {
 	return predicate.DietaryTag(func(s *sql.Selector) {
-		step := newMenuItemsStep()
+		step := newCatalogItemsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

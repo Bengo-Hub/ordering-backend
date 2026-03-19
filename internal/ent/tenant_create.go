@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/session"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -316,19 +316,19 @@ func (tc *TenantCreate) AddUsers(u ...*User) *TenantCreate {
 	return tc.AddUserIDs(ids...)
 }
 
-// AddSessionIDs adds the "sessions" edge to the Session entity by IDs.
-func (tc *TenantCreate) AddSessionIDs(ids ...uuid.UUID) *TenantCreate {
-	tc.mutation.AddSessionIDs(ids...)
+// AddOutletIDs adds the "outlets" edge to the Outlet entity by IDs.
+func (tc *TenantCreate) AddOutletIDs(ids ...uuid.UUID) *TenantCreate {
+	tc.mutation.AddOutletIDs(ids...)
 	return tc
 }
 
-// AddSessions adds the "sessions" edges to the Session entity.
-func (tc *TenantCreate) AddSessions(s ...*Session) *TenantCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddOutlets adds the "outlets" edges to the Outlet entity.
+func (tc *TenantCreate) AddOutlets(o ...*Outlet) *TenantCreate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return tc.AddSessionIDs(ids...)
+	return tc.AddOutletIDs(ids...)
 }
 
 // AddSyncEventIDs adds the "sync_events" edge to the TenantSyncEvent entity by IDs.
@@ -520,7 +520,7 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := tc.mutation.UseCase(); ok {
 		_spec.SetField(tenant.FieldUseCase, field.TypeString, value)
-		_node.UseCase = value
+		_node.UseCase = &value
 	}
 	if value, ok := tc.mutation.SubscriptionPlan(); ok {
 		_spec.SetField(tenant.FieldSubscriptionPlan, field.TypeString, value)
@@ -586,15 +586,15 @@ func (tc *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := tc.mutation.SessionsIDs(); len(nodes) > 0 {
+	if nodes := tc.mutation.OutletsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   tenant.SessionsTable,
-			Columns: []string{tenant.SessionsColumn},
+			Table:   tenant.OutletsTable,
+			Columns: []string{tenant.OutletsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(session.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -21,8 +21,8 @@ type PromoCode struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to tenant
 	TenantID uuid.UUID `json:"tenant_id,omitempty"`
-	// Specific cafe, null for all cafes
-	CafeID *uuid.UUID `json:"cafe_id,omitempty"`
+	// Specific outlet, null for all outlets
+	OutletID *uuid.UUID `json:"outlet_id,omitempty"`
 	// Promo code (case-insensitive)
 	Code string `json:"code,omitempty"`
 	// Internal name for the promo
@@ -90,7 +90,7 @@ func (*PromoCode) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case promocode.FieldCafeID:
+		case promocode.FieldOutletID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case promocode.FieldEligibleCategories, promocode.FieldEligibleItems, promocode.FieldMetadata:
 			values[i] = new([]byte)
@@ -133,12 +133,12 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				pc.TenantID = *value
 			}
-		case promocode.FieldCafeID:
+		case promocode.FieldOutletID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field cafe_id", values[i])
+				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value.Valid {
-				pc.CafeID = new(uuid.UUID)
-				*pc.CafeID = *value.S.(*uuid.UUID)
+				pc.OutletID = new(uuid.UUID)
+				*pc.OutletID = *value.S.(*uuid.UUID)
 			}
 		case promocode.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -309,8 +309,8 @@ func (pc *PromoCode) String() string {
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", pc.TenantID))
 	builder.WriteString(", ")
-	if v := pc.CafeID; v != nil {
-		builder.WriteString("cafe_id=")
+	if v := pc.OutletID; v != nil {
+		builder.WriteString("outlet_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

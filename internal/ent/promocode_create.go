@@ -31,16 +31,16 @@ func (pcc *PromoCodeCreate) SetTenantID(u uuid.UUID) *PromoCodeCreate {
 	return pcc
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (pcc *PromoCodeCreate) SetCafeID(u uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetCafeID(u)
+// SetOutletID sets the "outlet_id" field.
+func (pcc *PromoCodeCreate) SetOutletID(u uuid.UUID) *PromoCodeCreate {
+	pcc.mutation.SetOutletID(u)
 	return pcc
 }
 
-// SetNillableCafeID sets the "cafe_id" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableCafeID(u *uuid.UUID) *PromoCodeCreate {
+// SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
+func (pcc *PromoCodeCreate) SetNillableOutletID(u *uuid.UUID) *PromoCodeCreate {
 	if u != nil {
-		pcc.SetCafeID(*u)
+		pcc.SetOutletID(*u)
 	}
 	return pcc
 }
@@ -439,9 +439,9 @@ func (pcc *PromoCodeCreate) createSpec() (*PromoCode, *sqlgraph.CreateSpec) {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := pcc.mutation.CafeID(); ok {
-		_spec.SetField(promocode.FieldCafeID, field.TypeUUID, value)
-		_node.CafeID = &value
+	if value, ok := pcc.mutation.OutletID(); ok {
+		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
+		_node.OutletID = &value
 	}
 	if value, ok := pcc.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)
@@ -599,21 +599,21 @@ func (u *PromoCodeUpsert) UpdateTenantID() *PromoCodeUpsert {
 	return u
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *PromoCodeUpsert) SetCafeID(v uuid.UUID) *PromoCodeUpsert {
-	u.Set(promocode.FieldCafeID, v)
+// SetOutletID sets the "outlet_id" field.
+func (u *PromoCodeUpsert) SetOutletID(v uuid.UUID) *PromoCodeUpsert {
+	u.Set(promocode.FieldOutletID, v)
 	return u
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *PromoCodeUpsert) UpdateCafeID() *PromoCodeUpsert {
-	u.SetExcluded(promocode.FieldCafeID)
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *PromoCodeUpsert) UpdateOutletID() *PromoCodeUpsert {
+	u.SetExcluded(promocode.FieldOutletID)
 	return u
 }
 
-// ClearCafeID clears the value of the "cafe_id" field.
-func (u *PromoCodeUpsert) ClearCafeID() *PromoCodeUpsert {
-	u.SetNull(promocode.FieldCafeID)
+// ClearOutletID clears the value of the "outlet_id" field.
+func (u *PromoCodeUpsert) ClearOutletID() *PromoCodeUpsert {
+	u.SetNull(promocode.FieldOutletID)
 	return u
 }
 
@@ -988,24 +988,24 @@ func (u *PromoCodeUpsertOne) UpdateTenantID() *PromoCodeUpsertOne {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *PromoCodeUpsertOne) SetCafeID(v uuid.UUID) *PromoCodeUpsertOne {
+// SetOutletID sets the "outlet_id" field.
+func (u *PromoCodeUpsertOne) SetOutletID(v uuid.UUID) *PromoCodeUpsertOne {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *PromoCodeUpsertOne) UpdateCafeID() *PromoCodeUpsertOne {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *PromoCodeUpsertOne) UpdateOutletID() *PromoCodeUpsertOne {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 
-// ClearCafeID clears the value of the "cafe_id" field.
-func (u *PromoCodeUpsertOne) ClearCafeID() *PromoCodeUpsertOne {
+// ClearOutletID clears the value of the "outlet_id" field.
+func (u *PromoCodeUpsertOne) ClearOutletID() *PromoCodeUpsertOne {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.ClearCafeID()
+		s.ClearOutletID()
 	})
 }
 
@@ -1598,24 +1598,24 @@ func (u *PromoCodeUpsertBulk) UpdateTenantID() *PromoCodeUpsertBulk {
 	})
 }
 
-// SetCafeID sets the "cafe_id" field.
-func (u *PromoCodeUpsertBulk) SetCafeID(v uuid.UUID) *PromoCodeUpsertBulk {
+// SetOutletID sets the "outlet_id" field.
+func (u *PromoCodeUpsertBulk) SetOutletID(v uuid.UUID) *PromoCodeUpsertBulk {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.SetCafeID(v)
+		s.SetOutletID(v)
 	})
 }
 
-// UpdateCafeID sets the "cafe_id" field to the value that was provided on create.
-func (u *PromoCodeUpsertBulk) UpdateCafeID() *PromoCodeUpsertBulk {
+// UpdateOutletID sets the "outlet_id" field to the value that was provided on create.
+func (u *PromoCodeUpsertBulk) UpdateOutletID() *PromoCodeUpsertBulk {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.UpdateCafeID()
+		s.UpdateOutletID()
 	})
 }
 
-// ClearCafeID clears the value of the "cafe_id" field.
-func (u *PromoCodeUpsertBulk) ClearCafeID() *PromoCodeUpsertBulk {
+// ClearOutletID clears the value of the "outlet_id" field.
+func (u *PromoCodeUpsertBulk) ClearOutletID() *PromoCodeUpsertBulk {
 	return u.Update(func(s *PromoCodeUpsert) {
-		s.ClearCafeID()
+		s.ClearOutletID()
 	})
 }
 

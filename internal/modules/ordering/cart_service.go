@@ -26,15 +26,15 @@ func NewCartService(repo Repository, catalogSvc *catalog.Service, logger *zap.Lo
 }
 
 // GetOrCreateCart gets the active cart for a user or session, creating one if it doesn't exist.
-func (s *CartService) GetOrCreateCart(ctx context.Context, tenantID, cafeID uuid.UUID, userID *uuid.UUID, sessionID string) (*Cart, error) {
+func (s *CartService) GetOrCreateCart(ctx context.Context, tenantID, outletID uuid.UUID, userID *uuid.UUID, sessionID string) (*Cart, error) {
 	var cart *Cart
 	var err error
 
 	// Try to find existing active cart
 	if userID != nil {
-		cart, err = s.repo.GetActiveCartByUser(ctx, tenantID, cafeID, *userID)
+		cart, err = s.repo.GetActiveCartByUser(ctx, tenantID, outletID, *userID)
 	} else if sessionID != "" {
-		cart, err = s.repo.GetActiveCartBySession(ctx, tenantID, cafeID, sessionID)
+		cart, err = s.repo.GetActiveCartBySession(ctx, tenantID, outletID, sessionID)
 	} else {
 		return nil, ErrUnauthorized
 	}
@@ -62,7 +62,7 @@ func (s *CartService) GetOrCreateCart(ctx context.Context, tenantID, cafeID uuid
 	expiresAt := time.Now().Add(CartExpirationDuration)
 	cart = &Cart{
 		TenantID:  tenantID,
-		CafeID:    cafeID,
+		OutletID:  outletID,
 		UserID:    userID,
 		SessionID: sessionID,
 		Status:    CartStatusActive,
@@ -98,7 +98,7 @@ func (s *CartService) GetCart(ctx context.Context, tenantID, cartID uuid.UUID) (
 // AddItem adds an item to the cart.
 func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, error) {
 	// Get or create cart
-	cart, err := s.GetOrCreateCart(ctx, req.TenantID, req.CafeID, req.UserID, req.SessionID)
+	cart, err := s.GetOrCreateCart(ctx, req.TenantID, req.OutletID, req.UserID, req.SessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,36 +113,39 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		return nil, ErrInvalidQuantity
 	}
 
-	// Get menu item to validate availability and price
-	menuItem, err := s.catalogSvc.GetMenuItem(ctx, req.TenantID, req.MenuItemID)
+	// Get catalog item to validate availability and price
+	catalogItem, err := s.catalogSvc.GetCatalogItem(ctx, req.TenantID, req.CatalogItemID)
 	if err != nil {
-		return nil, ErrMenuItemUnavailable
+		return nil, ErrCatalogItemUnavailable
 	}
 
-	if !menuItem.IsAvailable {
-		return nil, ErrMenuItemUnavailable
+	if !catalogItem.IsAvailable {
+		return nil, ErrCatalogItemUnavailable
 	}
 
 	// Calculate unit price
-	unitPrice := menuItem.BasePrice
+	unitPrice := catalogItem.BasePrice
 
 	// If variant specified, validate and adjust price
 	if req.VariantID != nil {
-		var foundVariant *catalog.Variant
-		for _, v := range menuItem.Variants {
+		var found bool
+		for _, v := range catalogItem.Variants {
 			if v.ID == *req.VariantID {
-				foundVariant = &v
+				if !v.IsAvailable {
+					return nil, ErrVariantUnavailable
+				}
+				unitPrice += v.PriceDelta
+				found = true
 				break
 			}
 		}
-		if foundVariant == nil || !foundVariant.IsAvailable {
+		if !found {
 			return nil, ErrVariantUnavailable
 		}
-		unitPrice += foundVariant.PriceDelta
 	}
 
 	// Check if item already exists in cart
-	existingItem, err := s.repo.GetCartItemByMenuItem(ctx, cart.ID, req.MenuItemID, req.VariantID)
+	existingItem, err := s.repo.GetCartItemByCatalogItem(ctx, cart.ID, req.CatalogItemID, req.VariantID)
 	if err == nil && existingItem != nil {
 		// Update quantity
 		existingItem.Quantity += req.Quantity
@@ -159,9 +162,9 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		// Create new cart item
 		item := &CartItem{
 			CartID:       cart.ID,
-			MenuItemID:   req.MenuItemID,
+			CatalogItemID: req.CatalogItemID,
 			VariantID:    req.VariantID,
-			NameSnapshot: menuItem.Name,
+			NameSnapshot: catalogItem.Name,
 			Quantity:     req.Quantity,
 			UnitPrice:    unitPrice,
 			TotalPrice:   unitPrice * float64(req.Quantity),
@@ -341,16 +344,16 @@ func (s *CartService) ExpireOldCarts(ctx context.Context, tenantID uuid.UUID) (i
 }
 
 // MergeGuestCart merges a guest cart into a user's cart after login.
-func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, cafeID uuid.UUID, sessionID string, userID uuid.UUID) (*Cart, error) {
+func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, outletID uuid.UUID, sessionID string, userID uuid.UUID) (*Cart, error) {
 	// Get guest cart
-	guestCart, err := s.repo.GetActiveCartBySession(ctx, tenantID, cafeID, sessionID)
+	guestCart, err := s.repo.GetActiveCartBySession(ctx, tenantID, outletID, sessionID)
 	if err != nil || guestCart == nil {
 		// No guest cart to merge, just get or create user cart
-		return s.GetOrCreateCart(ctx, tenantID, cafeID, &userID, "")
+		return s.GetOrCreateCart(ctx, tenantID, outletID, &userID, "")
 	}
 
 	// Get or create user cart
-	userCart, err := s.GetOrCreateCart(ctx, tenantID, cafeID, &userID, "")
+	userCart, err := s.GetOrCreateCart(ctx, tenantID, outletID, &userID, "")
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +371,7 @@ func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, cafeID uuid.
 
 	// Merge items
 	for _, guestItem := range guestItems {
-		existingItem, err := s.repo.GetCartItemByMenuItem(ctx, userCart.ID, guestItem.MenuItemID, guestItem.VariantID)
+		existingItem, err := s.repo.GetCartItemByCatalogItem(ctx, userCart.ID, guestItem.CatalogItemID, guestItem.VariantID)
 		if err == nil && existingItem != nil {
 			// Combine quantities
 			existingItem.Quantity += guestItem.Quantity
@@ -380,7 +383,7 @@ func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, cafeID uuid.
 			// Move item to user cart
 			newItem := &CartItem{
 				CartID:       userCart.ID,
-				MenuItemID:   guestItem.MenuItemID,
+				CatalogItemID: guestItem.CatalogItemID,
 				VariantID:    guestItem.VariantID,
 				NameSnapshot: guestItem.NameSnapshot,
 				Quantity:     guestItem.Quantity,

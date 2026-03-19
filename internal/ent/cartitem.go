@@ -12,8 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitem"
-	"github.com/bengobox/ordering-backend/internal/ent/menuitemvariant"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
 )
 
@@ -24,11 +23,11 @@ type CartItem struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to cart
 	CartID uuid.UUID `json:"cart_id,omitempty"`
-	// Reference to menu item
-	MenuItemID uuid.UUID `json:"menu_item_id,omitempty"`
-	// Reference to menu item variant
+	// Reference to catalog item
+	CatalogItemID uuid.UUID `json:"catalog_item_id,omitempty"`
+	// Reference to catalog item variant
 	VariantID *uuid.UUID `json:"variant_id,omitempty"`
-	// Menu item name at time of adding to cart
+	// Catalog item name at time of adding to cart
 	NameSnapshot string `json:"name_snapshot,omitempty"`
 	// Variant name at time of adding to cart
 	VariantNameSnapshot string `json:"variant_name_snapshot,omitempty"`
@@ -58,13 +57,11 @@ type CartItem struct {
 type CartItemEdges struct {
 	// Cart holds the value of the cart edge.
 	Cart *Cart `json:"cart,omitempty"`
-	// MenuItem holds the value of the menu_item edge.
-	MenuItem *MenuItem `json:"menu_item,omitempty"`
-	// Variant holds the value of the variant edge.
-	Variant *MenuItemVariant `json:"variant,omitempty"`
+	// CatalogItem holds the value of the catalog_item edge.
+	CatalogItem *CatalogItem `json:"catalog_item,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // CartOrErr returns the Cart value or an error if the edge
@@ -78,26 +75,15 @@ func (e CartItemEdges) CartOrErr() (*Cart, error) {
 	return nil, &NotLoadedError{edge: "cart"}
 }
 
-// MenuItemOrErr returns the MenuItem value or an error if the edge
+// CatalogItemOrErr returns the CatalogItem value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CartItemEdges) MenuItemOrErr() (*MenuItem, error) {
-	if e.MenuItem != nil {
-		return e.MenuItem, nil
+func (e CartItemEdges) CatalogItemOrErr() (*CatalogItem, error) {
+	if e.CatalogItem != nil {
+		return e.CatalogItem, nil
 	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: menuitem.Label}
+		return nil, &NotFoundError{label: catalogitem.Label}
 	}
-	return nil, &NotLoadedError{edge: "menu_item"}
-}
-
-// VariantOrErr returns the Variant value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e CartItemEdges) VariantOrErr() (*MenuItemVariant, error) {
-	if e.Variant != nil {
-		return e.Variant, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: menuitemvariant.Label}
-	}
-	return nil, &NotLoadedError{edge: "variant"}
+	return nil, &NotLoadedError{edge: "catalog_item"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -117,7 +103,7 @@ func (*CartItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case cartitem.FieldCreatedAt, cartitem.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case cartitem.FieldID, cartitem.FieldCartID, cartitem.FieldMenuItemID:
+		case cartitem.FieldID, cartitem.FieldCartID, cartitem.FieldCatalogItemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -146,11 +132,11 @@ func (ci *CartItem) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				ci.CartID = *value
 			}
-		case cartitem.FieldMenuItemID:
+		case cartitem.FieldCatalogItemID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field menu_item_id", values[i])
+				return fmt.Errorf("unexpected type %T for field catalog_item_id", values[i])
 			} else if value != nil {
-				ci.MenuItemID = *value
+				ci.CatalogItemID = *value
 			}
 		case cartitem.FieldVariantID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -241,14 +227,9 @@ func (ci *CartItem) QueryCart() *CartQuery {
 	return NewCartItemClient(ci.config).QueryCart(ci)
 }
 
-// QueryMenuItem queries the "menu_item" edge of the CartItem entity.
-func (ci *CartItem) QueryMenuItem() *MenuItemQuery {
-	return NewCartItemClient(ci.config).QueryMenuItem(ci)
-}
-
-// QueryVariant queries the "variant" edge of the CartItem entity.
-func (ci *CartItem) QueryVariant() *MenuItemVariantQuery {
-	return NewCartItemClient(ci.config).QueryVariant(ci)
+// QueryCatalogItem queries the "catalog_item" edge of the CartItem entity.
+func (ci *CartItem) QueryCatalogItem() *CatalogItemQuery {
+	return NewCartItemClient(ci.config).QueryCatalogItem(ci)
 }
 
 // Update returns a builder for updating this CartItem.
@@ -277,8 +258,8 @@ func (ci *CartItem) String() string {
 	builder.WriteString("cart_id=")
 	builder.WriteString(fmt.Sprintf("%v", ci.CartID))
 	builder.WriteString(", ")
-	builder.WriteString("menu_item_id=")
-	builder.WriteString(fmt.Sprintf("%v", ci.MenuItemID))
+	builder.WriteString("catalog_item_id=")
+	builder.WriteString(fmt.Sprintf("%v", ci.CatalogItemID))
 	builder.WriteString(", ")
 	if v := ci.VariantID; v != nil {
 		builder.WriteString("variant_id=")

@@ -46,7 +46,6 @@ func (h *Handler) Register(r chi.Router, auth *Authenticator) {
 	r.Route("/users", func(usersRouter chi.Router) {
 		usersRouter.With(auth.RequireAuth).Patch("/profile", h.UpdateProfile)
 		usersRouter.With(auth.RequireAuth).Patch("/preferences", h.UpdatePreferences)
-		usersRouter.With(auth.RequireAuth).Post("/security", h.UpdateSecurity)
 	})
 
 	r.Route("/customers", func(customersRouter chi.Router) {
@@ -175,43 +174,6 @@ func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 	h.respondWithUser(w, r, user)
 }
 
-// UpdateSecurity toggles MFA.
-// @Summary Update account security settings
-// @Description Enables or disables two-factor authentication for the authenticated user.
-// @Tags Users
-// @Security bearerAuth
-// @Accept json
-// @Produce json
-// @Param payload body UpdateSecurityRequest true "Security update payload"
-// @Success 200 {object} AuthResponsePayload
-// @Failure 400 {object} handlers.ErrorResponse
-// @Failure 401 {object} handlers.ErrorResponse
-// @Router /users/security [post]
-func (h *Handler) UpdateSecurity(w http.ResponseWriter, r *http.Request) {
-	var req UpdateSecurityRequest
-	if err := decodeJSON(r, &req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	userID := identity.MustUserID(r.Context())
-	if userID == uuid.Nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "missing user")
-		return
-	}
-
-	user, err := h.service.UpdateSecurity(r.Context(), userID, identity.SecurityUpdateInput{
-		EnableTwoFactor:  req.EnableTwoFactor,
-		DisableTwoFactor: req.DisableTwoFactor,
-	})
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-
-	h.respondWithUser(w, r, user)
-}
-
 // ListOrderSummary returns order summary for current user.
 // @Summary List customer order summaries
 // @Description Returns a collection of recent order summaries for the authenticated customer.
@@ -258,8 +220,6 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 		handlers.RespondError(w, http.StatusForbidden, "role not permitted")
 	case errors.Is(err, identity.ErrUserNotFound):
 		handlers.RespondError(w, http.StatusNotFound, "user not found")
-	case errors.Is(err, identity.ErrTwoFactorConflict):
-		handlers.RespondError(w, http.StatusBadRequest, "two-factor conflict: cannot enable and disable simultaneously")
 	default:
 		handlers.RespondError(w, http.StatusInternalServerError, err.Error())
 	}
@@ -292,22 +252,9 @@ func clientIP(r *http.Request) string {
 // With SSO, session tokens are managed by the SSO provider - the session fields
 // are populated from the request's Bearer token for backward compatibility.
 func (h *Handler) respondWithUser(w http.ResponseWriter, r *http.Request, user *identity.User) {
-	// Try to get session from context (legacy auth path)
-	session, hasSession := identity.SessionFromContext(r.Context())
-
-	var sessionPayload SessionResponsePayload
-	if hasSession && session != nil {
-		sessionPayload = SessionResponsePayload{
-			AccessToken:  currentAccessToken(r),
-			RefreshToken: session.RefreshToken,
-			ExpiresAt:    session.ExpiresAt.Format(time.RFC3339),
-			SessionID:    session.ID.String(),
-		}
-	} else {
-		// SSO auth path - return the bearer token as access token, no local session
-		sessionPayload = SessionResponsePayload{
-			AccessToken: currentAccessToken(r),
-		}
+	// SSO auth path - return the bearer token as access token, no local session
+	sessionPayload := SessionResponsePayload{
+		AccessToken: currentAccessToken(r),
 	}
 
 	resp := AuthResponsePayload{
@@ -357,11 +304,6 @@ type NotificationPreferenceInput struct {
 	Push  bool `json:"push" example:"true"`
 }
 
-// UpdateSecurityRequest toggles MFA.
-type UpdateSecurityRequest struct {
-	EnableTwoFactor  bool `json:"enableTwoFactor"`
-	DisableTwoFactor bool `json:"disableTwoFactor"`
-}
 
 // AuthResponsePayload is returned for authenticated user endpoints.
 // TenantID and TenantSlug allow frontends to set X-Tenant-ID and persist tenant context.
