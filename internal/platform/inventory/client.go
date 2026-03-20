@@ -385,6 +385,83 @@ func (c *Client) GetRecipeBySKU(ctx context.Context, tenantSlug string, sku stri
 	return &results[0], nil
 }
 
+// CreateItemRequest represents a request to create an inventory item.
+type CreateItemRequest struct {
+	SKU          string         `json:"sku"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description,omitempty"`
+	Type         string         `json:"type"`          // GOODS, SERVICE, RECIPE, INGREDIENT
+	CategorySlug string         `json:"category_slug,omitempty"` // inventory category
+	UnitName     string         `json:"unit_name,omitempty"`     // e.g., CUP, PIECE
+	ImageURL     string         `json:"image_url,omitempty"`
+	Metadata     map[string]any `json:"metadata,omitempty"`
+}
+
+// ItemResponse represents an item returned from inventory-api.
+type ItemResponse struct {
+	ID          uuid.UUID      `json:"id"`
+	SKU         string         `json:"sku"`
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	Type        string         `json:"type"`
+	IsActive    bool           `json:"is_active"`
+	ImageURL    string         `json:"image_url,omitempty"`
+	CategoryID  *uuid.UUID     `json:"category_id,omitempty"`
+	UnitID      *uuid.UUID     `json:"unit_id,omitempty"`
+	Metadata    map[string]any `json:"metadata,omitempty"`
+}
+
+// CreateItem creates a new item in inventory-api.
+func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateItemRequest) (*ItemResponse, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/items", tenantSlug)
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result ItemResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return &result, nil
+}
+
+// ListItems returns all active items from inventory-api.
+func (c *Client) ListItems(ctx context.Context, tenantSlug string) ([]ItemResponse, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/items", tenantSlug)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var listResp struct {
+		Data []ItemResponse `json:"data"`
+	}
+	if err := resp.DecodeJSON(&listResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return listResp.Data, nil
+}
+
+// GetOrCreateItem checks if an item exists by SKU, creates it if not.
+func (c *Client) GetOrCreateItem(ctx context.Context, tenantSlug, sku string, req CreateItemRequest) (*ItemResponse, error) {
+	// Try to get existing
+	avail, err := c.GetStockAvailability(ctx, tenantSlug, sku)
+	if err == nil {
+		return &ItemResponse{
+			ID:  avail.ItemID,
+			SKU: avail.SKU,
+		}, nil
+	}
+	// Item not found — create it
+	req.SKU = sku
+	return c.CreateItem(ctx, tenantSlug, req)
+}
+
 // HealthCheck checks if the inventory service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
 	resp, err := c.serviceClient.Get(ctx, "/healthz", nil)

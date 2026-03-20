@@ -24,6 +24,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
+	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
@@ -116,6 +117,7 @@ func checkColumn(table, column string) error {
 			dataexportjob.Table:       dataexportjob.ValidColumn,
 			datasubjectrequest.Table:  datasubjectrequest.ValidColumn,
 			deliverywindow.Table:      deliverywindow.ValidColumn,
+			deliveryzone.Table:        deliveryzone.ValidColumn,
 			dietarytag.Table:          dietarytag.ValidColumn,
 			loyaltyaccount.Table:      loyaltyaccount.ValidColumn,
 			loyaltytransaction.Table:  loyaltytransaction.ValidColumn,

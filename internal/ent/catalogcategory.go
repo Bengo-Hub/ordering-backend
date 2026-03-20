@@ -25,6 +25,14 @@ type CatalogCategory struct {
 	OutletID *uuid.UUID `json:"outlet_id,omitempty"`
 	// Parent category for hierarchy
 	ParentID *uuid.UUID `json:"parent_id,omitempty"`
+	// Category display name
+	Name string `json:"name,omitempty"`
+	// URL-safe identifier
+	Slug string `json:"slug,omitempty"`
+	// Category description
+	Description string `json:"description,omitempty"`
+	// Category image URL
+	ImageURL string `json:"image_url,omitempty"`
 	// Sort order for display
 	DisplayOrder int `json:"display_order,omitempty"`
 	// IsActive holds the value of the "is_active" field.
@@ -105,6 +113,8 @@ func (*CatalogCategory) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case catalogcategory.FieldDisplayOrder:
 			values[i] = new(sql.NullInt64)
+		case catalogcategory.FieldName, catalogcategory.FieldSlug, catalogcategory.FieldDescription, catalogcategory.FieldImageURL:
+			values[i] = new(sql.NullString)
 		case catalogcategory.FieldCreatedAt, catalogcategory.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case catalogcategory.FieldID:
@@ -150,6 +160,30 @@ func (cc *CatalogCategory) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				cc.ParentID = new(uuid.UUID)
 				*cc.ParentID = *value.S.(*uuid.UUID)
+			}
+		case catalogcategory.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				cc.Name = value.String
+			}
+		case catalogcategory.FieldSlug:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field slug", values[i])
+			} else if value.Valid {
+				cc.Slug = value.String
+			}
+		case catalogcategory.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				cc.Description = value.String
+			}
+		case catalogcategory.FieldImageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image_url", values[i])
+			} else if value.Valid {
+				cc.ImageURL = value.String
 			}
 		case catalogcategory.FieldDisplayOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -245,6 +279,18 @@ func (cc *CatalogCategory) String() string {
 		builder.WriteString("parent_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(cc.Name)
+	builder.WriteString(", ")
+	builder.WriteString("slug=")
+	builder.WriteString(cc.Slug)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(cc.Description)
+	builder.WriteString(", ")
+	builder.WriteString("image_url=")
+	builder.WriteString(cc.ImageURL)
 	builder.WriteString(", ")
 	builder.WriteString("display_order=")
 	builder.WriteString(fmt.Sprintf("%v", cc.DisplayOrder))

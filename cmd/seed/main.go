@@ -16,6 +16,9 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	enttenant "github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -82,8 +85,7 @@ func main() {
 	log.Println("database seed completed successfully")
 }
 
-// runSeed seeds service-level data: tenant sync events, settings, roles, permissions, and demo users.
-// Catalog items and categories are NOT seeded here — inventory-api is the single source of truth.
+// runSeed seeds service-level data: tenant sync events, settings, roles, permissions, demo users, and catalog data.
 func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err error) {
 	const superAdminID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 
@@ -130,6 +132,10 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 	}
 
 	if err = seedDemoUser(ctx, tx, tenantUUID, now); err != nil {
+		return err
+	}
+
+	if err = seedCatalog(ctx, tx, tenantUUID); err != nil {
 		return err
 	}
 
@@ -784,4 +790,256 @@ func upsertUserProfile(ctx context.Context, tx *ent.Tx, userID uuid.UUID) error 
 
 func permissionUUID(code string) uuid.UUID {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:permission:"+code))
+}
+
+// --- Catalog Seeding ---
+
+func seedCatalog(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
+	outletID, err := seedOutlet(ctx, tx, tenantID)
+	if err != nil {
+		return fmt.Errorf("seed outlet: %w", err)
+	}
+
+	categoryIDs, err := seedCategories(ctx, tx, tenantID, outletID)
+	if err != nil {
+		return fmt.Errorf("seed categories: %w", err)
+	}
+
+	if err := seedCatalogItems(ctx, tx, tenantID, outletID, categoryIDs); err != nil {
+		return fmt.Errorf("seed catalog items: %w", err)
+	}
+
+	log.Println("  ✓ Catalog seeded (outlet, categories, menu items)")
+	return nil
+}
+
+func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID, error) {
+	outletID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
+
+	existing, err := tx.Outlet.Query().Where(outlet.ID(outletID)).Only(ctx)
+	if err == nil {
+		return existing.ID, nil
+	}
+	if !ent.IsNotFound(err) {
+		return uuid.Nil, err
+	}
+
+	o, err := tx.Outlet.Create().
+		SetID(outletID).
+		SetTenantID(tenantID).
+		SetName("Urban Loft Cafe Busia").
+		SetSlug("busia").
+		SetDescription("The Urban Loft Cafe, Busia branch — coffee, meals, and more.").
+		SetAddress("Main Street, Busia, Kenya").
+		SetPhone("+254700000000").
+		SetEmail("busia@theurbanloftcafe.com").
+		SetLocation("Busia, Kenya").
+		SetStatus("active").
+		Save(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return o.ID, nil
+}
+
+// inventoryItemUUID computes the same deterministic UUID that inventory-api uses for items.
+// This ensures inventory_item_id references match without needing to call the inventory API.
+func inventoryItemUUID(tenantID uuid.UUID, sku string) uuid.UUID {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(fmt.Sprintf("bengobox:inventory:item:%s:%s", tenantID, sku)))
+}
+
+// inventoryCategoryUUID computes the same deterministic UUID that inventory-api uses for categories.
+func inventoryCategoryUUID(tenantID uuid.UUID, slug string) uuid.UUID {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(fmt.Sprintf("bengobox:inventory:category:%s:%s", tenantID, slug)))
+}
+
+func seedCategories(ctx context.Context, tx *ent.Tx, tenantID, outletID uuid.UUID) (map[string]uuid.UUID, error) {
+	type cat struct {
+		name        string
+		slug        string
+		description string
+		order       int
+	}
+	// Categories aligned with inventory-api's seeded categories
+	categories := []cat{
+		{"Hot Beverages", "hot-beverages", "Coffee, tea, and other hot drinks", 1},
+		{"Cold Beverages", "cold-beverages", "Juices, smoothies, and iced drinks", 2},
+		{"Pastries & Bakery", "pastries", "Croissants, muffins, cakes, and baked goods", 3},
+		{"Sandwiches & Wraps", "sandwiches", "Club sandwiches, panini, wraps", 4},
+		{"Salads", "salads", "Fresh salads and bowls", 5},
+		{"Light Bites", "light-bites", "Samosas, spring rolls, and appetizers", 6},
+		{"Main Courses", "main-courses", "Hearty lunch and dinner entrees", 7},
+		{"Breakfast", "breakfast", "Morning meals and light bites", 8},
+		{"Pizza", "pizza", "Freshly baked pizzas", 9},
+		{"Desserts", "desserts", "Sweet treats and pastries", 10},
+	}
+
+	ids := make(map[string]uuid.UUID, len(categories))
+	for _, c := range categories {
+		catID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:category:urban-loft:"+c.slug))
+
+		existing, err := tx.CatalogCategory.Query().Where(catalogcategory.ID(catID)).Only(ctx)
+		if err == nil {
+			ids[c.slug] = existing.ID
+			// Update in case fields changed
+			_, _ = tx.CatalogCategory.UpdateOneID(catID).
+				SetName(c.name).
+				SetSlug(c.slug).
+				SetDescription(c.description).
+				SetDisplayOrder(c.order).
+				Save(ctx)
+			continue
+		}
+		if !ent.IsNotFound(err) {
+			return nil, err
+		}
+
+		created, err := tx.CatalogCategory.Create().
+			SetID(catID).
+			SetNillableTenantID(&tenantID).
+			SetNillableOutletID(&outletID).
+			SetName(c.name).
+			SetSlug(c.slug).
+			SetDescription(c.description).
+			SetDisplayOrder(c.order).
+			SetIsActive(true).
+			Save(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("create category %s: %w", c.name, err)
+		}
+		ids[c.slug] = created.ID
+	}
+	return ids, nil
+}
+
+// seedCatalogItems creates catalog items as projections from inventory-api master data.
+// Uses the same deterministic UUID formula as inventory-api so inventory_item_id matches.
+// Prices are ordering-specific (inventory-api does not store sell prices).
+func seedCatalogItems(ctx context.Context, tx *ent.Tx, tenantID, outletID uuid.UUID, categories map[string]uuid.UUID) error {
+	type item struct {
+		sku         string
+		name        string
+		description string
+		price       float64 // KES — ordering-specific pricing
+		category    string  // must match a seeded category slug
+		featured    bool
+	}
+	// Items aligned with inventory-api catalogItemDefs (same SKUs, names, descriptions).
+	// inventory_item_id is computed using the same deterministic UUID formula.
+	items := []item{
+		// Hot Beverages (inventory: hot-beverages)
+		{"BEV-ESP-001", "Espresso", "Single shot of rich espresso", 250, "hot-beverages", false},
+		{"BEV-ESP-002", "Double Espresso", "Double shot espresso", 300, "hot-beverages", false},
+		{"BEV-LAT-001", "Caffe Latte", "Espresso with steamed milk", 350, "hot-beverages", false},
+		{"BEV-CAP-001", "Cappuccino", "Espresso with frothed milk and cocoa", 350, "hot-beverages", true},
+		{"BEV-AME-001", "Americano", "Espresso with hot water", 280, "hot-beverages", false},
+		{"BEV-MOC-001", "Mocha", "Espresso, chocolate, steamed milk, whipped cream", 400, "hot-beverages", false},
+		{"BEV-MAC-001", "Macchiato", "Espresso with a dash of milk foam", 300, "hot-beverages", false},
+		{"BEV-TEA-001", "Kenya AA Black Tea", "Premium Kenyan black tea", 200, "hot-beverages", false},
+		{"BEV-TEA-002", "Masala Chai", "Spiced tea latte with cardamom and ginger", 250, "hot-beverages", true},
+		{"BEV-HOT-001", "Hot Chocolate", "Rich hot chocolate with whipped cream", 400, "hot-beverages", false},
+
+		// Cold Beverages (inventory: cold-beverages)
+		{"BEV-ICE-001", "Iced Latte", "Chilled espresso with cold milk over ice", 350, "cold-beverages", false},
+		{"BEV-ICE-002", "Iced Americano", "Espresso over ice with cold water", 300, "cold-beverages", false},
+		{"BEV-FRP-001", "Caramel Frappe", "Blended iced coffee with caramel drizzle", 450, "cold-beverages", true},
+		{"BEV-FRP-002", "Vanilla Frappe", "Blended iced coffee with vanilla", 450, "cold-beverages", false},
+		{"BEV-SMO-001", "Mango Smoothie", "Fresh mango blended with yoghurt", 400, "cold-beverages", true},
+		{"BEV-SMO-002", "Mixed Berry Smoothie", "Strawberry, blueberry, and banana blend", 400, "cold-beverages", false},
+		{"BEV-JCE-001", "Fresh Orange Juice", "Freshly squeezed orange juice", 350, "cold-beverages", false},
+
+		// Pastries & Bakery (inventory: pastries)
+		{"PST-CRO-001", "Butter Croissant", "Flaky French butter croissant", 200, "pastries", false},
+		{"PST-CRO-002", "Chocolate Croissant", "Croissant filled with dark chocolate", 250, "pastries", true},
+		{"PST-MUF-001", "Blueberry Muffin", "Moist muffin loaded with blueberries", 220, "pastries", false},
+		{"PST-MUF-002", "Banana Walnut Muffin", "Banana muffin with crunchy walnuts", 220, "pastries", false},
+		{"PST-CKE-001", "Carrot Cake Slice", "Spiced carrot cake with cream cheese frosting", 350, "pastries", false},
+		{"PST-CKE-002", "Red Velvet Cake Slice", "Classic red velvet with vanilla cream cheese", 380, "pastries", false},
+		{"PST-CKE-003", "Chocolate Fudge Cake Slice", "Rich chocolate fudge layer cake", 380, "pastries", false},
+		{"PST-DAN-001", "Danish Pastry", "Flaky pastry with custard and fruit", 250, "pastries", false},
+		{"PST-SCO-001", "Classic Scone", "Buttermilk scone with clotted cream and jam", 200, "pastries", false},
+
+		// Sandwiches & Wraps (inventory: sandwiches)
+		{"SND-CLB-001", "Club Sandwich", "Triple-decker with chicken, bacon, lettuce, tomato", 650, "sandwiches", false},
+		{"SND-GRL-001", "Grilled Chicken Panini", "Grilled chicken, pesto, mozzarella on ciabatta", 600, "sandwiches", true},
+		{"SND-VEG-001", "Veggie Wrap", "Hummus, avocado, roasted vegetables in tortilla", 500, "sandwiches", false},
+		{"SND-BLT-001", "BLT Sandwich", "Bacon, lettuce, tomato on toasted sourdough", 550, "sandwiches", false},
+		{"SND-TUN-001", "Tuna Melt", "Tuna salad with melted cheddar on rye bread", 550, "sandwiches", false},
+
+		// Salads (inventory: salads)
+		{"SAL-CES-001", "Caesar Salad", "Romaine, croutons, parmesan, caesar dressing", 500, "salads", false},
+		{"SAL-GRK-001", "Greek Salad", "Cucumber, tomato, olives, feta, olive oil", 500, "salads", false},
+
+		// Light Bites (inventory: light-bites)
+		{"BTE-SAM-001", "Samosa (3pc)", "Crispy vegetable samosas with tamarind chutney", 300, "light-bites", false},
+		{"BTE-SPR-001", "Spring Rolls (4pc)", "Crispy vegetable spring rolls with sweet chilli sauce", 350, "light-bites", false},
+
+		// Main Courses (inventory: main-courses)
+		{"MIN-GRL-001", "Grilled Beef Fillet", "250g beef fillet with pepper sauce, mash and seasonal veg", 1200, "main-courses", true},
+		{"MIN-GRL-002", "Grilled Chicken Breast", "Herb-marinated chicken with gravy, rice and vegetables", 950, "main-courses", true},
+		{"MIN-CUR-001", "Chicken Curry", "Spiced chicken curry with basmati rice and naan", 850, "main-courses", false},
+		{"MIN-CUR-002", "Beef Stew", "Tender beef stew with potatoes and carrots, served with ugali or rice", 800, "main-courses", false},
+		{"MIN-SEA-001", "Fish and Chips", "Beer-battered fish with chips and tartar sauce", 850, "main-courses", false},
+		{"MIN-PAS-001", "Spaghetti Bolognese", "Classic beef bolognese with parmesan and garlic bread", 750, "main-courses", false},
+		{"MIN-RIC-001", "Pilau Rice Bowl", "Spiced pilau rice with choice of beef, chicken or veg", 700, "main-courses", false},
+
+		// Breakfast (inventory: breakfast)
+		{"BRK-FUL-001", "Full English Breakfast", "Eggs, bacon, sausage, beans, toast, tomato", 850, "breakfast", true},
+		{"BRK-PAN-001", "Pancake Stack", "Fluffy pancakes with maple syrup and berries", 650, "breakfast", false},
+		{"BRK-AVT-001", "Avocado Toast", "Smashed avocado on sourdough with poached egg", 550, "breakfast", false},
+		{"BRK-OAT-001", "Overnight Oats", "Oats soaked in almond milk with fresh fruits and honey", 400, "breakfast", false},
+
+		// Pizza (inventory: pizza)
+		{"PIZ-MAR-001", "Margherita Pizza", "Fresh mozzarella, tomato sauce, and basil", 750, "pizza", false},
+		{"PIZ-PEP-001", "Pepperoni Pizza", "Classic pepperoni with mozzarella and tomato sauce", 850, "pizza", true},
+	}
+
+	for i, it := range items {
+		catID, ok := categories[it.category]
+		if !ok {
+			log.Printf("  [SKIP] category %s not found for item %s — skipping", it.category, it.name)
+			continue
+		}
+
+		// Use deterministic UUID for catalog item
+		itemID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:item:urban-loft:"+it.sku))
+		// Compute inventory_item_id using inventory-api's UUID formula
+		invItemID := inventoryItemUUID(tenantID, it.sku)
+
+		existing, err := tx.CatalogItem.Query().Where(catalogitem.ID(itemID)).Only(ctx)
+		if err == nil {
+			_, _ = tx.CatalogItem.UpdateOneID(existing.ID).
+				SetName(it.name).
+				SetDescription(it.description).
+				SetBasePrice(it.price).
+				SetCategoryID(catID).
+				SetIsFeatured(it.featured).
+				SetInventoryItemID(invItemID).
+				Save(ctx)
+			continue
+		}
+		if !ent.IsNotFound(err) {
+			return err
+		}
+
+		_, err = tx.CatalogItem.Create().
+			SetID(itemID).
+			SetTenantID(tenantID).
+			SetOutletID(outletID).
+			SetCategoryID(catID).
+			SetInventoryItemID(invItemID).
+			SetName(it.name).
+			SetDescription(it.description).
+			SetBasePrice(it.price).
+			SetCurrency("KES").
+			SetSku(it.sku).
+			SetIsAvailable(true).
+			SetIsFeatured(it.featured).
+			SetDisplayOrder(i + 1).
+			Save(ctx)
+		if err != nil {
+			return fmt.Errorf("create item %s: %w", it.name, err)
+		}
+	}
+	return nil
 }

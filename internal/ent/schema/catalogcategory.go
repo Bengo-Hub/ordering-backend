@@ -33,6 +33,19 @@ func (CatalogCategory) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("Parent category for hierarchy"),
+		field.String("name").
+			NotEmpty().
+			Comment("Category display name"),
+		field.String("slug").
+			Optional().
+			Comment("URL-safe identifier"),
+		field.Text("description").
+			Optional().
+			Comment("Category description"),
+		field.String("image_url").
+			Optional().
+			MaxLen(500).
+			Comment("Category image URL"),
 		field.Int("display_order").
 			Default(0).
 			Comment("Sort order for display"),

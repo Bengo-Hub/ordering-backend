@@ -100,6 +100,10 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 type CreateCategoryRequest struct {
 	OutletID     string  `json:"outletId"`
 	ParentID     *string `json:"parentId,omitempty"`
+	Name         string  `json:"name"`
+	Slug         string  `json:"slug,omitempty"`
+	Description  string  `json:"description,omitempty"`
+	ImageURL     string  `json:"imageUrl,omitempty"`
 	DisplayOrder int     `json:"displayOrder"`
 	IsActive     bool    `json:"isActive"`
 }
@@ -107,6 +111,10 @@ type CreateCategoryRequest struct {
 type UpdateCategoryRequest struct {
 	ParentID     *string `json:"parentId,omitempty"`
 	ClearParent  bool    `json:"clearParent,omitempty"`
+	Name         *string `json:"name,omitempty"`
+	Slug         *string `json:"slug,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	ImageURL     *string `json:"imageUrl,omitempty"`
 	DisplayOrder *int    `json:"displayOrder,omitempty"`
 	IsActive     *bool   `json:"isActive,omitempty"`
 }
@@ -114,8 +122,13 @@ type UpdateCategoryRequest struct {
 type CreateCatalogItemRequest struct {
 	OutletID        string  `json:"outletId"`
 	CategoryID      string  `json:"categoryId"`
-	InventoryItemID string  `json:"inventoryItemId"`
+	InventoryItemID string  `json:"inventoryItemId,omitempty"`
 	RecipeID        *string `json:"recipeId,omitempty"`
+	Name            string  `json:"name"`
+	Description     string  `json:"description,omitempty"`
+	BasePrice       float64 `json:"basePrice"`
+	Currency        string  `json:"currency,omitempty"`
+	ImageURL        string  `json:"imageUrl,omitempty"`
 	IsAvailable     bool    `json:"isAvailable"`
 	IsFeatured      bool    `json:"isFeatured"`
 	LeadTimeMinutes int     `json:"leadTimeMinutes,omitempty"`
@@ -124,13 +137,18 @@ type CreateCatalogItemRequest struct {
 }
 
 type UpdateCatalogItemRequest struct {
-	CategoryID      *string `json:"categoryId,omitempty"`
-	RecipeID        *string `json:"recipeId,omitempty"`
-	IsAvailable     *bool   `json:"isAvailable,omitempty"`
-	IsFeatured      *bool   `json:"isFeatured,omitempty"`
-	LeadTimeMinutes *int    `json:"leadTimeMinutes,omitempty"`
-	SKU             *string `json:"sku,omitempty"`
-	DisplayOrder    *int    `json:"displayOrder,omitempty"`
+	CategoryID      *string  `json:"categoryId,omitempty"`
+	RecipeID        *string  `json:"recipeId,omitempty"`
+	Name            *string  `json:"name,omitempty"`
+	Description     *string  `json:"description,omitempty"`
+	BasePrice       *float64 `json:"basePrice,omitempty"`
+	Currency        *string  `json:"currency,omitempty"`
+	ImageURL        *string  `json:"imageUrl,omitempty"`
+	IsAvailable     *bool    `json:"isAvailable,omitempty"`
+	IsFeatured      *bool    `json:"isFeatured,omitempty"`
+	LeadTimeMinutes *int     `json:"leadTimeMinutes,omitempty"`
+	SKU             *string  `json:"sku,omitempty"`
+	DisplayOrder    *int     `json:"displayOrder,omitempty"`
 }
 
 

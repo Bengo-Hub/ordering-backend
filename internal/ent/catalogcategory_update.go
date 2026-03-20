@@ -91,6 +91,80 @@ func (ccu *CatalogCategoryUpdate) ClearParentID() *CatalogCategoryUpdate {
 	return ccu
 }
 
+// SetName sets the "name" field.
+func (ccu *CatalogCategoryUpdate) SetName(s string) *CatalogCategoryUpdate {
+	ccu.mutation.SetName(s)
+	return ccu
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (ccu *CatalogCategoryUpdate) SetNillableName(s *string) *CatalogCategoryUpdate {
+	if s != nil {
+		ccu.SetName(*s)
+	}
+	return ccu
+}
+
+// SetSlug sets the "slug" field.
+func (ccu *CatalogCategoryUpdate) SetSlug(s string) *CatalogCategoryUpdate {
+	ccu.mutation.SetSlug(s)
+	return ccu
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (ccu *CatalogCategoryUpdate) SetNillableSlug(s *string) *CatalogCategoryUpdate {
+	if s != nil {
+		ccu.SetSlug(*s)
+	}
+	return ccu
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (ccu *CatalogCategoryUpdate) ClearSlug() *CatalogCategoryUpdate {
+	ccu.mutation.ClearSlug()
+	return ccu
+}
+
+// SetDescription sets the "description" field.
+func (ccu *CatalogCategoryUpdate) SetDescription(s string) *CatalogCategoryUpdate {
+	ccu.mutation.SetDescription(s)
+	return ccu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ccu *CatalogCategoryUpdate) SetNillableDescription(s *string) *CatalogCategoryUpdate {
+	if s != nil {
+		ccu.SetDescription(*s)
+	}
+	return ccu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (ccu *CatalogCategoryUpdate) ClearDescription() *CatalogCategoryUpdate {
+	ccu.mutation.ClearDescription()
+	return ccu
+}
+
+// SetImageURL sets the "image_url" field.
+func (ccu *CatalogCategoryUpdate) SetImageURL(s string) *CatalogCategoryUpdate {
+	ccu.mutation.SetImageURL(s)
+	return ccu
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (ccu *CatalogCategoryUpdate) SetNillableImageURL(s *string) *CatalogCategoryUpdate {
+	if s != nil {
+		ccu.SetImageURL(*s)
+	}
+	return ccu
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (ccu *CatalogCategoryUpdate) ClearImageURL() *CatalogCategoryUpdate {
+	ccu.mutation.ClearImageURL()
+	return ccu
+}
+
 // SetDisplayOrder sets the "display_order" field.
 func (ccu *CatalogCategoryUpdate) SetDisplayOrder(i int) *CatalogCategoryUpdate {
 	ccu.mutation.ResetDisplayOrder()
@@ -267,7 +341,25 @@ func (ccu *CatalogCategoryUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ccu *CatalogCategoryUpdate) check() error {
+	if v, ok := ccu.mutation.Name(); ok {
+		if err := catalogcategory.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.name": %w`, err)}
+		}
+	}
+	if v, ok := ccu.mutation.ImageURL(); ok {
+		if err := catalogcategory.ImageURLValidator(v); err != nil {
+			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.image_url": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (ccu *CatalogCategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := ccu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(catalogcategory.Table, catalogcategory.Columns, sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID))
 	if ps := ccu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -281,6 +373,27 @@ func (ccu *CatalogCategoryUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if ccu.mutation.TenantIDCleared() {
 		_spec.ClearField(catalogcategory.FieldTenantID, field.TypeUUID)
+	}
+	if value, ok := ccu.mutation.Name(); ok {
+		_spec.SetField(catalogcategory.FieldName, field.TypeString, value)
+	}
+	if value, ok := ccu.mutation.Slug(); ok {
+		_spec.SetField(catalogcategory.FieldSlug, field.TypeString, value)
+	}
+	if ccu.mutation.SlugCleared() {
+		_spec.ClearField(catalogcategory.FieldSlug, field.TypeString)
+	}
+	if value, ok := ccu.mutation.Description(); ok {
+		_spec.SetField(catalogcategory.FieldDescription, field.TypeString, value)
+	}
+	if ccu.mutation.DescriptionCleared() {
+		_spec.ClearField(catalogcategory.FieldDescription, field.TypeString)
+	}
+	if value, ok := ccu.mutation.ImageURL(); ok {
+		_spec.SetField(catalogcategory.FieldImageURL, field.TypeString, value)
+	}
+	if ccu.mutation.ImageURLCleared() {
+		_spec.ClearField(catalogcategory.FieldImageURL, field.TypeString)
 	}
 	if value, ok := ccu.mutation.DisplayOrder(); ok {
 		_spec.SetField(catalogcategory.FieldDisplayOrder, field.TypeInt, value)
@@ -522,6 +635,80 @@ func (ccuo *CatalogCategoryUpdateOne) ClearParentID() *CatalogCategoryUpdateOne 
 	return ccuo
 }
 
+// SetName sets the "name" field.
+func (ccuo *CatalogCategoryUpdateOne) SetName(s string) *CatalogCategoryUpdateOne {
+	ccuo.mutation.SetName(s)
+	return ccuo
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (ccuo *CatalogCategoryUpdateOne) SetNillableName(s *string) *CatalogCategoryUpdateOne {
+	if s != nil {
+		ccuo.SetName(*s)
+	}
+	return ccuo
+}
+
+// SetSlug sets the "slug" field.
+func (ccuo *CatalogCategoryUpdateOne) SetSlug(s string) *CatalogCategoryUpdateOne {
+	ccuo.mutation.SetSlug(s)
+	return ccuo
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (ccuo *CatalogCategoryUpdateOne) SetNillableSlug(s *string) *CatalogCategoryUpdateOne {
+	if s != nil {
+		ccuo.SetSlug(*s)
+	}
+	return ccuo
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (ccuo *CatalogCategoryUpdateOne) ClearSlug() *CatalogCategoryUpdateOne {
+	ccuo.mutation.ClearSlug()
+	return ccuo
+}
+
+// SetDescription sets the "description" field.
+func (ccuo *CatalogCategoryUpdateOne) SetDescription(s string) *CatalogCategoryUpdateOne {
+	ccuo.mutation.SetDescription(s)
+	return ccuo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ccuo *CatalogCategoryUpdateOne) SetNillableDescription(s *string) *CatalogCategoryUpdateOne {
+	if s != nil {
+		ccuo.SetDescription(*s)
+	}
+	return ccuo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (ccuo *CatalogCategoryUpdateOne) ClearDescription() *CatalogCategoryUpdateOne {
+	ccuo.mutation.ClearDescription()
+	return ccuo
+}
+
+// SetImageURL sets the "image_url" field.
+func (ccuo *CatalogCategoryUpdateOne) SetImageURL(s string) *CatalogCategoryUpdateOne {
+	ccuo.mutation.SetImageURL(s)
+	return ccuo
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (ccuo *CatalogCategoryUpdateOne) SetNillableImageURL(s *string) *CatalogCategoryUpdateOne {
+	if s != nil {
+		ccuo.SetImageURL(*s)
+	}
+	return ccuo
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (ccuo *CatalogCategoryUpdateOne) ClearImageURL() *CatalogCategoryUpdateOne {
+	ccuo.mutation.ClearImageURL()
+	return ccuo
+}
+
 // SetDisplayOrder sets the "display_order" field.
 func (ccuo *CatalogCategoryUpdateOne) SetDisplayOrder(i int) *CatalogCategoryUpdateOne {
 	ccuo.mutation.ResetDisplayOrder()
@@ -711,7 +898,25 @@ func (ccuo *CatalogCategoryUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ccuo *CatalogCategoryUpdateOne) check() error {
+	if v, ok := ccuo.mutation.Name(); ok {
+		if err := catalogcategory.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.name": %w`, err)}
+		}
+	}
+	if v, ok := ccuo.mutation.ImageURL(); ok {
+		if err := catalogcategory.ImageURLValidator(v); err != nil {
+			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.image_url": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (ccuo *CatalogCategoryUpdateOne) sqlSave(ctx context.Context) (_node *CatalogCategory, err error) {
+	if err := ccuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(catalogcategory.Table, catalogcategory.Columns, sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID))
 	id, ok := ccuo.mutation.ID()
 	if !ok {
@@ -742,6 +947,27 @@ func (ccuo *CatalogCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Catal
 	}
 	if ccuo.mutation.TenantIDCleared() {
 		_spec.ClearField(catalogcategory.FieldTenantID, field.TypeUUID)
+	}
+	if value, ok := ccuo.mutation.Name(); ok {
+		_spec.SetField(catalogcategory.FieldName, field.TypeString, value)
+	}
+	if value, ok := ccuo.mutation.Slug(); ok {
+		_spec.SetField(catalogcategory.FieldSlug, field.TypeString, value)
+	}
+	if ccuo.mutation.SlugCleared() {
+		_spec.ClearField(catalogcategory.FieldSlug, field.TypeString)
+	}
+	if value, ok := ccuo.mutation.Description(); ok {
+		_spec.SetField(catalogcategory.FieldDescription, field.TypeString, value)
+	}
+	if ccuo.mutation.DescriptionCleared() {
+		_spec.ClearField(catalogcategory.FieldDescription, field.TypeString)
+	}
+	if value, ok := ccuo.mutation.ImageURL(); ok {
+		_spec.SetField(catalogcategory.FieldImageURL, field.TypeString, value)
+	}
+	if ccuo.mutation.ImageURLCleared() {
+		_spec.ClearField(catalogcategory.FieldImageURL, field.TypeString)
 	}
 	if value, ok := ccuo.mutation.DisplayOrder(); ok {
 		_spec.SetField(catalogcategory.FieldDisplayOrder, field.TypeInt, value)

@@ -42,6 +42,8 @@ const (
 	PermissionAnalyticsExport     Permission = "analytics:export"
 	PermissionSupportView         Permission = "support:read"
 	PermissionSupportManage       Permission = "support:manage"
+	PermissionZonesView           Permission = "zones:read"
+	PermissionZonesManage         Permission = "zones:manage"
 	PermissionRidersOnboard       Permission = "riders:onboard" // Kept for backward compatibility if used elsewhere
 	PermissionStaffInvite         Permission = "staff:invite"   // Kept for backward compatibility if used elsewhere
 	PermissionAdminManage         Permission = "admin:manage"

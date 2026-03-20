@@ -36,6 +36,8 @@ type Tx struct {
 	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
+	// DeliveryZone is the client for interacting with the DeliveryZone builders.
+	DeliveryZone *DeliveryZoneClient
 	// DietaryTag is the client for interacting with the DietaryTag builders.
 	DietaryTag *DietaryTagClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
@@ -219,6 +221,7 @@ func (tx *Tx) init() {
 	tx.DataExportJob = NewDataExportJobClient(tx.config)
 	tx.DataSubjectRequest = NewDataSubjectRequestClient(tx.config)
 	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
+	tx.DeliveryZone = NewDeliveryZoneClient(tx.config)
 	tx.DietaryTag = NewDietaryTagClient(tx.config)
 	tx.LoyaltyAccount = NewLoyaltyAccountClient(tx.config)
 	tx.LoyaltyTransaction = NewLoyaltyTransactionClient(tx.config)

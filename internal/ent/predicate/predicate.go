@@ -42,6 +42,9 @@ type DataSubjectRequest func(*sql.Selector)
 // DeliveryWindow is the predicate function for deliverywindow builders.
 type DeliveryWindow func(*sql.Selector)
 
+// DeliveryZone is the predicate function for deliveryzone builders.
+type DeliveryZone func(*sql.Selector)
+
 // DietaryTag is the predicate function for dietarytag builders.
 type DietaryTag func(*sql.Selector)
 

@@ -8,10 +8,16 @@ import (
 	"go.uber.org/zap"
 )
 
+// InventoryClient defines the interface for inventory-api integration.
+type InventoryClient interface {
+	GetOrCreateItem(ctx context.Context, tenantSlug, sku string, req interface{}) (interface{}, error)
+}
+
 // Service provides catalog business logic.
 type Service struct {
-	repo   Repository
-	logger *zap.Logger
+	repo       Repository
+	logger     *zap.Logger
+	tenantSlug string // cached for inventory calls (set via SetTenantSlug)
 }
 
 // NewService creates a new catalog service.
@@ -29,6 +35,10 @@ type CreateCategoryRequest struct {
 	TenantID     *uuid.UUID
 	OutletID     *uuid.UUID
 	ParentID     *uuid.UUID
+	Name         string
+	Slug         string
+	Description  string
+	ImageURL     string
 	DisplayOrder int
 	IsActive     bool
 }
@@ -56,6 +66,10 @@ func (s *Service) CreateCategory(ctx context.Context, req CreateCategoryRequest)
 		TenantID:     req.TenantID,
 		OutletID:     req.OutletID,
 		ParentID:     req.ParentID,
+		Name:         req.Name,
+		Slug:         req.Slug,
+		Description:  req.Description,
+		ImageURL:     req.ImageURL,
 		DisplayOrder: req.DisplayOrder,
 		IsActive:     req.IsActive,
 	}
@@ -91,6 +105,10 @@ func (s *Service) ListCategories(ctx context.Context, filter CategoryFilter) ([]
 type UpdateCategoryRequest struct {
 	TenantID     uuid.UUID
 	CategoryID   uuid.UUID
+	Name         *string
+	Slug         *string
+	Description  *string
+	ImageURL     *string
 	DisplayOrder *int
 	IsActive     *bool
 	ParentID     *uuid.UUID
@@ -104,6 +122,18 @@ func (s *Service) UpdateCategory(ctx context.Context, req UpdateCategoryRequest)
 		return nil, err
 	}
 
+	if req.Name != nil {
+		category.Name = *req.Name
+	}
+	if req.Slug != nil {
+		category.Slug = *req.Slug
+	}
+	if req.Description != nil {
+		category.Description = *req.Description
+	}
+	if req.ImageURL != nil {
+		category.ImageURL = *req.ImageURL
+	}
 	if req.DisplayOrder != nil {
 		category.DisplayOrder = *req.DisplayOrder
 	}
@@ -172,8 +202,13 @@ type CreateCatalogItemRequest struct {
 	TenantID        uuid.UUID
 	OutletID        uuid.UUID
 	CategoryID      uuid.UUID
-	InventoryItemID uuid.UUID
+	InventoryItemID *uuid.UUID
 	RecipeID        *uuid.UUID
+	Name            string
+	Description     string
+	BasePrice       float64
+	Currency        string
+	ImageURL        string
 	IsAvailable     bool
 	IsFeatured      bool
 	LeadTimeMinutes int
@@ -191,12 +226,22 @@ func (s *Service) CreateCatalogItem(ctx context.Context, req CreateCatalogItemRe
 		}
 	}
 
+	currency := req.Currency
+	if currency == "" {
+		currency = DefaultCurrency
+	}
+
 	item := &CatalogItem{
 		TenantID:        req.TenantID,
 		OutletID:        req.OutletID,
 		CategoryID:      req.CategoryID,
-		InventoryItemID: &req.InventoryItemID,
+		InventoryItemID: req.InventoryItemID,
 		RecipeID:        req.RecipeID,
+		Name:            req.Name,
+		Description:     req.Description,
+		BasePrice:       req.BasePrice,
+		Currency:        currency,
+		ImageURL:        req.ImageURL,
 		IsAvailable:     req.IsAvailable,
 		IsFeatured:      req.IsFeatured,
 		LeadTimeMinutes: req.LeadTimeMinutes,
@@ -231,6 +276,11 @@ type UpdateCatalogItemRequest struct {
 	ItemID          uuid.UUID
 	CategoryID      *uuid.UUID
 	RecipeID        *uuid.UUID
+	Name            *string
+	Description     *string
+	BasePrice       *float64
+	Currency        *string
+	ImageURL        *string
 	IsAvailable     *bool
 	IsFeatured      *bool
 	LeadTimeMinutes *int
@@ -245,6 +295,21 @@ func (s *Service) UpdateCatalogItem(ctx context.Context, req UpdateCatalogItemRe
 		return nil, err
 	}
 
+	if req.Name != nil {
+		item.Name = *req.Name
+	}
+	if req.Description != nil {
+		item.Description = *req.Description
+	}
+	if req.BasePrice != nil {
+		item.BasePrice = *req.BasePrice
+	}
+	if req.Currency != nil {
+		item.Currency = *req.Currency
+	}
+	if req.ImageURL != nil {
+		item.ImageURL = *req.ImageURL
+	}
 	if req.IsAvailable != nil {
 		item.IsAvailable = *req.IsAvailable
 	}
@@ -473,37 +538,7 @@ func (s *Service) GetPublicCategories(ctx context.Context, tenantID, outletID uu
 
 // ListOutlets returns all outlets for a tenant.
 func (s *Service) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
-	ids, err := s.repo.GetDistinctOutletIDs(ctx, tenantID)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]OutletSummary, len(ids))
-	for i, id := range ids {
-		out[i] = OutletSummary{
-			ID:       id,
-			Name:     outletDisplayName(id),
-			ImageURL: outletImageURL(id),
-		}
-	}
-	return out, nil
-}
-
-func outletImageURL(id uuid.UUID) string {
-	busiaID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
-	if id == busiaID {
-		return "/media/images/outlets/urban-loft-kiambu.jpeg"
-	}
-	return ""
-}
-
-// outletDisplayName returns a display name for the outlet (default "Outlet"; known seed cafes can be mapped).
-func outletDisplayName(id uuid.UUID) string {
-	// Seed "urban-loft" / "busia" outlet ID (same formula as cmd/seed)
-	busiaID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
-	if id == busiaID {
-		return "Urban Loft Cafe Busia"
-	}
-	return "Outlet"
+	return s.repo.ListOutlets(ctx, tenantID)
 }
 
 // --- Helper Functions ---

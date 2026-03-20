@@ -169,6 +169,10 @@ var (
 	CatalogCategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "slug", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "image_url", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "created_at", Type: field.TypeTime},
@@ -184,13 +188,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "catalog_categories_catalog_categories_children",
-				Columns:    []*schema.Column{CatalogCategoriesColumns[6]},
+				Columns:    []*schema.Column{CatalogCategoriesColumns[10]},
 				RefColumns: []*schema.Column{CatalogCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "catalog_categories_outlets_catalog_categories",
-				Columns:    []*schema.Column{CatalogCategoriesColumns[7]},
+				Columns:    []*schema.Column{CatalogCategoriesColumns[11]},
 				RefColumns: []*schema.Column{OutletsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -199,17 +203,17 @@ var (
 			{
 				Name:    "catalogcategory_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[7]},
+				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[11]},
 			},
 			{
 				Name:    "catalogcategory_tenant_id_is_active",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[3]},
+				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[7]},
 			},
 			{
 				Name:    "catalogcategory_display_order",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[2]},
+				Columns: []*schema.Column{CatalogCategoriesColumns[6]},
 			},
 		},
 	}
@@ -624,6 +628,51 @@ var (
 				Name:    "deliverywindow_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{DeliveryWindowsColumns[12]},
+			},
+		},
+	}
+	// DeliveryZonesColumns holds the columns for the "delivery_zones" table.
+	DeliveryZonesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "outlet_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "slug", Type: field.TypeString, Nullable: true},
+		{Name: "zone_polygon", Type: field.TypeJSON, Nullable: true},
+		{Name: "delivery_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "minimum_order", Type: field.TypeFloat64, Default: 0},
+		{Name: "estimated_time_minutes", Type: field.TypeInt, Default: 30},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "sort_order", Type: field.TypeInt, Default: 0},
+		{Name: "metadata", Type: field.TypeJSON},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// DeliveryZonesTable holds the schema information for the "delivery_zones" table.
+	DeliveryZonesTable = &schema.Table{
+		Name:       "delivery_zones",
+		Columns:    DeliveryZonesColumns,
+		PrimaryKey: []*schema.Column{DeliveryZonesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deliveryzone_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryZonesColumns[1]},
+			},
+			{
+				Name:    "deliveryzone_tenant_id_outlet_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[2]},
+			},
+			{
+				Name:    "deliveryzone_tenant_id_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[9]},
+			},
+			{
+				Name:    "deliveryzone_tenant_id_slug",
+				Unique:  true,
+				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[4]},
 			},
 		},
 	}
@@ -1640,6 +1689,7 @@ var (
 		DataExportJobsTable,
 		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
+		DeliveryZonesTable,
 		DietaryTagsTable,
 		LoyaltyAccountsTable,
 		LoyaltyTransactionsTable,

@@ -48,10 +48,14 @@ func (h *Handler) CreateCatalogItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	inventoryItemID, err := uuid.Parse(req.InventoryItemID)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid inventory item ID")
-		return
+	var inventoryItemID *uuid.UUID
+	if req.InventoryItemID != "" {
+		iid, err := uuid.Parse(req.InventoryItemID)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid inventory item ID")
+			return
+		}
+		inventoryItemID = &iid
 	}
 
 	var recipeID *uuid.UUID
@@ -68,6 +72,11 @@ func (h *Handler) CreateCatalogItem(w http.ResponseWriter, r *http.Request) {
 		CategoryID:      categoryID,
 		InventoryItemID: inventoryItemID,
 		RecipeID:        recipeID,
+		Name:            req.Name,
+		Description:     req.Description,
+		BasePrice:       req.BasePrice,
+		Currency:        req.Currency,
+		ImageURL:        req.ImageURL,
 		IsAvailable:     req.IsAvailable,
 		IsFeatured:      req.IsFeatured,
 		LeadTimeMinutes: req.LeadTimeMinutes,
@@ -223,6 +232,11 @@ func (h *Handler) UpdateCatalogItem(w http.ResponseWriter, r *http.Request) {
 		TenantID:        tenantID,
 		ItemID:          itemID,
 		RecipeID:        recipeID,
+		Name:            req.Name,
+		Description:     req.Description,
+		BasePrice:       req.BasePrice,
+		Currency:        req.Currency,
+		ImageURL:        req.ImageURL,
 		IsAvailable:     req.IsAvailable,
 		IsFeatured:      req.IsFeatured,
 		LeadTimeMinutes: req.LeadTimeMinutes,

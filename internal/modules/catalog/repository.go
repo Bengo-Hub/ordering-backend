@@ -51,7 +51,7 @@ type Repository interface {
 	GetPublicMenu(ctx context.Context, req PublicCatalogRequest) ([]PublicCatalogItem, int, error)
 	GetPublicCategories(ctx context.Context, tenantID, outletID uuid.UUID) ([]PublicCategory, error)
 
-	// Outlets (distinct outlet IDs for a tenant, for frontend outlet list)
-	GetDistinctOutletIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error)
+	// Outlets
+	ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error)
 	GetOutlet(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletSummary, error)
 }

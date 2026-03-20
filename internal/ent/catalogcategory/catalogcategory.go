@@ -21,6 +21,14 @@ const (
 	FieldOutletID = "outlet_id"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldImageURL holds the string denoting the image_url field in the database.
+	FieldImageURL = "image_url"
 	// FieldDisplayOrder holds the string denoting the display_order field in the database.
 	FieldDisplayOrder = "display_order"
 	// FieldIsActive holds the string denoting the is_active field in the database.
@@ -69,6 +77,10 @@ var Columns = []string{
 	FieldTenantID,
 	FieldOutletID,
 	FieldParentID,
+	FieldName,
+	FieldSlug,
+	FieldDescription,
+	FieldImageURL,
 	FieldDisplayOrder,
 	FieldIsActive,
 	FieldCreatedAt,
@@ -86,6 +98,10 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// ImageURLValidator is a validator for the "image_url" field. It is called by the builders before save.
+	ImageURLValidator func(string) error
 	// DefaultDisplayOrder holds the default value on creation for the "display_order" field.
 	DefaultDisplayOrder int
 	// DefaultIsActive holds the default value on creation for the "is_active" field.
@@ -121,6 +137,26 @@ func ByOutletID(opts ...sql.OrderTermOption) OrderOption {
 // ByParentID orders the results by the parent_id field.
 func ByParentID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldParentID, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// BySlug orders the results by the slug field.
+func BySlug(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSlug, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByImageURL orders the results by the image_url field.
+func ByImageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageURL, opts...).ToFunc()
 }
 
 // ByDisplayOrder orders the results by the display_order field.

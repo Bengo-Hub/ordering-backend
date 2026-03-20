@@ -9,6 +9,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/catalogitemasset"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogitemschedule"
 	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/google/uuid"
 )
@@ -29,6 +30,10 @@ func (r *EntRepository) CreateCategory(ctx context.Context, category *Category) 
 	builder := r.client.CatalogCategory.Create().
 		SetNillableTenantID(category.TenantID).
 		SetNillableOutletID(category.OutletID).
+		SetName(category.Name).
+		SetSlug(category.Slug).
+		SetDescription(category.Description).
+		SetImageURL(category.ImageURL).
 		SetDisplayOrder(category.DisplayOrder).
 		SetIsActive(category.IsActive)
 
@@ -106,6 +111,10 @@ func (r *EntRepository) ListCategories(ctx context.Context, filter CategoryFilte
 
 func (r *EntRepository) UpdateCategory(ctx context.Context, category *Category) error {
 	builder := r.client.CatalogCategory.UpdateOneID(category.ID).
+		SetName(category.Name).
+		SetSlug(category.Slug).
+		SetDescription(category.Description).
+		SetImageURL(category.ImageURL).
 		SetDisplayOrder(category.DisplayOrder).
 		SetIsActive(category.IsActive)
 
@@ -174,14 +183,21 @@ func (r *EntRepository) CreateCatalogItem(ctx context.Context, item *CatalogItem
 		SetTenantID(item.TenantID).
 		SetOutletID(item.OutletID).
 		SetCategoryID(item.CategoryID).
+		SetNillableInventoryItemID(item.InventoryItemID).
 		SetName(item.Name).
 		SetDescription(item.Description).
 		SetBasePrice(item.BasePrice).
-		SetCurrency(DefaultCurrency). // Standardized as per requirements
+		SetCurrency(item.Currency).
+		SetImageURL(item.ImageURL).
 		SetIsAvailable(item.IsAvailable).
+		SetIsFeatured(item.IsFeatured).
 		SetLeadTimeMinutes(item.LeadTimeMinutes).
 		SetSku(item.SKU).
 		SetDisplayOrder(item.DisplayOrder)
+
+	if item.RecipeID != nil {
+		builder.SetRecipeID(*item.RecipeID)
+	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -276,7 +292,10 @@ func (r *EntRepository) UpdateCatalogItem(ctx context.Context, item *CatalogItem
 		SetName(item.Name).
 		SetDescription(item.Description).
 		SetBasePrice(item.BasePrice).
+		SetCurrency(item.Currency).
+		SetImageURL(item.ImageURL).
 		SetIsAvailable(item.IsAvailable).
+		SetIsFeatured(item.IsFeatured).
 		SetLeadTimeMinutes(item.LeadTimeMinutes).
 		SetSku(item.SKU).
 		SetDisplayOrder(item.DisplayOrder).
@@ -601,36 +620,38 @@ func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, outle
 	return result, nil
 }
 
-// GetDistinctOutletIDs returns distinct outlet IDs that have catalog categories for the tenant.
-func (r *EntRepository) GetDistinctOutletIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
-	// Let's use a more robust way to get distinct UUIDs
-	items, err := r.client.CatalogCategory.Query().
-		Where(catalogcategory.TenantID(tenantID)).
-		Select(catalogcategory.FieldOutletID).
+// ListOutlets returns all outlets for a tenant from the outlets table.
+func (r *EntRepository) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
+	outlets, err := r.client.Outlet.Query().
+		Where(outlet.TenantID(tenantID), outlet.StatusEQ("active")).
 		All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	uniqueMap := make(map[uuid.UUID]bool)
-	var ids []uuid.UUID
-	for _, it := range items {
-		if it.OutletID != nil {
-			if !uniqueMap[*it.OutletID] {
-				uniqueMap[*it.OutletID] = true
-				ids = append(ids, *it.OutletID)
-			}
+	result := make([]OutletSummary, len(outlets))
+	for i, o := range outlets {
+		result[i] = OutletSummary{
+			ID:   o.ID,
+			Name: o.Name,
 		}
 	}
-	return ids, nil
+	return result, nil
 }
 
-// GetOutlet retrieves display information for an outlet.
+// GetOutlet retrieves display information for a single outlet.
 func (r *EntRepository) GetOutlet(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletSummary, error) {
-	// For now, we project the outlet display info from its categories/items
-	// This is a placeholder; real implementation would query outlet metadata
+	o, err := r.client.Outlet.Query().
+		Where(outlet.ID(outletID), outlet.TenantID(tenantID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrCatalogItemNotFound
+		}
+		return nil, err
+	}
 	return &OutletSummary{
-		ID:   outletID,
-		Name: "Outlet",
+		ID:   o.ID,
+		Name: o.Name,
 	}, nil
 }
 
@@ -642,6 +663,10 @@ func entCategoryToDomain(ec *ent.CatalogCategory) *Category {
 		TenantID:     ec.TenantID,
 		OutletID:     ec.OutletID,
 		ParentID:     ec.ParentID,
+		Name:         ec.Name,
+		Slug:         ec.Slug,
+		Description:  ec.Description,
+		ImageURL:     ec.ImageURL,
 		DisplayOrder: ec.DisplayOrder,
 		IsActive:     ec.IsActive,
 		CreatedAt:    ec.CreatedAt,
@@ -676,6 +701,7 @@ func entCatalogItemToDomain(ei *ent.CatalogItem) *CatalogItem {
 		LeadTimeMinutes: leadTimeMinutes,
 		RecipeID:        ei.RecipeID,
 		SKU:             ei.Sku,
+		ImageURL:        ei.ImageURL,
 		DisplayOrder:    ei.DisplayOrder,
 		IsFavorite:      len(ei.Edges.FavoritedBy) > 0,
 		CreatedAt:       ei.CreatedAt,
@@ -743,19 +769,26 @@ func entScheduleToDomain(es *ent.CatalogItemSchedule) *Schedule {
 }
 
 func toPublicCatalogItem(item CatalogItem, locale string) PublicCatalogItem {
+	imageURL := item.ImageURL
+	if imageURL == "" && len(item.Assets) > 0 {
+		imageURL = item.Assets[0].URL
+	}
+
 	pm := PublicCatalogItem{
 		ID:              item.ID,
 		CategoryID:      item.CategoryID,
 		Name:            item.Name,
+		Description:     item.Description,
 		BasePrice:       item.BasePrice,
-		Currency:        DefaultCurrency,
+		Currency:        item.Currency,
+		ImageURL:        imageURL,
 		LeadTimeMinutes: item.LeadTimeMinutes,
 		DietaryTags:     item.DietaryTags,
 		IsFavorite:      item.IsFavorite,
 	}
 
 	if item.Category != nil {
-		// pm.CategoryName = item.Category.Name // Category Name also hydration
+		pm.CategoryName = item.Category.Name
 	}
 
 	return pm
@@ -763,9 +796,11 @@ func toPublicCatalogItem(item CatalogItem, locale string) PublicCatalogItem {
 
 func toPublicCategory(cat Category) PublicCategory {
 	pc := PublicCategory{
-		ID:        cat.ID,
-		ItemCount: cat.ItemCount,
-		// Name, Description, ImageURL etc. will be populated by hydration logic
+		ID:          cat.ID,
+		Name:        cat.Name,
+		Description: cat.Description,
+		ImageURL:    cat.ImageURL,
+		ItemCount:   cat.ItemCount,
 	}
 
 	if cat.Children != nil {
