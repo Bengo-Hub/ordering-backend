@@ -40,16 +40,17 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 			guestRouter.Delete("/items/{itemId}", h.RemoveGuestItem)
 		})
 
-		// Authenticated cart operations
-		cartRouter.Use(auth.RequireAuth)
-
-		cartRouter.Get("/", h.GetCurrentCart)
-		cartRouter.Post("/items", h.AddItem)
-		cartRouter.Put("/items/{itemId}", h.UpdateItem)
-		cartRouter.Delete("/items/{itemId}", h.RemoveItem)
-		cartRouter.Delete("/", h.ClearCart)
-		cartRouter.Get("/summary", h.GetCartSummary)
-		cartRouter.Post("/merge", h.MergeGuestCart)
+		// Authenticated cart operations (grouped to avoid middleware-after-routes panic)
+		cartRouter.Group(func(authedCart chi.Router) {
+			authedCart.Use(auth.RequireAuth)
+			authedCart.Get("/", h.GetCurrentCart)
+			authedCart.Post("/items", h.AddItem)
+			authedCart.Put("/items/{itemId}", h.UpdateItem)
+			authedCart.Delete("/items/{itemId}", h.RemoveItem)
+			authedCart.Delete("/", h.ClearCart)
+			authedCart.Get("/summary", h.GetCartSummary)
+			authedCart.Post("/merge", h.MergeGuestCart)
+		})
 	})
 }
 
