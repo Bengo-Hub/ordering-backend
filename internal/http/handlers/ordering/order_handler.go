@@ -49,10 +49,12 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		// Guest checkout (no auth required)
 		checkoutRouter.Post("/guest", h.GuestCheckout)
 
-		// Authenticated checkout
-		checkoutRouter.Use(auth.RequireAuth)
-		checkoutRouter.Post("/", h.Checkout)
-		checkoutRouter.Post("/validate", h.ValidateCheckout)
+		// Authenticated checkout (grouped to avoid middleware-after-routes panic)
+		checkoutRouter.Group(func(authedCheckout chi.Router) {
+			authedCheckout.Use(auth.RequireAuth)
+			authedCheckout.Post("/", h.Checkout)
+			authedCheckout.Post("/validate", h.ValidateCheckout)
+		})
 	})
 
 	// Admin order management routes
