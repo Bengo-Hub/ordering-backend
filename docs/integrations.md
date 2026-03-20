@@ -453,23 +453,28 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 **Integration**: Handled via treasury-api, not directly
 
-### Mapbox / Google Maps
+### Self-Hosted Routing (Valhalla + TileServer-GL)
 
-**Purpose**: Geocoding, distance matrix, route ETA
+**Purpose**: Geocoding, distance matrix, route ETA, map tile rendering
 
-**Configuration** (Tier 1):
-- API Key: Stored encrypted at rest
+**Architecture**: All mapping and routing is handled by the self-hosted stack, replacing Google Maps / Mapbox:
+- **Routing engine**: Valhalla at `https://routing.codevertexitsolutions.com` (internal: `http://valhalla.logistics.svc.cluster.local:8002`)
+- **Map tiles**: TileServer-GL at `https://tiles.codevertexitsolutions.com` (internal: `http://tileserver.logistics.svc.cluster.local:8080`)
+- **Frontend library**: `@bengo-hub/maps` (MapLibre GL JS wrapper, shared NPM package)
+- **Data source**: OpenStreetMap Kenya extract from Geofabrik, auto-refreshed weekly
+
+**Configuration**:
+- No API keys required (self-hosted, no per-request charges)
+- Routing accessed via logistics-api wrapper: `GET /api/v1/{tenant}/routing/*`
+- logistics-api adds Redis caching + rate limiting on top of Valhalla
 
 **Use Cases**:
-- Address geocoding
+- Address geocoding (via Valhalla + PostGIS)
 - Delivery distance calculation
 - Route optimization
 - ETA estimation
-
-**API Usage**:
-- Geocoding: Convert address to coordinates
-- Distance Matrix: Calculate delivery distance
-- Directions: Get route for delivery
+- Distance matrix (batch)
+- Isochrone (reachability polygons)
 
 ### S3-Compatible Storage
 
