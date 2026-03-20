@@ -486,49 +486,14 @@ func (s *Service) DeleteSchedule(ctx context.Context, scheduleID uuid.UUID) erro
 // --- Public API Operations ---
 
 // GetPublicMenu retrieves the public menu. Caller must set req.TenantID.
+// Delegates to the repository which correctly maps all fields.
 func (s *Service) GetPublicMenu(ctx context.Context, req PublicCatalogRequest) ([]PublicCatalogItem, int, error) {
-	filter := CatalogItemFilter{
-		TenantID:   req.TenantID,
-		OutletID:   req.OutletID,
-		Locale:     req.Locale,
-		Search:     req.Search,
-		Limit:      req.Limit,
-		Offset:     req.Offset,
-		CategoryID: req.CategoryID,
-	}
-
-	// Always filter by availability for public menu
-	available := true
-	filter.IsAvailable = &available
-
-	// Set UserID and FavoriteOnly for favorites filtering
-	if req.UserID != nil {
-		filter.UserID = req.UserID
-	}
-	if req.FavoriteOnly {
-		filter.FavoriteOnly = true
-	}
-
-	items, total, err := s.repo.ListCatalogItems(ctx, filter)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	publicItems := make([]PublicCatalogItem, len(items))
-	for i, item := range items {
-		publicItems[i] = s.toPublicCatalogItem(item)
-	}
-
-	return publicItems, total, nil
+	return s.repo.GetPublicMenu(ctx, req)
 }
 
-func (s *Service) toPublicCatalogItem(item CatalogItem) PublicCatalogItem {
-	return PublicCatalogItem{
-		ID:              item.ID,
-		LeadTimeMinutes: item.LeadTimeMinutes,
-		IsFavorite:      item.IsFavorite,
-		// Other fields will be populated by hydration from inventory-api
-	}
+// GetPublicCatalogItem retrieves a single catalog item for public display.
+func (s *Service) GetPublicCatalogItem(ctx context.Context, tenantID, itemID uuid.UUID, locale string) (*PublicCatalogItem, error) {
+	return s.repo.GetPublicCatalogItem(ctx, tenantID, itemID, locale)
 }
 
 // GetPublicCategories retrieves public categories.

@@ -8,6 +8,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
+	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
@@ -973,4 +974,39 @@ func entCatalogItemToDomain(ci *ent.CatalogItem) *catalog.CatalogItem {
 		CreatedAt:       ci.CreatedAt,
 		UpdatedAt:       ci.UpdatedAt,
 	}
+}
+
+// ListActiveDeliveryZones returns active delivery zones for a tenant (and optionally a specific outlet).
+func (r *EntRepository) ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error) {
+	query := r.client.DeliveryZone.Query().
+		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true)).
+		Order(ent.Asc(deliveryzone.FieldSortOrder))
+
+	if outletID != nil {
+		query = query.Where(deliveryzone.OutletID(*outletID))
+	}
+
+	zones, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list active delivery zones: %w", err)
+	}
+
+	result := make([]DeliveryZone, len(zones))
+	for i, z := range zones {
+		result[i] = DeliveryZone{
+			ID:                   z.ID,
+			TenantID:             z.TenantID,
+			OutletID:             z.OutletID,
+			Name:                 z.Name,
+			Slug:                 z.Slug,
+			ZonePolygon:          z.ZonePolygon,
+			DeliveryFee:          z.DeliveryFee,
+			MinimumOrder:         z.MinimumOrder,
+			EstimatedTimeMinutes: z.EstimatedTimeMinutes,
+			IsActive:             z.IsActive,
+			SortOrder:            z.SortOrder,
+		}
+	}
+
+	return result, nil
 }

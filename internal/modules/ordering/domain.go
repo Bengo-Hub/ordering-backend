@@ -284,17 +284,39 @@ type LoyaltyTransaction struct {
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
+// DeliveryZone represents a delivery zone with its fee configuration.
+type DeliveryZone struct {
+	ID                   uuid.UUID              `json:"id"`
+	TenantID             uuid.UUID              `json:"tenantId"`
+	OutletID             *uuid.UUID             `json:"outletId,omitempty"`
+	Name                 string                 `json:"name"`
+	Slug                 string                 `json:"slug,omitempty"`
+	ZonePolygon          map[string]interface{} `json:"zonePolygon,omitempty"`
+	DeliveryFee          float64                `json:"deliveryFee"`
+	MinimumOrder         float64                `json:"minimumOrder"`
+	EstimatedTimeMinutes int                    `json:"estimatedTimeMinutes"`
+	IsActive             bool                   `json:"isActive"`
+	SortOrder            int                    `json:"sortOrder"`
+}
+
 // DefaultCurrency is the default currency for orders.
 const DefaultCurrency = "KES"
 
 // CartExpirationDuration is the default cart expiration duration.
 const CartExpirationDuration = 24 * time.Hour
 
-// LoyaltyPointsPerUnit is the default points earned per currency unit.
-const LoyaltyPointsPerUnit = 1 // 1 point per KES 1
+// LoyaltyPointsPerHundred is the base points earned per KES 100 spent (Bronze tier).
+const LoyaltyPointsPerHundred = 1 // 1 point per KES 100
 
 // LoyaltyPointValue is the value of each loyalty point in the default currency.
 const LoyaltyPointValue = 0.1 // 1 point = 0.1 KES
+
+// Delivery fee constants
+const (
+	DeliveryFeeBase     = 100.0  // KES base delivery fee
+	DeliveryFeePerKm    = 30.0   // KES per km
+	FreeDeliveryMinimum = 2000.0 // KES - free delivery for orders above this
+)
 
 // CartFilter defines filter options for listing carts.
 type CartFilter struct {
@@ -377,6 +399,22 @@ type CreateOrderItemInput struct {
 	Quantity   int
 	UnitPrice  float64
 	TotalPrice float64
+}
+
+// GuestCheckoutRequest represents a request for guest checkout (no auth required).
+type GuestCheckoutRequest struct {
+	TenantID      uuid.UUID
+	OutletID      uuid.UUID
+	SessionID     string
+	ContactEmail  string
+	ContactPhone  string
+	DeliveryAddress string
+	DeliveryLat   *float64
+	DeliveryLng   *float64
+	DeliveryNotes string
+	PaymentMethod string
+	Instructions  string
+	Channel       OrderChannel
 }
 
 // PromoValidationResult represents the result of promo code validation.

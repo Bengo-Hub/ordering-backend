@@ -2,12 +2,34 @@ package ordering
 
 import (
 	"context"
+	"math"
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
+
+// haversineDistance calculates the distance in km between two lat/lng points
+// using the Haversine formula.
+func haversineDistance(lat1, lng1, lat2, lng2 float64) float64 {
+	const earthRadiusKm = 6371.0
+
+	dLat := degreesToRadians(lat2 - lat1)
+	dLng := degreesToRadians(lng2 - lng1)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(degreesToRadians(lat1))*math.Cos(degreesToRadians(lat2))*
+			math.Sin(dLng/2)*math.Sin(dLng/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+
+	return earthRadiusKm * c
+}
+
+// degreesToRadians converts degrees to radians.
+func degreesToRadians(degrees float64) float64 {
+	return degrees * math.Pi / 180
+}
 
 // CartService provides shopping cart business logic.
 type CartService struct {
@@ -326,6 +348,46 @@ func (s *CartService) recalculateCartTotals(ctx context.Context, cart *Cart) err
 	cart.ExpiresAt = &expiresAt
 
 	return s.repo.UpdateCart(ctx, cart)
+}
+
+// CalculateDeliveryFee calculates the delivery fee for a given delivery location.
+// It first checks for tenant-configured delivery zones with fees. If no zones are
+// configured, it falls back to distance-based calculation using the Haversine formula.
+func (s *CartService) CalculateDeliveryFee(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, lat, lng float64) (float64, error) {
+	// Check for configured delivery zones
+	zones, err := s.repo.ListActiveDeliveryZones(ctx, tenantID, outletID)
+	if err != nil {
+		s.logger.Warn("failed to query delivery zones, falling back to distance-based fee", zap.Error(err))
+	}
+
+	// If a zone with a delivery_fee > 0 exists, use that fee
+	for _, zone := range zones {
+		if zone.DeliveryFee > 0 {
+			return zone.DeliveryFee, nil
+		}
+	}
+
+	// No zones configured or no zone with fee > 0: calculate based on distance
+	if outletID == nil {
+		// Cannot calculate distance without an outlet
+		return DeliveryFeeBase, nil
+	}
+
+	outlet, err := s.catalogSvc.GetOutlet(ctx, tenantID, *outletID)
+	if err != nil {
+		s.logger.Warn("failed to get outlet for distance calculation, using base fee", zap.Error(err))
+		return DeliveryFeeBase, nil
+	}
+
+	if outlet.Latitude == nil || outlet.Longitude == nil {
+		// Outlet has no coordinates; return base fee
+		return DeliveryFeeBase, nil
+	}
+
+	distanceKm := haversineDistance(*outlet.Latitude, *outlet.Longitude, lat, lng)
+	fee := DeliveryFeeBase + (DeliveryFeePerKm * distanceKm)
+
+	return math.Round(fee*100) / 100, nil // round to 2 decimal places
 }
 
 // ExpireOldCarts marks old carts as expired.

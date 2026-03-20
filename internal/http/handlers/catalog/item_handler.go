@@ -10,9 +10,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
-// CreateCatalogItem creates a new menu item.
-// @Summary Create a new menu item
-// @Description Creates a new menu item within a category
+// CreateCatalogItem creates a new catalog item.
+// @Summary Create a new catalog item
+// @Description Creates a new catalog item within a category
 // @Tags Catalog
 // @Accept json
 // @Produce json
@@ -91,9 +91,9 @@ func (h *Handler) CreateCatalogItem(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusCreated, item)
 }
 
-// GetCatalogItem retrieves a menu item by ID.
-// @Summary Get a menu item
-// @Description Retrieves a menu item by its ID including variants and translations
+// GetCatalogItem retrieves a catalog item by ID.
+// @Summary Get a catalog item
+// @Description Retrieves a catalog item by its ID including variants and translations
 // @Tags Catalog
 // @Produce json
 // @Param Authorization header string true "Bearer token"
@@ -123,9 +123,9 @@ func (h *Handler) GetCatalogItem(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, item)
 }
 
-// ListCatalogItems lists all menu items with optional filters.
-// @Summary List menu items
-// @Description Lists all menu items with optional filters
+// ListCatalogItems lists all catalog items with optional filters.
+// @Summary List catalog items
+// @Description Lists all catalog items with optional filters
 // @Tags Catalog
 // @Produce json
 // @Param Authorization header string true "Bearer token"
@@ -188,9 +188,9 @@ func (h *Handler) ListCatalogItems(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateCatalogItem updates an existing menu item.
-// @Summary Update a menu item
-// @Description Updates an existing menu item
+// UpdateCatalogItem updates an existing catalog item.
+// @Summary Update a catalog item
+// @Description Updates an existing catalog item
 // @Tags Catalog
 // @Accept json
 // @Produce json
@@ -253,9 +253,9 @@ func (h *Handler) UpdateCatalogItem(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, item)
 }
 
-// DeleteCatalogItem deletes a menu item.
-// @Summary Delete a menu item
-// @Description Deletes a menu item
+// DeleteCatalogItem deletes a catalog item.
+// @Summary Delete a catalog item
+// @Description Deletes a catalog item
 // @Tags Catalog
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Menu item ID"
@@ -283,10 +283,10 @@ func (h *Handler) DeleteCatalogItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ListPublicCatalogItems lists public menu items (no auth required).
-// @Summary List public menu items
-// @Description Lists available menu items for public display with localization support
-// @Tags Menu
+// ListPublicCatalogItems lists public catalog items (no auth required).
+// @Summary List public catalog items
+// @Description Lists available catalog items for public display with localization support
+// @Tags Catalog
 // @Produce json
 // @Param outlet_id query string false "Filter by outlet ID"
 // @Param category_id query string false "Filter by category ID"
@@ -295,7 +295,7 @@ func (h *Handler) DeleteCatalogItem(w http.ResponseWriter, r *http.Request) {
 // @Param limit query integer false "Page size (default 50)"
 // @Param page query integer false "Page number (default 1)"
 // @Success 200 {object} ListResponse
-// @Router /menu/items [get]
+// @Router /catalog/items [get]
 func (h *Handler) ListPublicCatalogItems(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
@@ -314,7 +314,12 @@ func (h *Handler) ListPublicCatalogItems(w http.ResponseWriter, r *http.Request)
 		Offset:   offset,
 	}
 
-	if outletIDStr := r.URL.Query().Get("outlet_id"); outletIDStr != "" {
+	// Accept both outlet_id and cafe_id (legacy) for backward compat
+	outletIDStr := r.URL.Query().Get("outlet_id")
+	if outletIDStr == "" {
+		outletIDStr = r.URL.Query().Get("cafe_id")
+	}
+	if outletIDStr != "" {
 		outletID, err := uuid.Parse(outletIDStr)
 		if err == nil {
 			req.OutletID = &outletID
@@ -326,6 +331,12 @@ func (h *Handler) ListPublicCatalogItems(w http.ResponseWriter, r *http.Request)
 		if err == nil {
 			req.CategoryID = &categoryID
 		}
+	}
+
+	// Handle featured filter
+	if f := r.URL.Query().Get("featured"); f == "true" || f == "false" {
+		v := f == "true"
+		req.IsFeatured = &v
 	}
 
 	// Handle favorites filtering for public menu (requires auth)
@@ -351,16 +362,16 @@ func (h *Handler) ListPublicCatalogItems(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// GetPublicCatalogItem retrieves a public menu item (no auth required).
-// @Summary Get a public menu item
-// @Description Retrieves a menu item for public display
-// @Tags Menu
+// GetPublicCatalogItem retrieves a public catalog item (no auth required).
+// @Summary Get a public catalog item
+// @Description Retrieves a catalog item for public display
+// @Tags Catalog
 // @Produce json
 // @Param id path string true "Menu item ID"
 // @Param locale query string false "Locale for translations (default: en)"
 // @Success 200 {object} catalog.PublicCatalogItem
 // @Failure 404 {object} handlers.ErrorResponse
-// @Router /menu/items/{id} [get]
+// @Router /catalog/items/{id} [get]
 func (h *Handler) GetPublicCatalogItem(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
@@ -374,15 +385,10 @@ func (h *Handler) GetPublicCatalogItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := h.service.GetCatalogItem(r.Context(), tenantID, itemID)
+	locale := getLocale(r)
+	item, err := h.service.GetPublicCatalogItem(r.Context(), tenantID, itemID, locale)
 	if err != nil {
 		h.handleError(w, err)
-		return
-	}
-
-	// Check availability for public API
-	if !item.IsAvailable {
-		handlers.RespondError(w, http.StatusNotFound, "menu item not found")
 		return
 	}
 
@@ -408,9 +414,9 @@ func (h *Handler) ListDietaryTags(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, tags)
 }
 
-// AddDietaryTag adds a dietary tag to a menu item.
+// AddDietaryTag adds a dietary tag to a catalog item.
 // @Summary Add dietary tag to item
-// @Description Adds a dietary tag to a menu item
+// @Description Adds a dietary tag to a catalog item
 // @Tags Catalog
 // @Accept json
 // @Produce json
@@ -448,9 +454,9 @@ func (h *Handler) AddDietaryTag(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, map[string]string{"status": "added"})
 }
 
-// RemoveDietaryTag removes a dietary tag from a menu item.
+// RemoveDietaryTag removes a dietary tag from a catalog item.
 // @Summary Remove dietary tag from item
-// @Description Removes a dietary tag from a menu item
+// @Description Removes a dietary tag from a catalog item
 // @Tags Catalog
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Menu item ID"
@@ -479,10 +485,10 @@ func (h *Handler) RemoveDietaryTag(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ToggleFavorite toggles favorite status for a menu item.
+// ToggleFavorite toggles favorite status for a catalog item.
 // @Summary Toggle favorite status
-// @Description Adds or removes a menu item from the current user's favorites
-// @Tags Menu
+// @Description Adds or removes a catalog item from the current user's favorites
+// @Tags Catalog
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Menu item ID"
 // @Success 200 {object} map[string]interface{}

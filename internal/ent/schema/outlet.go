@@ -49,6 +49,10 @@ func (Outlet) Fields() []ent.Field {
 			Nillable(),
 		field.JSON("opening_hours", map[string]any{}).
 			Optional(),
+		field.String("image_url").
+			Optional().
+			Default("").
+			Comment("URL or path to the outlet image"),
 		field.String("use_case").
 			Optional().
 			Comment("Specific use case for this outlet (hospitality, retail, etc.)"),

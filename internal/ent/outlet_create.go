@@ -150,6 +150,20 @@ func (oc *OutletCreate) SetOpeningHours(m map[string]interface{}) *OutletCreate 
 	return oc
 }
 
+// SetImageURL sets the "image_url" field.
+func (oc *OutletCreate) SetImageURL(s string) *OutletCreate {
+	oc.mutation.SetImageURL(s)
+	return oc
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (oc *OutletCreate) SetNillableImageURL(s *string) *OutletCreate {
+	if s != nil {
+		oc.SetImageURL(*s)
+	}
+	return oc
+}
+
 // SetUseCase sets the "use_case" field.
 func (oc *OutletCreate) SetUseCase(s string) *OutletCreate {
 	oc.mutation.SetUseCase(s)
@@ -305,6 +319,10 @@ func (oc *OutletCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (oc *OutletCreate) defaults() {
+	if _, ok := oc.mutation.ImageURL(); !ok {
+		v := outlet.DefaultImageURL
+		oc.mutation.SetImageURL(v)
+	}
 	if _, ok := oc.mutation.Status(); !ok {
 		v := outlet.DefaultStatus
 		oc.mutation.SetStatus(v)
@@ -431,6 +449,10 @@ func (oc *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.OpeningHours(); ok {
 		_spec.SetField(outlet.FieldOpeningHours, field.TypeJSON, value)
 		_node.OpeningHours = value
+	}
+	if value, ok := oc.mutation.ImageURL(); ok {
+		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
+		_node.ImageURL = value
 	}
 	if value, ok := oc.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
@@ -757,6 +779,24 @@ func (u *OutletUpsert) ClearOpeningHours() *OutletUpsert {
 	return u
 }
 
+// SetImageURL sets the "image_url" field.
+func (u *OutletUpsert) SetImageURL(v string) *OutletUpsert {
+	u.Set(outlet.FieldImageURL, v)
+	return u
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *OutletUpsert) UpdateImageURL() *OutletUpsert {
+	u.SetExcluded(outlet.FieldImageURL)
+	return u
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *OutletUpsert) ClearImageURL() *OutletUpsert {
+	u.SetNull(outlet.FieldImageURL)
+	return u
+}
+
 // SetUseCase sets the "use_case" field.
 func (u *OutletUpsert) SetUseCase(v string) *OutletUpsert {
 	u.Set(outlet.FieldUseCase, v)
@@ -1071,6 +1111,27 @@ func (u *OutletUpsertOne) UpdateOpeningHours() *OutletUpsertOne {
 func (u *OutletUpsertOne) ClearOpeningHours() *OutletUpsertOne {
 	return u.Update(func(s *OutletUpsert) {
 		s.ClearOpeningHours()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *OutletUpsertOne) SetImageURL(v string) *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *OutletUpsertOne) UpdateImageURL() *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *OutletUpsertOne) ClearImageURL() *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.ClearImageURL()
 	})
 }
 
@@ -1562,6 +1623,27 @@ func (u *OutletUpsertBulk) UpdateOpeningHours() *OutletUpsertBulk {
 func (u *OutletUpsertBulk) ClearOpeningHours() *OutletUpsertBulk {
 	return u.Update(func(s *OutletUpsert) {
 		s.ClearOpeningHours()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *OutletUpsertBulk) SetImageURL(v string) *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *OutletUpsertBulk) UpdateImageURL() *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *OutletUpsertBulk) ClearImageURL() *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.ClearImageURL()
 	})
 }
 

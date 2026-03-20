@@ -23,7 +23,7 @@
 | Variant management | ✅ Complete | Create/List variants per item |
 | Translation management | ✅ Complete | Multi-locale support (EN/SW) |
 | Dietary tag system | ✅ Complete | Tag management and item assignment |
-| Public menu API | ✅ Complete | `/api/v1/menu/*` endpoints |
+| Public catalog API | ✅ Complete | `/api/v1/catalog/*` endpoints |
 | Admin catalog API | ✅ Complete | `/api/v1/catalog/*` with RBAC |
 | Localization support | ✅ Complete | Locale-aware menu API |
 | Image upload | ⏳ Deferred | S3 integration (Sprint 11) |
@@ -38,9 +38,9 @@
 - Routes wired into main router with permission checks
 
 **API Endpoints Implemented**:
-- `GET /api/v1/menu/categories` - Public categories
-- `GET /api/v1/menu/items` - Public menu items
-- `GET /api/v1/menu/items/{id}` - Public item details
+- `GET /api/v1/catalog/categories` - Public categories
+- `GET /api/v1/catalog/items` - Public catalog items
+- `GET /api/v1/catalog/items/{id}` - Public item details
 - `POST/GET/PUT/DELETE /api/v1/catalog/categories` - Admin category CRUD
 - `POST/GET/PUT/DELETE /api/v1/catalog/items` - Admin item CRUD
 - `POST/GET /api/v1/catalog/items/{id}/variants` - Variant management
@@ -219,10 +219,10 @@ Sprint 2 focuses on building the menu catalog system with full localization supp
 **DELETE /api/v1/{tenant}/catalog/images/{id}**
 - Delete image
 
-### Public Menu
+### Public Catalog
 
-**GET /api/v1/public/{tenant_slug}/menu**
-- Public menu endpoint (no authentication)
+**GET /api/v1/public/{tenant_slug}/catalog**
+- Public catalog endpoint (no authentication)
 - Query params: `cafe_id`, `category_id`, `locale`, `dietary_tag`
 - Response: Menu structure with items
 
@@ -359,7 +359,7 @@ Sprint 2 focuses on building the menu catalog system with full localization supp
 - [x] Translation management endpoints (Multi-locale support EN/SW)
 - [ ] Image upload and management (Deferred - Sprint 11, S3 integration)
 - [x] Dietary tag system (Tag management and item assignment)
-- [x] Public menu API (`/api/v1/menu/*` endpoints)
+- [x] Public catalog API (`/api/v1/catalog/*` endpoints)
 - [x] Availability scheduling (`CatalogItemSchedule` entity)
 - [x] Database migrations (Ent auto-migration)
 - [ ] Integration tests (Ongoing)

@@ -262,11 +262,11 @@ func (h *Handler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 // ListPublicCategories lists public categories (no auth required).
 // @Summary List public categories
 // @Description Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. outlet_id is optional; when omitted, the first outlet for the tenant is used.
-// @Tags Menu
+// @Tags Catalog
 // @Produce json
 // @Param outlet_id query string false "Outlet ID (optional; defaults to first outlet)"
 // @Success 200 {array} catalog.PublicCategory
-// @Router /menu/categories [get]
+// @Router /catalog/categories [get]
 func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
@@ -276,6 +276,9 @@ func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 
 	var outletID uuid.UUID
 	outletIDStr := r.URL.Query().Get("outlet_id")
+	if outletIDStr == "" {
+		outletIDStr = r.URL.Query().Get("cafe_id")
+	}
 	if outletIDStr != "" {
 		outletID, err = uuid.Parse(outletIDStr)
 		if err != nil {

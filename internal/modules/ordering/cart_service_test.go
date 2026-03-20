@@ -504,6 +504,10 @@ func (r *mockOrderingRepo) GetCatalogItemByID(_ context.Context, _, _ uuid.UUID)
 	return nil, errors.New("not implemented")
 }
 
+func (r *mockOrderingRepo) ListActiveDeliveryZones(_ context.Context, _ uuid.UUID, _ *uuid.UUID) ([]DeliveryZone, error) {
+	return nil, nil
+}
+
 // ---------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------

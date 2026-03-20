@@ -46,6 +46,10 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 
 	// Checkout endpoint
 	r.Route("/checkout", func(checkoutRouter chi.Router) {
+		// Guest checkout (no auth required)
+		checkoutRouter.Post("/guest", h.GuestCheckout)
+
+		// Authenticated checkout
 		checkoutRouter.Use(auth.RequireAuth)
 		checkoutRouter.Post("/", h.Checkout)
 		checkoutRouter.Post("/validate", h.ValidateCheckout)
@@ -90,6 +94,21 @@ type CancelOrderRequest struct {
 type RateOrderRequest struct {
 	Rating  int    `json:"rating"`
 	Comment string `json:"comment"`
+}
+
+// GuestCheckoutRequestDTO is the request body for POST /checkout/guest (guest checkout, no auth).
+type GuestCheckoutRequestDTO struct {
+	OutletID        string   `json:"outletId"`
+	SessionID       string   `json:"sessionId"`
+	ContactEmail    string   `json:"contactEmail"`
+	ContactPhone    string   `json:"contactPhone"`
+	DeliveryAddress string   `json:"deliveryAddress"`
+	DeliveryLat     *float64 `json:"deliveryLat,omitempty"`
+	DeliveryLng     *float64 `json:"deliveryLng,omitempty"`
+	DeliveryNotes   string   `json:"deliveryNotes,omitempty"`
+	PaymentMethod   string   `json:"paymentMethod"` // "mpesa" | "cod"
+	Instructions    string   `json:"instructions,omitempty"`
+	Channel         string   `json:"channel,omitempty"`
 }
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
@@ -989,4 +1008,72 @@ func (h *OrderHandler) GetAnalyticsSummary(w http.ResponseWriter, r *http.Reques
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, summary)
+}
+
+// GuestCheckout creates an order from a guest cart without requiring auth.
+// @Summary Guest checkout
+// @Description Creates an order from a guest cart identified by session ID (no auth required)
+// @Tags Checkout
+// @Accept json
+// @Produce json
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param payload body GuestCheckoutRequestDTO true "Guest checkout data"
+// @Success 201 {object} ordering.Order
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /checkout/guest [post]
+func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	var req GuestCheckoutRequestDTO
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.SessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "sessionId is required")
+		return
+	}
+
+	if req.ContactEmail == "" && req.ContactPhone == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "contactEmail or contactPhone is required for guest checkout")
+		return
+	}
+
+	if req.OutletID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "outletId is required")
+		return
+	}
+
+	outletID, err := uuid.Parse(req.OutletID)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
+		return
+	}
+
+	order, err := h.orderService.GuestCheckout(r.Context(), ordering.GuestCheckoutRequest{
+		TenantID:        tenantID,
+		OutletID:        outletID,
+		SessionID:       req.SessionID,
+		ContactEmail:    req.ContactEmail,
+		ContactPhone:    req.ContactPhone,
+		DeliveryAddress: req.DeliveryAddress,
+		DeliveryLat:     req.DeliveryLat,
+		DeliveryLng:     req.DeliveryLng,
+		DeliveryNotes:   req.DeliveryNotes,
+		PaymentMethod:   req.PaymentMethod,
+		Instructions:    req.Instructions,
+		Channel:         parseOrderChannel(req.Channel),
+	})
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusCreated, order)
 }

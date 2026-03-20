@@ -241,6 +241,26 @@ func (ou *OutletUpdate) ClearOpeningHours() *OutletUpdate {
 	return ou
 }
 
+// SetImageURL sets the "image_url" field.
+func (ou *OutletUpdate) SetImageURL(s string) *OutletUpdate {
+	ou.mutation.SetImageURL(s)
+	return ou
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (ou *OutletUpdate) SetNillableImageURL(s *string) *OutletUpdate {
+	if s != nil {
+		ou.SetImageURL(*s)
+	}
+	return ou
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (ou *OutletUpdate) ClearImageURL() *OutletUpdate {
+	ou.mutation.ClearImageURL()
+	return ou
+}
+
 // SetUseCase sets the "use_case" field.
 func (ou *OutletUpdate) SetUseCase(s string) *OutletUpdate {
 	ou.mutation.SetUseCase(s)
@@ -530,6 +550,12 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.OpeningHoursCleared() {
 		_spec.ClearField(outlet.FieldOpeningHours, field.TypeJSON)
+	}
+	if value, ok := ou.mutation.ImageURL(); ok {
+		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
+	}
+	if ou.mutation.ImageURLCleared() {
+		_spec.ClearField(outlet.FieldImageURL, field.TypeString)
 	}
 	if value, ok := ou.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
@@ -935,6 +961,26 @@ func (ouo *OutletUpdateOne) ClearOpeningHours() *OutletUpdateOne {
 	return ouo
 }
 
+// SetImageURL sets the "image_url" field.
+func (ouo *OutletUpdateOne) SetImageURL(s string) *OutletUpdateOne {
+	ouo.mutation.SetImageURL(s)
+	return ouo
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (ouo *OutletUpdateOne) SetNillableImageURL(s *string) *OutletUpdateOne {
+	if s != nil {
+		ouo.SetImageURL(*s)
+	}
+	return ouo
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (ouo *OutletUpdateOne) ClearImageURL() *OutletUpdateOne {
+	ouo.mutation.ClearImageURL()
+	return ouo
+}
+
 // SetUseCase sets the "use_case" field.
 func (ouo *OutletUpdateOne) SetUseCase(s string) *OutletUpdateOne {
 	ouo.mutation.SetUseCase(s)
@@ -1254,6 +1300,12 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 	}
 	if ouo.mutation.OpeningHoursCleared() {
 		_spec.ClearField(outlet.FieldOpeningHours, field.TypeJSON)
+	}
+	if value, ok := ouo.mutation.ImageURL(); ok {
+		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
+	}
+	if ouo.mutation.ImageURLCleared() {
+		_spec.ClearField(outlet.FieldImageURL, field.TypeString)
 	}
 	if value, ok := ouo.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)

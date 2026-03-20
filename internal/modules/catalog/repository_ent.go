@@ -244,9 +244,16 @@ func (r *EntRepository) ListCatalogItems(ctx context.Context, filter CatalogItem
 	if filter.IsAvailable != nil {
 		query = query.Where(catalogitem.IsAvailable(*filter.IsAvailable))
 	}
+	if filter.IsFeatured != nil {
+		query = query.Where(catalogitem.IsFeatured(*filter.IsFeatured))
+	}
 	if filter.Search != "" {
 		query = query.Where(
-			catalogitem.SkuContainsFold(filter.Search),
+			catalogitem.Or(
+				catalogitem.NameContainsFold(filter.Search),
+				catalogitem.DescriptionContainsFold(filter.Search),
+				catalogitem.SkuContainsFold(filter.Search),
+			),
 		)
 	}
 
@@ -582,6 +589,9 @@ func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicCatalogRequ
 	if req.CategoryID != nil {
 		filter.CategoryID = req.CategoryID
 	}
+	if req.IsFeatured != nil {
+		filter.IsFeatured = req.IsFeatured
+	}
 	isAvailable := true
 	filter.IsAvailable = &isAvailable
 
@@ -602,6 +612,19 @@ func (r *EntRepository) GetPublicMenu(ctx context.Context, req PublicCatalogRequ
 	return result, total, nil
 }
 
+// GetPublicCatalogItem retrieves a single catalog item for public display.
+func (r *EntRepository) GetPublicCatalogItem(ctx context.Context, tenantID, itemID uuid.UUID, locale string) (*PublicCatalogItem, error) {
+	item, err := r.GetCatalogItem(ctx, tenantID, itemID)
+	if err != nil {
+		return nil, err
+	}
+	if !item.IsAvailable {
+		return nil, ErrCatalogItemNotFound
+	}
+	pub := toPublicCatalogItem(*item, locale)
+	return &pub, nil
+}
+
 func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, outletID uuid.UUID) ([]PublicCategory, error) {
 	isActive := true
 	cats, _, err := r.ListCategories(ctx, CategoryFilter{
@@ -616,8 +639,32 @@ func (r *EntRepository) GetPublicCategories(ctx context.Context, tenantID, outle
 	result := make([]PublicCategory, len(cats))
 	for i, cat := range cats {
 		result[i] = toPublicCategory(cat)
+		count, countErr := r.CountCategoryItems(ctx, cat.ID)
+		if countErr == nil {
+			result[i].ItemCount = count
+		}
 	}
 	return result, nil
+}
+
+// entOutletToSummary converts an Ent Outlet entity to an OutletSummary domain object.
+func entOutletToSummary(o *ent.Outlet) OutletSummary {
+	return OutletSummary{
+		ID:           o.ID,
+		Name:         o.Name,
+		Slug:         o.Slug,
+		Description:  o.Description,
+		Address:      o.Address,
+		Phone:        o.Phone,
+		Email:        o.Email,
+		Location:     o.Location,
+		Latitude:     o.Latitude,
+		Longitude:    o.Longitude,
+		OpeningHours: o.OpeningHours,
+		ImageURL:     o.ImageURL,
+		Status:       o.Status,
+		UseCase:      o.UseCase,
+	}
 }
 
 // ListOutlets returns all outlets for a tenant from the outlets table.
@@ -630,10 +677,7 @@ func (r *EntRepository) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]
 	}
 	result := make([]OutletSummary, len(outlets))
 	for i, o := range outlets {
-		result[i] = OutletSummary{
-			ID:   o.ID,
-			Name: o.Name,
-		}
+		result[i] = entOutletToSummary(o)
 	}
 	return result, nil
 }
@@ -649,10 +693,8 @@ func (r *EntRepository) GetOutlet(ctx context.Context, tenantID, outletID uuid.U
 		}
 		return nil, err
 	}
-	return &OutletSummary{
-		ID:   o.ID,
-		Name: o.Name,
-	}, nil
+	summary := entOutletToSummary(o)
+	return &summary, nil
 }
 
 // --- Conversion Helpers ---

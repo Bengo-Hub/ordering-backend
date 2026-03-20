@@ -1127,6 +1127,7 @@ var (
 		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "opening_hours", Type: field.TypeJSON, Nullable: true},
+		{Name: "image_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "use_case", Type: field.TypeString, Nullable: true},
 		{Name: "status", Type: field.TypeString, Default: "active"},
 		{Name: "created_at", Type: field.TypeTime},
@@ -1141,7 +1142,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "outlets_tenants_outlets",
-				Columns:    []*schema.Column{OutletsColumns[15]},
+				Columns:    []*schema.Column{OutletsColumns[16]},
 				RefColumns: []*schema.Column{TenantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1150,12 +1151,12 @@ var (
 			{
 				Name:    "outlet_tenant_id_slug",
 				Unique:  true,
-				Columns: []*schema.Column{OutletsColumns[15], OutletsColumns[2]},
+				Columns: []*schema.Column{OutletsColumns[16], OutletsColumns[2]},
 			},
 			{
 				Name:    "outlet_status",
 				Unique:  false,
-				Columns: []*schema.Column{OutletsColumns[12]},
+				Columns: []*schema.Column{OutletsColumns[13]},
 			},
 		},
 	}

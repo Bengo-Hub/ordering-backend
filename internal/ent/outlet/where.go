@@ -106,6 +106,11 @@ func Longitude(v float64) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldLongitude, v))
 }
 
+// ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
+func ImageURL(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldImageURL, v))
+}
+
 // UseCase applies equality check predicate on the "use_case" field. It's identical to UseCaseEQ.
 func UseCase(v string) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldUseCase, v))
@@ -759,6 +764,81 @@ func OpeningHoursIsNil() predicate.Outlet {
 // OpeningHoursNotNil applies the NotNil predicate on the "opening_hours" field.
 func OpeningHoursNotNil() predicate.Outlet {
 	return predicate.Outlet(sql.FieldNotNull(FieldOpeningHours))
+}
+
+// ImageURLEQ applies the EQ predicate on the "image_url" field.
+func ImageURLEQ(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldImageURL, v))
+}
+
+// ImageURLNEQ applies the NEQ predicate on the "image_url" field.
+func ImageURLNEQ(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldNEQ(FieldImageURL, v))
+}
+
+// ImageURLIn applies the In predicate on the "image_url" field.
+func ImageURLIn(vs ...string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldIn(FieldImageURL, vs...))
+}
+
+// ImageURLNotIn applies the NotIn predicate on the "image_url" field.
+func ImageURLNotIn(vs ...string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldNotIn(FieldImageURL, vs...))
+}
+
+// ImageURLGT applies the GT predicate on the "image_url" field.
+func ImageURLGT(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldGT(FieldImageURL, v))
+}
+
+// ImageURLGTE applies the GTE predicate on the "image_url" field.
+func ImageURLGTE(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldGTE(FieldImageURL, v))
+}
+
+// ImageURLLT applies the LT predicate on the "image_url" field.
+func ImageURLLT(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldLT(FieldImageURL, v))
+}
+
+// ImageURLLTE applies the LTE predicate on the "image_url" field.
+func ImageURLLTE(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldLTE(FieldImageURL, v))
+}
+
+// ImageURLContains applies the Contains predicate on the "image_url" field.
+func ImageURLContains(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldContains(FieldImageURL, v))
+}
+
+// ImageURLHasPrefix applies the HasPrefix predicate on the "image_url" field.
+func ImageURLHasPrefix(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldHasPrefix(FieldImageURL, v))
+}
+
+// ImageURLHasSuffix applies the HasSuffix predicate on the "image_url" field.
+func ImageURLHasSuffix(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldHasSuffix(FieldImageURL, v))
+}
+
+// ImageURLIsNil applies the IsNil predicate on the "image_url" field.
+func ImageURLIsNil() predicate.Outlet {
+	return predicate.Outlet(sql.FieldIsNull(FieldImageURL))
+}
+
+// ImageURLNotNil applies the NotNil predicate on the "image_url" field.
+func ImageURLNotNil() predicate.Outlet {
+	return predicate.Outlet(sql.FieldNotNull(FieldImageURL))
+}
+
+// ImageURLEqualFold applies the EqualFold predicate on the "image_url" field.
+func ImageURLEqualFold(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEqualFold(FieldImageURL, v))
+}
+
+// ImageURLContainsFold applies the ContainsFold predicate on the "image_url" field.
+func ImageURLContainsFold(v string) predicate.Outlet {
+	return predicate.Outlet(sql.FieldContainsFold(FieldImageURL, v))
 }
 
 // UseCaseEQ applies the EQ predicate on the "use_case" field.

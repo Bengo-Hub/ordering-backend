@@ -242,19 +242,44 @@ func (s *LoyaltyService) CalculatePointsValue(points int) float64 {
 	return float64(points) * LoyaltyPointValue
 }
 
-// CalculatePointsForAmount calculates the points earned for a given amount.
+// CalculatePointsForAmount calculates the points earned for a given amount,
+// applying the base rate of 1 point per KES 100.
 func (s *LoyaltyService) CalculatePointsForAmount(amount float64) int {
-	return int(amount * float64(LoyaltyPointsPerUnit))
+	return int(amount / 100 * float64(LoyaltyPointsPerHundred))
+}
+
+// CalculatePointsForAmountWithTier calculates points earned for a given amount,
+// applying the tier-specific multiplier.
+// Tiers: Bronze 1x, Silver 1.2x, Gold 1.5x, Platinum 2x per KES 100.
+func (s *LoyaltyService) CalculatePointsForAmountWithTier(amount float64, tier LoyaltyTier) int {
+	basePoints := amount / 100 * float64(LoyaltyPointsPerHundred)
+	multiplier := 1.0
+	switch tier {
+	case LoyaltyTierPlatinum:
+		multiplier = 2.0
+	case LoyaltyTierGold:
+		multiplier = 1.5
+	case LoyaltyTierSilver:
+		multiplier = 1.2
+	default: // Bronze
+		multiplier = 1.0
+	}
+	return int(basePoints * multiplier)
 }
 
 // calculateTier determines the loyalty tier based on lifetime points.
+// Tiers aligned with cafe-website:
+//   - Bronze:   0-500 points
+//   - Silver:   501-2000 points
+//   - Gold:     2001-5000 points
+//   - Platinum: 5000+ points
 func (s *LoyaltyService) calculateTier(lifetimePoints int) LoyaltyTier {
 	switch {
-	case lifetimePoints >= 10000:
+	case lifetimePoints > 5000:
 		return LoyaltyTierPlatinum
-	case lifetimePoints >= 5000:
+	case lifetimePoints > 2000:
 		return LoyaltyTierGold
-	case lifetimePoints >= 1000:
+	case lifetimePoints > 500:
 		return LoyaltyTierSilver
 	default:
 		return LoyaltyTierBronze
@@ -277,7 +302,7 @@ func (s *LoyaltyService) GetTierBenefits(tier LoyaltyTier) map[string]interface{
 		benefits["prioritySupport"] = false
 		benefits["exclusiveOffers"] = true
 	case LoyaltyTierSilver:
-		benefits["pointsMultiplier"] = 1.25
+		benefits["pointsMultiplier"] = 1.2
 		benefits["freeDelivery"] = false
 		benefits["prioritySupport"] = false
 		benefits["exclusiveOffers"] = false

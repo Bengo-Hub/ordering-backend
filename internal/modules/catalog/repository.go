@@ -49,6 +49,7 @@ type Repository interface {
 
 	// Public API helpers
 	GetPublicMenu(ctx context.Context, req PublicCatalogRequest) ([]PublicCatalogItem, int, error)
+	GetPublicCatalogItem(ctx context.Context, tenantID, itemID uuid.UUID, locale string) (*PublicCatalogItem, error)
 	GetPublicCategories(ctx context.Context, tenantID, outletID uuid.UUID) ([]PublicCategory, error)
 
 	// Outlets

@@ -153,7 +153,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	}
 
 	// Calculate loyalty points earned
-	loyaltyPointsEarned := int(grandTotal * float64(LoyaltyPointsPerUnit))
+	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
 
 	// Create order
 	now := time.Now()
@@ -265,7 +265,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		return nil, err
 	}
 
-	loyaltyPointsEarned := int(grandTotal * float64(LoyaltyPointsPerUnit))
+	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
 	instructions := req.DeliveryAddress
 	if req.DeliveryNotes != "" {
 		instructions = instructions + "\n" + req.DeliveryNotes
@@ -319,6 +319,123 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	s.logger.Info("order created from items",
 		zap.String("id", order.ID.String()),
 		zap.String("orderNumber", order.OrderNumber),
+		zap.Float64("grandTotal", order.GrandTotal))
+
+	return order, nil
+}
+
+// GuestCheckout creates an order from a guest (session-based) cart without requiring authentication.
+// Guest orders do not earn loyalty points. A nil UUID is used for CustomerID.
+func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutRequest) (*Order, error) {
+	// Get guest cart by session
+	guestCart, err := s.repo.GetActiveCartBySession(ctx, req.TenantID, req.OutletID, req.SessionID)
+	if err != nil || guestCart == nil {
+		return nil, ErrCartNotFound
+	}
+
+	// Load cart items
+	items, err := s.repo.ListCartItems(ctx, guestCart.ID)
+	if err != nil {
+		return nil, err
+	}
+	guestCart.Items = items
+
+	if len(guestCart.Items) == 0 {
+		return nil, ErrCartEmpty
+	}
+
+	// Calculate totals
+	grandTotal := guestCart.Subtotal - guestCart.DiscountTotal + guestCart.TaxTotal + guestCart.DeliveryFee
+
+	// Generate order number
+	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.OutletID)
+	if err != nil {
+		s.logger.Error("failed to generate order number", zap.Error(err))
+		return nil, err
+	}
+
+	// Build instructions with delivery info and contact details
+	instructions := req.DeliveryAddress
+	if req.DeliveryNotes != "" {
+		instructions = instructions + "\n" + req.DeliveryNotes
+	}
+	if req.Instructions != "" {
+		instructions = instructions + "\n" + req.Instructions
+	}
+
+	// Use nil UUID for guest customer
+	guestCustomerID := uuid.Nil
+
+	now := time.Now()
+	order := &Order{
+		TenantID:      req.TenantID,
+		OutletID:      req.OutletID,
+		CustomerID:    guestCustomerID,
+		CartID:        &guestCart.ID,
+		OrderNumber:   orderNumber,
+		Status:        OrderStatusPending,
+		PaymentStatus: PaymentStatusPending,
+		Currency:      guestCart.Currency,
+		Subtotal:      guestCart.Subtotal,
+		DiscountTotal: guestCart.DiscountTotal,
+		TaxTotal:      guestCart.TaxTotal,
+		DeliveryFee:   guestCart.DeliveryFee,
+		GrandTotal:    grandTotal,
+		// Guests do not earn loyalty points
+		LoyaltyPointsEarned:   0,
+		LoyaltyPointsRedeemed: 0,
+		Instructions:          instructions,
+		Channel:               req.Channel,
+		Source:                 "guest",
+		PlacedAt:              &now,
+		Metadata: map[string]interface{}{
+			"guest":        true,
+			"contactEmail": req.ContactEmail,
+			"contactPhone": req.ContactPhone,
+			"sessionId":    req.SessionID,
+		},
+	}
+
+	if err := s.repo.CreateOrder(ctx, order); err != nil {
+		s.logger.Error("failed to create guest order", zap.Error(err))
+		return nil, err
+	}
+
+	// Create order items from cart items
+	for _, cartItem := range guestCart.Items {
+		orderItem := &OrderItem{
+			OrderID:       order.ID,
+			CatalogItemID: cartItem.CatalogItemID,
+			VariantID:     cartItem.VariantID,
+			NameSnapshot:  cartItem.NameSnapshot,
+			Quantity:      cartItem.Quantity,
+			UnitPrice:     cartItem.UnitPrice,
+			TotalPrice:    cartItem.TotalPrice,
+			Notes:         cartItem.Notes,
+			Metadata:      cartItem.Metadata,
+		}
+		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
+			s.logger.Error("failed to create guest order item", zap.Error(err))
+		}
+	}
+
+	// Mark guest cart as checked out
+	guestCart.Status = CartStatusCheckedOut
+	if err := s.repo.UpdateCart(ctx, guestCart); err != nil {
+		s.logger.Error("failed to mark guest cart as checked out", zap.Error(err))
+	}
+
+	// Create order event (no user actor for guest)
+	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, nil, "guest", "")
+
+	// Publish order.created event
+	s.publishOrderCreated(ctx, order, len(guestCart.Items))
+
+	s.logger.Info("guest order created",
+		zap.String("id", order.ID.String()),
+		zap.String("orderNumber", order.OrderNumber),
+		zap.String("contactEmail", req.ContactEmail),
+		zap.String("contactPhone", req.ContactPhone),
 		zap.Float64("grandTotal", order.GrandTotal))
 
 	return order, nil

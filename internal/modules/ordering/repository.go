@@ -85,6 +85,9 @@ type Repository interface {
 	CreateLoyaltyTransaction(ctx context.Context, tx *LoyaltyTransaction) error
 	ListLoyaltyTransactions(ctx context.Context, accountID uuid.UUID, limit, offset int) ([]LoyaltyTransaction, int, error)
 
+	// DeliveryZone operations
+	ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error)
+
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 	GetCatalogItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.CatalogItem, error)
