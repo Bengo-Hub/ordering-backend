@@ -56,6 +56,10 @@ func (h *Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		TenantID:     &tenantID,
 		OutletID:     &outletID,
 		ParentID:     parentID,
+		Name:         req.Name,
+		Slug:         req.Slug,
+		Description:  req.Description,
+		ImageURL:     req.ImageURL,
 		DisplayOrder: req.DisplayOrder,
 		IsActive:     req.IsActive,
 	})
@@ -197,6 +201,10 @@ func (h *Handler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 	updateReq := catalog.UpdateCategoryRequest{
 		TenantID:     tenantID,
 		CategoryID:   categoryID,
+		Name:         req.Name,
+		Slug:         req.Slug,
+		Description:  req.Description,
+		ImageURL:     req.ImageURL,
 		DisplayOrder: req.DisplayOrder,
 		IsActive:     req.IsActive,
 		ClearParent:  req.ClearParent,

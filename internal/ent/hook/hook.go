@@ -153,6 +153,18 @@ func (f DeliveryWindowFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryWindowMutation", m)
 }
 
+// The DeliveryZoneFunc type is an adapter to allow the use of ordinary
+// function as DeliveryZone mutator.
+type DeliveryZoneFunc func(context.Context, *ent.DeliveryZoneMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DeliveryZoneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DeliveryZoneMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryZoneMutation", m)
+}
+
 // The DietaryTagFunc type is an adapter to allow the use of ordinary
 // function as DietaryTag mutator.
 type DietaryTagFunc func(context.Context, *ent.DietaryTagMutation) (ent.Value, error)

@@ -23,6 +23,7 @@ import (
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
+	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
@@ -311,8 +312,9 @@ func New(ctx context.Context) (*App, error) {
 	log.Info("app: audit logger initialized")
 
 	mediaHandler := handlers.NewMediaHandler(log, cfg)
+	zonesHandler := zoneshandler.New(log, ormClient)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, tenantSyncer)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, tenantSyncer)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

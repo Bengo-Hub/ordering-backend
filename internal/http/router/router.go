@@ -18,6 +18,7 @@ import (
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
+	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
@@ -53,6 +54,7 @@ func New(
 	slaHandler *slahandler.Handler,
 	analyticsHandler *analyticshandler.Handler,
 	complianceHandler *compliancehandler.Handler,
+	zonesHandler *zoneshandler.Handler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	rateLimiter *security.RateLimiter,
@@ -234,6 +236,11 @@ func New(
 					}
 					if addressHandler != nil {
 						addressHandler.Register(tenant, authenticator)
+					}
+
+					// Register delivery zones
+					if zonesHandler != nil {
+						zonesHandler.Register(tenant, authenticator)
 					}
 
 					// Register payment routes

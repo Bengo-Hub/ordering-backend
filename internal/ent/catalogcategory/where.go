@@ -71,6 +71,26 @@ func ParentID(v uuid.UUID) predicate.CatalogCategory {
 	return predicate.CatalogCategory(sql.FieldEQ(FieldParentID, v))
 }
 
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldName, v))
+}
+
+// Slug applies equality check predicate on the "slug" field. It's identical to SlugEQ.
+func Slug(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldSlug, v))
+}
+
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldDescription, v))
+}
+
+// ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
+func ImageURL(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldImageURL, v))
+}
+
 // DisplayOrder applies equality check predicate on the "display_order" field. It's identical to DisplayOrderEQ.
 func DisplayOrder(v int) predicate.CatalogCategory {
 	return predicate.CatalogCategory(sql.FieldEQ(FieldDisplayOrder, v))
@@ -199,6 +219,296 @@ func ParentIDIsNil() predicate.CatalogCategory {
 // ParentIDNotNil applies the NotNil predicate on the "parent_id" field.
 func ParentIDNotNil() predicate.CatalogCategory {
 	return predicate.CatalogCategory(sql.FieldNotNull(FieldParentID))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContainsFold(FieldName, v))
+}
+
+// SlugEQ applies the EQ predicate on the "slug" field.
+func SlugEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldSlug, v))
+}
+
+// SlugNEQ applies the NEQ predicate on the "slug" field.
+func SlugNEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNEQ(FieldSlug, v))
+}
+
+// SlugIn applies the In predicate on the "slug" field.
+func SlugIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIn(FieldSlug, vs...))
+}
+
+// SlugNotIn applies the NotIn predicate on the "slug" field.
+func SlugNotIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotIn(FieldSlug, vs...))
+}
+
+// SlugGT applies the GT predicate on the "slug" field.
+func SlugGT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGT(FieldSlug, v))
+}
+
+// SlugGTE applies the GTE predicate on the "slug" field.
+func SlugGTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGTE(FieldSlug, v))
+}
+
+// SlugLT applies the LT predicate on the "slug" field.
+func SlugLT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLT(FieldSlug, v))
+}
+
+// SlugLTE applies the LTE predicate on the "slug" field.
+func SlugLTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLTE(FieldSlug, v))
+}
+
+// SlugContains applies the Contains predicate on the "slug" field.
+func SlugContains(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContains(FieldSlug, v))
+}
+
+// SlugHasPrefix applies the HasPrefix predicate on the "slug" field.
+func SlugHasPrefix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasPrefix(FieldSlug, v))
+}
+
+// SlugHasSuffix applies the HasSuffix predicate on the "slug" field.
+func SlugHasSuffix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasSuffix(FieldSlug, v))
+}
+
+// SlugIsNil applies the IsNil predicate on the "slug" field.
+func SlugIsNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIsNull(FieldSlug))
+}
+
+// SlugNotNil applies the NotNil predicate on the "slug" field.
+func SlugNotNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotNull(FieldSlug))
+}
+
+// SlugEqualFold applies the EqualFold predicate on the "slug" field.
+func SlugEqualFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEqualFold(FieldSlug, v))
+}
+
+// SlugContainsFold applies the ContainsFold predicate on the "slug" field.
+func SlugContainsFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContainsFold(FieldSlug, v))
+}
+
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldDescription, v))
+}
+
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNEQ(FieldDescription, v))
+}
+
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIn(FieldDescription, vs...))
+}
+
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotIn(FieldDescription, vs...))
+}
+
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGT(FieldDescription, v))
+}
+
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGTE(FieldDescription, v))
+}
+
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLT(FieldDescription, v))
+}
+
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLTE(FieldDescription, v))
+}
+
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContains(FieldDescription, v))
+}
+
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasPrefix(FieldDescription, v))
+}
+
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasSuffix(FieldDescription, v))
+}
+
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotNull(FieldDescription))
+}
+
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEqualFold(FieldDescription, v))
+}
+
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// ImageURLEQ applies the EQ predicate on the "image_url" field.
+func ImageURLEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEQ(FieldImageURL, v))
+}
+
+// ImageURLNEQ applies the NEQ predicate on the "image_url" field.
+func ImageURLNEQ(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNEQ(FieldImageURL, v))
+}
+
+// ImageURLIn applies the In predicate on the "image_url" field.
+func ImageURLIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIn(FieldImageURL, vs...))
+}
+
+// ImageURLNotIn applies the NotIn predicate on the "image_url" field.
+func ImageURLNotIn(vs ...string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotIn(FieldImageURL, vs...))
+}
+
+// ImageURLGT applies the GT predicate on the "image_url" field.
+func ImageURLGT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGT(FieldImageURL, v))
+}
+
+// ImageURLGTE applies the GTE predicate on the "image_url" field.
+func ImageURLGTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldGTE(FieldImageURL, v))
+}
+
+// ImageURLLT applies the LT predicate on the "image_url" field.
+func ImageURLLT(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLT(FieldImageURL, v))
+}
+
+// ImageURLLTE applies the LTE predicate on the "image_url" field.
+func ImageURLLTE(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldLTE(FieldImageURL, v))
+}
+
+// ImageURLContains applies the Contains predicate on the "image_url" field.
+func ImageURLContains(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContains(FieldImageURL, v))
+}
+
+// ImageURLHasPrefix applies the HasPrefix predicate on the "image_url" field.
+func ImageURLHasPrefix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasPrefix(FieldImageURL, v))
+}
+
+// ImageURLHasSuffix applies the HasSuffix predicate on the "image_url" field.
+func ImageURLHasSuffix(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldHasSuffix(FieldImageURL, v))
+}
+
+// ImageURLIsNil applies the IsNil predicate on the "image_url" field.
+func ImageURLIsNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldIsNull(FieldImageURL))
+}
+
+// ImageURLNotNil applies the NotNil predicate on the "image_url" field.
+func ImageURLNotNil() predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldNotNull(FieldImageURL))
+}
+
+// ImageURLEqualFold applies the EqualFold predicate on the "image_url" field.
+func ImageURLEqualFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldEqualFold(FieldImageURL, v))
+}
+
+// ImageURLContainsFold applies the ContainsFold predicate on the "image_url" field.
+func ImageURLContainsFold(v string) predicate.CatalogCategory {
+	return predicate.CatalogCategory(sql.FieldContainsFold(FieldImageURL, v))
 }
 
 // DisplayOrderEQ applies the EQ predicate on the "display_order" field.

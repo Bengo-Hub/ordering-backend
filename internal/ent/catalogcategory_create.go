@@ -68,6 +68,54 @@ func (ccc *CatalogCategoryCreate) SetNillableParentID(u *uuid.UUID) *CatalogCate
 	return ccc
 }
 
+// SetName sets the "name" field.
+func (ccc *CatalogCategoryCreate) SetName(s string) *CatalogCategoryCreate {
+	ccc.mutation.SetName(s)
+	return ccc
+}
+
+// SetSlug sets the "slug" field.
+func (ccc *CatalogCategoryCreate) SetSlug(s string) *CatalogCategoryCreate {
+	ccc.mutation.SetSlug(s)
+	return ccc
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (ccc *CatalogCategoryCreate) SetNillableSlug(s *string) *CatalogCategoryCreate {
+	if s != nil {
+		ccc.SetSlug(*s)
+	}
+	return ccc
+}
+
+// SetDescription sets the "description" field.
+func (ccc *CatalogCategoryCreate) SetDescription(s string) *CatalogCategoryCreate {
+	ccc.mutation.SetDescription(s)
+	return ccc
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ccc *CatalogCategoryCreate) SetNillableDescription(s *string) *CatalogCategoryCreate {
+	if s != nil {
+		ccc.SetDescription(*s)
+	}
+	return ccc
+}
+
+// SetImageURL sets the "image_url" field.
+func (ccc *CatalogCategoryCreate) SetImageURL(s string) *CatalogCategoryCreate {
+	ccc.mutation.SetImageURL(s)
+	return ccc
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (ccc *CatalogCategoryCreate) SetNillableImageURL(s *string) *CatalogCategoryCreate {
+	if s != nil {
+		ccc.SetImageURL(*s)
+	}
+	return ccc
+}
+
 // SetDisplayOrder sets the "display_order" field.
 func (ccc *CatalogCategoryCreate) SetDisplayOrder(i int) *CatalogCategoryCreate {
 	ccc.mutation.SetDisplayOrder(i)
@@ -237,6 +285,19 @@ func (ccc *CatalogCategoryCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ccc *CatalogCategoryCreate) check() error {
+	if _, ok := ccc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "CatalogCategory.name"`)}
+	}
+	if v, ok := ccc.mutation.Name(); ok {
+		if err := catalogcategory.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.name": %w`, err)}
+		}
+	}
+	if v, ok := ccc.mutation.ImageURL(); ok {
+		if err := catalogcategory.ImageURLValidator(v); err != nil {
+			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "CatalogCategory.image_url": %w`, err)}
+		}
+	}
 	if _, ok := ccc.mutation.DisplayOrder(); !ok {
 		return &ValidationError{Name: "display_order", err: errors.New(`ent: missing required field "CatalogCategory.display_order"`)}
 	}
@@ -288,6 +349,22 @@ func (ccc *CatalogCategoryCreate) createSpec() (*CatalogCategory, *sqlgraph.Crea
 	if value, ok := ccc.mutation.TenantID(); ok {
 		_spec.SetField(catalogcategory.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = &value
+	}
+	if value, ok := ccc.mutation.Name(); ok {
+		_spec.SetField(catalogcategory.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := ccc.mutation.Slug(); ok {
+		_spec.SetField(catalogcategory.FieldSlug, field.TypeString, value)
+		_node.Slug = value
+	}
+	if value, ok := ccc.mutation.Description(); ok {
+		_spec.SetField(catalogcategory.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if value, ok := ccc.mutation.ImageURL(); ok {
+		_spec.SetField(catalogcategory.FieldImageURL, field.TypeString, value)
+		_node.ImageURL = value
 	}
 	if value, ok := ccc.mutation.DisplayOrder(); ok {
 		_spec.SetField(catalogcategory.FieldDisplayOrder, field.TypeInt, value)
@@ -477,6 +554,72 @@ func (u *CatalogCategoryUpsert) ClearParentID() *CatalogCategoryUpsert {
 	return u
 }
 
+// SetName sets the "name" field.
+func (u *CatalogCategoryUpsert) SetName(v string) *CatalogCategoryUpsert {
+	u.Set(catalogcategory.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CatalogCategoryUpsert) UpdateName() *CatalogCategoryUpsert {
+	u.SetExcluded(catalogcategory.FieldName)
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *CatalogCategoryUpsert) SetSlug(v string) *CatalogCategoryUpsert {
+	u.Set(catalogcategory.FieldSlug, v)
+	return u
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *CatalogCategoryUpsert) UpdateSlug() *CatalogCategoryUpsert {
+	u.SetExcluded(catalogcategory.FieldSlug)
+	return u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *CatalogCategoryUpsert) ClearSlug() *CatalogCategoryUpsert {
+	u.SetNull(catalogcategory.FieldSlug)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *CatalogCategoryUpsert) SetDescription(v string) *CatalogCategoryUpsert {
+	u.Set(catalogcategory.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *CatalogCategoryUpsert) UpdateDescription() *CatalogCategoryUpsert {
+	u.SetExcluded(catalogcategory.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *CatalogCategoryUpsert) ClearDescription() *CatalogCategoryUpsert {
+	u.SetNull(catalogcategory.FieldDescription)
+	return u
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *CatalogCategoryUpsert) SetImageURL(v string) *CatalogCategoryUpsert {
+	u.Set(catalogcategory.FieldImageURL, v)
+	return u
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *CatalogCategoryUpsert) UpdateImageURL() *CatalogCategoryUpsert {
+	u.SetExcluded(catalogcategory.FieldImageURL)
+	return u
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *CatalogCategoryUpsert) ClearImageURL() *CatalogCategoryUpsert {
+	u.SetNull(catalogcategory.FieldImageURL)
+	return u
+}
+
 // SetDisplayOrder sets the "display_order" field.
 func (u *CatalogCategoryUpsert) SetDisplayOrder(v int) *CatalogCategoryUpsert {
 	u.Set(catalogcategory.FieldDisplayOrder, v)
@@ -630,6 +773,83 @@ func (u *CatalogCategoryUpsertOne) UpdateParentID() *CatalogCategoryUpsertOne {
 func (u *CatalogCategoryUpsertOne) ClearParentID() *CatalogCategoryUpsertOne {
 	return u.Update(func(s *CatalogCategoryUpsert) {
 		s.ClearParentID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *CatalogCategoryUpsertOne) SetName(v string) *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertOne) UpdateName() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *CatalogCategoryUpsertOne) SetSlug(v string) *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertOne) UpdateSlug() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *CatalogCategoryUpsertOne) ClearSlug() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearSlug()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *CatalogCategoryUpsertOne) SetDescription(v string) *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertOne) UpdateDescription() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *CatalogCategoryUpsertOne) ClearDescription() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *CatalogCategoryUpsertOne) SetImageURL(v string) *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertOne) UpdateImageURL() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *CatalogCategoryUpsertOne) ClearImageURL() *CatalogCategoryUpsertOne {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearImageURL()
 	})
 }
 
@@ -960,6 +1180,83 @@ func (u *CatalogCategoryUpsertBulk) UpdateParentID() *CatalogCategoryUpsertBulk 
 func (u *CatalogCategoryUpsertBulk) ClearParentID() *CatalogCategoryUpsertBulk {
 	return u.Update(func(s *CatalogCategoryUpsert) {
 		s.ClearParentID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *CatalogCategoryUpsertBulk) SetName(v string) *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertBulk) UpdateName() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *CatalogCategoryUpsertBulk) SetSlug(v string) *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertBulk) UpdateSlug() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *CatalogCategoryUpsertBulk) ClearSlug() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearSlug()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *CatalogCategoryUpsertBulk) SetDescription(v string) *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertBulk) UpdateDescription() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *CatalogCategoryUpsertBulk) ClearDescription() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *CatalogCategoryUpsertBulk) SetImageURL(v string) *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *CatalogCategoryUpsertBulk) UpdateImageURL() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *CatalogCategoryUpsertBulk) ClearImageURL() *CatalogCategoryUpsertBulk {
+	return u.Update(func(s *CatalogCategoryUpsert) {
+		s.ClearImageURL()
 	})
 }
 

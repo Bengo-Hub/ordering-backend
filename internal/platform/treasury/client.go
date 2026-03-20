@@ -49,18 +49,27 @@ const (
 )
 
 // PaymentIntentRequest represents a request to create a payment intent.
+// Aligned with treasury-api's CreateIntentRequest contract.
 type PaymentIntentRequest struct {
 	TenantID       uuid.UUID              `json:"tenant_id"`
-	OrderID        uuid.UUID              `json:"order_id"`
+	ReferenceID    string                 `json:"reference_id"`    // order ID or external reference
+	ReferenceType  string                 `json:"reference_type"`  // "order", "subscription", "invoice"
+	OrderID        uuid.UUID              `json:"order_id"`        // backward compat
 	Amount         float64                `json:"amount"`
 	Currency       string                 `json:"currency"`
 	Provider       PaymentProvider        `json:"provider"`
+	PaymentMethod  string                 `json:"payment_method"`  // "pending", "paystack", "mpesa", "cash"
+	SourceService  string                 `json:"source_service"`  // "ordering" — identifies origin for equity tracking
 	Description    string                 `json:"description,omitempty"`
 	IdempotencyKey string                 `json:"idempotency_key,omitempty"`
 	CustomerEmail  string                 `json:"customer_email,omitempty"`
 	CustomerPhone  string                 `json:"customer_phone,omitempty"`
 	CallbackURL    string                 `json:"callback_url,omitempty"`
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	// Service charge fields — from subscriptions-api service charge plan
+	ServiceChargePercentage *float64 `json:"service_charge_percentage,omitempty"`
+	ServiceChargeAmount     *string  `json:"service_charge_amount,omitempty"`
+	ServiceChargePlanCode   string   `json:"service_charge_plan_code,omitempty"`
+	Metadata                map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // PaymentIntentResponse represents a payment intent from treasury.

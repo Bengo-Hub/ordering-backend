@@ -12,6 +12,10 @@ type Category struct {
 	TenantID     *uuid.UUID  `json:"tenantId,omitempty"`
 	OutletID     *uuid.UUID  `json:"outletId,omitempty"`
 	ParentID     *uuid.UUID  `json:"parentId,omitempty"`
+	Name         string      `json:"name"`
+	Slug         string      `json:"slug,omitempty"`
+	Description  string      `json:"description,omitempty"`
+	ImageURL     string      `json:"imageUrl,omitempty"`
 	DisplayOrder int         `json:"displayOrder"`
 	IsActive     bool        `json:"isActive"`
 	Children     []Category  `json:"children,omitempty"`
@@ -37,6 +41,7 @@ type CatalogItem struct {
 	LeadTimeMinutes int                    `json:"leadTimeMinutes,omitempty"`
 	RecipeID        *uuid.UUID             `json:"recipeId,omitempty"`
 	SKU             string                 `json:"sku,omitempty"`
+	ImageURL        string                 `json:"imageUrl,omitempty"`
 	DisplayOrder    int                    `json:"displayOrder"`
 	DietaryTags     []DietaryTag           `json:"dietaryTags,omitempty"`
 	Assets          []Asset                `json:"assets,omitempty"`
