@@ -140,8 +140,8 @@ func (s *OrderService) PlaceOrder(ctx context.Context, order *Order) error {
 
 | Endpoint | Auth | Purpose |
 |----------|------|---------|
-| `GET /api/v1/{tenant}/menu/items` | No | Public menu browsing |
-| `GET /api/v1/{tenant}/menu/categories` | No | Category listing |
+| `GET /api/v1/{tenant}/catalog/items` | No | Public catalog browsing |
+| `GET /api/v1/{tenant}/catalog/categories` | No | Category listing |
 | `GET /api/v1/{tenant}/orders/{id}` | Yes | Order details |
 | `GET /api/v1/{tenant}/loyalty/balance` | Yes | Loyalty points |
 

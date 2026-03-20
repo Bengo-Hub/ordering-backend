@@ -32,7 +32,15 @@ func NewCartHandler(log *zap.Logger, cartService *ordering.CartService) *CartHan
 // Register mounts cart routes on the supplied router.
 func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/cart", func(cartRouter chi.Router) {
-		// Cart operations require authentication
+		// Guest cart routes (no auth required, identified by session_id)
+		cartRouter.Route("/guest", func(guestRouter chi.Router) {
+			guestRouter.Get("/", h.GetGuestCart)
+			guestRouter.Post("/items", h.AddGuestItem)
+			guestRouter.Put("/items/{itemId}", h.UpdateGuestItem)
+			guestRouter.Delete("/items/{itemId}", h.RemoveGuestItem)
+		})
+
+		// Authenticated cart operations
 		cartRouter.Use(auth.RequireAuth)
 
 		cartRouter.Get("/", h.GetCurrentCart)
@@ -510,6 +518,252 @@ func (h *CartHandler) MergeGuestCart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cart, err := h.cartService.MergeGuestCart(r.Context(), tenantID, outletID, req.SessionID, user.ID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, cart)
+}
+
+// --- Guest Cart Helpers ---
+
+// getSessionID extracts the session ID from the X-Session-ID header or session_id cookie.
+func getSessionID(r *http.Request) string {
+	if sid := r.Header.Get("X-Session-ID"); sid != "" {
+		return sid
+	}
+	if cookie, err := r.Cookie("session_id"); err == nil && cookie.Value != "" {
+		return cookie.Value
+	}
+	return ""
+}
+
+// --- Guest Cart Handlers ---
+
+// GetGuestCart retrieves the guest cart identified by session ID.
+// @Summary Get guest cart
+// @Description Retrieves the guest cart identified by session ID (no auth required)
+// @Tags Cart
+// @Produce json
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param X-Session-ID header string true "Session ID"
+// @Param outlet_id query string true "Outlet ID"
+// @Success 200 {object} ordering.Cart
+// @Failure 400 {object} handlers.ErrorResponse
+// @Router /cart/guest [get]
+func (h *CartHandler) GetGuestCart(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	outletID, err := getOutletID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
+		return
+	}
+
+	sessionID := getSessionID(r)
+	if sessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "session ID is required (X-Session-ID header or session_id cookie)")
+		return
+	}
+
+	cart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, nil, sessionID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, cart)
+}
+
+// AddGuestItem adds an item to a guest cart identified by session ID.
+// @Summary Add item to guest cart
+// @Description Adds a menu item to a guest cart (no auth required)
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param X-Session-ID header string true "Session ID"
+// @Param payload body AddItemRequest true "Item to add"
+// @Success 200 {object} ordering.Cart
+// @Failure 400 {object} handlers.ErrorResponse
+// @Router /cart/guest/items [post]
+func (h *CartHandler) AddGuestItem(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	sessionID := getSessionID(r)
+	if sessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "session ID is required (X-Session-ID header or session_id cookie)")
+		return
+	}
+
+	var req AddItemRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	outletID, err := uuid.Parse(req.OutletID)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
+		return
+	}
+
+	catalogItemID, err := uuid.Parse(req.CatalogItemID)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid catalog item ID")
+		return
+	}
+
+	var variantID *uuid.UUID
+	if req.VariantID != nil && *req.VariantID != "" {
+		id, err := uuid.Parse(*req.VariantID)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid variant ID")
+			return
+		}
+		variantID = &id
+	}
+
+	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
+		TenantID:      tenantID,
+		OutletID:      outletID,
+		UserID:        nil,
+		SessionID:     sessionID,
+		CatalogItemID: catalogItemID,
+		VariantID:     variantID,
+		Quantity:      req.Quantity,
+		Notes:         req.Notes,
+	})
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, cart)
+}
+
+// UpdateGuestItem updates a guest cart item.
+// @Summary Update guest cart item
+// @Description Updates the quantity or notes of a guest cart item (no auth required)
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param X-Session-ID header string true "Session ID"
+// @Param itemId path string true "Cart item ID"
+// @Param outlet_id query string true "Outlet ID"
+// @Param payload body UpdateItemRequest true "Update data"
+// @Success 200 {object} ordering.Cart
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /cart/guest/items/{itemId} [put]
+func (h *CartHandler) UpdateGuestItem(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	sessionID := getSessionID(r)
+	if sessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "session ID is required (X-Session-ID header or session_id cookie)")
+		return
+	}
+
+	itemID, err := uuid.Parse(chi.URLParam(r, "itemId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid item ID")
+		return
+	}
+
+	outletID, err := getOutletID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
+		return
+	}
+
+	var req UpdateItemRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	// Get guest cart
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, nil, sessionID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	cart, err := h.cartService.UpdateItem(r.Context(), ordering.UpdateItemRequest{
+		TenantID: tenantID,
+		CartID:   existingCart.ID,
+		ItemID:   itemID,
+		Quantity: req.Quantity,
+		Notes:    req.Notes,
+	})
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, cart)
+}
+
+// RemoveGuestItem removes an item from a guest cart.
+// @Summary Remove guest cart item
+// @Description Removes an item from a guest cart (no auth required)
+// @Tags Cart
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param X-Session-ID header string true "Session ID"
+// @Param itemId path string true "Cart item ID"
+// @Param outlet_id query string true "Outlet ID"
+// @Success 200 {object} ordering.Cart
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /cart/guest/items/{itemId} [delete]
+func (h *CartHandler) RemoveGuestItem(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	sessionID := getSessionID(r)
+	if sessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "session ID is required (X-Session-ID header or session_id cookie)")
+		return
+	}
+
+	itemID, err := uuid.Parse(chi.URLParam(r, "itemId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid item ID")
+		return
+	}
+
+	outletID, err := getOutletID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
+		return
+	}
+
+	// Get guest cart
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, nil, sessionID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	cart, err := h.cartService.RemoveItem(r.Context(), tenantID, existingCart.ID, itemID)
 	if err != nil {
 		h.handleError(w, err)
 		return

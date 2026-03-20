@@ -27250,6 +27250,7 @@ type OutletMutation struct {
 	longitude                 *float64
 	addlongitude              *float64
 	opening_hours             *map[string]interface{}
+	image_url                 *string
 	use_case                  *string
 	status                    *string
 	created_at                *time.Time
@@ -27917,6 +27918,55 @@ func (m *OutletMutation) ResetOpeningHours() {
 	delete(m.clearedFields, outlet.FieldOpeningHours)
 }
 
+// SetImageURL sets the "image_url" field.
+func (m *OutletMutation) SetImageURL(s string) {
+	m.image_url = &s
+}
+
+// ImageURL returns the value of the "image_url" field in the mutation.
+func (m *OutletMutation) ImageURL() (r string, exists bool) {
+	v := m.image_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageURL returns the old "image_url" field's value of the Outlet entity.
+// If the Outlet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletMutation) OldImageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageURL: %w", err)
+	}
+	return oldValue.ImageURL, nil
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (m *OutletMutation) ClearImageURL() {
+	m.image_url = nil
+	m.clearedFields[outlet.FieldImageURL] = struct{}{}
+}
+
+// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
+func (m *OutletMutation) ImageURLCleared() bool {
+	_, ok := m.clearedFields[outlet.FieldImageURL]
+	return ok
+}
+
+// ResetImageURL resets all changes to the "image_url" field.
+func (m *OutletMutation) ResetImageURL() {
+	m.image_url = nil
+	delete(m.clearedFields, outlet.FieldImageURL)
+}
+
 // SetUseCase sets the "use_case" field.
 func (m *OutletMutation) SetUseCase(s string) {
 	m.use_case = &s
@@ -28297,7 +28347,7 @@ func (m *OutletMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OutletMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.tenant != nil {
 		fields = append(fields, outlet.FieldTenantID)
 	}
@@ -28330,6 +28380,9 @@ func (m *OutletMutation) Fields() []string {
 	}
 	if m.opening_hours != nil {
 		fields = append(fields, outlet.FieldOpeningHours)
+	}
+	if m.image_url != nil {
+		fields = append(fields, outlet.FieldImageURL)
 	}
 	if m.use_case != nil {
 		fields = append(fields, outlet.FieldUseCase)
@@ -28373,6 +28426,8 @@ func (m *OutletMutation) Field(name string) (ent.Value, bool) {
 		return m.Longitude()
 	case outlet.FieldOpeningHours:
 		return m.OpeningHours()
+	case outlet.FieldImageURL:
+		return m.ImageURL()
 	case outlet.FieldUseCase:
 		return m.UseCase()
 	case outlet.FieldStatus:
@@ -28412,6 +28467,8 @@ func (m *OutletMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldLongitude(ctx)
 	case outlet.FieldOpeningHours:
 		return m.OldOpeningHours(ctx)
+	case outlet.FieldImageURL:
+		return m.OldImageURL(ctx)
 	case outlet.FieldUseCase:
 		return m.OldUseCase(ctx)
 	case outlet.FieldStatus:
@@ -28505,6 +28562,13 @@ func (m *OutletMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOpeningHours(v)
+		return nil
+	case outlet.FieldImageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageURL(v)
 		return nil
 	case outlet.FieldUseCase:
 		v, ok := value.(string)
@@ -28615,6 +28679,9 @@ func (m *OutletMutation) ClearedFields() []string {
 	if m.FieldCleared(outlet.FieldOpeningHours) {
 		fields = append(fields, outlet.FieldOpeningHours)
 	}
+	if m.FieldCleared(outlet.FieldImageURL) {
+		fields = append(fields, outlet.FieldImageURL)
+	}
 	if m.FieldCleared(outlet.FieldUseCase) {
 		fields = append(fields, outlet.FieldUseCase)
 	}
@@ -28655,6 +28722,9 @@ func (m *OutletMutation) ClearField(name string) error {
 		return nil
 	case outlet.FieldOpeningHours:
 		m.ClearOpeningHours()
+		return nil
+	case outlet.FieldImageURL:
+		m.ClearImageURL()
 		return nil
 	case outlet.FieldUseCase:
 		m.ClearUseCase()
@@ -28699,6 +28769,9 @@ func (m *OutletMutation) ResetField(name string) error {
 		return nil
 	case outlet.FieldOpeningHours:
 		m.ResetOpeningHours()
+		return nil
+	case outlet.FieldImageURL:
+		m.ResetImageURL()
 		return nil
 	case outlet.FieldUseCase:
 		m.ResetUseCase()

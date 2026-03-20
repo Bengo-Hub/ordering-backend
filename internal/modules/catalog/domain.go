@@ -127,33 +127,35 @@ type CategoryFilter struct {
 
 // CatalogItemFilter defines filter options for listing catalog items.
 type CatalogItemFilter struct {
-	TenantID    uuid.UUID
-	OutletID    *uuid.UUID
-	CategoryID  *uuid.UUID
-	IsAvailable *bool
-	Search      string
-	DietaryTags []string
-	MinPrice    *float64
-	MaxPrice    *float64
-	Locale      string
-	Limit       int
-	Offset      int
-	UserID      *uuid.UUID // ID of the user whose favorites we are interested in
+	TenantID     uuid.UUID
+	OutletID     *uuid.UUID
+	CategoryID   *uuid.UUID
+	IsAvailable  *bool
+	IsFeatured   *bool
+	Search       string
+	DietaryTags  []string
+	MinPrice     *float64
+	MaxPrice     *float64
+	Locale       string
+	Limit        int
+	Offset       int
+	UserID       *uuid.UUID // ID of the user whose favorites we are interested in
 	FavoriteOnly bool       // Filter for favorites only
 }
 
 // PublicCatalogRequest represents a request for the public catalog API.
 type PublicCatalogRequest struct {
-	TenantID   uuid.UUID
-	TenantSlug string
-	OutletID   *uuid.UUID
-	CategoryID *uuid.UUID
-	Locale     string
-	DietaryTags []string
-	Search     string
-	Limit      int
-	Offset     int
-	UserID     *uuid.UUID // Authenticated user ID
+	TenantID     uuid.UUID
+	TenantSlug   string
+	OutletID     *uuid.UUID
+	CategoryID   *uuid.UUID
+	IsFeatured   *bool
+	Locale       string
+	DietaryTags  []string
+	Search       string
+	Limit        int
+	Offset       int
+	UserID       *uuid.UUID // Authenticated user ID
 	FavoriteOnly bool       // Filter for favorites only
 }
 
@@ -182,9 +184,20 @@ type PublicCategory struct {
 	Children    []PublicCategory `json:"children,omitempty"`
 }
 
-// OutletSummary is a minimal outlet for listing (id and display name).
+// OutletSummary represents an outlet for public display.
 type OutletSummary struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	ImageURL string    `json:"imageUrl,omitempty"`
+	ID           uuid.UUID      `json:"id"`
+	Name         string         `json:"name"`
+	Slug         string         `json:"slug,omitempty"`
+	Description  string         `json:"description,omitempty"`
+	Address      string         `json:"address,omitempty"`
+	Phone        string         `json:"phone,omitempty"`
+	Email        string         `json:"email,omitempty"`
+	Location     string         `json:"location,omitempty"`
+	Latitude     *float64       `json:"latitude,omitempty"`
+	Longitude    *float64       `json:"longitude,omitempty"`
+	OpeningHours map[string]any `json:"openingHours,omitempty"`
+	ImageURL     string         `json:"imageUrl,omitempty"`
+	Status       string         `json:"status,omitempty"`
+	UseCase      string         `json:"useCase,omitempty"`
 }

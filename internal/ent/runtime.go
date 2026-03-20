@@ -844,16 +844,20 @@ func init() {
 	outletDescSlug := outletFields[3].Descriptor()
 	// outlet.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
 	outlet.SlugValidator = outletDescSlug.Validators[0].(func(string) error)
+	// outletDescImageURL is the schema descriptor for image_url field.
+	outletDescImageURL := outletFields[12].Descriptor()
+	// outlet.DefaultImageURL holds the default value on creation for the image_url field.
+	outlet.DefaultImageURL = outletDescImageURL.Default.(string)
 	// outletDescStatus is the schema descriptor for status field.
-	outletDescStatus := outletFields[13].Descriptor()
+	outletDescStatus := outletFields[14].Descriptor()
 	// outlet.DefaultStatus holds the default value on creation for the status field.
 	outlet.DefaultStatus = outletDescStatus.Default.(string)
 	// outletDescCreatedAt is the schema descriptor for created_at field.
-	outletDescCreatedAt := outletFields[14].Descriptor()
+	outletDescCreatedAt := outletFields[15].Descriptor()
 	// outlet.DefaultCreatedAt holds the default value on creation for the created_at field.
 	outlet.DefaultCreatedAt = outletDescCreatedAt.Default.(func() time.Time)
 	// outletDescUpdatedAt is the schema descriptor for updated_at field.
-	outletDescUpdatedAt := outletFields[15].Descriptor()
+	outletDescUpdatedAt := outletFields[16].Descriptor()
 	// outlet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	outlet.DefaultUpdatedAt = outletDescUpdatedAt.Default.(func() time.Time)
 	// outlet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

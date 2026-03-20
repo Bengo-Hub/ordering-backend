@@ -9,7 +9,7 @@ Production Domains (from devops-k8s values.yaml audit):
 - Auth API: sso.codevertexitsolutions.com
 - Auth UI: accounts.codevertexitsolutions.com
 - Ordering API: orderingapi.codevertexitsolutions.com
-- Ordering UI: ordersapp.codevertexitsolutions.com (also ordering.codevertexitsolutions.com)
+- Ordering UI: ordersapp.codevertexitsolutions.com (also ordersapp.codevertexitsolutions.com)
 - Treasury API: booksapi.codevertexitsolutions.com
 - Treasury UI: books.codevertexitsolutions.com
 - Subscription API: pricingapi.codevertexitsolutions.com

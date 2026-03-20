@@ -1,6 +1,6 @@
 # Sprint 9 – MVP Launch (March 27, 2026)
 
-**Progress (March 2026)**: Backend scan done. Seed has urban-loft tenant and Busia (via menu categories/items). GET /api/v1/{tenant}/cafes returns outlets; treasury webhook with HMAC and cart/order endpoints present. CORS updated to include ordersapp and theurbanloftcafe.com. Inventory reservation on order placement not yet wired. **Tenant/brand**: Public GET /api/v1/{tenant}/config added; returns tenant display name, logo_url (from metadata), primary_color, secondary_color from TenantSetting.BrandPalette; auth skipped for /config, /cafes, /menu so tenant-scoped catalog remains public. Frontend may alternatively use auth-api GET /api/v1/tenants/by-slug/{slug} for tenant display info.
+**Progress (March 2026)**: Backend scan done. Seed has urban-loft tenant and Busia (via menu categories/items). GET /api/v1/{tenant}/outlets returns outlets; treasury webhook with HMAC and cart/order endpoints present. CORS updated to include ordersapp and theurbanloftcafe.com. Inventory reservation on order placement not yet wired. **Tenant/brand**: Public GET /api/v1/{tenant}/config added; returns tenant display name, logo_url (from metadata), primary_color, secondary_color from TenantSetting.BrandPalette; auth skipped for /config, /outlets, /catalog so tenant-scoped catalog remains public. Frontend may alternatively use auth-api GET /api/v1/tenants/by-slug/{slug} for tenant display info.
 
 **RBAC**: Ordering-backend has its own RBAC: roles and permissions in DB (ent Permission, Role, User with M2M). Authentication relies on auth-api JWT (validated by middleware); user sync from auth-service via NATS events. Seed includes roles (customer, rider, staff, admin, superuser) and permissions including semantic (e.g. orders:view, catalog:manage) and CRUD-style (add, read, read_own, change, change_own, delete, manage, manage_own) for orders and catalog. **Redis**: Redis is in use for rate limiting and auth config (e.g. JWKS). Permission/session cache is not implemented in the identity module; **Redis cache for permissions is recommended** for high traffic (e.g. cache user permissions by user ID with TTL). **Events/background jobs**: Outbox publisher (Transactional Outbox) runs in background; NATS used for order events (order.created, order.status.changed, order.ready, order.completed, order.cancelled), auth user sync, and logistics/fulfilment. Event publishing is used in order service; background outbox drains to NATS.
 
@@ -29,7 +29,7 @@
 - [x] Verify `urban-loft` tenant exists in DB seed with correct UUID
 - [ ] Verify Busia outlet (`cafes` table) has correct address, coordinates, opening hours, contact info
 - [x] Remove or deactivate Kiambu mock outlet and any other test data
-- [x] Ensure `GET /v1/urban-loft/outlets` returns only Busia (API: `GET /api/v1/{tenant}/cafes`; seed has only Busia menu data)
+- [x] Ensure `GET /v1/urban-loft/outlets` returns only Busia (API: `GET /api/v1/{tenant}/outlets`; seed has only Busia menu data)
 - [ ] Verify outlet data syncs correctly with auth-service tenant/outlet events
 - [x] Seed at least 15 real menu items with images, categories, prices, and variants for Busia
 

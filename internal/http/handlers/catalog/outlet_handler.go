@@ -9,15 +9,15 @@ import (
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 )
 
-// ListOutlets returns the list of cafes/outlets for the tenant (public, no auth).
-// @Summary List cafes for tenant
-// @Description Returns distinct cafes (outlets) that have menu data for the tenant
-// @Tags Menu
+// ListOutlets returns the list of outlets for the tenant (public, no auth).
+// @Summary List outlets for tenant
+// @Description Returns distinct outlets (outlets) that have menu data for the tenant
+// @Tags Outlets
 // @Produce json
 // @Success 200 {array} catalog.OutletSummary
-// @Router /cafes [get]
+// @Router /outlets [get]
 func (h *Handler) ListOutlets(w http.ResponseWriter, r *http.Request) {
-	// Resolve tenant by slug from path (or X-Tenant-ID header) so public calls work with /api/v1/{tenant}/cafes
+	// Resolve tenant by slug from path (or X-Tenant-ID header) so public calls work with /api/v1/{tenant}/outlets
 	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "tenant required (use path slug or X-Tenant-ID)")
@@ -39,15 +39,15 @@ func (h *Handler) ListOutlets(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetOutlet returns a single cafe by ID for the tenant (public, no auth).
-// @Summary Get cafe by ID
-// @Description Returns one cafe/outlet if it belongs to the tenant
-// @Tags Menu
+// GetOutlet returns a single outlet by ID for the tenant (public, no auth).
+// @Summary Get outlet by ID
+// @Description Returns one outlet/outlet if it belongs to the tenant
+// @Tags Outlets
 // @Produce json
 // @Param id path string true "Cafe ID"
 // @Success 200 {object} catalog.OutletSummary
 // @Failure 404 {object} handlers.ErrorResponse
-// @Router /cafes/{id} [get]
+// @Router /outlets/{id} [get]
 func (h *Handler) GetOutlet(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := h.getTenantIDForPublic(r)
 	if err != nil {
@@ -58,7 +58,7 @@ func (h *Handler) GetOutlet(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	outletID, err := uuid.Parse(idStr)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe id")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet id")
 		return
 	}
 
@@ -75,5 +75,5 @@ func (h *Handler) GetOutlet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	handlers.RespondError(w, http.StatusNotFound, "cafe not found")
+	handlers.RespondError(w, http.StatusNotFound, "outlet not found")
 }

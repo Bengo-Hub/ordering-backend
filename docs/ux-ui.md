@@ -107,7 +107,7 @@ Menu data changes infrequently. TanStack Query config:
 
 - `staleTime`: 5 minutes
 - `gcTime`: 30 minutes
-- Service worker: Stale-While-Revalidate for `/menu` routes
+- Service worker: Stale-While-Revalidate for `/catalog` routes
 
 ---
 

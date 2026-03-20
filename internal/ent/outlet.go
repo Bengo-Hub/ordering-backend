@@ -42,6 +42,8 @@ type Outlet struct {
 	Longitude *float64 `json:"longitude,omitempty"`
 	// OpeningHours holds the value of the "opening_hours" field.
 	OpeningHours map[string]interface{} `json:"opening_hours,omitempty"`
+	// URL or path to the outlet image
+	ImageURL string `json:"image_url,omitempty"`
 	// Specific use case for this outlet (hospitality, retail, etc.)
 	UseCase string `json:"use_case,omitempty"`
 	// active | inactive | closed
@@ -118,7 +120,7 @@ func (*Outlet) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case outlet.FieldLatitude, outlet.FieldLongitude:
 			values[i] = new(sql.NullFloat64)
-		case outlet.FieldName, outlet.FieldSlug, outlet.FieldDescription, outlet.FieldAddress, outlet.FieldPhone, outlet.FieldEmail, outlet.FieldLocation, outlet.FieldUseCase, outlet.FieldStatus:
+		case outlet.FieldName, outlet.FieldSlug, outlet.FieldDescription, outlet.FieldAddress, outlet.FieldPhone, outlet.FieldEmail, outlet.FieldLocation, outlet.FieldImageURL, outlet.FieldUseCase, outlet.FieldStatus:
 			values[i] = new(sql.NullString)
 		case outlet.FieldCreatedAt, outlet.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -214,6 +216,12 @@ func (o *Outlet) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &o.OpeningHours); err != nil {
 					return fmt.Errorf("unmarshal field opening_hours: %w", err)
 				}
+			}
+		case outlet.FieldImageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image_url", values[i])
+			} else if value.Valid {
+				o.ImageURL = value.String
 			}
 		case outlet.FieldUseCase:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -331,6 +339,9 @@ func (o *Outlet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("opening_hours=")
 	builder.WriteString(fmt.Sprintf("%v", o.OpeningHours))
+	builder.WriteString(", ")
+	builder.WriteString("image_url=")
+	builder.WriteString(o.ImageURL)
 	builder.WriteString(", ")
 	builder.WriteString("use_case=")
 	builder.WriteString(o.UseCase)

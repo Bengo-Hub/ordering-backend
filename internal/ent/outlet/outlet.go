@@ -37,6 +37,8 @@ const (
 	FieldLongitude = "longitude"
 	// FieldOpeningHours holds the string denoting the opening_hours field in the database.
 	FieldOpeningHours = "opening_hours"
+	// FieldImageURL holds the string denoting the image_url field in the database.
+	FieldImageURL = "image_url"
 	// FieldUseCase holds the string denoting the use_case field in the database.
 	FieldUseCase = "use_case"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -99,6 +101,7 @@ var Columns = []string{
 	FieldLatitude,
 	FieldLongitude,
 	FieldOpeningHours,
+	FieldImageURL,
 	FieldUseCase,
 	FieldStatus,
 	FieldCreatedAt,
@@ -120,6 +123,8 @@ var (
 	NameValidator func(string) error
 	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
 	SlugValidator func(string) error
+	// DefaultImageURL holds the default value on creation for the "image_url" field.
+	DefaultImageURL string
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -188,6 +193,11 @@ func ByLatitude(opts ...sql.OrderTermOption) OrderOption {
 // ByLongitude orders the results by the longitude field.
 func ByLongitude(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLongitude, opts...).ToFunc()
+}
+
+// ByImageURL orders the results by the image_url field.
+func ByImageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageURL, opts...).ToFunc()
 }
 
 // ByUseCase orders the results by the use_case field.

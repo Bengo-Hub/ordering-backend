@@ -37,61 +37,66 @@ func New(log *zap.Logger, service *catalog.Service, db *ent.Client) *Handler {
 
 // Register mounts catalog routes on the supplied router, using the provided middleware.
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
-	// Public menu API (no auth required)
-	r.Route("/menu", func(menuRouter chi.Router) {
-		menuRouter.Get("/categories", h.ListPublicCategories)
-		menuRouter.Get("/items", h.ListPublicCatalogItems)
-		menuRouter.Get("/items/{id}", h.GetPublicCatalogItem)
+	// Public catalog API (no auth required) — generic naming for all use cases
+	r.Route("/catalog", func(catalogRouter chi.Router) {
+		// Public read-only endpoints
+		catalogRouter.Get("/categories", h.ListPublicCategories)
+		catalogRouter.Get("/items", h.ListPublicCatalogItems)
+		catalogRouter.Get("/items/{id}", h.GetPublicCatalogItem)
 
 		// Auth required for toggling favorites
-		menuRouter.Group(func(authRouter chi.Router) {
-			authRouter.Use(auth.OptionalAuth) // Allow authenticated users to toggle
+		catalogRouter.Group(func(authRouter chi.Router) {
+			authRouter.Use(auth.OptionalAuth)
 			authRouter.Post("/items/{id}/favorite", h.ToggleFavorite)
 		})
-	})
-	// Public cafes/outlets list (no auth required)
-	r.Route("/cafes", func(cafesRouter chi.Router) {
-		cafesRouter.Get("/", h.ListOutlets)
-		cafesRouter.Get("/{id}", h.GetOutlet)
+
+		// Admin catalog routes (auth + permissions required)
+		catalogRouter.Group(func(adminRouter chi.Router) {
+			adminRouter.Use(auth.RequireAuth)
+
+			// Categories management
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Post("/categories", h.CreateCategory)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
+				Get("/categories/{id}", h.GetCategory)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Put("/categories/{id}", h.UpdateCategory)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Delete("/categories/{id}", h.DeleteCategory)
+
+			// Catalog Items management
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Post("/items", h.CreateCatalogItem)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Put("/items/{id}", h.UpdateCatalogItem)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Delete("/items/{id}", h.DeleteCatalogItem)
+
+			// Dietary Tags
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
+				Get("/dietary-tags", h.ListDietaryTags)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Post("/items/{id}/dietary-tags", h.AddDietaryTag)
+			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
+				Delete("/items/{id}/dietary-tags/{code}", h.RemoveDietaryTag)
+		})
 	})
 
-	// Admin catalog API (auth required)
-	r.Route("/catalog", func(catalogRouter chi.Router) {
-		catalogRouter.Use(auth.RequireAuth)
+	// Public outlets list (no auth required)
+	r.Route("/outlets", func(outletRouter chi.Router) {
+		outletRouter.Get("/", h.ListOutlets)
+		outletRouter.Get("/{id}", h.GetOutlet)
+	})
 
-		// Categories - requires catalog:manage permission
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/categories", h.CreateCategory)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
+	// Admin-only catalog list endpoints (auth required, shows all items including unavailable)
+	r.Route("/catalog/admin", func(adminRouter chi.Router) {
+		adminRouter.Use(auth.RequireAuth)
+		adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
 			Get("/categories", h.ListCategories)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/categories/{id}", h.GetCategory)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Put("/categories/{id}", h.UpdateCategory)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Delete("/categories/{id}", h.DeleteCategory)
-
-		// Catalog Items
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/items", h.CreateCatalogItem)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
+		adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
 			Get("/items", h.ListCatalogItems)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
+		adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
 			Get("/items/{id}", h.GetCatalogItem)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Put("/items/{id}", h.UpdateCatalogItem)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Delete("/items/{id}", h.DeleteCatalogItem)
-
-
-
-		// Dietary Tags
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogView)).
-			Get("/dietary-tags", h.ListDietaryTags)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Post("/items/{id}/dietary-tags", h.AddDietaryTag)
-		catalogRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
-			Delete("/items/{id}/dietary-tags/{code}", h.RemoveDietaryTag)
 	})
 }
 
