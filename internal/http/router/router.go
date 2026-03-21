@@ -184,19 +184,24 @@ func New(
 				}
 
 				// Apply auth-service middleware. Skip only for truly public routes (not /auth/me or /auth/logout).
+				// This middleware stores JWT claims in context — required for RequirePermissions checks.
 				if authMiddleware != nil {
 					tenant.Use(func(next http.Handler) http.Handler {
 						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 							path := r.URL.Path
-							// Skip auth for public routes: webhooks, tenant config, outlets, catalog (except admin),
-							// guest cart, guest checkout, and delivery zones.
+							// Skip auth for public routes: webhooks, tenant config, outlets,
+							// catalog GET (public browsing), guest cart, guest checkout, and delivery zones.
 							// Do NOT skip /auth/ — GET /auth/me and POST /auth/logout require a valid JWT.
+							// Do NOT skip catalog mutations (POST/PUT/DELETE) — they need claims for permission checks.
+							isPublicCatalog := strings.Contains(path, "/catalog") &&
+								!strings.Contains(path, "/catalog/admin") &&
+								r.Method == http.MethodGet
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/zones") ||
-								(strings.Contains(path, "/catalog") && !strings.Contains(path, "/catalog/admin")) {
+								isPublicCatalog {
 								next.ServeHTTP(w, r)
 								return
 							}
