@@ -11,7 +11,7 @@ import (
 // Connect establishes a NATS connection with sane defaults.
 func Connect(cfg config.EventsConfig) (*nats.Conn, error) {
 	opts := []nats.Option{
-		nats.Name("cafe-backend"),
+		nats.Name("ordering-backend"),
 		nats.Timeout(5 * time.Second),
 		nats.ReconnectWait(2 * time.Second),
 		nats.MaxReconnects(-1),
