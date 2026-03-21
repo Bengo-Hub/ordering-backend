@@ -2,10 +2,20 @@ package catalog
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/bengobox/ordering-backend/internal/platform/cache"
+)
+
+// Cache TTL tiers for catalog data.
+const (
+	cacheTTLReference = 5 * time.Minute  // semi-static: categories, outlets, dietary tags
+	cacheTTLModerate  = 1 * time.Minute  // moderate-change: menu items
 )
 
 // InventoryClient defines the interface for inventory-api integration.
@@ -16,6 +26,7 @@ type InventoryClient interface {
 // Service provides catalog business logic.
 type Service struct {
 	repo       Repository
+	cache      *cache.Service
 	logger     *zap.Logger
 	tenantSlug string // cached for inventory calls (set via SetTenantSlug)
 }
@@ -26,6 +37,22 @@ func NewService(repo Repository, logger *zap.Logger) *Service {
 		repo:   repo,
 		logger: logger,
 	}
+}
+
+// SetCache injects the cache service (optional; caching is skipped if nil).
+func (s *Service) SetCache(c *cache.Service) {
+	s.cache = c
+}
+
+// invalidateCatalogCache clears cached catalog data for a tenant after mutations.
+func (s *Service) invalidateCatalogCache(ctx context.Context, tenantID *uuid.UUID) {
+	if s.cache == nil || tenantID == nil {
+		return
+	}
+	tid := tenantID.String()
+	_ = s.cache.DeletePattern(ctx, fmt.Sprintf("pub:categories:%s:*", tid))
+	_ = s.cache.DeletePattern(ctx, fmt.Sprintf("outlets:%s", tid))
+	_ = s.cache.DeletePattern(ctx, fmt.Sprintf("pub:menu:%s:*", tid))
 }
 
 // --- Category Operations ---
@@ -82,6 +109,7 @@ func (s *Service) CreateCategory(ctx context.Context, req CreateCategoryRequest)
 	s.logger.Info("category created",
 		zap.String("id", category.ID.String()))
 
+	s.invalidateCatalogCache(ctx, req.TenantID)
 	return category, nil
 }
 
@@ -163,6 +191,7 @@ func (s *Service) UpdateCategory(ctx context.Context, req UpdateCategoryRequest)
 	}
 
 	s.logger.Info("category updated", zap.String("id", category.ID.String()))
+	s.invalidateCatalogCache(ctx, &req.TenantID)
 	return category, nil
 }
 
@@ -192,7 +221,11 @@ func (s *Service) DeleteCategory(ctx context.Context, tenantID, categoryID uuid.
 		return ErrCategoryHasChildren
 	}
 
-	return s.repo.DeleteCategory(ctx, tenantID, categoryID)
+	if err := s.repo.DeleteCategory(ctx, tenantID, categoryID); err != nil {
+		return err
+	}
+	s.invalidateCatalogCache(ctx, &tenantID)
+	return nil
 }
 
 // --- CatalogItem Operations ---
@@ -257,6 +290,7 @@ func (s *Service) CreateCatalogItem(ctx context.Context, req CreateCatalogItemRe
 	s.logger.Info("catalog item created",
 		zap.String("id", item.ID.String()))
 
+	s.invalidateCatalogCache(ctx, &req.TenantID)
 	return item, nil
 }
 
@@ -347,6 +381,7 @@ func (s *Service) UpdateCatalogItem(ctx context.Context, req UpdateCatalogItemRe
 	}
 
 	s.logger.Info("catalog item updated", zap.String("id", item.ID.String()))
+	s.invalidateCatalogCache(ctx, &req.TenantID)
 	return item, nil
 }
 
@@ -364,9 +399,9 @@ func (s *Service) DeleteCatalogItem(ctx context.Context, tenantID, itemID uuid.U
 	}
 
 	s.logger.Info("catalog item deleted", zap.String("id", itemID.String()))
+	s.invalidateCatalogCache(ctx, &tenantID)
 	return nil
 }
-
 
 // --- DietaryTag Operations ---
 
@@ -381,7 +416,15 @@ func (s *Service) GetDietaryTag(ctx context.Context, code string) (*DietaryTag, 
 }
 
 // ListDietaryTags lists all dietary tags.
+// ListDietaryTags returns all dietary tags (cached 5 min — static reference data).
 func (s *Service) ListDietaryTags(ctx context.Context) ([]DietaryTag, error) {
+	if s.cache != nil {
+		var result []DietaryTag
+		err := s.cache.GetOrSet(ctx, "dietary-tags", &result, cacheTTLReference, func() (interface{}, error) {
+			return s.repo.ListDietaryTags(ctx)
+		})
+		return result, err
+	}
 	return s.repo.ListDietaryTags(ctx)
 }
 
@@ -496,13 +539,29 @@ func (s *Service) GetPublicCatalogItem(ctx context.Context, tenantID, itemID uui
 	return s.repo.GetPublicCatalogItem(ctx, tenantID, itemID, locale)
 }
 
-// GetPublicCategories retrieves public categories.
+// GetPublicCategories retrieves public categories (cached 5 min).
 func (s *Service) GetPublicCategories(ctx context.Context, tenantID, outletID uuid.UUID) ([]PublicCategory, error) {
+	if s.cache != nil {
+		key := fmt.Sprintf("pub:categories:%s:%s", tenantID, outletID)
+		var result []PublicCategory
+		err := s.cache.GetOrSet(ctx, key, &result, cacheTTLReference, func() (interface{}, error) {
+			return s.repo.GetPublicCategories(ctx, tenantID, outletID)
+		})
+		return result, err
+	}
 	return s.repo.GetPublicCategories(ctx, tenantID, outletID)
 }
 
-// ListOutlets returns all outlets for a tenant.
+// ListOutlets returns all outlets for a tenant (cached 5 min).
 func (s *Service) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
+	if s.cache != nil {
+		key := fmt.Sprintf("outlets:%s", tenantID)
+		var result []OutletSummary
+		err := s.cache.GetOrSet(ctx, key, &result, cacheTTLReference, func() (interface{}, error) {
+			return s.repo.ListOutlets(ctx, tenantID)
+		})
+		return result, err
+	}
 	return s.repo.ListOutlets(ctx, tenantID)
 }
 

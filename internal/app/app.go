@@ -188,9 +188,13 @@ func New(ctx context.Context) (*App, error) {
 	// Public tenant/brand config handler (no auth)
 	configHandler := confighandler.New(log, ormClient)
 
+	// Initialize cache service for catalog read caching
+	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
+
 	// Initialize catalog module
 	catalogRepo := catalog.NewEntRepository(ormClient)
 	catalogSvc := catalog.NewService(catalogRepo, log)
+	catalogSvc.SetCache(cacheSvc)
 	catalogHandler := cataloghandler.New(log, catalogSvc, ormClient)
 
 	// Initialize inventory client (for stock availability and reservations)
