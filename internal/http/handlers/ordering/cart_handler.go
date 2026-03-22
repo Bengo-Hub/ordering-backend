@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
@@ -112,9 +113,24 @@ func (h *CartHandler) handleError(w http.ResponseWriter, err error) {
 }
 
 func getTenantID(r *http.Request) (uuid.UUID, error) {
+	ctx := r.Context()
+
+	// Platform owner query-param override
+	if httpware.IsPlatformOwner(ctx) {
+		if q := r.URL.Query().Get("tenantId"); q != "" {
+			return uuid.Parse(q)
+		}
+	}
+
+	// httpware context (from TenantV2 middleware)
+	if tenantIDStr := httpware.GetTenantID(ctx); tenantIDStr != "" {
+		return uuid.Parse(tenantIDStr)
+	}
+
+	// Fallback: header or context value
 	tenantIDStr := r.Header.Get("X-Tenant-ID")
 	if tenantIDStr == "" {
-		if val := r.Context().Value("tenant_id"); val != nil {
+		if val := ctx.Value("tenant_id"); val != nil {
 			if id, ok := val.(uuid.UUID); ok {
 				return id, nil
 			}

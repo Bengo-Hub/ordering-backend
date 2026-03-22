@@ -219,11 +219,24 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 }
 
 func getTenantID(r *http.Request) (uuid.UUID, error) {
-	// Get tenant ID from context (set by auth middleware)
+	ctx := r.Context()
+
+	// Platform owner query-param override
+	if httpware.IsPlatformOwner(ctx) {
+		if q := r.URL.Query().Get("tenantId"); q != "" {
+			return uuid.Parse(q)
+		}
+	}
+
+	// httpware context (from TenantV2 middleware — preferred)
+	if tenantIDStr := httpware.GetTenantID(ctx); tenantIDStr != "" {
+		return uuid.Parse(tenantIDStr)
+	}
+
+	// Fallback: header or context value
 	tenantIDStr := r.Header.Get("X-Tenant-ID")
 	if tenantIDStr == "" {
-		// Try from context
-		if val := r.Context().Value("tenant_id"); val != nil {
+		if val := ctx.Value("tenant_id"); val != nil {
 			if id, ok := val.(uuid.UUID); ok {
 				return id, nil
 			}
