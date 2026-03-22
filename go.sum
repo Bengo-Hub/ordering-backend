@@ -2,8 +2,8 @@ ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 h1:GwdJbXydHCYPedeeLt4x/lrl
 ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43/go.mod h1:uj3pm+hUTVN/X5yfdBexHlZv+1Xu5u5ZbZx7+CDavNU=
 entgo.io/ent v0.13.1 h1:uD8QwN1h6SNphdCCzmkMN3feSUzNnVvV/WIkHKMbzOE=
 entgo.io/ent v0.13.1/go.mod h1:qCEmo+biw3ccBn9OyL4ZK5dfpwg++l1Gxwac5B1206A=
-github.com/Bengo-Hub/auth-client v0.4.1 h1:hBuDMWLVAJ3Qux/wHo6qw4d6UIn8lPYaPLQrbm8ALYs=
-github.com/Bengo-Hub/auth-client v0.4.1/go.mod h1:DTfmZRTomkZRFm1YYKO8DmvwjLIchZnM7ZaFArIffsI=
+github.com/Bengo-Hub/auth-client v0.5.0 h1:XYtUqReJRQOGmIZwZuSMSpKGgoiqQ/P8TOh/HzWjQiY=
+github.com/Bengo-Hub/auth-client v0.5.0/go.mod h1:DTfmZRTomkZRFm1YYKO8DmvwjLIchZnM7ZaFArIffsI=
 github.com/Bengo-Hub/httpware v0.3.0 h1:2ldI6DZtx3t5N9USZLDEakFqmkdgPDm93URjMaMJQy4=
 github.com/Bengo-Hub/httpware v0.3.0/go.mod h1:iplyopAHMEyJL7lLlJoharGvb5uN04OcQEZjX85O8TU=
 github.com/Bengo-Hub/shared-events v0.2.0 h1:boWYHnssTEmUg1c4qd7/YiMoo0ShBqrg4xyUwxwKFsY=
