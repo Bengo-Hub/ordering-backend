@@ -565,6 +565,18 @@ func (s *Service) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]Outlet
 	return s.repo.ListOutlets(ctx, tenantID)
 }
 
+// resolveDefaultOutlet returns the first outlet for a tenant.
+func (s *Service) resolveDefaultOutlet(ctx context.Context, tenantID uuid.UUID) (uuid.UUID, error) {
+	outlets, err := s.ListOutlets(ctx, tenantID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("catalog: list outlets for tenant: %w", err)
+	}
+	if len(outlets) == 0 {
+		return uuid.Nil, fmt.Errorf("catalog: no outlets found for tenant %s", tenantID)
+	}
+	return outlets[0].ID, nil
+}
+
 // --- Helper Functions ---
 
 func isValidLocale(locale string) bool {
