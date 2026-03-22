@@ -242,8 +242,9 @@ func (s *Service) createUserFromAuthService(ctx context.Context, authServiceUser
 func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email string) []Role {
 	var roles []Role
 
-	// Super user bypass
-	if email == "admin@codevertexitsolutions.com" {
+	// Platform owner with superuser role gets full admin access
+	isPlatformOwner, _ := authUserData["is_platform_owner"].(bool)
+	if isPlatformOwner {
 		return []Role{RoleSuperAdmin, RoleAdmin}
 	}
 

@@ -194,11 +194,11 @@ func TestService_ExtractRolesFromAuthServiceUser(t *testing.T) {
 		wantRoles    []Role
 	}{
 		{
-			name: "extract superuser from admin email",
+			name: "extract superuser from platform owner flag",
 			authUserData: map[string]interface{}{
-				"email": "admin@codevertexitsolutions.com",
+				"is_platform_owner": true,
 			},
-			email:     "admin@codevertexitsolutions.com",
+			email:     "admin@example.com",
 			wantRoles: []Role{RoleSuperAdmin, RoleAdmin},
 		},
 		{

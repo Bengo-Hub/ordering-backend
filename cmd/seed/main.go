@@ -63,7 +63,7 @@ func main() {
 	client := ent.NewClient(ent.Driver(driver))
 	defer client.Close()
 
-	syncer := tenant.NewSyncer(client)
+	syncer := tenant.NewSyncer(client, cfg.Auth.ServiceURL)
 	// Sync platform org (codevertex) so tenant row exists; seed continues if auth-api unavailable.
 	var codevertexTenantID uuid.UUID
 	if id, err := syncer.SyncTenant(ctx, "codevertex"); err != nil {
