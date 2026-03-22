@@ -260,6 +260,12 @@ func New(ctx context.Context) (*App, error) {
 			log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
 		}
 
+		// Subscribe to inventory events for catalog projection sync
+		inventoryEventHandler := catalog.NewInventoryEventHandler(catalogSvc, log)
+		if err := inventoryEventHandler.SubscribeToInventoryEvents(natsConn); err != nil {
+			log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
+		}
+
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
 		if cfg.Events.OutboxEnabled {
 			outboxRepo := outbox.NewEntRepository(ormClient, sqlDB)
