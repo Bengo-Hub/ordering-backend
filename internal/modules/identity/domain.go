@@ -11,7 +11,8 @@ type Role string
 
 const (
 	RoleCustomer   Role = "customer"
-	RoleRider      Role = "rider"
+	RoleDriver     Role = "driver" // Universal role for delivery/courier/taxi use cases
+	RoleRider      Role = "rider"  // Deprecated: use RoleDriver; kept for backward compatibility
 	RoleStaff      Role = "staff"
 	RoleAdmin      Role = "admin"
 	RoleSuperAdmin Role = "superuser"
@@ -60,7 +61,7 @@ func DefaultPermissions(role Role) []Permission {
 			PermissionLoyaltyView,
 			PermissionLoyaltyRedeem,
 		}
-	case RoleRider:
+	case RoleDriver, RoleRider:
 		return []Permission{
 			PermissionOrdersView,
 			PermissionProfileUpdate,

@@ -258,8 +258,8 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 					roles = append(roles, RoleAdmin)
 				case "staff":
 					roles = append(roles, RoleStaff)
-				case "rider":
-					roles = append(roles, RoleRider)
+				case "driver", "rider":
+					roles = append(roles, RoleDriver)
 				case "customer", "user":
 					roles = append(roles, RoleCustomer)
 				}
@@ -277,8 +277,8 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 				roles = append(roles, RoleAdmin)
 			case "staff":
 				roles = append(roles, RoleStaff)
-			case "rider":
-				roles = append(roles, RoleRider)
+			case "driver", "rider":
+				roles = append(roles, RoleDriver)
 			case "customer", "user":
 				roles = append(roles, RoleCustomer)
 			}
