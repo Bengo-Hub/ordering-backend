@@ -99,19 +99,19 @@ func (ru *RoleUpdate) SetUpdatedAt(t time.Time) *RoleUpdate {
 	return ru
 }
 
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (ru *RoleUpdate) AddPermissionIDs(ids ...uuid.UUID) *RoleUpdate {
-	ru.mutation.AddPermissionIDs(ids...)
+// AddLegacyPermissionIDs adds the "legacy_permissions" edge to the Permission entity by IDs.
+func (ru *RoleUpdate) AddLegacyPermissionIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.AddLegacyPermissionIDs(ids...)
 	return ru
 }
 
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (ru *RoleUpdate) AddPermissions(p ...*Permission) *RoleUpdate {
+// AddLegacyPermissions adds the "legacy_permissions" edges to the Permission entity.
+func (ru *RoleUpdate) AddLegacyPermissions(p ...*Permission) *RoleUpdate {
 	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return ru.AddPermissionIDs(ids...)
+	return ru.AddLegacyPermissionIDs(ids...)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
@@ -134,25 +134,25 @@ func (ru *RoleUpdate) Mutation() *RoleMutation {
 	return ru.mutation
 }
 
-// ClearPermissions clears all "permissions" edges to the Permission entity.
-func (ru *RoleUpdate) ClearPermissions() *RoleUpdate {
-	ru.mutation.ClearPermissions()
+// ClearLegacyPermissions clears all "legacy_permissions" edges to the Permission entity.
+func (ru *RoleUpdate) ClearLegacyPermissions() *RoleUpdate {
+	ru.mutation.ClearLegacyPermissions()
 	return ru
 }
 
-// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
-func (ru *RoleUpdate) RemovePermissionIDs(ids ...uuid.UUID) *RoleUpdate {
-	ru.mutation.RemovePermissionIDs(ids...)
+// RemoveLegacyPermissionIDs removes the "legacy_permissions" edge to Permission entities by IDs.
+func (ru *RoleUpdate) RemoveLegacyPermissionIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.RemoveLegacyPermissionIDs(ids...)
 	return ru
 }
 
-// RemovePermissions removes "permissions" edges to Permission entities.
-func (ru *RoleUpdate) RemovePermissions(p ...*Permission) *RoleUpdate {
+// RemoveLegacyPermissions removes "legacy_permissions" edges to Permission entities.
+func (ru *RoleUpdate) RemoveLegacyPermissions(p ...*Permission) *RoleUpdate {
 	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return ru.RemovePermissionIDs(ids...)
+	return ru.RemoveLegacyPermissionIDs(ids...)
 }
 
 // ClearUsers clears all "users" edges to the User entity.
@@ -252,12 +252,12 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.UpdatedAt(); ok {
 		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ru.mutation.PermissionsCleared() {
+	if ru.mutation.LegacyPermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
@@ -265,12 +265,12 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ru.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !ru.mutation.PermissionsCleared() {
+	if nodes := ru.mutation.RemovedLegacyPermissionsIDs(); len(nodes) > 0 && !ru.mutation.LegacyPermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
@@ -281,12 +281,12 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ru.mutation.PermissionsIDs(); len(nodes) > 0 {
+	if nodes := ru.mutation.LegacyPermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
@@ -430,19 +430,19 @@ func (ruo *RoleUpdateOne) SetUpdatedAt(t time.Time) *RoleUpdateOne {
 	return ruo
 }
 
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (ruo *RoleUpdateOne) AddPermissionIDs(ids ...uuid.UUID) *RoleUpdateOne {
-	ruo.mutation.AddPermissionIDs(ids...)
+// AddLegacyPermissionIDs adds the "legacy_permissions" edge to the Permission entity by IDs.
+func (ruo *RoleUpdateOne) AddLegacyPermissionIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.AddLegacyPermissionIDs(ids...)
 	return ruo
 }
 
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (ruo *RoleUpdateOne) AddPermissions(p ...*Permission) *RoleUpdateOne {
+// AddLegacyPermissions adds the "legacy_permissions" edges to the Permission entity.
+func (ruo *RoleUpdateOne) AddLegacyPermissions(p ...*Permission) *RoleUpdateOne {
 	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return ruo.AddPermissionIDs(ids...)
+	return ruo.AddLegacyPermissionIDs(ids...)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
@@ -465,25 +465,25 @@ func (ruo *RoleUpdateOne) Mutation() *RoleMutation {
 	return ruo.mutation
 }
 
-// ClearPermissions clears all "permissions" edges to the Permission entity.
-func (ruo *RoleUpdateOne) ClearPermissions() *RoleUpdateOne {
-	ruo.mutation.ClearPermissions()
+// ClearLegacyPermissions clears all "legacy_permissions" edges to the Permission entity.
+func (ruo *RoleUpdateOne) ClearLegacyPermissions() *RoleUpdateOne {
+	ruo.mutation.ClearLegacyPermissions()
 	return ruo
 }
 
-// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
-func (ruo *RoleUpdateOne) RemovePermissionIDs(ids ...uuid.UUID) *RoleUpdateOne {
-	ruo.mutation.RemovePermissionIDs(ids...)
+// RemoveLegacyPermissionIDs removes the "legacy_permissions" edge to Permission entities by IDs.
+func (ruo *RoleUpdateOne) RemoveLegacyPermissionIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.RemoveLegacyPermissionIDs(ids...)
 	return ruo
 }
 
-// RemovePermissions removes "permissions" edges to Permission entities.
-func (ruo *RoleUpdateOne) RemovePermissions(p ...*Permission) *RoleUpdateOne {
+// RemoveLegacyPermissions removes "legacy_permissions" edges to Permission entities.
+func (ruo *RoleUpdateOne) RemoveLegacyPermissions(p ...*Permission) *RoleUpdateOne {
 	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return ruo.RemovePermissionIDs(ids...)
+	return ruo.RemoveLegacyPermissionIDs(ids...)
 }
 
 // ClearUsers clears all "users" edges to the User entity.
@@ -613,12 +613,12 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 	if value, ok := ruo.mutation.UpdatedAt(); ok {
 		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ruo.mutation.PermissionsCleared() {
+	if ruo.mutation.LegacyPermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
@@ -626,12 +626,12 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ruo.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !ruo.mutation.PermissionsCleared() {
+	if nodes := ruo.mutation.RemovedLegacyPermissionsIDs(); len(nodes) > 0 && !ruo.mutation.LegacyPermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
@@ -642,12 +642,12 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ruo.mutation.PermissionsIDs(); len(nodes) > 0 {
+	if nodes := ruo.mutation.LegacyPermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),

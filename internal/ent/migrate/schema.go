@@ -1076,6 +1076,79 @@ var (
 			},
 		},
 	}
+	// OrderingPermissionsColumns holds the columns for the "ordering_permissions" table.
+	OrderingPermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "permission_code", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "module", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "resource", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// OrderingPermissionsTable holds the schema information for the "ordering_permissions" table.
+	OrderingPermissionsTable = &schema.Table{
+		Name:       "ordering_permissions",
+		Columns:    OrderingPermissionsColumns,
+		PrimaryKey: []*schema.Column{OrderingPermissionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orderingpermission_permission_code",
+				Unique:  true,
+				Columns: []*schema.Column{OrderingPermissionsColumns[1]},
+			},
+			{
+				Name:    "orderingpermission_module",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingPermissionsColumns[3]},
+			},
+			{
+				Name:    "orderingpermission_action",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingPermissionsColumns[4]},
+			},
+			{
+				Name:    "orderingpermission_module_action",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingPermissionsColumns[3], OrderingPermissionsColumns[4]},
+			},
+		},
+	}
+	// OrderingRolesColumns holds the columns for the "ordering_roles" table.
+	OrderingRolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "role_code", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "is_system_role", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// OrderingRolesTable holds the schema information for the "ordering_roles" table.
+	OrderingRolesTable = &schema.Table{
+		Name:       "ordering_roles",
+		Columns:    OrderingRolesColumns,
+		PrimaryKey: []*schema.Column{OrderingRolesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orderingrole_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingRolesColumns[1]},
+			},
+			{
+				Name:    "orderingrole_tenant_id_role_code",
+				Unique:  true,
+				Columns: []*schema.Column{OrderingRolesColumns[1], OrderingRolesColumns[2]},
+			},
+			{
+				Name:    "orderingrole_is_system_role",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingRolesColumns[5]},
+			},
+		},
+	}
 	// OutboxEventsColumns holds the columns for the "outbox_events" table.
 	OutboxEventsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1268,6 +1341,43 @@ var (
 			},
 		},
 	}
+	// RateLimitConfigsColumns holds the columns for the "rate_limit_configs" table.
+	RateLimitConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "service_name", Type: field.TypeString},
+		{Name: "key_type", Type: field.TypeString},
+		{Name: "endpoint_pattern", Type: field.TypeString, Default: "*"},
+		{Name: "requests_per_window", Type: field.TypeInt, Default: 60},
+		{Name: "window_seconds", Type: field.TypeInt, Default: 60},
+		{Name: "burst_multiplier", Type: field.TypeFloat64, Default: 1.5},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// RateLimitConfigsTable holds the schema information for the "rate_limit_configs" table.
+	RateLimitConfigsTable = &schema.Table{
+		Name:       "rate_limit_configs",
+		Columns:    RateLimitConfigsColumns,
+		PrimaryKey: []*schema.Column{RateLimitConfigsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratelimitconfig_service_name_key_type_endpoint_pattern",
+				Unique:  true,
+				Columns: []*schema.Column{RateLimitConfigsColumns[1], RateLimitConfigsColumns[2], RateLimitConfigsColumns[3]},
+			},
+			{
+				Name:    "ratelimitconfig_service_name",
+				Unique:  false,
+				Columns: []*schema.Column{RateLimitConfigsColumns[1]},
+			},
+			{
+				Name:    "ratelimitconfig_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{RateLimitConfigsColumns[7]},
+			},
+		},
+	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -1283,6 +1393,49 @@ var (
 		Name:       "roles",
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
+	}
+	// RolePermissionsColumns holds the columns for the "role_permissions" table.
+	RolePermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "permission_id", Type: field.TypeUUID},
+	}
+	// RolePermissionsTable holds the schema information for the "role_permissions" table.
+	RolePermissionsTable = &schema.Table{
+		Name:       "role_permissions",
+		Columns:    RolePermissionsColumns,
+		PrimaryKey: []*schema.Column{RolePermissionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "role_permissions_ordering_roles_role",
+				Columns:    []*schema.Column{RolePermissionsColumns[1]},
+				RefColumns: []*schema.Column{OrderingRolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "role_permissions_ordering_permissions_permission",
+				Columns:    []*schema.Column{RolePermissionsColumns[2]},
+				RefColumns: []*schema.Column{OrderingPermissionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rolepermission_role_id_permission_id",
+				Unique:  true,
+				Columns: []*schema.Column{RolePermissionsColumns[1], RolePermissionsColumns[2]},
+			},
+			{
+				Name:    "rolepermission_role_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[1]},
+			},
+			{
+				Name:    "rolepermission_permission_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[2]},
+			},
+		},
 	}
 	// SLAMetricsColumns holds the columns for the "sla_metrics" table.
 	SLAMetricsColumns = []*schema.Column{
@@ -1336,6 +1489,36 @@ var (
 				Name:    "slametric_measured_at",
 				Unique:  false,
 				Columns: []*schema.Column{SLAMetricsColumns[10]},
+			},
+		},
+	}
+	// ServiceConfigsColumns holds the columns for the "service_configs" table.
+	ServiceConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "config_key", Type: field.TypeString},
+		{Name: "config_value", Type: field.TypeString, Size: 2147483647},
+		{Name: "config_type", Type: field.TypeString, Default: "string"},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "is_secret", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// ServiceConfigsTable holds the schema information for the "service_configs" table.
+	ServiceConfigsTable = &schema.Table{
+		Name:       "service_configs",
+		Columns:    ServiceConfigsColumns,
+		PrimaryKey: []*schema.Column{ServiceConfigsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "serviceconfig_tenant_id_config_key",
+				Unique:  true,
+				Columns: []*schema.Column{ServiceConfigsColumns[1], ServiceConfigsColumns[2]},
+			},
+			{
+				Name:    "serviceconfig_config_key",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceConfigsColumns[2]},
 			},
 		},
 	}
@@ -1576,6 +1759,63 @@ var (
 			},
 		},
 	}
+	// UserRoleAssignmentsColumns holds the columns for the "user_role_assignments" table.
+	UserRoleAssignmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "assigned_by", Type: field.TypeUUID},
+		{Name: "assigned_at", Type: field.TypeTime},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
+	}
+	// UserRoleAssignmentsTable holds the schema information for the "user_role_assignments" table.
+	UserRoleAssignmentsTable = &schema.Table{
+		Name:       "user_role_assignments",
+		Columns:    UserRoleAssignmentsColumns,
+		PrimaryKey: []*schema.Column{UserRoleAssignmentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_role_assignments_users_user",
+				Columns:    []*schema.Column{UserRoleAssignmentsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_role_assignments_ordering_roles_role",
+				Columns:    []*schema.Column{UserRoleAssignmentsColumns[6]},
+				RefColumns: []*schema.Column{OrderingRolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userroleassignment_tenant_id_user_id_role_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRoleAssignmentsColumns[1], UserRoleAssignmentsColumns[5], UserRoleAssignmentsColumns[6]},
+			},
+			{
+				Name:    "userroleassignment_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRoleAssignmentsColumns[1]},
+			},
+			{
+				Name:    "userroleassignment_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRoleAssignmentsColumns[5]},
+			},
+			{
+				Name:    "userroleassignment_role_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRoleAssignmentsColumns[6]},
+			},
+			{
+				Name:    "userroleassignment_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{UserRoleAssignmentsColumns[4]},
+			},
+		},
+	}
 	// CatalogItemDietaryTagsColumns holds the columns for the "catalog_item_dietary_tags" table.
 	CatalogItemDietaryTagsColumns = []*schema.Column{
 		{Name: "catalog_item_id", Type: field.TypeUUID},
@@ -1601,26 +1841,26 @@ var (
 			},
 		},
 	}
-	// RolePermissionsColumns holds the columns for the "role_permissions" table.
-	RolePermissionsColumns = []*schema.Column{
+	// RoleLegacyPermissionsColumns holds the columns for the "role_legacy_permissions" table.
+	RoleLegacyPermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeString},
 		{Name: "permission_id", Type: field.TypeUUID},
 	}
-	// RolePermissionsTable holds the schema information for the "role_permissions" table.
-	RolePermissionsTable = &schema.Table{
-		Name:       "role_permissions",
-		Columns:    RolePermissionsColumns,
-		PrimaryKey: []*schema.Column{RolePermissionsColumns[0], RolePermissionsColumns[1]},
+	// RoleLegacyPermissionsTable holds the schema information for the "role_legacy_permissions" table.
+	RoleLegacyPermissionsTable = &schema.Table{
+		Name:       "role_legacy_permissions",
+		Columns:    RoleLegacyPermissionsColumns,
+		PrimaryKey: []*schema.Column{RoleLegacyPermissionsColumns[0], RoleLegacyPermissionsColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "role_permissions_role_id",
-				Columns:    []*schema.Column{RolePermissionsColumns[0]},
+				Symbol:     "role_legacy_permissions_role_id",
+				Columns:    []*schema.Column{RoleLegacyPermissionsColumns[0]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "role_permissions_permission_id",
-				Columns:    []*schema.Column{RolePermissionsColumns[1]},
+				Symbol:     "role_legacy_permissions_permission_id",
+				Columns:    []*schema.Column{RoleLegacyPermissionsColumns[1]},
 				RefColumns: []*schema.Column{PermissionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -1698,21 +1938,27 @@ var (
 		OrderAssignmentsTable,
 		OrderEventsTable,
 		OrderItemsTable,
+		OrderingPermissionsTable,
+		OrderingRolesTable,
 		OutboxEventsTable,
 		OutletsTable,
 		PermissionsTable,
 		PromoCodesTable,
 		PromoRedemptionsTable,
+		RateLimitConfigsTable,
 		RolesTable,
+		RolePermissionsTable,
 		SLAMetricsTable,
+		ServiceConfigsTable,
 		TenantsTable,
 		TenantSettingsTable,
 		TenantSyncEventsTable,
 		UsersTable,
 		UserPreferencesTable,
 		UserProfilesTable,
+		UserRoleAssignmentsTable,
 		CatalogItemDietaryTagsTable,
-		RolePermissionsTable,
+		RoleLegacyPermissionsTable,
 		UserRolesTable,
 		UserFavoriteItemsTable,
 	}
@@ -1761,6 +2007,8 @@ func init() {
 	OrderItemsTable.ForeignKeys[0].RefTable = OrdersTable
 	OutletsTable.ForeignKeys[0].RefTable = TenantsTable
 	PromoRedemptionsTable.ForeignKeys[0].RefTable = PromoCodesTable
+	RolePermissionsTable.ForeignKeys[0].RefTable = OrderingRolesTable
+	RolePermissionsTable.ForeignKeys[1].RefTable = OrderingPermissionsTable
 	SLAMetricsTable.Annotation = &entsql.Annotation{
 		Table: "sla_metrics",
 	}
@@ -1769,10 +2017,12 @@ func init() {
 	UsersTable.ForeignKeys[0].RefTable = TenantsTable
 	UserPreferencesTable.ForeignKeys[0].RefTable = UsersTable
 	UserProfilesTable.ForeignKeys[0].RefTable = UsersTable
+	UserRoleAssignmentsTable.ForeignKeys[0].RefTable = UsersTable
+	UserRoleAssignmentsTable.ForeignKeys[1].RefTable = OrderingRolesTable
 	CatalogItemDietaryTagsTable.ForeignKeys[0].RefTable = CatalogItemsTable
 	CatalogItemDietaryTagsTable.ForeignKeys[1].RefTable = DietaryTagsTable
-	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
-	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
+	RoleLegacyPermissionsTable.ForeignKeys[0].RefTable = RolesTable
+	RoleLegacyPermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 	UserFavoriteItemsTable.ForeignKeys[0].RefTable = UsersTable

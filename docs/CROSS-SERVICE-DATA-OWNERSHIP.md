@@ -378,7 +378,7 @@ func getRiderDetails(ctx context.Context, riderID uuid.UUID) (*Rider, error) {
 
 - Legacy `riderprofile` and `riderdocument` schemas in ordering-backend are **deprecated** and **unused**
 - All rider data migration should go to logistics-service
-- Cafe-backend should only store `rider_id` references going forward
+- ordering-backend should only store `rider_id` references going forward
 
 ---
 

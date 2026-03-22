@@ -39,6 +39,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 	"github.com/bengobox/ordering-backend/internal/modules/outbox"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
@@ -324,7 +325,12 @@ func New(ctx context.Context) (*App, error) {
 	mediaHandler := handlers.NewMediaHandler(log, cfg)
 	zonesHandler := zoneshandler.New(log, ormClient)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, tenantSyncer)
+	// Initialize RBAC module
+	rbacRepo := rbac.NewEntRepository(ormClient)
+	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
+	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo)
+
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

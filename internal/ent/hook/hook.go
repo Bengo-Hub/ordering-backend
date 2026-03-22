@@ -249,6 +249,30 @@ func (f OrderItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderItemMutation", m)
 }
 
+// The OrderingPermissionFunc type is an adapter to allow the use of ordinary
+// function as OrderingPermission mutator.
+type OrderingPermissionFunc func(context.Context, *ent.OrderingPermissionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderingPermissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderingPermissionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderingPermissionMutation", m)
+}
+
+// The OrderingRoleFunc type is an adapter to allow the use of ordinary
+// function as OrderingRole mutator.
+type OrderingRoleFunc func(context.Context, *ent.OrderingRoleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderingRoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderingRoleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderingRoleMutation", m)
+}
+
 // The OutboxEventFunc type is an adapter to allow the use of ordinary
 // function as OutboxEvent mutator.
 type OutboxEventFunc func(context.Context, *ent.OutboxEventMutation) (ent.Value, error)
@@ -309,6 +333,18 @@ func (f PromoRedemptionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PromoRedemptionMutation", m)
 }
 
+// The RateLimitConfigFunc type is an adapter to allow the use of ordinary
+// function as RateLimitConfig mutator.
+type RateLimitConfigFunc func(context.Context, *ent.RateLimitConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RateLimitConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RateLimitConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RateLimitConfigMutation", m)
+}
+
 // The RoleFunc type is an adapter to allow the use of ordinary
 // function as Role mutator.
 type RoleFunc func(context.Context, *ent.RoleMutation) (ent.Value, error)
@@ -321,6 +357,18 @@ func (f RoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoleMutation", m)
 }
 
+// The RolePermissionFunc type is an adapter to allow the use of ordinary
+// function as RolePermission mutator.
+type RolePermissionFunc func(context.Context, *ent.RolePermissionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RolePermissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RolePermissionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RolePermissionMutation", m)
+}
+
 // The SLAMetricFunc type is an adapter to allow the use of ordinary
 // function as SLAMetric mutator.
 type SLAMetricFunc func(context.Context, *ent.SLAMetricMutation) (ent.Value, error)
@@ -331,6 +379,18 @@ func (f SLAMetricFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SLAMetricMutation", m)
+}
+
+// The ServiceConfigFunc type is an adapter to allow the use of ordinary
+// function as ServiceConfig mutator.
+type ServiceConfigFunc func(context.Context, *ent.ServiceConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ServiceConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ServiceConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ServiceConfigMutation", m)
 }
 
 // The TenantFunc type is an adapter to allow the use of ordinary
@@ -403,6 +463,18 @@ func (f UserProfileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserProfileMutation", m)
+}
+
+// The UserRoleAssignmentFunc type is an adapter to allow the use of ordinary
+// function as UserRoleAssignment mutator.
+type UserRoleAssignmentFunc func(context.Context, *ent.UserRoleAssignmentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserRoleAssignmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserRoleAssignmentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserRoleAssignmentMutation", m)
 }
 
 // Condition is a hook condition function.

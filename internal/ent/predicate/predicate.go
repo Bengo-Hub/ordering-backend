@@ -66,6 +66,12 @@ type OrderEvent func(*sql.Selector)
 // OrderItem is the predicate function for orderitem builders.
 type OrderItem func(*sql.Selector)
 
+// OrderingPermission is the predicate function for orderingpermission builders.
+type OrderingPermission func(*sql.Selector)
+
+// OrderingRole is the predicate function for orderingrole builders.
+type OrderingRole func(*sql.Selector)
+
 // OutboxEvent is the predicate function for outboxevent builders.
 type OutboxEvent func(*sql.Selector)
 
@@ -81,11 +87,20 @@ type PromoCode func(*sql.Selector)
 // PromoRedemption is the predicate function for promoredemption builders.
 type PromoRedemption func(*sql.Selector)
 
+// RateLimitConfig is the predicate function for ratelimitconfig builders.
+type RateLimitConfig func(*sql.Selector)
+
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
 
+// RolePermission is the predicate function for rolepermission builders.
+type RolePermission func(*sql.Selector)
+
 // SLAMetric is the predicate function for slametric builders.
 type SLAMetric func(*sql.Selector)
+
+// ServiceConfig is the predicate function for serviceconfig builders.
+type ServiceConfig func(*sql.Selector)
 
 // Tenant is the predicate function for tenant builders.
 type Tenant func(*sql.Selector)
@@ -104,3 +119,6 @@ type UserPreference func(*sql.Selector)
 
 // UserProfile is the predicate function for userprofile builders.
 type UserProfile func(*sql.Selector)
+
+// UserRoleAssignment is the predicate function for userroleassignment builders.
+type UserRoleAssignment func(*sql.Selector)

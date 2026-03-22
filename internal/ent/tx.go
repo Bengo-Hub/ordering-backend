@@ -52,6 +52,10 @@ type Tx struct {
 	OrderEvent *OrderEventClient
 	// OrderItem is the client for interacting with the OrderItem builders.
 	OrderItem *OrderItemClient
+	// OrderingPermission is the client for interacting with the OrderingPermission builders.
+	OrderingPermission *OrderingPermissionClient
+	// OrderingRole is the client for interacting with the OrderingRole builders.
+	OrderingRole *OrderingRoleClient
 	// OutboxEvent is the client for interacting with the OutboxEvent builders.
 	OutboxEvent *OutboxEventClient
 	// Outlet is the client for interacting with the Outlet builders.
@@ -62,10 +66,16 @@ type Tx struct {
 	PromoCode *PromoCodeClient
 	// PromoRedemption is the client for interacting with the PromoRedemption builders.
 	PromoRedemption *PromoRedemptionClient
+	// RateLimitConfig is the client for interacting with the RateLimitConfig builders.
+	RateLimitConfig *RateLimitConfigClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// RolePermission is the client for interacting with the RolePermission builders.
+	RolePermission *RolePermissionClient
 	// SLAMetric is the client for interacting with the SLAMetric builders.
 	SLAMetric *SLAMetricClient
+	// ServiceConfig is the client for interacting with the ServiceConfig builders.
+	ServiceConfig *ServiceConfigClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
 	// TenantSetting is the client for interacting with the TenantSetting builders.
@@ -78,6 +88,8 @@ type Tx struct {
 	UserPreference *UserPreferenceClient
 	// UserProfile is the client for interacting with the UserProfile builders.
 	UserProfile *UserProfileClient
+	// UserRoleAssignment is the client for interacting with the UserRoleAssignment builders.
+	UserRoleAssignment *UserRoleAssignmentClient
 
 	// lazily loaded.
 	client     *Client
@@ -229,19 +241,25 @@ func (tx *Tx) init() {
 	tx.OrderAssignment = NewOrderAssignmentClient(tx.config)
 	tx.OrderEvent = NewOrderEventClient(tx.config)
 	tx.OrderItem = NewOrderItemClient(tx.config)
+	tx.OrderingPermission = NewOrderingPermissionClient(tx.config)
+	tx.OrderingRole = NewOrderingRoleClient(tx.config)
 	tx.OutboxEvent = NewOutboxEventClient(tx.config)
 	tx.Outlet = NewOutletClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.PromoCode = NewPromoCodeClient(tx.config)
 	tx.PromoRedemption = NewPromoRedemptionClient(tx.config)
+	tx.RateLimitConfig = NewRateLimitConfigClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.RolePermission = NewRolePermissionClient(tx.config)
 	tx.SLAMetric = NewSLAMetricClient(tx.config)
+	tx.ServiceConfig = NewServiceConfigClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantSetting = NewTenantSettingClient(tx.config)
 	tx.TenantSyncEvent = NewTenantSyncEventClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserPreference = NewUserPreferenceClient(tx.config)
 	tx.UserProfile = NewUserProfileClient(tx.config)
+	tx.UserRoleAssignment = NewUserRoleAssignmentClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

@@ -695,7 +695,7 @@ definitions:
   handlers.livenessResponse:
     properties:
       service:
-        example: cafe-backend
+        example: ordering-backend
         type: string
       status:
         example: ok

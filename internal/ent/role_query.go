@@ -21,12 +21,12 @@ import (
 // RoleQuery is the builder for querying Role entities.
 type RoleQuery struct {
 	config
-	ctx             *QueryContext
-	order           []role.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Role
-	withPermissions *PermissionQuery
-	withUsers       *UserQuery
+	ctx                   *QueryContext
+	order                 []role.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.Role
+	withLegacyPermissions *PermissionQuery
+	withUsers             *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,8 +63,8 @@ func (rq *RoleQuery) Order(o ...role.OrderOption) *RoleQuery {
 	return rq
 }
 
-// QueryPermissions chains the current query on the "permissions" edge.
-func (rq *RoleQuery) QueryPermissions() *PermissionQuery {
+// QueryLegacyPermissions chains the current query on the "legacy_permissions" edge.
+func (rq *RoleQuery) QueryLegacyPermissions() *PermissionQuery {
 	query := (&PermissionClient{config: rq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := rq.prepareQuery(ctx); err != nil {
@@ -77,7 +77,7 @@ func (rq *RoleQuery) QueryPermissions() *PermissionQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, selector),
 			sqlgraph.To(permission.Table, permission.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, role.PermissionsTable, role.PermissionsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, role.LegacyPermissionsTable, role.LegacyPermissionsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,27 +294,27 @@ func (rq *RoleQuery) Clone() *RoleQuery {
 		return nil
 	}
 	return &RoleQuery{
-		config:          rq.config,
-		ctx:             rq.ctx.Clone(),
-		order:           append([]role.OrderOption{}, rq.order...),
-		inters:          append([]Interceptor{}, rq.inters...),
-		predicates:      append([]predicate.Role{}, rq.predicates...),
-		withPermissions: rq.withPermissions.Clone(),
-		withUsers:       rq.withUsers.Clone(),
+		config:                rq.config,
+		ctx:                   rq.ctx.Clone(),
+		order:                 append([]role.OrderOption{}, rq.order...),
+		inters:                append([]Interceptor{}, rq.inters...),
+		predicates:            append([]predicate.Role{}, rq.predicates...),
+		withLegacyPermissions: rq.withLegacyPermissions.Clone(),
+		withUsers:             rq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
 	}
 }
 
-// WithPermissions tells the query-builder to eager-load the nodes that are connected to
-// the "permissions" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RoleQuery) WithPermissions(opts ...func(*PermissionQuery)) *RoleQuery {
+// WithLegacyPermissions tells the query-builder to eager-load the nodes that are connected to
+// the "legacy_permissions" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *RoleQuery) WithLegacyPermissions(opts ...func(*PermissionQuery)) *RoleQuery {
 	query := (&PermissionClient{config: rq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	rq.withPermissions = query
+	rq.withLegacyPermissions = query
 	return rq
 }
 
@@ -408,7 +408,7 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 		nodes       = []*Role{}
 		_spec       = rq.querySpec()
 		loadedTypes = [2]bool{
-			rq.withPermissions != nil,
+			rq.withLegacyPermissions != nil,
 			rq.withUsers != nil,
 		}
 	)
@@ -430,10 +430,10 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := rq.withPermissions; query != nil {
-		if err := rq.loadPermissions(ctx, query, nodes,
-			func(n *Role) { n.Edges.Permissions = []*Permission{} },
-			func(n *Role, e *Permission) { n.Edges.Permissions = append(n.Edges.Permissions, e) }); err != nil {
+	if query := rq.withLegacyPermissions; query != nil {
+		if err := rq.loadLegacyPermissions(ctx, query, nodes,
+			func(n *Role) { n.Edges.LegacyPermissions = []*Permission{} },
+			func(n *Role, e *Permission) { n.Edges.LegacyPermissions = append(n.Edges.LegacyPermissions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -447,7 +447,7 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	return nodes, nil
 }
 
-func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery, nodes []*Role, init func(*Role), assign func(*Role, *Permission)) error {
+func (rq *RoleQuery) loadLegacyPermissions(ctx context.Context, query *PermissionQuery, nodes []*Role, init func(*Role), assign func(*Role, *Permission)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[string]*Role)
 	nids := make(map[uuid.UUID]map[*Role]struct{})
@@ -459,11 +459,11 @@ func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(role.PermissionsTable)
-		s.Join(joinT).On(s.C(permission.FieldID), joinT.C(role.PermissionsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(role.PermissionsPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(role.LegacyPermissionsTable)
+		s.Join(joinT).On(s.C(permission.FieldID), joinT.C(role.LegacyPermissionsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(role.LegacyPermissionsPrimaryKey[0]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(role.PermissionsPrimaryKey[0]))
+		s.Select(joinT.C(role.LegacyPermissionsPrimaryKey[0]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -500,7 +500,7 @@ func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "permissions" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "legacy_permissions" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

@@ -18,7 +18,12 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
+	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
+	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/ratelimitconfig"
+	"github.com/bengobox/ordering-backend/internal/ent/rolepermission"
+	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	enttenant "github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
@@ -123,6 +128,24 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 	}
 
 	if err = seedRolePermissions(ctx, tx, permMap); err != nil {
+		return err
+	}
+
+	// --- New RBAC system (OrderingPermission, OrderingRole, RolePermission, RateLimitConfig, ServiceConfig) ---
+	orderingPermMap, err := seedOrderingPermissions(ctx, tx)
+	if err != nil {
+		return err
+	}
+
+	if err = seedOrderingRoles(ctx, tx, tenantUUID, orderingPermMap); err != nil {
+		return err
+	}
+
+	if err = seedRateLimitConfigs(ctx, tx); err != nil {
+		return err
+	}
+
+	if err = seedServiceConfigs(ctx, tx); err != nil {
 		return err
 	}
 
@@ -496,9 +519,9 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 			permIDs = append(permIDs, id)
 		}
 
-		update := tx.Role.UpdateOneID(code).ClearPermissions()
+		update := tx.Role.UpdateOneID(code).ClearLegacyPermissions()
 		if len(permIDs) > 0 {
-			update = update.AddPermissionIDs(permIDs...)
+			update = update.AddLegacyPermissionIDs(permIDs...)
 		}
 		if err := update.Exec(ctx); err != nil {
 			return fmt.Errorf("assign permissions to role %s: %w", code, err)
@@ -790,6 +813,495 @@ func upsertUserProfile(ctx context.Context, tx *ent.Tx, userID uuid.UUID) error 
 
 func permissionUUID(code string) uuid.UUID {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:permission:"+code))
+}
+
+func orderingPermissionUUID(code string) uuid.UUID {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:ordering:permission:"+code))
+}
+
+func orderingRoleUUID(tenantID uuid.UUID, code string) uuid.UUID {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(fmt.Sprintf("bengobox:ordering:role:%s:%s", tenantID, code)))
+}
+
+// seedOrderingPermissions seeds all ordering permissions using the ordering.{module}.{action} code pattern.
+func seedOrderingPermissions(ctx context.Context, tx *ent.Tx) (map[string]uuid.UUID, error) {
+	type perm struct {
+		code     string
+		name     string
+		mod      string
+		action   string
+		resource string
+		desc     string
+	}
+
+	modules := []struct {
+		name     string
+		resource string
+		actions  []struct{ code, name, desc string }
+	}{
+		{"orders", "orders", []struct{ code, name, desc string }{
+			{"add", "Add orders", "Create new orders"},
+			{"view", "View orders", "View any order in the tenant"},
+			{"view_own", "View own orders", "View own orders only"},
+			{"change", "Change orders", "Update any order"},
+			{"change_own", "Change own orders", "Update own orders only"},
+			{"delete", "Delete orders", "Cancel or delete orders"},
+			{"delete_own", "Delete own orders", "Cancel own orders only"},
+			{"manage", "Manage orders", "Full order management including status transitions"},
+			{"manage_own", "Manage own orders", "Manage own orders only"},
+		}},
+		{"catalog", "catalog", []struct{ code, name, desc string }{
+			{"add", "Add catalog items", "Create catalog items and categories"},
+			{"view", "View catalog", "View catalog items and categories"},
+			{"view_own", "View own catalog", "View catalog scoped to own outlet"},
+			{"change", "Change catalog", "Edit catalog items and categories"},
+			{"change_own", "Change own catalog", "Edit catalog scoped to own outlet"},
+			{"delete", "Delete catalog items", "Remove catalog items and categories"},
+			{"delete_own", "Delete own catalog items", "Remove catalog items scoped to own outlet"},
+			{"manage", "Manage catalog", "Full catalog management"},
+			{"manage_own", "Manage own catalog", "Manage catalog scoped to own outlet"},
+		}},
+		{"outlets", "outlets", []struct{ code, name, desc string }{
+			{"add", "Add outlets", "Create new outlets"},
+			{"view", "View outlets", "View outlets"},
+			{"view_own", "View own outlets", "View outlets assigned to self"},
+			{"change", "Change outlets", "Edit outlet details"},
+			{"change_own", "Change own outlets", "Edit own outlet details"},
+			{"delete", "Delete outlets", "Remove outlets"},
+			{"delete_own", "Delete own outlets", "Remove own outlets"},
+			{"manage", "Manage outlets", "Full outlet management"},
+			{"manage_own", "Manage own outlets", "Manage own outlets"},
+		}},
+		{"promotions", "promotions", []struct{ code, name, desc string }{
+			{"add", "Add promotions", "Create promo codes and campaigns"},
+			{"view", "View promotions", "View promotions and redemptions"},
+			{"view_own", "View own promotions", "View own promotions"},
+			{"change", "Change promotions", "Edit promo codes"},
+			{"change_own", "Change own promotions", "Edit own promo codes"},
+			{"delete", "Delete promotions", "Remove promo codes"},
+			{"delete_own", "Delete own promotions", "Remove own promo codes"},
+			{"manage", "Manage promotions", "Full promotions management"},
+			{"manage_own", "Manage own promotions", "Manage own promotions"},
+		}},
+		{"delivery_zones", "delivery_zones", []struct{ code, name, desc string }{
+			{"add", "Add delivery zones", "Create delivery zones"},
+			{"view", "View delivery zones", "View delivery zones"},
+			{"view_own", "View own delivery zones", "View own delivery zones"},
+			{"change", "Change delivery zones", "Edit delivery zones"},
+			{"change_own", "Change own delivery zones", "Edit own delivery zones"},
+			{"delete", "Delete delivery zones", "Remove delivery zones"},
+			{"delete_own", "Delete own delivery zones", "Remove own delivery zones"},
+			{"manage", "Manage delivery zones", "Full delivery zone management"},
+			{"manage_own", "Manage own delivery zones", "Manage own delivery zones"},
+		}},
+		{"delivery_windows", "delivery_windows", []struct{ code, name, desc string }{
+			{"add", "Add delivery windows", "Create delivery windows"},
+			{"view", "View delivery windows", "View delivery windows"},
+			{"view_own", "View own delivery windows", "View own delivery windows"},
+			{"change", "Change delivery windows", "Edit delivery windows"},
+			{"change_own", "Change own delivery windows", "Edit own delivery windows"},
+			{"delete", "Delete delivery windows", "Remove delivery windows"},
+			{"delete_own", "Delete own delivery windows", "Remove own delivery windows"},
+			{"manage", "Manage delivery windows", "Full delivery window management"},
+			{"manage_own", "Manage own delivery windows", "Manage own delivery windows"},
+		}},
+		{"loyalty", "loyalty", []struct{ code, name, desc string }{
+			{"add", "Add loyalty programs", "Create loyalty programs"},
+			{"view", "View loyalty", "View loyalty points and history"},
+			{"view_own", "View own loyalty", "View own loyalty balance"},
+			{"change", "Change loyalty", "Edit loyalty programs"},
+			{"change_own", "Change own loyalty", "Edit own loyalty"},
+			{"delete", "Delete loyalty programs", "Remove loyalty programs"},
+			{"delete_own", "Delete own loyalty programs", "Remove own loyalty programs"},
+			{"manage", "Manage loyalty", "Full loyalty management"},
+			{"manage_own", "Manage own loyalty", "Manage own loyalty"},
+		}},
+		{"analytics", "analytics", []struct{ code, name, desc string }{
+			{"add", "Add analytics reports", "Create analytics reports"},
+			{"view", "View analytics", "Access dashboards and reporting"},
+			{"view_own", "View own analytics", "View own analytics"},
+			{"change", "Change analytics", "Edit analytics settings"},
+			{"change_own", "Change own analytics", "Edit own analytics"},
+			{"delete", "Delete analytics reports", "Remove analytics reports"},
+			{"delete_own", "Delete own analytics reports", "Remove own analytics reports"},
+			{"manage", "Manage analytics", "Full analytics management"},
+			{"manage_own", "Manage own analytics", "Manage own analytics"},
+		}},
+		{"config", "config", []struct{ code, name, desc string }{
+			{"add", "Add config", "Create configuration entries"},
+			{"view", "View config", "View service configuration"},
+			{"view_own", "View own config", "View own configuration"},
+			{"change", "Change config", "Edit configuration"},
+			{"change_own", "Change own config", "Edit own configuration"},
+			{"delete", "Delete config", "Remove configuration entries"},
+			{"delete_own", "Delete own config", "Remove own configuration entries"},
+			{"manage", "Manage config", "Full configuration management"},
+			{"manage_own", "Manage own config", "Manage own configuration"},
+		}},
+		{"users", "users", []struct{ code, name, desc string }{
+			{"add", "Add users", "Create new users"},
+			{"view", "View users", "View user profiles"},
+			{"view_own", "View own profile", "View own profile"},
+			{"change", "Change users", "Edit user details"},
+			{"change_own", "Change own profile", "Edit own profile"},
+			{"delete", "Delete users", "Remove users"},
+			{"delete_own", "Delete own profile", "Remove own profile"},
+			{"manage", "Manage users", "Full user management including roles"},
+			{"manage_own", "Manage own profile", "Manage own profile"},
+		}},
+	}
+
+	permIDs := make(map[string]uuid.UUID, 100)
+	for _, m := range modules {
+		for _, a := range m.actions {
+			code := fmt.Sprintf("ordering.%s.%s", m.name, a.code)
+			id := orderingPermissionUUID(code)
+			permIDs[code] = id
+
+			exists, err := tx.OrderingPermission.Query().
+				Where(orderingpermission.PermissionCode(code)).
+				Exist(ctx)
+			if err != nil {
+				return nil, fmt.Errorf("check ordering permission %s: %w", code, err)
+			}
+			if exists {
+				_, updateErr := tx.OrderingPermission.Update().
+					Where(orderingpermission.PermissionCode(code)).
+					SetName(a.name).
+					SetModule(m.name).
+					SetAction(a.code).
+					SetResource(m.resource).
+					SetDescription(a.desc).
+					Save(ctx)
+				if updateErr != nil {
+					return nil, fmt.Errorf("update ordering permission %s: %w", code, updateErr)
+				}
+			} else {
+				_, createErr := tx.OrderingPermission.Create().
+					SetID(id).
+					SetPermissionCode(code).
+					SetName(a.name).
+					SetModule(m.name).
+					SetAction(a.code).
+					SetResource(m.resource).
+					SetDescription(a.desc).
+					Save(ctx)
+				if createErr != nil {
+					return nil, fmt.Errorf("seed ordering permission %s: %w", code, createErr)
+				}
+			}
+		}
+	}
+
+	log.Printf("  + Seeded %d ordering permissions", len(permIDs))
+	return permIDs, nil
+}
+
+// seedOrderingRoles seeds the ordering RBAC roles and assigns permissions via the RolePermission junction table.
+func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, permMap map[string]uuid.UUID) error {
+	type roleSpec struct {
+		code  string
+		name  string
+		desc  string
+		perms []string
+	}
+
+	allPerms := func(modules ...string) []string {
+		var perms []string
+		actions := []string{"add", "view", "view_own", "change", "change_own", "delete", "delete_own", "manage", "manage_own"}
+		for _, mod := range modules {
+			for _, act := range actions {
+				perms = append(perms, fmt.Sprintf("ordering.%s.%s", mod, act))
+			}
+		}
+		return perms
+	}
+
+	allModules := []string{"orders", "catalog", "outlets", "promotions", "delivery_zones", "delivery_windows", "loyalty", "analytics", "config", "users"}
+
+	roles := []roleSpec{
+		{
+			code: "ordering_admin",
+			name: "Ordering Admin",
+			desc: "Full tenant administrator with access to all ordering modules",
+			perms: allPerms(allModules...),
+		},
+		{
+			code: "store_manager",
+			name: "Store Manager",
+			desc: "Manages a store/outlet including orders, catalog, and staff",
+			perms: append(
+				allPerms("orders", "catalog", "outlets", "promotions", "delivery_zones", "delivery_windows", "loyalty"),
+				[]string{
+					"ordering.analytics.view", "ordering.analytics.view_own",
+					"ordering.users.view", "ordering.users.view_own", "ordering.users.change_own",
+					"ordering.config.view",
+				}...),
+		},
+		{
+			code: "kitchen_staff",
+			name: "Kitchen Staff",
+			desc: "Kitchen/preparation staff who manage order preparation",
+			perms: []string{
+				"ordering.orders.view", "ordering.orders.change", "ordering.orders.manage",
+				"ordering.catalog.view",
+				"ordering.users.view_own", "ordering.users.change_own",
+			},
+		},
+		{
+			code: "cashier",
+			name: "Cashier",
+			desc: "Point of sale operator handling orders and payments",
+			perms: []string{
+				"ordering.orders.add", "ordering.orders.view", "ordering.orders.change", "ordering.orders.manage",
+				"ordering.catalog.view",
+				"ordering.promotions.view",
+				"ordering.loyalty.view", "ordering.loyalty.manage",
+				"ordering.users.view_own", "ordering.users.change_own",
+			},
+		},
+		{
+			code: "delivery_coordinator",
+			name: "Delivery Coordinator",
+			desc: "Manages delivery zones, windows, and order dispatch",
+			perms: []string{
+				"ordering.orders.view", "ordering.orders.change",
+				"ordering.delivery_zones.view", "ordering.delivery_zones.change", "ordering.delivery_zones.manage",
+				"ordering.delivery_windows.view", "ordering.delivery_windows.change", "ordering.delivery_windows.manage",
+				"ordering.outlets.view",
+				"ordering.users.view_own", "ordering.users.change_own",
+			},
+		},
+		{
+			code: "viewer",
+			name: "Viewer",
+			desc: "Read-only access to ordering data",
+			perms: []string{
+				"ordering.orders.view",
+				"ordering.catalog.view",
+				"ordering.outlets.view",
+				"ordering.promotions.view",
+				"ordering.delivery_zones.view",
+				"ordering.delivery_windows.view",
+				"ordering.loyalty.view",
+				"ordering.analytics.view",
+				"ordering.config.view",
+				"ordering.users.view_own",
+			},
+		},
+	}
+
+	for _, r := range roles {
+		roleID := orderingRoleUUID(tenantID, r.code)
+
+		exists, err := tx.OrderingRole.Query().
+			Where(
+				orderingrole.TenantID(tenantID),
+				orderingrole.RoleCode(r.code),
+			).Exist(ctx)
+		if err != nil {
+			return fmt.Errorf("check ordering role %s: %w", r.code, err)
+		}
+
+		if !exists {
+			_, createErr := tx.OrderingRole.Create().
+				SetID(roleID).
+				SetTenantID(tenantID).
+				SetRoleCode(r.code).
+				SetName(r.name).
+				SetDescription(r.desc).
+				SetIsSystemRole(true).
+				Save(ctx)
+			if createErr != nil {
+				return fmt.Errorf("seed ordering role %s: %w", r.code, createErr)
+			}
+		} else {
+			// Update existing role
+			_, updateErr := tx.OrderingRole.Update().
+				Where(
+					orderingrole.TenantID(tenantID),
+					orderingrole.RoleCode(r.code),
+				).
+				SetName(r.name).
+				SetDescription(r.desc).
+				SetIsSystemRole(true).
+				Save(ctx)
+			if updateErr != nil {
+				return fmt.Errorf("update ordering role %s: %w", r.code, updateErr)
+			}
+			// Re-fetch the actual ID for permission assignment
+			existingRole, getErr := tx.OrderingRole.Query().
+				Where(
+					orderingrole.TenantID(tenantID),
+					orderingrole.RoleCode(r.code),
+				).Only(ctx)
+			if getErr != nil {
+				return fmt.Errorf("get ordering role %s: %w", r.code, getErr)
+			}
+			roleID = existingRole.ID
+		}
+
+		// Clear existing role-permission mappings and re-assign
+		_, _ = tx.RolePermission.Delete().
+			Where(rolepermission.RoleID(roleID)).
+			Exec(ctx)
+
+		for _, permCode := range r.perms {
+			permID, ok := permMap[permCode]
+			if !ok {
+				log.Printf("  [WARN] permission %s not found for role %s, skipping", permCode, r.code)
+				continue
+			}
+			_, err := tx.RolePermission.Create().
+				SetRoleID(roleID).
+				SetPermissionID(permID).
+				Save(ctx)
+			if err != nil {
+				if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE constraint") {
+					continue
+				}
+				return fmt.Errorf("assign permission %s to role %s: %w", permCode, r.code, err)
+			}
+		}
+	}
+
+	log.Printf("  + Seeded %d ordering roles with permission assignments", len(roles))
+	return nil
+}
+
+// seedRateLimitConfigs seeds rate limiting configurations.
+func seedRateLimitConfigs(ctx context.Context, tx *ent.Tx) error {
+	type rlConfig struct {
+		serviceName      string
+		keyType          string
+		endpointPattern  string
+		requestsPerWin   int
+		windowSecs       int
+		burstMultiplier  float64
+		desc             string
+	}
+
+	configs := []rlConfig{
+		{"ordering-backend", "ip", "*", 120, 60, 1.5, "Default IP rate limit: 120 req/min"},
+		{"ordering-backend", "tenant", "*", 600, 60, 2.0, "Default tenant rate limit: 600 req/min"},
+		{"ordering-backend", "user", "*", 60, 60, 1.5, "Default user rate limit: 60 req/min"},
+		{"ordering-backend", "endpoint", "/api/v1/*/orders", 30, 60, 1.0, "Order creation endpoint rate limit: 30 req/min"},
+		{"ordering-backend", "endpoint", "/api/v1/*/auth/*", 10, 60, 1.0, "Auth endpoint rate limit: 10 req/min"},
+		{"ordering-backend", "endpoint", "/api/v1/*/checkout/*", 20, 60, 1.0, "Checkout endpoint rate limit: 20 req/min"},
+		{"ordering-backend", "global", "*", 5000, 60, 2.0, "Global rate limit: 5000 req/min"},
+	}
+
+	for _, c := range configs {
+		exists, err := tx.RateLimitConfig.Query().
+			Where(
+				ratelimitconfig.ServiceName(c.serviceName),
+				ratelimitconfig.KeyType(c.keyType),
+				ratelimitconfig.EndpointPattern(c.endpointPattern),
+			).Exist(ctx)
+		if err != nil {
+			return fmt.Errorf("check rate limit config: %w", err)
+		}
+		if exists {
+			_, updateErr := tx.RateLimitConfig.Update().
+				Where(
+					ratelimitconfig.ServiceName(c.serviceName),
+					ratelimitconfig.KeyType(c.keyType),
+					ratelimitconfig.EndpointPattern(c.endpointPattern),
+				).
+				SetRequestsPerWindow(c.requestsPerWin).
+				SetWindowSeconds(c.windowSecs).
+				SetBurstMultiplier(c.burstMultiplier).
+				SetDescription(c.desc).
+				SetIsActive(true).
+				Save(ctx)
+			if updateErr != nil {
+				return fmt.Errorf("update rate limit config: %w", updateErr)
+			}
+		} else {
+			_, createErr := tx.RateLimitConfig.Create().
+				SetServiceName(c.serviceName).
+				SetKeyType(c.keyType).
+				SetEndpointPattern(c.endpointPattern).
+				SetRequestsPerWindow(c.requestsPerWin).
+				SetWindowSeconds(c.windowSecs).
+				SetBurstMultiplier(c.burstMultiplier).
+				SetDescription(c.desc).
+				SetIsActive(true).
+				Save(ctx)
+			if createErr != nil {
+				return fmt.Errorf("seed rate limit config: %w", createErr)
+			}
+		}
+	}
+
+	log.Printf("  + Seeded %d rate limit configs", len(configs))
+	return nil
+}
+
+// seedServiceConfigs seeds service-level configuration entries.
+func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
+	type svcConfig struct {
+		key        string
+		value      string
+		configType string
+		desc       string
+		isSecret   bool
+	}
+
+	configs := []svcConfig{
+		{"ordering.max_order_amount", "500000", "int", "Maximum order amount in cents", false},
+		{"ordering.min_order_amount", "500", "int", "Minimum order amount in cents", false},
+		{"ordering.default_currency", "KES", "string", "Default currency for orders", false},
+		{"ordering.order_expiry_minutes", "30", "int", "Minutes before an unpaid order expires", false},
+		{"ordering.max_cart_items", "50", "int", "Maximum number of items in a cart", false},
+		{"ordering.loyalty_points_per_unit", "1", "int", "Loyalty points earned per currency unit spent", false},
+		{"ordering.loyalty_redemption_rate", "0.01", "float", "Currency value per loyalty point", false},
+		{"ordering.catalog_sync_interval_minutes", "15", "int", "Interval for syncing catalog from inventory-api", false},
+		{"ordering.default_delivery_radius_km", "10", "float", "Default delivery radius in kilometers", false},
+		{"ordering.max_delivery_radius_km", "50", "float", "Maximum delivery radius in kilometers", false},
+		{"ordering.enable_guest_checkout", "true", "bool", "Allow checkout without authentication", false},
+		{"ordering.enable_promo_stacking", "false", "bool", "Allow multiple promo codes per order", false},
+	}
+
+	for _, c := range configs {
+		exists, err := tx.ServiceConfig.Query().
+			Where(
+				serviceconfig.ConfigKey(c.key),
+				serviceconfig.TenantIDIsNil(),
+			).Exist(ctx)
+		if err != nil {
+			return fmt.Errorf("check service config %s: %w", c.key, err)
+		}
+		if exists {
+			_, updateErr := tx.ServiceConfig.Update().
+				Where(
+					serviceconfig.ConfigKey(c.key),
+					serviceconfig.TenantIDIsNil(),
+				).
+				SetConfigValue(c.value).
+				SetConfigType(c.configType).
+				SetDescription(c.desc).
+				SetIsSecret(c.isSecret).
+				Save(ctx)
+			if updateErr != nil {
+				return fmt.Errorf("update service config %s: %w", c.key, updateErr)
+			}
+		} else {
+			_, createErr := tx.ServiceConfig.Create().
+				SetConfigKey(c.key).
+				SetConfigValue(c.value).
+				SetConfigType(c.configType).
+				SetDescription(c.desc).
+				SetIsSecret(c.isSecret).
+				Save(ctx)
+			if createErr != nil {
+				return fmt.Errorf("seed service config %s: %w", c.key, createErr)
+			}
+		}
+	}
+
+	log.Printf("  + Seeded %d service configs", len(configs))
+	return nil
 }
 
 // --- Catalog Seeding ---

@@ -6172,7 +6172,7 @@ const docTemplate = `{
             "properties": {
                 "service": {
                     "type": "string",
-                    "example": "cafe-backend"
+                    "example": "ordering-backend"
                 },
                 "status": {
                     "type": "string",

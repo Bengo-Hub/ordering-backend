@@ -31,13 +31,18 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
+	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
+	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
+	"github.com/bengobox/ordering-backend/internal/ent/ratelimitconfig"
 	"github.com/bengobox/ordering-backend/internal/ent/role"
+	"github.com/bengobox/ordering-backend/internal/ent/rolepermission"
+	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	"github.com/bengobox/ordering-backend/internal/ent/slametric"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
@@ -45,6 +50,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/ent/userroleassignment"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -125,19 +131,25 @@ func checkColumn(table, column string) error {
 			orderassignment.Table:     orderassignment.ValidColumn,
 			orderevent.Table:          orderevent.ValidColumn,
 			orderitem.Table:           orderitem.ValidColumn,
+			orderingpermission.Table:  orderingpermission.ValidColumn,
+			orderingrole.Table:        orderingrole.ValidColumn,
 			outboxevent.Table:         outboxevent.ValidColumn,
 			outlet.Table:              outlet.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			promocode.Table:           promocode.ValidColumn,
 			promoredemption.Table:     promoredemption.ValidColumn,
+			ratelimitconfig.Table:     ratelimitconfig.ValidColumn,
 			role.Table:                role.ValidColumn,
+			rolepermission.Table:      rolepermission.ValidColumn,
 			slametric.Table:           slametric.ValidColumn,
+			serviceconfig.Table:       serviceconfig.ValidColumn,
 			tenant.Table:              tenant.ValidColumn,
 			tenantsetting.Table:       tenantsetting.ValidColumn,
 			tenantsyncevent.Table:     tenantsyncevent.ValidColumn,
 			user.Table:                user.ValidColumn,
 			userpreference.Table:      userpreference.ValidColumn,
 			userprofile.Table:         userprofile.ValidColumn,
+			userroleassignment.Table:  userroleassignment.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

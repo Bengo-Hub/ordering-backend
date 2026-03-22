@@ -120,7 +120,7 @@ func (r *EntRepository) FindUserByEmail(ctx context.Context, email string) (*Use
 		Where(user.EmailEqualFold(email)).
 		WithTenant().
 		WithRoles(func(q *ent.RoleQuery) {
-			q.WithPermissions()
+			q.WithLegacyPermissions()
 		}).
 		WithPreferences().
 		WithProfile().
@@ -160,7 +160,7 @@ func (r *EntRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*User, 
 		Where(user.IDEQ(id)).
 		WithTenant().
 		WithRoles(func(q *ent.RoleQuery) {
-			q.WithPermissions()
+			q.WithLegacyPermissions()
 		}).
 		WithPreferences().
 		WithProfile().
@@ -179,7 +179,7 @@ func (r *EntRepository) ListUsers(ctx context.Context) ([]*User, error) {
 	records, err := r.client.User.
 		Query().
 		WithTenant().
-		WithRoles(func(q *ent.RoleQuery) { q.WithPermissions() }).
+		WithRoles(func(q *ent.RoleQuery) { q.WithLegacyPermissions() }).
 		WithPreferences().
 		WithProfile().
 		All(ctx)
@@ -391,7 +391,7 @@ func mapEntUser(u *ent.User) *User {
 	)
 	for _, r := range u.Edges.Roles {
 		roles = append(roles, Role(r.ID))
-		for _, perm := range r.Edges.Permissions {
+		for _, perm := range r.Edges.LegacyPermissions {
 			permissions[Permission(perm.Name)] = struct{}{}
 		}
 	}

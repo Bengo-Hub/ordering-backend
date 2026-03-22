@@ -21,11 +21,16 @@ The database structure is defined via Ent schemas — the Go source of truth tha
 | `tenants` | `id`, `slug`, `name`, `status`, `use_case`, `subscription_plan`, `tier_limits`, `metadata`, `created_at`, `updated_at` | Master record synced from auth-service. `slug` shared across all microservices. `use_case` drives UI hints (hospitality, retail, e_commerce, etc.). Default demo tenant slug: `urban-loft`. |
 | `tenant_settings` | `tenant_id (PK)`, `brand_palette`, `locales`, `features`, `updated_at` | JSON configuration (colors, localisation, feature toggles). |
 | `users` | `id`, `tenant_id`, `auth_service_user_id` (UUID UNIQUE), `email`, `full_name`, `phone`, `status`, `sync_status`, `sync_at`, `last_login_at`, `created_at`, `updated_at` | Core user profile. `auth_service_user_id` references auth-service user. Synced via `auth.user.*` events. Unique `(tenant_id, email)`. |
-| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Role catalogue: `customer`, `rider`, `staff`, `admin`, `superuser`. |
-| `permissions` | `code (PK)`, `name`, `module`, `description` | Fine-grained permission catalogue. Each entity has: `add`, `read`, `read_own`, `change`, `change_own`, `delete`, `manage`, `manage_own`. |
-| `role_permissions` | `(role_code, permission_code) PK` | Role → permission mapping. |
-| `user_roles` | `(user_id, role_code) PK`, `assigned_by`, `assigned_at` | User role assignments. |
+| `roles` | `code (PK)`, `name`, `description`, `scope`, `system_role` | Legacy role catalogue: `customer`, `rider`, `staff`, `admin`, `superuser`. Kept for backward compatibility. |
+| `permissions` | `code (PK)`, `name`, `module`, `description` | Legacy permission catalogue. Kept for backward compatibility. |
+| `role_legacy_permissions` | `(role_id, permission_id) PK` | Legacy role-permission M2M (renamed from `role_permissions`). |
+| `ordering_permissions` | `id` (UUID PK), `permission_code` (UNIQUE), `name`, `module`, `action`, `resource`, `description`, `created_at` | New RBAC permission catalogue using `ordering.{module}.{action}` codes. Modules: orders, catalog, outlets, promotions, delivery_zones, delivery_windows, loyalty, analytics, config, users. |
+| `ordering_roles` | `id` (UUID PK), `tenant_id`, `role_code`, `name`, `description`, `is_system_role`, `created_at`, `updated_at` | Tenant-scoped RBAC roles. System roles: `ordering_admin`, `store_manager`, `kitchen_staff`, `cashier`, `delivery_coordinator`, `viewer`. Unique `(tenant_id, role_code)`. |
+| `role_permissions` | `id` (PK), `role_id` (UUID FK), `permission_id` (UUID FK) | Junction table: ordering_role to ordering_permission. Unique `(role_id, permission_id)`. |
+| `user_role_assignments` | `id` (UUID PK), `tenant_id`, `user_id` (FK users), `role_id` (FK ordering_roles), `assigned_by`, `assigned_at`, `expires_at` | User-to-role assignments with optional expiry. Unique `(tenant_id, user_id, role_id)`. |
 | `user_preferences` | `user_id (PK)`, `theme`, `language`, `notify_email`, `notify_sms`, `notify_push`, `timezone` | Personalisation settings. |
+| `rate_limit_configs` | `id` (UUID PK), `service_name`, `key_type`, `endpoint_pattern`, `requests_per_window`, `window_seconds`, `burst_multiplier`, `is_active`, `description` | Database-driven rate limit configuration. Unique `(service_name, key_type, endpoint_pattern)`. |
+| `service_configs` | `id` (UUID PK), `tenant_id` (nullable), `config_key`, `config_value`, `config_type`, `description`, `is_secret` | Service-level configuration key-value pairs. Nil `tenant_id` = platform default; non-nil = tenant override. Unique `(tenant_id, config_key)`. |
 | _SSO Integration_ | — | Auth delegated to auth-service (OIDC). JWT claims are **source of truth** for roles and permissions — local DB used for extensions only. `IsSuperuser` and `IsAdmin` bypass all RBAC checks. |
 | _Rider Data_ | — | **NOT OWNED HERE**: All rider, fleet, delivery task, and PoD data owned by `logistics-service`. Ordering stores only `rider_id` references. |
 
