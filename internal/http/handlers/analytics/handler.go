@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
@@ -171,9 +172,18 @@ func (h *Handler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, status)
 }
 
-// Helper function to get user from context
+// Helper function to get user from context with platform-owner tenant override.
 func getUserFromContext(r *http.Request) (*identity.User, uuid.UUID, error) {
-	user, ok := identity.UserFromContext(r.Context())
+	ctx := r.Context()
+	if httpware.IsPlatformOwner(ctx) {
+		if q := r.URL.Query().Get("tenantId"); q != "" {
+			if id, err := uuid.Parse(q); err == nil {
+				user, _ := identity.UserFromContext(ctx)
+				return user, id, nil
+			}
+		}
+	}
+	user, ok := identity.UserFromContext(ctx)
 	if !ok {
 		return nil, uuid.Nil, errors.New("user not found in context")
 	}

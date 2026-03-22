@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
@@ -332,7 +333,14 @@ func (h *Handler) handleError(w http.ResponseWriter, err error) {
 }
 
 func getTenantID(r *http.Request) (uuid.UUID, error) {
-	user, ok := identity.UserFromContext(r.Context())
+	ctx := r.Context()
+	// Platform owner query-param override
+	if httpware.IsPlatformOwner(ctx) {
+		if q := r.URL.Query().Get("tenantId"); q != "" {
+			return uuid.Parse(q)
+		}
+	}
+	user, ok := identity.UserFromContext(ctx)
 	if !ok {
 		return uuid.Nil, errors.New("user not found in context")
 	}
