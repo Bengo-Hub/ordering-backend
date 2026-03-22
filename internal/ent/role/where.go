@@ -390,21 +390,21 @@ func UpdatedAtLTE(v time.Time) predicate.Role {
 	return predicate.Role(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// HasPermissions applies the HasEdge predicate on the "permissions" edge.
-func HasPermissions() predicate.Role {
+// HasLegacyPermissions applies the HasEdge predicate on the "legacy_permissions" edge.
+func HasLegacyPermissions() predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, LegacyPermissionsTable, LegacyPermissionsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPermissionsWith applies the HasEdge predicate on the "permissions" edge with a given conditions (other predicates).
-func HasPermissionsWith(preds ...predicate.Permission) predicate.Role {
+// HasLegacyPermissionsWith applies the HasEdge predicate on the "legacy_permissions" edge with a given conditions (other predicates).
+func HasLegacyPermissionsWith(preds ...predicate.Permission) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
-		step := newPermissionsStep()
+		step := newLegacyPermissionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

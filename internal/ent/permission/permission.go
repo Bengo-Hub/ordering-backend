@@ -30,7 +30,7 @@ const (
 	// Table holds the table name of the permission in the database.
 	Table = "permissions"
 	// RolesTable is the table that holds the roles relation/edge. The primary key declared below.
-	RolesTable = "role_permissions"
+	RolesTable = "role_legacy_permissions"
 	// RolesInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
 	RolesInverseTable = "roles"

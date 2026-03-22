@@ -62,6 +62,7 @@ func New(
 	securityConfig config.SecurityConfig,
 	allowedOrigins []string,
 	mediaHandler *handlers.MediaHandler,
+	rbacHandler *handlers.RBACHandler,
 	tenantSyncer *tenant.Syncer,
 ) http.Handler {
 	r := chi.NewRouter()
@@ -109,7 +110,7 @@ func New(
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
-	
+
 	if mediaHandler != nil {
 		r.Post("/api/v1/media/upload", mediaHandler.Upload)
 	}
@@ -124,7 +125,7 @@ func New(
 		http.Redirect(w, r, "/v1/docs/", http.StatusMovedPermanently)
 	})
 
-	// TenantV2 config: chained extraction from JWT → headers → URL param
+	// TenantV2 config: chained extraction from JWT -> headers -> URL param
 	tenantCfg := httpware.TenantConfig{
 		ClaimsExtractor: func(ctx context.Context) (tenantID, tenantSlug string, isPlatformOwner bool, ok bool) {
 			claims, found := authclient.ClaimsFromContext(ctx)
@@ -184,15 +185,15 @@ func New(
 				}
 
 				// Apply auth-service middleware. Skip only for truly public routes (not /auth/me or /auth/logout).
-				// This middleware stores JWT claims in context — required for RequirePermissions checks.
+				// This middleware stores JWT claims in context -- required for RequirePermissions checks.
 				if authMiddleware != nil {
 					tenant.Use(func(next http.Handler) http.Handler {
 						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 							path := r.URL.Path
 							// Skip auth for public routes: webhooks, tenant config, outlets,
 							// catalog GET (public browsing), guest cart, guest checkout, and delivery zones.
-							// Do NOT skip /auth/ — GET /auth/me and POST /auth/logout require a valid JWT.
-							// Do NOT skip catalog mutations (POST/PUT/DELETE) — they need claims for permission checks.
+							// Do NOT skip /auth/ -- GET /auth/me and POST /auth/logout require a valid JWT.
+							// Do NOT skip catalog mutations (POST/PUT/DELETE) -- they need claims for permission checks.
 							isPublicCatalog := strings.Contains(path, "/catalog") &&
 								!strings.Contains(path, "/catalog/admin") &&
 								r.Method == http.MethodGet
@@ -285,6 +286,11 @@ func New(
 				// Register compliance routes
 				if complianceHandler != nil {
 					complianceHandler.Register(tenant, authenticator)
+				}
+
+				// Register RBAC routes (role/permission management)
+				if rbacHandler != nil {
+					rbacHandler.RegisterRoutes(tenant)
 				}
 
 				// Webhook routes (no auth required - use signature verification)

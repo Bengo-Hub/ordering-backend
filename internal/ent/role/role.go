@@ -26,17 +26,17 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// EdgePermissions holds the string denoting the permissions edge name in mutations.
-	EdgePermissions = "permissions"
+	// EdgeLegacyPermissions holds the string denoting the legacy_permissions edge name in mutations.
+	EdgeLegacyPermissions = "legacy_permissions"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
 	// Table holds the table name of the role in the database.
 	Table = "roles"
-	// PermissionsTable is the table that holds the permissions relation/edge. The primary key declared below.
-	PermissionsTable = "role_permissions"
-	// PermissionsInverseTable is the table name for the Permission entity.
+	// LegacyPermissionsTable is the table that holds the legacy_permissions relation/edge. The primary key declared below.
+	LegacyPermissionsTable = "role_legacy_permissions"
+	// LegacyPermissionsInverseTable is the table name for the Permission entity.
 	// It exists in this package in order to avoid circular dependency with the "permission" package.
-	PermissionsInverseTable = "permissions"
+	LegacyPermissionsInverseTable = "permissions"
 	// UsersTable is the table that holds the users relation/edge. The primary key declared below.
 	UsersTable = "user_roles"
 	// UsersInverseTable is the table name for the User entity.
@@ -56,9 +56,9 @@ var Columns = []string{
 }
 
 var (
-	// PermissionsPrimaryKey and PermissionsColumn2 are the table columns denoting the
-	// primary key for the permissions relation (M2M).
-	PermissionsPrimaryKey = []string{"role_id", "permission_id"}
+	// LegacyPermissionsPrimaryKey and LegacyPermissionsColumn2 are the table columns denoting the
+	// primary key for the legacy_permissions relation (M2M).
+	LegacyPermissionsPrimaryKey = []string{"role_id", "permission_id"}
 	// UsersPrimaryKey and UsersColumn2 are the table columns denoting the
 	// primary key for the users relation (M2M).
 	UsersPrimaryKey = []string{"user_id", "role_id"}
@@ -129,17 +129,17 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByPermissionsCount orders the results by permissions count.
-func ByPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByLegacyPermissionsCount orders the results by legacy_permissions count.
+func ByLegacyPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPermissionsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newLegacyPermissionsStep(), opts...)
 	}
 }
 
-// ByPermissions orders the results by permissions terms.
-func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByLegacyPermissions orders the results by legacy_permissions terms.
+func ByLegacyPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newLegacyPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -156,11 +156,11 @@ func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newPermissionsStep() *sqlgraph.Step {
+func newLegacyPermissionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PermissionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
+		sqlgraph.To(LegacyPermissionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, LegacyPermissionsTable, LegacyPermissionsPrimaryKey...),
 	)
 }
 func newUsersStep() *sqlgraph.Step {

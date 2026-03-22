@@ -12,7 +12,7 @@
   - Coordinates graceful shutdown, dependency cleanup, and instrumentation
 
 - **Domain Layer (`internal/modules`)**
-  - 13 business modules: identity, catalog, ordering, payments, fulfilment, notifications, SLA, analytics, compliance, loyalty, promotions, reviews, settings
+  - 14 business modules: identity, catalog, ordering, payments, fulfilment, notifications, SLA, analytics, compliance, loyalty, promotions, reviews, settings, **rbac**
   - Use case orchestration, business rules, Ent-generated entity definitions
   - Interacts with repositories via interfaces for persistence/queue/cache
 
@@ -26,6 +26,7 @@
 - **Logging:** zap-based structured logging with request ID correlation
 - **Observability:** Prometheus metrics endpoint (`/metrics`), OTEL exporters planned
 - **Security:** TLS termination at ingress, mTLS service-to-service, OAuth2 introspection, tenant-aware RBAC
+- **RBAC Authorization:** Full RBAC module (`internal/modules/rbac`) following the treasury-api pattern. Entities: `OrderingPermission` (permission codes `ordering.{module}.{action}`), `OrderingRole` (tenant-scoped with system roles), `RolePermission` (junction), `UserRoleAssignment` (user-role with expiry). Service provides `EnsureUserFromToken` (JIT provisioning), `HasPermission`, `HasRole`, `AssignRole`, `RevokeRole`. HTTP endpoints at `/rbac/assignments`, `/rbac/roles`, `/rbac/permissions`. Database-driven `RateLimitConfig` and `ServiceConfig` tables for runtime configuration.
 - **Validation:** go-playground/validator for request DTO validation; domain invariants enforced in use cases
 
 ## Integration Points

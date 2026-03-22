@@ -54,7 +54,7 @@ Sprint 7 (Analytics, Compliance & Hardening) has been successfully completed and
 | cafe-website | `cafe` | ✅ Healthy | 1/1 | Running fine |
 
 ### No Legacy Resources
-✅ No old ordering-backend (formerly cafe-backend) resources found in the cluster
+✅ No old ordering-backend (formerly ordering-backend) resources found in the cluster
 
 ---
 

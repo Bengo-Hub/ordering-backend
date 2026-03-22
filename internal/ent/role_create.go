@@ -108,19 +108,19 @@ func (rc *RoleCreate) SetID(s string) *RoleCreate {
 	return rc
 }
 
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (rc *RoleCreate) AddPermissionIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddPermissionIDs(ids...)
+// AddLegacyPermissionIDs adds the "legacy_permissions" edge to the Permission entity by IDs.
+func (rc *RoleCreate) AddLegacyPermissionIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddLegacyPermissionIDs(ids...)
 	return rc
 }
 
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
+// AddLegacyPermissions adds the "legacy_permissions" edges to the Permission entity.
+func (rc *RoleCreate) AddLegacyPermissions(p ...*Permission) *RoleCreate {
 	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return rc.AddPermissionIDs(ids...)
+	return rc.AddLegacyPermissionIDs(ids...)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
@@ -278,12 +278,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.LegacyPermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
+			Table:   role.LegacyPermissionsTable,
+			Columns: role.LegacyPermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
