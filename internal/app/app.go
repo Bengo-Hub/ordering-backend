@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	eventslib "github.com/Bengo-Hub/shared-events"
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/migrate"
@@ -269,7 +270,7 @@ func New(ctx context.Context) (*App, error) {
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
 		if cfg.Events.OutboxEnabled {
-			outboxRepo := outbox.NewEntRepository(ormClient, sqlDB)
+			outboxRepo := eventslib.NewSQLOutboxRepository(sqlDB)
 			outboxNatsPublisher := events.NewOutboxPublisher(natsConn, log)
 			outboxConfig := outbox.PublisherConfig{
 				BatchSize:  cfg.Events.OutboxBatchSize,
