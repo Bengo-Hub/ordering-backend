@@ -78,7 +78,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("orders", Order.Type),
 		edge.To("addresses", CustomerAddress.Type),
 		edge.To("loyalty_account", LoyaltyAccount.Type).Unique(),
-		edge.To("favorite_items", CatalogItem.Type),
+		// Favorites moved to UserFavorite table (keyed by inventory_sku)
 	}
 }
 

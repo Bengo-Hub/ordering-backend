@@ -24,175 +24,175 @@ type OrderEventUpdate struct {
 }
 
 // Where appends a list predicates to the OrderEventUpdate builder.
-func (oeu *OrderEventUpdate) Where(ps ...predicate.OrderEvent) *OrderEventUpdate {
-	oeu.mutation.Where(ps...)
-	return oeu
+func (_u *OrderEventUpdate) Where(ps ...predicate.OrderEvent) *OrderEventUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (oeu *OrderEventUpdate) SetOrderID(u uuid.UUID) *OrderEventUpdate {
-	oeu.mutation.SetOrderID(u)
-	return oeu
+func (_u *OrderEventUpdate) SetOrderID(v uuid.UUID) *OrderEventUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableOrderID(u *uuid.UUID) *OrderEventUpdate {
-	if u != nil {
-		oeu.SetOrderID(*u)
+func (_u *OrderEventUpdate) SetNillableOrderID(v *uuid.UUID) *OrderEventUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return oeu
+	return _u
 }
 
 // SetEventType sets the "event_type" field.
-func (oeu *OrderEventUpdate) SetEventType(s string) *OrderEventUpdate {
-	oeu.mutation.SetEventType(s)
-	return oeu
+func (_u *OrderEventUpdate) SetEventType(v string) *OrderEventUpdate {
+	_u.mutation.SetEventType(v)
+	return _u
 }
 
 // SetNillableEventType sets the "event_type" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableEventType(s *string) *OrderEventUpdate {
-	if s != nil {
-		oeu.SetEventType(*s)
+func (_u *OrderEventUpdate) SetNillableEventType(v *string) *OrderEventUpdate {
+	if v != nil {
+		_u.SetEventType(*v)
 	}
-	return oeu
+	return _u
 }
 
 // SetFromStatus sets the "from_status" field.
-func (oeu *OrderEventUpdate) SetFromStatus(s string) *OrderEventUpdate {
-	oeu.mutation.SetFromStatus(s)
-	return oeu
+func (_u *OrderEventUpdate) SetFromStatus(v string) *OrderEventUpdate {
+	_u.mutation.SetFromStatus(v)
+	return _u
 }
 
 // SetNillableFromStatus sets the "from_status" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableFromStatus(s *string) *OrderEventUpdate {
-	if s != nil {
-		oeu.SetFromStatus(*s)
+func (_u *OrderEventUpdate) SetNillableFromStatus(v *string) *OrderEventUpdate {
+	if v != nil {
+		_u.SetFromStatus(*v)
 	}
-	return oeu
+	return _u
 }
 
 // ClearFromStatus clears the value of the "from_status" field.
-func (oeu *OrderEventUpdate) ClearFromStatus() *OrderEventUpdate {
-	oeu.mutation.ClearFromStatus()
-	return oeu
+func (_u *OrderEventUpdate) ClearFromStatus() *OrderEventUpdate {
+	_u.mutation.ClearFromStatus()
+	return _u
 }
 
 // SetToStatus sets the "to_status" field.
-func (oeu *OrderEventUpdate) SetToStatus(s string) *OrderEventUpdate {
-	oeu.mutation.SetToStatus(s)
-	return oeu
+func (_u *OrderEventUpdate) SetToStatus(v string) *OrderEventUpdate {
+	_u.mutation.SetToStatus(v)
+	return _u
 }
 
 // SetNillableToStatus sets the "to_status" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableToStatus(s *string) *OrderEventUpdate {
-	if s != nil {
-		oeu.SetToStatus(*s)
+func (_u *OrderEventUpdate) SetNillableToStatus(v *string) *OrderEventUpdate {
+	if v != nil {
+		_u.SetToStatus(*v)
 	}
-	return oeu
+	return _u
 }
 
 // ClearToStatus clears the value of the "to_status" field.
-func (oeu *OrderEventUpdate) ClearToStatus() *OrderEventUpdate {
-	oeu.mutation.ClearToStatus()
-	return oeu
+func (_u *OrderEventUpdate) ClearToStatus() *OrderEventUpdate {
+	_u.mutation.ClearToStatus()
+	return _u
 }
 
 // SetPayload sets the "payload" field.
-func (oeu *OrderEventUpdate) SetPayload(m map[string]interface{}) *OrderEventUpdate {
-	oeu.mutation.SetPayload(m)
-	return oeu
+func (_u *OrderEventUpdate) SetPayload(v map[string]interface{}) *OrderEventUpdate {
+	_u.mutation.SetPayload(v)
+	return _u
 }
 
 // ClearPayload clears the value of the "payload" field.
-func (oeu *OrderEventUpdate) ClearPayload() *OrderEventUpdate {
-	oeu.mutation.ClearPayload()
-	return oeu
+func (_u *OrderEventUpdate) ClearPayload() *OrderEventUpdate {
+	_u.mutation.ClearPayload()
+	return _u
 }
 
 // SetActorUserID sets the "actor_user_id" field.
-func (oeu *OrderEventUpdate) SetActorUserID(u uuid.UUID) *OrderEventUpdate {
-	oeu.mutation.SetActorUserID(u)
-	return oeu
+func (_u *OrderEventUpdate) SetActorUserID(v uuid.UUID) *OrderEventUpdate {
+	_u.mutation.SetActorUserID(v)
+	return _u
 }
 
 // SetNillableActorUserID sets the "actor_user_id" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableActorUserID(u *uuid.UUID) *OrderEventUpdate {
-	if u != nil {
-		oeu.SetActorUserID(*u)
+func (_u *OrderEventUpdate) SetNillableActorUserID(v *uuid.UUID) *OrderEventUpdate {
+	if v != nil {
+		_u.SetActorUserID(*v)
 	}
-	return oeu
+	return _u
 }
 
 // ClearActorUserID clears the value of the "actor_user_id" field.
-func (oeu *OrderEventUpdate) ClearActorUserID() *OrderEventUpdate {
-	oeu.mutation.ClearActorUserID()
-	return oeu
+func (_u *OrderEventUpdate) ClearActorUserID() *OrderEventUpdate {
+	_u.mutation.ClearActorUserID()
+	return _u
 }
 
 // SetActorType sets the "actor_type" field.
-func (oeu *OrderEventUpdate) SetActorType(s string) *OrderEventUpdate {
-	oeu.mutation.SetActorType(s)
-	return oeu
+func (_u *OrderEventUpdate) SetActorType(v string) *OrderEventUpdate {
+	_u.mutation.SetActorType(v)
+	return _u
 }
 
 // SetNillableActorType sets the "actor_type" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableActorType(s *string) *OrderEventUpdate {
-	if s != nil {
-		oeu.SetActorType(*s)
+func (_u *OrderEventUpdate) SetNillableActorType(v *string) *OrderEventUpdate {
+	if v != nil {
+		_u.SetActorType(*v)
 	}
-	return oeu
+	return _u
 }
 
 // ClearActorType clears the value of the "actor_type" field.
-func (oeu *OrderEventUpdate) ClearActorType() *OrderEventUpdate {
-	oeu.mutation.ClearActorType()
-	return oeu
+func (_u *OrderEventUpdate) ClearActorType() *OrderEventUpdate {
+	_u.mutation.ClearActorType()
+	return _u
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (oeu *OrderEventUpdate) SetIPAddress(s string) *OrderEventUpdate {
-	oeu.mutation.SetIPAddress(s)
-	return oeu
+func (_u *OrderEventUpdate) SetIPAddress(v string) *OrderEventUpdate {
+	_u.mutation.SetIPAddress(v)
+	return _u
 }
 
 // SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
-func (oeu *OrderEventUpdate) SetNillableIPAddress(s *string) *OrderEventUpdate {
-	if s != nil {
-		oeu.SetIPAddress(*s)
+func (_u *OrderEventUpdate) SetNillableIPAddress(v *string) *OrderEventUpdate {
+	if v != nil {
+		_u.SetIPAddress(*v)
 	}
-	return oeu
+	return _u
 }
 
 // ClearIPAddress clears the value of the "ip_address" field.
-func (oeu *OrderEventUpdate) ClearIPAddress() *OrderEventUpdate {
-	oeu.mutation.ClearIPAddress()
-	return oeu
+func (_u *OrderEventUpdate) ClearIPAddress() *OrderEventUpdate {
+	_u.mutation.ClearIPAddress()
+	return _u
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oeu *OrderEventUpdate) SetOrder(o *Order) *OrderEventUpdate {
-	return oeu.SetOrderID(o.ID)
+func (_u *OrderEventUpdate) SetOrder(v *Order) *OrderEventUpdate {
+	return _u.SetOrderID(v.ID)
 }
 
 // Mutation returns the OrderEventMutation object of the builder.
-func (oeu *OrderEventUpdate) Mutation() *OrderEventMutation {
-	return oeu.mutation
+func (_u *OrderEventUpdate) Mutation() *OrderEventMutation {
+	return _u.mutation
 }
 
 // ClearOrder clears the "order" edge to the Order entity.
-func (oeu *OrderEventUpdate) ClearOrder() *OrderEventUpdate {
-	oeu.mutation.ClearOrder()
-	return oeu
+func (_u *OrderEventUpdate) ClearOrder() *OrderEventUpdate {
+	_u.mutation.ClearOrder()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (oeu *OrderEventUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, oeu.sqlSave, oeu.mutation, oeu.hooks)
+func (_u *OrderEventUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oeu *OrderEventUpdate) SaveX(ctx context.Context) int {
-	affected, err := oeu.Save(ctx)
+func (_u *OrderEventUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -200,103 +200,103 @@ func (oeu *OrderEventUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (oeu *OrderEventUpdate) Exec(ctx context.Context) error {
-	_, err := oeu.Save(ctx)
+func (_u *OrderEventUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oeu *OrderEventUpdate) ExecX(ctx context.Context) {
-	if err := oeu.Exec(ctx); err != nil {
+func (_u *OrderEventUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oeu *OrderEventUpdate) check() error {
-	if v, ok := oeu.mutation.EventType(); ok {
+func (_u *OrderEventUpdate) check() error {
+	if v, ok := _u.mutation.EventType(); ok {
 		if err := orderevent.EventTypeValidator(v); err != nil {
 			return &ValidationError{Name: "event_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.event_type": %w`, err)}
 		}
 	}
-	if v, ok := oeu.mutation.FromStatus(); ok {
+	if v, ok := _u.mutation.FromStatus(); ok {
 		if err := orderevent.FromStatusValidator(v); err != nil {
 			return &ValidationError{Name: "from_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.from_status": %w`, err)}
 		}
 	}
-	if v, ok := oeu.mutation.ToStatus(); ok {
+	if v, ok := _u.mutation.ToStatus(); ok {
 		if err := orderevent.ToStatusValidator(v); err != nil {
 			return &ValidationError{Name: "to_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.to_status": %w`, err)}
 		}
 	}
-	if v, ok := oeu.mutation.ActorType(); ok {
+	if v, ok := _u.mutation.ActorType(); ok {
 		if err := orderevent.ActorTypeValidator(v); err != nil {
 			return &ValidationError{Name: "actor_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.actor_type": %w`, err)}
 		}
 	}
-	if v, ok := oeu.mutation.IPAddress(); ok {
+	if v, ok := _u.mutation.IPAddress(); ok {
 		if err := orderevent.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.ip_address": %w`, err)}
 		}
 	}
-	if _, ok := oeu.mutation.OrderID(); oeu.mutation.OrderCleared() && !ok {
+	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrderEvent.order"`)
 	}
 	return nil
 }
 
-func (oeu *OrderEventUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := oeu.check(); err != nil {
-		return n, err
+func (_u *OrderEventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderevent.Table, orderevent.Columns, sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID))
-	if ps := oeu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oeu.mutation.EventType(); ok {
+	if value, ok := _u.mutation.EventType(); ok {
 		_spec.SetField(orderevent.FieldEventType, field.TypeString, value)
 	}
-	if value, ok := oeu.mutation.FromStatus(); ok {
+	if value, ok := _u.mutation.FromStatus(); ok {
 		_spec.SetField(orderevent.FieldFromStatus, field.TypeString, value)
 	}
-	if oeu.mutation.FromStatusCleared() {
+	if _u.mutation.FromStatusCleared() {
 		_spec.ClearField(orderevent.FieldFromStatus, field.TypeString)
 	}
-	if value, ok := oeu.mutation.ToStatus(); ok {
+	if value, ok := _u.mutation.ToStatus(); ok {
 		_spec.SetField(orderevent.FieldToStatus, field.TypeString, value)
 	}
-	if oeu.mutation.ToStatusCleared() {
+	if _u.mutation.ToStatusCleared() {
 		_spec.ClearField(orderevent.FieldToStatus, field.TypeString)
 	}
-	if value, ok := oeu.mutation.Payload(); ok {
+	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(orderevent.FieldPayload, field.TypeJSON, value)
 	}
-	if oeu.mutation.PayloadCleared() {
+	if _u.mutation.PayloadCleared() {
 		_spec.ClearField(orderevent.FieldPayload, field.TypeJSON)
 	}
-	if value, ok := oeu.mutation.ActorUserID(); ok {
+	if value, ok := _u.mutation.ActorUserID(); ok {
 		_spec.SetField(orderevent.FieldActorUserID, field.TypeUUID, value)
 	}
-	if oeu.mutation.ActorUserIDCleared() {
+	if _u.mutation.ActorUserIDCleared() {
 		_spec.ClearField(orderevent.FieldActorUserID, field.TypeUUID)
 	}
-	if value, ok := oeu.mutation.ActorType(); ok {
+	if value, ok := _u.mutation.ActorType(); ok {
 		_spec.SetField(orderevent.FieldActorType, field.TypeString, value)
 	}
-	if oeu.mutation.ActorTypeCleared() {
+	if _u.mutation.ActorTypeCleared() {
 		_spec.ClearField(orderevent.FieldActorType, field.TypeString)
 	}
-	if value, ok := oeu.mutation.IPAddress(); ok {
+	if value, ok := _u.mutation.IPAddress(); ok {
 		_spec.SetField(orderevent.FieldIPAddress, field.TypeString, value)
 	}
-	if oeu.mutation.IPAddressCleared() {
+	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(orderevent.FieldIPAddress, field.TypeString)
 	}
-	if oeu.mutation.OrderCleared() {
+	if _u.mutation.OrderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -309,7 +309,7 @@ func (oeu *OrderEventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oeu.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -325,7 +325,7 @@ func (oeu *OrderEventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, oeu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderevent.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -333,8 +333,8 @@ func (oeu *OrderEventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	oeu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // OrderEventUpdateOne is the builder for updating a single OrderEvent entity.
@@ -346,182 +346,182 @@ type OrderEventUpdateOne struct {
 }
 
 // SetOrderID sets the "order_id" field.
-func (oeuo *OrderEventUpdateOne) SetOrderID(u uuid.UUID) *OrderEventUpdateOne {
-	oeuo.mutation.SetOrderID(u)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetOrderID(v uuid.UUID) *OrderEventUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableOrderID(u *uuid.UUID) *OrderEventUpdateOne {
-	if u != nil {
-		oeuo.SetOrderID(*u)
+func (_u *OrderEventUpdateOne) SetNillableOrderID(v *uuid.UUID) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // SetEventType sets the "event_type" field.
-func (oeuo *OrderEventUpdateOne) SetEventType(s string) *OrderEventUpdateOne {
-	oeuo.mutation.SetEventType(s)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetEventType(v string) *OrderEventUpdateOne {
+	_u.mutation.SetEventType(v)
+	return _u
 }
 
 // SetNillableEventType sets the "event_type" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableEventType(s *string) *OrderEventUpdateOne {
-	if s != nil {
-		oeuo.SetEventType(*s)
+func (_u *OrderEventUpdateOne) SetNillableEventType(v *string) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetEventType(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // SetFromStatus sets the "from_status" field.
-func (oeuo *OrderEventUpdateOne) SetFromStatus(s string) *OrderEventUpdateOne {
-	oeuo.mutation.SetFromStatus(s)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetFromStatus(v string) *OrderEventUpdateOne {
+	_u.mutation.SetFromStatus(v)
+	return _u
 }
 
 // SetNillableFromStatus sets the "from_status" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableFromStatus(s *string) *OrderEventUpdateOne {
-	if s != nil {
-		oeuo.SetFromStatus(*s)
+func (_u *OrderEventUpdateOne) SetNillableFromStatus(v *string) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetFromStatus(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // ClearFromStatus clears the value of the "from_status" field.
-func (oeuo *OrderEventUpdateOne) ClearFromStatus() *OrderEventUpdateOne {
-	oeuo.mutation.ClearFromStatus()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearFromStatus() *OrderEventUpdateOne {
+	_u.mutation.ClearFromStatus()
+	return _u
 }
 
 // SetToStatus sets the "to_status" field.
-func (oeuo *OrderEventUpdateOne) SetToStatus(s string) *OrderEventUpdateOne {
-	oeuo.mutation.SetToStatus(s)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetToStatus(v string) *OrderEventUpdateOne {
+	_u.mutation.SetToStatus(v)
+	return _u
 }
 
 // SetNillableToStatus sets the "to_status" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableToStatus(s *string) *OrderEventUpdateOne {
-	if s != nil {
-		oeuo.SetToStatus(*s)
+func (_u *OrderEventUpdateOne) SetNillableToStatus(v *string) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetToStatus(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // ClearToStatus clears the value of the "to_status" field.
-func (oeuo *OrderEventUpdateOne) ClearToStatus() *OrderEventUpdateOne {
-	oeuo.mutation.ClearToStatus()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearToStatus() *OrderEventUpdateOne {
+	_u.mutation.ClearToStatus()
+	return _u
 }
 
 // SetPayload sets the "payload" field.
-func (oeuo *OrderEventUpdateOne) SetPayload(m map[string]interface{}) *OrderEventUpdateOne {
-	oeuo.mutation.SetPayload(m)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetPayload(v map[string]interface{}) *OrderEventUpdateOne {
+	_u.mutation.SetPayload(v)
+	return _u
 }
 
 // ClearPayload clears the value of the "payload" field.
-func (oeuo *OrderEventUpdateOne) ClearPayload() *OrderEventUpdateOne {
-	oeuo.mutation.ClearPayload()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearPayload() *OrderEventUpdateOne {
+	_u.mutation.ClearPayload()
+	return _u
 }
 
 // SetActorUserID sets the "actor_user_id" field.
-func (oeuo *OrderEventUpdateOne) SetActorUserID(u uuid.UUID) *OrderEventUpdateOne {
-	oeuo.mutation.SetActorUserID(u)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetActorUserID(v uuid.UUID) *OrderEventUpdateOne {
+	_u.mutation.SetActorUserID(v)
+	return _u
 }
 
 // SetNillableActorUserID sets the "actor_user_id" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableActorUserID(u *uuid.UUID) *OrderEventUpdateOne {
-	if u != nil {
-		oeuo.SetActorUserID(*u)
+func (_u *OrderEventUpdateOne) SetNillableActorUserID(v *uuid.UUID) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetActorUserID(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // ClearActorUserID clears the value of the "actor_user_id" field.
-func (oeuo *OrderEventUpdateOne) ClearActorUserID() *OrderEventUpdateOne {
-	oeuo.mutation.ClearActorUserID()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearActorUserID() *OrderEventUpdateOne {
+	_u.mutation.ClearActorUserID()
+	return _u
 }
 
 // SetActorType sets the "actor_type" field.
-func (oeuo *OrderEventUpdateOne) SetActorType(s string) *OrderEventUpdateOne {
-	oeuo.mutation.SetActorType(s)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetActorType(v string) *OrderEventUpdateOne {
+	_u.mutation.SetActorType(v)
+	return _u
 }
 
 // SetNillableActorType sets the "actor_type" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableActorType(s *string) *OrderEventUpdateOne {
-	if s != nil {
-		oeuo.SetActorType(*s)
+func (_u *OrderEventUpdateOne) SetNillableActorType(v *string) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetActorType(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // ClearActorType clears the value of the "actor_type" field.
-func (oeuo *OrderEventUpdateOne) ClearActorType() *OrderEventUpdateOne {
-	oeuo.mutation.ClearActorType()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearActorType() *OrderEventUpdateOne {
+	_u.mutation.ClearActorType()
+	return _u
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (oeuo *OrderEventUpdateOne) SetIPAddress(s string) *OrderEventUpdateOne {
-	oeuo.mutation.SetIPAddress(s)
-	return oeuo
+func (_u *OrderEventUpdateOne) SetIPAddress(v string) *OrderEventUpdateOne {
+	_u.mutation.SetIPAddress(v)
+	return _u
 }
 
 // SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
-func (oeuo *OrderEventUpdateOne) SetNillableIPAddress(s *string) *OrderEventUpdateOne {
-	if s != nil {
-		oeuo.SetIPAddress(*s)
+func (_u *OrderEventUpdateOne) SetNillableIPAddress(v *string) *OrderEventUpdateOne {
+	if v != nil {
+		_u.SetIPAddress(*v)
 	}
-	return oeuo
+	return _u
 }
 
 // ClearIPAddress clears the value of the "ip_address" field.
-func (oeuo *OrderEventUpdateOne) ClearIPAddress() *OrderEventUpdateOne {
-	oeuo.mutation.ClearIPAddress()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearIPAddress() *OrderEventUpdateOne {
+	_u.mutation.ClearIPAddress()
+	return _u
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oeuo *OrderEventUpdateOne) SetOrder(o *Order) *OrderEventUpdateOne {
-	return oeuo.SetOrderID(o.ID)
+func (_u *OrderEventUpdateOne) SetOrder(v *Order) *OrderEventUpdateOne {
+	return _u.SetOrderID(v.ID)
 }
 
 // Mutation returns the OrderEventMutation object of the builder.
-func (oeuo *OrderEventUpdateOne) Mutation() *OrderEventMutation {
-	return oeuo.mutation
+func (_u *OrderEventUpdateOne) Mutation() *OrderEventMutation {
+	return _u.mutation
 }
 
 // ClearOrder clears the "order" edge to the Order entity.
-func (oeuo *OrderEventUpdateOne) ClearOrder() *OrderEventUpdateOne {
-	oeuo.mutation.ClearOrder()
-	return oeuo
+func (_u *OrderEventUpdateOne) ClearOrder() *OrderEventUpdateOne {
+	_u.mutation.ClearOrder()
+	return _u
 }
 
 // Where appends a list predicates to the OrderEventUpdate builder.
-func (oeuo *OrderEventUpdateOne) Where(ps ...predicate.OrderEvent) *OrderEventUpdateOne {
-	oeuo.mutation.Where(ps...)
-	return oeuo
+func (_u *OrderEventUpdateOne) Where(ps ...predicate.OrderEvent) *OrderEventUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (oeuo *OrderEventUpdateOne) Select(field string, fields ...string) *OrderEventUpdateOne {
-	oeuo.fields = append([]string{field}, fields...)
-	return oeuo
+func (_u *OrderEventUpdateOne) Select(field string, fields ...string) *OrderEventUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated OrderEvent entity.
-func (oeuo *OrderEventUpdateOne) Save(ctx context.Context) (*OrderEvent, error) {
-	return withHooks(ctx, oeuo.sqlSave, oeuo.mutation, oeuo.hooks)
+func (_u *OrderEventUpdateOne) Save(ctx context.Context) (*OrderEvent, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oeuo *OrderEventUpdateOne) SaveX(ctx context.Context) *OrderEvent {
-	node, err := oeuo.Save(ctx)
+func (_u *OrderEventUpdateOne) SaveX(ctx context.Context) *OrderEvent {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -529,62 +529,62 @@ func (oeuo *OrderEventUpdateOne) SaveX(ctx context.Context) *OrderEvent {
 }
 
 // Exec executes the query on the entity.
-func (oeuo *OrderEventUpdateOne) Exec(ctx context.Context) error {
-	_, err := oeuo.Save(ctx)
+func (_u *OrderEventUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oeuo *OrderEventUpdateOne) ExecX(ctx context.Context) {
-	if err := oeuo.Exec(ctx); err != nil {
+func (_u *OrderEventUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oeuo *OrderEventUpdateOne) check() error {
-	if v, ok := oeuo.mutation.EventType(); ok {
+func (_u *OrderEventUpdateOne) check() error {
+	if v, ok := _u.mutation.EventType(); ok {
 		if err := orderevent.EventTypeValidator(v); err != nil {
 			return &ValidationError{Name: "event_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.event_type": %w`, err)}
 		}
 	}
-	if v, ok := oeuo.mutation.FromStatus(); ok {
+	if v, ok := _u.mutation.FromStatus(); ok {
 		if err := orderevent.FromStatusValidator(v); err != nil {
 			return &ValidationError{Name: "from_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.from_status": %w`, err)}
 		}
 	}
-	if v, ok := oeuo.mutation.ToStatus(); ok {
+	if v, ok := _u.mutation.ToStatus(); ok {
 		if err := orderevent.ToStatusValidator(v); err != nil {
 			return &ValidationError{Name: "to_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.to_status": %w`, err)}
 		}
 	}
-	if v, ok := oeuo.mutation.ActorType(); ok {
+	if v, ok := _u.mutation.ActorType(); ok {
 		if err := orderevent.ActorTypeValidator(v); err != nil {
 			return &ValidationError{Name: "actor_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.actor_type": %w`, err)}
 		}
 	}
-	if v, ok := oeuo.mutation.IPAddress(); ok {
+	if v, ok := _u.mutation.IPAddress(); ok {
 		if err := orderevent.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.ip_address": %w`, err)}
 		}
 	}
-	if _, ok := oeuo.mutation.OrderID(); oeuo.mutation.OrderCleared() && !ok {
+	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrderEvent.order"`)
 	}
 	return nil
 }
 
-func (oeuo *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent, err error) {
-	if err := oeuo.check(); err != nil {
+func (_u *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderevent.Table, orderevent.Columns, sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID))
-	id, ok := oeuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "OrderEvent.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := oeuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderevent.FieldID)
 		for _, f := range fields {
@@ -596,53 +596,53 @@ func (oeuo *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent
 			}
 		}
 	}
-	if ps := oeuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oeuo.mutation.EventType(); ok {
+	if value, ok := _u.mutation.EventType(); ok {
 		_spec.SetField(orderevent.FieldEventType, field.TypeString, value)
 	}
-	if value, ok := oeuo.mutation.FromStatus(); ok {
+	if value, ok := _u.mutation.FromStatus(); ok {
 		_spec.SetField(orderevent.FieldFromStatus, field.TypeString, value)
 	}
-	if oeuo.mutation.FromStatusCleared() {
+	if _u.mutation.FromStatusCleared() {
 		_spec.ClearField(orderevent.FieldFromStatus, field.TypeString)
 	}
-	if value, ok := oeuo.mutation.ToStatus(); ok {
+	if value, ok := _u.mutation.ToStatus(); ok {
 		_spec.SetField(orderevent.FieldToStatus, field.TypeString, value)
 	}
-	if oeuo.mutation.ToStatusCleared() {
+	if _u.mutation.ToStatusCleared() {
 		_spec.ClearField(orderevent.FieldToStatus, field.TypeString)
 	}
-	if value, ok := oeuo.mutation.Payload(); ok {
+	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(orderevent.FieldPayload, field.TypeJSON, value)
 	}
-	if oeuo.mutation.PayloadCleared() {
+	if _u.mutation.PayloadCleared() {
 		_spec.ClearField(orderevent.FieldPayload, field.TypeJSON)
 	}
-	if value, ok := oeuo.mutation.ActorUserID(); ok {
+	if value, ok := _u.mutation.ActorUserID(); ok {
 		_spec.SetField(orderevent.FieldActorUserID, field.TypeUUID, value)
 	}
-	if oeuo.mutation.ActorUserIDCleared() {
+	if _u.mutation.ActorUserIDCleared() {
 		_spec.ClearField(orderevent.FieldActorUserID, field.TypeUUID)
 	}
-	if value, ok := oeuo.mutation.ActorType(); ok {
+	if value, ok := _u.mutation.ActorType(); ok {
 		_spec.SetField(orderevent.FieldActorType, field.TypeString, value)
 	}
-	if oeuo.mutation.ActorTypeCleared() {
+	if _u.mutation.ActorTypeCleared() {
 		_spec.ClearField(orderevent.FieldActorType, field.TypeString)
 	}
-	if value, ok := oeuo.mutation.IPAddress(); ok {
+	if value, ok := _u.mutation.IPAddress(); ok {
 		_spec.SetField(orderevent.FieldIPAddress, field.TypeString, value)
 	}
-	if oeuo.mutation.IPAddressCleared() {
+	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(orderevent.FieldIPAddress, field.TypeString)
 	}
-	if oeuo.mutation.OrderCleared() {
+	if _u.mutation.OrderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -655,7 +655,7 @@ func (oeuo *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oeuo.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -671,10 +671,10 @@ func (oeuo *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &OrderEvent{config: oeuo.config}
+	_node = &OrderEvent{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, oeuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderevent.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -682,6 +682,6 @@ func (oeuo *OrderEventUpdateOne) sqlSave(ctx context.Context) (_node *OrderEvent
 		}
 		return nil, err
 	}
-	oeuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

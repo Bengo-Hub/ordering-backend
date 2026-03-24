@@ -88,7 +88,7 @@ func (*OrderEvent) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OrderEvent fields.
-func (oe *OrderEvent) assignValues(columns []string, values []any) error {
+func (_m *OrderEvent) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -98,37 +98,37 @@ func (oe *OrderEvent) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				oe.ID = *value
+				_m.ID = *value
 			}
 		case orderevent.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				oe.OrderID = *value
+				_m.OrderID = *value
 			}
 		case orderevent.FieldEventType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field event_type", values[i])
 			} else if value.Valid {
-				oe.EventType = value.String
+				_m.EventType = value.String
 			}
 		case orderevent.FieldFromStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field from_status", values[i])
 			} else if value.Valid {
-				oe.FromStatus = value.String
+				_m.FromStatus = value.String
 			}
 		case orderevent.FieldToStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field to_status", values[i])
 			} else if value.Valid {
-				oe.ToStatus = value.String
+				_m.ToStatus = value.String
 			}
 		case orderevent.FieldPayload:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field payload", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &oe.Payload); err != nil {
+				if err := json.Unmarshal(*value, &_m.Payload); err != nil {
 					return fmt.Errorf("unmarshal field payload: %w", err)
 				}
 			}
@@ -136,29 +136,29 @@ func (oe *OrderEvent) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field actor_user_id", values[i])
 			} else if value.Valid {
-				oe.ActorUserID = new(uuid.UUID)
-				*oe.ActorUserID = *value.S.(*uuid.UUID)
+				_m.ActorUserID = new(uuid.UUID)
+				*_m.ActorUserID = *value.S.(*uuid.UUID)
 			}
 		case orderevent.FieldActorType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field actor_type", values[i])
 			} else if value.Valid {
-				oe.ActorType = value.String
+				_m.ActorType = value.String
 			}
 		case orderevent.FieldIPAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ip_address", values[i])
 			} else if value.Valid {
-				oe.IPAddress = value.String
+				_m.IPAddress = value.String
 			}
 		case orderevent.FieldOccurredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field occurred_at", values[i])
 			} else if value.Valid {
-				oe.OccurredAt = value.Time
+				_m.OccurredAt = value.Time
 			}
 		default:
-			oe.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -166,66 +166,66 @@ func (oe *OrderEvent) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the OrderEvent.
 // This includes values selected through modifiers, order, etc.
-func (oe *OrderEvent) Value(name string) (ent.Value, error) {
-	return oe.selectValues.Get(name)
+func (_m *OrderEvent) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryOrder queries the "order" edge of the OrderEvent entity.
-func (oe *OrderEvent) QueryOrder() *OrderQuery {
-	return NewOrderEventClient(oe.config).QueryOrder(oe)
+func (_m *OrderEvent) QueryOrder() *OrderQuery {
+	return NewOrderEventClient(_m.config).QueryOrder(_m)
 }
 
 // Update returns a builder for updating this OrderEvent.
 // Note that you need to call OrderEvent.Unwrap() before calling this method if this OrderEvent
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (oe *OrderEvent) Update() *OrderEventUpdateOne {
-	return NewOrderEventClient(oe.config).UpdateOne(oe)
+func (_m *OrderEvent) Update() *OrderEventUpdateOne {
+	return NewOrderEventClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OrderEvent entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (oe *OrderEvent) Unwrap() *OrderEvent {
-	_tx, ok := oe.config.driver.(*txDriver)
+func (_m *OrderEvent) Unwrap() *OrderEvent {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OrderEvent is not a transactional entity")
 	}
-	oe.config.driver = _tx.drv
-	return oe
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (oe *OrderEvent) String() string {
+func (_m *OrderEvent) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderEvent(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", oe.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", oe.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
 	builder.WriteString("event_type=")
-	builder.WriteString(oe.EventType)
+	builder.WriteString(_m.EventType)
 	builder.WriteString(", ")
 	builder.WriteString("from_status=")
-	builder.WriteString(oe.FromStatus)
+	builder.WriteString(_m.FromStatus)
 	builder.WriteString(", ")
 	builder.WriteString("to_status=")
-	builder.WriteString(oe.ToStatus)
+	builder.WriteString(_m.ToStatus)
 	builder.WriteString(", ")
 	builder.WriteString("payload=")
-	builder.WriteString(fmt.Sprintf("%v", oe.Payload))
+	builder.WriteString(fmt.Sprintf("%v", _m.Payload))
 	builder.WriteString(", ")
-	if v := oe.ActorUserID; v != nil {
+	if v := _m.ActorUserID; v != nil {
 		builder.WriteString("actor_user_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("actor_type=")
-	builder.WriteString(oe.ActorType)
+	builder.WriteString(_m.ActorType)
 	builder.WriteString(", ")
 	builder.WriteString("ip_address=")
-	builder.WriteString(oe.IPAddress)
+	builder.WriteString(_m.IPAddress)
 	builder.WriteString(", ")
 	builder.WriteString("occurred_at=")
-	builder.WriteString(oe.OccurredAt.Format(time.ANSIC))
+	builder.WriteString(_m.OccurredAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

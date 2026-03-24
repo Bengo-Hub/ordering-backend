@@ -25,273 +25,273 @@ type DataExportJobUpdate struct {
 }
 
 // Where appends a list predicates to the DataExportJobUpdate builder.
-func (deju *DataExportJobUpdate) Where(ps ...predicate.DataExportJob) *DataExportJobUpdate {
-	deju.mutation.Where(ps...)
-	return deju
+func (_u *DataExportJobUpdate) Where(ps ...predicate.DataExportJob) *DataExportJobUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (deju *DataExportJobUpdate) SetTenantID(u uuid.UUID) *DataExportJobUpdate {
-	deju.mutation.SetTenantID(u)
-	return deju
+func (_u *DataExportJobUpdate) SetTenantID(v uuid.UUID) *DataExportJobUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableTenantID(u *uuid.UUID) *DataExportJobUpdate {
-	if u != nil {
-		deju.SetTenantID(*u)
+func (_u *DataExportJobUpdate) SetNillableTenantID(v *uuid.UUID) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return deju
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (deju *DataExportJobUpdate) SetUserID(u uuid.UUID) *DataExportJobUpdate {
-	deju.mutation.SetUserID(u)
-	return deju
+func (_u *DataExportJobUpdate) SetUserID(v uuid.UUID) *DataExportJobUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableUserID(u *uuid.UUID) *DataExportJobUpdate {
-	if u != nil {
-		deju.SetUserID(*u)
+func (_u *DataExportJobUpdate) SetNillableUserID(v *uuid.UUID) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return deju
+	return _u
 }
 
 // SetFormat sets the "format" field.
-func (deju *DataExportJobUpdate) SetFormat(d dataexportjob.Format) *DataExportJobUpdate {
-	deju.mutation.SetFormat(d)
-	return deju
+func (_u *DataExportJobUpdate) SetFormat(v dataexportjob.Format) *DataExportJobUpdate {
+	_u.mutation.SetFormat(v)
+	return _u
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableFormat(d *dataexportjob.Format) *DataExportJobUpdate {
-	if d != nil {
-		deju.SetFormat(*d)
+func (_u *DataExportJobUpdate) SetNillableFormat(v *dataexportjob.Format) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetFormat(*v)
 	}
-	return deju
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (deju *DataExportJobUpdate) SetStatus(d dataexportjob.Status) *DataExportJobUpdate {
-	deju.mutation.SetStatus(d)
-	return deju
+func (_u *DataExportJobUpdate) SetStatus(v dataexportjob.Status) *DataExportJobUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableStatus(d *dataexportjob.Status) *DataExportJobUpdate {
-	if d != nil {
-		deju.SetStatus(*d)
+func (_u *DataExportJobUpdate) SetNillableStatus(v *dataexportjob.Status) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return deju
+	return _u
 }
 
 // SetIncludedData sets the "included_data" field.
-func (deju *DataExportJobUpdate) SetIncludedData(s []string) *DataExportJobUpdate {
-	deju.mutation.SetIncludedData(s)
-	return deju
+func (_u *DataExportJobUpdate) SetIncludedData(v []string) *DataExportJobUpdate {
+	_u.mutation.SetIncludedData(v)
+	return _u
 }
 
-// AppendIncludedData appends s to the "included_data" field.
-func (deju *DataExportJobUpdate) AppendIncludedData(s []string) *DataExportJobUpdate {
-	deju.mutation.AppendIncludedData(s)
-	return deju
+// AppendIncludedData appends value to the "included_data" field.
+func (_u *DataExportJobUpdate) AppendIncludedData(v []string) *DataExportJobUpdate {
+	_u.mutation.AppendIncludedData(v)
+	return _u
 }
 
 // ClearIncludedData clears the value of the "included_data" field.
-func (deju *DataExportJobUpdate) ClearIncludedData() *DataExportJobUpdate {
-	deju.mutation.ClearIncludedData()
-	return deju
+func (_u *DataExportJobUpdate) ClearIncludedData() *DataExportJobUpdate {
+	_u.mutation.ClearIncludedData()
+	return _u
 }
 
 // SetStorageURL sets the "storage_url" field.
-func (deju *DataExportJobUpdate) SetStorageURL(s string) *DataExportJobUpdate {
-	deju.mutation.SetStorageURL(s)
-	return deju
+func (_u *DataExportJobUpdate) SetStorageURL(v string) *DataExportJobUpdate {
+	_u.mutation.SetStorageURL(v)
+	return _u
 }
 
 // SetNillableStorageURL sets the "storage_url" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableStorageURL(s *string) *DataExportJobUpdate {
-	if s != nil {
-		deju.SetStorageURL(*s)
+func (_u *DataExportJobUpdate) SetNillableStorageURL(v *string) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetStorageURL(*v)
 	}
-	return deju
+	return _u
 }
 
 // ClearStorageURL clears the value of the "storage_url" field.
-func (deju *DataExportJobUpdate) ClearStorageURL() *DataExportJobUpdate {
-	deju.mutation.ClearStorageURL()
-	return deju
+func (_u *DataExportJobUpdate) ClearStorageURL() *DataExportJobUpdate {
+	_u.mutation.ClearStorageURL()
+	return _u
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (deju *DataExportJobUpdate) SetErrorMessage(s string) *DataExportJobUpdate {
-	deju.mutation.SetErrorMessage(s)
-	return deju
+func (_u *DataExportJobUpdate) SetErrorMessage(v string) *DataExportJobUpdate {
+	_u.mutation.SetErrorMessage(v)
+	return _u
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableErrorMessage(s *string) *DataExportJobUpdate {
-	if s != nil {
-		deju.SetErrorMessage(*s)
+func (_u *DataExportJobUpdate) SetNillableErrorMessage(v *string) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetErrorMessage(*v)
 	}
-	return deju
+	return _u
 }
 
 // ClearErrorMessage clears the value of the "error_message" field.
-func (deju *DataExportJobUpdate) ClearErrorMessage() *DataExportJobUpdate {
-	deju.mutation.ClearErrorMessage()
-	return deju
+func (_u *DataExportJobUpdate) ClearErrorMessage() *DataExportJobUpdate {
+	_u.mutation.ClearErrorMessage()
+	return _u
 }
 
 // SetFileSizeBytes sets the "file_size_bytes" field.
-func (deju *DataExportJobUpdate) SetFileSizeBytes(i int) *DataExportJobUpdate {
-	deju.mutation.ResetFileSizeBytes()
-	deju.mutation.SetFileSizeBytes(i)
-	return deju
+func (_u *DataExportJobUpdate) SetFileSizeBytes(v int) *DataExportJobUpdate {
+	_u.mutation.ResetFileSizeBytes()
+	_u.mutation.SetFileSizeBytes(v)
+	return _u
 }
 
 // SetNillableFileSizeBytes sets the "file_size_bytes" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableFileSizeBytes(i *int) *DataExportJobUpdate {
-	if i != nil {
-		deju.SetFileSizeBytes(*i)
+func (_u *DataExportJobUpdate) SetNillableFileSizeBytes(v *int) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetFileSizeBytes(*v)
 	}
-	return deju
+	return _u
 }
 
-// AddFileSizeBytes adds i to the "file_size_bytes" field.
-func (deju *DataExportJobUpdate) AddFileSizeBytes(i int) *DataExportJobUpdate {
-	deju.mutation.AddFileSizeBytes(i)
-	return deju
+// AddFileSizeBytes adds value to the "file_size_bytes" field.
+func (_u *DataExportJobUpdate) AddFileSizeBytes(v int) *DataExportJobUpdate {
+	_u.mutation.AddFileSizeBytes(v)
+	return _u
 }
 
 // ClearFileSizeBytes clears the value of the "file_size_bytes" field.
-func (deju *DataExportJobUpdate) ClearFileSizeBytes() *DataExportJobUpdate {
-	deju.mutation.ClearFileSizeBytes()
-	return deju
+func (_u *DataExportJobUpdate) ClearFileSizeBytes() *DataExportJobUpdate {
+	_u.mutation.ClearFileSizeBytes()
+	return _u
 }
 
 // SetRecordsExported sets the "records_exported" field.
-func (deju *DataExportJobUpdate) SetRecordsExported(i int) *DataExportJobUpdate {
-	deju.mutation.ResetRecordsExported()
-	deju.mutation.SetRecordsExported(i)
-	return deju
+func (_u *DataExportJobUpdate) SetRecordsExported(v int) *DataExportJobUpdate {
+	_u.mutation.ResetRecordsExported()
+	_u.mutation.SetRecordsExported(v)
+	return _u
 }
 
 // SetNillableRecordsExported sets the "records_exported" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableRecordsExported(i *int) *DataExportJobUpdate {
-	if i != nil {
-		deju.SetRecordsExported(*i)
+func (_u *DataExportJobUpdate) SetNillableRecordsExported(v *int) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetRecordsExported(*v)
 	}
-	return deju
+	return _u
 }
 
-// AddRecordsExported adds i to the "records_exported" field.
-func (deju *DataExportJobUpdate) AddRecordsExported(i int) *DataExportJobUpdate {
-	deju.mutation.AddRecordsExported(i)
-	return deju
+// AddRecordsExported adds value to the "records_exported" field.
+func (_u *DataExportJobUpdate) AddRecordsExported(v int) *DataExportJobUpdate {
+	_u.mutation.AddRecordsExported(v)
+	return _u
 }
 
 // ClearRecordsExported clears the value of the "records_exported" field.
-func (deju *DataExportJobUpdate) ClearRecordsExported() *DataExportJobUpdate {
-	deju.mutation.ClearRecordsExported()
-	return deju
+func (_u *DataExportJobUpdate) ClearRecordsExported() *DataExportJobUpdate {
+	_u.mutation.ClearRecordsExported()
+	return _u
 }
 
 // SetRequestedAt sets the "requested_at" field.
-func (deju *DataExportJobUpdate) SetRequestedAt(t time.Time) *DataExportJobUpdate {
-	deju.mutation.SetRequestedAt(t)
-	return deju
+func (_u *DataExportJobUpdate) SetRequestedAt(v time.Time) *DataExportJobUpdate {
+	_u.mutation.SetRequestedAt(v)
+	return _u
 }
 
 // SetNillableRequestedAt sets the "requested_at" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableRequestedAt(t *time.Time) *DataExportJobUpdate {
-	if t != nil {
-		deju.SetRequestedAt(*t)
+func (_u *DataExportJobUpdate) SetNillableRequestedAt(v *time.Time) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetRequestedAt(*v)
 	}
-	return deju
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (deju *DataExportJobUpdate) SetStartedAt(t time.Time) *DataExportJobUpdate {
-	deju.mutation.SetStartedAt(t)
-	return deju
+func (_u *DataExportJobUpdate) SetStartedAt(v time.Time) *DataExportJobUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableStartedAt(t *time.Time) *DataExportJobUpdate {
-	if t != nil {
-		deju.SetStartedAt(*t)
+func (_u *DataExportJobUpdate) SetNillableStartedAt(v *time.Time) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return deju
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (deju *DataExportJobUpdate) ClearStartedAt() *DataExportJobUpdate {
-	deju.mutation.ClearStartedAt()
-	return deju
+func (_u *DataExportJobUpdate) ClearStartedAt() *DataExportJobUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (deju *DataExportJobUpdate) SetCompletedAt(t time.Time) *DataExportJobUpdate {
-	deju.mutation.SetCompletedAt(t)
-	return deju
+func (_u *DataExportJobUpdate) SetCompletedAt(v time.Time) *DataExportJobUpdate {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableCompletedAt(t *time.Time) *DataExportJobUpdate {
-	if t != nil {
-		deju.SetCompletedAt(*t)
+func (_u *DataExportJobUpdate) SetNillableCompletedAt(v *time.Time) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return deju
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (deju *DataExportJobUpdate) ClearCompletedAt() *DataExportJobUpdate {
-	deju.mutation.ClearCompletedAt()
-	return deju
+func (_u *DataExportJobUpdate) ClearCompletedAt() *DataExportJobUpdate {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (deju *DataExportJobUpdate) SetExpiresAt(t time.Time) *DataExportJobUpdate {
-	deju.mutation.SetExpiresAt(t)
-	return deju
+func (_u *DataExportJobUpdate) SetExpiresAt(v time.Time) *DataExportJobUpdate {
+	_u.mutation.SetExpiresAt(v)
+	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (deju *DataExportJobUpdate) SetNillableExpiresAt(t *time.Time) *DataExportJobUpdate {
-	if t != nil {
-		deju.SetExpiresAt(*t)
+func (_u *DataExportJobUpdate) SetNillableExpiresAt(v *time.Time) *DataExportJobUpdate {
+	if v != nil {
+		_u.SetExpiresAt(*v)
 	}
-	return deju
+	return _u
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (deju *DataExportJobUpdate) ClearExpiresAt() *DataExportJobUpdate {
-	deju.mutation.ClearExpiresAt()
-	return deju
+func (_u *DataExportJobUpdate) ClearExpiresAt() *DataExportJobUpdate {
+	_u.mutation.ClearExpiresAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (deju *DataExportJobUpdate) SetUpdatedAt(t time.Time) *DataExportJobUpdate {
-	deju.mutation.SetUpdatedAt(t)
-	return deju
+func (_u *DataExportJobUpdate) SetUpdatedAt(v time.Time) *DataExportJobUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DataExportJobMutation object of the builder.
-func (deju *DataExportJobUpdate) Mutation() *DataExportJobMutation {
-	return deju.mutation
+func (_u *DataExportJobUpdate) Mutation() *DataExportJobMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (deju *DataExportJobUpdate) Save(ctx context.Context) (int, error) {
-	deju.defaults()
-	return withHooks(ctx, deju.sqlSave, deju.mutation, deju.hooks)
+func (_u *DataExportJobUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (deju *DataExportJobUpdate) SaveX(ctx context.Context) int {
-	affected, err := deju.Save(ctx)
+func (_u *DataExportJobUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -299,34 +299,34 @@ func (deju *DataExportJobUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (deju *DataExportJobUpdate) Exec(ctx context.Context) error {
-	_, err := deju.Save(ctx)
+func (_u *DataExportJobUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (deju *DataExportJobUpdate) ExecX(ctx context.Context) {
-	if err := deju.Exec(ctx); err != nil {
+func (_u *DataExportJobUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (deju *DataExportJobUpdate) defaults() {
-	if _, ok := deju.mutation.UpdatedAt(); !ok {
+func (_u *DataExportJobUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := dataexportjob.UpdateDefaultUpdatedAt()
-		deju.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (deju *DataExportJobUpdate) check() error {
-	if v, ok := deju.mutation.Format(); ok {
+func (_u *DataExportJobUpdate) check() error {
+	if v, ok := _u.mutation.Format(); ok {
 		if err := dataexportjob.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.format": %w`, err)}
 		}
 	}
-	if v, ok := deju.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := dataexportjob.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.status": %w`, err)}
 		}
@@ -334,96 +334,96 @@ func (deju *DataExportJobUpdate) check() error {
 	return nil
 }
 
-func (deju *DataExportJobUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := deju.check(); err != nil {
-		return n, err
+func (_u *DataExportJobUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(dataexportjob.Table, dataexportjob.Columns, sqlgraph.NewFieldSpec(dataexportjob.FieldID, field.TypeUUID))
-	if ps := deju.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := deju.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(dataexportjob.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := deju.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(dataexportjob.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := deju.mutation.Format(); ok {
+	if value, ok := _u.mutation.Format(); ok {
 		_spec.SetField(dataexportjob.FieldFormat, field.TypeEnum, value)
 	}
-	if value, ok := deju.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(dataexportjob.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := deju.mutation.IncludedData(); ok {
+	if value, ok := _u.mutation.IncludedData(); ok {
 		_spec.SetField(dataexportjob.FieldIncludedData, field.TypeJSON, value)
 	}
-	if value, ok := deju.mutation.AppendedIncludedData(); ok {
+	if value, ok := _u.mutation.AppendedIncludedData(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, dataexportjob.FieldIncludedData, value)
 		})
 	}
-	if deju.mutation.IncludedDataCleared() {
+	if _u.mutation.IncludedDataCleared() {
 		_spec.ClearField(dataexportjob.FieldIncludedData, field.TypeJSON)
 	}
-	if value, ok := deju.mutation.StorageURL(); ok {
+	if value, ok := _u.mutation.StorageURL(); ok {
 		_spec.SetField(dataexportjob.FieldStorageURL, field.TypeString, value)
 	}
-	if deju.mutation.StorageURLCleared() {
+	if _u.mutation.StorageURLCleared() {
 		_spec.ClearField(dataexportjob.FieldStorageURL, field.TypeString)
 	}
-	if value, ok := deju.mutation.ErrorMessage(); ok {
+	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(dataexportjob.FieldErrorMessage, field.TypeString, value)
 	}
-	if deju.mutation.ErrorMessageCleared() {
+	if _u.mutation.ErrorMessageCleared() {
 		_spec.ClearField(dataexportjob.FieldErrorMessage, field.TypeString)
 	}
-	if value, ok := deju.mutation.FileSizeBytes(); ok {
+	if value, ok := _u.mutation.FileSizeBytes(); ok {
 		_spec.SetField(dataexportjob.FieldFileSizeBytes, field.TypeInt, value)
 	}
-	if value, ok := deju.mutation.AddedFileSizeBytes(); ok {
+	if value, ok := _u.mutation.AddedFileSizeBytes(); ok {
 		_spec.AddField(dataexportjob.FieldFileSizeBytes, field.TypeInt, value)
 	}
-	if deju.mutation.FileSizeBytesCleared() {
+	if _u.mutation.FileSizeBytesCleared() {
 		_spec.ClearField(dataexportjob.FieldFileSizeBytes, field.TypeInt)
 	}
-	if value, ok := deju.mutation.RecordsExported(); ok {
+	if value, ok := _u.mutation.RecordsExported(); ok {
 		_spec.SetField(dataexportjob.FieldRecordsExported, field.TypeInt, value)
 	}
-	if value, ok := deju.mutation.AddedRecordsExported(); ok {
+	if value, ok := _u.mutation.AddedRecordsExported(); ok {
 		_spec.AddField(dataexportjob.FieldRecordsExported, field.TypeInt, value)
 	}
-	if deju.mutation.RecordsExportedCleared() {
+	if _u.mutation.RecordsExportedCleared() {
 		_spec.ClearField(dataexportjob.FieldRecordsExported, field.TypeInt)
 	}
-	if value, ok := deju.mutation.RequestedAt(); ok {
+	if value, ok := _u.mutation.RequestedAt(); ok {
 		_spec.SetField(dataexportjob.FieldRequestedAt, field.TypeTime, value)
 	}
-	if value, ok := deju.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(dataexportjob.FieldStartedAt, field.TypeTime, value)
 	}
-	if deju.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(dataexportjob.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := deju.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(dataexportjob.FieldCompletedAt, field.TypeTime, value)
 	}
-	if deju.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(dataexportjob.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := deju.mutation.ExpiresAt(); ok {
+	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(dataexportjob.FieldExpiresAt, field.TypeTime, value)
 	}
-	if deju.mutation.ExpiresAtCleared() {
+	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(dataexportjob.FieldExpiresAt, field.TypeTime)
 	}
-	if value, ok := deju.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(dataexportjob.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, deju.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{dataexportjob.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -431,8 +431,8 @@ func (deju *DataExportJobUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		return 0, err
 	}
-	deju.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DataExportJobUpdateOne is the builder for updating a single DataExportJob entity.
@@ -444,280 +444,280 @@ type DataExportJobUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dejuo *DataExportJobUpdateOne) SetTenantID(u uuid.UUID) *DataExportJobUpdateOne {
-	dejuo.mutation.SetTenantID(u)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetTenantID(v uuid.UUID) *DataExportJobUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableTenantID(u *uuid.UUID) *DataExportJobUpdateOne {
-	if u != nil {
-		dejuo.SetTenantID(*u)
+func (_u *DataExportJobUpdateOne) SetNillableTenantID(v *uuid.UUID) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (dejuo *DataExportJobUpdateOne) SetUserID(u uuid.UUID) *DataExportJobUpdateOne {
-	dejuo.mutation.SetUserID(u)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetUserID(v uuid.UUID) *DataExportJobUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableUserID(u *uuid.UUID) *DataExportJobUpdateOne {
-	if u != nil {
-		dejuo.SetUserID(*u)
+func (_u *DataExportJobUpdateOne) SetNillableUserID(v *uuid.UUID) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // SetFormat sets the "format" field.
-func (dejuo *DataExportJobUpdateOne) SetFormat(d dataexportjob.Format) *DataExportJobUpdateOne {
-	dejuo.mutation.SetFormat(d)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetFormat(v dataexportjob.Format) *DataExportJobUpdateOne {
+	_u.mutation.SetFormat(v)
+	return _u
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableFormat(d *dataexportjob.Format) *DataExportJobUpdateOne {
-	if d != nil {
-		dejuo.SetFormat(*d)
+func (_u *DataExportJobUpdateOne) SetNillableFormat(v *dataexportjob.Format) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetFormat(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (dejuo *DataExportJobUpdateOne) SetStatus(d dataexportjob.Status) *DataExportJobUpdateOne {
-	dejuo.mutation.SetStatus(d)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetStatus(v dataexportjob.Status) *DataExportJobUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableStatus(d *dataexportjob.Status) *DataExportJobUpdateOne {
-	if d != nil {
-		dejuo.SetStatus(*d)
+func (_u *DataExportJobUpdateOne) SetNillableStatus(v *dataexportjob.Status) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // SetIncludedData sets the "included_data" field.
-func (dejuo *DataExportJobUpdateOne) SetIncludedData(s []string) *DataExportJobUpdateOne {
-	dejuo.mutation.SetIncludedData(s)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetIncludedData(v []string) *DataExportJobUpdateOne {
+	_u.mutation.SetIncludedData(v)
+	return _u
 }
 
-// AppendIncludedData appends s to the "included_data" field.
-func (dejuo *DataExportJobUpdateOne) AppendIncludedData(s []string) *DataExportJobUpdateOne {
-	dejuo.mutation.AppendIncludedData(s)
-	return dejuo
+// AppendIncludedData appends value to the "included_data" field.
+func (_u *DataExportJobUpdateOne) AppendIncludedData(v []string) *DataExportJobUpdateOne {
+	_u.mutation.AppendIncludedData(v)
+	return _u
 }
 
 // ClearIncludedData clears the value of the "included_data" field.
-func (dejuo *DataExportJobUpdateOne) ClearIncludedData() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearIncludedData()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearIncludedData() *DataExportJobUpdateOne {
+	_u.mutation.ClearIncludedData()
+	return _u
 }
 
 // SetStorageURL sets the "storage_url" field.
-func (dejuo *DataExportJobUpdateOne) SetStorageURL(s string) *DataExportJobUpdateOne {
-	dejuo.mutation.SetStorageURL(s)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetStorageURL(v string) *DataExportJobUpdateOne {
+	_u.mutation.SetStorageURL(v)
+	return _u
 }
 
 // SetNillableStorageURL sets the "storage_url" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableStorageURL(s *string) *DataExportJobUpdateOne {
-	if s != nil {
-		dejuo.SetStorageURL(*s)
+func (_u *DataExportJobUpdateOne) SetNillableStorageURL(v *string) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetStorageURL(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // ClearStorageURL clears the value of the "storage_url" field.
-func (dejuo *DataExportJobUpdateOne) ClearStorageURL() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearStorageURL()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearStorageURL() *DataExportJobUpdateOne {
+	_u.mutation.ClearStorageURL()
+	return _u
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (dejuo *DataExportJobUpdateOne) SetErrorMessage(s string) *DataExportJobUpdateOne {
-	dejuo.mutation.SetErrorMessage(s)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetErrorMessage(v string) *DataExportJobUpdateOne {
+	_u.mutation.SetErrorMessage(v)
+	return _u
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableErrorMessage(s *string) *DataExportJobUpdateOne {
-	if s != nil {
-		dejuo.SetErrorMessage(*s)
+func (_u *DataExportJobUpdateOne) SetNillableErrorMessage(v *string) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetErrorMessage(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // ClearErrorMessage clears the value of the "error_message" field.
-func (dejuo *DataExportJobUpdateOne) ClearErrorMessage() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearErrorMessage()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearErrorMessage() *DataExportJobUpdateOne {
+	_u.mutation.ClearErrorMessage()
+	return _u
 }
 
 // SetFileSizeBytes sets the "file_size_bytes" field.
-func (dejuo *DataExportJobUpdateOne) SetFileSizeBytes(i int) *DataExportJobUpdateOne {
-	dejuo.mutation.ResetFileSizeBytes()
-	dejuo.mutation.SetFileSizeBytes(i)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetFileSizeBytes(v int) *DataExportJobUpdateOne {
+	_u.mutation.ResetFileSizeBytes()
+	_u.mutation.SetFileSizeBytes(v)
+	return _u
 }
 
 // SetNillableFileSizeBytes sets the "file_size_bytes" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableFileSizeBytes(i *int) *DataExportJobUpdateOne {
-	if i != nil {
-		dejuo.SetFileSizeBytes(*i)
+func (_u *DataExportJobUpdateOne) SetNillableFileSizeBytes(v *int) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetFileSizeBytes(*v)
 	}
-	return dejuo
+	return _u
 }
 
-// AddFileSizeBytes adds i to the "file_size_bytes" field.
-func (dejuo *DataExportJobUpdateOne) AddFileSizeBytes(i int) *DataExportJobUpdateOne {
-	dejuo.mutation.AddFileSizeBytes(i)
-	return dejuo
+// AddFileSizeBytes adds value to the "file_size_bytes" field.
+func (_u *DataExportJobUpdateOne) AddFileSizeBytes(v int) *DataExportJobUpdateOne {
+	_u.mutation.AddFileSizeBytes(v)
+	return _u
 }
 
 // ClearFileSizeBytes clears the value of the "file_size_bytes" field.
-func (dejuo *DataExportJobUpdateOne) ClearFileSizeBytes() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearFileSizeBytes()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearFileSizeBytes() *DataExportJobUpdateOne {
+	_u.mutation.ClearFileSizeBytes()
+	return _u
 }
 
 // SetRecordsExported sets the "records_exported" field.
-func (dejuo *DataExportJobUpdateOne) SetRecordsExported(i int) *DataExportJobUpdateOne {
-	dejuo.mutation.ResetRecordsExported()
-	dejuo.mutation.SetRecordsExported(i)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetRecordsExported(v int) *DataExportJobUpdateOne {
+	_u.mutation.ResetRecordsExported()
+	_u.mutation.SetRecordsExported(v)
+	return _u
 }
 
 // SetNillableRecordsExported sets the "records_exported" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableRecordsExported(i *int) *DataExportJobUpdateOne {
-	if i != nil {
-		dejuo.SetRecordsExported(*i)
+func (_u *DataExportJobUpdateOne) SetNillableRecordsExported(v *int) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetRecordsExported(*v)
 	}
-	return dejuo
+	return _u
 }
 
-// AddRecordsExported adds i to the "records_exported" field.
-func (dejuo *DataExportJobUpdateOne) AddRecordsExported(i int) *DataExportJobUpdateOne {
-	dejuo.mutation.AddRecordsExported(i)
-	return dejuo
+// AddRecordsExported adds value to the "records_exported" field.
+func (_u *DataExportJobUpdateOne) AddRecordsExported(v int) *DataExportJobUpdateOne {
+	_u.mutation.AddRecordsExported(v)
+	return _u
 }
 
 // ClearRecordsExported clears the value of the "records_exported" field.
-func (dejuo *DataExportJobUpdateOne) ClearRecordsExported() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearRecordsExported()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearRecordsExported() *DataExportJobUpdateOne {
+	_u.mutation.ClearRecordsExported()
+	return _u
 }
 
 // SetRequestedAt sets the "requested_at" field.
-func (dejuo *DataExportJobUpdateOne) SetRequestedAt(t time.Time) *DataExportJobUpdateOne {
-	dejuo.mutation.SetRequestedAt(t)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetRequestedAt(v time.Time) *DataExportJobUpdateOne {
+	_u.mutation.SetRequestedAt(v)
+	return _u
 }
 
 // SetNillableRequestedAt sets the "requested_at" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableRequestedAt(t *time.Time) *DataExportJobUpdateOne {
-	if t != nil {
-		dejuo.SetRequestedAt(*t)
+func (_u *DataExportJobUpdateOne) SetNillableRequestedAt(v *time.Time) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetRequestedAt(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (dejuo *DataExportJobUpdateOne) SetStartedAt(t time.Time) *DataExportJobUpdateOne {
-	dejuo.mutation.SetStartedAt(t)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetStartedAt(v time.Time) *DataExportJobUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableStartedAt(t *time.Time) *DataExportJobUpdateOne {
-	if t != nil {
-		dejuo.SetStartedAt(*t)
+func (_u *DataExportJobUpdateOne) SetNillableStartedAt(v *time.Time) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (dejuo *DataExportJobUpdateOne) ClearStartedAt() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearStartedAt()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearStartedAt() *DataExportJobUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (dejuo *DataExportJobUpdateOne) SetCompletedAt(t time.Time) *DataExportJobUpdateOne {
-	dejuo.mutation.SetCompletedAt(t)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetCompletedAt(v time.Time) *DataExportJobUpdateOne {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableCompletedAt(t *time.Time) *DataExportJobUpdateOne {
-	if t != nil {
-		dejuo.SetCompletedAt(*t)
+func (_u *DataExportJobUpdateOne) SetNillableCompletedAt(v *time.Time) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (dejuo *DataExportJobUpdateOne) ClearCompletedAt() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearCompletedAt()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearCompletedAt() *DataExportJobUpdateOne {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (dejuo *DataExportJobUpdateOne) SetExpiresAt(t time.Time) *DataExportJobUpdateOne {
-	dejuo.mutation.SetExpiresAt(t)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetExpiresAt(v time.Time) *DataExportJobUpdateOne {
+	_u.mutation.SetExpiresAt(v)
+	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (dejuo *DataExportJobUpdateOne) SetNillableExpiresAt(t *time.Time) *DataExportJobUpdateOne {
-	if t != nil {
-		dejuo.SetExpiresAt(*t)
+func (_u *DataExportJobUpdateOne) SetNillableExpiresAt(v *time.Time) *DataExportJobUpdateOne {
+	if v != nil {
+		_u.SetExpiresAt(*v)
 	}
-	return dejuo
+	return _u
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (dejuo *DataExportJobUpdateOne) ClearExpiresAt() *DataExportJobUpdateOne {
-	dejuo.mutation.ClearExpiresAt()
-	return dejuo
+func (_u *DataExportJobUpdateOne) ClearExpiresAt() *DataExportJobUpdateOne {
+	_u.mutation.ClearExpiresAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dejuo *DataExportJobUpdateOne) SetUpdatedAt(t time.Time) *DataExportJobUpdateOne {
-	dejuo.mutation.SetUpdatedAt(t)
-	return dejuo
+func (_u *DataExportJobUpdateOne) SetUpdatedAt(v time.Time) *DataExportJobUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DataExportJobMutation object of the builder.
-func (dejuo *DataExportJobUpdateOne) Mutation() *DataExportJobMutation {
-	return dejuo.mutation
+func (_u *DataExportJobUpdateOne) Mutation() *DataExportJobMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the DataExportJobUpdate builder.
-func (dejuo *DataExportJobUpdateOne) Where(ps ...predicate.DataExportJob) *DataExportJobUpdateOne {
-	dejuo.mutation.Where(ps...)
-	return dejuo
+func (_u *DataExportJobUpdateOne) Where(ps ...predicate.DataExportJob) *DataExportJobUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dejuo *DataExportJobUpdateOne) Select(field string, fields ...string) *DataExportJobUpdateOne {
-	dejuo.fields = append([]string{field}, fields...)
-	return dejuo
+func (_u *DataExportJobUpdateOne) Select(field string, fields ...string) *DataExportJobUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DataExportJob entity.
-func (dejuo *DataExportJobUpdateOne) Save(ctx context.Context) (*DataExportJob, error) {
-	dejuo.defaults()
-	return withHooks(ctx, dejuo.sqlSave, dejuo.mutation, dejuo.hooks)
+func (_u *DataExportJobUpdateOne) Save(ctx context.Context) (*DataExportJob, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dejuo *DataExportJobUpdateOne) SaveX(ctx context.Context) *DataExportJob {
-	node, err := dejuo.Save(ctx)
+func (_u *DataExportJobUpdateOne) SaveX(ctx context.Context) *DataExportJob {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -725,34 +725,34 @@ func (dejuo *DataExportJobUpdateOne) SaveX(ctx context.Context) *DataExportJob {
 }
 
 // Exec executes the query on the entity.
-func (dejuo *DataExportJobUpdateOne) Exec(ctx context.Context) error {
-	_, err := dejuo.Save(ctx)
+func (_u *DataExportJobUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dejuo *DataExportJobUpdateOne) ExecX(ctx context.Context) {
-	if err := dejuo.Exec(ctx); err != nil {
+func (_u *DataExportJobUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dejuo *DataExportJobUpdateOne) defaults() {
-	if _, ok := dejuo.mutation.UpdatedAt(); !ok {
+func (_u *DataExportJobUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := dataexportjob.UpdateDefaultUpdatedAt()
-		dejuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dejuo *DataExportJobUpdateOne) check() error {
-	if v, ok := dejuo.mutation.Format(); ok {
+func (_u *DataExportJobUpdateOne) check() error {
+	if v, ok := _u.mutation.Format(); ok {
 		if err := dataexportjob.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.format": %w`, err)}
 		}
 	}
-	if v, ok := dejuo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := dataexportjob.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.status": %w`, err)}
 		}
@@ -760,17 +760,17 @@ func (dejuo *DataExportJobUpdateOne) check() error {
 	return nil
 }
 
-func (dejuo *DataExportJobUpdateOne) sqlSave(ctx context.Context) (_node *DataExportJob, err error) {
-	if err := dejuo.check(); err != nil {
+func (_u *DataExportJobUpdateOne) sqlSave(ctx context.Context) (_node *DataExportJob, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(dataexportjob.Table, dataexportjob.Columns, sqlgraph.NewFieldSpec(dataexportjob.FieldID, field.TypeUUID))
-	id, ok := dejuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DataExportJob.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dejuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, dataexportjob.FieldID)
 		for _, f := range fields {
@@ -782,94 +782,94 @@ func (dejuo *DataExportJobUpdateOne) sqlSave(ctx context.Context) (_node *DataEx
 			}
 		}
 	}
-	if ps := dejuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dejuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(dataexportjob.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dejuo.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(dataexportjob.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := dejuo.mutation.Format(); ok {
+	if value, ok := _u.mutation.Format(); ok {
 		_spec.SetField(dataexportjob.FieldFormat, field.TypeEnum, value)
 	}
-	if value, ok := dejuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(dataexportjob.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := dejuo.mutation.IncludedData(); ok {
+	if value, ok := _u.mutation.IncludedData(); ok {
 		_spec.SetField(dataexportjob.FieldIncludedData, field.TypeJSON, value)
 	}
-	if value, ok := dejuo.mutation.AppendedIncludedData(); ok {
+	if value, ok := _u.mutation.AppendedIncludedData(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, dataexportjob.FieldIncludedData, value)
 		})
 	}
-	if dejuo.mutation.IncludedDataCleared() {
+	if _u.mutation.IncludedDataCleared() {
 		_spec.ClearField(dataexportjob.FieldIncludedData, field.TypeJSON)
 	}
-	if value, ok := dejuo.mutation.StorageURL(); ok {
+	if value, ok := _u.mutation.StorageURL(); ok {
 		_spec.SetField(dataexportjob.FieldStorageURL, field.TypeString, value)
 	}
-	if dejuo.mutation.StorageURLCleared() {
+	if _u.mutation.StorageURLCleared() {
 		_spec.ClearField(dataexportjob.FieldStorageURL, field.TypeString)
 	}
-	if value, ok := dejuo.mutation.ErrorMessage(); ok {
+	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(dataexportjob.FieldErrorMessage, field.TypeString, value)
 	}
-	if dejuo.mutation.ErrorMessageCleared() {
+	if _u.mutation.ErrorMessageCleared() {
 		_spec.ClearField(dataexportjob.FieldErrorMessage, field.TypeString)
 	}
-	if value, ok := dejuo.mutation.FileSizeBytes(); ok {
+	if value, ok := _u.mutation.FileSizeBytes(); ok {
 		_spec.SetField(dataexportjob.FieldFileSizeBytes, field.TypeInt, value)
 	}
-	if value, ok := dejuo.mutation.AddedFileSizeBytes(); ok {
+	if value, ok := _u.mutation.AddedFileSizeBytes(); ok {
 		_spec.AddField(dataexportjob.FieldFileSizeBytes, field.TypeInt, value)
 	}
-	if dejuo.mutation.FileSizeBytesCleared() {
+	if _u.mutation.FileSizeBytesCleared() {
 		_spec.ClearField(dataexportjob.FieldFileSizeBytes, field.TypeInt)
 	}
-	if value, ok := dejuo.mutation.RecordsExported(); ok {
+	if value, ok := _u.mutation.RecordsExported(); ok {
 		_spec.SetField(dataexportjob.FieldRecordsExported, field.TypeInt, value)
 	}
-	if value, ok := dejuo.mutation.AddedRecordsExported(); ok {
+	if value, ok := _u.mutation.AddedRecordsExported(); ok {
 		_spec.AddField(dataexportjob.FieldRecordsExported, field.TypeInt, value)
 	}
-	if dejuo.mutation.RecordsExportedCleared() {
+	if _u.mutation.RecordsExportedCleared() {
 		_spec.ClearField(dataexportjob.FieldRecordsExported, field.TypeInt)
 	}
-	if value, ok := dejuo.mutation.RequestedAt(); ok {
+	if value, ok := _u.mutation.RequestedAt(); ok {
 		_spec.SetField(dataexportjob.FieldRequestedAt, field.TypeTime, value)
 	}
-	if value, ok := dejuo.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(dataexportjob.FieldStartedAt, field.TypeTime, value)
 	}
-	if dejuo.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(dataexportjob.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := dejuo.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(dataexportjob.FieldCompletedAt, field.TypeTime, value)
 	}
-	if dejuo.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(dataexportjob.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := dejuo.mutation.ExpiresAt(); ok {
+	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(dataexportjob.FieldExpiresAt, field.TypeTime, value)
 	}
-	if dejuo.mutation.ExpiresAtCleared() {
+	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(dataexportjob.FieldExpiresAt, field.TypeTime)
 	}
-	if value, ok := dejuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(dataexportjob.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_node = &DataExportJob{config: dejuo.config}
+	_node = &DataExportJob{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dejuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{dataexportjob.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -877,6 +877,6 @@ func (dejuo *DataExportJobUpdateOne) sqlSave(ctx context.Context) (_node *DataEx
 		}
 		return nil, err
 	}
-	dejuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

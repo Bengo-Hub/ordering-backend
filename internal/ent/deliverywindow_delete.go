@@ -20,56 +20,56 @@ type DeliveryWindowDelete struct {
 }
 
 // Where appends a list predicates to the DeliveryWindowDelete builder.
-func (dwd *DeliveryWindowDelete) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowDelete {
-	dwd.mutation.Where(ps...)
-	return dwd
+func (_d *DeliveryWindowDelete) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dwd *DeliveryWindowDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dwd.sqlExec, dwd.mutation, dwd.hooks)
+func (_d *DeliveryWindowDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwd *DeliveryWindowDelete) ExecX(ctx context.Context) int {
-	n, err := dwd.Exec(ctx)
+func (_d *DeliveryWindowDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dwd *DeliveryWindowDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DeliveryWindowDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(deliverywindow.Table, sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID))
-	if ps := dwd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dwd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dwd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DeliveryWindowDeleteOne is the builder for deleting a single DeliveryWindow entity.
 type DeliveryWindowDeleteOne struct {
-	dwd *DeliveryWindowDelete
+	_d *DeliveryWindowDelete
 }
 
 // Where appends a list predicates to the DeliveryWindowDelete builder.
-func (dwdo *DeliveryWindowDeleteOne) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowDeleteOne {
-	dwdo.dwd.mutation.Where(ps...)
-	return dwdo
+func (_d *DeliveryWindowDeleteOne) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dwdo *DeliveryWindowDeleteOne) Exec(ctx context.Context) error {
-	n, err := dwdo.dwd.Exec(ctx)
+func (_d *DeliveryWindowDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dwdo *DeliveryWindowDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwdo *DeliveryWindowDeleteOne) ExecX(ctx context.Context) {
-	if err := dwdo.Exec(ctx); err != nil {
+func (_d *DeliveryWindowDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

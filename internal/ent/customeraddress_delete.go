@@ -20,56 +20,56 @@ type CustomerAddressDelete struct {
 }
 
 // Where appends a list predicates to the CustomerAddressDelete builder.
-func (cad *CustomerAddressDelete) Where(ps ...predicate.CustomerAddress) *CustomerAddressDelete {
-	cad.mutation.Where(ps...)
-	return cad
+func (_d *CustomerAddressDelete) Where(ps ...predicate.CustomerAddress) *CustomerAddressDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (cad *CustomerAddressDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, cad.sqlExec, cad.mutation, cad.hooks)
+func (_d *CustomerAddressDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cad *CustomerAddressDelete) ExecX(ctx context.Context) int {
-	n, err := cad.Exec(ctx)
+func (_d *CustomerAddressDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (cad *CustomerAddressDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *CustomerAddressDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(customeraddress.Table, sqlgraph.NewFieldSpec(customeraddress.FieldID, field.TypeUUID))
-	if ps := cad.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, cad.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	cad.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // CustomerAddressDeleteOne is the builder for deleting a single CustomerAddress entity.
 type CustomerAddressDeleteOne struct {
-	cad *CustomerAddressDelete
+	_d *CustomerAddressDelete
 }
 
 // Where appends a list predicates to the CustomerAddressDelete builder.
-func (cado *CustomerAddressDeleteOne) Where(ps ...predicate.CustomerAddress) *CustomerAddressDeleteOne {
-	cado.cad.mutation.Where(ps...)
-	return cado
+func (_d *CustomerAddressDeleteOne) Where(ps ...predicate.CustomerAddress) *CustomerAddressDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (cado *CustomerAddressDeleteOne) Exec(ctx context.Context) error {
-	n, err := cado.cad.Exec(ctx)
+func (_d *CustomerAddressDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (cado *CustomerAddressDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cado *CustomerAddressDeleteOne) ExecX(ctx context.Context) {
-	if err := cado.Exec(ctx); err != nil {
+func (_d *CustomerAddressDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

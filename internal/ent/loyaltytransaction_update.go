@@ -24,177 +24,177 @@ type LoyaltyTransactionUpdate struct {
 }
 
 // Where appends a list predicates to the LoyaltyTransactionUpdate builder.
-func (ltu *LoyaltyTransactionUpdate) Where(ps ...predicate.LoyaltyTransaction) *LoyaltyTransactionUpdate {
-	ltu.mutation.Where(ps...)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) Where(ps ...predicate.LoyaltyTransaction) *LoyaltyTransactionUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetAccountID sets the "account_id" field.
-func (ltu *LoyaltyTransactionUpdate) SetAccountID(u uuid.UUID) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetAccountID(u)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetAccountID(v uuid.UUID) *LoyaltyTransactionUpdate {
+	_u.mutation.SetAccountID(v)
+	return _u
 }
 
 // SetNillableAccountID sets the "account_id" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableAccountID(u *uuid.UUID) *LoyaltyTransactionUpdate {
-	if u != nil {
-		ltu.SetAccountID(*u)
+func (_u *LoyaltyTransactionUpdate) SetNillableAccountID(v *uuid.UUID) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetAccountID(*v)
 	}
-	return ltu
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (ltu *LoyaltyTransactionUpdate) SetOrderID(u uuid.UUID) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetOrderID(u)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetOrderID(v uuid.UUID) *LoyaltyTransactionUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableOrderID(u *uuid.UUID) *LoyaltyTransactionUpdate {
-	if u != nil {
-		ltu.SetOrderID(*u)
+func (_u *LoyaltyTransactionUpdate) SetNillableOrderID(v *uuid.UUID) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return ltu
+	return _u
 }
 
 // ClearOrderID clears the value of the "order_id" field.
-func (ltu *LoyaltyTransactionUpdate) ClearOrderID() *LoyaltyTransactionUpdate {
-	ltu.mutation.ClearOrderID()
-	return ltu
+func (_u *LoyaltyTransactionUpdate) ClearOrderID() *LoyaltyTransactionUpdate {
+	_u.mutation.ClearOrderID()
+	return _u
 }
 
 // SetPoints sets the "points" field.
-func (ltu *LoyaltyTransactionUpdate) SetPoints(i int) *LoyaltyTransactionUpdate {
-	ltu.mutation.ResetPoints()
-	ltu.mutation.SetPoints(i)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetPoints(v int) *LoyaltyTransactionUpdate {
+	_u.mutation.ResetPoints()
+	_u.mutation.SetPoints(v)
+	return _u
 }
 
 // SetNillablePoints sets the "points" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillablePoints(i *int) *LoyaltyTransactionUpdate {
-	if i != nil {
-		ltu.SetPoints(*i)
+func (_u *LoyaltyTransactionUpdate) SetNillablePoints(v *int) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetPoints(*v)
 	}
-	return ltu
+	return _u
 }
 
-// AddPoints adds i to the "points" field.
-func (ltu *LoyaltyTransactionUpdate) AddPoints(i int) *LoyaltyTransactionUpdate {
-	ltu.mutation.AddPoints(i)
-	return ltu
+// AddPoints adds value to the "points" field.
+func (_u *LoyaltyTransactionUpdate) AddPoints(v int) *LoyaltyTransactionUpdate {
+	_u.mutation.AddPoints(v)
+	return _u
 }
 
 // SetBalanceAfter sets the "balance_after" field.
-func (ltu *LoyaltyTransactionUpdate) SetBalanceAfter(i int) *LoyaltyTransactionUpdate {
-	ltu.mutation.ResetBalanceAfter()
-	ltu.mutation.SetBalanceAfter(i)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetBalanceAfter(v int) *LoyaltyTransactionUpdate {
+	_u.mutation.ResetBalanceAfter()
+	_u.mutation.SetBalanceAfter(v)
+	return _u
 }
 
 // SetNillableBalanceAfter sets the "balance_after" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableBalanceAfter(i *int) *LoyaltyTransactionUpdate {
-	if i != nil {
-		ltu.SetBalanceAfter(*i)
+func (_u *LoyaltyTransactionUpdate) SetNillableBalanceAfter(v *int) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetBalanceAfter(*v)
 	}
-	return ltu
+	return _u
 }
 
-// AddBalanceAfter adds i to the "balance_after" field.
-func (ltu *LoyaltyTransactionUpdate) AddBalanceAfter(i int) *LoyaltyTransactionUpdate {
-	ltu.mutation.AddBalanceAfter(i)
-	return ltu
+// AddBalanceAfter adds value to the "balance_after" field.
+func (_u *LoyaltyTransactionUpdate) AddBalanceAfter(v int) *LoyaltyTransactionUpdate {
+	_u.mutation.AddBalanceAfter(v)
+	return _u
 }
 
 // SetTransactionType sets the "transaction_type" field.
-func (ltu *LoyaltyTransactionUpdate) SetTransactionType(lt loyaltytransaction.TransactionType) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetTransactionType(lt)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetTransactionType(v loyaltytransaction.TransactionType) *LoyaltyTransactionUpdate {
+	_u.mutation.SetTransactionType(v)
+	return _u
 }
 
 // SetNillableTransactionType sets the "transaction_type" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableTransactionType(lt *loyaltytransaction.TransactionType) *LoyaltyTransactionUpdate {
-	if lt != nil {
-		ltu.SetTransactionType(*lt)
+func (_u *LoyaltyTransactionUpdate) SetNillableTransactionType(v *loyaltytransaction.TransactionType) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetTransactionType(*v)
 	}
-	return ltu
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (ltu *LoyaltyTransactionUpdate) SetDescription(s string) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetDescription(s)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetDescription(v string) *LoyaltyTransactionUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableDescription(s *string) *LoyaltyTransactionUpdate {
-	if s != nil {
-		ltu.SetDescription(*s)
+func (_u *LoyaltyTransactionUpdate) SetNillableDescription(v *string) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return ltu
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (ltu *LoyaltyTransactionUpdate) ClearDescription() *LoyaltyTransactionUpdate {
-	ltu.mutation.ClearDescription()
-	return ltu
+func (_u *LoyaltyTransactionUpdate) ClearDescription() *LoyaltyTransactionUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetReference sets the "reference" field.
-func (ltu *LoyaltyTransactionUpdate) SetReference(s string) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetReference(s)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetReference(v string) *LoyaltyTransactionUpdate {
+	_u.mutation.SetReference(v)
+	return _u
 }
 
 // SetNillableReference sets the "reference" field if the given value is not nil.
-func (ltu *LoyaltyTransactionUpdate) SetNillableReference(s *string) *LoyaltyTransactionUpdate {
-	if s != nil {
-		ltu.SetReference(*s)
+func (_u *LoyaltyTransactionUpdate) SetNillableReference(v *string) *LoyaltyTransactionUpdate {
+	if v != nil {
+		_u.SetReference(*v)
 	}
-	return ltu
+	return _u
 }
 
 // ClearReference clears the value of the "reference" field.
-func (ltu *LoyaltyTransactionUpdate) ClearReference() *LoyaltyTransactionUpdate {
-	ltu.mutation.ClearReference()
-	return ltu
+func (_u *LoyaltyTransactionUpdate) ClearReference() *LoyaltyTransactionUpdate {
+	_u.mutation.ClearReference()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (ltu *LoyaltyTransactionUpdate) SetMetadata(m map[string]interface{}) *LoyaltyTransactionUpdate {
-	ltu.mutation.SetMetadata(m)
-	return ltu
+func (_u *LoyaltyTransactionUpdate) SetMetadata(v map[string]interface{}) *LoyaltyTransactionUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (ltu *LoyaltyTransactionUpdate) ClearMetadata() *LoyaltyTransactionUpdate {
-	ltu.mutation.ClearMetadata()
-	return ltu
+func (_u *LoyaltyTransactionUpdate) ClearMetadata() *LoyaltyTransactionUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetAccount sets the "account" edge to the LoyaltyAccount entity.
-func (ltu *LoyaltyTransactionUpdate) SetAccount(l *LoyaltyAccount) *LoyaltyTransactionUpdate {
-	return ltu.SetAccountID(l.ID)
+func (_u *LoyaltyTransactionUpdate) SetAccount(v *LoyaltyAccount) *LoyaltyTransactionUpdate {
+	return _u.SetAccountID(v.ID)
 }
 
 // Mutation returns the LoyaltyTransactionMutation object of the builder.
-func (ltu *LoyaltyTransactionUpdate) Mutation() *LoyaltyTransactionMutation {
-	return ltu.mutation
+func (_u *LoyaltyTransactionUpdate) Mutation() *LoyaltyTransactionMutation {
+	return _u.mutation
 }
 
 // ClearAccount clears the "account" edge to the LoyaltyAccount entity.
-func (ltu *LoyaltyTransactionUpdate) ClearAccount() *LoyaltyTransactionUpdate {
-	ltu.mutation.ClearAccount()
-	return ltu
+func (_u *LoyaltyTransactionUpdate) ClearAccount() *LoyaltyTransactionUpdate {
+	_u.mutation.ClearAccount()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (ltu *LoyaltyTransactionUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, ltu.sqlSave, ltu.mutation, ltu.hooks)
+func (_u *LoyaltyTransactionUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltu *LoyaltyTransactionUpdate) SaveX(ctx context.Context) int {
-	affected, err := ltu.Save(ctx)
+func (_u *LoyaltyTransactionUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -202,88 +202,88 @@ func (ltu *LoyaltyTransactionUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (ltu *LoyaltyTransactionUpdate) Exec(ctx context.Context) error {
-	_, err := ltu.Save(ctx)
+func (_u *LoyaltyTransactionUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltu *LoyaltyTransactionUpdate) ExecX(ctx context.Context) {
-	if err := ltu.Exec(ctx); err != nil {
+func (_u *LoyaltyTransactionUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltu *LoyaltyTransactionUpdate) check() error {
-	if v, ok := ltu.mutation.TransactionType(); ok {
+func (_u *LoyaltyTransactionUpdate) check() error {
+	if v, ok := _u.mutation.TransactionType(); ok {
 		if err := loyaltytransaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.transaction_type": %w`, err)}
 		}
 	}
-	if v, ok := ltu.mutation.Reference(); ok {
+	if v, ok := _u.mutation.Reference(); ok {
 		if err := loyaltytransaction.ReferenceValidator(v); err != nil {
 			return &ValidationError{Name: "reference", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.reference": %w`, err)}
 		}
 	}
-	if _, ok := ltu.mutation.AccountID(); ltu.mutation.AccountCleared() && !ok {
+	if _u.mutation.AccountCleared() && len(_u.mutation.AccountIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "LoyaltyTransaction.account"`)
 	}
 	return nil
 }
 
-func (ltu *LoyaltyTransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := ltu.check(); err != nil {
-		return n, err
+func (_u *LoyaltyTransactionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(loyaltytransaction.Table, loyaltytransaction.Columns, sqlgraph.NewFieldSpec(loyaltytransaction.FieldID, field.TypeUUID))
-	if ps := ltu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ltu.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(loyaltytransaction.FieldOrderID, field.TypeUUID, value)
 	}
-	if ltu.mutation.OrderIDCleared() {
+	if _u.mutation.OrderIDCleared() {
 		_spec.ClearField(loyaltytransaction.FieldOrderID, field.TypeUUID)
 	}
-	if value, ok := ltu.mutation.Points(); ok {
+	if value, ok := _u.mutation.Points(); ok {
 		_spec.SetField(loyaltytransaction.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := ltu.mutation.AddedPoints(); ok {
+	if value, ok := _u.mutation.AddedPoints(); ok {
 		_spec.AddField(loyaltytransaction.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := ltu.mutation.BalanceAfter(); ok {
+	if value, ok := _u.mutation.BalanceAfter(); ok {
 		_spec.SetField(loyaltytransaction.FieldBalanceAfter, field.TypeInt, value)
 	}
-	if value, ok := ltu.mutation.AddedBalanceAfter(); ok {
+	if value, ok := _u.mutation.AddedBalanceAfter(); ok {
 		_spec.AddField(loyaltytransaction.FieldBalanceAfter, field.TypeInt, value)
 	}
-	if value, ok := ltu.mutation.TransactionType(); ok {
+	if value, ok := _u.mutation.TransactionType(); ok {
 		_spec.SetField(loyaltytransaction.FieldTransactionType, field.TypeEnum, value)
 	}
-	if value, ok := ltu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(loyaltytransaction.FieldDescription, field.TypeString, value)
 	}
-	if ltu.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(loyaltytransaction.FieldDescription, field.TypeString)
 	}
-	if value, ok := ltu.mutation.Reference(); ok {
+	if value, ok := _u.mutation.Reference(); ok {
 		_spec.SetField(loyaltytransaction.FieldReference, field.TypeString, value)
 	}
-	if ltu.mutation.ReferenceCleared() {
+	if _u.mutation.ReferenceCleared() {
 		_spec.ClearField(loyaltytransaction.FieldReference, field.TypeString)
 	}
-	if value, ok := ltu.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(loyaltytransaction.FieldMetadata, field.TypeJSON, value)
 	}
-	if ltu.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(loyaltytransaction.FieldMetadata, field.TypeJSON)
 	}
-	if ltu.mutation.AccountCleared() {
+	if _u.mutation.AccountCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -296,7 +296,7 @@ func (ltu *LoyaltyTransactionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltu.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AccountIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -312,7 +312,7 @@ func (ltu *LoyaltyTransactionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, ltu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{loyaltytransaction.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -320,8 +320,8 @@ func (ltu *LoyaltyTransactionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		return 0, err
 	}
-	ltu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // LoyaltyTransactionUpdateOne is the builder for updating a single LoyaltyTransaction entity.
@@ -333,184 +333,184 @@ type LoyaltyTransactionUpdateOne struct {
 }
 
 // SetAccountID sets the "account_id" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetAccountID(u uuid.UUID) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetAccountID(u)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetAccountID(v uuid.UUID) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetAccountID(v)
+	return _u
 }
 
 // SetNillableAccountID sets the "account_id" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableAccountID(u *uuid.UUID) *LoyaltyTransactionUpdateOne {
-	if u != nil {
-		ltuo.SetAccountID(*u)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableAccountID(v *uuid.UUID) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetAccountID(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetOrderID(u uuid.UUID) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetOrderID(u)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetOrderID(v uuid.UUID) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableOrderID(u *uuid.UUID) *LoyaltyTransactionUpdateOne {
-	if u != nil {
-		ltuo.SetOrderID(*u)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableOrderID(v *uuid.UUID) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // ClearOrderID clears the value of the "order_id" field.
-func (ltuo *LoyaltyTransactionUpdateOne) ClearOrderID() *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ClearOrderID()
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) ClearOrderID() *LoyaltyTransactionUpdateOne {
+	_u.mutation.ClearOrderID()
+	return _u
 }
 
 // SetPoints sets the "points" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetPoints(i int) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ResetPoints()
-	ltuo.mutation.SetPoints(i)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetPoints(v int) *LoyaltyTransactionUpdateOne {
+	_u.mutation.ResetPoints()
+	_u.mutation.SetPoints(v)
+	return _u
 }
 
 // SetNillablePoints sets the "points" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillablePoints(i *int) *LoyaltyTransactionUpdateOne {
-	if i != nil {
-		ltuo.SetPoints(*i)
+func (_u *LoyaltyTransactionUpdateOne) SetNillablePoints(v *int) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetPoints(*v)
 	}
-	return ltuo
+	return _u
 }
 
-// AddPoints adds i to the "points" field.
-func (ltuo *LoyaltyTransactionUpdateOne) AddPoints(i int) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.AddPoints(i)
-	return ltuo
+// AddPoints adds value to the "points" field.
+func (_u *LoyaltyTransactionUpdateOne) AddPoints(v int) *LoyaltyTransactionUpdateOne {
+	_u.mutation.AddPoints(v)
+	return _u
 }
 
 // SetBalanceAfter sets the "balance_after" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetBalanceAfter(i int) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ResetBalanceAfter()
-	ltuo.mutation.SetBalanceAfter(i)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetBalanceAfter(v int) *LoyaltyTransactionUpdateOne {
+	_u.mutation.ResetBalanceAfter()
+	_u.mutation.SetBalanceAfter(v)
+	return _u
 }
 
 // SetNillableBalanceAfter sets the "balance_after" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableBalanceAfter(i *int) *LoyaltyTransactionUpdateOne {
-	if i != nil {
-		ltuo.SetBalanceAfter(*i)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableBalanceAfter(v *int) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetBalanceAfter(*v)
 	}
-	return ltuo
+	return _u
 }
 
-// AddBalanceAfter adds i to the "balance_after" field.
-func (ltuo *LoyaltyTransactionUpdateOne) AddBalanceAfter(i int) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.AddBalanceAfter(i)
-	return ltuo
+// AddBalanceAfter adds value to the "balance_after" field.
+func (_u *LoyaltyTransactionUpdateOne) AddBalanceAfter(v int) *LoyaltyTransactionUpdateOne {
+	_u.mutation.AddBalanceAfter(v)
+	return _u
 }
 
 // SetTransactionType sets the "transaction_type" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetTransactionType(lt loyaltytransaction.TransactionType) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetTransactionType(lt)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetTransactionType(v loyaltytransaction.TransactionType) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetTransactionType(v)
+	return _u
 }
 
 // SetNillableTransactionType sets the "transaction_type" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableTransactionType(lt *loyaltytransaction.TransactionType) *LoyaltyTransactionUpdateOne {
-	if lt != nil {
-		ltuo.SetTransactionType(*lt)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableTransactionType(v *loyaltytransaction.TransactionType) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetTransactionType(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetDescription(s string) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetDescription(s)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetDescription(v string) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableDescription(s *string) *LoyaltyTransactionUpdateOne {
-	if s != nil {
-		ltuo.SetDescription(*s)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableDescription(v *string) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (ltuo *LoyaltyTransactionUpdateOne) ClearDescription() *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ClearDescription()
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) ClearDescription() *LoyaltyTransactionUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetReference sets the "reference" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetReference(s string) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetReference(s)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetReference(v string) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetReference(v)
+	return _u
 }
 
 // SetNillableReference sets the "reference" field if the given value is not nil.
-func (ltuo *LoyaltyTransactionUpdateOne) SetNillableReference(s *string) *LoyaltyTransactionUpdateOne {
-	if s != nil {
-		ltuo.SetReference(*s)
+func (_u *LoyaltyTransactionUpdateOne) SetNillableReference(v *string) *LoyaltyTransactionUpdateOne {
+	if v != nil {
+		_u.SetReference(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // ClearReference clears the value of the "reference" field.
-func (ltuo *LoyaltyTransactionUpdateOne) ClearReference() *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ClearReference()
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) ClearReference() *LoyaltyTransactionUpdateOne {
+	_u.mutation.ClearReference()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (ltuo *LoyaltyTransactionUpdateOne) SetMetadata(m map[string]interface{}) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.SetMetadata(m)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) SetMetadata(v map[string]interface{}) *LoyaltyTransactionUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (ltuo *LoyaltyTransactionUpdateOne) ClearMetadata() *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ClearMetadata()
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) ClearMetadata() *LoyaltyTransactionUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetAccount sets the "account" edge to the LoyaltyAccount entity.
-func (ltuo *LoyaltyTransactionUpdateOne) SetAccount(l *LoyaltyAccount) *LoyaltyTransactionUpdateOne {
-	return ltuo.SetAccountID(l.ID)
+func (_u *LoyaltyTransactionUpdateOne) SetAccount(v *LoyaltyAccount) *LoyaltyTransactionUpdateOne {
+	return _u.SetAccountID(v.ID)
 }
 
 // Mutation returns the LoyaltyTransactionMutation object of the builder.
-func (ltuo *LoyaltyTransactionUpdateOne) Mutation() *LoyaltyTransactionMutation {
-	return ltuo.mutation
+func (_u *LoyaltyTransactionUpdateOne) Mutation() *LoyaltyTransactionMutation {
+	return _u.mutation
 }
 
 // ClearAccount clears the "account" edge to the LoyaltyAccount entity.
-func (ltuo *LoyaltyTransactionUpdateOne) ClearAccount() *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.ClearAccount()
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) ClearAccount() *LoyaltyTransactionUpdateOne {
+	_u.mutation.ClearAccount()
+	return _u
 }
 
 // Where appends a list predicates to the LoyaltyTransactionUpdate builder.
-func (ltuo *LoyaltyTransactionUpdateOne) Where(ps ...predicate.LoyaltyTransaction) *LoyaltyTransactionUpdateOne {
-	ltuo.mutation.Where(ps...)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) Where(ps ...predicate.LoyaltyTransaction) *LoyaltyTransactionUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (ltuo *LoyaltyTransactionUpdateOne) Select(field string, fields ...string) *LoyaltyTransactionUpdateOne {
-	ltuo.fields = append([]string{field}, fields...)
-	return ltuo
+func (_u *LoyaltyTransactionUpdateOne) Select(field string, fields ...string) *LoyaltyTransactionUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated LoyaltyTransaction entity.
-func (ltuo *LoyaltyTransactionUpdateOne) Save(ctx context.Context) (*LoyaltyTransaction, error) {
-	return withHooks(ctx, ltuo.sqlSave, ltuo.mutation, ltuo.hooks)
+func (_u *LoyaltyTransactionUpdateOne) Save(ctx context.Context) (*LoyaltyTransaction, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltuo *LoyaltyTransactionUpdateOne) SaveX(ctx context.Context) *LoyaltyTransaction {
-	node, err := ltuo.Save(ctx)
+func (_u *LoyaltyTransactionUpdateOne) SaveX(ctx context.Context) *LoyaltyTransaction {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -518,47 +518,47 @@ func (ltuo *LoyaltyTransactionUpdateOne) SaveX(ctx context.Context) *LoyaltyTran
 }
 
 // Exec executes the query on the entity.
-func (ltuo *LoyaltyTransactionUpdateOne) Exec(ctx context.Context) error {
-	_, err := ltuo.Save(ctx)
+func (_u *LoyaltyTransactionUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltuo *LoyaltyTransactionUpdateOne) ExecX(ctx context.Context) {
-	if err := ltuo.Exec(ctx); err != nil {
+func (_u *LoyaltyTransactionUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltuo *LoyaltyTransactionUpdateOne) check() error {
-	if v, ok := ltuo.mutation.TransactionType(); ok {
+func (_u *LoyaltyTransactionUpdateOne) check() error {
+	if v, ok := _u.mutation.TransactionType(); ok {
 		if err := loyaltytransaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.transaction_type": %w`, err)}
 		}
 	}
-	if v, ok := ltuo.mutation.Reference(); ok {
+	if v, ok := _u.mutation.Reference(); ok {
 		if err := loyaltytransaction.ReferenceValidator(v); err != nil {
 			return &ValidationError{Name: "reference", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.reference": %w`, err)}
 		}
 	}
-	if _, ok := ltuo.mutation.AccountID(); ltuo.mutation.AccountCleared() && !ok {
+	if _u.mutation.AccountCleared() && len(_u.mutation.AccountIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "LoyaltyTransaction.account"`)
 	}
 	return nil
 }
 
-func (ltuo *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *LoyaltyTransaction, err error) {
-	if err := ltuo.check(); err != nil {
+func (_u *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *LoyaltyTransaction, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(loyaltytransaction.Table, loyaltytransaction.Columns, sqlgraph.NewFieldSpec(loyaltytransaction.FieldID, field.TypeUUID))
-	id, ok := ltuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "LoyaltyTransaction.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := ltuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, loyaltytransaction.FieldID)
 		for _, f := range fields {
@@ -570,53 +570,53 @@ func (ltuo *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *Lo
 			}
 		}
 	}
-	if ps := ltuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ltuo.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(loyaltytransaction.FieldOrderID, field.TypeUUID, value)
 	}
-	if ltuo.mutation.OrderIDCleared() {
+	if _u.mutation.OrderIDCleared() {
 		_spec.ClearField(loyaltytransaction.FieldOrderID, field.TypeUUID)
 	}
-	if value, ok := ltuo.mutation.Points(); ok {
+	if value, ok := _u.mutation.Points(); ok {
 		_spec.SetField(loyaltytransaction.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := ltuo.mutation.AddedPoints(); ok {
+	if value, ok := _u.mutation.AddedPoints(); ok {
 		_spec.AddField(loyaltytransaction.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := ltuo.mutation.BalanceAfter(); ok {
+	if value, ok := _u.mutation.BalanceAfter(); ok {
 		_spec.SetField(loyaltytransaction.FieldBalanceAfter, field.TypeInt, value)
 	}
-	if value, ok := ltuo.mutation.AddedBalanceAfter(); ok {
+	if value, ok := _u.mutation.AddedBalanceAfter(); ok {
 		_spec.AddField(loyaltytransaction.FieldBalanceAfter, field.TypeInt, value)
 	}
-	if value, ok := ltuo.mutation.TransactionType(); ok {
+	if value, ok := _u.mutation.TransactionType(); ok {
 		_spec.SetField(loyaltytransaction.FieldTransactionType, field.TypeEnum, value)
 	}
-	if value, ok := ltuo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(loyaltytransaction.FieldDescription, field.TypeString, value)
 	}
-	if ltuo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(loyaltytransaction.FieldDescription, field.TypeString)
 	}
-	if value, ok := ltuo.mutation.Reference(); ok {
+	if value, ok := _u.mutation.Reference(); ok {
 		_spec.SetField(loyaltytransaction.FieldReference, field.TypeString, value)
 	}
-	if ltuo.mutation.ReferenceCleared() {
+	if _u.mutation.ReferenceCleared() {
 		_spec.ClearField(loyaltytransaction.FieldReference, field.TypeString)
 	}
-	if value, ok := ltuo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(loyaltytransaction.FieldMetadata, field.TypeJSON, value)
 	}
-	if ltuo.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(loyaltytransaction.FieldMetadata, field.TypeJSON)
 	}
-	if ltuo.mutation.AccountCleared() {
+	if _u.mutation.AccountCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -629,7 +629,7 @@ func (ltuo *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *Lo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltuo.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AccountIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -645,10 +645,10 @@ func (ltuo *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *Lo
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &LoyaltyTransaction{config: ltuo.config}
+	_node = &LoyaltyTransaction{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, ltuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{loyaltytransaction.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -656,6 +656,6 @@ func (ltuo *LoyaltyTransactionUpdateOne) sqlSave(ctx context.Context) (_node *Lo
 		}
 		return nil, err
 	}
-	ltuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

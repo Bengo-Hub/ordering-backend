@@ -26,140 +26,140 @@ type OrderEventCreate struct {
 }
 
 // SetOrderID sets the "order_id" field.
-func (oec *OrderEventCreate) SetOrderID(u uuid.UUID) *OrderEventCreate {
-	oec.mutation.SetOrderID(u)
-	return oec
+func (_c *OrderEventCreate) SetOrderID(v uuid.UUID) *OrderEventCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetEventType sets the "event_type" field.
-func (oec *OrderEventCreate) SetEventType(s string) *OrderEventCreate {
-	oec.mutation.SetEventType(s)
-	return oec
+func (_c *OrderEventCreate) SetEventType(v string) *OrderEventCreate {
+	_c.mutation.SetEventType(v)
+	return _c
 }
 
 // SetFromStatus sets the "from_status" field.
-func (oec *OrderEventCreate) SetFromStatus(s string) *OrderEventCreate {
-	oec.mutation.SetFromStatus(s)
-	return oec
+func (_c *OrderEventCreate) SetFromStatus(v string) *OrderEventCreate {
+	_c.mutation.SetFromStatus(v)
+	return _c
 }
 
 // SetNillableFromStatus sets the "from_status" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableFromStatus(s *string) *OrderEventCreate {
-	if s != nil {
-		oec.SetFromStatus(*s)
+func (_c *OrderEventCreate) SetNillableFromStatus(v *string) *OrderEventCreate {
+	if v != nil {
+		_c.SetFromStatus(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetToStatus sets the "to_status" field.
-func (oec *OrderEventCreate) SetToStatus(s string) *OrderEventCreate {
-	oec.mutation.SetToStatus(s)
-	return oec
+func (_c *OrderEventCreate) SetToStatus(v string) *OrderEventCreate {
+	_c.mutation.SetToStatus(v)
+	return _c
 }
 
 // SetNillableToStatus sets the "to_status" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableToStatus(s *string) *OrderEventCreate {
-	if s != nil {
-		oec.SetToStatus(*s)
+func (_c *OrderEventCreate) SetNillableToStatus(v *string) *OrderEventCreate {
+	if v != nil {
+		_c.SetToStatus(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetPayload sets the "payload" field.
-func (oec *OrderEventCreate) SetPayload(m map[string]interface{}) *OrderEventCreate {
-	oec.mutation.SetPayload(m)
-	return oec
+func (_c *OrderEventCreate) SetPayload(v map[string]interface{}) *OrderEventCreate {
+	_c.mutation.SetPayload(v)
+	return _c
 }
 
 // SetActorUserID sets the "actor_user_id" field.
-func (oec *OrderEventCreate) SetActorUserID(u uuid.UUID) *OrderEventCreate {
-	oec.mutation.SetActorUserID(u)
-	return oec
+func (_c *OrderEventCreate) SetActorUserID(v uuid.UUID) *OrderEventCreate {
+	_c.mutation.SetActorUserID(v)
+	return _c
 }
 
 // SetNillableActorUserID sets the "actor_user_id" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableActorUserID(u *uuid.UUID) *OrderEventCreate {
-	if u != nil {
-		oec.SetActorUserID(*u)
+func (_c *OrderEventCreate) SetNillableActorUserID(v *uuid.UUID) *OrderEventCreate {
+	if v != nil {
+		_c.SetActorUserID(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetActorType sets the "actor_type" field.
-func (oec *OrderEventCreate) SetActorType(s string) *OrderEventCreate {
-	oec.mutation.SetActorType(s)
-	return oec
+func (_c *OrderEventCreate) SetActorType(v string) *OrderEventCreate {
+	_c.mutation.SetActorType(v)
+	return _c
 }
 
 // SetNillableActorType sets the "actor_type" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableActorType(s *string) *OrderEventCreate {
-	if s != nil {
-		oec.SetActorType(*s)
+func (_c *OrderEventCreate) SetNillableActorType(v *string) *OrderEventCreate {
+	if v != nil {
+		_c.SetActorType(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (oec *OrderEventCreate) SetIPAddress(s string) *OrderEventCreate {
-	oec.mutation.SetIPAddress(s)
-	return oec
+func (_c *OrderEventCreate) SetIPAddress(v string) *OrderEventCreate {
+	_c.mutation.SetIPAddress(v)
+	return _c
 }
 
 // SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableIPAddress(s *string) *OrderEventCreate {
-	if s != nil {
-		oec.SetIPAddress(*s)
+func (_c *OrderEventCreate) SetNillableIPAddress(v *string) *OrderEventCreate {
+	if v != nil {
+		_c.SetIPAddress(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetOccurredAt sets the "occurred_at" field.
-func (oec *OrderEventCreate) SetOccurredAt(t time.Time) *OrderEventCreate {
-	oec.mutation.SetOccurredAt(t)
-	return oec
+func (_c *OrderEventCreate) SetOccurredAt(v time.Time) *OrderEventCreate {
+	_c.mutation.SetOccurredAt(v)
+	return _c
 }
 
 // SetNillableOccurredAt sets the "occurred_at" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableOccurredAt(t *time.Time) *OrderEventCreate {
-	if t != nil {
-		oec.SetOccurredAt(*t)
+func (_c *OrderEventCreate) SetNillableOccurredAt(v *time.Time) *OrderEventCreate {
+	if v != nil {
+		_c.SetOccurredAt(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetID sets the "id" field.
-func (oec *OrderEventCreate) SetID(u uuid.UUID) *OrderEventCreate {
-	oec.mutation.SetID(u)
-	return oec
+func (_c *OrderEventCreate) SetID(v uuid.UUID) *OrderEventCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (oec *OrderEventCreate) SetNillableID(u *uuid.UUID) *OrderEventCreate {
-	if u != nil {
-		oec.SetID(*u)
+func (_c *OrderEventCreate) SetNillableID(v *uuid.UUID) *OrderEventCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return oec
+	return _c
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oec *OrderEventCreate) SetOrder(o *Order) *OrderEventCreate {
-	return oec.SetOrderID(o.ID)
+func (_c *OrderEventCreate) SetOrder(v *Order) *OrderEventCreate {
+	return _c.SetOrderID(v.ID)
 }
 
 // Mutation returns the OrderEventMutation object of the builder.
-func (oec *OrderEventCreate) Mutation() *OrderEventMutation {
-	return oec.mutation
+func (_c *OrderEventCreate) Mutation() *OrderEventMutation {
+	return _c.mutation
 }
 
 // Save creates the OrderEvent in the database.
-func (oec *OrderEventCreate) Save(ctx context.Context) (*OrderEvent, error) {
-	oec.defaults()
-	return withHooks(ctx, oec.sqlSave, oec.mutation, oec.hooks)
+func (_c *OrderEventCreate) Save(ctx context.Context) (*OrderEvent, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (oec *OrderEventCreate) SaveX(ctx context.Context) *OrderEvent {
-	v, err := oec.Save(ctx)
+func (_c *OrderEventCreate) SaveX(ctx context.Context) *OrderEvent {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -167,78 +167,78 @@ func (oec *OrderEventCreate) SaveX(ctx context.Context) *OrderEvent {
 }
 
 // Exec executes the query.
-func (oec *OrderEventCreate) Exec(ctx context.Context) error {
-	_, err := oec.Save(ctx)
+func (_c *OrderEventCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oec *OrderEventCreate) ExecX(ctx context.Context) {
-	if err := oec.Exec(ctx); err != nil {
+func (_c *OrderEventCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oec *OrderEventCreate) defaults() {
-	if _, ok := oec.mutation.OccurredAt(); !ok {
+func (_c *OrderEventCreate) defaults() {
+	if _, ok := _c.mutation.OccurredAt(); !ok {
 		v := orderevent.DefaultOccurredAt()
-		oec.mutation.SetOccurredAt(v)
+		_c.mutation.SetOccurredAt(v)
 	}
-	if _, ok := oec.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := orderevent.DefaultID()
-		oec.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oec *OrderEventCreate) check() error {
-	if _, ok := oec.mutation.OrderID(); !ok {
+func (_c *OrderEventCreate) check() error {
+	if _, ok := _c.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "OrderEvent.order_id"`)}
 	}
-	if _, ok := oec.mutation.EventType(); !ok {
+	if _, ok := _c.mutation.EventType(); !ok {
 		return &ValidationError{Name: "event_type", err: errors.New(`ent: missing required field "OrderEvent.event_type"`)}
 	}
-	if v, ok := oec.mutation.EventType(); ok {
+	if v, ok := _c.mutation.EventType(); ok {
 		if err := orderevent.EventTypeValidator(v); err != nil {
 			return &ValidationError{Name: "event_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.event_type": %w`, err)}
 		}
 	}
-	if v, ok := oec.mutation.FromStatus(); ok {
+	if v, ok := _c.mutation.FromStatus(); ok {
 		if err := orderevent.FromStatusValidator(v); err != nil {
 			return &ValidationError{Name: "from_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.from_status": %w`, err)}
 		}
 	}
-	if v, ok := oec.mutation.ToStatus(); ok {
+	if v, ok := _c.mutation.ToStatus(); ok {
 		if err := orderevent.ToStatusValidator(v); err != nil {
 			return &ValidationError{Name: "to_status", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.to_status": %w`, err)}
 		}
 	}
-	if v, ok := oec.mutation.ActorType(); ok {
+	if v, ok := _c.mutation.ActorType(); ok {
 		if err := orderevent.ActorTypeValidator(v); err != nil {
 			return &ValidationError{Name: "actor_type", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.actor_type": %w`, err)}
 		}
 	}
-	if v, ok := oec.mutation.IPAddress(); ok {
+	if v, ok := _c.mutation.IPAddress(); ok {
 		if err := orderevent.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "OrderEvent.ip_address": %w`, err)}
 		}
 	}
-	if _, ok := oec.mutation.OccurredAt(); !ok {
+	if _, ok := _c.mutation.OccurredAt(); !ok {
 		return &ValidationError{Name: "occurred_at", err: errors.New(`ent: missing required field "OrderEvent.occurred_at"`)}
 	}
-	if _, ok := oec.mutation.OrderID(); !ok {
+	if len(_c.mutation.OrderIDs()) == 0 {
 		return &ValidationError{Name: "order", err: errors.New(`ent: missing required edge "OrderEvent.order"`)}
 	}
 	return nil
 }
 
-func (oec *OrderEventCreate) sqlSave(ctx context.Context) (*OrderEvent, error) {
-	if err := oec.check(); err != nil {
+func (_c *OrderEventCreate) sqlSave(ctx context.Context) (*OrderEvent, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := oec.createSpec()
-	if err := sqlgraph.CreateNode(ctx, oec.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -251,54 +251,54 @@ func (oec *OrderEventCreate) sqlSave(ctx context.Context) (*OrderEvent, error) {
 			return nil, err
 		}
 	}
-	oec.mutation.id = &_node.ID
-	oec.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (oec *OrderEventCreate) createSpec() (*OrderEvent, *sqlgraph.CreateSpec) {
+func (_c *OrderEventCreate) createSpec() (*OrderEvent, *sqlgraph.CreateSpec) {
 	var (
-		_node = &OrderEvent{config: oec.config}
+		_node = &OrderEvent{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(orderevent.Table, sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = oec.conflict
-	if id, ok := oec.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := oec.mutation.EventType(); ok {
+	if value, ok := _c.mutation.EventType(); ok {
 		_spec.SetField(orderevent.FieldEventType, field.TypeString, value)
 		_node.EventType = value
 	}
-	if value, ok := oec.mutation.FromStatus(); ok {
+	if value, ok := _c.mutation.FromStatus(); ok {
 		_spec.SetField(orderevent.FieldFromStatus, field.TypeString, value)
 		_node.FromStatus = value
 	}
-	if value, ok := oec.mutation.ToStatus(); ok {
+	if value, ok := _c.mutation.ToStatus(); ok {
 		_spec.SetField(orderevent.FieldToStatus, field.TypeString, value)
 		_node.ToStatus = value
 	}
-	if value, ok := oec.mutation.Payload(); ok {
+	if value, ok := _c.mutation.Payload(); ok {
 		_spec.SetField(orderevent.FieldPayload, field.TypeJSON, value)
 		_node.Payload = value
 	}
-	if value, ok := oec.mutation.ActorUserID(); ok {
+	if value, ok := _c.mutation.ActorUserID(); ok {
 		_spec.SetField(orderevent.FieldActorUserID, field.TypeUUID, value)
 		_node.ActorUserID = &value
 	}
-	if value, ok := oec.mutation.ActorType(); ok {
+	if value, ok := _c.mutation.ActorType(); ok {
 		_spec.SetField(orderevent.FieldActorType, field.TypeString, value)
 		_node.ActorType = value
 	}
-	if value, ok := oec.mutation.IPAddress(); ok {
+	if value, ok := _c.mutation.IPAddress(); ok {
 		_spec.SetField(orderevent.FieldIPAddress, field.TypeString, value)
 		_node.IPAddress = value
 	}
-	if value, ok := oec.mutation.OccurredAt(); ok {
+	if value, ok := _c.mutation.OccurredAt(); ok {
 		_spec.SetField(orderevent.FieldOccurredAt, field.TypeTime, value)
 		_node.OccurredAt = value
 	}
-	if nodes := oec.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -334,10 +334,10 @@ func (oec *OrderEventCreate) createSpec() (*OrderEvent, *sqlgraph.CreateSpec) {
 //			SetOrderID(v+v).
 //		}).
 //		Exec(ctx)
-func (oec *OrderEventCreate) OnConflict(opts ...sql.ConflictOption) *OrderEventUpsertOne {
-	oec.conflict = opts
+func (_c *OrderEventCreate) OnConflict(opts ...sql.ConflictOption) *OrderEventUpsertOne {
+	_c.conflict = opts
 	return &OrderEventUpsertOne{
-		create: oec,
+		create: _c,
 	}
 }
 
@@ -347,10 +347,10 @@ func (oec *OrderEventCreate) OnConflict(opts ...sql.ConflictOption) *OrderEventU
 //	client.OrderEvent.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (oec *OrderEventCreate) OnConflictColumns(columns ...string) *OrderEventUpsertOne {
-	oec.conflict = append(oec.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderEventCreate) OnConflictColumns(columns ...string) *OrderEventUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderEventUpsertOne{
-		create: oec,
+		create: _c,
 	}
 }
 
@@ -751,16 +751,16 @@ type OrderEventCreateBulk struct {
 }
 
 // Save creates the OrderEvent entities in the database.
-func (oecb *OrderEventCreateBulk) Save(ctx context.Context) ([]*OrderEvent, error) {
-	if oecb.err != nil {
-		return nil, oecb.err
+func (_c *OrderEventCreateBulk) Save(ctx context.Context) ([]*OrderEvent, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(oecb.builders))
-	nodes := make([]*OrderEvent, len(oecb.builders))
-	mutators := make([]Mutator, len(oecb.builders))
-	for i := range oecb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*OrderEvent, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := oecb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*OrderEventMutation)
@@ -774,12 +774,12 @@ func (oecb *OrderEventCreateBulk) Save(ctx context.Context) ([]*OrderEvent, erro
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, oecb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = oecb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, oecb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -799,7 +799,7 @@ func (oecb *OrderEventCreateBulk) Save(ctx context.Context) ([]*OrderEvent, erro
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, oecb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -807,8 +807,8 @@ func (oecb *OrderEventCreateBulk) Save(ctx context.Context) ([]*OrderEvent, erro
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oecb *OrderEventCreateBulk) SaveX(ctx context.Context) []*OrderEvent {
-	v, err := oecb.Save(ctx)
+func (_c *OrderEventCreateBulk) SaveX(ctx context.Context) []*OrderEvent {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -816,14 +816,14 @@ func (oecb *OrderEventCreateBulk) SaveX(ctx context.Context) []*OrderEvent {
 }
 
 // Exec executes the query.
-func (oecb *OrderEventCreateBulk) Exec(ctx context.Context) error {
-	_, err := oecb.Save(ctx)
+func (_c *OrderEventCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oecb *OrderEventCreateBulk) ExecX(ctx context.Context) {
-	if err := oecb.Exec(ctx); err != nil {
+func (_c *OrderEventCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -843,10 +843,10 @@ func (oecb *OrderEventCreateBulk) ExecX(ctx context.Context) {
 //			SetOrderID(v+v).
 //		}).
 //		Exec(ctx)
-func (oecb *OrderEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderEventUpsertBulk {
-	oecb.conflict = opts
+func (_c *OrderEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderEventUpsertBulk {
+	_c.conflict = opts
 	return &OrderEventUpsertBulk{
-		create: oecb,
+		create: _c,
 	}
 }
 
@@ -856,10 +856,10 @@ func (oecb *OrderEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderE
 //	client.OrderEvent.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (oecb *OrderEventCreateBulk) OnConflictColumns(columns ...string) *OrderEventUpsertBulk {
-	oecb.conflict = append(oecb.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderEventCreateBulk) OnConflictColumns(columns ...string) *OrderEventUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderEventUpsertBulk{
-		create: oecb,
+		create: _c,
 	}
 }
 

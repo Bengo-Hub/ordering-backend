@@ -11,8 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
@@ -28,412 +26,340 @@ type OutletUpdate struct {
 }
 
 // Where appends a list predicates to the OutletUpdate builder.
-func (ou *OutletUpdate) Where(ps ...predicate.Outlet) *OutletUpdate {
-	ou.mutation.Where(ps...)
-	return ou
+func (_u *OutletUpdate) Where(ps ...predicate.Outlet) *OutletUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (ou *OutletUpdate) SetTenantID(u uuid.UUID) *OutletUpdate {
-	ou.mutation.SetTenantID(u)
-	return ou
+func (_u *OutletUpdate) SetTenantID(v uuid.UUID) *OutletUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableTenantID(u *uuid.UUID) *OutletUpdate {
-	if u != nil {
-		ou.SetTenantID(*u)
+func (_u *OutletUpdate) SetNillableTenantID(v *uuid.UUID) *OutletUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return ou
+	return _u
 }
 
 // SetName sets the "name" field.
-func (ou *OutletUpdate) SetName(s string) *OutletUpdate {
-	ou.mutation.SetName(s)
-	return ou
+func (_u *OutletUpdate) SetName(v string) *OutletUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableName(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetName(*s)
+func (_u *OutletUpdate) SetNillableName(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return ou
+	return _u
 }
 
 // SetSlug sets the "slug" field.
-func (ou *OutletUpdate) SetSlug(s string) *OutletUpdate {
-	ou.mutation.SetSlug(s)
-	return ou
+func (_u *OutletUpdate) SetSlug(v string) *OutletUpdate {
+	_u.mutation.SetSlug(v)
+	return _u
 }
 
 // SetNillableSlug sets the "slug" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableSlug(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetSlug(*s)
+func (_u *OutletUpdate) SetNillableSlug(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetSlug(*v)
 	}
-	return ou
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (ou *OutletUpdate) SetDescription(s string) *OutletUpdate {
-	ou.mutation.SetDescription(s)
-	return ou
+func (_u *OutletUpdate) SetDescription(v string) *OutletUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableDescription(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetDescription(*s)
+func (_u *OutletUpdate) SetNillableDescription(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (ou *OutletUpdate) ClearDescription() *OutletUpdate {
-	ou.mutation.ClearDescription()
-	return ou
+func (_u *OutletUpdate) ClearDescription() *OutletUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetAddress sets the "address" field.
-func (ou *OutletUpdate) SetAddress(s string) *OutletUpdate {
-	ou.mutation.SetAddress(s)
-	return ou
+func (_u *OutletUpdate) SetAddress(v string) *OutletUpdate {
+	_u.mutation.SetAddress(v)
+	return _u
 }
 
 // SetNillableAddress sets the "address" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableAddress(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetAddress(*s)
+func (_u *OutletUpdate) SetNillableAddress(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetAddress(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearAddress clears the value of the "address" field.
-func (ou *OutletUpdate) ClearAddress() *OutletUpdate {
-	ou.mutation.ClearAddress()
-	return ou
+func (_u *OutletUpdate) ClearAddress() *OutletUpdate {
+	_u.mutation.ClearAddress()
+	return _u
 }
 
 // SetPhone sets the "phone" field.
-func (ou *OutletUpdate) SetPhone(s string) *OutletUpdate {
-	ou.mutation.SetPhone(s)
-	return ou
+func (_u *OutletUpdate) SetPhone(v string) *OutletUpdate {
+	_u.mutation.SetPhone(v)
+	return _u
 }
 
 // SetNillablePhone sets the "phone" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillablePhone(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetPhone(*s)
+func (_u *OutletUpdate) SetNillablePhone(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetPhone(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearPhone clears the value of the "phone" field.
-func (ou *OutletUpdate) ClearPhone() *OutletUpdate {
-	ou.mutation.ClearPhone()
-	return ou
+func (_u *OutletUpdate) ClearPhone() *OutletUpdate {
+	_u.mutation.ClearPhone()
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (ou *OutletUpdate) SetEmail(s string) *OutletUpdate {
-	ou.mutation.SetEmail(s)
-	return ou
+func (_u *OutletUpdate) SetEmail(v string) *OutletUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableEmail(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetEmail(*s)
+func (_u *OutletUpdate) SetNillableEmail(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (ou *OutletUpdate) ClearEmail() *OutletUpdate {
-	ou.mutation.ClearEmail()
-	return ou
+func (_u *OutletUpdate) ClearEmail() *OutletUpdate {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetLocation sets the "location" field.
-func (ou *OutletUpdate) SetLocation(s string) *OutletUpdate {
-	ou.mutation.SetLocation(s)
-	return ou
+func (_u *OutletUpdate) SetLocation(v string) *OutletUpdate {
+	_u.mutation.SetLocation(v)
+	return _u
 }
 
 // SetNillableLocation sets the "location" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableLocation(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetLocation(*s)
+func (_u *OutletUpdate) SetNillableLocation(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetLocation(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearLocation clears the value of the "location" field.
-func (ou *OutletUpdate) ClearLocation() *OutletUpdate {
-	ou.mutation.ClearLocation()
-	return ou
+func (_u *OutletUpdate) ClearLocation() *OutletUpdate {
+	_u.mutation.ClearLocation()
+	return _u
 }
 
 // SetLatitude sets the "latitude" field.
-func (ou *OutletUpdate) SetLatitude(f float64) *OutletUpdate {
-	ou.mutation.ResetLatitude()
-	ou.mutation.SetLatitude(f)
-	return ou
+func (_u *OutletUpdate) SetLatitude(v float64) *OutletUpdate {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableLatitude(f *float64) *OutletUpdate {
-	if f != nil {
-		ou.SetLatitude(*f)
+func (_u *OutletUpdate) SetNillableLatitude(v *float64) *OutletUpdate {
+	if v != nil {
+		_u.SetLatitude(*v)
 	}
-	return ou
+	return _u
 }
 
-// AddLatitude adds f to the "latitude" field.
-func (ou *OutletUpdate) AddLatitude(f float64) *OutletUpdate {
-	ou.mutation.AddLatitude(f)
-	return ou
+// AddLatitude adds value to the "latitude" field.
+func (_u *OutletUpdate) AddLatitude(v float64) *OutletUpdate {
+	_u.mutation.AddLatitude(v)
+	return _u
 }
 
 // ClearLatitude clears the value of the "latitude" field.
-func (ou *OutletUpdate) ClearLatitude() *OutletUpdate {
-	ou.mutation.ClearLatitude()
-	return ou
+func (_u *OutletUpdate) ClearLatitude() *OutletUpdate {
+	_u.mutation.ClearLatitude()
+	return _u
 }
 
 // SetLongitude sets the "longitude" field.
-func (ou *OutletUpdate) SetLongitude(f float64) *OutletUpdate {
-	ou.mutation.ResetLongitude()
-	ou.mutation.SetLongitude(f)
-	return ou
+func (_u *OutletUpdate) SetLongitude(v float64) *OutletUpdate {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableLongitude(f *float64) *OutletUpdate {
-	if f != nil {
-		ou.SetLongitude(*f)
+func (_u *OutletUpdate) SetNillableLongitude(v *float64) *OutletUpdate {
+	if v != nil {
+		_u.SetLongitude(*v)
 	}
-	return ou
+	return _u
 }
 
-// AddLongitude adds f to the "longitude" field.
-func (ou *OutletUpdate) AddLongitude(f float64) *OutletUpdate {
-	ou.mutation.AddLongitude(f)
-	return ou
+// AddLongitude adds value to the "longitude" field.
+func (_u *OutletUpdate) AddLongitude(v float64) *OutletUpdate {
+	_u.mutation.AddLongitude(v)
+	return _u
 }
 
 // ClearLongitude clears the value of the "longitude" field.
-func (ou *OutletUpdate) ClearLongitude() *OutletUpdate {
-	ou.mutation.ClearLongitude()
-	return ou
+func (_u *OutletUpdate) ClearLongitude() *OutletUpdate {
+	_u.mutation.ClearLongitude()
+	return _u
 }
 
 // SetOpeningHours sets the "opening_hours" field.
-func (ou *OutletUpdate) SetOpeningHours(m map[string]interface{}) *OutletUpdate {
-	ou.mutation.SetOpeningHours(m)
-	return ou
+func (_u *OutletUpdate) SetOpeningHours(v map[string]interface{}) *OutletUpdate {
+	_u.mutation.SetOpeningHours(v)
+	return _u
 }
 
 // ClearOpeningHours clears the value of the "opening_hours" field.
-func (ou *OutletUpdate) ClearOpeningHours() *OutletUpdate {
-	ou.mutation.ClearOpeningHours()
-	return ou
+func (_u *OutletUpdate) ClearOpeningHours() *OutletUpdate {
+	_u.mutation.ClearOpeningHours()
+	return _u
 }
 
 // SetImageURL sets the "image_url" field.
-func (ou *OutletUpdate) SetImageURL(s string) *OutletUpdate {
-	ou.mutation.SetImageURL(s)
-	return ou
+func (_u *OutletUpdate) SetImageURL(v string) *OutletUpdate {
+	_u.mutation.SetImageURL(v)
+	return _u
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableImageURL(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetImageURL(*s)
+func (_u *OutletUpdate) SetNillableImageURL(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetImageURL(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearImageURL clears the value of the "image_url" field.
-func (ou *OutletUpdate) ClearImageURL() *OutletUpdate {
-	ou.mutation.ClearImageURL()
-	return ou
+func (_u *OutletUpdate) ClearImageURL() *OutletUpdate {
+	_u.mutation.ClearImageURL()
+	return _u
 }
 
 // SetUseCase sets the "use_case" field.
-func (ou *OutletUpdate) SetUseCase(s string) *OutletUpdate {
-	ou.mutation.SetUseCase(s)
-	return ou
+func (_u *OutletUpdate) SetUseCase(v string) *OutletUpdate {
+	_u.mutation.SetUseCase(v)
+	return _u
 }
 
 // SetNillableUseCase sets the "use_case" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableUseCase(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetUseCase(*s)
+func (_u *OutletUpdate) SetNillableUseCase(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetUseCase(*v)
 	}
-	return ou
+	return _u
 }
 
 // ClearUseCase clears the value of the "use_case" field.
-func (ou *OutletUpdate) ClearUseCase() *OutletUpdate {
-	ou.mutation.ClearUseCase()
-	return ou
+func (_u *OutletUpdate) ClearUseCase() *OutletUpdate {
+	_u.mutation.ClearUseCase()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (ou *OutletUpdate) SetStatus(s string) *OutletUpdate {
-	ou.mutation.SetStatus(s)
-	return ou
+func (_u *OutletUpdate) SetStatus(v string) *OutletUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (ou *OutletUpdate) SetNillableStatus(s *string) *OutletUpdate {
-	if s != nil {
-		ou.SetStatus(*s)
+func (_u *OutletUpdate) SetNillableStatus(v *string) *OutletUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return ou
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ou *OutletUpdate) SetUpdatedAt(t time.Time) *OutletUpdate {
-	ou.mutation.SetUpdatedAt(t)
-	return ou
+func (_u *OutletUpdate) SetUpdatedAt(v time.Time) *OutletUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (ou *OutletUpdate) SetTenant(t *Tenant) *OutletUpdate {
-	return ou.SetTenantID(t.ID)
-}
-
-// AddCatalogCategoryIDs adds the "catalog_categories" edge to the CatalogCategory entity by IDs.
-func (ou *OutletUpdate) AddCatalogCategoryIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.AddCatalogCategoryIDs(ids...)
-	return ou
-}
-
-// AddCatalogCategories adds the "catalog_categories" edges to the CatalogCategory entity.
-func (ou *OutletUpdate) AddCatalogCategories(c ...*CatalogCategory) *OutletUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ou.AddCatalogCategoryIDs(ids...)
-}
-
-// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
-func (ou *OutletUpdate) AddCatalogItemIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.AddCatalogItemIDs(ids...)
-	return ou
-}
-
-// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
-func (ou *OutletUpdate) AddCatalogItems(c ...*CatalogItem) *OutletUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ou.AddCatalogItemIDs(ids...)
+func (_u *OutletUpdate) SetTenant(v *Tenant) *OutletUpdate {
+	return _u.SetTenantID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (ou *OutletUpdate) AddOrderIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.AddOrderIDs(ids...)
-	return ou
+func (_u *OutletUpdate) AddOrderIDs(ids ...uuid.UUID) *OutletUpdate {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (ou *OutletUpdate) AddOrders(o ...*Order) *OutletUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OutletUpdate) AddOrders(v ...*Order) *OutletUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ou.AddOrderIDs(ids...)
+	return _u.AddOrderIDs(ids...)
 }
 
 // Mutation returns the OutletMutation object of the builder.
-func (ou *OutletUpdate) Mutation() *OutletMutation {
-	return ou.mutation
+func (_u *OutletUpdate) Mutation() *OutletMutation {
+	return _u.mutation
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
-func (ou *OutletUpdate) ClearTenant() *OutletUpdate {
-	ou.mutation.ClearTenant()
-	return ou
-}
-
-// ClearCatalogCategories clears all "catalog_categories" edges to the CatalogCategory entity.
-func (ou *OutletUpdate) ClearCatalogCategories() *OutletUpdate {
-	ou.mutation.ClearCatalogCategories()
-	return ou
-}
-
-// RemoveCatalogCategoryIDs removes the "catalog_categories" edge to CatalogCategory entities by IDs.
-func (ou *OutletUpdate) RemoveCatalogCategoryIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.RemoveCatalogCategoryIDs(ids...)
-	return ou
-}
-
-// RemoveCatalogCategories removes "catalog_categories" edges to CatalogCategory entities.
-func (ou *OutletUpdate) RemoveCatalogCategories(c ...*CatalogCategory) *OutletUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ou.RemoveCatalogCategoryIDs(ids...)
-}
-
-// ClearCatalogItems clears all "catalog_items" edges to the CatalogItem entity.
-func (ou *OutletUpdate) ClearCatalogItems() *OutletUpdate {
-	ou.mutation.ClearCatalogItems()
-	return ou
-}
-
-// RemoveCatalogItemIDs removes the "catalog_items" edge to CatalogItem entities by IDs.
-func (ou *OutletUpdate) RemoveCatalogItemIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.RemoveCatalogItemIDs(ids...)
-	return ou
-}
-
-// RemoveCatalogItems removes "catalog_items" edges to CatalogItem entities.
-func (ou *OutletUpdate) RemoveCatalogItems(c ...*CatalogItem) *OutletUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ou.RemoveCatalogItemIDs(ids...)
+func (_u *OutletUpdate) ClearTenant() *OutletUpdate {
+	_u.mutation.ClearTenant()
+	return _u
 }
 
 // ClearOrders clears all "orders" edges to the Order entity.
-func (ou *OutletUpdate) ClearOrders() *OutletUpdate {
-	ou.mutation.ClearOrders()
-	return ou
+func (_u *OutletUpdate) ClearOrders() *OutletUpdate {
+	_u.mutation.ClearOrders()
+	return _u
 }
 
 // RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
-func (ou *OutletUpdate) RemoveOrderIDs(ids ...uuid.UUID) *OutletUpdate {
-	ou.mutation.RemoveOrderIDs(ids...)
-	return ou
+func (_u *OutletUpdate) RemoveOrderIDs(ids ...uuid.UUID) *OutletUpdate {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
 }
 
 // RemoveOrders removes "orders" edges to Order entities.
-func (ou *OutletUpdate) RemoveOrders(o ...*Order) *OutletUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OutletUpdate) RemoveOrders(v ...*Order) *OutletUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ou.RemoveOrderIDs(ids...)
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (ou *OutletUpdate) Save(ctx context.Context) (int, error) {
-	ou.defaults()
-	return withHooks(ctx, ou.sqlSave, ou.mutation, ou.hooks)
+func (_u *OutletUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ou *OutletUpdate) SaveX(ctx context.Context) int {
-	affected, err := ou.Save(ctx)
+func (_u *OutletUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -441,135 +367,135 @@ func (ou *OutletUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (ou *OutletUpdate) Exec(ctx context.Context) error {
-	_, err := ou.Save(ctx)
+func (_u *OutletUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ou *OutletUpdate) ExecX(ctx context.Context) {
-	if err := ou.Exec(ctx); err != nil {
+func (_u *OutletUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ou *OutletUpdate) defaults() {
-	if _, ok := ou.mutation.UpdatedAt(); !ok {
+func (_u *OutletUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := outlet.UpdateDefaultUpdatedAt()
-		ou.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ou *OutletUpdate) check() error {
-	if v, ok := ou.mutation.Name(); ok {
+func (_u *OutletUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := outlet.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Outlet.name": %w`, err)}
 		}
 	}
-	if v, ok := ou.mutation.Slug(); ok {
+	if v, ok := _u.mutation.Slug(); ok {
 		if err := outlet.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
 	}
-	if _, ok := ou.mutation.TenantID(); ou.mutation.TenantCleared() && !ok {
+	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Outlet.tenant"`)
 	}
 	return nil
 }
 
-func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := ou.check(); err != nil {
-		return n, err
+func (_u *OutletUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(outlet.Table, outlet.Columns, sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID))
-	if ps := ou.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ou.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(outlet.FieldName, field.TypeString, value)
 	}
-	if value, ok := ou.mutation.Slug(); ok {
+	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(outlet.FieldSlug, field.TypeString, value)
 	}
-	if value, ok := ou.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(outlet.FieldDescription, field.TypeString, value)
 	}
-	if ou.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(outlet.FieldDescription, field.TypeString)
 	}
-	if value, ok := ou.mutation.Address(); ok {
+	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(outlet.FieldAddress, field.TypeString, value)
 	}
-	if ou.mutation.AddressCleared() {
+	if _u.mutation.AddressCleared() {
 		_spec.ClearField(outlet.FieldAddress, field.TypeString)
 	}
-	if value, ok := ou.mutation.Phone(); ok {
+	if value, ok := _u.mutation.Phone(); ok {
 		_spec.SetField(outlet.FieldPhone, field.TypeString, value)
 	}
-	if ou.mutation.PhoneCleared() {
+	if _u.mutation.PhoneCleared() {
 		_spec.ClearField(outlet.FieldPhone, field.TypeString)
 	}
-	if value, ok := ou.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(outlet.FieldEmail, field.TypeString, value)
 	}
-	if ou.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(outlet.FieldEmail, field.TypeString)
 	}
-	if value, ok := ou.mutation.Location(); ok {
+	if value, ok := _u.mutation.Location(); ok {
 		_spec.SetField(outlet.FieldLocation, field.TypeString, value)
 	}
-	if ou.mutation.LocationCleared() {
+	if _u.mutation.LocationCleared() {
 		_spec.ClearField(outlet.FieldLocation, field.TypeString)
 	}
-	if value, ok := ou.mutation.Latitude(); ok {
+	if value, ok := _u.mutation.Latitude(); ok {
 		_spec.SetField(outlet.FieldLatitude, field.TypeFloat64, value)
 	}
-	if value, ok := ou.mutation.AddedLatitude(); ok {
+	if value, ok := _u.mutation.AddedLatitude(); ok {
 		_spec.AddField(outlet.FieldLatitude, field.TypeFloat64, value)
 	}
-	if ou.mutation.LatitudeCleared() {
+	if _u.mutation.LatitudeCleared() {
 		_spec.ClearField(outlet.FieldLatitude, field.TypeFloat64)
 	}
-	if value, ok := ou.mutation.Longitude(); ok {
+	if value, ok := _u.mutation.Longitude(); ok {
 		_spec.SetField(outlet.FieldLongitude, field.TypeFloat64, value)
 	}
-	if value, ok := ou.mutation.AddedLongitude(); ok {
+	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(outlet.FieldLongitude, field.TypeFloat64, value)
 	}
-	if ou.mutation.LongitudeCleared() {
+	if _u.mutation.LongitudeCleared() {
 		_spec.ClearField(outlet.FieldLongitude, field.TypeFloat64)
 	}
-	if value, ok := ou.mutation.OpeningHours(); ok {
+	if value, ok := _u.mutation.OpeningHours(); ok {
 		_spec.SetField(outlet.FieldOpeningHours, field.TypeJSON, value)
 	}
-	if ou.mutation.OpeningHoursCleared() {
+	if _u.mutation.OpeningHoursCleared() {
 		_spec.ClearField(outlet.FieldOpeningHours, field.TypeJSON)
 	}
-	if value, ok := ou.mutation.ImageURL(); ok {
+	if value, ok := _u.mutation.ImageURL(); ok {
 		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
 	}
-	if ou.mutation.ImageURLCleared() {
+	if _u.mutation.ImageURLCleared() {
 		_spec.ClearField(outlet.FieldImageURL, field.TypeString)
 	}
-	if value, ok := ou.mutation.UseCase(); ok {
+	if value, ok := _u.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
 	}
-	if ou.mutation.UseCaseCleared() {
+	if _u.mutation.UseCaseCleared() {
 		_spec.ClearField(outlet.FieldUseCase, field.TypeString)
 	}
-	if value, ok := ou.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
 	}
-	if value, ok := ou.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(outlet.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ou.mutation.TenantCleared() {
+	if _u.mutation.TenantCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -582,7 +508,7 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ou.mutation.TenantIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TenantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -598,97 +524,7 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ou.mutation.CatalogCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedCatalogCategoriesIDs(); len(nodes) > 0 && !ou.mutation.CatalogCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.CatalogCategoriesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ou.mutation.CatalogItemsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedCatalogItemsIDs(); len(nodes) > 0 && !ou.mutation.CatalogItemsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.CatalogItemsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ou.mutation.OrdersCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -701,7 +537,7 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ou.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !ou.mutation.OrdersCleared() {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -717,7 +553,7 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ou.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -733,7 +569,7 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{outlet.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -741,8 +577,8 @@ func (ou *OutletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	ou.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // OutletUpdateOne is the builder for updating a single Outlet entity.
@@ -754,419 +590,347 @@ type OutletUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (ouo *OutletUpdateOne) SetTenantID(u uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.SetTenantID(u)
-	return ouo
+func (_u *OutletUpdateOne) SetTenantID(v uuid.UUID) *OutletUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableTenantID(u *uuid.UUID) *OutletUpdateOne {
-	if u != nil {
-		ouo.SetTenantID(*u)
+func (_u *OutletUpdateOne) SetNillableTenantID(v *uuid.UUID) *OutletUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return ouo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (ouo *OutletUpdateOne) SetName(s string) *OutletUpdateOne {
-	ouo.mutation.SetName(s)
-	return ouo
+func (_u *OutletUpdateOne) SetName(v string) *OutletUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableName(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetName(*s)
+func (_u *OutletUpdateOne) SetNillableName(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return ouo
+	return _u
 }
 
 // SetSlug sets the "slug" field.
-func (ouo *OutletUpdateOne) SetSlug(s string) *OutletUpdateOne {
-	ouo.mutation.SetSlug(s)
-	return ouo
+func (_u *OutletUpdateOne) SetSlug(v string) *OutletUpdateOne {
+	_u.mutation.SetSlug(v)
+	return _u
 }
 
 // SetNillableSlug sets the "slug" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableSlug(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetSlug(*s)
+func (_u *OutletUpdateOne) SetNillableSlug(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetSlug(*v)
 	}
-	return ouo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (ouo *OutletUpdateOne) SetDescription(s string) *OutletUpdateOne {
-	ouo.mutation.SetDescription(s)
-	return ouo
+func (_u *OutletUpdateOne) SetDescription(v string) *OutletUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableDescription(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetDescription(*s)
+func (_u *OutletUpdateOne) SetNillableDescription(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (ouo *OutletUpdateOne) ClearDescription() *OutletUpdateOne {
-	ouo.mutation.ClearDescription()
-	return ouo
+func (_u *OutletUpdateOne) ClearDescription() *OutletUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetAddress sets the "address" field.
-func (ouo *OutletUpdateOne) SetAddress(s string) *OutletUpdateOne {
-	ouo.mutation.SetAddress(s)
-	return ouo
+func (_u *OutletUpdateOne) SetAddress(v string) *OutletUpdateOne {
+	_u.mutation.SetAddress(v)
+	return _u
 }
 
 // SetNillableAddress sets the "address" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableAddress(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetAddress(*s)
+func (_u *OutletUpdateOne) SetNillableAddress(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetAddress(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearAddress clears the value of the "address" field.
-func (ouo *OutletUpdateOne) ClearAddress() *OutletUpdateOne {
-	ouo.mutation.ClearAddress()
-	return ouo
+func (_u *OutletUpdateOne) ClearAddress() *OutletUpdateOne {
+	_u.mutation.ClearAddress()
+	return _u
 }
 
 // SetPhone sets the "phone" field.
-func (ouo *OutletUpdateOne) SetPhone(s string) *OutletUpdateOne {
-	ouo.mutation.SetPhone(s)
-	return ouo
+func (_u *OutletUpdateOne) SetPhone(v string) *OutletUpdateOne {
+	_u.mutation.SetPhone(v)
+	return _u
 }
 
 // SetNillablePhone sets the "phone" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillablePhone(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetPhone(*s)
+func (_u *OutletUpdateOne) SetNillablePhone(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetPhone(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearPhone clears the value of the "phone" field.
-func (ouo *OutletUpdateOne) ClearPhone() *OutletUpdateOne {
-	ouo.mutation.ClearPhone()
-	return ouo
+func (_u *OutletUpdateOne) ClearPhone() *OutletUpdateOne {
+	_u.mutation.ClearPhone()
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (ouo *OutletUpdateOne) SetEmail(s string) *OutletUpdateOne {
-	ouo.mutation.SetEmail(s)
-	return ouo
+func (_u *OutletUpdateOne) SetEmail(v string) *OutletUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableEmail(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetEmail(*s)
+func (_u *OutletUpdateOne) SetNillableEmail(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (ouo *OutletUpdateOne) ClearEmail() *OutletUpdateOne {
-	ouo.mutation.ClearEmail()
-	return ouo
+func (_u *OutletUpdateOne) ClearEmail() *OutletUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetLocation sets the "location" field.
-func (ouo *OutletUpdateOne) SetLocation(s string) *OutletUpdateOne {
-	ouo.mutation.SetLocation(s)
-	return ouo
+func (_u *OutletUpdateOne) SetLocation(v string) *OutletUpdateOne {
+	_u.mutation.SetLocation(v)
+	return _u
 }
 
 // SetNillableLocation sets the "location" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableLocation(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetLocation(*s)
+func (_u *OutletUpdateOne) SetNillableLocation(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetLocation(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearLocation clears the value of the "location" field.
-func (ouo *OutletUpdateOne) ClearLocation() *OutletUpdateOne {
-	ouo.mutation.ClearLocation()
-	return ouo
+func (_u *OutletUpdateOne) ClearLocation() *OutletUpdateOne {
+	_u.mutation.ClearLocation()
+	return _u
 }
 
 // SetLatitude sets the "latitude" field.
-func (ouo *OutletUpdateOne) SetLatitude(f float64) *OutletUpdateOne {
-	ouo.mutation.ResetLatitude()
-	ouo.mutation.SetLatitude(f)
-	return ouo
+func (_u *OutletUpdateOne) SetLatitude(v float64) *OutletUpdateOne {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableLatitude(f *float64) *OutletUpdateOne {
-	if f != nil {
-		ouo.SetLatitude(*f)
+func (_u *OutletUpdateOne) SetNillableLatitude(v *float64) *OutletUpdateOne {
+	if v != nil {
+		_u.SetLatitude(*v)
 	}
-	return ouo
+	return _u
 }
 
-// AddLatitude adds f to the "latitude" field.
-func (ouo *OutletUpdateOne) AddLatitude(f float64) *OutletUpdateOne {
-	ouo.mutation.AddLatitude(f)
-	return ouo
+// AddLatitude adds value to the "latitude" field.
+func (_u *OutletUpdateOne) AddLatitude(v float64) *OutletUpdateOne {
+	_u.mutation.AddLatitude(v)
+	return _u
 }
 
 // ClearLatitude clears the value of the "latitude" field.
-func (ouo *OutletUpdateOne) ClearLatitude() *OutletUpdateOne {
-	ouo.mutation.ClearLatitude()
-	return ouo
+func (_u *OutletUpdateOne) ClearLatitude() *OutletUpdateOne {
+	_u.mutation.ClearLatitude()
+	return _u
 }
 
 // SetLongitude sets the "longitude" field.
-func (ouo *OutletUpdateOne) SetLongitude(f float64) *OutletUpdateOne {
-	ouo.mutation.ResetLongitude()
-	ouo.mutation.SetLongitude(f)
-	return ouo
+func (_u *OutletUpdateOne) SetLongitude(v float64) *OutletUpdateOne {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableLongitude(f *float64) *OutletUpdateOne {
-	if f != nil {
-		ouo.SetLongitude(*f)
+func (_u *OutletUpdateOne) SetNillableLongitude(v *float64) *OutletUpdateOne {
+	if v != nil {
+		_u.SetLongitude(*v)
 	}
-	return ouo
+	return _u
 }
 
-// AddLongitude adds f to the "longitude" field.
-func (ouo *OutletUpdateOne) AddLongitude(f float64) *OutletUpdateOne {
-	ouo.mutation.AddLongitude(f)
-	return ouo
+// AddLongitude adds value to the "longitude" field.
+func (_u *OutletUpdateOne) AddLongitude(v float64) *OutletUpdateOne {
+	_u.mutation.AddLongitude(v)
+	return _u
 }
 
 // ClearLongitude clears the value of the "longitude" field.
-func (ouo *OutletUpdateOne) ClearLongitude() *OutletUpdateOne {
-	ouo.mutation.ClearLongitude()
-	return ouo
+func (_u *OutletUpdateOne) ClearLongitude() *OutletUpdateOne {
+	_u.mutation.ClearLongitude()
+	return _u
 }
 
 // SetOpeningHours sets the "opening_hours" field.
-func (ouo *OutletUpdateOne) SetOpeningHours(m map[string]interface{}) *OutletUpdateOne {
-	ouo.mutation.SetOpeningHours(m)
-	return ouo
+func (_u *OutletUpdateOne) SetOpeningHours(v map[string]interface{}) *OutletUpdateOne {
+	_u.mutation.SetOpeningHours(v)
+	return _u
 }
 
 // ClearOpeningHours clears the value of the "opening_hours" field.
-func (ouo *OutletUpdateOne) ClearOpeningHours() *OutletUpdateOne {
-	ouo.mutation.ClearOpeningHours()
-	return ouo
+func (_u *OutletUpdateOne) ClearOpeningHours() *OutletUpdateOne {
+	_u.mutation.ClearOpeningHours()
+	return _u
 }
 
 // SetImageURL sets the "image_url" field.
-func (ouo *OutletUpdateOne) SetImageURL(s string) *OutletUpdateOne {
-	ouo.mutation.SetImageURL(s)
-	return ouo
+func (_u *OutletUpdateOne) SetImageURL(v string) *OutletUpdateOne {
+	_u.mutation.SetImageURL(v)
+	return _u
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableImageURL(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetImageURL(*s)
+func (_u *OutletUpdateOne) SetNillableImageURL(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetImageURL(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearImageURL clears the value of the "image_url" field.
-func (ouo *OutletUpdateOne) ClearImageURL() *OutletUpdateOne {
-	ouo.mutation.ClearImageURL()
-	return ouo
+func (_u *OutletUpdateOne) ClearImageURL() *OutletUpdateOne {
+	_u.mutation.ClearImageURL()
+	return _u
 }
 
 // SetUseCase sets the "use_case" field.
-func (ouo *OutletUpdateOne) SetUseCase(s string) *OutletUpdateOne {
-	ouo.mutation.SetUseCase(s)
-	return ouo
+func (_u *OutletUpdateOne) SetUseCase(v string) *OutletUpdateOne {
+	_u.mutation.SetUseCase(v)
+	return _u
 }
 
 // SetNillableUseCase sets the "use_case" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableUseCase(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetUseCase(*s)
+func (_u *OutletUpdateOne) SetNillableUseCase(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetUseCase(*v)
 	}
-	return ouo
+	return _u
 }
 
 // ClearUseCase clears the value of the "use_case" field.
-func (ouo *OutletUpdateOne) ClearUseCase() *OutletUpdateOne {
-	ouo.mutation.ClearUseCase()
-	return ouo
+func (_u *OutletUpdateOne) ClearUseCase() *OutletUpdateOne {
+	_u.mutation.ClearUseCase()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (ouo *OutletUpdateOne) SetStatus(s string) *OutletUpdateOne {
-	ouo.mutation.SetStatus(s)
-	return ouo
+func (_u *OutletUpdateOne) SetStatus(v string) *OutletUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (ouo *OutletUpdateOne) SetNillableStatus(s *string) *OutletUpdateOne {
-	if s != nil {
-		ouo.SetStatus(*s)
+func (_u *OutletUpdateOne) SetNillableStatus(v *string) *OutletUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return ouo
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ouo *OutletUpdateOne) SetUpdatedAt(t time.Time) *OutletUpdateOne {
-	ouo.mutation.SetUpdatedAt(t)
-	return ouo
+func (_u *OutletUpdateOne) SetUpdatedAt(v time.Time) *OutletUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (ouo *OutletUpdateOne) SetTenant(t *Tenant) *OutletUpdateOne {
-	return ouo.SetTenantID(t.ID)
-}
-
-// AddCatalogCategoryIDs adds the "catalog_categories" edge to the CatalogCategory entity by IDs.
-func (ouo *OutletUpdateOne) AddCatalogCategoryIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.AddCatalogCategoryIDs(ids...)
-	return ouo
-}
-
-// AddCatalogCategories adds the "catalog_categories" edges to the CatalogCategory entity.
-func (ouo *OutletUpdateOne) AddCatalogCategories(c ...*CatalogCategory) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ouo.AddCatalogCategoryIDs(ids...)
-}
-
-// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
-func (ouo *OutletUpdateOne) AddCatalogItemIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.AddCatalogItemIDs(ids...)
-	return ouo
-}
-
-// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
-func (ouo *OutletUpdateOne) AddCatalogItems(c ...*CatalogItem) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ouo.AddCatalogItemIDs(ids...)
+func (_u *OutletUpdateOne) SetTenant(v *Tenant) *OutletUpdateOne {
+	return _u.SetTenantID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (ouo *OutletUpdateOne) AddOrderIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.AddOrderIDs(ids...)
-	return ouo
+func (_u *OutletUpdateOne) AddOrderIDs(ids ...uuid.UUID) *OutletUpdateOne {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (ouo *OutletUpdateOne) AddOrders(o ...*Order) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OutletUpdateOne) AddOrders(v ...*Order) *OutletUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ouo.AddOrderIDs(ids...)
+	return _u.AddOrderIDs(ids...)
 }
 
 // Mutation returns the OutletMutation object of the builder.
-func (ouo *OutletUpdateOne) Mutation() *OutletMutation {
-	return ouo.mutation
+func (_u *OutletUpdateOne) Mutation() *OutletMutation {
+	return _u.mutation
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
-func (ouo *OutletUpdateOne) ClearTenant() *OutletUpdateOne {
-	ouo.mutation.ClearTenant()
-	return ouo
-}
-
-// ClearCatalogCategories clears all "catalog_categories" edges to the CatalogCategory entity.
-func (ouo *OutletUpdateOne) ClearCatalogCategories() *OutletUpdateOne {
-	ouo.mutation.ClearCatalogCategories()
-	return ouo
-}
-
-// RemoveCatalogCategoryIDs removes the "catalog_categories" edge to CatalogCategory entities by IDs.
-func (ouo *OutletUpdateOne) RemoveCatalogCategoryIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.RemoveCatalogCategoryIDs(ids...)
-	return ouo
-}
-
-// RemoveCatalogCategories removes "catalog_categories" edges to CatalogCategory entities.
-func (ouo *OutletUpdateOne) RemoveCatalogCategories(c ...*CatalogCategory) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ouo.RemoveCatalogCategoryIDs(ids...)
-}
-
-// ClearCatalogItems clears all "catalog_items" edges to the CatalogItem entity.
-func (ouo *OutletUpdateOne) ClearCatalogItems() *OutletUpdateOne {
-	ouo.mutation.ClearCatalogItems()
-	return ouo
-}
-
-// RemoveCatalogItemIDs removes the "catalog_items" edge to CatalogItem entities by IDs.
-func (ouo *OutletUpdateOne) RemoveCatalogItemIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.RemoveCatalogItemIDs(ids...)
-	return ouo
-}
-
-// RemoveCatalogItems removes "catalog_items" edges to CatalogItem entities.
-func (ouo *OutletUpdateOne) RemoveCatalogItems(c ...*CatalogItem) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return ouo.RemoveCatalogItemIDs(ids...)
+func (_u *OutletUpdateOne) ClearTenant() *OutletUpdateOne {
+	_u.mutation.ClearTenant()
+	return _u
 }
 
 // ClearOrders clears all "orders" edges to the Order entity.
-func (ouo *OutletUpdateOne) ClearOrders() *OutletUpdateOne {
-	ouo.mutation.ClearOrders()
-	return ouo
+func (_u *OutletUpdateOne) ClearOrders() *OutletUpdateOne {
+	_u.mutation.ClearOrders()
+	return _u
 }
 
 // RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
-func (ouo *OutletUpdateOne) RemoveOrderIDs(ids ...uuid.UUID) *OutletUpdateOne {
-	ouo.mutation.RemoveOrderIDs(ids...)
-	return ouo
+func (_u *OutletUpdateOne) RemoveOrderIDs(ids ...uuid.UUID) *OutletUpdateOne {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
 }
 
 // RemoveOrders removes "orders" edges to Order entities.
-func (ouo *OutletUpdateOne) RemoveOrders(o ...*Order) *OutletUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OutletUpdateOne) RemoveOrders(v ...*Order) *OutletUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ouo.RemoveOrderIDs(ids...)
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // Where appends a list predicates to the OutletUpdate builder.
-func (ouo *OutletUpdateOne) Where(ps ...predicate.Outlet) *OutletUpdateOne {
-	ouo.mutation.Where(ps...)
-	return ouo
+func (_u *OutletUpdateOne) Where(ps ...predicate.Outlet) *OutletUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (ouo *OutletUpdateOne) Select(field string, fields ...string) *OutletUpdateOne {
-	ouo.fields = append([]string{field}, fields...)
-	return ouo
+func (_u *OutletUpdateOne) Select(field string, fields ...string) *OutletUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Outlet entity.
-func (ouo *OutletUpdateOne) Save(ctx context.Context) (*Outlet, error) {
-	ouo.defaults()
-	return withHooks(ctx, ouo.sqlSave, ouo.mutation, ouo.hooks)
+func (_u *OutletUpdateOne) Save(ctx context.Context) (*Outlet, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ouo *OutletUpdateOne) SaveX(ctx context.Context) *Outlet {
-	node, err := ouo.Save(ctx)
+func (_u *OutletUpdateOne) SaveX(ctx context.Context) *Outlet {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1174,55 +938,55 @@ func (ouo *OutletUpdateOne) SaveX(ctx context.Context) *Outlet {
 }
 
 // Exec executes the query on the entity.
-func (ouo *OutletUpdateOne) Exec(ctx context.Context) error {
-	_, err := ouo.Save(ctx)
+func (_u *OutletUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ouo *OutletUpdateOne) ExecX(ctx context.Context) {
-	if err := ouo.Exec(ctx); err != nil {
+func (_u *OutletUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ouo *OutletUpdateOne) defaults() {
-	if _, ok := ouo.mutation.UpdatedAt(); !ok {
+func (_u *OutletUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := outlet.UpdateDefaultUpdatedAt()
-		ouo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ouo *OutletUpdateOne) check() error {
-	if v, ok := ouo.mutation.Name(); ok {
+func (_u *OutletUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := outlet.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Outlet.name": %w`, err)}
 		}
 	}
-	if v, ok := ouo.mutation.Slug(); ok {
+	if v, ok := _u.mutation.Slug(); ok {
 		if err := outlet.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
 	}
-	if _, ok := ouo.mutation.TenantID(); ouo.mutation.TenantCleared() && !ok {
+	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Outlet.tenant"`)
 	}
 	return nil
 }
 
-func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err error) {
-	if err := ouo.check(); err != nil {
+func (_u *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(outlet.Table, outlet.Columns, sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID))
-	id, ok := ouo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Outlet.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := ouo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, outlet.FieldID)
 		for _, f := range fields {
@@ -1234,92 +998,92 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 			}
 		}
 	}
-	if ps := ouo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ouo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(outlet.FieldName, field.TypeString, value)
 	}
-	if value, ok := ouo.mutation.Slug(); ok {
+	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(outlet.FieldSlug, field.TypeString, value)
 	}
-	if value, ok := ouo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(outlet.FieldDescription, field.TypeString, value)
 	}
-	if ouo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(outlet.FieldDescription, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Address(); ok {
+	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(outlet.FieldAddress, field.TypeString, value)
 	}
-	if ouo.mutation.AddressCleared() {
+	if _u.mutation.AddressCleared() {
 		_spec.ClearField(outlet.FieldAddress, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Phone(); ok {
+	if value, ok := _u.mutation.Phone(); ok {
 		_spec.SetField(outlet.FieldPhone, field.TypeString, value)
 	}
-	if ouo.mutation.PhoneCleared() {
+	if _u.mutation.PhoneCleared() {
 		_spec.ClearField(outlet.FieldPhone, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(outlet.FieldEmail, field.TypeString, value)
 	}
-	if ouo.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(outlet.FieldEmail, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Location(); ok {
+	if value, ok := _u.mutation.Location(); ok {
 		_spec.SetField(outlet.FieldLocation, field.TypeString, value)
 	}
-	if ouo.mutation.LocationCleared() {
+	if _u.mutation.LocationCleared() {
 		_spec.ClearField(outlet.FieldLocation, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Latitude(); ok {
+	if value, ok := _u.mutation.Latitude(); ok {
 		_spec.SetField(outlet.FieldLatitude, field.TypeFloat64, value)
 	}
-	if value, ok := ouo.mutation.AddedLatitude(); ok {
+	if value, ok := _u.mutation.AddedLatitude(); ok {
 		_spec.AddField(outlet.FieldLatitude, field.TypeFloat64, value)
 	}
-	if ouo.mutation.LatitudeCleared() {
+	if _u.mutation.LatitudeCleared() {
 		_spec.ClearField(outlet.FieldLatitude, field.TypeFloat64)
 	}
-	if value, ok := ouo.mutation.Longitude(); ok {
+	if value, ok := _u.mutation.Longitude(); ok {
 		_spec.SetField(outlet.FieldLongitude, field.TypeFloat64, value)
 	}
-	if value, ok := ouo.mutation.AddedLongitude(); ok {
+	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(outlet.FieldLongitude, field.TypeFloat64, value)
 	}
-	if ouo.mutation.LongitudeCleared() {
+	if _u.mutation.LongitudeCleared() {
 		_spec.ClearField(outlet.FieldLongitude, field.TypeFloat64)
 	}
-	if value, ok := ouo.mutation.OpeningHours(); ok {
+	if value, ok := _u.mutation.OpeningHours(); ok {
 		_spec.SetField(outlet.FieldOpeningHours, field.TypeJSON, value)
 	}
-	if ouo.mutation.OpeningHoursCleared() {
+	if _u.mutation.OpeningHoursCleared() {
 		_spec.ClearField(outlet.FieldOpeningHours, field.TypeJSON)
 	}
-	if value, ok := ouo.mutation.ImageURL(); ok {
+	if value, ok := _u.mutation.ImageURL(); ok {
 		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
 	}
-	if ouo.mutation.ImageURLCleared() {
+	if _u.mutation.ImageURLCleared() {
 		_spec.ClearField(outlet.FieldImageURL, field.TypeString)
 	}
-	if value, ok := ouo.mutation.UseCase(); ok {
+	if value, ok := _u.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
 	}
-	if ouo.mutation.UseCaseCleared() {
+	if _u.mutation.UseCaseCleared() {
 		_spec.ClearField(outlet.FieldUseCase, field.TypeString)
 	}
-	if value, ok := ouo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
 	}
-	if value, ok := ouo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(outlet.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ouo.mutation.TenantCleared() {
+	if _u.mutation.TenantCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1332,7 +1096,7 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ouo.mutation.TenantIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TenantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1348,97 +1112,7 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ouo.mutation.CatalogCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedCatalogCategoriesIDs(); len(nodes) > 0 && !ouo.mutation.CatalogCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.CatalogCategoriesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.CatalogItemsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedCatalogItemsIDs(); len(nodes) > 0 && !ouo.mutation.CatalogItemsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.CatalogItemsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.OrdersCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1451,7 +1125,7 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ouo.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !ouo.mutation.OrdersCleared() {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1467,7 +1141,7 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ouo.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1483,10 +1157,10 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Outlet{config: ouo.config}
+	_node = &Outlet{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, ouo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{outlet.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1494,6 +1168,6 @@ func (ouo *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err err
 		}
 		return nil, err
 	}
-	ouo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

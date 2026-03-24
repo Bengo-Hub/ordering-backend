@@ -25,167 +25,167 @@ type SLAMetricCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (smc *SLAMetricCreate) SetTenantID(u uuid.UUID) *SLAMetricCreate {
-	smc.mutation.SetTenantID(u)
-	return smc
+func (_c *SLAMetricCreate) SetTenantID(v uuid.UUID) *SLAMetricCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOrderID sets the "order_id" field.
-func (smc *SLAMetricCreate) SetOrderID(u uuid.UUID) *SLAMetricCreate {
-	smc.mutation.SetOrderID(u)
-	return smc
+func (_c *SLAMetricCreate) SetOrderID(v uuid.UUID) *SLAMetricCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetMetricType sets the "metric_type" field.
-func (smc *SLAMetricCreate) SetMetricType(st slametric.MetricType) *SLAMetricCreate {
-	smc.mutation.SetMetricType(st)
-	return smc
+func (_c *SLAMetricCreate) SetMetricType(v slametric.MetricType) *SLAMetricCreate {
+	_c.mutation.SetMetricType(v)
+	return _c
 }
 
 // SetTargetSeconds sets the "target_seconds" field.
-func (smc *SLAMetricCreate) SetTargetSeconds(i int) *SLAMetricCreate {
-	smc.mutation.SetTargetSeconds(i)
-	return smc
+func (_c *SLAMetricCreate) SetTargetSeconds(v int) *SLAMetricCreate {
+	_c.mutation.SetTargetSeconds(v)
+	return _c
 }
 
 // SetActualSeconds sets the "actual_seconds" field.
-func (smc *SLAMetricCreate) SetActualSeconds(i int) *SLAMetricCreate {
-	smc.mutation.SetActualSeconds(i)
-	return smc
+func (_c *SLAMetricCreate) SetActualSeconds(v int) *SLAMetricCreate {
+	_c.mutation.SetActualSeconds(v)
+	return _c
 }
 
 // SetNillableActualSeconds sets the "actual_seconds" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableActualSeconds(i *int) *SLAMetricCreate {
-	if i != nil {
-		smc.SetActualSeconds(*i)
+func (_c *SLAMetricCreate) SetNillableActualSeconds(v *int) *SLAMetricCreate {
+	if v != nil {
+		_c.SetActualSeconds(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (smc *SLAMetricCreate) SetStatus(s slametric.Status) *SLAMetricCreate {
-	smc.mutation.SetStatus(s)
-	return smc
+func (_c *SLAMetricCreate) SetStatus(v slametric.Status) *SLAMetricCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableStatus(s *slametric.Status) *SLAMetricCreate {
-	if s != nil {
-		smc.SetStatus(*s)
+func (_c *SLAMetricCreate) SetNillableStatus(v *slametric.Status) *SLAMetricCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetBreachPercentage sets the "breach_percentage" field.
-func (smc *SLAMetricCreate) SetBreachPercentage(f float64) *SLAMetricCreate {
-	smc.mutation.SetBreachPercentage(f)
-	return smc
+func (_c *SLAMetricCreate) SetBreachPercentage(v float64) *SLAMetricCreate {
+	_c.mutation.SetBreachPercentage(v)
+	return _c
 }
 
 // SetNillableBreachPercentage sets the "breach_percentage" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableBreachPercentage(f *float64) *SLAMetricCreate {
-	if f != nil {
-		smc.SetBreachPercentage(*f)
+func (_c *SLAMetricCreate) SetNillableBreachPercentage(v *float64) *SLAMetricCreate {
+	if v != nil {
+		_c.SetBreachPercentage(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetStartedAt sets the "started_at" field.
-func (smc *SLAMetricCreate) SetStartedAt(t time.Time) *SLAMetricCreate {
-	smc.mutation.SetStartedAt(t)
-	return smc
+func (_c *SLAMetricCreate) SetStartedAt(v time.Time) *SLAMetricCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
 }
 
 // SetEndedAt sets the "ended_at" field.
-func (smc *SLAMetricCreate) SetEndedAt(t time.Time) *SLAMetricCreate {
-	smc.mutation.SetEndedAt(t)
-	return smc
+func (_c *SLAMetricCreate) SetEndedAt(v time.Time) *SLAMetricCreate {
+	_c.mutation.SetEndedAt(v)
+	return _c
 }
 
 // SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableEndedAt(t *time.Time) *SLAMetricCreate {
-	if t != nil {
-		smc.SetEndedAt(*t)
+func (_c *SLAMetricCreate) SetNillableEndedAt(v *time.Time) *SLAMetricCreate {
+	if v != nil {
+		_c.SetEndedAt(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetMeasuredAt sets the "measured_at" field.
-func (smc *SLAMetricCreate) SetMeasuredAt(t time.Time) *SLAMetricCreate {
-	smc.mutation.SetMeasuredAt(t)
-	return smc
+func (_c *SLAMetricCreate) SetMeasuredAt(v time.Time) *SLAMetricCreate {
+	_c.mutation.SetMeasuredAt(v)
+	return _c
 }
 
 // SetNillableMeasuredAt sets the "measured_at" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableMeasuredAt(t *time.Time) *SLAMetricCreate {
-	if t != nil {
-		smc.SetMeasuredAt(*t)
+func (_c *SLAMetricCreate) SetNillableMeasuredAt(v *time.Time) *SLAMetricCreate {
+	if v != nil {
+		_c.SetMeasuredAt(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (smc *SLAMetricCreate) SetMetadata(m map[string]interface{}) *SLAMetricCreate {
-	smc.mutation.SetMetadata(m)
-	return smc
+func (_c *SLAMetricCreate) SetMetadata(v map[string]interface{}) *SLAMetricCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (smc *SLAMetricCreate) SetCreatedAt(t time.Time) *SLAMetricCreate {
-	smc.mutation.SetCreatedAt(t)
-	return smc
+func (_c *SLAMetricCreate) SetCreatedAt(v time.Time) *SLAMetricCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableCreatedAt(t *time.Time) *SLAMetricCreate {
-	if t != nil {
-		smc.SetCreatedAt(*t)
+func (_c *SLAMetricCreate) SetNillableCreatedAt(v *time.Time) *SLAMetricCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (smc *SLAMetricCreate) SetUpdatedAt(t time.Time) *SLAMetricCreate {
-	smc.mutation.SetUpdatedAt(t)
-	return smc
+func (_c *SLAMetricCreate) SetUpdatedAt(v time.Time) *SLAMetricCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableUpdatedAt(t *time.Time) *SLAMetricCreate {
-	if t != nil {
-		smc.SetUpdatedAt(*t)
+func (_c *SLAMetricCreate) SetNillableUpdatedAt(v *time.Time) *SLAMetricCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return smc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (smc *SLAMetricCreate) SetID(u uuid.UUID) *SLAMetricCreate {
-	smc.mutation.SetID(u)
-	return smc
+func (_c *SLAMetricCreate) SetID(v uuid.UUID) *SLAMetricCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (smc *SLAMetricCreate) SetNillableID(u *uuid.UUID) *SLAMetricCreate {
-	if u != nil {
-		smc.SetID(*u)
+func (_c *SLAMetricCreate) SetNillableID(v *uuid.UUID) *SLAMetricCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return smc
+	return _c
 }
 
 // Mutation returns the SLAMetricMutation object of the builder.
-func (smc *SLAMetricCreate) Mutation() *SLAMetricMutation {
-	return smc.mutation
+func (_c *SLAMetricCreate) Mutation() *SLAMetricMutation {
+	return _c.mutation
 }
 
 // Save creates the SLAMetric in the database.
-func (smc *SLAMetricCreate) Save(ctx context.Context) (*SLAMetric, error) {
-	smc.defaults()
-	return withHooks(ctx, smc.sqlSave, smc.mutation, smc.hooks)
+func (_c *SLAMetricCreate) Save(ctx context.Context) (*SLAMetric, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (smc *SLAMetricCreate) SaveX(ctx context.Context) *SLAMetric {
-	v, err := smc.Save(ctx)
+func (_c *SLAMetricCreate) SaveX(ctx context.Context) *SLAMetric {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -193,90 +193,90 @@ func (smc *SLAMetricCreate) SaveX(ctx context.Context) *SLAMetric {
 }
 
 // Exec executes the query.
-func (smc *SLAMetricCreate) Exec(ctx context.Context) error {
-	_, err := smc.Save(ctx)
+func (_c *SLAMetricCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (smc *SLAMetricCreate) ExecX(ctx context.Context) {
-	if err := smc.Exec(ctx); err != nil {
+func (_c *SLAMetricCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (smc *SLAMetricCreate) defaults() {
-	if _, ok := smc.mutation.Status(); !ok {
+func (_c *SLAMetricCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := slametric.DefaultStatus
-		smc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := smc.mutation.MeasuredAt(); !ok {
+	if _, ok := _c.mutation.MeasuredAt(); !ok {
 		v := slametric.DefaultMeasuredAt()
-		smc.mutation.SetMeasuredAt(v)
+		_c.mutation.SetMeasuredAt(v)
 	}
-	if _, ok := smc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := slametric.DefaultCreatedAt()
-		smc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := smc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := slametric.DefaultUpdatedAt()
-		smc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := smc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := slametric.DefaultID()
-		smc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (smc *SLAMetricCreate) check() error {
-	if _, ok := smc.mutation.TenantID(); !ok {
+func (_c *SLAMetricCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "SLAMetric.tenant_id"`)}
 	}
-	if _, ok := smc.mutation.OrderID(); !ok {
+	if _, ok := _c.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "SLAMetric.order_id"`)}
 	}
-	if _, ok := smc.mutation.MetricType(); !ok {
+	if _, ok := _c.mutation.MetricType(); !ok {
 		return &ValidationError{Name: "metric_type", err: errors.New(`ent: missing required field "SLAMetric.metric_type"`)}
 	}
-	if v, ok := smc.mutation.MetricType(); ok {
+	if v, ok := _c.mutation.MetricType(); ok {
 		if err := slametric.MetricTypeValidator(v); err != nil {
 			return &ValidationError{Name: "metric_type", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.metric_type": %w`, err)}
 		}
 	}
-	if _, ok := smc.mutation.TargetSeconds(); !ok {
+	if _, ok := _c.mutation.TargetSeconds(); !ok {
 		return &ValidationError{Name: "target_seconds", err: errors.New(`ent: missing required field "SLAMetric.target_seconds"`)}
 	}
-	if _, ok := smc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "SLAMetric.status"`)}
 	}
-	if v, ok := smc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := slametric.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.status": %w`, err)}
 		}
 	}
-	if _, ok := smc.mutation.StartedAt(); !ok {
+	if _, ok := _c.mutation.StartedAt(); !ok {
 		return &ValidationError{Name: "started_at", err: errors.New(`ent: missing required field "SLAMetric.started_at"`)}
 	}
-	if _, ok := smc.mutation.MeasuredAt(); !ok {
+	if _, ok := _c.mutation.MeasuredAt(); !ok {
 		return &ValidationError{Name: "measured_at", err: errors.New(`ent: missing required field "SLAMetric.measured_at"`)}
 	}
-	if _, ok := smc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "SLAMetric.created_at"`)}
 	}
-	if _, ok := smc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "SLAMetric.updated_at"`)}
 	}
 	return nil
 }
 
-func (smc *SLAMetricCreate) sqlSave(ctx context.Context) (*SLAMetric, error) {
-	if err := smc.check(); err != nil {
+func (_c *SLAMetricCreate) sqlSave(ctx context.Context) (*SLAMetric, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := smc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, smc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -289,70 +289,70 @@ func (smc *SLAMetricCreate) sqlSave(ctx context.Context) (*SLAMetric, error) {
 			return nil, err
 		}
 	}
-	smc.mutation.id = &_node.ID
-	smc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (smc *SLAMetricCreate) createSpec() (*SLAMetric, *sqlgraph.CreateSpec) {
+func (_c *SLAMetricCreate) createSpec() (*SLAMetric, *sqlgraph.CreateSpec) {
 	var (
-		_node = &SLAMetric{config: smc.config}
+		_node = &SLAMetric{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(slametric.Table, sqlgraph.NewFieldSpec(slametric.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = smc.conflict
-	if id, ok := smc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := smc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(slametric.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := smc.mutation.OrderID(); ok {
+	if value, ok := _c.mutation.OrderID(); ok {
 		_spec.SetField(slametric.FieldOrderID, field.TypeUUID, value)
 		_node.OrderID = value
 	}
-	if value, ok := smc.mutation.MetricType(); ok {
+	if value, ok := _c.mutation.MetricType(); ok {
 		_spec.SetField(slametric.FieldMetricType, field.TypeEnum, value)
 		_node.MetricType = value
 	}
-	if value, ok := smc.mutation.TargetSeconds(); ok {
+	if value, ok := _c.mutation.TargetSeconds(); ok {
 		_spec.SetField(slametric.FieldTargetSeconds, field.TypeInt, value)
 		_node.TargetSeconds = value
 	}
-	if value, ok := smc.mutation.ActualSeconds(); ok {
+	if value, ok := _c.mutation.ActualSeconds(); ok {
 		_spec.SetField(slametric.FieldActualSeconds, field.TypeInt, value)
 		_node.ActualSeconds = &value
 	}
-	if value, ok := smc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(slametric.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := smc.mutation.BreachPercentage(); ok {
+	if value, ok := _c.mutation.BreachPercentage(); ok {
 		_spec.SetField(slametric.FieldBreachPercentage, field.TypeFloat64, value)
 		_node.BreachPercentage = &value
 	}
-	if value, ok := smc.mutation.StartedAt(); ok {
+	if value, ok := _c.mutation.StartedAt(); ok {
 		_spec.SetField(slametric.FieldStartedAt, field.TypeTime, value)
 		_node.StartedAt = value
 	}
-	if value, ok := smc.mutation.EndedAt(); ok {
+	if value, ok := _c.mutation.EndedAt(); ok {
 		_spec.SetField(slametric.FieldEndedAt, field.TypeTime, value)
 		_node.EndedAt = &value
 	}
-	if value, ok := smc.mutation.MeasuredAt(); ok {
+	if value, ok := _c.mutation.MeasuredAt(); ok {
 		_spec.SetField(slametric.FieldMeasuredAt, field.TypeTime, value)
 		_node.MeasuredAt = value
 	}
-	if value, ok := smc.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(slametric.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := smc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(slametric.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := smc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(slametric.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -375,10 +375,10 @@ func (smc *SLAMetricCreate) createSpec() (*SLAMetric, *sqlgraph.CreateSpec) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (smc *SLAMetricCreate) OnConflict(opts ...sql.ConflictOption) *SLAMetricUpsertOne {
-	smc.conflict = opts
+func (_c *SLAMetricCreate) OnConflict(opts ...sql.ConflictOption) *SLAMetricUpsertOne {
+	_c.conflict = opts
 	return &SLAMetricUpsertOne{
-		create: smc,
+		create: _c,
 	}
 }
 
@@ -388,10 +388,10 @@ func (smc *SLAMetricCreate) OnConflict(opts ...sql.ConflictOption) *SLAMetricUps
 //	client.SLAMetric.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (smc *SLAMetricCreate) OnConflictColumns(columns ...string) *SLAMetricUpsertOne {
-	smc.conflict = append(smc.conflict, sql.ConflictColumns(columns...))
+func (_c *SLAMetricCreate) OnConflictColumns(columns ...string) *SLAMetricUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &SLAMetricUpsertOne{
-		create: smc,
+		create: _c,
 	}
 }
 
@@ -909,16 +909,16 @@ type SLAMetricCreateBulk struct {
 }
 
 // Save creates the SLAMetric entities in the database.
-func (smcb *SLAMetricCreateBulk) Save(ctx context.Context) ([]*SLAMetric, error) {
-	if smcb.err != nil {
-		return nil, smcb.err
+func (_c *SLAMetricCreateBulk) Save(ctx context.Context) ([]*SLAMetric, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(smcb.builders))
-	nodes := make([]*SLAMetric, len(smcb.builders))
-	mutators := make([]Mutator, len(smcb.builders))
-	for i := range smcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*SLAMetric, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := smcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SLAMetricMutation)
@@ -932,12 +932,12 @@ func (smcb *SLAMetricCreateBulk) Save(ctx context.Context) ([]*SLAMetric, error)
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, smcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = smcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, smcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -957,7 +957,7 @@ func (smcb *SLAMetricCreateBulk) Save(ctx context.Context) ([]*SLAMetric, error)
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, smcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -965,8 +965,8 @@ func (smcb *SLAMetricCreateBulk) Save(ctx context.Context) ([]*SLAMetric, error)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (smcb *SLAMetricCreateBulk) SaveX(ctx context.Context) []*SLAMetric {
-	v, err := smcb.Save(ctx)
+func (_c *SLAMetricCreateBulk) SaveX(ctx context.Context) []*SLAMetric {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -974,14 +974,14 @@ func (smcb *SLAMetricCreateBulk) SaveX(ctx context.Context) []*SLAMetric {
 }
 
 // Exec executes the query.
-func (smcb *SLAMetricCreateBulk) Exec(ctx context.Context) error {
-	_, err := smcb.Save(ctx)
+func (_c *SLAMetricCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (smcb *SLAMetricCreateBulk) ExecX(ctx context.Context) {
-	if err := smcb.Exec(ctx); err != nil {
+func (_c *SLAMetricCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1001,10 +1001,10 @@ func (smcb *SLAMetricCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (smcb *SLAMetricCreateBulk) OnConflict(opts ...sql.ConflictOption) *SLAMetricUpsertBulk {
-	smcb.conflict = opts
+func (_c *SLAMetricCreateBulk) OnConflict(opts ...sql.ConflictOption) *SLAMetricUpsertBulk {
+	_c.conflict = opts
 	return &SLAMetricUpsertBulk{
-		create: smcb,
+		create: _c,
 	}
 }
 
@@ -1014,10 +1014,10 @@ func (smcb *SLAMetricCreateBulk) OnConflict(opts ...sql.ConflictOption) *SLAMetr
 //	client.SLAMetric.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (smcb *SLAMetricCreateBulk) OnConflictColumns(columns ...string) *SLAMetricUpsertBulk {
-	smcb.conflict = append(smcb.conflict, sql.ConflictColumns(columns...))
+func (_c *SLAMetricCreateBulk) OnConflictColumns(columns ...string) *SLAMetricUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &SLAMetricUpsertBulk{
-		create: smcb,
+		create: _c,
 	}
 }
 

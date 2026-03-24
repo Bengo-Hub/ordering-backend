@@ -20,56 +20,56 @@ type TenantSyncEventDelete struct {
 }
 
 // Where appends a list predicates to the TenantSyncEventDelete builder.
-func (tsed *TenantSyncEventDelete) Where(ps ...predicate.TenantSyncEvent) *TenantSyncEventDelete {
-	tsed.mutation.Where(ps...)
-	return tsed
+func (_d *TenantSyncEventDelete) Where(ps ...predicate.TenantSyncEvent) *TenantSyncEventDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (tsed *TenantSyncEventDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, tsed.sqlExec, tsed.mutation, tsed.hooks)
+func (_d *TenantSyncEventDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsed *TenantSyncEventDelete) ExecX(ctx context.Context) int {
-	n, err := tsed.Exec(ctx)
+func (_d *TenantSyncEventDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (tsed *TenantSyncEventDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *TenantSyncEventDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(tenantsyncevent.Table, sqlgraph.NewFieldSpec(tenantsyncevent.FieldID, field.TypeUUID))
-	if ps := tsed.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, tsed.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	tsed.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // TenantSyncEventDeleteOne is the builder for deleting a single TenantSyncEvent entity.
 type TenantSyncEventDeleteOne struct {
-	tsed *TenantSyncEventDelete
+	_d *TenantSyncEventDelete
 }
 
 // Where appends a list predicates to the TenantSyncEventDelete builder.
-func (tsedo *TenantSyncEventDeleteOne) Where(ps ...predicate.TenantSyncEvent) *TenantSyncEventDeleteOne {
-	tsedo.tsed.mutation.Where(ps...)
-	return tsedo
+func (_d *TenantSyncEventDeleteOne) Where(ps ...predicate.TenantSyncEvent) *TenantSyncEventDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (tsedo *TenantSyncEventDeleteOne) Exec(ctx context.Context) error {
-	n, err := tsedo.tsed.Exec(ctx)
+func (_d *TenantSyncEventDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (tsedo *TenantSyncEventDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsedo *TenantSyncEventDeleteOne) ExecX(ctx context.Context) {
-	if err := tsedo.Exec(ctx); err != nil {
+func (_d *TenantSyncEventDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

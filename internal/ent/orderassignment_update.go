@@ -26,381 +26,381 @@ type OrderAssignmentUpdate struct {
 }
 
 // Where appends a list predicates to the OrderAssignmentUpdate builder.
-func (oau *OrderAssignmentUpdate) Where(ps ...predicate.OrderAssignment) *OrderAssignmentUpdate {
-	oau.mutation.Where(ps...)
-	return oau
+func (_u *OrderAssignmentUpdate) Where(ps ...predicate.OrderAssignment) *OrderAssignmentUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oau *OrderAssignmentUpdate) SetTenantID(u uuid.UUID) *OrderAssignmentUpdate {
-	oau.mutation.SetTenantID(u)
-	return oau
+func (_u *OrderAssignmentUpdate) SetTenantID(v uuid.UUID) *OrderAssignmentUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableTenantID(u *uuid.UUID) *OrderAssignmentUpdate {
-	if u != nil {
-		oau.SetTenantID(*u)
+func (_u *OrderAssignmentUpdate) SetNillableTenantID(v *uuid.UUID) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return oau
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (oau *OrderAssignmentUpdate) SetOrderID(u uuid.UUID) *OrderAssignmentUpdate {
-	oau.mutation.SetOrderID(u)
-	return oau
+func (_u *OrderAssignmentUpdate) SetOrderID(v uuid.UUID) *OrderAssignmentUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableOrderID(u *uuid.UUID) *OrderAssignmentUpdate {
-	if u != nil {
-		oau.SetOrderID(*u)
+func (_u *OrderAssignmentUpdate) SetNillableOrderID(v *uuid.UUID) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return oau
+	return _u
 }
 
 // SetLogisticsTaskID sets the "logistics_task_id" field.
-func (oau *OrderAssignmentUpdate) SetLogisticsTaskID(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetLogisticsTaskID(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetLogisticsTaskID(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetLogisticsTaskID(v)
+	return _u
 }
 
 // SetNillableLogisticsTaskID sets the "logistics_task_id" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableLogisticsTaskID(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetLogisticsTaskID(*s)
+func (_u *OrderAssignmentUpdate) SetNillableLogisticsTaskID(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetLogisticsTaskID(*v)
 	}
-	return oau
+	return _u
 }
 
 // SetRiderID sets the "rider_id" field.
-func (oau *OrderAssignmentUpdate) SetRiderID(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetRiderID(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetRiderID(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetRiderID(v)
+	return _u
 }
 
 // SetNillableRiderID sets the "rider_id" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableRiderID(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetRiderID(*s)
+func (_u *OrderAssignmentUpdate) SetNillableRiderID(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetRiderID(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearRiderID clears the value of the "rider_id" field.
-func (oau *OrderAssignmentUpdate) ClearRiderID() *OrderAssignmentUpdate {
-	oau.mutation.ClearRiderID()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearRiderID() *OrderAssignmentUpdate {
+	_u.mutation.ClearRiderID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (oau *OrderAssignmentUpdate) SetStatus(o orderassignment.Status) *OrderAssignmentUpdate {
-	oau.mutation.SetStatus(o)
-	return oau
+func (_u *OrderAssignmentUpdate) SetStatus(v orderassignment.Status) *OrderAssignmentUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableStatus(o *orderassignment.Status) *OrderAssignmentUpdate {
-	if o != nil {
-		oau.SetStatus(*o)
+func (_u *OrderAssignmentUpdate) SetNillableStatus(v *orderassignment.Status) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return oau
+	return _u
 }
 
 // SetPriority sets the "priority" field.
-func (oau *OrderAssignmentUpdate) SetPriority(o orderassignment.Priority) *OrderAssignmentUpdate {
-	oau.mutation.SetPriority(o)
-	return oau
+func (_u *OrderAssignmentUpdate) SetPriority(v orderassignment.Priority) *OrderAssignmentUpdate {
+	_u.mutation.SetPriority(v)
+	return _u
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillablePriority(o *orderassignment.Priority) *OrderAssignmentUpdate {
-	if o != nil {
-		oau.SetPriority(*o)
+func (_u *OrderAssignmentUpdate) SetNillablePriority(v *orderassignment.Priority) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetPriority(*v)
 	}
-	return oau
+	return _u
 }
 
 // SetSpecialInstructions sets the "special_instructions" field.
-func (oau *OrderAssignmentUpdate) SetSpecialInstructions(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetSpecialInstructions(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetSpecialInstructions(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetSpecialInstructions(v)
+	return _u
 }
 
 // SetNillableSpecialInstructions sets the "special_instructions" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableSpecialInstructions(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetSpecialInstructions(*s)
+func (_u *OrderAssignmentUpdate) SetNillableSpecialInstructions(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetSpecialInstructions(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearSpecialInstructions clears the value of the "special_instructions" field.
-func (oau *OrderAssignmentUpdate) ClearSpecialInstructions() *OrderAssignmentUpdate {
-	oau.mutation.ClearSpecialInstructions()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearSpecialInstructions() *OrderAssignmentUpdate {
+	_u.mutation.ClearSpecialInstructions()
+	return _u
 }
 
 // SetRejectionReason sets the "rejection_reason" field.
-func (oau *OrderAssignmentUpdate) SetRejectionReason(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetRejectionReason(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetRejectionReason(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetRejectionReason(v)
+	return _u
 }
 
 // SetNillableRejectionReason sets the "rejection_reason" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableRejectionReason(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetRejectionReason(*s)
+func (_u *OrderAssignmentUpdate) SetNillableRejectionReason(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetRejectionReason(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearRejectionReason clears the value of the "rejection_reason" field.
-func (oau *OrderAssignmentUpdate) ClearRejectionReason() *OrderAssignmentUpdate {
-	oau.mutation.ClearRejectionReason()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearRejectionReason() *OrderAssignmentUpdate {
+	_u.mutation.ClearRejectionReason()
+	return _u
 }
 
 // SetCancellationReason sets the "cancellation_reason" field.
-func (oau *OrderAssignmentUpdate) SetCancellationReason(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetCancellationReason(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetCancellationReason(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetCancellationReason(v)
+	return _u
 }
 
 // SetNillableCancellationReason sets the "cancellation_reason" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableCancellationReason(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetCancellationReason(*s)
+func (_u *OrderAssignmentUpdate) SetNillableCancellationReason(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetCancellationReason(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearCancellationReason clears the value of the "cancellation_reason" field.
-func (oau *OrderAssignmentUpdate) ClearCancellationReason() *OrderAssignmentUpdate {
-	oau.mutation.ClearCancellationReason()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearCancellationReason() *OrderAssignmentUpdate {
+	_u.mutation.ClearCancellationReason()
+	return _u
 }
 
 // SetFailureReason sets the "failure_reason" field.
-func (oau *OrderAssignmentUpdate) SetFailureReason(s string) *OrderAssignmentUpdate {
-	oau.mutation.SetFailureReason(s)
-	return oau
+func (_u *OrderAssignmentUpdate) SetFailureReason(v string) *OrderAssignmentUpdate {
+	_u.mutation.SetFailureReason(v)
+	return _u
 }
 
 // SetNillableFailureReason sets the "failure_reason" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableFailureReason(s *string) *OrderAssignmentUpdate {
-	if s != nil {
-		oau.SetFailureReason(*s)
+func (_u *OrderAssignmentUpdate) SetNillableFailureReason(v *string) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetFailureReason(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearFailureReason clears the value of the "failure_reason" field.
-func (oau *OrderAssignmentUpdate) ClearFailureReason() *OrderAssignmentUpdate {
-	oau.mutation.ClearFailureReason()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearFailureReason() *OrderAssignmentUpdate {
+	_u.mutation.ClearFailureReason()
+	return _u
 }
 
 // SetAttemptCount sets the "attempt_count" field.
-func (oau *OrderAssignmentUpdate) SetAttemptCount(i int) *OrderAssignmentUpdate {
-	oau.mutation.ResetAttemptCount()
-	oau.mutation.SetAttemptCount(i)
-	return oau
+func (_u *OrderAssignmentUpdate) SetAttemptCount(v int) *OrderAssignmentUpdate {
+	_u.mutation.ResetAttemptCount()
+	_u.mutation.SetAttemptCount(v)
+	return _u
 }
 
 // SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableAttemptCount(i *int) *OrderAssignmentUpdate {
-	if i != nil {
-		oau.SetAttemptCount(*i)
+func (_u *OrderAssignmentUpdate) SetNillableAttemptCount(v *int) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetAttemptCount(*v)
 	}
-	return oau
+	return _u
 }
 
-// AddAttemptCount adds i to the "attempt_count" field.
-func (oau *OrderAssignmentUpdate) AddAttemptCount(i int) *OrderAssignmentUpdate {
-	oau.mutation.AddAttemptCount(i)
-	return oau
+// AddAttemptCount adds value to the "attempt_count" field.
+func (_u *OrderAssignmentUpdate) AddAttemptCount(v int) *OrderAssignmentUpdate {
+	_u.mutation.AddAttemptCount(v)
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (oau *OrderAssignmentUpdate) SetMetadata(m map[string]interface{}) *OrderAssignmentUpdate {
-	oau.mutation.SetMetadata(m)
-	return oau
+func (_u *OrderAssignmentUpdate) SetMetadata(v map[string]interface{}) *OrderAssignmentUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (oau *OrderAssignmentUpdate) ClearMetadata() *OrderAssignmentUpdate {
-	oau.mutation.ClearMetadata()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearMetadata() *OrderAssignmentUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetAssignedAt sets the "assigned_at" field.
-func (oau *OrderAssignmentUpdate) SetAssignedAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetAssignedAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetAssignedAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetAssignedAt(v)
+	return _u
 }
 
 // SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableAssignedAt(t *time.Time) *OrderAssignmentUpdate {
-	if t != nil {
-		oau.SetAssignedAt(*t)
+func (_u *OrderAssignmentUpdate) SetNillableAssignedAt(v *time.Time) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetAssignedAt(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearAssignedAt clears the value of the "assigned_at" field.
-func (oau *OrderAssignmentUpdate) ClearAssignedAt() *OrderAssignmentUpdate {
-	oau.mutation.ClearAssignedAt()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearAssignedAt() *OrderAssignmentUpdate {
+	_u.mutation.ClearAssignedAt()
+	return _u
 }
 
 // SetAcceptedAt sets the "accepted_at" field.
-func (oau *OrderAssignmentUpdate) SetAcceptedAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetAcceptedAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetAcceptedAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetAcceptedAt(v)
+	return _u
 }
 
 // SetNillableAcceptedAt sets the "accepted_at" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableAcceptedAt(t *time.Time) *OrderAssignmentUpdate {
-	if t != nil {
-		oau.SetAcceptedAt(*t)
+func (_u *OrderAssignmentUpdate) SetNillableAcceptedAt(v *time.Time) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetAcceptedAt(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearAcceptedAt clears the value of the "accepted_at" field.
-func (oau *OrderAssignmentUpdate) ClearAcceptedAt() *OrderAssignmentUpdate {
-	oau.mutation.ClearAcceptedAt()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearAcceptedAt() *OrderAssignmentUpdate {
+	_u.mutation.ClearAcceptedAt()
+	return _u
 }
 
 // SetPickedUpAt sets the "picked_up_at" field.
-func (oau *OrderAssignmentUpdate) SetPickedUpAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetPickedUpAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetPickedUpAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetPickedUpAt(v)
+	return _u
 }
 
 // SetNillablePickedUpAt sets the "picked_up_at" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillablePickedUpAt(t *time.Time) *OrderAssignmentUpdate {
-	if t != nil {
-		oau.SetPickedUpAt(*t)
+func (_u *OrderAssignmentUpdate) SetNillablePickedUpAt(v *time.Time) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetPickedUpAt(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearPickedUpAt clears the value of the "picked_up_at" field.
-func (oau *OrderAssignmentUpdate) ClearPickedUpAt() *OrderAssignmentUpdate {
-	oau.mutation.ClearPickedUpAt()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearPickedUpAt() *OrderAssignmentUpdate {
+	_u.mutation.ClearPickedUpAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (oau *OrderAssignmentUpdate) SetCompletedAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetCompletedAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetCompletedAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableCompletedAt(t *time.Time) *OrderAssignmentUpdate {
-	if t != nil {
-		oau.SetCompletedAt(*t)
+func (_u *OrderAssignmentUpdate) SetNillableCompletedAt(v *time.Time) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (oau *OrderAssignmentUpdate) ClearCompletedAt() *OrderAssignmentUpdate {
-	oau.mutation.ClearCompletedAt()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearCompletedAt() *OrderAssignmentUpdate {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetCancelledAt sets the "cancelled_at" field.
-func (oau *OrderAssignmentUpdate) SetCancelledAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetCancelledAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetCancelledAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetCancelledAt(v)
+	return _u
 }
 
 // SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
-func (oau *OrderAssignmentUpdate) SetNillableCancelledAt(t *time.Time) *OrderAssignmentUpdate {
-	if t != nil {
-		oau.SetCancelledAt(*t)
+func (_u *OrderAssignmentUpdate) SetNillableCancelledAt(v *time.Time) *OrderAssignmentUpdate {
+	if v != nil {
+		_u.SetCancelledAt(*v)
 	}
-	return oau
+	return _u
 }
 
 // ClearCancelledAt clears the value of the "cancelled_at" field.
-func (oau *OrderAssignmentUpdate) ClearCancelledAt() *OrderAssignmentUpdate {
-	oau.mutation.ClearCancelledAt()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearCancelledAt() *OrderAssignmentUpdate {
+	_u.mutation.ClearCancelledAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oau *OrderAssignmentUpdate) SetUpdatedAt(t time.Time) *OrderAssignmentUpdate {
-	oau.mutation.SetUpdatedAt(t)
-	return oau
+func (_u *OrderAssignmentUpdate) SetUpdatedAt(v time.Time) *OrderAssignmentUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oau *OrderAssignmentUpdate) SetOrder(o *Order) *OrderAssignmentUpdate {
-	return oau.SetOrderID(o.ID)
+func (_u *OrderAssignmentUpdate) SetOrder(v *Order) *OrderAssignmentUpdate {
+	return _u.SetOrderID(v.ID)
 }
 
 // AddDeliveryWindowIDs adds the "delivery_windows" edge to the DeliveryWindow entity by IDs.
-func (oau *OrderAssignmentUpdate) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdate {
-	oau.mutation.AddDeliveryWindowIDs(ids...)
-	return oau
+func (_u *OrderAssignmentUpdate) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdate {
+	_u.mutation.AddDeliveryWindowIDs(ids...)
+	return _u
 }
 
 // AddDeliveryWindows adds the "delivery_windows" edges to the DeliveryWindow entity.
-func (oau *OrderAssignmentUpdate) AddDeliveryWindows(d ...*DeliveryWindow) *OrderAssignmentUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *OrderAssignmentUpdate) AddDeliveryWindows(v ...*DeliveryWindow) *OrderAssignmentUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oau.AddDeliveryWindowIDs(ids...)
+	return _u.AddDeliveryWindowIDs(ids...)
 }
 
 // Mutation returns the OrderAssignmentMutation object of the builder.
-func (oau *OrderAssignmentUpdate) Mutation() *OrderAssignmentMutation {
-	return oau.mutation
+func (_u *OrderAssignmentUpdate) Mutation() *OrderAssignmentMutation {
+	return _u.mutation
 }
 
 // ClearOrder clears the "order" edge to the Order entity.
-func (oau *OrderAssignmentUpdate) ClearOrder() *OrderAssignmentUpdate {
-	oau.mutation.ClearOrder()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearOrder() *OrderAssignmentUpdate {
+	_u.mutation.ClearOrder()
+	return _u
 }
 
 // ClearDeliveryWindows clears all "delivery_windows" edges to the DeliveryWindow entity.
-func (oau *OrderAssignmentUpdate) ClearDeliveryWindows() *OrderAssignmentUpdate {
-	oau.mutation.ClearDeliveryWindows()
-	return oau
+func (_u *OrderAssignmentUpdate) ClearDeliveryWindows() *OrderAssignmentUpdate {
+	_u.mutation.ClearDeliveryWindows()
+	return _u
 }
 
 // RemoveDeliveryWindowIDs removes the "delivery_windows" edge to DeliveryWindow entities by IDs.
-func (oau *OrderAssignmentUpdate) RemoveDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdate {
-	oau.mutation.RemoveDeliveryWindowIDs(ids...)
-	return oau
+func (_u *OrderAssignmentUpdate) RemoveDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdate {
+	_u.mutation.RemoveDeliveryWindowIDs(ids...)
+	return _u
 }
 
 // RemoveDeliveryWindows removes "delivery_windows" edges to DeliveryWindow entities.
-func (oau *OrderAssignmentUpdate) RemoveDeliveryWindows(d ...*DeliveryWindow) *OrderAssignmentUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *OrderAssignmentUpdate) RemoveDeliveryWindows(v ...*DeliveryWindow) *OrderAssignmentUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oau.RemoveDeliveryWindowIDs(ids...)
+	return _u.RemoveDeliveryWindowIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (oau *OrderAssignmentUpdate) Save(ctx context.Context) (int, error) {
-	oau.defaults()
-	return withHooks(ctx, oau.sqlSave, oau.mutation, oau.hooks)
+func (_u *OrderAssignmentUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oau *OrderAssignmentUpdate) SaveX(ctx context.Context) int {
-	affected, err := oau.Save(ctx)
+func (_u *OrderAssignmentUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -408,169 +408,169 @@ func (oau *OrderAssignmentUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (oau *OrderAssignmentUpdate) Exec(ctx context.Context) error {
-	_, err := oau.Save(ctx)
+func (_u *OrderAssignmentUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oau *OrderAssignmentUpdate) ExecX(ctx context.Context) {
-	if err := oau.Exec(ctx); err != nil {
+func (_u *OrderAssignmentUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oau *OrderAssignmentUpdate) defaults() {
-	if _, ok := oau.mutation.UpdatedAt(); !ok {
+func (_u *OrderAssignmentUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := orderassignment.UpdateDefaultUpdatedAt()
-		oau.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oau *OrderAssignmentUpdate) check() error {
-	if v, ok := oau.mutation.LogisticsTaskID(); ok {
+func (_u *OrderAssignmentUpdate) check() error {
+	if v, ok := _u.mutation.LogisticsTaskID(); ok {
 		if err := orderassignment.LogisticsTaskIDValidator(v); err != nil {
 			return &ValidationError{Name: "logistics_task_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.logistics_task_id": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.RiderID(); ok {
+	if v, ok := _u.mutation.RiderID(); ok {
 		if err := orderassignment.RiderIDValidator(v); err != nil {
 			return &ValidationError{Name: "rider_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rider_id": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := orderassignment.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.status": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.Priority(); ok {
+	if v, ok := _u.mutation.Priority(); ok {
 		if err := orderassignment.PriorityValidator(v); err != nil {
 			return &ValidationError{Name: "priority", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.priority": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.RejectionReason(); ok {
+	if v, ok := _u.mutation.RejectionReason(); ok {
 		if err := orderassignment.RejectionReasonValidator(v); err != nil {
 			return &ValidationError{Name: "rejection_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rejection_reason": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.CancellationReason(); ok {
+	if v, ok := _u.mutation.CancellationReason(); ok {
 		if err := orderassignment.CancellationReasonValidator(v); err != nil {
 			return &ValidationError{Name: "cancellation_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.cancellation_reason": %w`, err)}
 		}
 	}
-	if v, ok := oau.mutation.FailureReason(); ok {
+	if v, ok := _u.mutation.FailureReason(); ok {
 		if err := orderassignment.FailureReasonValidator(v); err != nil {
 			return &ValidationError{Name: "failure_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.failure_reason": %w`, err)}
 		}
 	}
-	if _, ok := oau.mutation.OrderID(); oau.mutation.OrderCleared() && !ok {
+	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrderAssignment.order"`)
 	}
 	return nil
 }
 
-func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := oau.check(); err != nil {
-		return n, err
+func (_u *OrderAssignmentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderassignment.Table, orderassignment.Columns, sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID))
-	if ps := oau.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oau.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderassignment.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := oau.mutation.LogisticsTaskID(); ok {
+	if value, ok := _u.mutation.LogisticsTaskID(); ok {
 		_spec.SetField(orderassignment.FieldLogisticsTaskID, field.TypeString, value)
 	}
-	if value, ok := oau.mutation.RiderID(); ok {
+	if value, ok := _u.mutation.RiderID(); ok {
 		_spec.SetField(orderassignment.FieldRiderID, field.TypeString, value)
 	}
-	if oau.mutation.RiderIDCleared() {
+	if _u.mutation.RiderIDCleared() {
 		_spec.ClearField(orderassignment.FieldRiderID, field.TypeString)
 	}
-	if value, ok := oau.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(orderassignment.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := oau.mutation.Priority(); ok {
+	if value, ok := _u.mutation.Priority(); ok {
 		_spec.SetField(orderassignment.FieldPriority, field.TypeEnum, value)
 	}
-	if value, ok := oau.mutation.SpecialInstructions(); ok {
+	if value, ok := _u.mutation.SpecialInstructions(); ok {
 		_spec.SetField(orderassignment.FieldSpecialInstructions, field.TypeString, value)
 	}
-	if oau.mutation.SpecialInstructionsCleared() {
+	if _u.mutation.SpecialInstructionsCleared() {
 		_spec.ClearField(orderassignment.FieldSpecialInstructions, field.TypeString)
 	}
-	if value, ok := oau.mutation.RejectionReason(); ok {
+	if value, ok := _u.mutation.RejectionReason(); ok {
 		_spec.SetField(orderassignment.FieldRejectionReason, field.TypeString, value)
 	}
-	if oau.mutation.RejectionReasonCleared() {
+	if _u.mutation.RejectionReasonCleared() {
 		_spec.ClearField(orderassignment.FieldRejectionReason, field.TypeString)
 	}
-	if value, ok := oau.mutation.CancellationReason(); ok {
+	if value, ok := _u.mutation.CancellationReason(); ok {
 		_spec.SetField(orderassignment.FieldCancellationReason, field.TypeString, value)
 	}
-	if oau.mutation.CancellationReasonCleared() {
+	if _u.mutation.CancellationReasonCleared() {
 		_spec.ClearField(orderassignment.FieldCancellationReason, field.TypeString)
 	}
-	if value, ok := oau.mutation.FailureReason(); ok {
+	if value, ok := _u.mutation.FailureReason(); ok {
 		_spec.SetField(orderassignment.FieldFailureReason, field.TypeString, value)
 	}
-	if oau.mutation.FailureReasonCleared() {
+	if _u.mutation.FailureReasonCleared() {
 		_spec.ClearField(orderassignment.FieldFailureReason, field.TypeString)
 	}
-	if value, ok := oau.mutation.AttemptCount(); ok {
+	if value, ok := _u.mutation.AttemptCount(); ok {
 		_spec.SetField(orderassignment.FieldAttemptCount, field.TypeInt, value)
 	}
-	if value, ok := oau.mutation.AddedAttemptCount(); ok {
+	if value, ok := _u.mutation.AddedAttemptCount(); ok {
 		_spec.AddField(orderassignment.FieldAttemptCount, field.TypeInt, value)
 	}
-	if value, ok := oau.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(orderassignment.FieldMetadata, field.TypeJSON, value)
 	}
-	if oau.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(orderassignment.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := oau.mutation.AssignedAt(); ok {
+	if value, ok := _u.mutation.AssignedAt(); ok {
 		_spec.SetField(orderassignment.FieldAssignedAt, field.TypeTime, value)
 	}
-	if oau.mutation.AssignedAtCleared() {
+	if _u.mutation.AssignedAtCleared() {
 		_spec.ClearField(orderassignment.FieldAssignedAt, field.TypeTime)
 	}
-	if value, ok := oau.mutation.AcceptedAt(); ok {
+	if value, ok := _u.mutation.AcceptedAt(); ok {
 		_spec.SetField(orderassignment.FieldAcceptedAt, field.TypeTime, value)
 	}
-	if oau.mutation.AcceptedAtCleared() {
+	if _u.mutation.AcceptedAtCleared() {
 		_spec.ClearField(orderassignment.FieldAcceptedAt, field.TypeTime)
 	}
-	if value, ok := oau.mutation.PickedUpAt(); ok {
+	if value, ok := _u.mutation.PickedUpAt(); ok {
 		_spec.SetField(orderassignment.FieldPickedUpAt, field.TypeTime, value)
 	}
-	if oau.mutation.PickedUpAtCleared() {
+	if _u.mutation.PickedUpAtCleared() {
 		_spec.ClearField(orderassignment.FieldPickedUpAt, field.TypeTime)
 	}
-	if value, ok := oau.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(orderassignment.FieldCompletedAt, field.TypeTime, value)
 	}
-	if oau.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(orderassignment.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := oau.mutation.CancelledAt(); ok {
+	if value, ok := _u.mutation.CancelledAt(); ok {
 		_spec.SetField(orderassignment.FieldCancelledAt, field.TypeTime, value)
 	}
-	if oau.mutation.CancelledAtCleared() {
+	if _u.mutation.CancelledAtCleared() {
 		_spec.ClearField(orderassignment.FieldCancelledAt, field.TypeTime)
 	}
-	if value, ok := oau.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(orderassignment.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if oau.mutation.OrderCleared() {
+	if _u.mutation.OrderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -583,7 +583,7 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oau.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -599,7 +599,7 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oau.mutation.DeliveryWindowsCleared() {
+	if _u.mutation.DeliveryWindowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -612,7 +612,7 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oau.mutation.RemovedDeliveryWindowsIDs(); len(nodes) > 0 && !oau.mutation.DeliveryWindowsCleared() {
+	if nodes := _u.mutation.RemovedDeliveryWindowsIDs(); len(nodes) > 0 && !_u.mutation.DeliveryWindowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -628,7 +628,7 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oau.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -644,7 +644,7 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, oau.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderassignment.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -652,8 +652,8 @@ func (oau *OrderAssignmentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		return 0, err
 	}
-	oau.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // OrderAssignmentUpdateOne is the builder for updating a single OrderAssignment entity.
@@ -665,388 +665,388 @@ type OrderAssignmentUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oauo *OrderAssignmentUpdateOne) SetTenantID(u uuid.UUID) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetTenantID(u)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetTenantID(v uuid.UUID) *OrderAssignmentUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableTenantID(u *uuid.UUID) *OrderAssignmentUpdateOne {
-	if u != nil {
-		oauo.SetTenantID(*u)
+func (_u *OrderAssignmentUpdateOne) SetNillableTenantID(v *uuid.UUID) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return oauo
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (oauo *OrderAssignmentUpdateOne) SetOrderID(u uuid.UUID) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetOrderID(u)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetOrderID(v uuid.UUID) *OrderAssignmentUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableOrderID(u *uuid.UUID) *OrderAssignmentUpdateOne {
-	if u != nil {
-		oauo.SetOrderID(*u)
+func (_u *OrderAssignmentUpdateOne) SetNillableOrderID(v *uuid.UUID) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return oauo
+	return _u
 }
 
 // SetLogisticsTaskID sets the "logistics_task_id" field.
-func (oauo *OrderAssignmentUpdateOne) SetLogisticsTaskID(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetLogisticsTaskID(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetLogisticsTaskID(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetLogisticsTaskID(v)
+	return _u
 }
 
 // SetNillableLogisticsTaskID sets the "logistics_task_id" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableLogisticsTaskID(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetLogisticsTaskID(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableLogisticsTaskID(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetLogisticsTaskID(*v)
 	}
-	return oauo
+	return _u
 }
 
 // SetRiderID sets the "rider_id" field.
-func (oauo *OrderAssignmentUpdateOne) SetRiderID(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetRiderID(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetRiderID(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetRiderID(v)
+	return _u
 }
 
 // SetNillableRiderID sets the "rider_id" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableRiderID(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetRiderID(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableRiderID(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetRiderID(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearRiderID clears the value of the "rider_id" field.
-func (oauo *OrderAssignmentUpdateOne) ClearRiderID() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearRiderID()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearRiderID() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearRiderID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (oauo *OrderAssignmentUpdateOne) SetStatus(o orderassignment.Status) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetStatus(o)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetStatus(v orderassignment.Status) *OrderAssignmentUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableStatus(o *orderassignment.Status) *OrderAssignmentUpdateOne {
-	if o != nil {
-		oauo.SetStatus(*o)
+func (_u *OrderAssignmentUpdateOne) SetNillableStatus(v *orderassignment.Status) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return oauo
+	return _u
 }
 
 // SetPriority sets the "priority" field.
-func (oauo *OrderAssignmentUpdateOne) SetPriority(o orderassignment.Priority) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetPriority(o)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetPriority(v orderassignment.Priority) *OrderAssignmentUpdateOne {
+	_u.mutation.SetPriority(v)
+	return _u
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillablePriority(o *orderassignment.Priority) *OrderAssignmentUpdateOne {
-	if o != nil {
-		oauo.SetPriority(*o)
+func (_u *OrderAssignmentUpdateOne) SetNillablePriority(v *orderassignment.Priority) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetPriority(*v)
 	}
-	return oauo
+	return _u
 }
 
 // SetSpecialInstructions sets the "special_instructions" field.
-func (oauo *OrderAssignmentUpdateOne) SetSpecialInstructions(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetSpecialInstructions(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetSpecialInstructions(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetSpecialInstructions(v)
+	return _u
 }
 
 // SetNillableSpecialInstructions sets the "special_instructions" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableSpecialInstructions(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetSpecialInstructions(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableSpecialInstructions(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetSpecialInstructions(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearSpecialInstructions clears the value of the "special_instructions" field.
-func (oauo *OrderAssignmentUpdateOne) ClearSpecialInstructions() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearSpecialInstructions()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearSpecialInstructions() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearSpecialInstructions()
+	return _u
 }
 
 // SetRejectionReason sets the "rejection_reason" field.
-func (oauo *OrderAssignmentUpdateOne) SetRejectionReason(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetRejectionReason(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetRejectionReason(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetRejectionReason(v)
+	return _u
 }
 
 // SetNillableRejectionReason sets the "rejection_reason" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableRejectionReason(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetRejectionReason(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableRejectionReason(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetRejectionReason(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearRejectionReason clears the value of the "rejection_reason" field.
-func (oauo *OrderAssignmentUpdateOne) ClearRejectionReason() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearRejectionReason()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearRejectionReason() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearRejectionReason()
+	return _u
 }
 
 // SetCancellationReason sets the "cancellation_reason" field.
-func (oauo *OrderAssignmentUpdateOne) SetCancellationReason(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetCancellationReason(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetCancellationReason(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetCancellationReason(v)
+	return _u
 }
 
 // SetNillableCancellationReason sets the "cancellation_reason" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableCancellationReason(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetCancellationReason(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableCancellationReason(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetCancellationReason(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearCancellationReason clears the value of the "cancellation_reason" field.
-func (oauo *OrderAssignmentUpdateOne) ClearCancellationReason() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearCancellationReason()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearCancellationReason() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearCancellationReason()
+	return _u
 }
 
 // SetFailureReason sets the "failure_reason" field.
-func (oauo *OrderAssignmentUpdateOne) SetFailureReason(s string) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetFailureReason(s)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetFailureReason(v string) *OrderAssignmentUpdateOne {
+	_u.mutation.SetFailureReason(v)
+	return _u
 }
 
 // SetNillableFailureReason sets the "failure_reason" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableFailureReason(s *string) *OrderAssignmentUpdateOne {
-	if s != nil {
-		oauo.SetFailureReason(*s)
+func (_u *OrderAssignmentUpdateOne) SetNillableFailureReason(v *string) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetFailureReason(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearFailureReason clears the value of the "failure_reason" field.
-func (oauo *OrderAssignmentUpdateOne) ClearFailureReason() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearFailureReason()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearFailureReason() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearFailureReason()
+	return _u
 }
 
 // SetAttemptCount sets the "attempt_count" field.
-func (oauo *OrderAssignmentUpdateOne) SetAttemptCount(i int) *OrderAssignmentUpdateOne {
-	oauo.mutation.ResetAttemptCount()
-	oauo.mutation.SetAttemptCount(i)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetAttemptCount(v int) *OrderAssignmentUpdateOne {
+	_u.mutation.ResetAttemptCount()
+	_u.mutation.SetAttemptCount(v)
+	return _u
 }
 
 // SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableAttemptCount(i *int) *OrderAssignmentUpdateOne {
-	if i != nil {
-		oauo.SetAttemptCount(*i)
+func (_u *OrderAssignmentUpdateOne) SetNillableAttemptCount(v *int) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetAttemptCount(*v)
 	}
-	return oauo
+	return _u
 }
 
-// AddAttemptCount adds i to the "attempt_count" field.
-func (oauo *OrderAssignmentUpdateOne) AddAttemptCount(i int) *OrderAssignmentUpdateOne {
-	oauo.mutation.AddAttemptCount(i)
-	return oauo
+// AddAttemptCount adds value to the "attempt_count" field.
+func (_u *OrderAssignmentUpdateOne) AddAttemptCount(v int) *OrderAssignmentUpdateOne {
+	_u.mutation.AddAttemptCount(v)
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (oauo *OrderAssignmentUpdateOne) SetMetadata(m map[string]interface{}) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetMetadata(m)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetMetadata(v map[string]interface{}) *OrderAssignmentUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (oauo *OrderAssignmentUpdateOne) ClearMetadata() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearMetadata()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearMetadata() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetAssignedAt sets the "assigned_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetAssignedAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetAssignedAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetAssignedAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetAssignedAt(v)
+	return _u
 }
 
 // SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableAssignedAt(t *time.Time) *OrderAssignmentUpdateOne {
-	if t != nil {
-		oauo.SetAssignedAt(*t)
+func (_u *OrderAssignmentUpdateOne) SetNillableAssignedAt(v *time.Time) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetAssignedAt(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearAssignedAt clears the value of the "assigned_at" field.
-func (oauo *OrderAssignmentUpdateOne) ClearAssignedAt() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearAssignedAt()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearAssignedAt() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearAssignedAt()
+	return _u
 }
 
 // SetAcceptedAt sets the "accepted_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetAcceptedAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetAcceptedAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetAcceptedAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetAcceptedAt(v)
+	return _u
 }
 
 // SetNillableAcceptedAt sets the "accepted_at" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableAcceptedAt(t *time.Time) *OrderAssignmentUpdateOne {
-	if t != nil {
-		oauo.SetAcceptedAt(*t)
+func (_u *OrderAssignmentUpdateOne) SetNillableAcceptedAt(v *time.Time) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetAcceptedAt(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearAcceptedAt clears the value of the "accepted_at" field.
-func (oauo *OrderAssignmentUpdateOne) ClearAcceptedAt() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearAcceptedAt()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearAcceptedAt() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearAcceptedAt()
+	return _u
 }
 
 // SetPickedUpAt sets the "picked_up_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetPickedUpAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetPickedUpAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetPickedUpAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetPickedUpAt(v)
+	return _u
 }
 
 // SetNillablePickedUpAt sets the "picked_up_at" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillablePickedUpAt(t *time.Time) *OrderAssignmentUpdateOne {
-	if t != nil {
-		oauo.SetPickedUpAt(*t)
+func (_u *OrderAssignmentUpdateOne) SetNillablePickedUpAt(v *time.Time) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetPickedUpAt(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearPickedUpAt clears the value of the "picked_up_at" field.
-func (oauo *OrderAssignmentUpdateOne) ClearPickedUpAt() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearPickedUpAt()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearPickedUpAt() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearPickedUpAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetCompletedAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetCompletedAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetCompletedAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableCompletedAt(t *time.Time) *OrderAssignmentUpdateOne {
-	if t != nil {
-		oauo.SetCompletedAt(*t)
+func (_u *OrderAssignmentUpdateOne) SetNillableCompletedAt(v *time.Time) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (oauo *OrderAssignmentUpdateOne) ClearCompletedAt() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearCompletedAt()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearCompletedAt() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetCancelledAt sets the "cancelled_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetCancelledAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetCancelledAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetCancelledAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetCancelledAt(v)
+	return _u
 }
 
 // SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
-func (oauo *OrderAssignmentUpdateOne) SetNillableCancelledAt(t *time.Time) *OrderAssignmentUpdateOne {
-	if t != nil {
-		oauo.SetCancelledAt(*t)
+func (_u *OrderAssignmentUpdateOne) SetNillableCancelledAt(v *time.Time) *OrderAssignmentUpdateOne {
+	if v != nil {
+		_u.SetCancelledAt(*v)
 	}
-	return oauo
+	return _u
 }
 
 // ClearCancelledAt clears the value of the "cancelled_at" field.
-func (oauo *OrderAssignmentUpdateOne) ClearCancelledAt() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearCancelledAt()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearCancelledAt() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearCancelledAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oauo *OrderAssignmentUpdateOne) SetUpdatedAt(t time.Time) *OrderAssignmentUpdateOne {
-	oauo.mutation.SetUpdatedAt(t)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) SetUpdatedAt(v time.Time) *OrderAssignmentUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oauo *OrderAssignmentUpdateOne) SetOrder(o *Order) *OrderAssignmentUpdateOne {
-	return oauo.SetOrderID(o.ID)
+func (_u *OrderAssignmentUpdateOne) SetOrder(v *Order) *OrderAssignmentUpdateOne {
+	return _u.SetOrderID(v.ID)
 }
 
 // AddDeliveryWindowIDs adds the "delivery_windows" edge to the DeliveryWindow entity by IDs.
-func (oauo *OrderAssignmentUpdateOne) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdateOne {
-	oauo.mutation.AddDeliveryWindowIDs(ids...)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdateOne {
+	_u.mutation.AddDeliveryWindowIDs(ids...)
+	return _u
 }
 
 // AddDeliveryWindows adds the "delivery_windows" edges to the DeliveryWindow entity.
-func (oauo *OrderAssignmentUpdateOne) AddDeliveryWindows(d ...*DeliveryWindow) *OrderAssignmentUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *OrderAssignmentUpdateOne) AddDeliveryWindows(v ...*DeliveryWindow) *OrderAssignmentUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oauo.AddDeliveryWindowIDs(ids...)
+	return _u.AddDeliveryWindowIDs(ids...)
 }
 
 // Mutation returns the OrderAssignmentMutation object of the builder.
-func (oauo *OrderAssignmentUpdateOne) Mutation() *OrderAssignmentMutation {
-	return oauo.mutation
+func (_u *OrderAssignmentUpdateOne) Mutation() *OrderAssignmentMutation {
+	return _u.mutation
 }
 
 // ClearOrder clears the "order" edge to the Order entity.
-func (oauo *OrderAssignmentUpdateOne) ClearOrder() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearOrder()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearOrder() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearOrder()
+	return _u
 }
 
 // ClearDeliveryWindows clears all "delivery_windows" edges to the DeliveryWindow entity.
-func (oauo *OrderAssignmentUpdateOne) ClearDeliveryWindows() *OrderAssignmentUpdateOne {
-	oauo.mutation.ClearDeliveryWindows()
-	return oauo
+func (_u *OrderAssignmentUpdateOne) ClearDeliveryWindows() *OrderAssignmentUpdateOne {
+	_u.mutation.ClearDeliveryWindows()
+	return _u
 }
 
 // RemoveDeliveryWindowIDs removes the "delivery_windows" edge to DeliveryWindow entities by IDs.
-func (oauo *OrderAssignmentUpdateOne) RemoveDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdateOne {
-	oauo.mutation.RemoveDeliveryWindowIDs(ids...)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) RemoveDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentUpdateOne {
+	_u.mutation.RemoveDeliveryWindowIDs(ids...)
+	return _u
 }
 
 // RemoveDeliveryWindows removes "delivery_windows" edges to DeliveryWindow entities.
-func (oauo *OrderAssignmentUpdateOne) RemoveDeliveryWindows(d ...*DeliveryWindow) *OrderAssignmentUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *OrderAssignmentUpdateOne) RemoveDeliveryWindows(v ...*DeliveryWindow) *OrderAssignmentUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oauo.RemoveDeliveryWindowIDs(ids...)
+	return _u.RemoveDeliveryWindowIDs(ids...)
 }
 
 // Where appends a list predicates to the OrderAssignmentUpdate builder.
-func (oauo *OrderAssignmentUpdateOne) Where(ps ...predicate.OrderAssignment) *OrderAssignmentUpdateOne {
-	oauo.mutation.Where(ps...)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) Where(ps ...predicate.OrderAssignment) *OrderAssignmentUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (oauo *OrderAssignmentUpdateOne) Select(field string, fields ...string) *OrderAssignmentUpdateOne {
-	oauo.fields = append([]string{field}, fields...)
-	return oauo
+func (_u *OrderAssignmentUpdateOne) Select(field string, fields ...string) *OrderAssignmentUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated OrderAssignment entity.
-func (oauo *OrderAssignmentUpdateOne) Save(ctx context.Context) (*OrderAssignment, error) {
-	oauo.defaults()
-	return withHooks(ctx, oauo.sqlSave, oauo.mutation, oauo.hooks)
+func (_u *OrderAssignmentUpdateOne) Save(ctx context.Context) (*OrderAssignment, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oauo *OrderAssignmentUpdateOne) SaveX(ctx context.Context) *OrderAssignment {
-	node, err := oauo.Save(ctx)
+func (_u *OrderAssignmentUpdateOne) SaveX(ctx context.Context) *OrderAssignment {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1054,80 +1054,80 @@ func (oauo *OrderAssignmentUpdateOne) SaveX(ctx context.Context) *OrderAssignmen
 }
 
 // Exec executes the query on the entity.
-func (oauo *OrderAssignmentUpdateOne) Exec(ctx context.Context) error {
-	_, err := oauo.Save(ctx)
+func (_u *OrderAssignmentUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oauo *OrderAssignmentUpdateOne) ExecX(ctx context.Context) {
-	if err := oauo.Exec(ctx); err != nil {
+func (_u *OrderAssignmentUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oauo *OrderAssignmentUpdateOne) defaults() {
-	if _, ok := oauo.mutation.UpdatedAt(); !ok {
+func (_u *OrderAssignmentUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := orderassignment.UpdateDefaultUpdatedAt()
-		oauo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oauo *OrderAssignmentUpdateOne) check() error {
-	if v, ok := oauo.mutation.LogisticsTaskID(); ok {
+func (_u *OrderAssignmentUpdateOne) check() error {
+	if v, ok := _u.mutation.LogisticsTaskID(); ok {
 		if err := orderassignment.LogisticsTaskIDValidator(v); err != nil {
 			return &ValidationError{Name: "logistics_task_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.logistics_task_id": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.RiderID(); ok {
+	if v, ok := _u.mutation.RiderID(); ok {
 		if err := orderassignment.RiderIDValidator(v); err != nil {
 			return &ValidationError{Name: "rider_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rider_id": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := orderassignment.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.status": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.Priority(); ok {
+	if v, ok := _u.mutation.Priority(); ok {
 		if err := orderassignment.PriorityValidator(v); err != nil {
 			return &ValidationError{Name: "priority", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.priority": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.RejectionReason(); ok {
+	if v, ok := _u.mutation.RejectionReason(); ok {
 		if err := orderassignment.RejectionReasonValidator(v); err != nil {
 			return &ValidationError{Name: "rejection_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rejection_reason": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.CancellationReason(); ok {
+	if v, ok := _u.mutation.CancellationReason(); ok {
 		if err := orderassignment.CancellationReasonValidator(v); err != nil {
 			return &ValidationError{Name: "cancellation_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.cancellation_reason": %w`, err)}
 		}
 	}
-	if v, ok := oauo.mutation.FailureReason(); ok {
+	if v, ok := _u.mutation.FailureReason(); ok {
 		if err := orderassignment.FailureReasonValidator(v); err != nil {
 			return &ValidationError{Name: "failure_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.failure_reason": %w`, err)}
 		}
 	}
-	if _, ok := oauo.mutation.OrderID(); oauo.mutation.OrderCleared() && !ok {
+	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrderAssignment.order"`)
 	}
 	return nil
 }
 
-func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *OrderAssignment, err error) {
-	if err := oauo.check(); err != nil {
+func (_u *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *OrderAssignment, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderassignment.Table, orderassignment.Columns, sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID))
-	id, ok := oauo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "OrderAssignment.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := oauo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderassignment.FieldID)
 		for _, f := range fields {
@@ -1139,101 +1139,101 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 			}
 		}
 	}
-	if ps := oauo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oauo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderassignment.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := oauo.mutation.LogisticsTaskID(); ok {
+	if value, ok := _u.mutation.LogisticsTaskID(); ok {
 		_spec.SetField(orderassignment.FieldLogisticsTaskID, field.TypeString, value)
 	}
-	if value, ok := oauo.mutation.RiderID(); ok {
+	if value, ok := _u.mutation.RiderID(); ok {
 		_spec.SetField(orderassignment.FieldRiderID, field.TypeString, value)
 	}
-	if oauo.mutation.RiderIDCleared() {
+	if _u.mutation.RiderIDCleared() {
 		_spec.ClearField(orderassignment.FieldRiderID, field.TypeString)
 	}
-	if value, ok := oauo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(orderassignment.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := oauo.mutation.Priority(); ok {
+	if value, ok := _u.mutation.Priority(); ok {
 		_spec.SetField(orderassignment.FieldPriority, field.TypeEnum, value)
 	}
-	if value, ok := oauo.mutation.SpecialInstructions(); ok {
+	if value, ok := _u.mutation.SpecialInstructions(); ok {
 		_spec.SetField(orderassignment.FieldSpecialInstructions, field.TypeString, value)
 	}
-	if oauo.mutation.SpecialInstructionsCleared() {
+	if _u.mutation.SpecialInstructionsCleared() {
 		_spec.ClearField(orderassignment.FieldSpecialInstructions, field.TypeString)
 	}
-	if value, ok := oauo.mutation.RejectionReason(); ok {
+	if value, ok := _u.mutation.RejectionReason(); ok {
 		_spec.SetField(orderassignment.FieldRejectionReason, field.TypeString, value)
 	}
-	if oauo.mutation.RejectionReasonCleared() {
+	if _u.mutation.RejectionReasonCleared() {
 		_spec.ClearField(orderassignment.FieldRejectionReason, field.TypeString)
 	}
-	if value, ok := oauo.mutation.CancellationReason(); ok {
+	if value, ok := _u.mutation.CancellationReason(); ok {
 		_spec.SetField(orderassignment.FieldCancellationReason, field.TypeString, value)
 	}
-	if oauo.mutation.CancellationReasonCleared() {
+	if _u.mutation.CancellationReasonCleared() {
 		_spec.ClearField(orderassignment.FieldCancellationReason, field.TypeString)
 	}
-	if value, ok := oauo.mutation.FailureReason(); ok {
+	if value, ok := _u.mutation.FailureReason(); ok {
 		_spec.SetField(orderassignment.FieldFailureReason, field.TypeString, value)
 	}
-	if oauo.mutation.FailureReasonCleared() {
+	if _u.mutation.FailureReasonCleared() {
 		_spec.ClearField(orderassignment.FieldFailureReason, field.TypeString)
 	}
-	if value, ok := oauo.mutation.AttemptCount(); ok {
+	if value, ok := _u.mutation.AttemptCount(); ok {
 		_spec.SetField(orderassignment.FieldAttemptCount, field.TypeInt, value)
 	}
-	if value, ok := oauo.mutation.AddedAttemptCount(); ok {
+	if value, ok := _u.mutation.AddedAttemptCount(); ok {
 		_spec.AddField(orderassignment.FieldAttemptCount, field.TypeInt, value)
 	}
-	if value, ok := oauo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(orderassignment.FieldMetadata, field.TypeJSON, value)
 	}
-	if oauo.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(orderassignment.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := oauo.mutation.AssignedAt(); ok {
+	if value, ok := _u.mutation.AssignedAt(); ok {
 		_spec.SetField(orderassignment.FieldAssignedAt, field.TypeTime, value)
 	}
-	if oauo.mutation.AssignedAtCleared() {
+	if _u.mutation.AssignedAtCleared() {
 		_spec.ClearField(orderassignment.FieldAssignedAt, field.TypeTime)
 	}
-	if value, ok := oauo.mutation.AcceptedAt(); ok {
+	if value, ok := _u.mutation.AcceptedAt(); ok {
 		_spec.SetField(orderassignment.FieldAcceptedAt, field.TypeTime, value)
 	}
-	if oauo.mutation.AcceptedAtCleared() {
+	if _u.mutation.AcceptedAtCleared() {
 		_spec.ClearField(orderassignment.FieldAcceptedAt, field.TypeTime)
 	}
-	if value, ok := oauo.mutation.PickedUpAt(); ok {
+	if value, ok := _u.mutation.PickedUpAt(); ok {
 		_spec.SetField(orderassignment.FieldPickedUpAt, field.TypeTime, value)
 	}
-	if oauo.mutation.PickedUpAtCleared() {
+	if _u.mutation.PickedUpAtCleared() {
 		_spec.ClearField(orderassignment.FieldPickedUpAt, field.TypeTime)
 	}
-	if value, ok := oauo.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(orderassignment.FieldCompletedAt, field.TypeTime, value)
 	}
-	if oauo.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(orderassignment.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := oauo.mutation.CancelledAt(); ok {
+	if value, ok := _u.mutation.CancelledAt(); ok {
 		_spec.SetField(orderassignment.FieldCancelledAt, field.TypeTime, value)
 	}
-	if oauo.mutation.CancelledAtCleared() {
+	if _u.mutation.CancelledAtCleared() {
 		_spec.ClearField(orderassignment.FieldCancelledAt, field.TypeTime)
 	}
-	if value, ok := oauo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(orderassignment.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if oauo.mutation.OrderCleared() {
+	if _u.mutation.OrderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1246,7 +1246,7 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oauo.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1262,7 +1262,7 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oauo.mutation.DeliveryWindowsCleared() {
+	if _u.mutation.DeliveryWindowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1275,7 +1275,7 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oauo.mutation.RemovedDeliveryWindowsIDs(); len(nodes) > 0 && !oauo.mutation.DeliveryWindowsCleared() {
+	if nodes := _u.mutation.RemovedDeliveryWindowsIDs(); len(nodes) > 0 && !_u.mutation.DeliveryWindowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1291,7 +1291,7 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oauo.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1307,10 +1307,10 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &OrderAssignment{config: oauo.config}
+	_node = &OrderAssignment{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, oauo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderassignment.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1318,6 +1318,6 @@ func (oauo *OrderAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Order
 		}
 		return nil, err
 	}
-	oauo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

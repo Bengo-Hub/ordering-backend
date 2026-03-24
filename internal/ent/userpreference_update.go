@@ -25,140 +25,140 @@ type UserPreferenceUpdate struct {
 }
 
 // Where appends a list predicates to the UserPreferenceUpdate builder.
-func (upu *UserPreferenceUpdate) Where(ps ...predicate.UserPreference) *UserPreferenceUpdate {
-	upu.mutation.Where(ps...)
-	return upu
+func (_u *UserPreferenceUpdate) Where(ps ...predicate.UserPreference) *UserPreferenceUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTheme sets the "theme" field.
-func (upu *UserPreferenceUpdate) SetTheme(s string) *UserPreferenceUpdate {
-	upu.mutation.SetTheme(s)
-	return upu
+func (_u *UserPreferenceUpdate) SetTheme(v string) *UserPreferenceUpdate {
+	_u.mutation.SetTheme(v)
+	return _u
 }
 
 // SetNillableTheme sets the "theme" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableTheme(s *string) *UserPreferenceUpdate {
-	if s != nil {
-		upu.SetTheme(*s)
+func (_u *UserPreferenceUpdate) SetNillableTheme(v *string) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetTheme(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetLanguage sets the "language" field.
-func (upu *UserPreferenceUpdate) SetLanguage(s string) *UserPreferenceUpdate {
-	upu.mutation.SetLanguage(s)
-	return upu
+func (_u *UserPreferenceUpdate) SetLanguage(v string) *UserPreferenceUpdate {
+	_u.mutation.SetLanguage(v)
+	return _u
 }
 
 // SetNillableLanguage sets the "language" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableLanguage(s *string) *UserPreferenceUpdate {
-	if s != nil {
-		upu.SetLanguage(*s)
+func (_u *UserPreferenceUpdate) SetNillableLanguage(v *string) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetLanguage(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetNotifyEmail sets the "notify_email" field.
-func (upu *UserPreferenceUpdate) SetNotifyEmail(b bool) *UserPreferenceUpdate {
-	upu.mutation.SetNotifyEmail(b)
-	return upu
+func (_u *UserPreferenceUpdate) SetNotifyEmail(v bool) *UserPreferenceUpdate {
+	_u.mutation.SetNotifyEmail(v)
+	return _u
 }
 
 // SetNillableNotifyEmail sets the "notify_email" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableNotifyEmail(b *bool) *UserPreferenceUpdate {
-	if b != nil {
-		upu.SetNotifyEmail(*b)
+func (_u *UserPreferenceUpdate) SetNillableNotifyEmail(v *bool) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetNotifyEmail(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetNotifySms sets the "notify_sms" field.
-func (upu *UserPreferenceUpdate) SetNotifySms(b bool) *UserPreferenceUpdate {
-	upu.mutation.SetNotifySms(b)
-	return upu
+func (_u *UserPreferenceUpdate) SetNotifySms(v bool) *UserPreferenceUpdate {
+	_u.mutation.SetNotifySms(v)
+	return _u
 }
 
 // SetNillableNotifySms sets the "notify_sms" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableNotifySms(b *bool) *UserPreferenceUpdate {
-	if b != nil {
-		upu.SetNotifySms(*b)
+func (_u *UserPreferenceUpdate) SetNillableNotifySms(v *bool) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetNotifySms(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetNotifyPush sets the "notify_push" field.
-func (upu *UserPreferenceUpdate) SetNotifyPush(b bool) *UserPreferenceUpdate {
-	upu.mutation.SetNotifyPush(b)
-	return upu
+func (_u *UserPreferenceUpdate) SetNotifyPush(v bool) *UserPreferenceUpdate {
+	_u.mutation.SetNotifyPush(v)
+	return _u
 }
 
 // SetNillableNotifyPush sets the "notify_push" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableNotifyPush(b *bool) *UserPreferenceUpdate {
-	if b != nil {
-		upu.SetNotifyPush(*b)
+func (_u *UserPreferenceUpdate) SetNillableNotifyPush(v *bool) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetNotifyPush(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetTimezone sets the "timezone" field.
-func (upu *UserPreferenceUpdate) SetTimezone(s string) *UserPreferenceUpdate {
-	upu.mutation.SetTimezone(s)
-	return upu
+func (_u *UserPreferenceUpdate) SetTimezone(v string) *UserPreferenceUpdate {
+	_u.mutation.SetTimezone(v)
+	return _u
 }
 
 // SetNillableTimezone sets the "timezone" field if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableTimezone(s *string) *UserPreferenceUpdate {
-	if s != nil {
-		upu.SetTimezone(*s)
+func (_u *UserPreferenceUpdate) SetNillableTimezone(v *string) *UserPreferenceUpdate {
+	if v != nil {
+		_u.SetTimezone(*v)
 	}
-	return upu
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (upu *UserPreferenceUpdate) SetUpdatedAt(t time.Time) *UserPreferenceUpdate {
-	upu.mutation.SetUpdatedAt(t)
-	return upu
+func (_u *UserPreferenceUpdate) SetUpdatedAt(v time.Time) *UserPreferenceUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (upu *UserPreferenceUpdate) SetUserID(id uuid.UUID) *UserPreferenceUpdate {
-	upu.mutation.SetUserID(id)
-	return upu
+func (_u *UserPreferenceUpdate) SetUserID(id uuid.UUID) *UserPreferenceUpdate {
+	_u.mutation.SetUserID(id)
+	return _u
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (upu *UserPreferenceUpdate) SetNillableUserID(id *uuid.UUID) *UserPreferenceUpdate {
+func (_u *UserPreferenceUpdate) SetNillableUserID(id *uuid.UUID) *UserPreferenceUpdate {
 	if id != nil {
-		upu = upu.SetUserID(*id)
+		_u = _u.SetUserID(*id)
 	}
-	return upu
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (upu *UserPreferenceUpdate) SetUser(u *User) *UserPreferenceUpdate {
-	return upu.SetUserID(u.ID)
+func (_u *UserPreferenceUpdate) SetUser(v *User) *UserPreferenceUpdate {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the UserPreferenceMutation object of the builder.
-func (upu *UserPreferenceUpdate) Mutation() *UserPreferenceMutation {
-	return upu.mutation
+func (_u *UserPreferenceUpdate) Mutation() *UserPreferenceMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (upu *UserPreferenceUpdate) ClearUser() *UserPreferenceUpdate {
-	upu.mutation.ClearUser()
-	return upu
+func (_u *UserPreferenceUpdate) ClearUser() *UserPreferenceUpdate {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (upu *UserPreferenceUpdate) Save(ctx context.Context) (int, error) {
-	upu.defaults()
-	return withHooks(ctx, upu.sqlSave, upu.mutation, upu.hooks)
+func (_u *UserPreferenceUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (upu *UserPreferenceUpdate) SaveX(ctx context.Context) int {
-	affected, err := upu.Save(ctx)
+func (_u *UserPreferenceUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -166,57 +166,57 @@ func (upu *UserPreferenceUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (upu *UserPreferenceUpdate) Exec(ctx context.Context) error {
-	_, err := upu.Save(ctx)
+func (_u *UserPreferenceUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upu *UserPreferenceUpdate) ExecX(ctx context.Context) {
-	if err := upu.Exec(ctx); err != nil {
+func (_u *UserPreferenceUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (upu *UserPreferenceUpdate) defaults() {
-	if _, ok := upu.mutation.UpdatedAt(); !ok {
+func (_u *UserPreferenceUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := userpreference.UpdateDefaultUpdatedAt()
-		upu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (upu *UserPreferenceUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *UserPreferenceUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(userpreference.Table, userpreference.Columns, sqlgraph.NewFieldSpec(userpreference.FieldID, field.TypeInt))
-	if ps := upu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := upu.mutation.Theme(); ok {
+	if value, ok := _u.mutation.Theme(); ok {
 		_spec.SetField(userpreference.FieldTheme, field.TypeString, value)
 	}
-	if value, ok := upu.mutation.Language(); ok {
+	if value, ok := _u.mutation.Language(); ok {
 		_spec.SetField(userpreference.FieldLanguage, field.TypeString, value)
 	}
-	if value, ok := upu.mutation.NotifyEmail(); ok {
+	if value, ok := _u.mutation.NotifyEmail(); ok {
 		_spec.SetField(userpreference.FieldNotifyEmail, field.TypeBool, value)
 	}
-	if value, ok := upu.mutation.NotifySms(); ok {
+	if value, ok := _u.mutation.NotifySms(); ok {
 		_spec.SetField(userpreference.FieldNotifySms, field.TypeBool, value)
 	}
-	if value, ok := upu.mutation.NotifyPush(); ok {
+	if value, ok := _u.mutation.NotifyPush(); ok {
 		_spec.SetField(userpreference.FieldNotifyPush, field.TypeBool, value)
 	}
-	if value, ok := upu.mutation.Timezone(); ok {
+	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(userpreference.FieldTimezone, field.TypeString, value)
 	}
-	if value, ok := upu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userpreference.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if upu.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -229,7 +229,7 @@ func (upu *UserPreferenceUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := upu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -245,7 +245,7 @@ func (upu *UserPreferenceUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, upu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{userpreference.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -253,8 +253,8 @@ func (upu *UserPreferenceUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		return 0, err
 	}
-	upu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // UserPreferenceUpdateOne is the builder for updating a single UserPreference entity.
@@ -266,147 +266,147 @@ type UserPreferenceUpdateOne struct {
 }
 
 // SetTheme sets the "theme" field.
-func (upuo *UserPreferenceUpdateOne) SetTheme(s string) *UserPreferenceUpdateOne {
-	upuo.mutation.SetTheme(s)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetTheme(v string) *UserPreferenceUpdateOne {
+	_u.mutation.SetTheme(v)
+	return _u
 }
 
 // SetNillableTheme sets the "theme" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableTheme(s *string) *UserPreferenceUpdateOne {
-	if s != nil {
-		upuo.SetTheme(*s)
+func (_u *UserPreferenceUpdateOne) SetNillableTheme(v *string) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetTheme(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetLanguage sets the "language" field.
-func (upuo *UserPreferenceUpdateOne) SetLanguage(s string) *UserPreferenceUpdateOne {
-	upuo.mutation.SetLanguage(s)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetLanguage(v string) *UserPreferenceUpdateOne {
+	_u.mutation.SetLanguage(v)
+	return _u
 }
 
 // SetNillableLanguage sets the "language" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableLanguage(s *string) *UserPreferenceUpdateOne {
-	if s != nil {
-		upuo.SetLanguage(*s)
+func (_u *UserPreferenceUpdateOne) SetNillableLanguage(v *string) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetLanguage(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetNotifyEmail sets the "notify_email" field.
-func (upuo *UserPreferenceUpdateOne) SetNotifyEmail(b bool) *UserPreferenceUpdateOne {
-	upuo.mutation.SetNotifyEmail(b)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetNotifyEmail(v bool) *UserPreferenceUpdateOne {
+	_u.mutation.SetNotifyEmail(v)
+	return _u
 }
 
 // SetNillableNotifyEmail sets the "notify_email" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableNotifyEmail(b *bool) *UserPreferenceUpdateOne {
-	if b != nil {
-		upuo.SetNotifyEmail(*b)
+func (_u *UserPreferenceUpdateOne) SetNillableNotifyEmail(v *bool) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetNotifyEmail(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetNotifySms sets the "notify_sms" field.
-func (upuo *UserPreferenceUpdateOne) SetNotifySms(b bool) *UserPreferenceUpdateOne {
-	upuo.mutation.SetNotifySms(b)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetNotifySms(v bool) *UserPreferenceUpdateOne {
+	_u.mutation.SetNotifySms(v)
+	return _u
 }
 
 // SetNillableNotifySms sets the "notify_sms" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableNotifySms(b *bool) *UserPreferenceUpdateOne {
-	if b != nil {
-		upuo.SetNotifySms(*b)
+func (_u *UserPreferenceUpdateOne) SetNillableNotifySms(v *bool) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetNotifySms(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetNotifyPush sets the "notify_push" field.
-func (upuo *UserPreferenceUpdateOne) SetNotifyPush(b bool) *UserPreferenceUpdateOne {
-	upuo.mutation.SetNotifyPush(b)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetNotifyPush(v bool) *UserPreferenceUpdateOne {
+	_u.mutation.SetNotifyPush(v)
+	return _u
 }
 
 // SetNillableNotifyPush sets the "notify_push" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableNotifyPush(b *bool) *UserPreferenceUpdateOne {
-	if b != nil {
-		upuo.SetNotifyPush(*b)
+func (_u *UserPreferenceUpdateOne) SetNillableNotifyPush(v *bool) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetNotifyPush(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetTimezone sets the "timezone" field.
-func (upuo *UserPreferenceUpdateOne) SetTimezone(s string) *UserPreferenceUpdateOne {
-	upuo.mutation.SetTimezone(s)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetTimezone(v string) *UserPreferenceUpdateOne {
+	_u.mutation.SetTimezone(v)
+	return _u
 }
 
 // SetNillableTimezone sets the "timezone" field if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableTimezone(s *string) *UserPreferenceUpdateOne {
-	if s != nil {
-		upuo.SetTimezone(*s)
+func (_u *UserPreferenceUpdateOne) SetNillableTimezone(v *string) *UserPreferenceUpdateOne {
+	if v != nil {
+		_u.SetTimezone(*v)
 	}
-	return upuo
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (upuo *UserPreferenceUpdateOne) SetUpdatedAt(t time.Time) *UserPreferenceUpdateOne {
-	upuo.mutation.SetUpdatedAt(t)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetUpdatedAt(v time.Time) *UserPreferenceUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (upuo *UserPreferenceUpdateOne) SetUserID(id uuid.UUID) *UserPreferenceUpdateOne {
-	upuo.mutation.SetUserID(id)
-	return upuo
+func (_u *UserPreferenceUpdateOne) SetUserID(id uuid.UUID) *UserPreferenceUpdateOne {
+	_u.mutation.SetUserID(id)
+	return _u
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (upuo *UserPreferenceUpdateOne) SetNillableUserID(id *uuid.UUID) *UserPreferenceUpdateOne {
+func (_u *UserPreferenceUpdateOne) SetNillableUserID(id *uuid.UUID) *UserPreferenceUpdateOne {
 	if id != nil {
-		upuo = upuo.SetUserID(*id)
+		_u = _u.SetUserID(*id)
 	}
-	return upuo
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (upuo *UserPreferenceUpdateOne) SetUser(u *User) *UserPreferenceUpdateOne {
-	return upuo.SetUserID(u.ID)
+func (_u *UserPreferenceUpdateOne) SetUser(v *User) *UserPreferenceUpdateOne {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the UserPreferenceMutation object of the builder.
-func (upuo *UserPreferenceUpdateOne) Mutation() *UserPreferenceMutation {
-	return upuo.mutation
+func (_u *UserPreferenceUpdateOne) Mutation() *UserPreferenceMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (upuo *UserPreferenceUpdateOne) ClearUser() *UserPreferenceUpdateOne {
-	upuo.mutation.ClearUser()
-	return upuo
+func (_u *UserPreferenceUpdateOne) ClearUser() *UserPreferenceUpdateOne {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Where appends a list predicates to the UserPreferenceUpdate builder.
-func (upuo *UserPreferenceUpdateOne) Where(ps ...predicate.UserPreference) *UserPreferenceUpdateOne {
-	upuo.mutation.Where(ps...)
-	return upuo
+func (_u *UserPreferenceUpdateOne) Where(ps ...predicate.UserPreference) *UserPreferenceUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (upuo *UserPreferenceUpdateOne) Select(field string, fields ...string) *UserPreferenceUpdateOne {
-	upuo.fields = append([]string{field}, fields...)
-	return upuo
+func (_u *UserPreferenceUpdateOne) Select(field string, fields ...string) *UserPreferenceUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated UserPreference entity.
-func (upuo *UserPreferenceUpdateOne) Save(ctx context.Context) (*UserPreference, error) {
-	upuo.defaults()
-	return withHooks(ctx, upuo.sqlSave, upuo.mutation, upuo.hooks)
+func (_u *UserPreferenceUpdateOne) Save(ctx context.Context) (*UserPreference, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (upuo *UserPreferenceUpdateOne) SaveX(ctx context.Context) *UserPreference {
-	node, err := upuo.Save(ctx)
+func (_u *UserPreferenceUpdateOne) SaveX(ctx context.Context) *UserPreference {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -414,34 +414,34 @@ func (upuo *UserPreferenceUpdateOne) SaveX(ctx context.Context) *UserPreference 
 }
 
 // Exec executes the query on the entity.
-func (upuo *UserPreferenceUpdateOne) Exec(ctx context.Context) error {
-	_, err := upuo.Save(ctx)
+func (_u *UserPreferenceUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upuo *UserPreferenceUpdateOne) ExecX(ctx context.Context) {
-	if err := upuo.Exec(ctx); err != nil {
+func (_u *UserPreferenceUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (upuo *UserPreferenceUpdateOne) defaults() {
-	if _, ok := upuo.mutation.UpdatedAt(); !ok {
+func (_u *UserPreferenceUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := userpreference.UpdateDefaultUpdatedAt()
-		upuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (upuo *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPreference, err error) {
+func (_u *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPreference, err error) {
 	_spec := sqlgraph.NewUpdateSpec(userpreference.Table, userpreference.Columns, sqlgraph.NewFieldSpec(userpreference.FieldID, field.TypeInt))
-	id, ok := upuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "UserPreference.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := upuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, userpreference.FieldID)
 		for _, f := range fields {
@@ -453,35 +453,35 @@ func (upuo *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPr
 			}
 		}
 	}
-	if ps := upuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := upuo.mutation.Theme(); ok {
+	if value, ok := _u.mutation.Theme(); ok {
 		_spec.SetField(userpreference.FieldTheme, field.TypeString, value)
 	}
-	if value, ok := upuo.mutation.Language(); ok {
+	if value, ok := _u.mutation.Language(); ok {
 		_spec.SetField(userpreference.FieldLanguage, field.TypeString, value)
 	}
-	if value, ok := upuo.mutation.NotifyEmail(); ok {
+	if value, ok := _u.mutation.NotifyEmail(); ok {
 		_spec.SetField(userpreference.FieldNotifyEmail, field.TypeBool, value)
 	}
-	if value, ok := upuo.mutation.NotifySms(); ok {
+	if value, ok := _u.mutation.NotifySms(); ok {
 		_spec.SetField(userpreference.FieldNotifySms, field.TypeBool, value)
 	}
-	if value, ok := upuo.mutation.NotifyPush(); ok {
+	if value, ok := _u.mutation.NotifyPush(); ok {
 		_spec.SetField(userpreference.FieldNotifyPush, field.TypeBool, value)
 	}
-	if value, ok := upuo.mutation.Timezone(); ok {
+	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(userpreference.FieldTimezone, field.TypeString, value)
 	}
-	if value, ok := upuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userpreference.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if upuo.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -494,7 +494,7 @@ func (upuo *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPr
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := upuo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -510,10 +510,10 @@ func (upuo *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPr
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &UserPreference{config: upuo.config}
+	_node = &UserPreference{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, upuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{userpreference.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -521,6 +521,6 @@ func (upuo *UserPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *UserPr
 		}
 		return nil, err
 	}
-	upuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

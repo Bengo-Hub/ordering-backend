@@ -18,14 +18,8 @@ type Tx struct {
 	Cart *CartClient
 	// CartItem is the client for interacting with the CartItem builders.
 	CartItem *CartItemClient
-	// CatalogCategory is the client for interacting with the CatalogCategory builders.
-	CatalogCategory *CatalogCategoryClient
-	// CatalogItem is the client for interacting with the CatalogItem builders.
-	CatalogItem *CatalogItemClient
-	// CatalogItemAsset is the client for interacting with the CatalogItemAsset builders.
-	CatalogItemAsset *CatalogItemAssetClient
-	// CatalogItemSchedule is the client for interacting with the CatalogItemSchedule builders.
-	CatalogItemSchedule *CatalogItemScheduleClient
+	// CatalogOverride is the client for interacting with the CatalogOverride builders.
+	CatalogOverride *CatalogOverrideClient
 	// CustomerAddress is the client for interacting with the CustomerAddress builders.
 	CustomerAddress *CustomerAddressClient
 	// DataDeletionJob is the client for interacting with the DataDeletionJob builders.
@@ -38,8 +32,6 @@ type Tx struct {
 	DeliveryWindow *DeliveryWindowClient
 	// DeliveryZone is the client for interacting with the DeliveryZone builders.
 	DeliveryZone *DeliveryZoneClient
-	// DietaryTag is the client for interacting with the DietaryTag builders.
-	DietaryTag *DietaryTagClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
 	LoyaltyAccount *LoyaltyAccountClient
 	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
@@ -84,6 +76,8 @@ type Tx struct {
 	TenantSyncEvent *TenantSyncEventClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserFavorite is the client for interacting with the UserFavorite builders.
+	UserFavorite *UserFavoriteClient
 	// UserPreference is the client for interacting with the UserPreference builders.
 	UserPreference *UserPreferenceClient
 	// UserProfile is the client for interacting with the UserProfile builders.
@@ -224,17 +218,13 @@ func (tx *Tx) init() {
 	tx.AuditLog = NewAuditLogClient(tx.config)
 	tx.Cart = NewCartClient(tx.config)
 	tx.CartItem = NewCartItemClient(tx.config)
-	tx.CatalogCategory = NewCatalogCategoryClient(tx.config)
-	tx.CatalogItem = NewCatalogItemClient(tx.config)
-	tx.CatalogItemAsset = NewCatalogItemAssetClient(tx.config)
-	tx.CatalogItemSchedule = NewCatalogItemScheduleClient(tx.config)
+	tx.CatalogOverride = NewCatalogOverrideClient(tx.config)
 	tx.CustomerAddress = NewCustomerAddressClient(tx.config)
 	tx.DataDeletionJob = NewDataDeletionJobClient(tx.config)
 	tx.DataExportJob = NewDataExportJobClient(tx.config)
 	tx.DataSubjectRequest = NewDataSubjectRequestClient(tx.config)
 	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
 	tx.DeliveryZone = NewDeliveryZoneClient(tx.config)
-	tx.DietaryTag = NewDietaryTagClient(tx.config)
 	tx.LoyaltyAccount = NewLoyaltyAccountClient(tx.config)
 	tx.LoyaltyTransaction = NewLoyaltyTransactionClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
@@ -257,6 +247,7 @@ func (tx *Tx) init() {
 	tx.TenantSetting = NewTenantSettingClient(tx.config)
 	tx.TenantSyncEvent = NewTenantSyncEventClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserFavorite = NewUserFavoriteClient(tx.config)
 	tx.UserPreference = NewUserPreferenceClient(tx.config)
 	tx.UserProfile = NewUserProfileClient(tx.config)
 	tx.UserRoleAssignment = NewUserRoleAssignmentClient(tx.config)

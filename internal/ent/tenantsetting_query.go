@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -31,44 +32,44 @@ type TenantSettingQuery struct {
 }
 
 // Where adds a new predicate for the TenantSettingQuery builder.
-func (tsq *TenantSettingQuery) Where(ps ...predicate.TenantSetting) *TenantSettingQuery {
-	tsq.predicates = append(tsq.predicates, ps...)
-	return tsq
+func (_q *TenantSettingQuery) Where(ps ...predicate.TenantSetting) *TenantSettingQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (tsq *TenantSettingQuery) Limit(limit int) *TenantSettingQuery {
-	tsq.ctx.Limit = &limit
-	return tsq
+func (_q *TenantSettingQuery) Limit(limit int) *TenantSettingQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (tsq *TenantSettingQuery) Offset(offset int) *TenantSettingQuery {
-	tsq.ctx.Offset = &offset
-	return tsq
+func (_q *TenantSettingQuery) Offset(offset int) *TenantSettingQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (tsq *TenantSettingQuery) Unique(unique bool) *TenantSettingQuery {
-	tsq.ctx.Unique = &unique
-	return tsq
+func (_q *TenantSettingQuery) Unique(unique bool) *TenantSettingQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (tsq *TenantSettingQuery) Order(o ...tenantsetting.OrderOption) *TenantSettingQuery {
-	tsq.order = append(tsq.order, o...)
-	return tsq
+func (_q *TenantSettingQuery) Order(o ...tenantsetting.OrderOption) *TenantSettingQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryTenant chains the current query on the "tenant" edge.
-func (tsq *TenantSettingQuery) QueryTenant() *TenantQuery {
-	query := (&TenantClient{config: tsq.config}).Query()
+func (_q *TenantSettingQuery) QueryTenant() *TenantQuery {
+	query := (&TenantClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tsq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := tsq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -77,7 +78,7 @@ func (tsq *TenantSettingQuery) QueryTenant() *TenantQuery {
 			sqlgraph.To(tenant.Table, tenant.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, tenantsetting.TenantTable, tenantsetting.TenantColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(tsq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -85,8 +86,8 @@ func (tsq *TenantSettingQuery) QueryTenant() *TenantQuery {
 
 // First returns the first TenantSetting entity from the query.
 // Returns a *NotFoundError when no TenantSetting was found.
-func (tsq *TenantSettingQuery) First(ctx context.Context) (*TenantSetting, error) {
-	nodes, err := tsq.Limit(1).All(setContextOp(ctx, tsq.ctx, "First"))
+func (_q *TenantSettingQuery) First(ctx context.Context) (*TenantSetting, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +98,8 @@ func (tsq *TenantSettingQuery) First(ctx context.Context) (*TenantSetting, error
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (tsq *TenantSettingQuery) FirstX(ctx context.Context) *TenantSetting {
-	node, err := tsq.First(ctx)
+func (_q *TenantSettingQuery) FirstX(ctx context.Context) *TenantSetting {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -107,9 +108,9 @@ func (tsq *TenantSettingQuery) FirstX(ctx context.Context) *TenantSetting {
 
 // FirstID returns the first TenantSetting ID from the query.
 // Returns a *NotFoundError when no TenantSetting ID was found.
-func (tsq *TenantSettingQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *TenantSettingQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tsq.Limit(1).IDs(setContextOp(ctx, tsq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -120,8 +121,8 @@ func (tsq *TenantSettingQuery) FirstID(ctx context.Context) (id int, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (tsq *TenantSettingQuery) FirstIDX(ctx context.Context) int {
-	id, err := tsq.FirstID(ctx)
+func (_q *TenantSettingQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -131,8 +132,8 @@ func (tsq *TenantSettingQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single TenantSetting entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one TenantSetting entity is found.
 // Returns a *NotFoundError when no TenantSetting entities are found.
-func (tsq *TenantSettingQuery) Only(ctx context.Context) (*TenantSetting, error) {
-	nodes, err := tsq.Limit(2).All(setContextOp(ctx, tsq.ctx, "Only"))
+func (_q *TenantSettingQuery) Only(ctx context.Context) (*TenantSetting, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +148,8 @@ func (tsq *TenantSettingQuery) Only(ctx context.Context) (*TenantSetting, error)
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (tsq *TenantSettingQuery) OnlyX(ctx context.Context) *TenantSetting {
-	node, err := tsq.Only(ctx)
+func (_q *TenantSettingQuery) OnlyX(ctx context.Context) *TenantSetting {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -158,9 +159,9 @@ func (tsq *TenantSettingQuery) OnlyX(ctx context.Context) *TenantSetting {
 // OnlyID is like Only, but returns the only TenantSetting ID in the query.
 // Returns a *NotSingularError when more than one TenantSetting ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (tsq *TenantSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *TenantSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tsq.Limit(2).IDs(setContextOp(ctx, tsq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -175,8 +176,8 @@ func (tsq *TenantSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (tsq *TenantSettingQuery) OnlyIDX(ctx context.Context) int {
-	id, err := tsq.OnlyID(ctx)
+func (_q *TenantSettingQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -184,18 +185,18 @@ func (tsq *TenantSettingQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of TenantSettings.
-func (tsq *TenantSettingQuery) All(ctx context.Context) ([]*TenantSetting, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "All")
-	if err := tsq.prepareQuery(ctx); err != nil {
+func (_q *TenantSettingQuery) All(ctx context.Context) ([]*TenantSetting, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*TenantSetting, *TenantSettingQuery]()
-	return withInterceptors[[]*TenantSetting](ctx, tsq, qr, tsq.inters)
+	return withInterceptors[[]*TenantSetting](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (tsq *TenantSettingQuery) AllX(ctx context.Context) []*TenantSetting {
-	nodes, err := tsq.All(ctx)
+func (_q *TenantSettingQuery) AllX(ctx context.Context) []*TenantSetting {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -203,20 +204,20 @@ func (tsq *TenantSettingQuery) AllX(ctx context.Context) []*TenantSetting {
 }
 
 // IDs executes the query and returns a list of TenantSetting IDs.
-func (tsq *TenantSettingQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if tsq.ctx.Unique == nil && tsq.path != nil {
-		tsq.Unique(true)
+func (_q *TenantSettingQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, tsq.ctx, "IDs")
-	if err = tsq.Select(tenantsetting.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(tenantsetting.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (tsq *TenantSettingQuery) IDsX(ctx context.Context) []int {
-	ids, err := tsq.IDs(ctx)
+func (_q *TenantSettingQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -224,17 +225,17 @@ func (tsq *TenantSettingQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (tsq *TenantSettingQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "Count")
-	if err := tsq.prepareQuery(ctx); err != nil {
+func (_q *TenantSettingQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, tsq, querierCount[*TenantSettingQuery](), tsq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*TenantSettingQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (tsq *TenantSettingQuery) CountX(ctx context.Context) int {
-	count, err := tsq.Count(ctx)
+func (_q *TenantSettingQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -242,9 +243,9 @@ func (tsq *TenantSettingQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (tsq *TenantSettingQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "Exist")
-	switch _, err := tsq.FirstID(ctx); {
+func (_q *TenantSettingQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -255,8 +256,8 @@ func (tsq *TenantSettingQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (tsq *TenantSettingQuery) ExistX(ctx context.Context) bool {
-	exist, err := tsq.Exist(ctx)
+func (_q *TenantSettingQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -265,32 +266,32 @@ func (tsq *TenantSettingQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the TenantSettingQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (tsq *TenantSettingQuery) Clone() *TenantSettingQuery {
-	if tsq == nil {
+func (_q *TenantSettingQuery) Clone() *TenantSettingQuery {
+	if _q == nil {
 		return nil
 	}
 	return &TenantSettingQuery{
-		config:     tsq.config,
-		ctx:        tsq.ctx.Clone(),
-		order:      append([]tenantsetting.OrderOption{}, tsq.order...),
-		inters:     append([]Interceptor{}, tsq.inters...),
-		predicates: append([]predicate.TenantSetting{}, tsq.predicates...),
-		withTenant: tsq.withTenant.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]tenantsetting.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.TenantSetting{}, _q.predicates...),
+		withTenant: _q.withTenant.Clone(),
 		// clone intermediate query.
-		sql:  tsq.sql.Clone(),
-		path: tsq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithTenant tells the query-builder to eager-load the nodes that are connected to
 // the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
-func (tsq *TenantSettingQuery) WithTenant(opts ...func(*TenantQuery)) *TenantSettingQuery {
-	query := (&TenantClient{config: tsq.config}).Query()
+func (_q *TenantSettingQuery) WithTenant(opts ...func(*TenantQuery)) *TenantSettingQuery {
+	query := (&TenantClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	tsq.withTenant = query
-	return tsq
+	_q.withTenant = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -307,10 +308,10 @@ func (tsq *TenantSettingQuery) WithTenant(opts ...func(*TenantQuery)) *TenantSet
 //		GroupBy(tenantsetting.FieldBrandPalette).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (tsq *TenantSettingQuery) GroupBy(field string, fields ...string) *TenantSettingGroupBy {
-	tsq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &TenantSettingGroupBy{build: tsq}
-	grbuild.flds = &tsq.ctx.Fields
+func (_q *TenantSettingQuery) GroupBy(field string, fields ...string) *TenantSettingGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &TenantSettingGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = tenantsetting.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -328,55 +329,55 @@ func (tsq *TenantSettingQuery) GroupBy(field string, fields ...string) *TenantSe
 //	client.TenantSetting.Query().
 //		Select(tenantsetting.FieldBrandPalette).
 //		Scan(ctx, &v)
-func (tsq *TenantSettingQuery) Select(fields ...string) *TenantSettingSelect {
-	tsq.ctx.Fields = append(tsq.ctx.Fields, fields...)
-	sbuild := &TenantSettingSelect{TenantSettingQuery: tsq}
+func (_q *TenantSettingQuery) Select(fields ...string) *TenantSettingSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &TenantSettingSelect{TenantSettingQuery: _q}
 	sbuild.label = tenantsetting.Label
-	sbuild.flds, sbuild.scan = &tsq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a TenantSettingSelect configured with the given aggregations.
-func (tsq *TenantSettingQuery) Aggregate(fns ...AggregateFunc) *TenantSettingSelect {
-	return tsq.Select().Aggregate(fns...)
+func (_q *TenantSettingQuery) Aggregate(fns ...AggregateFunc) *TenantSettingSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (tsq *TenantSettingQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range tsq.inters {
+func (_q *TenantSettingQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, tsq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range tsq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !tenantsetting.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if tsq.path != nil {
-		prev, err := tsq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		tsq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (tsq *TenantSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TenantSetting, error) {
+func (_q *TenantSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TenantSetting, error) {
 	var (
 		nodes       = []*TenantSetting{}
-		withFKs     = tsq.withFKs
-		_spec       = tsq.querySpec()
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			tsq.withTenant != nil,
+			_q.withTenant != nil,
 		}
 	)
-	if tsq.withTenant != nil {
+	if _q.withTenant != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -386,7 +387,7 @@ func (tsq *TenantSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		return (*TenantSetting).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &TenantSetting{config: tsq.config}
+		node := &TenantSetting{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -394,14 +395,14 @@ func (tsq *TenantSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, tsq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := tsq.withTenant; query != nil {
-		if err := tsq.loadTenant(ctx, query, nodes, nil,
+	if query := _q.withTenant; query != nil {
+		if err := _q.loadTenant(ctx, query, nodes, nil,
 			func(n *TenantSetting, e *Tenant) { n.Edges.Tenant = e }); err != nil {
 			return nil, err
 		}
@@ -409,7 +410,7 @@ func (tsq *TenantSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	return nodes, nil
 }
 
-func (tsq *TenantSettingQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*TenantSetting, init func(*TenantSetting), assign func(*TenantSetting, *Tenant)) error {
+func (_q *TenantSettingQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*TenantSetting, init func(*TenantSetting), assign func(*TenantSetting, *Tenant)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*TenantSetting)
 	for i := range nodes {
@@ -442,24 +443,24 @@ func (tsq *TenantSettingQuery) loadTenant(ctx context.Context, query *TenantQuer
 	return nil
 }
 
-func (tsq *TenantSettingQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := tsq.querySpec()
-	_spec.Node.Columns = tsq.ctx.Fields
-	if len(tsq.ctx.Fields) > 0 {
-		_spec.Unique = tsq.ctx.Unique != nil && *tsq.ctx.Unique
+func (_q *TenantSettingQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, tsq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (tsq *TenantSettingQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *TenantSettingQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(tenantsetting.Table, tenantsetting.Columns, sqlgraph.NewFieldSpec(tenantsetting.FieldID, field.TypeInt))
-	_spec.From = tsq.sql
-	if unique := tsq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if tsq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := tsq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, tenantsetting.FieldID)
 		for i := range fields {
@@ -468,20 +469,20 @@ func (tsq *TenantSettingQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := tsq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := tsq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := tsq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := tsq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -491,33 +492,33 @@ func (tsq *TenantSettingQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (tsq *TenantSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(tsq.driver.Dialect())
+func (_q *TenantSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(tenantsetting.Table)
-	columns := tsq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = tenantsetting.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if tsq.sql != nil {
-		selector = tsq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if tsq.ctx.Unique != nil && *tsq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range tsq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range tsq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := tsq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := tsq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -530,41 +531,41 @@ type TenantSettingGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (tsgb *TenantSettingGroupBy) Aggregate(fns ...AggregateFunc) *TenantSettingGroupBy {
-	tsgb.fns = append(tsgb.fns, fns...)
-	return tsgb
+func (_g *TenantSettingGroupBy) Aggregate(fns ...AggregateFunc) *TenantSettingGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (tsgb *TenantSettingGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tsgb.build.ctx, "GroupBy")
-	if err := tsgb.build.prepareQuery(ctx); err != nil {
+func (_g *TenantSettingGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TenantSettingQuery, *TenantSettingGroupBy](ctx, tsgb.build, tsgb, tsgb.build.inters, v)
+	return scanWithInterceptors[*TenantSettingQuery, *TenantSettingGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (tsgb *TenantSettingGroupBy) sqlScan(ctx context.Context, root *TenantSettingQuery, v any) error {
+func (_g *TenantSettingGroupBy) sqlScan(ctx context.Context, root *TenantSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(tsgb.fns))
-	for _, fn := range tsgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*tsgb.flds)+len(tsgb.fns))
-		for _, f := range *tsgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*tsgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := tsgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -578,27 +579,27 @@ type TenantSettingSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (tss *TenantSettingSelect) Aggregate(fns ...AggregateFunc) *TenantSettingSelect {
-	tss.fns = append(tss.fns, fns...)
-	return tss
+func (_s *TenantSettingSelect) Aggregate(fns ...AggregateFunc) *TenantSettingSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (tss *TenantSettingSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tss.ctx, "Select")
-	if err := tss.prepareQuery(ctx); err != nil {
+func (_s *TenantSettingSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TenantSettingQuery, *TenantSettingSelect](ctx, tss.TenantSettingQuery, tss, tss.inters, v)
+	return scanWithInterceptors[*TenantSettingQuery, *TenantSettingSelect](ctx, _s.TenantSettingQuery, _s, _s.inters, v)
 }
 
-func (tss *TenantSettingSelect) sqlScan(ctx context.Context, root *TenantSettingQuery, v any) error {
+func (_s *TenantSettingSelect) sqlScan(ctx context.Context, root *TenantSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(tss.fns))
-	for _, fn := range tss.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*tss.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -606,7 +607,7 @@ func (tss *TenantSettingSelect) sqlScan(ctx context.Context, root *TenantSetting
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := tss.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

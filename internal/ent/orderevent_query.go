@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -30,44 +31,44 @@ type OrderEventQuery struct {
 }
 
 // Where adds a new predicate for the OrderEventQuery builder.
-func (oeq *OrderEventQuery) Where(ps ...predicate.OrderEvent) *OrderEventQuery {
-	oeq.predicates = append(oeq.predicates, ps...)
-	return oeq
+func (_q *OrderEventQuery) Where(ps ...predicate.OrderEvent) *OrderEventQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (oeq *OrderEventQuery) Limit(limit int) *OrderEventQuery {
-	oeq.ctx.Limit = &limit
-	return oeq
+func (_q *OrderEventQuery) Limit(limit int) *OrderEventQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (oeq *OrderEventQuery) Offset(offset int) *OrderEventQuery {
-	oeq.ctx.Offset = &offset
-	return oeq
+func (_q *OrderEventQuery) Offset(offset int) *OrderEventQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (oeq *OrderEventQuery) Unique(unique bool) *OrderEventQuery {
-	oeq.ctx.Unique = &unique
-	return oeq
+func (_q *OrderEventQuery) Unique(unique bool) *OrderEventQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (oeq *OrderEventQuery) Order(o ...orderevent.OrderOption) *OrderEventQuery {
-	oeq.order = append(oeq.order, o...)
-	return oeq
+func (_q *OrderEventQuery) Order(o ...orderevent.OrderOption) *OrderEventQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryOrder chains the current query on the "order" edge.
-func (oeq *OrderEventQuery) QueryOrder() *OrderQuery {
-	query := (&OrderClient{config: oeq.config}).Query()
+func (_q *OrderEventQuery) QueryOrder() *OrderQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oeq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := oeq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -76,7 +77,7 @@ func (oeq *OrderEventQuery) QueryOrder() *OrderQuery {
 			sqlgraph.To(order.Table, order.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, orderevent.OrderTable, orderevent.OrderColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(oeq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -84,8 +85,8 @@ func (oeq *OrderEventQuery) QueryOrder() *OrderQuery {
 
 // First returns the first OrderEvent entity from the query.
 // Returns a *NotFoundError when no OrderEvent was found.
-func (oeq *OrderEventQuery) First(ctx context.Context) (*OrderEvent, error) {
-	nodes, err := oeq.Limit(1).All(setContextOp(ctx, oeq.ctx, "First"))
+func (_q *OrderEventQuery) First(ctx context.Context) (*OrderEvent, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +97,8 @@ func (oeq *OrderEventQuery) First(ctx context.Context) (*OrderEvent, error) {
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (oeq *OrderEventQuery) FirstX(ctx context.Context) *OrderEvent {
-	node, err := oeq.First(ctx)
+func (_q *OrderEventQuery) FirstX(ctx context.Context) *OrderEvent {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -106,9 +107,9 @@ func (oeq *OrderEventQuery) FirstX(ctx context.Context) *OrderEvent {
 
 // FirstID returns the first OrderEvent ID from the query.
 // Returns a *NotFoundError when no OrderEvent ID was found.
-func (oeq *OrderEventQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderEventQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oeq.Limit(1).IDs(setContextOp(ctx, oeq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -119,8 +120,8 @@ func (oeq *OrderEventQuery) FirstID(ctx context.Context) (id uuid.UUID, err erro
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (oeq *OrderEventQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := oeq.FirstID(ctx)
+func (_q *OrderEventQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -130,8 +131,8 @@ func (oeq *OrderEventQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single OrderEvent entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one OrderEvent entity is found.
 // Returns a *NotFoundError when no OrderEvent entities are found.
-func (oeq *OrderEventQuery) Only(ctx context.Context) (*OrderEvent, error) {
-	nodes, err := oeq.Limit(2).All(setContextOp(ctx, oeq.ctx, "Only"))
+func (_q *OrderEventQuery) Only(ctx context.Context) (*OrderEvent, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +147,8 @@ func (oeq *OrderEventQuery) Only(ctx context.Context) (*OrderEvent, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (oeq *OrderEventQuery) OnlyX(ctx context.Context) *OrderEvent {
-	node, err := oeq.Only(ctx)
+func (_q *OrderEventQuery) OnlyX(ctx context.Context) *OrderEvent {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -157,9 +158,9 @@ func (oeq *OrderEventQuery) OnlyX(ctx context.Context) *OrderEvent {
 // OnlyID is like Only, but returns the only OrderEvent ID in the query.
 // Returns a *NotSingularError when more than one OrderEvent ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (oeq *OrderEventQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderEventQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oeq.Limit(2).IDs(setContextOp(ctx, oeq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -174,8 +175,8 @@ func (oeq *OrderEventQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (oeq *OrderEventQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := oeq.OnlyID(ctx)
+func (_q *OrderEventQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -183,18 +184,18 @@ func (oeq *OrderEventQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of OrderEvents.
-func (oeq *OrderEventQuery) All(ctx context.Context) ([]*OrderEvent, error) {
-	ctx = setContextOp(ctx, oeq.ctx, "All")
-	if err := oeq.prepareQuery(ctx); err != nil {
+func (_q *OrderEventQuery) All(ctx context.Context) ([]*OrderEvent, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*OrderEvent, *OrderEventQuery]()
-	return withInterceptors[[]*OrderEvent](ctx, oeq, qr, oeq.inters)
+	return withInterceptors[[]*OrderEvent](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (oeq *OrderEventQuery) AllX(ctx context.Context) []*OrderEvent {
-	nodes, err := oeq.All(ctx)
+func (_q *OrderEventQuery) AllX(ctx context.Context) []*OrderEvent {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -202,20 +203,20 @@ func (oeq *OrderEventQuery) AllX(ctx context.Context) []*OrderEvent {
 }
 
 // IDs executes the query and returns a list of OrderEvent IDs.
-func (oeq *OrderEventQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if oeq.ctx.Unique == nil && oeq.path != nil {
-		oeq.Unique(true)
+func (_q *OrderEventQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, oeq.ctx, "IDs")
-	if err = oeq.Select(orderevent.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(orderevent.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (oeq *OrderEventQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := oeq.IDs(ctx)
+func (_q *OrderEventQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -223,17 +224,17 @@ func (oeq *OrderEventQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (oeq *OrderEventQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, oeq.ctx, "Count")
-	if err := oeq.prepareQuery(ctx); err != nil {
+func (_q *OrderEventQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, oeq, querierCount[*OrderEventQuery](), oeq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*OrderEventQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (oeq *OrderEventQuery) CountX(ctx context.Context) int {
-	count, err := oeq.Count(ctx)
+func (_q *OrderEventQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -241,9 +242,9 @@ func (oeq *OrderEventQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (oeq *OrderEventQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, oeq.ctx, "Exist")
-	switch _, err := oeq.FirstID(ctx); {
+func (_q *OrderEventQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -254,8 +255,8 @@ func (oeq *OrderEventQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (oeq *OrderEventQuery) ExistX(ctx context.Context) bool {
-	exist, err := oeq.Exist(ctx)
+func (_q *OrderEventQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -264,32 +265,32 @@ func (oeq *OrderEventQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the OrderEventQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (oeq *OrderEventQuery) Clone() *OrderEventQuery {
-	if oeq == nil {
+func (_q *OrderEventQuery) Clone() *OrderEventQuery {
+	if _q == nil {
 		return nil
 	}
 	return &OrderEventQuery{
-		config:     oeq.config,
-		ctx:        oeq.ctx.Clone(),
-		order:      append([]orderevent.OrderOption{}, oeq.order...),
-		inters:     append([]Interceptor{}, oeq.inters...),
-		predicates: append([]predicate.OrderEvent{}, oeq.predicates...),
-		withOrder:  oeq.withOrder.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]orderevent.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.OrderEvent{}, _q.predicates...),
+		withOrder:  _q.withOrder.Clone(),
 		// clone intermediate query.
-		sql:  oeq.sql.Clone(),
-		path: oeq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithOrder tells the query-builder to eager-load the nodes that are connected to
 // the "order" edge. The optional arguments are used to configure the query builder of the edge.
-func (oeq *OrderEventQuery) WithOrder(opts ...func(*OrderQuery)) *OrderEventQuery {
-	query := (&OrderClient{config: oeq.config}).Query()
+func (_q *OrderEventQuery) WithOrder(opts ...func(*OrderQuery)) *OrderEventQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oeq.withOrder = query
-	return oeq
+	_q.withOrder = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -306,10 +307,10 @@ func (oeq *OrderEventQuery) WithOrder(opts ...func(*OrderQuery)) *OrderEventQuer
 //		GroupBy(orderevent.FieldOrderID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (oeq *OrderEventQuery) GroupBy(field string, fields ...string) *OrderEventGroupBy {
-	oeq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &OrderEventGroupBy{build: oeq}
-	grbuild.flds = &oeq.ctx.Fields
+func (_q *OrderEventQuery) GroupBy(field string, fields ...string) *OrderEventGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &OrderEventGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = orderevent.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -327,58 +328,58 @@ func (oeq *OrderEventQuery) GroupBy(field string, fields ...string) *OrderEventG
 //	client.OrderEvent.Query().
 //		Select(orderevent.FieldOrderID).
 //		Scan(ctx, &v)
-func (oeq *OrderEventQuery) Select(fields ...string) *OrderEventSelect {
-	oeq.ctx.Fields = append(oeq.ctx.Fields, fields...)
-	sbuild := &OrderEventSelect{OrderEventQuery: oeq}
+func (_q *OrderEventQuery) Select(fields ...string) *OrderEventSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &OrderEventSelect{OrderEventQuery: _q}
 	sbuild.label = orderevent.Label
-	sbuild.flds, sbuild.scan = &oeq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a OrderEventSelect configured with the given aggregations.
-func (oeq *OrderEventQuery) Aggregate(fns ...AggregateFunc) *OrderEventSelect {
-	return oeq.Select().Aggregate(fns...)
+func (_q *OrderEventQuery) Aggregate(fns ...AggregateFunc) *OrderEventSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (oeq *OrderEventQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range oeq.inters {
+func (_q *OrderEventQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, oeq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range oeq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !orderevent.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if oeq.path != nil {
-		prev, err := oeq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		oeq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (oeq *OrderEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderEvent, error) {
+func (_q *OrderEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderEvent, error) {
 	var (
 		nodes       = []*OrderEvent{}
-		_spec       = oeq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			oeq.withOrder != nil,
+			_q.withOrder != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*OrderEvent).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &OrderEvent{config: oeq.config}
+		node := &OrderEvent{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -386,14 +387,14 @@ func (oeq *OrderEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, oeq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := oeq.withOrder; query != nil {
-		if err := oeq.loadOrder(ctx, query, nodes, nil,
+	if query := _q.withOrder; query != nil {
+		if err := _q.loadOrder(ctx, query, nodes, nil,
 			func(n *OrderEvent, e *Order) { n.Edges.Order = e }); err != nil {
 			return nil, err
 		}
@@ -401,7 +402,7 @@ func (oeq *OrderEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	return nodes, nil
 }
 
-func (oeq *OrderEventQuery) loadOrder(ctx context.Context, query *OrderQuery, nodes []*OrderEvent, init func(*OrderEvent), assign func(*OrderEvent, *Order)) error {
+func (_q *OrderEventQuery) loadOrder(ctx context.Context, query *OrderQuery, nodes []*OrderEvent, init func(*OrderEvent), assign func(*OrderEvent, *Order)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*OrderEvent)
 	for i := range nodes {
@@ -431,24 +432,24 @@ func (oeq *OrderEventQuery) loadOrder(ctx context.Context, query *OrderQuery, no
 	return nil
 }
 
-func (oeq *OrderEventQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := oeq.querySpec()
-	_spec.Node.Columns = oeq.ctx.Fields
-	if len(oeq.ctx.Fields) > 0 {
-		_spec.Unique = oeq.ctx.Unique != nil && *oeq.ctx.Unique
+func (_q *OrderEventQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, oeq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (oeq *OrderEventQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *OrderEventQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(orderevent.Table, orderevent.Columns, sqlgraph.NewFieldSpec(orderevent.FieldID, field.TypeUUID))
-	_spec.From = oeq.sql
-	if unique := oeq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if oeq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := oeq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderevent.FieldID)
 		for i := range fields {
@@ -456,24 +457,24 @@ func (oeq *OrderEventQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if oeq.withOrder != nil {
+		if _q.withOrder != nil {
 			_spec.Node.AddColumnOnce(orderevent.FieldOrderID)
 		}
 	}
-	if ps := oeq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := oeq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := oeq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := oeq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -483,33 +484,33 @@ func (oeq *OrderEventQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (oeq *OrderEventQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(oeq.driver.Dialect())
+func (_q *OrderEventQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(orderevent.Table)
-	columns := oeq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = orderevent.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if oeq.sql != nil {
-		selector = oeq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if oeq.ctx.Unique != nil && *oeq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range oeq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range oeq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := oeq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := oeq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -522,41 +523,41 @@ type OrderEventGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (oegb *OrderEventGroupBy) Aggregate(fns ...AggregateFunc) *OrderEventGroupBy {
-	oegb.fns = append(oegb.fns, fns...)
-	return oegb
+func (_g *OrderEventGroupBy) Aggregate(fns ...AggregateFunc) *OrderEventGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (oegb *OrderEventGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, oegb.build.ctx, "GroupBy")
-	if err := oegb.build.prepareQuery(ctx); err != nil {
+func (_g *OrderEventGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderEventQuery, *OrderEventGroupBy](ctx, oegb.build, oegb, oegb.build.inters, v)
+	return scanWithInterceptors[*OrderEventQuery, *OrderEventGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (oegb *OrderEventGroupBy) sqlScan(ctx context.Context, root *OrderEventQuery, v any) error {
+func (_g *OrderEventGroupBy) sqlScan(ctx context.Context, root *OrderEventQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(oegb.fns))
-	for _, fn := range oegb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*oegb.flds)+len(oegb.fns))
-		for _, f := range *oegb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*oegb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := oegb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -570,27 +571,27 @@ type OrderEventSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (oes *OrderEventSelect) Aggregate(fns ...AggregateFunc) *OrderEventSelect {
-	oes.fns = append(oes.fns, fns...)
-	return oes
+func (_s *OrderEventSelect) Aggregate(fns ...AggregateFunc) *OrderEventSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (oes *OrderEventSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, oes.ctx, "Select")
-	if err := oes.prepareQuery(ctx); err != nil {
+func (_s *OrderEventSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderEventQuery, *OrderEventSelect](ctx, oes.OrderEventQuery, oes, oes.inters, v)
+	return scanWithInterceptors[*OrderEventQuery, *OrderEventSelect](ctx, _s.OrderEventQuery, _s, _s.inters, v)
 }
 
-func (oes *OrderEventSelect) sqlScan(ctx context.Context, root *OrderEventQuery, v any) error {
+func (_s *OrderEventSelect) sqlScan(ctx context.Context, root *OrderEventQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(oes.fns))
-	for _, fn := range oes.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*oes.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -598,7 +599,7 @@ func (oes *OrderEventSelect) sqlScan(ctx context.Context, root *OrderEventQuery,
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := oes.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

@@ -76,7 +76,7 @@ func (*DataExportJob) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DataExportJob fields.
-func (dej *DataExportJob) assignValues(columns []string, values []any) error {
+func (_m *DataExportJob) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -86,37 +86,37 @@ func (dej *DataExportJob) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dej.ID = *value
+				_m.ID = *value
 			}
 		case dataexportjob.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				dej.TenantID = *value
+				_m.TenantID = *value
 			}
 		case dataexportjob.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				dej.UserID = *value
+				_m.UserID = *value
 			}
 		case dataexportjob.FieldFormat:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field format", values[i])
 			} else if value.Valid {
-				dej.Format = dataexportjob.Format(value.String)
+				_m.Format = dataexportjob.Format(value.String)
 			}
 		case dataexportjob.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				dej.Status = dataexportjob.Status(value.String)
+				_m.Status = dataexportjob.Status(value.String)
 			}
 		case dataexportjob.FieldIncludedData:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field included_data", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &dej.IncludedData); err != nil {
+				if err := json.Unmarshal(*value, &_m.IncludedData); err != nil {
 					return fmt.Errorf("unmarshal field included_data: %w", err)
 				}
 			}
@@ -124,69 +124,69 @@ func (dej *DataExportJob) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field storage_url", values[i])
 			} else if value.Valid {
-				dej.StorageURL = value.String
+				_m.StorageURL = value.String
 			}
 		case dataexportjob.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field error_message", values[i])
 			} else if value.Valid {
-				dej.ErrorMessage = value.String
+				_m.ErrorMessage = value.String
 			}
 		case dataexportjob.FieldFileSizeBytes:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field file_size_bytes", values[i])
 			} else if value.Valid {
-				dej.FileSizeBytes = new(int)
-				*dej.FileSizeBytes = int(value.Int64)
+				_m.FileSizeBytes = new(int)
+				*_m.FileSizeBytes = int(value.Int64)
 			}
 		case dataexportjob.FieldRecordsExported:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field records_exported", values[i])
 			} else if value.Valid {
-				dej.RecordsExported = new(int)
-				*dej.RecordsExported = int(value.Int64)
+				_m.RecordsExported = new(int)
+				*_m.RecordsExported = int(value.Int64)
 			}
 		case dataexportjob.FieldRequestedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field requested_at", values[i])
 			} else if value.Valid {
-				dej.RequestedAt = value.Time
+				_m.RequestedAt = value.Time
 			}
 		case dataexportjob.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
-				dej.StartedAt = new(time.Time)
-				*dej.StartedAt = value.Time
+				_m.StartedAt = new(time.Time)
+				*_m.StartedAt = value.Time
 			}
 		case dataexportjob.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				dej.CompletedAt = new(time.Time)
-				*dej.CompletedAt = value.Time
+				_m.CompletedAt = new(time.Time)
+				*_m.CompletedAt = value.Time
 			}
 		case dataexportjob.FieldExpiresAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expires_at", values[i])
 			} else if value.Valid {
-				dej.ExpiresAt = new(time.Time)
-				*dej.ExpiresAt = value.Time
+				_m.ExpiresAt = new(time.Time)
+				*_m.ExpiresAt = value.Time
 			}
 		case dataexportjob.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dej.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case dataexportjob.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dej.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			dej.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -194,87 +194,87 @@ func (dej *DataExportJob) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DataExportJob.
 // This includes values selected through modifiers, order, etc.
-func (dej *DataExportJob) Value(name string) (ent.Value, error) {
-	return dej.selectValues.Get(name)
+func (_m *DataExportJob) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this DataExportJob.
 // Note that you need to call DataExportJob.Unwrap() before calling this method if this DataExportJob
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dej *DataExportJob) Update() *DataExportJobUpdateOne {
-	return NewDataExportJobClient(dej.config).UpdateOne(dej)
+func (_m *DataExportJob) Update() *DataExportJobUpdateOne {
+	return NewDataExportJobClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DataExportJob entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dej *DataExportJob) Unwrap() *DataExportJob {
-	_tx, ok := dej.config.driver.(*txDriver)
+func (_m *DataExportJob) Unwrap() *DataExportJob {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DataExportJob is not a transactional entity")
 	}
-	dej.config.driver = _tx.drv
-	return dej
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dej *DataExportJob) String() string {
+func (_m *DataExportJob) String() string {
 	var builder strings.Builder
 	builder.WriteString("DataExportJob(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dej.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", dej.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", dej.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("format=")
-	builder.WriteString(fmt.Sprintf("%v", dej.Format))
+	builder.WriteString(fmt.Sprintf("%v", _m.Format))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", dej.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("included_data=")
-	builder.WriteString(fmt.Sprintf("%v", dej.IncludedData))
+	builder.WriteString(fmt.Sprintf("%v", _m.IncludedData))
 	builder.WriteString(", ")
 	builder.WriteString("storage_url=")
-	builder.WriteString(dej.StorageURL)
+	builder.WriteString(_m.StorageURL)
 	builder.WriteString(", ")
 	builder.WriteString("error_message=")
-	builder.WriteString(dej.ErrorMessage)
+	builder.WriteString(_m.ErrorMessage)
 	builder.WriteString(", ")
-	if v := dej.FileSizeBytes; v != nil {
+	if v := _m.FileSizeBytes; v != nil {
 		builder.WriteString("file_size_bytes=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := dej.RecordsExported; v != nil {
+	if v := _m.RecordsExported; v != nil {
 		builder.WriteString("records_exported=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("requested_at=")
-	builder.WriteString(dej.RequestedAt.Format(time.ANSIC))
+	builder.WriteString(_m.RequestedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := dej.StartedAt; v != nil {
+	if v := _m.StartedAt; v != nil {
 		builder.WriteString("started_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := dej.CompletedAt; v != nil {
+	if v := _m.CompletedAt; v != nil {
 		builder.WriteString("completed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := dej.ExpiresAt; v != nil {
+	if v := _m.ExpiresAt; v != nil {
 		builder.WriteString("expires_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(dej.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dej.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

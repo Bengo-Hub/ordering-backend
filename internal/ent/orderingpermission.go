@@ -87,7 +87,7 @@ func (*OrderingPermission) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OrderingPermission fields.
-func (op *OrderingPermission) assignValues(columns []string, values []any) error {
+func (_m *OrderingPermission) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -97,52 +97,52 @@ func (op *OrderingPermission) assignValues(columns []string, values []any) error
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				op.ID = *value
+				_m.ID = *value
 			}
 		case orderingpermission.FieldPermissionCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field permission_code", values[i])
 			} else if value.Valid {
-				op.PermissionCode = value.String
+				_m.PermissionCode = value.String
 			}
 		case orderingpermission.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				op.Name = value.String
+				_m.Name = value.String
 			}
 		case orderingpermission.FieldModule:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field module", values[i])
 			} else if value.Valid {
-				op.Module = value.String
+				_m.Module = value.String
 			}
 		case orderingpermission.FieldAction:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field action", values[i])
 			} else if value.Valid {
-				op.Action = value.String
+				_m.Action = value.String
 			}
 		case orderingpermission.FieldResource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field resource", values[i])
 			} else if value.Valid {
-				op.Resource = value.String
+				_m.Resource = value.String
 			}
 		case orderingpermission.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				op.Description = value.String
+				_m.Description = value.String
 			}
 		case orderingpermission.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				op.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		default:
-			op.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -150,63 +150,63 @@ func (op *OrderingPermission) assignValues(columns []string, values []any) error
 
 // Value returns the ent.Value that was dynamically selected and assigned to the OrderingPermission.
 // This includes values selected through modifiers, order, etc.
-func (op *OrderingPermission) Value(name string) (ent.Value, error) {
-	return op.selectValues.Get(name)
+func (_m *OrderingPermission) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryRoles queries the "roles" edge of the OrderingPermission entity.
-func (op *OrderingPermission) QueryRoles() *OrderingRoleQuery {
-	return NewOrderingPermissionClient(op.config).QueryRoles(op)
+func (_m *OrderingPermission) QueryRoles() *OrderingRoleQuery {
+	return NewOrderingPermissionClient(_m.config).QueryRoles(_m)
 }
 
 // QueryRolePermissions queries the "role_permissions" edge of the OrderingPermission entity.
-func (op *OrderingPermission) QueryRolePermissions() *RolePermissionQuery {
-	return NewOrderingPermissionClient(op.config).QueryRolePermissions(op)
+func (_m *OrderingPermission) QueryRolePermissions() *RolePermissionQuery {
+	return NewOrderingPermissionClient(_m.config).QueryRolePermissions(_m)
 }
 
 // Update returns a builder for updating this OrderingPermission.
 // Note that you need to call OrderingPermission.Unwrap() before calling this method if this OrderingPermission
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (op *OrderingPermission) Update() *OrderingPermissionUpdateOne {
-	return NewOrderingPermissionClient(op.config).UpdateOne(op)
+func (_m *OrderingPermission) Update() *OrderingPermissionUpdateOne {
+	return NewOrderingPermissionClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OrderingPermission entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (op *OrderingPermission) Unwrap() *OrderingPermission {
-	_tx, ok := op.config.driver.(*txDriver)
+func (_m *OrderingPermission) Unwrap() *OrderingPermission {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OrderingPermission is not a transactional entity")
 	}
-	op.config.driver = _tx.drv
-	return op
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (op *OrderingPermission) String() string {
+func (_m *OrderingPermission) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderingPermission(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", op.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("permission_code=")
-	builder.WriteString(op.PermissionCode)
+	builder.WriteString(_m.PermissionCode)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(op.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("module=")
-	builder.WriteString(op.Module)
+	builder.WriteString(_m.Module)
 	builder.WriteString(", ")
 	builder.WriteString("action=")
-	builder.WriteString(op.Action)
+	builder.WriteString(_m.Action)
 	builder.WriteString(", ")
 	builder.WriteString("resource=")
-	builder.WriteString(op.Resource)
+	builder.WriteString(_m.Resource)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(op.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(op.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

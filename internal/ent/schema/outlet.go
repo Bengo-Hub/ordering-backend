@@ -76,8 +76,6 @@ func (Outlet) Edges() []ent.Edge {
 			Field("tenant_id").
 			Unique().
 			Required(),
-		edge.To("catalog_categories", CatalogCategory.Type),
-		edge.To("catalog_items", CatalogItem.Type),
 		edge.To("orders", Order.Type),
 	}
 }

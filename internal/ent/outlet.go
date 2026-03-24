@@ -62,15 +62,11 @@ type Outlet struct {
 type OutletEdges struct {
 	// Tenant holds the value of the tenant edge.
 	Tenant *Tenant `json:"tenant,omitempty"`
-	// CatalogCategories holds the value of the catalog_categories edge.
-	CatalogCategories []*CatalogCategory `json:"catalog_categories,omitempty"`
-	// CatalogItems holds the value of the catalog_items edge.
-	CatalogItems []*CatalogItem `json:"catalog_items,omitempty"`
 	// Orders holds the value of the orders edge.
 	Orders []*Order `json:"orders,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [2]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -84,28 +80,10 @@ func (e OutletEdges) TenantOrErr() (*Tenant, error) {
 	return nil, &NotLoadedError{edge: "tenant"}
 }
 
-// CatalogCategoriesOrErr returns the CatalogCategories value or an error if the edge
-// was not loaded in eager-loading.
-func (e OutletEdges) CatalogCategoriesOrErr() ([]*CatalogCategory, error) {
-	if e.loadedTypes[1] {
-		return e.CatalogCategories, nil
-	}
-	return nil, &NotLoadedError{edge: "catalog_categories"}
-}
-
-// CatalogItemsOrErr returns the CatalogItems value or an error if the edge
-// was not loaded in eager-loading.
-func (e OutletEdges) CatalogItemsOrErr() ([]*CatalogItem, error) {
-	if e.loadedTypes[2] {
-		return e.CatalogItems, nil
-	}
-	return nil, &NotLoadedError{edge: "catalog_items"}
-}
-
 // OrdersOrErr returns the Orders value or an error if the edge
 // was not loaded in eager-loading.
 func (e OutletEdges) OrdersOrErr() ([]*Order, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[1] {
 		return e.Orders, nil
 	}
 	return nil, &NotLoadedError{edge: "orders"}
@@ -135,7 +113,7 @@ func (*Outlet) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Outlet fields.
-func (o *Outlet) assignValues(columns []string, values []any) error {
+func (_m *Outlet) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -145,75 +123,75 @@ func (o *Outlet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				o.ID = *value
+				_m.ID = *value
 			}
 		case outlet.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				o.TenantID = *value
+				_m.TenantID = *value
 			}
 		case outlet.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				o.Name = value.String
+				_m.Name = value.String
 			}
 		case outlet.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field slug", values[i])
 			} else if value.Valid {
-				o.Slug = value.String
+				_m.Slug = value.String
 			}
 		case outlet.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				o.Description = value.String
+				_m.Description = value.String
 			}
 		case outlet.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field address", values[i])
 			} else if value.Valid {
-				o.Address = value.String
+				_m.Address = value.String
 			}
 		case outlet.FieldPhone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field phone", values[i])
 			} else if value.Valid {
-				o.Phone = value.String
+				_m.Phone = value.String
 			}
 		case outlet.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				o.Email = value.String
+				_m.Email = value.String
 			}
 		case outlet.FieldLocation:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field location", values[i])
 			} else if value.Valid {
-				o.Location = value.String
+				_m.Location = value.String
 			}
 		case outlet.FieldLatitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field latitude", values[i])
 			} else if value.Valid {
-				o.Latitude = new(float64)
-				*o.Latitude = value.Float64
+				_m.Latitude = new(float64)
+				*_m.Latitude = value.Float64
 			}
 		case outlet.FieldLongitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field longitude", values[i])
 			} else if value.Valid {
-				o.Longitude = new(float64)
-				*o.Longitude = value.Float64
+				_m.Longitude = new(float64)
+				*_m.Longitude = value.Float64
 			}
 		case outlet.FieldOpeningHours:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field opening_hours", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.OpeningHours); err != nil {
+				if err := json.Unmarshal(*value, &_m.OpeningHours); err != nil {
 					return fmt.Errorf("unmarshal field opening_hours: %w", err)
 				}
 			}
@@ -221,34 +199,34 @@ func (o *Outlet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field image_url", values[i])
 			} else if value.Valid {
-				o.ImageURL = value.String
+				_m.ImageURL = value.String
 			}
 		case outlet.FieldUseCase:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field use_case", values[i])
 			} else if value.Valid {
-				o.UseCase = value.String
+				_m.UseCase = value.String
 			}
 		case outlet.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				o.Status = value.String
+				_m.Status = value.String
 			}
 		case outlet.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				o.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case outlet.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				o.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			o.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -256,104 +234,94 @@ func (o *Outlet) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Outlet.
 // This includes values selected through modifiers, order, etc.
-func (o *Outlet) Value(name string) (ent.Value, error) {
-	return o.selectValues.Get(name)
+func (_m *Outlet) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryTenant queries the "tenant" edge of the Outlet entity.
-func (o *Outlet) QueryTenant() *TenantQuery {
-	return NewOutletClient(o.config).QueryTenant(o)
-}
-
-// QueryCatalogCategories queries the "catalog_categories" edge of the Outlet entity.
-func (o *Outlet) QueryCatalogCategories() *CatalogCategoryQuery {
-	return NewOutletClient(o.config).QueryCatalogCategories(o)
-}
-
-// QueryCatalogItems queries the "catalog_items" edge of the Outlet entity.
-func (o *Outlet) QueryCatalogItems() *CatalogItemQuery {
-	return NewOutletClient(o.config).QueryCatalogItems(o)
+func (_m *Outlet) QueryTenant() *TenantQuery {
+	return NewOutletClient(_m.config).QueryTenant(_m)
 }
 
 // QueryOrders queries the "orders" edge of the Outlet entity.
-func (o *Outlet) QueryOrders() *OrderQuery {
-	return NewOutletClient(o.config).QueryOrders(o)
+func (_m *Outlet) QueryOrders() *OrderQuery {
+	return NewOutletClient(_m.config).QueryOrders(_m)
 }
 
 // Update returns a builder for updating this Outlet.
 // Note that you need to call Outlet.Unwrap() before calling this method if this Outlet
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (o *Outlet) Update() *OutletUpdateOne {
-	return NewOutletClient(o.config).UpdateOne(o)
+func (_m *Outlet) Update() *OutletUpdateOne {
+	return NewOutletClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Outlet entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (o *Outlet) Unwrap() *Outlet {
-	_tx, ok := o.config.driver.(*txDriver)
+func (_m *Outlet) Unwrap() *Outlet {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Outlet is not a transactional entity")
 	}
-	o.config.driver = _tx.drv
-	return o
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (o *Outlet) String() string {
+func (_m *Outlet) String() string {
 	var builder strings.Builder
 	builder.WriteString("Outlet(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", o.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(o.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("slug=")
-	builder.WriteString(o.Slug)
+	builder.WriteString(_m.Slug)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(o.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("address=")
-	builder.WriteString(o.Address)
+	builder.WriteString(_m.Address)
 	builder.WriteString(", ")
 	builder.WriteString("phone=")
-	builder.WriteString(o.Phone)
+	builder.WriteString(_m.Phone)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
-	builder.WriteString(o.Email)
+	builder.WriteString(_m.Email)
 	builder.WriteString(", ")
 	builder.WriteString("location=")
-	builder.WriteString(o.Location)
+	builder.WriteString(_m.Location)
 	builder.WriteString(", ")
-	if v := o.Latitude; v != nil {
+	if v := _m.Latitude; v != nil {
 		builder.WriteString("latitude=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := o.Longitude; v != nil {
+	if v := _m.Longitude; v != nil {
 		builder.WriteString("longitude=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("opening_hours=")
-	builder.WriteString(fmt.Sprintf("%v", o.OpeningHours))
+	builder.WriteString(fmt.Sprintf("%v", _m.OpeningHours))
 	builder.WriteString(", ")
 	builder.WriteString("image_url=")
-	builder.WriteString(o.ImageURL)
+	builder.WriteString(_m.ImageURL)
 	builder.WriteString(", ")
 	builder.WriteString("use_case=")
-	builder.WriteString(o.UseCase)
+	builder.WriteString(_m.UseCase)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(o.Status)
+	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(o.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(o.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

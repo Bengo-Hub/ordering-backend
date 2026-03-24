@@ -17,8 +17,8 @@ const (
 	FieldID = "id"
 	// FieldCartID holds the string denoting the cart_id field in the database.
 	FieldCartID = "cart_id"
-	// FieldCatalogItemID holds the string denoting the catalog_item_id field in the database.
-	FieldCatalogItemID = "catalog_item_id"
+	// FieldInventorySku holds the string denoting the inventory_sku field in the database.
+	FieldInventorySku = "inventory_sku"
 	// FieldVariantID holds the string denoting the variant_id field in the database.
 	FieldVariantID = "variant_id"
 	// FieldNameSnapshot holds the string denoting the name_snapshot field in the database.
@@ -43,8 +43,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeCart holds the string denoting the cart edge name in mutations.
 	EdgeCart = "cart"
-	// EdgeCatalogItem holds the string denoting the catalog_item edge name in mutations.
-	EdgeCatalogItem = "catalog_item"
 	// Table holds the table name of the cartitem in the database.
 	Table = "cart_items"
 	// CartTable is the table that holds the cart relation/edge.
@@ -54,20 +52,13 @@ const (
 	CartInverseTable = "carts"
 	// CartColumn is the table column denoting the cart relation/edge.
 	CartColumn = "cart_id"
-	// CatalogItemTable is the table that holds the catalog_item relation/edge.
-	CatalogItemTable = "cart_items"
-	// CatalogItemInverseTable is the table name for the CatalogItem entity.
-	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
-	CatalogItemInverseTable = "catalog_items"
-	// CatalogItemColumn is the table column denoting the catalog_item relation/edge.
-	CatalogItemColumn = "catalog_item_id"
 )
 
 // Columns holds all SQL columns for cartitem fields.
 var Columns = []string{
 	FieldID,
 	FieldCartID,
-	FieldCatalogItemID,
+	FieldInventorySku,
 	FieldVariantID,
 	FieldNameSnapshot,
 	FieldVariantNameSnapshot,
@@ -92,6 +83,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	InventorySkuValidator func(string) error
 	// NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
 	NameSnapshotValidator func(string) error
 	// VariantNameSnapshotValidator is a validator for the "variant_name_snapshot" field. It is called by the builders before save.
@@ -125,9 +118,9 @@ func ByCartID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCartID, opts...).ToFunc()
 }
 
-// ByCatalogItemID orders the results by the catalog_item_id field.
-func ByCatalogItemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCatalogItemID, opts...).ToFunc()
+// ByInventorySku orders the results by the inventory_sku field.
+func ByInventorySku(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInventorySku, opts...).ToFunc()
 }
 
 // ByVariantID orders the results by the variant_id field.
@@ -181,24 +174,10 @@ func ByCartField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCartStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByCatalogItemField orders the results by catalog_item field.
-func ByCatalogItemField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCatalogItemStep(), sql.OrderByField(field, opts...))
-	}
-}
 func newCartStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CartInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, CartTable, CartColumn),
-	)
-}
-func newCatalogItemStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CatalogItemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CatalogItemTable, CatalogItemColumn),
 	)
 }

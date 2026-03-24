@@ -26,72 +26,72 @@ type TenantSettingUpdate struct {
 }
 
 // Where appends a list predicates to the TenantSettingUpdate builder.
-func (tsu *TenantSettingUpdate) Where(ps ...predicate.TenantSetting) *TenantSettingUpdate {
-	tsu.mutation.Where(ps...)
-	return tsu
+func (_u *TenantSettingUpdate) Where(ps ...predicate.TenantSetting) *TenantSettingUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetBrandPalette sets the "brand_palette" field.
-func (tsu *TenantSettingUpdate) SetBrandPalette(m map[string]interface{}) *TenantSettingUpdate {
-	tsu.mutation.SetBrandPalette(m)
-	return tsu
+func (_u *TenantSettingUpdate) SetBrandPalette(v map[string]interface{}) *TenantSettingUpdate {
+	_u.mutation.SetBrandPalette(v)
+	return _u
 }
 
 // SetLocales sets the "locales" field.
-func (tsu *TenantSettingUpdate) SetLocales(s []string) *TenantSettingUpdate {
-	tsu.mutation.SetLocales(s)
-	return tsu
+func (_u *TenantSettingUpdate) SetLocales(v []string) *TenantSettingUpdate {
+	_u.mutation.SetLocales(v)
+	return _u
 }
 
-// AppendLocales appends s to the "locales" field.
-func (tsu *TenantSettingUpdate) AppendLocales(s []string) *TenantSettingUpdate {
-	tsu.mutation.AppendLocales(s)
-	return tsu
+// AppendLocales appends value to the "locales" field.
+func (_u *TenantSettingUpdate) AppendLocales(v []string) *TenantSettingUpdate {
+	_u.mutation.AppendLocales(v)
+	return _u
 }
 
 // SetFeatures sets the "features" field.
-func (tsu *TenantSettingUpdate) SetFeatures(m map[string]interface{}) *TenantSettingUpdate {
-	tsu.mutation.SetFeatures(m)
-	return tsu
+func (_u *TenantSettingUpdate) SetFeatures(v map[string]interface{}) *TenantSettingUpdate {
+	_u.mutation.SetFeatures(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (tsu *TenantSettingUpdate) SetUpdatedAt(t time.Time) *TenantSettingUpdate {
-	tsu.mutation.SetUpdatedAt(t)
-	return tsu
+func (_u *TenantSettingUpdate) SetUpdatedAt(v time.Time) *TenantSettingUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTenantID sets the "tenant" edge to the Tenant entity by ID.
-func (tsu *TenantSettingUpdate) SetTenantID(id uuid.UUID) *TenantSettingUpdate {
-	tsu.mutation.SetTenantID(id)
-	return tsu
+func (_u *TenantSettingUpdate) SetTenantID(id uuid.UUID) *TenantSettingUpdate {
+	_u.mutation.SetTenantID(id)
+	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (tsu *TenantSettingUpdate) SetTenant(t *Tenant) *TenantSettingUpdate {
-	return tsu.SetTenantID(t.ID)
+func (_u *TenantSettingUpdate) SetTenant(v *Tenant) *TenantSettingUpdate {
+	return _u.SetTenantID(v.ID)
 }
 
 // Mutation returns the TenantSettingMutation object of the builder.
-func (tsu *TenantSettingUpdate) Mutation() *TenantSettingMutation {
-	return tsu.mutation
+func (_u *TenantSettingUpdate) Mutation() *TenantSettingMutation {
+	return _u.mutation
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
-func (tsu *TenantSettingUpdate) ClearTenant() *TenantSettingUpdate {
-	tsu.mutation.ClearTenant()
-	return tsu
+func (_u *TenantSettingUpdate) ClearTenant() *TenantSettingUpdate {
+	_u.mutation.ClearTenant()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (tsu *TenantSettingUpdate) Save(ctx context.Context) (int, error) {
-	tsu.defaults()
-	return withHooks(ctx, tsu.sqlSave, tsu.mutation, tsu.hooks)
+func (_u *TenantSettingUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (tsu *TenantSettingUpdate) SaveX(ctx context.Context) int {
-	affected, err := tsu.Save(ctx)
+func (_u *TenantSettingUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -99,64 +99,64 @@ func (tsu *TenantSettingUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (tsu *TenantSettingUpdate) Exec(ctx context.Context) error {
-	_, err := tsu.Save(ctx)
+func (_u *TenantSettingUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsu *TenantSettingUpdate) ExecX(ctx context.Context) {
-	if err := tsu.Exec(ctx); err != nil {
+func (_u *TenantSettingUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (tsu *TenantSettingUpdate) defaults() {
-	if _, ok := tsu.mutation.UpdatedAt(); !ok {
+func (_u *TenantSettingUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := tenantsetting.UpdateDefaultUpdatedAt()
-		tsu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (tsu *TenantSettingUpdate) check() error {
-	if _, ok := tsu.mutation.TenantID(); tsu.mutation.TenantCleared() && !ok {
+func (_u *TenantSettingUpdate) check() error {
+	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TenantSetting.tenant"`)
 	}
 	return nil
 }
 
-func (tsu *TenantSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := tsu.check(); err != nil {
-		return n, err
+func (_u *TenantSettingUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(tenantsetting.Table, tenantsetting.Columns, sqlgraph.NewFieldSpec(tenantsetting.FieldID, field.TypeInt))
-	if ps := tsu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := tsu.mutation.BrandPalette(); ok {
+	if value, ok := _u.mutation.BrandPalette(); ok {
 		_spec.SetField(tenantsetting.FieldBrandPalette, field.TypeJSON, value)
 	}
-	if value, ok := tsu.mutation.Locales(); ok {
+	if value, ok := _u.mutation.Locales(); ok {
 		_spec.SetField(tenantsetting.FieldLocales, field.TypeJSON, value)
 	}
-	if value, ok := tsu.mutation.AppendedLocales(); ok {
+	if value, ok := _u.mutation.AppendedLocales(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, tenantsetting.FieldLocales, value)
 		})
 	}
-	if value, ok := tsu.mutation.Features(); ok {
+	if value, ok := _u.mutation.Features(); ok {
 		_spec.SetField(tenantsetting.FieldFeatures, field.TypeJSON, value)
 	}
-	if value, ok := tsu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(tenantsetting.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if tsu.mutation.TenantCleared() {
+	if _u.mutation.TenantCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -169,7 +169,7 @@ func (tsu *TenantSettingUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsu.mutation.TenantIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TenantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -185,7 +185,7 @@ func (tsu *TenantSettingUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, tsu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{tenantsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -193,8 +193,8 @@ func (tsu *TenantSettingUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		return 0, err
 	}
-	tsu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // TenantSettingUpdateOne is the builder for updating a single TenantSetting entity.
@@ -206,79 +206,79 @@ type TenantSettingUpdateOne struct {
 }
 
 // SetBrandPalette sets the "brand_palette" field.
-func (tsuo *TenantSettingUpdateOne) SetBrandPalette(m map[string]interface{}) *TenantSettingUpdateOne {
-	tsuo.mutation.SetBrandPalette(m)
-	return tsuo
+func (_u *TenantSettingUpdateOne) SetBrandPalette(v map[string]interface{}) *TenantSettingUpdateOne {
+	_u.mutation.SetBrandPalette(v)
+	return _u
 }
 
 // SetLocales sets the "locales" field.
-func (tsuo *TenantSettingUpdateOne) SetLocales(s []string) *TenantSettingUpdateOne {
-	tsuo.mutation.SetLocales(s)
-	return tsuo
+func (_u *TenantSettingUpdateOne) SetLocales(v []string) *TenantSettingUpdateOne {
+	_u.mutation.SetLocales(v)
+	return _u
 }
 
-// AppendLocales appends s to the "locales" field.
-func (tsuo *TenantSettingUpdateOne) AppendLocales(s []string) *TenantSettingUpdateOne {
-	tsuo.mutation.AppendLocales(s)
-	return tsuo
+// AppendLocales appends value to the "locales" field.
+func (_u *TenantSettingUpdateOne) AppendLocales(v []string) *TenantSettingUpdateOne {
+	_u.mutation.AppendLocales(v)
+	return _u
 }
 
 // SetFeatures sets the "features" field.
-func (tsuo *TenantSettingUpdateOne) SetFeatures(m map[string]interface{}) *TenantSettingUpdateOne {
-	tsuo.mutation.SetFeatures(m)
-	return tsuo
+func (_u *TenantSettingUpdateOne) SetFeatures(v map[string]interface{}) *TenantSettingUpdateOne {
+	_u.mutation.SetFeatures(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (tsuo *TenantSettingUpdateOne) SetUpdatedAt(t time.Time) *TenantSettingUpdateOne {
-	tsuo.mutation.SetUpdatedAt(t)
-	return tsuo
+func (_u *TenantSettingUpdateOne) SetUpdatedAt(v time.Time) *TenantSettingUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTenantID sets the "tenant" edge to the Tenant entity by ID.
-func (tsuo *TenantSettingUpdateOne) SetTenantID(id uuid.UUID) *TenantSettingUpdateOne {
-	tsuo.mutation.SetTenantID(id)
-	return tsuo
+func (_u *TenantSettingUpdateOne) SetTenantID(id uuid.UUID) *TenantSettingUpdateOne {
+	_u.mutation.SetTenantID(id)
+	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (tsuo *TenantSettingUpdateOne) SetTenant(t *Tenant) *TenantSettingUpdateOne {
-	return tsuo.SetTenantID(t.ID)
+func (_u *TenantSettingUpdateOne) SetTenant(v *Tenant) *TenantSettingUpdateOne {
+	return _u.SetTenantID(v.ID)
 }
 
 // Mutation returns the TenantSettingMutation object of the builder.
-func (tsuo *TenantSettingUpdateOne) Mutation() *TenantSettingMutation {
-	return tsuo.mutation
+func (_u *TenantSettingUpdateOne) Mutation() *TenantSettingMutation {
+	return _u.mutation
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
-func (tsuo *TenantSettingUpdateOne) ClearTenant() *TenantSettingUpdateOne {
-	tsuo.mutation.ClearTenant()
-	return tsuo
+func (_u *TenantSettingUpdateOne) ClearTenant() *TenantSettingUpdateOne {
+	_u.mutation.ClearTenant()
+	return _u
 }
 
 // Where appends a list predicates to the TenantSettingUpdate builder.
-func (tsuo *TenantSettingUpdateOne) Where(ps ...predicate.TenantSetting) *TenantSettingUpdateOne {
-	tsuo.mutation.Where(ps...)
-	return tsuo
+func (_u *TenantSettingUpdateOne) Where(ps ...predicate.TenantSetting) *TenantSettingUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (tsuo *TenantSettingUpdateOne) Select(field string, fields ...string) *TenantSettingUpdateOne {
-	tsuo.fields = append([]string{field}, fields...)
-	return tsuo
+func (_u *TenantSettingUpdateOne) Select(field string, fields ...string) *TenantSettingUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated TenantSetting entity.
-func (tsuo *TenantSettingUpdateOne) Save(ctx context.Context) (*TenantSetting, error) {
-	tsuo.defaults()
-	return withHooks(ctx, tsuo.sqlSave, tsuo.mutation, tsuo.hooks)
+func (_u *TenantSettingUpdateOne) Save(ctx context.Context) (*TenantSetting, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (tsuo *TenantSettingUpdateOne) SaveX(ctx context.Context) *TenantSetting {
-	node, err := tsuo.Save(ctx)
+func (_u *TenantSettingUpdateOne) SaveX(ctx context.Context) *TenantSetting {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -286,45 +286,45 @@ func (tsuo *TenantSettingUpdateOne) SaveX(ctx context.Context) *TenantSetting {
 }
 
 // Exec executes the query on the entity.
-func (tsuo *TenantSettingUpdateOne) Exec(ctx context.Context) error {
-	_, err := tsuo.Save(ctx)
+func (_u *TenantSettingUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsuo *TenantSettingUpdateOne) ExecX(ctx context.Context) {
-	if err := tsuo.Exec(ctx); err != nil {
+func (_u *TenantSettingUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (tsuo *TenantSettingUpdateOne) defaults() {
-	if _, ok := tsuo.mutation.UpdatedAt(); !ok {
+func (_u *TenantSettingUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := tenantsetting.UpdateDefaultUpdatedAt()
-		tsuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (tsuo *TenantSettingUpdateOne) check() error {
-	if _, ok := tsuo.mutation.TenantID(); tsuo.mutation.TenantCleared() && !ok {
+func (_u *TenantSettingUpdateOne) check() error {
+	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TenantSetting.tenant"`)
 	}
 	return nil
 }
 
-func (tsuo *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantSetting, err error) {
-	if err := tsuo.check(); err != nil {
+func (_u *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantSetting, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(tenantsetting.Table, tenantsetting.Columns, sqlgraph.NewFieldSpec(tenantsetting.FieldID, field.TypeInt))
-	id, ok := tsuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "TenantSetting.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := tsuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, tenantsetting.FieldID)
 		for _, f := range fields {
@@ -336,31 +336,31 @@ func (tsuo *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantS
 			}
 		}
 	}
-	if ps := tsuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := tsuo.mutation.BrandPalette(); ok {
+	if value, ok := _u.mutation.BrandPalette(); ok {
 		_spec.SetField(tenantsetting.FieldBrandPalette, field.TypeJSON, value)
 	}
-	if value, ok := tsuo.mutation.Locales(); ok {
+	if value, ok := _u.mutation.Locales(); ok {
 		_spec.SetField(tenantsetting.FieldLocales, field.TypeJSON, value)
 	}
-	if value, ok := tsuo.mutation.AppendedLocales(); ok {
+	if value, ok := _u.mutation.AppendedLocales(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, tenantsetting.FieldLocales, value)
 		})
 	}
-	if value, ok := tsuo.mutation.Features(); ok {
+	if value, ok := _u.mutation.Features(); ok {
 		_spec.SetField(tenantsetting.FieldFeatures, field.TypeJSON, value)
 	}
-	if value, ok := tsuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(tenantsetting.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if tsuo.mutation.TenantCleared() {
+	if _u.mutation.TenantCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -373,7 +373,7 @@ func (tsuo *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantS
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsuo.mutation.TenantIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TenantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -389,10 +389,10 @@ func (tsuo *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantS
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &TenantSetting{config: tsuo.config}
+	_node = &TenantSetting{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, tsuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{tenantsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -400,6 +400,6 @@ func (tsuo *TenantSettingUpdateOne) sqlSave(ctx context.Context) (_node *TenantS
 		}
 		return nil, err
 	}
-	tsuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

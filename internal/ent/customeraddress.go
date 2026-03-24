@@ -118,7 +118,7 @@ func (*CustomerAddress) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the CustomerAddress fields.
-func (ca *CustomerAddress) assignValues(columns []string, values []any) error {
+func (_m *CustomerAddress) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -128,126 +128,126 @@ func (ca *CustomerAddress) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				ca.ID = *value
+				_m.ID = *value
 			}
 		case customeraddress.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				ca.TenantID = *value
+				_m.TenantID = *value
 			}
 		case customeraddress.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				ca.UserID = *value
+				_m.UserID = *value
 			}
 		case customeraddress.FieldLabel:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field label", values[i])
 			} else if value.Valid {
-				ca.Label = value.String
+				_m.Label = value.String
 			}
 		case customeraddress.FieldAddressLine1:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field address_line1", values[i])
 			} else if value.Valid {
-				ca.AddressLine1 = value.String
+				_m.AddressLine1 = value.String
 			}
 		case customeraddress.FieldAddressLine2:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field address_line2", values[i])
 			} else if value.Valid {
-				ca.AddressLine2 = value.String
+				_m.AddressLine2 = value.String
 			}
 		case customeraddress.FieldCity:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field city", values[i])
 			} else if value.Valid {
-				ca.City = value.String
+				_m.City = value.String
 			}
 		case customeraddress.FieldCounty:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field county", values[i])
 			} else if value.Valid {
-				ca.County = value.String
+				_m.County = value.String
 			}
 		case customeraddress.FieldPostalCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field postal_code", values[i])
 			} else if value.Valid {
-				ca.PostalCode = value.String
+				_m.PostalCode = value.String
 			}
 		case customeraddress.FieldCountry:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field country", values[i])
 			} else if value.Valid {
-				ca.Country = value.String
+				_m.Country = value.String
 			}
 		case customeraddress.FieldLatitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field latitude", values[i])
 			} else if value.Valid {
-				ca.Latitude = new(float64)
-				*ca.Latitude = value.Float64
+				_m.Latitude = new(float64)
+				*_m.Latitude = value.Float64
 			}
 		case customeraddress.FieldLongitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field longitude", values[i])
 			} else if value.Valid {
-				ca.Longitude = new(float64)
-				*ca.Longitude = value.Float64
+				_m.Longitude = new(float64)
+				*_m.Longitude = value.Float64
 			}
 		case customeraddress.FieldPlusCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field plus_code", values[i])
 			} else if value.Valid {
-				ca.PlusCode = value.String
+				_m.PlusCode = value.String
 			}
 		case customeraddress.FieldInstructions:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field instructions", values[i])
 			} else if value.Valid {
-				ca.Instructions = value.String
+				_m.Instructions = value.String
 			}
 		case customeraddress.FieldContactName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field contact_name", values[i])
 			} else if value.Valid {
-				ca.ContactName = value.String
+				_m.ContactName = value.String
 			}
 		case customeraddress.FieldContactPhone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field contact_phone", values[i])
 			} else if value.Valid {
-				ca.ContactPhone = value.String
+				_m.ContactPhone = value.String
 			}
 		case customeraddress.FieldIsDefault:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_default", values[i])
 			} else if value.Valid {
-				ca.IsDefault = value.Bool
+				_m.IsDefault = value.Bool
 			}
 		case customeraddress.FieldIsVerified:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_verified", values[i])
 			} else if value.Valid {
-				ca.IsVerified = value.Bool
+				_m.IsVerified = value.Bool
 			}
 		case customeraddress.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ca.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case customeraddress.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ca.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			ca.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -255,103 +255,103 @@ func (ca *CustomerAddress) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the CustomerAddress.
 // This includes values selected through modifiers, order, etc.
-func (ca *CustomerAddress) Value(name string) (ent.Value, error) {
-	return ca.selectValues.Get(name)
+func (_m *CustomerAddress) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryUser queries the "user" edge of the CustomerAddress entity.
-func (ca *CustomerAddress) QueryUser() *UserQuery {
-	return NewCustomerAddressClient(ca.config).QueryUser(ca)
+func (_m *CustomerAddress) QueryUser() *UserQuery {
+	return NewCustomerAddressClient(_m.config).QueryUser(_m)
 }
 
 // QueryOrders queries the "orders" edge of the CustomerAddress entity.
-func (ca *CustomerAddress) QueryOrders() *OrderQuery {
-	return NewCustomerAddressClient(ca.config).QueryOrders(ca)
+func (_m *CustomerAddress) QueryOrders() *OrderQuery {
+	return NewCustomerAddressClient(_m.config).QueryOrders(_m)
 }
 
 // Update returns a builder for updating this CustomerAddress.
 // Note that you need to call CustomerAddress.Unwrap() before calling this method if this CustomerAddress
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ca *CustomerAddress) Update() *CustomerAddressUpdateOne {
-	return NewCustomerAddressClient(ca.config).UpdateOne(ca)
+func (_m *CustomerAddress) Update() *CustomerAddressUpdateOne {
+	return NewCustomerAddressClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the CustomerAddress entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ca *CustomerAddress) Unwrap() *CustomerAddress {
-	_tx, ok := ca.config.driver.(*txDriver)
+func (_m *CustomerAddress) Unwrap() *CustomerAddress {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: CustomerAddress is not a transactional entity")
 	}
-	ca.config.driver = _tx.drv
-	return ca
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ca *CustomerAddress) String() string {
+func (_m *CustomerAddress) String() string {
 	var builder strings.Builder
 	builder.WriteString("CustomerAddress(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ca.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", ca.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", ca.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("label=")
-	builder.WriteString(ca.Label)
+	builder.WriteString(_m.Label)
 	builder.WriteString(", ")
 	builder.WriteString("address_line1=")
-	builder.WriteString(ca.AddressLine1)
+	builder.WriteString(_m.AddressLine1)
 	builder.WriteString(", ")
 	builder.WriteString("address_line2=")
-	builder.WriteString(ca.AddressLine2)
+	builder.WriteString(_m.AddressLine2)
 	builder.WriteString(", ")
 	builder.WriteString("city=")
-	builder.WriteString(ca.City)
+	builder.WriteString(_m.City)
 	builder.WriteString(", ")
 	builder.WriteString("county=")
-	builder.WriteString(ca.County)
+	builder.WriteString(_m.County)
 	builder.WriteString(", ")
 	builder.WriteString("postal_code=")
-	builder.WriteString(ca.PostalCode)
+	builder.WriteString(_m.PostalCode)
 	builder.WriteString(", ")
 	builder.WriteString("country=")
-	builder.WriteString(ca.Country)
+	builder.WriteString(_m.Country)
 	builder.WriteString(", ")
-	if v := ca.Latitude; v != nil {
+	if v := _m.Latitude; v != nil {
 		builder.WriteString("latitude=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := ca.Longitude; v != nil {
+	if v := _m.Longitude; v != nil {
 		builder.WriteString("longitude=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("plus_code=")
-	builder.WriteString(ca.PlusCode)
+	builder.WriteString(_m.PlusCode)
 	builder.WriteString(", ")
 	builder.WriteString("instructions=")
-	builder.WriteString(ca.Instructions)
+	builder.WriteString(_m.Instructions)
 	builder.WriteString(", ")
 	builder.WriteString("contact_name=")
-	builder.WriteString(ca.ContactName)
+	builder.WriteString(_m.ContactName)
 	builder.WriteString(", ")
 	builder.WriteString("contact_phone=")
-	builder.WriteString(ca.ContactPhone)
+	builder.WriteString(_m.ContactPhone)
 	builder.WriteString(", ")
 	builder.WriteString("is_default=")
-	builder.WriteString(fmt.Sprintf("%v", ca.IsDefault))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsDefault))
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
-	builder.WriteString(fmt.Sprintf("%v", ca.IsVerified))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsVerified))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(ca.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(ca.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

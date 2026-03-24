@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
 )
 
@@ -23,8 +22,8 @@ type CartItem struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to cart
 	CartID uuid.UUID `json:"cart_id,omitempty"`
-	// Reference to catalog item
-	CatalogItemID uuid.UUID `json:"catalog_item_id,omitempty"`
+	// SKU from inventory-api master data
+	InventorySku string `json:"inventory_sku,omitempty"`
 	// Reference to catalog item variant
 	VariantID *uuid.UUID `json:"variant_id,omitempty"`
 	// Catalog item name at time of adding to cart
@@ -57,11 +56,9 @@ type CartItem struct {
 type CartItemEdges struct {
 	// Cart holds the value of the cart edge.
 	Cart *Cart `json:"cart,omitempty"`
-	// CatalogItem holds the value of the catalog_item edge.
-	CatalogItem *CatalogItem `json:"catalog_item,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
 // CartOrErr returns the Cart value or an error if the edge
@@ -73,17 +70,6 @@ func (e CartItemEdges) CartOrErr() (*Cart, error) {
 		return nil, &NotFoundError{label: cart.Label}
 	}
 	return nil, &NotLoadedError{edge: "cart"}
-}
-
-// CatalogItemOrErr returns the CatalogItem value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e CartItemEdges) CatalogItemOrErr() (*CatalogItem, error) {
-	if e.CatalogItem != nil {
-		return e.CatalogItem, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: catalogitem.Label}
-	}
-	return nil, &NotLoadedError{edge: "catalog_item"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -99,11 +85,11 @@ func (*CartItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case cartitem.FieldQuantity:
 			values[i] = new(sql.NullInt64)
-		case cartitem.FieldNameSnapshot, cartitem.FieldVariantNameSnapshot, cartitem.FieldNotes:
+		case cartitem.FieldInventorySku, cartitem.FieldNameSnapshot, cartitem.FieldVariantNameSnapshot, cartitem.FieldNotes:
 			values[i] = new(sql.NullString)
 		case cartitem.FieldCreatedAt, cartitem.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case cartitem.FieldID, cartitem.FieldCartID, cartitem.FieldCatalogItemID:
+		case cartitem.FieldID, cartitem.FieldCartID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -114,7 +100,7 @@ func (*CartItem) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the CartItem fields.
-func (ci *CartItem) assignValues(columns []string, values []any) error {
+func (_m *CartItem) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -124,68 +110,68 @@ func (ci *CartItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				ci.ID = *value
+				_m.ID = *value
 			}
 		case cartitem.FieldCartID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field cart_id", values[i])
 			} else if value != nil {
-				ci.CartID = *value
+				_m.CartID = *value
 			}
-		case cartitem.FieldCatalogItemID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field catalog_item_id", values[i])
-			} else if value != nil {
-				ci.CatalogItemID = *value
+		case cartitem.FieldInventorySku:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field inventory_sku", values[i])
+			} else if value.Valid {
+				_m.InventorySku = value.String
 			}
 		case cartitem.FieldVariantID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field variant_id", values[i])
 			} else if value.Valid {
-				ci.VariantID = new(uuid.UUID)
-				*ci.VariantID = *value.S.(*uuid.UUID)
+				_m.VariantID = new(uuid.UUID)
+				*_m.VariantID = *value.S.(*uuid.UUID)
 			}
 		case cartitem.FieldNameSnapshot:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_snapshot", values[i])
 			} else if value.Valid {
-				ci.NameSnapshot = value.String
+				_m.NameSnapshot = value.String
 			}
 		case cartitem.FieldVariantNameSnapshot:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field variant_name_snapshot", values[i])
 			} else if value.Valid {
-				ci.VariantNameSnapshot = value.String
+				_m.VariantNameSnapshot = value.String
 			}
 		case cartitem.FieldQuantity:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field quantity", values[i])
 			} else if value.Valid {
-				ci.Quantity = int(value.Int64)
+				_m.Quantity = int(value.Int64)
 			}
 		case cartitem.FieldUnitPrice:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field unit_price", values[i])
 			} else if value.Valid {
-				ci.UnitPrice = value.Float64
+				_m.UnitPrice = value.Float64
 			}
 		case cartitem.FieldTotalPrice:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_price", values[i])
 			} else if value.Valid {
-				ci.TotalPrice = value.Float64
+				_m.TotalPrice = value.Float64
 			}
 		case cartitem.FieldNotes:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field notes", values[i])
 			} else if value.Valid {
-				ci.Notes = value.String
+				_m.Notes = value.String
 			}
 		case cartitem.FieldModifiers:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field modifiers", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ci.Modifiers); err != nil {
+				if err := json.Unmarshal(*value, &_m.Modifiers); err != nil {
 					return fmt.Errorf("unmarshal field modifiers: %w", err)
 				}
 			}
@@ -193,7 +179,7 @@ func (ci *CartItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ci.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -201,16 +187,16 @@ func (ci *CartItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ci.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case cartitem.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ci.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			ci.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -218,83 +204,78 @@ func (ci *CartItem) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the CartItem.
 // This includes values selected through modifiers, order, etc.
-func (ci *CartItem) Value(name string) (ent.Value, error) {
-	return ci.selectValues.Get(name)
+func (_m *CartItem) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryCart queries the "cart" edge of the CartItem entity.
-func (ci *CartItem) QueryCart() *CartQuery {
-	return NewCartItemClient(ci.config).QueryCart(ci)
-}
-
-// QueryCatalogItem queries the "catalog_item" edge of the CartItem entity.
-func (ci *CartItem) QueryCatalogItem() *CatalogItemQuery {
-	return NewCartItemClient(ci.config).QueryCatalogItem(ci)
+func (_m *CartItem) QueryCart() *CartQuery {
+	return NewCartItemClient(_m.config).QueryCart(_m)
 }
 
 // Update returns a builder for updating this CartItem.
 // Note that you need to call CartItem.Unwrap() before calling this method if this CartItem
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ci *CartItem) Update() *CartItemUpdateOne {
-	return NewCartItemClient(ci.config).UpdateOne(ci)
+func (_m *CartItem) Update() *CartItemUpdateOne {
+	return NewCartItemClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the CartItem entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ci *CartItem) Unwrap() *CartItem {
-	_tx, ok := ci.config.driver.(*txDriver)
+func (_m *CartItem) Unwrap() *CartItem {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: CartItem is not a transactional entity")
 	}
-	ci.config.driver = _tx.drv
-	return ci
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ci *CartItem) String() string {
+func (_m *CartItem) String() string {
 	var builder strings.Builder
 	builder.WriteString("CartItem(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ci.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("cart_id=")
-	builder.WriteString(fmt.Sprintf("%v", ci.CartID))
+	builder.WriteString(fmt.Sprintf("%v", _m.CartID))
 	builder.WriteString(", ")
-	builder.WriteString("catalog_item_id=")
-	builder.WriteString(fmt.Sprintf("%v", ci.CatalogItemID))
+	builder.WriteString("inventory_sku=")
+	builder.WriteString(_m.InventorySku)
 	builder.WriteString(", ")
-	if v := ci.VariantID; v != nil {
+	if v := _m.VariantID; v != nil {
 		builder.WriteString("variant_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name_snapshot=")
-	builder.WriteString(ci.NameSnapshot)
+	builder.WriteString(_m.NameSnapshot)
 	builder.WriteString(", ")
 	builder.WriteString("variant_name_snapshot=")
-	builder.WriteString(ci.VariantNameSnapshot)
+	builder.WriteString(_m.VariantNameSnapshot)
 	builder.WriteString(", ")
 	builder.WriteString("quantity=")
-	builder.WriteString(fmt.Sprintf("%v", ci.Quantity))
+	builder.WriteString(fmt.Sprintf("%v", _m.Quantity))
 	builder.WriteString(", ")
 	builder.WriteString("unit_price=")
-	builder.WriteString(fmt.Sprintf("%v", ci.UnitPrice))
+	builder.WriteString(fmt.Sprintf("%v", _m.UnitPrice))
 	builder.WriteString(", ")
 	builder.WriteString("total_price=")
-	builder.WriteString(fmt.Sprintf("%v", ci.TotalPrice))
+	builder.WriteString(fmt.Sprintf("%v", _m.TotalPrice))
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
-	builder.WriteString(ci.Notes)
+	builder.WriteString(_m.Notes)
 	builder.WriteString(", ")
 	builder.WriteString("modifiers=")
-	builder.WriteString(fmt.Sprintf("%v", ci.Modifiers))
+	builder.WriteString(fmt.Sprintf("%v", _m.Modifiers))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", ci.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(ci.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(ci.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -24,98 +24,98 @@ type PromoRedemptionUpdate struct {
 }
 
 // Where appends a list predicates to the PromoRedemptionUpdate builder.
-func (pru *PromoRedemptionUpdate) Where(ps ...predicate.PromoRedemption) *PromoRedemptionUpdate {
-	pru.mutation.Where(ps...)
-	return pru
+func (_u *PromoRedemptionUpdate) Where(ps ...predicate.PromoRedemption) *PromoRedemptionUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (pru *PromoRedemptionUpdate) SetPromoCodeID(u uuid.UUID) *PromoRedemptionUpdate {
-	pru.mutation.SetPromoCodeID(u)
-	return pru
+func (_u *PromoRedemptionUpdate) SetPromoCodeID(v uuid.UUID) *PromoRedemptionUpdate {
+	_u.mutation.SetPromoCodeID(v)
+	return _u
 }
 
 // SetNillablePromoCodeID sets the "promo_code_id" field if the given value is not nil.
-func (pru *PromoRedemptionUpdate) SetNillablePromoCodeID(u *uuid.UUID) *PromoRedemptionUpdate {
-	if u != nil {
-		pru.SetPromoCodeID(*u)
+func (_u *PromoRedemptionUpdate) SetNillablePromoCodeID(v *uuid.UUID) *PromoRedemptionUpdate {
+	if v != nil {
+		_u.SetPromoCodeID(*v)
 	}
-	return pru
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (pru *PromoRedemptionUpdate) SetOrderID(u uuid.UUID) *PromoRedemptionUpdate {
-	pru.mutation.SetOrderID(u)
-	return pru
+func (_u *PromoRedemptionUpdate) SetOrderID(v uuid.UUID) *PromoRedemptionUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (pru *PromoRedemptionUpdate) SetNillableOrderID(u *uuid.UUID) *PromoRedemptionUpdate {
-	if u != nil {
-		pru.SetOrderID(*u)
+func (_u *PromoRedemptionUpdate) SetNillableOrderID(v *uuid.UUID) *PromoRedemptionUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return pru
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (pru *PromoRedemptionUpdate) SetUserID(u uuid.UUID) *PromoRedemptionUpdate {
-	pru.mutation.SetUserID(u)
-	return pru
+func (_u *PromoRedemptionUpdate) SetUserID(v uuid.UUID) *PromoRedemptionUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (pru *PromoRedemptionUpdate) SetNillableUserID(u *uuid.UUID) *PromoRedemptionUpdate {
-	if u != nil {
-		pru.SetUserID(*u)
+func (_u *PromoRedemptionUpdate) SetNillableUserID(v *uuid.UUID) *PromoRedemptionUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return pru
+	return _u
 }
 
 // SetDiscountAmount sets the "discount_amount" field.
-func (pru *PromoRedemptionUpdate) SetDiscountAmount(f float64) *PromoRedemptionUpdate {
-	pru.mutation.ResetDiscountAmount()
-	pru.mutation.SetDiscountAmount(f)
-	return pru
+func (_u *PromoRedemptionUpdate) SetDiscountAmount(v float64) *PromoRedemptionUpdate {
+	_u.mutation.ResetDiscountAmount()
+	_u.mutation.SetDiscountAmount(v)
+	return _u
 }
 
 // SetNillableDiscountAmount sets the "discount_amount" field if the given value is not nil.
-func (pru *PromoRedemptionUpdate) SetNillableDiscountAmount(f *float64) *PromoRedemptionUpdate {
-	if f != nil {
-		pru.SetDiscountAmount(*f)
+func (_u *PromoRedemptionUpdate) SetNillableDiscountAmount(v *float64) *PromoRedemptionUpdate {
+	if v != nil {
+		_u.SetDiscountAmount(*v)
 	}
-	return pru
+	return _u
 }
 
-// AddDiscountAmount adds f to the "discount_amount" field.
-func (pru *PromoRedemptionUpdate) AddDiscountAmount(f float64) *PromoRedemptionUpdate {
-	pru.mutation.AddDiscountAmount(f)
-	return pru
+// AddDiscountAmount adds value to the "discount_amount" field.
+func (_u *PromoRedemptionUpdate) AddDiscountAmount(v float64) *PromoRedemptionUpdate {
+	_u.mutation.AddDiscountAmount(v)
+	return _u
 }
 
 // SetPromoCode sets the "promo_code" edge to the PromoCode entity.
-func (pru *PromoRedemptionUpdate) SetPromoCode(p *PromoCode) *PromoRedemptionUpdate {
-	return pru.SetPromoCodeID(p.ID)
+func (_u *PromoRedemptionUpdate) SetPromoCode(v *PromoCode) *PromoRedemptionUpdate {
+	return _u.SetPromoCodeID(v.ID)
 }
 
 // Mutation returns the PromoRedemptionMutation object of the builder.
-func (pru *PromoRedemptionUpdate) Mutation() *PromoRedemptionMutation {
-	return pru.mutation
+func (_u *PromoRedemptionUpdate) Mutation() *PromoRedemptionMutation {
+	return _u.mutation
 }
 
 // ClearPromoCode clears the "promo_code" edge to the PromoCode entity.
-func (pru *PromoRedemptionUpdate) ClearPromoCode() *PromoRedemptionUpdate {
-	pru.mutation.ClearPromoCode()
-	return pru
+func (_u *PromoRedemptionUpdate) ClearPromoCode() *PromoRedemptionUpdate {
+	_u.mutation.ClearPromoCode()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (pru *PromoRedemptionUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, pru.sqlSave, pru.mutation, pru.hooks)
+func (_u *PromoRedemptionUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pru *PromoRedemptionUpdate) SaveX(ctx context.Context) int {
-	affected, err := pru.Save(ctx)
+func (_u *PromoRedemptionUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -123,51 +123,51 @@ func (pru *PromoRedemptionUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (pru *PromoRedemptionUpdate) Exec(ctx context.Context) error {
-	_, err := pru.Save(ctx)
+func (_u *PromoRedemptionUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pru *PromoRedemptionUpdate) ExecX(ctx context.Context) {
-	if err := pru.Exec(ctx); err != nil {
+func (_u *PromoRedemptionUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pru *PromoRedemptionUpdate) check() error {
-	if _, ok := pru.mutation.PromoCodeID(); pru.mutation.PromoCodeCleared() && !ok {
+func (_u *PromoRedemptionUpdate) check() error {
+	if _u.mutation.PromoCodeCleared() && len(_u.mutation.PromoCodeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "PromoRedemption.promo_code"`)
 	}
 	return nil
 }
 
-func (pru *PromoRedemptionUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := pru.check(); err != nil {
-		return n, err
+func (_u *PromoRedemptionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(promoredemption.Table, promoredemption.Columns, sqlgraph.NewFieldSpec(promoredemption.FieldID, field.TypeUUID))
-	if ps := pru.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := pru.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(promoredemption.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := pru.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(promoredemption.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := pru.mutation.DiscountAmount(); ok {
+	if value, ok := _u.mutation.DiscountAmount(); ok {
 		_spec.SetField(promoredemption.FieldDiscountAmount, field.TypeFloat64, value)
 	}
-	if value, ok := pru.mutation.AddedDiscountAmount(); ok {
+	if value, ok := _u.mutation.AddedDiscountAmount(); ok {
 		_spec.AddField(promoredemption.FieldDiscountAmount, field.TypeFloat64, value)
 	}
-	if pru.mutation.PromoCodeCleared() {
+	if _u.mutation.PromoCodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -180,7 +180,7 @@ func (pru *PromoRedemptionUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pru.mutation.PromoCodeIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PromoCodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -196,7 +196,7 @@ func (pru *PromoRedemptionUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, pru.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{promoredemption.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -204,8 +204,8 @@ func (pru *PromoRedemptionUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		return 0, err
 	}
-	pru.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // PromoRedemptionUpdateOne is the builder for updating a single PromoRedemption entity.
@@ -217,105 +217,105 @@ type PromoRedemptionUpdateOne struct {
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (pruo *PromoRedemptionUpdateOne) SetPromoCodeID(u uuid.UUID) *PromoRedemptionUpdateOne {
-	pruo.mutation.SetPromoCodeID(u)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) SetPromoCodeID(v uuid.UUID) *PromoRedemptionUpdateOne {
+	_u.mutation.SetPromoCodeID(v)
+	return _u
 }
 
 // SetNillablePromoCodeID sets the "promo_code_id" field if the given value is not nil.
-func (pruo *PromoRedemptionUpdateOne) SetNillablePromoCodeID(u *uuid.UUID) *PromoRedemptionUpdateOne {
-	if u != nil {
-		pruo.SetPromoCodeID(*u)
+func (_u *PromoRedemptionUpdateOne) SetNillablePromoCodeID(v *uuid.UUID) *PromoRedemptionUpdateOne {
+	if v != nil {
+		_u.SetPromoCodeID(*v)
 	}
-	return pruo
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (pruo *PromoRedemptionUpdateOne) SetOrderID(u uuid.UUID) *PromoRedemptionUpdateOne {
-	pruo.mutation.SetOrderID(u)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) SetOrderID(v uuid.UUID) *PromoRedemptionUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (pruo *PromoRedemptionUpdateOne) SetNillableOrderID(u *uuid.UUID) *PromoRedemptionUpdateOne {
-	if u != nil {
-		pruo.SetOrderID(*u)
+func (_u *PromoRedemptionUpdateOne) SetNillableOrderID(v *uuid.UUID) *PromoRedemptionUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return pruo
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (pruo *PromoRedemptionUpdateOne) SetUserID(u uuid.UUID) *PromoRedemptionUpdateOne {
-	pruo.mutation.SetUserID(u)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) SetUserID(v uuid.UUID) *PromoRedemptionUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (pruo *PromoRedemptionUpdateOne) SetNillableUserID(u *uuid.UUID) *PromoRedemptionUpdateOne {
-	if u != nil {
-		pruo.SetUserID(*u)
+func (_u *PromoRedemptionUpdateOne) SetNillableUserID(v *uuid.UUID) *PromoRedemptionUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return pruo
+	return _u
 }
 
 // SetDiscountAmount sets the "discount_amount" field.
-func (pruo *PromoRedemptionUpdateOne) SetDiscountAmount(f float64) *PromoRedemptionUpdateOne {
-	pruo.mutation.ResetDiscountAmount()
-	pruo.mutation.SetDiscountAmount(f)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) SetDiscountAmount(v float64) *PromoRedemptionUpdateOne {
+	_u.mutation.ResetDiscountAmount()
+	_u.mutation.SetDiscountAmount(v)
+	return _u
 }
 
 // SetNillableDiscountAmount sets the "discount_amount" field if the given value is not nil.
-func (pruo *PromoRedemptionUpdateOne) SetNillableDiscountAmount(f *float64) *PromoRedemptionUpdateOne {
-	if f != nil {
-		pruo.SetDiscountAmount(*f)
+func (_u *PromoRedemptionUpdateOne) SetNillableDiscountAmount(v *float64) *PromoRedemptionUpdateOne {
+	if v != nil {
+		_u.SetDiscountAmount(*v)
 	}
-	return pruo
+	return _u
 }
 
-// AddDiscountAmount adds f to the "discount_amount" field.
-func (pruo *PromoRedemptionUpdateOne) AddDiscountAmount(f float64) *PromoRedemptionUpdateOne {
-	pruo.mutation.AddDiscountAmount(f)
-	return pruo
+// AddDiscountAmount adds value to the "discount_amount" field.
+func (_u *PromoRedemptionUpdateOne) AddDiscountAmount(v float64) *PromoRedemptionUpdateOne {
+	_u.mutation.AddDiscountAmount(v)
+	return _u
 }
 
 // SetPromoCode sets the "promo_code" edge to the PromoCode entity.
-func (pruo *PromoRedemptionUpdateOne) SetPromoCode(p *PromoCode) *PromoRedemptionUpdateOne {
-	return pruo.SetPromoCodeID(p.ID)
+func (_u *PromoRedemptionUpdateOne) SetPromoCode(v *PromoCode) *PromoRedemptionUpdateOne {
+	return _u.SetPromoCodeID(v.ID)
 }
 
 // Mutation returns the PromoRedemptionMutation object of the builder.
-func (pruo *PromoRedemptionUpdateOne) Mutation() *PromoRedemptionMutation {
-	return pruo.mutation
+func (_u *PromoRedemptionUpdateOne) Mutation() *PromoRedemptionMutation {
+	return _u.mutation
 }
 
 // ClearPromoCode clears the "promo_code" edge to the PromoCode entity.
-func (pruo *PromoRedemptionUpdateOne) ClearPromoCode() *PromoRedemptionUpdateOne {
-	pruo.mutation.ClearPromoCode()
-	return pruo
+func (_u *PromoRedemptionUpdateOne) ClearPromoCode() *PromoRedemptionUpdateOne {
+	_u.mutation.ClearPromoCode()
+	return _u
 }
 
 // Where appends a list predicates to the PromoRedemptionUpdate builder.
-func (pruo *PromoRedemptionUpdateOne) Where(ps ...predicate.PromoRedemption) *PromoRedemptionUpdateOne {
-	pruo.mutation.Where(ps...)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) Where(ps ...predicate.PromoRedemption) *PromoRedemptionUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (pruo *PromoRedemptionUpdateOne) Select(field string, fields ...string) *PromoRedemptionUpdateOne {
-	pruo.fields = append([]string{field}, fields...)
-	return pruo
+func (_u *PromoRedemptionUpdateOne) Select(field string, fields ...string) *PromoRedemptionUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated PromoRedemption entity.
-func (pruo *PromoRedemptionUpdateOne) Save(ctx context.Context) (*PromoRedemption, error) {
-	return withHooks(ctx, pruo.sqlSave, pruo.mutation, pruo.hooks)
+func (_u *PromoRedemptionUpdateOne) Save(ctx context.Context) (*PromoRedemption, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pruo *PromoRedemptionUpdateOne) SaveX(ctx context.Context) *PromoRedemption {
-	node, err := pruo.Save(ctx)
+func (_u *PromoRedemptionUpdateOne) SaveX(ctx context.Context) *PromoRedemption {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -323,37 +323,37 @@ func (pruo *PromoRedemptionUpdateOne) SaveX(ctx context.Context) *PromoRedemptio
 }
 
 // Exec executes the query on the entity.
-func (pruo *PromoRedemptionUpdateOne) Exec(ctx context.Context) error {
-	_, err := pruo.Save(ctx)
+func (_u *PromoRedemptionUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pruo *PromoRedemptionUpdateOne) ExecX(ctx context.Context) {
-	if err := pruo.Exec(ctx); err != nil {
+func (_u *PromoRedemptionUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pruo *PromoRedemptionUpdateOne) check() error {
-	if _, ok := pruo.mutation.PromoCodeID(); pruo.mutation.PromoCodeCleared() && !ok {
+func (_u *PromoRedemptionUpdateOne) check() error {
+	if _u.mutation.PromoCodeCleared() && len(_u.mutation.PromoCodeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "PromoRedemption.promo_code"`)
 	}
 	return nil
 }
 
-func (pruo *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *PromoRedemption, err error) {
-	if err := pruo.check(); err != nil {
+func (_u *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *PromoRedemption, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(promoredemption.Table, promoredemption.Columns, sqlgraph.NewFieldSpec(promoredemption.FieldID, field.TypeUUID))
-	id, ok := pruo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "PromoRedemption.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := pruo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, promoredemption.FieldID)
 		for _, f := range fields {
@@ -365,26 +365,26 @@ func (pruo *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *Promo
 			}
 		}
 	}
-	if ps := pruo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := pruo.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(promoredemption.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := pruo.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(promoredemption.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := pruo.mutation.DiscountAmount(); ok {
+	if value, ok := _u.mutation.DiscountAmount(); ok {
 		_spec.SetField(promoredemption.FieldDiscountAmount, field.TypeFloat64, value)
 	}
-	if value, ok := pruo.mutation.AddedDiscountAmount(); ok {
+	if value, ok := _u.mutation.AddedDiscountAmount(); ok {
 		_spec.AddField(promoredemption.FieldDiscountAmount, field.TypeFloat64, value)
 	}
-	if pruo.mutation.PromoCodeCleared() {
+	if _u.mutation.PromoCodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -397,7 +397,7 @@ func (pruo *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *Promo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pruo.mutation.PromoCodeIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PromoCodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -413,10 +413,10 @@ func (pruo *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *Promo
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &PromoRedemption{config: pruo.config}
+	_node = &PromoRedemption{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, pruo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{promoredemption.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -424,6 +424,6 @@ func (pruo *PromoRedemptionUpdateOne) sqlSave(ctx context.Context) (_node *Promo
 		}
 		return nil, err
 	}
-	pruo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

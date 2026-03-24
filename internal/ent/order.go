@@ -207,7 +207,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Order fields.
-func (o *Order) assignValues(columns []string, values []any) error {
+func (_m *Order) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -217,223 +217,223 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				o.ID = *value
+				_m.ID = *value
 			}
 		case order.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				o.TenantID = *value
+				_m.TenantID = *value
 			}
 		case order.FieldOutletID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value != nil {
-				o.OutletID = *value
+				_m.OutletID = *value
 			}
 		case order.FieldCustomerID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field customer_id", values[i])
 			} else if value != nil {
-				o.CustomerID = *value
+				_m.CustomerID = *value
 			}
 		case order.FieldCartID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field cart_id", values[i])
 			} else if value.Valid {
-				o.CartID = new(uuid.UUID)
-				*o.CartID = *value.S.(*uuid.UUID)
+				_m.CartID = new(uuid.UUID)
+				*_m.CartID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldOrderNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field order_number", values[i])
 			} else if value.Valid {
-				o.OrderNumber = value.String
+				_m.OrderNumber = value.String
 			}
 		case order.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				o.Status = order.Status(value.String)
+				_m.Status = order.Status(value.String)
 			}
 		case order.FieldPaymentStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_status", values[i])
 			} else if value.Valid {
-				o.PaymentStatus = order.PaymentStatus(value.String)
+				_m.PaymentStatus = order.PaymentStatus(value.String)
 			}
 		case order.FieldPaymentIntentID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_intent_id", values[i])
 			} else if value.Valid {
-				o.PaymentIntentID = new(uuid.UUID)
-				*o.PaymentIntentID = *value.S.(*uuid.UUID)
+				_m.PaymentIntentID = new(uuid.UUID)
+				*_m.PaymentIntentID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldCurrency:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field currency", values[i])
 			} else if value.Valid {
-				o.Currency = value.String
+				_m.Currency = value.String
 			}
 		case order.FieldSubtotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field subtotal", values[i])
 			} else if value.Valid {
-				o.Subtotal = value.Float64
+				_m.Subtotal = value.Float64
 			}
 		case order.FieldDiscountTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field discount_total", values[i])
 			} else if value.Valid {
-				o.DiscountTotal = value.Float64
+				_m.DiscountTotal = value.Float64
 			}
 		case order.FieldTaxTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field tax_total", values[i])
 			} else if value.Valid {
-				o.TaxTotal = value.Float64
+				_m.TaxTotal = value.Float64
 			}
 		case order.FieldDeliveryFee:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field delivery_fee", values[i])
 			} else if value.Valid {
-				o.DeliveryFee = value.Float64
+				_m.DeliveryFee = value.Float64
 			}
 		case order.FieldTipTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field tip_total", values[i])
 			} else if value.Valid {
-				o.TipTotal = value.Float64
+				_m.TipTotal = value.Float64
 			}
 		case order.FieldGrandTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field grand_total", values[i])
 			} else if value.Valid {
-				o.GrandTotal = value.Float64
+				_m.GrandTotal = value.Float64
 			}
 		case order.FieldLoyaltyPointsEarned:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field loyalty_points_earned", values[i])
 			} else if value.Valid {
-				o.LoyaltyPointsEarned = int(value.Int64)
+				_m.LoyaltyPointsEarned = int(value.Int64)
 			}
 		case order.FieldLoyaltyPointsRedeemed:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field loyalty_points_redeemed", values[i])
 			} else if value.Valid {
-				o.LoyaltyPointsRedeemed = int(value.Int64)
+				_m.LoyaltyPointsRedeemed = int(value.Int64)
 			}
 		case order.FieldDeliveryAddressID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field delivery_address_id", values[i])
 			} else if value.Valid {
-				o.DeliveryAddressID = new(uuid.UUID)
-				*o.DeliveryAddressID = *value.S.(*uuid.UUID)
+				_m.DeliveryAddressID = new(uuid.UUID)
+				*_m.DeliveryAddressID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldPromoCodeID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field promo_code_id", values[i])
 			} else if value.Valid {
-				o.PromoCodeID = new(uuid.UUID)
-				*o.PromoCodeID = *value.S.(*uuid.UUID)
+				_m.PromoCodeID = new(uuid.UUID)
+				*_m.PromoCodeID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldInstructions:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field instructions", values[i])
 			} else if value.Valid {
-				o.Instructions = value.String
+				_m.Instructions = value.String
 			}
 		case order.FieldChannel:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field channel", values[i])
 			} else if value.Valid {
-				o.Channel = order.Channel(value.String)
+				_m.Channel = order.Channel(value.String)
 			}
 		case order.FieldSource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
-				o.Source = value.String
+				_m.Source = value.String
 			}
 		case order.FieldIdempotencyKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field idempotency_key", values[i])
 			} else if value.Valid {
-				o.IdempotencyKey = value.String
+				_m.IdempotencyKey = value.String
 			}
 		case order.FieldPlacedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field placed_at", values[i])
 			} else if value.Valid {
-				o.PlacedAt = new(time.Time)
-				*o.PlacedAt = value.Time
+				_m.PlacedAt = new(time.Time)
+				*_m.PlacedAt = value.Time
 			}
 		case order.FieldConfirmedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field confirmed_at", values[i])
 			} else if value.Valid {
-				o.ConfirmedAt = new(time.Time)
-				*o.ConfirmedAt = value.Time
+				_m.ConfirmedAt = new(time.Time)
+				*_m.ConfirmedAt = value.Time
 			}
 		case order.FieldReadyAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field ready_at", values[i])
 			} else if value.Valid {
-				o.ReadyAt = new(time.Time)
-				*o.ReadyAt = value.Time
+				_m.ReadyAt = new(time.Time)
+				*_m.ReadyAt = value.Time
 			}
 		case order.FieldDeliveredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field delivered_at", values[i])
 			} else if value.Valid {
-				o.DeliveredAt = new(time.Time)
-				*o.DeliveredAt = value.Time
+				_m.DeliveredAt = new(time.Time)
+				*_m.DeliveredAt = value.Time
 			}
 		case order.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				o.CompletedAt = new(time.Time)
-				*o.CompletedAt = value.Time
+				_m.CompletedAt = new(time.Time)
+				*_m.CompletedAt = value.Time
 			}
 		case order.FieldCancelledAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field cancelled_at", values[i])
 			} else if value.Valid {
-				o.CancelledAt = new(time.Time)
-				*o.CancelledAt = value.Time
+				_m.CancelledAt = new(time.Time)
+				*_m.CancelledAt = value.Time
 			}
 		case order.FieldCancellationReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cancellation_reason", values[i])
 			} else if value.Valid {
-				o.CancellationReason = value.String
+				_m.CancellationReason = value.String
 			}
 		case order.FieldRating:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field rating", values[i])
 			} else if value.Valid {
-				o.Rating = new(int)
-				*o.Rating = int(value.Int64)
+				_m.Rating = new(int)
+				*_m.Rating = int(value.Int64)
 			}
 		case order.FieldRatingComment:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field rating_comment", values[i])
 			} else if value.Valid {
-				o.RatingComment = value.String
+				_m.RatingComment = value.String
 			}
 		case order.FieldRatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field rated_at", values[i])
 			} else if value.Valid {
-				o.RatedAt = new(time.Time)
-				*o.RatedAt = value.Time
+				_m.RatedAt = new(time.Time)
+				*_m.RatedAt = value.Time
 			}
 		case order.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -441,16 +441,16 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				o.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case order.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				o.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			o.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -458,194 +458,194 @@ func (o *Order) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Order.
 // This includes values selected through modifiers, order, etc.
-func (o *Order) Value(name string) (ent.Value, error) {
-	return o.selectValues.Get(name)
+func (_m *Order) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryItems queries the "items" edge of the Order entity.
-func (o *Order) QueryItems() *OrderItemQuery {
-	return NewOrderClient(o.config).QueryItems(o)
+func (_m *Order) QueryItems() *OrderItemQuery {
+	return NewOrderClient(_m.config).QueryItems(_m)
 }
 
 // QueryEvents queries the "events" edge of the Order entity.
-func (o *Order) QueryEvents() *OrderEventQuery {
-	return NewOrderClient(o.config).QueryEvents(o)
+func (_m *Order) QueryEvents() *OrderEventQuery {
+	return NewOrderClient(_m.config).QueryEvents(_m)
 }
 
 // QueryAssignments queries the "assignments" edge of the Order entity.
-func (o *Order) QueryAssignments() *OrderAssignmentQuery {
-	return NewOrderClient(o.config).QueryAssignments(o)
+func (_m *Order) QueryAssignments() *OrderAssignmentQuery {
+	return NewOrderClient(_m.config).QueryAssignments(_m)
 }
 
 // QueryOutlet queries the "outlet" edge of the Order entity.
-func (o *Order) QueryOutlet() *OutletQuery {
-	return NewOrderClient(o.config).QueryOutlet(o)
+func (_m *Order) QueryOutlet() *OutletQuery {
+	return NewOrderClient(_m.config).QueryOutlet(_m)
 }
 
 // QueryCustomer queries the "customer" edge of the Order entity.
-func (o *Order) QueryCustomer() *UserQuery {
-	return NewOrderClient(o.config).QueryCustomer(o)
+func (_m *Order) QueryCustomer() *UserQuery {
+	return NewOrderClient(_m.config).QueryCustomer(_m)
 }
 
 // QueryDeliveryAddress queries the "delivery_address" edge of the Order entity.
-func (o *Order) QueryDeliveryAddress() *CustomerAddressQuery {
-	return NewOrderClient(o.config).QueryDeliveryAddress(o)
+func (_m *Order) QueryDeliveryAddress() *CustomerAddressQuery {
+	return NewOrderClient(_m.config).QueryDeliveryAddress(_m)
 }
 
 // Update returns a builder for updating this Order.
 // Note that you need to call Order.Unwrap() before calling this method if this Order
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (o *Order) Update() *OrderUpdateOne {
-	return NewOrderClient(o.config).UpdateOne(o)
+func (_m *Order) Update() *OrderUpdateOne {
+	return NewOrderClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Order entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (o *Order) Unwrap() *Order {
-	_tx, ok := o.config.driver.(*txDriver)
+func (_m *Order) Unwrap() *Order {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Order is not a transactional entity")
 	}
-	o.config.driver = _tx.drv
-	return o
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (o *Order) String() string {
+func (_m *Order) String() string {
 	var builder strings.Builder
 	builder.WriteString("Order(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", o.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("outlet_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.OutletID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OutletID))
 	builder.WriteString(", ")
 	builder.WriteString("customer_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.CustomerID))
+	builder.WriteString(fmt.Sprintf("%v", _m.CustomerID))
 	builder.WriteString(", ")
-	if v := o.CartID; v != nil {
+	if v := _m.CartID; v != nil {
 		builder.WriteString("cart_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("order_number=")
-	builder.WriteString(o.OrderNumber)
+	builder.WriteString(_m.OrderNumber)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", o.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("payment_status=")
-	builder.WriteString(fmt.Sprintf("%v", o.PaymentStatus))
+	builder.WriteString(fmt.Sprintf("%v", _m.PaymentStatus))
 	builder.WriteString(", ")
-	if v := o.PaymentIntentID; v != nil {
+	if v := _m.PaymentIntentID; v != nil {
 		builder.WriteString("payment_intent_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("currency=")
-	builder.WriteString(o.Currency)
+	builder.WriteString(_m.Currency)
 	builder.WriteString(", ")
 	builder.WriteString("subtotal=")
-	builder.WriteString(fmt.Sprintf("%v", o.Subtotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.Subtotal))
 	builder.WriteString(", ")
 	builder.WriteString("discount_total=")
-	builder.WriteString(fmt.Sprintf("%v", o.DiscountTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.DiscountTotal))
 	builder.WriteString(", ")
 	builder.WriteString("tax_total=")
-	builder.WriteString(fmt.Sprintf("%v", o.TaxTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.TaxTotal))
 	builder.WriteString(", ")
 	builder.WriteString("delivery_fee=")
-	builder.WriteString(fmt.Sprintf("%v", o.DeliveryFee))
+	builder.WriteString(fmt.Sprintf("%v", _m.DeliveryFee))
 	builder.WriteString(", ")
 	builder.WriteString("tip_total=")
-	builder.WriteString(fmt.Sprintf("%v", o.TipTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.TipTotal))
 	builder.WriteString(", ")
 	builder.WriteString("grand_total=")
-	builder.WriteString(fmt.Sprintf("%v", o.GrandTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.GrandTotal))
 	builder.WriteString(", ")
 	builder.WriteString("loyalty_points_earned=")
-	builder.WriteString(fmt.Sprintf("%v", o.LoyaltyPointsEarned))
+	builder.WriteString(fmt.Sprintf("%v", _m.LoyaltyPointsEarned))
 	builder.WriteString(", ")
 	builder.WriteString("loyalty_points_redeemed=")
-	builder.WriteString(fmt.Sprintf("%v", o.LoyaltyPointsRedeemed))
+	builder.WriteString(fmt.Sprintf("%v", _m.LoyaltyPointsRedeemed))
 	builder.WriteString(", ")
-	if v := o.DeliveryAddressID; v != nil {
+	if v := _m.DeliveryAddressID; v != nil {
 		builder.WriteString("delivery_address_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := o.PromoCodeID; v != nil {
+	if v := _m.PromoCodeID; v != nil {
 		builder.WriteString("promo_code_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("instructions=")
-	builder.WriteString(o.Instructions)
+	builder.WriteString(_m.Instructions)
 	builder.WriteString(", ")
 	builder.WriteString("channel=")
-	builder.WriteString(fmt.Sprintf("%v", o.Channel))
+	builder.WriteString(fmt.Sprintf("%v", _m.Channel))
 	builder.WriteString(", ")
 	builder.WriteString("source=")
-	builder.WriteString(o.Source)
+	builder.WriteString(_m.Source)
 	builder.WriteString(", ")
 	builder.WriteString("idempotency_key=")
-	builder.WriteString(o.IdempotencyKey)
+	builder.WriteString(_m.IdempotencyKey)
 	builder.WriteString(", ")
-	if v := o.PlacedAt; v != nil {
+	if v := _m.PlacedAt; v != nil {
 		builder.WriteString("placed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := o.ConfirmedAt; v != nil {
+	if v := _m.ConfirmedAt; v != nil {
 		builder.WriteString("confirmed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := o.ReadyAt; v != nil {
+	if v := _m.ReadyAt; v != nil {
 		builder.WriteString("ready_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := o.DeliveredAt; v != nil {
+	if v := _m.DeliveredAt; v != nil {
 		builder.WriteString("delivered_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := o.CompletedAt; v != nil {
+	if v := _m.CompletedAt; v != nil {
 		builder.WriteString("completed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := o.CancelledAt; v != nil {
+	if v := _m.CancelledAt; v != nil {
 		builder.WriteString("cancelled_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("cancellation_reason=")
-	builder.WriteString(o.CancellationReason)
+	builder.WriteString(_m.CancellationReason)
 	builder.WriteString(", ")
-	if v := o.Rating; v != nil {
+	if v := _m.Rating; v != nil {
 		builder.WriteString("rating=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("rating_comment=")
-	builder.WriteString(o.RatingComment)
+	builder.WriteString(_m.RatingComment)
 	builder.WriteString(", ")
-	if v := o.RatedAt; v != nil {
+	if v := _m.RatedAt; v != nil {
 		builder.WriteString("rated_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", o.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(o.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(o.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

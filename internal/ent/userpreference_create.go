@@ -25,150 +25,150 @@ type UserPreferenceCreate struct {
 }
 
 // SetTheme sets the "theme" field.
-func (upc *UserPreferenceCreate) SetTheme(s string) *UserPreferenceCreate {
-	upc.mutation.SetTheme(s)
-	return upc
+func (_c *UserPreferenceCreate) SetTheme(v string) *UserPreferenceCreate {
+	_c.mutation.SetTheme(v)
+	return _c
 }
 
 // SetNillableTheme sets the "theme" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableTheme(s *string) *UserPreferenceCreate {
-	if s != nil {
-		upc.SetTheme(*s)
+func (_c *UserPreferenceCreate) SetNillableTheme(v *string) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetTheme(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetLanguage sets the "language" field.
-func (upc *UserPreferenceCreate) SetLanguage(s string) *UserPreferenceCreate {
-	upc.mutation.SetLanguage(s)
-	return upc
+func (_c *UserPreferenceCreate) SetLanguage(v string) *UserPreferenceCreate {
+	_c.mutation.SetLanguage(v)
+	return _c
 }
 
 // SetNillableLanguage sets the "language" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableLanguage(s *string) *UserPreferenceCreate {
-	if s != nil {
-		upc.SetLanguage(*s)
+func (_c *UserPreferenceCreate) SetNillableLanguage(v *string) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetLanguage(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetNotifyEmail sets the "notify_email" field.
-func (upc *UserPreferenceCreate) SetNotifyEmail(b bool) *UserPreferenceCreate {
-	upc.mutation.SetNotifyEmail(b)
-	return upc
+func (_c *UserPreferenceCreate) SetNotifyEmail(v bool) *UserPreferenceCreate {
+	_c.mutation.SetNotifyEmail(v)
+	return _c
 }
 
 // SetNillableNotifyEmail sets the "notify_email" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableNotifyEmail(b *bool) *UserPreferenceCreate {
-	if b != nil {
-		upc.SetNotifyEmail(*b)
+func (_c *UserPreferenceCreate) SetNillableNotifyEmail(v *bool) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetNotifyEmail(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetNotifySms sets the "notify_sms" field.
-func (upc *UserPreferenceCreate) SetNotifySms(b bool) *UserPreferenceCreate {
-	upc.mutation.SetNotifySms(b)
-	return upc
+func (_c *UserPreferenceCreate) SetNotifySms(v bool) *UserPreferenceCreate {
+	_c.mutation.SetNotifySms(v)
+	return _c
 }
 
 // SetNillableNotifySms sets the "notify_sms" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableNotifySms(b *bool) *UserPreferenceCreate {
-	if b != nil {
-		upc.SetNotifySms(*b)
+func (_c *UserPreferenceCreate) SetNillableNotifySms(v *bool) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetNotifySms(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetNotifyPush sets the "notify_push" field.
-func (upc *UserPreferenceCreate) SetNotifyPush(b bool) *UserPreferenceCreate {
-	upc.mutation.SetNotifyPush(b)
-	return upc
+func (_c *UserPreferenceCreate) SetNotifyPush(v bool) *UserPreferenceCreate {
+	_c.mutation.SetNotifyPush(v)
+	return _c
 }
 
 // SetNillableNotifyPush sets the "notify_push" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableNotifyPush(b *bool) *UserPreferenceCreate {
-	if b != nil {
-		upc.SetNotifyPush(*b)
+func (_c *UserPreferenceCreate) SetNillableNotifyPush(v *bool) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetNotifyPush(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetTimezone sets the "timezone" field.
-func (upc *UserPreferenceCreate) SetTimezone(s string) *UserPreferenceCreate {
-	upc.mutation.SetTimezone(s)
-	return upc
+func (_c *UserPreferenceCreate) SetTimezone(v string) *UserPreferenceCreate {
+	_c.mutation.SetTimezone(v)
+	return _c
 }
 
 // SetNillableTimezone sets the "timezone" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableTimezone(s *string) *UserPreferenceCreate {
-	if s != nil {
-		upc.SetTimezone(*s)
+func (_c *UserPreferenceCreate) SetNillableTimezone(v *string) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetTimezone(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (upc *UserPreferenceCreate) SetCreatedAt(t time.Time) *UserPreferenceCreate {
-	upc.mutation.SetCreatedAt(t)
-	return upc
+func (_c *UserPreferenceCreate) SetCreatedAt(v time.Time) *UserPreferenceCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableCreatedAt(t *time.Time) *UserPreferenceCreate {
-	if t != nil {
-		upc.SetCreatedAt(*t)
+func (_c *UserPreferenceCreate) SetNillableCreatedAt(v *time.Time) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (upc *UserPreferenceCreate) SetUpdatedAt(t time.Time) *UserPreferenceCreate {
-	upc.mutation.SetUpdatedAt(t)
-	return upc
+func (_c *UserPreferenceCreate) SetUpdatedAt(v time.Time) *UserPreferenceCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableUpdatedAt(t *time.Time) *UserPreferenceCreate {
-	if t != nil {
-		upc.SetUpdatedAt(*t)
+func (_c *UserPreferenceCreate) SetNillableUpdatedAt(v *time.Time) *UserPreferenceCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return upc
+	return _c
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (upc *UserPreferenceCreate) SetUserID(id uuid.UUID) *UserPreferenceCreate {
-	upc.mutation.SetUserID(id)
-	return upc
+func (_c *UserPreferenceCreate) SetUserID(id uuid.UUID) *UserPreferenceCreate {
+	_c.mutation.SetUserID(id)
+	return _c
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (upc *UserPreferenceCreate) SetNillableUserID(id *uuid.UUID) *UserPreferenceCreate {
+func (_c *UserPreferenceCreate) SetNillableUserID(id *uuid.UUID) *UserPreferenceCreate {
 	if id != nil {
-		upc = upc.SetUserID(*id)
+		_c = _c.SetUserID(*id)
 	}
-	return upc
+	return _c
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (upc *UserPreferenceCreate) SetUser(u *User) *UserPreferenceCreate {
-	return upc.SetUserID(u.ID)
+func (_c *UserPreferenceCreate) SetUser(v *User) *UserPreferenceCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // Mutation returns the UserPreferenceMutation object of the builder.
-func (upc *UserPreferenceCreate) Mutation() *UserPreferenceMutation {
-	return upc.mutation
+func (_c *UserPreferenceCreate) Mutation() *UserPreferenceMutation {
+	return _c.mutation
 }
 
 // Save creates the UserPreference in the database.
-func (upc *UserPreferenceCreate) Save(ctx context.Context) (*UserPreference, error) {
-	upc.defaults()
-	return withHooks(ctx, upc.sqlSave, upc.mutation, upc.hooks)
+func (_c *UserPreferenceCreate) Save(ctx context.Context) (*UserPreference, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (upc *UserPreferenceCreate) SaveX(ctx context.Context) *UserPreference {
-	v, err := upc.Save(ctx)
+func (_c *UserPreferenceCreate) SaveX(ctx context.Context) *UserPreference {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -176,89 +176,89 @@ func (upc *UserPreferenceCreate) SaveX(ctx context.Context) *UserPreference {
 }
 
 // Exec executes the query.
-func (upc *UserPreferenceCreate) Exec(ctx context.Context) error {
-	_, err := upc.Save(ctx)
+func (_c *UserPreferenceCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upc *UserPreferenceCreate) ExecX(ctx context.Context) {
-	if err := upc.Exec(ctx); err != nil {
+func (_c *UserPreferenceCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (upc *UserPreferenceCreate) defaults() {
-	if _, ok := upc.mutation.Theme(); !ok {
+func (_c *UserPreferenceCreate) defaults() {
+	if _, ok := _c.mutation.Theme(); !ok {
 		v := userpreference.DefaultTheme
-		upc.mutation.SetTheme(v)
+		_c.mutation.SetTheme(v)
 	}
-	if _, ok := upc.mutation.Language(); !ok {
+	if _, ok := _c.mutation.Language(); !ok {
 		v := userpreference.DefaultLanguage
-		upc.mutation.SetLanguage(v)
+		_c.mutation.SetLanguage(v)
 	}
-	if _, ok := upc.mutation.NotifyEmail(); !ok {
+	if _, ok := _c.mutation.NotifyEmail(); !ok {
 		v := userpreference.DefaultNotifyEmail
-		upc.mutation.SetNotifyEmail(v)
+		_c.mutation.SetNotifyEmail(v)
 	}
-	if _, ok := upc.mutation.NotifySms(); !ok {
+	if _, ok := _c.mutation.NotifySms(); !ok {
 		v := userpreference.DefaultNotifySms
-		upc.mutation.SetNotifySms(v)
+		_c.mutation.SetNotifySms(v)
 	}
-	if _, ok := upc.mutation.NotifyPush(); !ok {
+	if _, ok := _c.mutation.NotifyPush(); !ok {
 		v := userpreference.DefaultNotifyPush
-		upc.mutation.SetNotifyPush(v)
+		_c.mutation.SetNotifyPush(v)
 	}
-	if _, ok := upc.mutation.Timezone(); !ok {
+	if _, ok := _c.mutation.Timezone(); !ok {
 		v := userpreference.DefaultTimezone
-		upc.mutation.SetTimezone(v)
+		_c.mutation.SetTimezone(v)
 	}
-	if _, ok := upc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := userpreference.DefaultCreatedAt()
-		upc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := upc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := userpreference.DefaultUpdatedAt()
-		upc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (upc *UserPreferenceCreate) check() error {
-	if _, ok := upc.mutation.Theme(); !ok {
+func (_c *UserPreferenceCreate) check() error {
+	if _, ok := _c.mutation.Theme(); !ok {
 		return &ValidationError{Name: "theme", err: errors.New(`ent: missing required field "UserPreference.theme"`)}
 	}
-	if _, ok := upc.mutation.Language(); !ok {
+	if _, ok := _c.mutation.Language(); !ok {
 		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "UserPreference.language"`)}
 	}
-	if _, ok := upc.mutation.NotifyEmail(); !ok {
+	if _, ok := _c.mutation.NotifyEmail(); !ok {
 		return &ValidationError{Name: "notify_email", err: errors.New(`ent: missing required field "UserPreference.notify_email"`)}
 	}
-	if _, ok := upc.mutation.NotifySms(); !ok {
+	if _, ok := _c.mutation.NotifySms(); !ok {
 		return &ValidationError{Name: "notify_sms", err: errors.New(`ent: missing required field "UserPreference.notify_sms"`)}
 	}
-	if _, ok := upc.mutation.NotifyPush(); !ok {
+	if _, ok := _c.mutation.NotifyPush(); !ok {
 		return &ValidationError{Name: "notify_push", err: errors.New(`ent: missing required field "UserPreference.notify_push"`)}
 	}
-	if _, ok := upc.mutation.Timezone(); !ok {
+	if _, ok := _c.mutation.Timezone(); !ok {
 		return &ValidationError{Name: "timezone", err: errors.New(`ent: missing required field "UserPreference.timezone"`)}
 	}
-	if _, ok := upc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "UserPreference.created_at"`)}
 	}
-	if _, ok := upc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "UserPreference.updated_at"`)}
 	}
 	return nil
 }
 
-func (upc *UserPreferenceCreate) sqlSave(ctx context.Context) (*UserPreference, error) {
-	if err := upc.check(); err != nil {
+func (_c *UserPreferenceCreate) sqlSave(ctx context.Context) (*UserPreference, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := upc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, upc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -266,50 +266,50 @@ func (upc *UserPreferenceCreate) sqlSave(ctx context.Context) (*UserPreference, 
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	upc.mutation.id = &_node.ID
-	upc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (upc *UserPreferenceCreate) createSpec() (*UserPreference, *sqlgraph.CreateSpec) {
+func (_c *UserPreferenceCreate) createSpec() (*UserPreference, *sqlgraph.CreateSpec) {
 	var (
-		_node = &UserPreference{config: upc.config}
+		_node = &UserPreference{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(userpreference.Table, sqlgraph.NewFieldSpec(userpreference.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = upc.conflict
-	if value, ok := upc.mutation.Theme(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Theme(); ok {
 		_spec.SetField(userpreference.FieldTheme, field.TypeString, value)
 		_node.Theme = value
 	}
-	if value, ok := upc.mutation.Language(); ok {
+	if value, ok := _c.mutation.Language(); ok {
 		_spec.SetField(userpreference.FieldLanguage, field.TypeString, value)
 		_node.Language = value
 	}
-	if value, ok := upc.mutation.NotifyEmail(); ok {
+	if value, ok := _c.mutation.NotifyEmail(); ok {
 		_spec.SetField(userpreference.FieldNotifyEmail, field.TypeBool, value)
 		_node.NotifyEmail = value
 	}
-	if value, ok := upc.mutation.NotifySms(); ok {
+	if value, ok := _c.mutation.NotifySms(); ok {
 		_spec.SetField(userpreference.FieldNotifySms, field.TypeBool, value)
 		_node.NotifySms = value
 	}
-	if value, ok := upc.mutation.NotifyPush(); ok {
+	if value, ok := _c.mutation.NotifyPush(); ok {
 		_spec.SetField(userpreference.FieldNotifyPush, field.TypeBool, value)
 		_node.NotifyPush = value
 	}
-	if value, ok := upc.mutation.Timezone(); ok {
+	if value, ok := _c.mutation.Timezone(); ok {
 		_spec.SetField(userpreference.FieldTimezone, field.TypeString, value)
 		_node.Timezone = value
 	}
-	if value, ok := upc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userpreference.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := upc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(userpreference.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := upc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -345,10 +345,10 @@ func (upc *UserPreferenceCreate) createSpec() (*UserPreference, *sqlgraph.Create
 //			SetTheme(v+v).
 //		}).
 //		Exec(ctx)
-func (upc *UserPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertOne {
-	upc.conflict = opts
+func (_c *UserPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertOne {
+	_c.conflict = opts
 	return &UserPreferenceUpsertOne{
-		create: upc,
+		create: _c,
 	}
 }
 
@@ -358,10 +358,10 @@ func (upc *UserPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *UserPre
 //	client.UserPreference.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (upc *UserPreferenceCreate) OnConflictColumns(columns ...string) *UserPreferenceUpsertOne {
-	upc.conflict = append(upc.conflict, sql.ConflictColumns(columns...))
+func (_c *UserPreferenceCreate) OnConflictColumns(columns ...string) *UserPreferenceUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &UserPreferenceUpsertOne{
-		create: upc,
+		create: _c,
 	}
 }
 
@@ -647,16 +647,16 @@ type UserPreferenceCreateBulk struct {
 }
 
 // Save creates the UserPreference entities in the database.
-func (upcb *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreference, error) {
-	if upcb.err != nil {
-		return nil, upcb.err
+func (_c *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreference, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(upcb.builders))
-	nodes := make([]*UserPreference, len(upcb.builders))
-	mutators := make([]Mutator, len(upcb.builders))
-	for i := range upcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*UserPreference, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := upcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserPreferenceMutation)
@@ -670,12 +670,12 @@ func (upcb *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreferen
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, upcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = upcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, upcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -699,7 +699,7 @@ func (upcb *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreferen
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, upcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -707,8 +707,8 @@ func (upcb *UserPreferenceCreateBulk) Save(ctx context.Context) ([]*UserPreferen
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (upcb *UserPreferenceCreateBulk) SaveX(ctx context.Context) []*UserPreference {
-	v, err := upcb.Save(ctx)
+func (_c *UserPreferenceCreateBulk) SaveX(ctx context.Context) []*UserPreference {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -716,14 +716,14 @@ func (upcb *UserPreferenceCreateBulk) SaveX(ctx context.Context) []*UserPreferen
 }
 
 // Exec executes the query.
-func (upcb *UserPreferenceCreateBulk) Exec(ctx context.Context) error {
-	_, err := upcb.Save(ctx)
+func (_c *UserPreferenceCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upcb *UserPreferenceCreateBulk) ExecX(ctx context.Context) {
-	if err := upcb.Exec(ctx); err != nil {
+func (_c *UserPreferenceCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -743,10 +743,10 @@ func (upcb *UserPreferenceCreateBulk) ExecX(ctx context.Context) {
 //			SetTheme(v+v).
 //		}).
 //		Exec(ctx)
-func (upcb *UserPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertBulk {
-	upcb.conflict = opts
+func (_c *UserPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserPreferenceUpsertBulk {
+	_c.conflict = opts
 	return &UserPreferenceUpsertBulk{
-		create: upcb,
+		create: _c,
 	}
 }
 
@@ -756,10 +756,10 @@ func (upcb *UserPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *Us
 //	client.UserPreference.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (upcb *UserPreferenceCreateBulk) OnConflictColumns(columns ...string) *UserPreferenceUpsertBulk {
-	upcb.conflict = append(upcb.conflict, sql.ConflictColumns(columns...))
+func (_c *UserPreferenceCreateBulk) OnConflictColumns(columns ...string) *UserPreferenceUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &UserPreferenceUpsertBulk{
-		create: upcb,
+		create: _c,
 	}
 }
 

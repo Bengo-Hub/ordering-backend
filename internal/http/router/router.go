@@ -89,8 +89,11 @@ func New(
 		r.Use(security.InputValidation())
 	}
 
-	// Content-Type validation for API requests
-	r.Use(security.ContentTypeValidation("application/json"))
+	// Content-Type validation for API requests (exempt media upload which uses multipart/form-data)
+	r.Use(security.ContentTypeValidationWithExclusions(
+		[]string{"/api/v1/media/upload"},
+		"application/json",
+	))
 
 	// Global rate limiting by IP (if rate limiter is configured)
 	if rateLimiter != nil && securityConfig.RateLimitEnabled {

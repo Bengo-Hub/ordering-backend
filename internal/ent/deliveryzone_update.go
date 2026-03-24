@@ -24,215 +24,215 @@ type DeliveryZoneUpdate struct {
 }
 
 // Where appends a list predicates to the DeliveryZoneUpdate builder.
-func (dzu *DeliveryZoneUpdate) Where(ps ...predicate.DeliveryZone) *DeliveryZoneUpdate {
-	dzu.mutation.Where(ps...)
-	return dzu
+func (_u *DeliveryZoneUpdate) Where(ps ...predicate.DeliveryZone) *DeliveryZoneUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dzu *DeliveryZoneUpdate) SetTenantID(u uuid.UUID) *DeliveryZoneUpdate {
-	dzu.mutation.SetTenantID(u)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetTenantID(v uuid.UUID) *DeliveryZoneUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableTenantID(u *uuid.UUID) *DeliveryZoneUpdate {
-	if u != nil {
-		dzu.SetTenantID(*u)
+func (_u *DeliveryZoneUpdate) SetNillableTenantID(v *uuid.UUID) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dzu
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (dzu *DeliveryZoneUpdate) SetOutletID(u uuid.UUID) *DeliveryZoneUpdate {
-	dzu.mutation.SetOutletID(u)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetOutletID(v uuid.UUID) *DeliveryZoneUpdate {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableOutletID(u *uuid.UUID) *DeliveryZoneUpdate {
-	if u != nil {
-		dzu.SetOutletID(*u)
+func (_u *DeliveryZoneUpdate) SetNillableOutletID(v *uuid.UUID) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return dzu
+	return _u
 }
 
 // ClearOutletID clears the value of the "outlet_id" field.
-func (dzu *DeliveryZoneUpdate) ClearOutletID() *DeliveryZoneUpdate {
-	dzu.mutation.ClearOutletID()
-	return dzu
+func (_u *DeliveryZoneUpdate) ClearOutletID() *DeliveryZoneUpdate {
+	_u.mutation.ClearOutletID()
+	return _u
 }
 
 // SetName sets the "name" field.
-func (dzu *DeliveryZoneUpdate) SetName(s string) *DeliveryZoneUpdate {
-	dzu.mutation.SetName(s)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetName(v string) *DeliveryZoneUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableName(s *string) *DeliveryZoneUpdate {
-	if s != nil {
-		dzu.SetName(*s)
+func (_u *DeliveryZoneUpdate) SetNillableName(v *string) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return dzu
+	return _u
 }
 
 // SetSlug sets the "slug" field.
-func (dzu *DeliveryZoneUpdate) SetSlug(s string) *DeliveryZoneUpdate {
-	dzu.mutation.SetSlug(s)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetSlug(v string) *DeliveryZoneUpdate {
+	_u.mutation.SetSlug(v)
+	return _u
 }
 
 // SetNillableSlug sets the "slug" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableSlug(s *string) *DeliveryZoneUpdate {
-	if s != nil {
-		dzu.SetSlug(*s)
+func (_u *DeliveryZoneUpdate) SetNillableSlug(v *string) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetSlug(*v)
 	}
-	return dzu
+	return _u
 }
 
 // ClearSlug clears the value of the "slug" field.
-func (dzu *DeliveryZoneUpdate) ClearSlug() *DeliveryZoneUpdate {
-	dzu.mutation.ClearSlug()
-	return dzu
+func (_u *DeliveryZoneUpdate) ClearSlug() *DeliveryZoneUpdate {
+	_u.mutation.ClearSlug()
+	return _u
 }
 
 // SetZonePolygon sets the "zone_polygon" field.
-func (dzu *DeliveryZoneUpdate) SetZonePolygon(m map[string]interface{}) *DeliveryZoneUpdate {
-	dzu.mutation.SetZonePolygon(m)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetZonePolygon(v map[string]interface{}) *DeliveryZoneUpdate {
+	_u.mutation.SetZonePolygon(v)
+	return _u
 }
 
 // ClearZonePolygon clears the value of the "zone_polygon" field.
-func (dzu *DeliveryZoneUpdate) ClearZonePolygon() *DeliveryZoneUpdate {
-	dzu.mutation.ClearZonePolygon()
-	return dzu
+func (_u *DeliveryZoneUpdate) ClearZonePolygon() *DeliveryZoneUpdate {
+	_u.mutation.ClearZonePolygon()
+	return _u
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (dzu *DeliveryZoneUpdate) SetDeliveryFee(f float64) *DeliveryZoneUpdate {
-	dzu.mutation.ResetDeliveryFee()
-	dzu.mutation.SetDeliveryFee(f)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetDeliveryFee(v float64) *DeliveryZoneUpdate {
+	_u.mutation.ResetDeliveryFee()
+	_u.mutation.SetDeliveryFee(v)
+	return _u
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableDeliveryFee(f *float64) *DeliveryZoneUpdate {
-	if f != nil {
-		dzu.SetDeliveryFee(*f)
+func (_u *DeliveryZoneUpdate) SetNillableDeliveryFee(v *float64) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetDeliveryFee(*v)
 	}
-	return dzu
+	return _u
 }
 
-// AddDeliveryFee adds f to the "delivery_fee" field.
-func (dzu *DeliveryZoneUpdate) AddDeliveryFee(f float64) *DeliveryZoneUpdate {
-	dzu.mutation.AddDeliveryFee(f)
-	return dzu
+// AddDeliveryFee adds value to the "delivery_fee" field.
+func (_u *DeliveryZoneUpdate) AddDeliveryFee(v float64) *DeliveryZoneUpdate {
+	_u.mutation.AddDeliveryFee(v)
+	return _u
 }
 
 // SetMinimumOrder sets the "minimum_order" field.
-func (dzu *DeliveryZoneUpdate) SetMinimumOrder(f float64) *DeliveryZoneUpdate {
-	dzu.mutation.ResetMinimumOrder()
-	dzu.mutation.SetMinimumOrder(f)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetMinimumOrder(v float64) *DeliveryZoneUpdate {
+	_u.mutation.ResetMinimumOrder()
+	_u.mutation.SetMinimumOrder(v)
+	return _u
 }
 
 // SetNillableMinimumOrder sets the "minimum_order" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableMinimumOrder(f *float64) *DeliveryZoneUpdate {
-	if f != nil {
-		dzu.SetMinimumOrder(*f)
+func (_u *DeliveryZoneUpdate) SetNillableMinimumOrder(v *float64) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetMinimumOrder(*v)
 	}
-	return dzu
+	return _u
 }
 
-// AddMinimumOrder adds f to the "minimum_order" field.
-func (dzu *DeliveryZoneUpdate) AddMinimumOrder(f float64) *DeliveryZoneUpdate {
-	dzu.mutation.AddMinimumOrder(f)
-	return dzu
+// AddMinimumOrder adds value to the "minimum_order" field.
+func (_u *DeliveryZoneUpdate) AddMinimumOrder(v float64) *DeliveryZoneUpdate {
+	_u.mutation.AddMinimumOrder(v)
+	return _u
 }
 
 // SetEstimatedTimeMinutes sets the "estimated_time_minutes" field.
-func (dzu *DeliveryZoneUpdate) SetEstimatedTimeMinutes(i int) *DeliveryZoneUpdate {
-	dzu.mutation.ResetEstimatedTimeMinutes()
-	dzu.mutation.SetEstimatedTimeMinutes(i)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetEstimatedTimeMinutes(v int) *DeliveryZoneUpdate {
+	_u.mutation.ResetEstimatedTimeMinutes()
+	_u.mutation.SetEstimatedTimeMinutes(v)
+	return _u
 }
 
 // SetNillableEstimatedTimeMinutes sets the "estimated_time_minutes" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableEstimatedTimeMinutes(i *int) *DeliveryZoneUpdate {
-	if i != nil {
-		dzu.SetEstimatedTimeMinutes(*i)
+func (_u *DeliveryZoneUpdate) SetNillableEstimatedTimeMinutes(v *int) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetEstimatedTimeMinutes(*v)
 	}
-	return dzu
+	return _u
 }
 
-// AddEstimatedTimeMinutes adds i to the "estimated_time_minutes" field.
-func (dzu *DeliveryZoneUpdate) AddEstimatedTimeMinutes(i int) *DeliveryZoneUpdate {
-	dzu.mutation.AddEstimatedTimeMinutes(i)
-	return dzu
+// AddEstimatedTimeMinutes adds value to the "estimated_time_minutes" field.
+func (_u *DeliveryZoneUpdate) AddEstimatedTimeMinutes(v int) *DeliveryZoneUpdate {
+	_u.mutation.AddEstimatedTimeMinutes(v)
+	return _u
 }
 
 // SetIsActive sets the "is_active" field.
-func (dzu *DeliveryZoneUpdate) SetIsActive(b bool) *DeliveryZoneUpdate {
-	dzu.mutation.SetIsActive(b)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetIsActive(v bool) *DeliveryZoneUpdate {
+	_u.mutation.SetIsActive(v)
+	return _u
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableIsActive(b *bool) *DeliveryZoneUpdate {
-	if b != nil {
-		dzu.SetIsActive(*b)
+func (_u *DeliveryZoneUpdate) SetNillableIsActive(v *bool) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetIsActive(*v)
 	}
-	return dzu
+	return _u
 }
 
 // SetSortOrder sets the "sort_order" field.
-func (dzu *DeliveryZoneUpdate) SetSortOrder(i int) *DeliveryZoneUpdate {
-	dzu.mutation.ResetSortOrder()
-	dzu.mutation.SetSortOrder(i)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetSortOrder(v int) *DeliveryZoneUpdate {
+	_u.mutation.ResetSortOrder()
+	_u.mutation.SetSortOrder(v)
+	return _u
 }
 
 // SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
-func (dzu *DeliveryZoneUpdate) SetNillableSortOrder(i *int) *DeliveryZoneUpdate {
-	if i != nil {
-		dzu.SetSortOrder(*i)
+func (_u *DeliveryZoneUpdate) SetNillableSortOrder(v *int) *DeliveryZoneUpdate {
+	if v != nil {
+		_u.SetSortOrder(*v)
 	}
-	return dzu
+	return _u
 }
 
-// AddSortOrder adds i to the "sort_order" field.
-func (dzu *DeliveryZoneUpdate) AddSortOrder(i int) *DeliveryZoneUpdate {
-	dzu.mutation.AddSortOrder(i)
-	return dzu
+// AddSortOrder adds value to the "sort_order" field.
+func (_u *DeliveryZoneUpdate) AddSortOrder(v int) *DeliveryZoneUpdate {
+	_u.mutation.AddSortOrder(v)
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (dzu *DeliveryZoneUpdate) SetMetadata(m map[string]interface{}) *DeliveryZoneUpdate {
-	dzu.mutation.SetMetadata(m)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetMetadata(v map[string]interface{}) *DeliveryZoneUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dzu *DeliveryZoneUpdate) SetUpdatedAt(t time.Time) *DeliveryZoneUpdate {
-	dzu.mutation.SetUpdatedAt(t)
-	return dzu
+func (_u *DeliveryZoneUpdate) SetUpdatedAt(v time.Time) *DeliveryZoneUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DeliveryZoneMutation object of the builder.
-func (dzu *DeliveryZoneUpdate) Mutation() *DeliveryZoneMutation {
-	return dzu.mutation
+func (_u *DeliveryZoneUpdate) Mutation() *DeliveryZoneMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dzu *DeliveryZoneUpdate) Save(ctx context.Context) (int, error) {
-	dzu.defaults()
-	return withHooks(ctx, dzu.sqlSave, dzu.mutation, dzu.hooks)
+func (_u *DeliveryZoneUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dzu *DeliveryZoneUpdate) SaveX(ctx context.Context) int {
-	affected, err := dzu.Save(ctx)
+func (_u *DeliveryZoneUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -240,29 +240,29 @@ func (dzu *DeliveryZoneUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dzu *DeliveryZoneUpdate) Exec(ctx context.Context) error {
-	_, err := dzu.Save(ctx)
+func (_u *DeliveryZoneUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzu *DeliveryZoneUpdate) ExecX(ctx context.Context) {
-	if err := dzu.Exec(ctx); err != nil {
+func (_u *DeliveryZoneUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dzu *DeliveryZoneUpdate) defaults() {
-	if _, ok := dzu.mutation.UpdatedAt(); !ok {
+func (_u *DeliveryZoneUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := deliveryzone.UpdateDefaultUpdatedAt()
-		dzu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dzu *DeliveryZoneUpdate) check() error {
-	if v, ok := dzu.mutation.Name(); ok {
+func (_u *DeliveryZoneUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := deliveryzone.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "DeliveryZone.name": %w`, err)}
 		}
@@ -270,76 +270,76 @@ func (dzu *DeliveryZoneUpdate) check() error {
 	return nil
 }
 
-func (dzu *DeliveryZoneUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := dzu.check(); err != nil {
-		return n, err
+func (_u *DeliveryZoneUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deliveryzone.Table, deliveryzone.Columns, sqlgraph.NewFieldSpec(deliveryzone.FieldID, field.TypeUUID))
-	if ps := dzu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dzu.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(deliveryzone.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dzu.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(deliveryzone.FieldOutletID, field.TypeUUID, value)
 	}
-	if dzu.mutation.OutletIDCleared() {
+	if _u.mutation.OutletIDCleared() {
 		_spec.ClearField(deliveryzone.FieldOutletID, field.TypeUUID)
 	}
-	if value, ok := dzu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(deliveryzone.FieldName, field.TypeString, value)
 	}
-	if value, ok := dzu.mutation.Slug(); ok {
+	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(deliveryzone.FieldSlug, field.TypeString, value)
 	}
-	if dzu.mutation.SlugCleared() {
+	if _u.mutation.SlugCleared() {
 		_spec.ClearField(deliveryzone.FieldSlug, field.TypeString)
 	}
-	if value, ok := dzu.mutation.ZonePolygon(); ok {
+	if value, ok := _u.mutation.ZonePolygon(); ok {
 		_spec.SetField(deliveryzone.FieldZonePolygon, field.TypeJSON, value)
 	}
-	if dzu.mutation.ZonePolygonCleared() {
+	if _u.mutation.ZonePolygonCleared() {
 		_spec.ClearField(deliveryzone.FieldZonePolygon, field.TypeJSON)
 	}
-	if value, ok := dzu.mutation.DeliveryFee(); ok {
+	if value, ok := _u.mutation.DeliveryFee(); ok {
 		_spec.SetField(deliveryzone.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := dzu.mutation.AddedDeliveryFee(); ok {
+	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(deliveryzone.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := dzu.mutation.MinimumOrder(); ok {
+	if value, ok := _u.mutation.MinimumOrder(); ok {
 		_spec.SetField(deliveryzone.FieldMinimumOrder, field.TypeFloat64, value)
 	}
-	if value, ok := dzu.mutation.AddedMinimumOrder(); ok {
+	if value, ok := _u.mutation.AddedMinimumOrder(); ok {
 		_spec.AddField(deliveryzone.FieldMinimumOrder, field.TypeFloat64, value)
 	}
-	if value, ok := dzu.mutation.EstimatedTimeMinutes(); ok {
+	if value, ok := _u.mutation.EstimatedTimeMinutes(); ok {
 		_spec.SetField(deliveryzone.FieldEstimatedTimeMinutes, field.TypeInt, value)
 	}
-	if value, ok := dzu.mutation.AddedEstimatedTimeMinutes(); ok {
+	if value, ok := _u.mutation.AddedEstimatedTimeMinutes(); ok {
 		_spec.AddField(deliveryzone.FieldEstimatedTimeMinutes, field.TypeInt, value)
 	}
-	if value, ok := dzu.mutation.IsActive(); ok {
+	if value, ok := _u.mutation.IsActive(); ok {
 		_spec.SetField(deliveryzone.FieldIsActive, field.TypeBool, value)
 	}
-	if value, ok := dzu.mutation.SortOrder(); ok {
+	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(deliveryzone.FieldSortOrder, field.TypeInt, value)
 	}
-	if value, ok := dzu.mutation.AddedSortOrder(); ok {
+	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(deliveryzone.FieldSortOrder, field.TypeInt, value)
 	}
-	if value, ok := dzu.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(deliveryzone.FieldMetadata, field.TypeJSON, value)
 	}
-	if value, ok := dzu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliveryzone.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dzu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deliveryzone.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -347,8 +347,8 @@ func (dzu *DeliveryZoneUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	dzu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DeliveryZoneUpdateOne is the builder for updating a single DeliveryZone entity.
@@ -360,222 +360,222 @@ type DeliveryZoneUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dzuo *DeliveryZoneUpdateOne) SetTenantID(u uuid.UUID) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetTenantID(u)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetTenantID(v uuid.UUID) *DeliveryZoneUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableTenantID(u *uuid.UUID) *DeliveryZoneUpdateOne {
-	if u != nil {
-		dzuo.SetTenantID(*u)
+func (_u *DeliveryZoneUpdateOne) SetNillableTenantID(v *uuid.UUID) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dzuo
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (dzuo *DeliveryZoneUpdateOne) SetOutletID(u uuid.UUID) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetOutletID(u)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetOutletID(v uuid.UUID) *DeliveryZoneUpdateOne {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableOutletID(u *uuid.UUID) *DeliveryZoneUpdateOne {
-	if u != nil {
-		dzuo.SetOutletID(*u)
+func (_u *DeliveryZoneUpdateOne) SetNillableOutletID(v *uuid.UUID) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return dzuo
+	return _u
 }
 
 // ClearOutletID clears the value of the "outlet_id" field.
-func (dzuo *DeliveryZoneUpdateOne) ClearOutletID() *DeliveryZoneUpdateOne {
-	dzuo.mutation.ClearOutletID()
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) ClearOutletID() *DeliveryZoneUpdateOne {
+	_u.mutation.ClearOutletID()
+	return _u
 }
 
 // SetName sets the "name" field.
-func (dzuo *DeliveryZoneUpdateOne) SetName(s string) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetName(s)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetName(v string) *DeliveryZoneUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableName(s *string) *DeliveryZoneUpdateOne {
-	if s != nil {
-		dzuo.SetName(*s)
+func (_u *DeliveryZoneUpdateOne) SetNillableName(v *string) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return dzuo
+	return _u
 }
 
 // SetSlug sets the "slug" field.
-func (dzuo *DeliveryZoneUpdateOne) SetSlug(s string) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetSlug(s)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetSlug(v string) *DeliveryZoneUpdateOne {
+	_u.mutation.SetSlug(v)
+	return _u
 }
 
 // SetNillableSlug sets the "slug" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableSlug(s *string) *DeliveryZoneUpdateOne {
-	if s != nil {
-		dzuo.SetSlug(*s)
+func (_u *DeliveryZoneUpdateOne) SetNillableSlug(v *string) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetSlug(*v)
 	}
-	return dzuo
+	return _u
 }
 
 // ClearSlug clears the value of the "slug" field.
-func (dzuo *DeliveryZoneUpdateOne) ClearSlug() *DeliveryZoneUpdateOne {
-	dzuo.mutation.ClearSlug()
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) ClearSlug() *DeliveryZoneUpdateOne {
+	_u.mutation.ClearSlug()
+	return _u
 }
 
 // SetZonePolygon sets the "zone_polygon" field.
-func (dzuo *DeliveryZoneUpdateOne) SetZonePolygon(m map[string]interface{}) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetZonePolygon(m)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetZonePolygon(v map[string]interface{}) *DeliveryZoneUpdateOne {
+	_u.mutation.SetZonePolygon(v)
+	return _u
 }
 
 // ClearZonePolygon clears the value of the "zone_polygon" field.
-func (dzuo *DeliveryZoneUpdateOne) ClearZonePolygon() *DeliveryZoneUpdateOne {
-	dzuo.mutation.ClearZonePolygon()
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) ClearZonePolygon() *DeliveryZoneUpdateOne {
+	_u.mutation.ClearZonePolygon()
+	return _u
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (dzuo *DeliveryZoneUpdateOne) SetDeliveryFee(f float64) *DeliveryZoneUpdateOne {
-	dzuo.mutation.ResetDeliveryFee()
-	dzuo.mutation.SetDeliveryFee(f)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetDeliveryFee(v float64) *DeliveryZoneUpdateOne {
+	_u.mutation.ResetDeliveryFee()
+	_u.mutation.SetDeliveryFee(v)
+	return _u
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableDeliveryFee(f *float64) *DeliveryZoneUpdateOne {
-	if f != nil {
-		dzuo.SetDeliveryFee(*f)
+func (_u *DeliveryZoneUpdateOne) SetNillableDeliveryFee(v *float64) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetDeliveryFee(*v)
 	}
-	return dzuo
+	return _u
 }
 
-// AddDeliveryFee adds f to the "delivery_fee" field.
-func (dzuo *DeliveryZoneUpdateOne) AddDeliveryFee(f float64) *DeliveryZoneUpdateOne {
-	dzuo.mutation.AddDeliveryFee(f)
-	return dzuo
+// AddDeliveryFee adds value to the "delivery_fee" field.
+func (_u *DeliveryZoneUpdateOne) AddDeliveryFee(v float64) *DeliveryZoneUpdateOne {
+	_u.mutation.AddDeliveryFee(v)
+	return _u
 }
 
 // SetMinimumOrder sets the "minimum_order" field.
-func (dzuo *DeliveryZoneUpdateOne) SetMinimumOrder(f float64) *DeliveryZoneUpdateOne {
-	dzuo.mutation.ResetMinimumOrder()
-	dzuo.mutation.SetMinimumOrder(f)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetMinimumOrder(v float64) *DeliveryZoneUpdateOne {
+	_u.mutation.ResetMinimumOrder()
+	_u.mutation.SetMinimumOrder(v)
+	return _u
 }
 
 // SetNillableMinimumOrder sets the "minimum_order" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableMinimumOrder(f *float64) *DeliveryZoneUpdateOne {
-	if f != nil {
-		dzuo.SetMinimumOrder(*f)
+func (_u *DeliveryZoneUpdateOne) SetNillableMinimumOrder(v *float64) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetMinimumOrder(*v)
 	}
-	return dzuo
+	return _u
 }
 
-// AddMinimumOrder adds f to the "minimum_order" field.
-func (dzuo *DeliveryZoneUpdateOne) AddMinimumOrder(f float64) *DeliveryZoneUpdateOne {
-	dzuo.mutation.AddMinimumOrder(f)
-	return dzuo
+// AddMinimumOrder adds value to the "minimum_order" field.
+func (_u *DeliveryZoneUpdateOne) AddMinimumOrder(v float64) *DeliveryZoneUpdateOne {
+	_u.mutation.AddMinimumOrder(v)
+	return _u
 }
 
 // SetEstimatedTimeMinutes sets the "estimated_time_minutes" field.
-func (dzuo *DeliveryZoneUpdateOne) SetEstimatedTimeMinutes(i int) *DeliveryZoneUpdateOne {
-	dzuo.mutation.ResetEstimatedTimeMinutes()
-	dzuo.mutation.SetEstimatedTimeMinutes(i)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetEstimatedTimeMinutes(v int) *DeliveryZoneUpdateOne {
+	_u.mutation.ResetEstimatedTimeMinutes()
+	_u.mutation.SetEstimatedTimeMinutes(v)
+	return _u
 }
 
 // SetNillableEstimatedTimeMinutes sets the "estimated_time_minutes" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableEstimatedTimeMinutes(i *int) *DeliveryZoneUpdateOne {
-	if i != nil {
-		dzuo.SetEstimatedTimeMinutes(*i)
+func (_u *DeliveryZoneUpdateOne) SetNillableEstimatedTimeMinutes(v *int) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetEstimatedTimeMinutes(*v)
 	}
-	return dzuo
+	return _u
 }
 
-// AddEstimatedTimeMinutes adds i to the "estimated_time_minutes" field.
-func (dzuo *DeliveryZoneUpdateOne) AddEstimatedTimeMinutes(i int) *DeliveryZoneUpdateOne {
-	dzuo.mutation.AddEstimatedTimeMinutes(i)
-	return dzuo
+// AddEstimatedTimeMinutes adds value to the "estimated_time_minutes" field.
+func (_u *DeliveryZoneUpdateOne) AddEstimatedTimeMinutes(v int) *DeliveryZoneUpdateOne {
+	_u.mutation.AddEstimatedTimeMinutes(v)
+	return _u
 }
 
 // SetIsActive sets the "is_active" field.
-func (dzuo *DeliveryZoneUpdateOne) SetIsActive(b bool) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetIsActive(b)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetIsActive(v bool) *DeliveryZoneUpdateOne {
+	_u.mutation.SetIsActive(v)
+	return _u
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableIsActive(b *bool) *DeliveryZoneUpdateOne {
-	if b != nil {
-		dzuo.SetIsActive(*b)
+func (_u *DeliveryZoneUpdateOne) SetNillableIsActive(v *bool) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetIsActive(*v)
 	}
-	return dzuo
+	return _u
 }
 
 // SetSortOrder sets the "sort_order" field.
-func (dzuo *DeliveryZoneUpdateOne) SetSortOrder(i int) *DeliveryZoneUpdateOne {
-	dzuo.mutation.ResetSortOrder()
-	dzuo.mutation.SetSortOrder(i)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetSortOrder(v int) *DeliveryZoneUpdateOne {
+	_u.mutation.ResetSortOrder()
+	_u.mutation.SetSortOrder(v)
+	return _u
 }
 
 // SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
-func (dzuo *DeliveryZoneUpdateOne) SetNillableSortOrder(i *int) *DeliveryZoneUpdateOne {
-	if i != nil {
-		dzuo.SetSortOrder(*i)
+func (_u *DeliveryZoneUpdateOne) SetNillableSortOrder(v *int) *DeliveryZoneUpdateOne {
+	if v != nil {
+		_u.SetSortOrder(*v)
 	}
-	return dzuo
+	return _u
 }
 
-// AddSortOrder adds i to the "sort_order" field.
-func (dzuo *DeliveryZoneUpdateOne) AddSortOrder(i int) *DeliveryZoneUpdateOne {
-	dzuo.mutation.AddSortOrder(i)
-	return dzuo
+// AddSortOrder adds value to the "sort_order" field.
+func (_u *DeliveryZoneUpdateOne) AddSortOrder(v int) *DeliveryZoneUpdateOne {
+	_u.mutation.AddSortOrder(v)
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (dzuo *DeliveryZoneUpdateOne) SetMetadata(m map[string]interface{}) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetMetadata(m)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetMetadata(v map[string]interface{}) *DeliveryZoneUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dzuo *DeliveryZoneUpdateOne) SetUpdatedAt(t time.Time) *DeliveryZoneUpdateOne {
-	dzuo.mutation.SetUpdatedAt(t)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) SetUpdatedAt(v time.Time) *DeliveryZoneUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DeliveryZoneMutation object of the builder.
-func (dzuo *DeliveryZoneUpdateOne) Mutation() *DeliveryZoneMutation {
-	return dzuo.mutation
+func (_u *DeliveryZoneUpdateOne) Mutation() *DeliveryZoneMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the DeliveryZoneUpdate builder.
-func (dzuo *DeliveryZoneUpdateOne) Where(ps ...predicate.DeliveryZone) *DeliveryZoneUpdateOne {
-	dzuo.mutation.Where(ps...)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) Where(ps ...predicate.DeliveryZone) *DeliveryZoneUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dzuo *DeliveryZoneUpdateOne) Select(field string, fields ...string) *DeliveryZoneUpdateOne {
-	dzuo.fields = append([]string{field}, fields...)
-	return dzuo
+func (_u *DeliveryZoneUpdateOne) Select(field string, fields ...string) *DeliveryZoneUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DeliveryZone entity.
-func (dzuo *DeliveryZoneUpdateOne) Save(ctx context.Context) (*DeliveryZone, error) {
-	dzuo.defaults()
-	return withHooks(ctx, dzuo.sqlSave, dzuo.mutation, dzuo.hooks)
+func (_u *DeliveryZoneUpdateOne) Save(ctx context.Context) (*DeliveryZone, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dzuo *DeliveryZoneUpdateOne) SaveX(ctx context.Context) *DeliveryZone {
-	node, err := dzuo.Save(ctx)
+func (_u *DeliveryZoneUpdateOne) SaveX(ctx context.Context) *DeliveryZone {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -583,29 +583,29 @@ func (dzuo *DeliveryZoneUpdateOne) SaveX(ctx context.Context) *DeliveryZone {
 }
 
 // Exec executes the query on the entity.
-func (dzuo *DeliveryZoneUpdateOne) Exec(ctx context.Context) error {
-	_, err := dzuo.Save(ctx)
+func (_u *DeliveryZoneUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzuo *DeliveryZoneUpdateOne) ExecX(ctx context.Context) {
-	if err := dzuo.Exec(ctx); err != nil {
+func (_u *DeliveryZoneUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dzuo *DeliveryZoneUpdateOne) defaults() {
-	if _, ok := dzuo.mutation.UpdatedAt(); !ok {
+func (_u *DeliveryZoneUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := deliveryzone.UpdateDefaultUpdatedAt()
-		dzuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dzuo *DeliveryZoneUpdateOne) check() error {
-	if v, ok := dzuo.mutation.Name(); ok {
+func (_u *DeliveryZoneUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := deliveryzone.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "DeliveryZone.name": %w`, err)}
 		}
@@ -613,17 +613,17 @@ func (dzuo *DeliveryZoneUpdateOne) check() error {
 	return nil
 }
 
-func (dzuo *DeliveryZoneUpdateOne) sqlSave(ctx context.Context) (_node *DeliveryZone, err error) {
-	if err := dzuo.check(); err != nil {
+func (_u *DeliveryZoneUpdateOne) sqlSave(ctx context.Context) (_node *DeliveryZone, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deliveryzone.Table, deliveryzone.Columns, sqlgraph.NewFieldSpec(deliveryzone.FieldID, field.TypeUUID))
-	id, ok := dzuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DeliveryZone.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dzuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, deliveryzone.FieldID)
 		for _, f := range fields {
@@ -635,74 +635,74 @@ func (dzuo *DeliveryZoneUpdateOne) sqlSave(ctx context.Context) (_node *Delivery
 			}
 		}
 	}
-	if ps := dzuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dzuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(deliveryzone.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dzuo.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(deliveryzone.FieldOutletID, field.TypeUUID, value)
 	}
-	if dzuo.mutation.OutletIDCleared() {
+	if _u.mutation.OutletIDCleared() {
 		_spec.ClearField(deliveryzone.FieldOutletID, field.TypeUUID)
 	}
-	if value, ok := dzuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(deliveryzone.FieldName, field.TypeString, value)
 	}
-	if value, ok := dzuo.mutation.Slug(); ok {
+	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(deliveryzone.FieldSlug, field.TypeString, value)
 	}
-	if dzuo.mutation.SlugCleared() {
+	if _u.mutation.SlugCleared() {
 		_spec.ClearField(deliveryzone.FieldSlug, field.TypeString)
 	}
-	if value, ok := dzuo.mutation.ZonePolygon(); ok {
+	if value, ok := _u.mutation.ZonePolygon(); ok {
 		_spec.SetField(deliveryzone.FieldZonePolygon, field.TypeJSON, value)
 	}
-	if dzuo.mutation.ZonePolygonCleared() {
+	if _u.mutation.ZonePolygonCleared() {
 		_spec.ClearField(deliveryzone.FieldZonePolygon, field.TypeJSON)
 	}
-	if value, ok := dzuo.mutation.DeliveryFee(); ok {
+	if value, ok := _u.mutation.DeliveryFee(); ok {
 		_spec.SetField(deliveryzone.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := dzuo.mutation.AddedDeliveryFee(); ok {
+	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(deliveryzone.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := dzuo.mutation.MinimumOrder(); ok {
+	if value, ok := _u.mutation.MinimumOrder(); ok {
 		_spec.SetField(deliveryzone.FieldMinimumOrder, field.TypeFloat64, value)
 	}
-	if value, ok := dzuo.mutation.AddedMinimumOrder(); ok {
+	if value, ok := _u.mutation.AddedMinimumOrder(); ok {
 		_spec.AddField(deliveryzone.FieldMinimumOrder, field.TypeFloat64, value)
 	}
-	if value, ok := dzuo.mutation.EstimatedTimeMinutes(); ok {
+	if value, ok := _u.mutation.EstimatedTimeMinutes(); ok {
 		_spec.SetField(deliveryzone.FieldEstimatedTimeMinutes, field.TypeInt, value)
 	}
-	if value, ok := dzuo.mutation.AddedEstimatedTimeMinutes(); ok {
+	if value, ok := _u.mutation.AddedEstimatedTimeMinutes(); ok {
 		_spec.AddField(deliveryzone.FieldEstimatedTimeMinutes, field.TypeInt, value)
 	}
-	if value, ok := dzuo.mutation.IsActive(); ok {
+	if value, ok := _u.mutation.IsActive(); ok {
 		_spec.SetField(deliveryzone.FieldIsActive, field.TypeBool, value)
 	}
-	if value, ok := dzuo.mutation.SortOrder(); ok {
+	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(deliveryzone.FieldSortOrder, field.TypeInt, value)
 	}
-	if value, ok := dzuo.mutation.AddedSortOrder(); ok {
+	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(deliveryzone.FieldSortOrder, field.TypeInt, value)
 	}
-	if value, ok := dzuo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(deliveryzone.FieldMetadata, field.TypeJSON, value)
 	}
-	if value, ok := dzuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliveryzone.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_node = &DeliveryZone{config: dzuo.config}
+	_node = &DeliveryZone{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dzuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deliveryzone.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -710,6 +710,6 @@ func (dzuo *DeliveryZoneUpdateOne) sqlSave(ctx context.Context) (_node *Delivery
 		}
 		return nil, err
 	}
-	dzuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

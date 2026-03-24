@@ -25,40 +25,40 @@ type RolePermissionCreate struct {
 }
 
 // SetRoleID sets the "role_id" field.
-func (rpc *RolePermissionCreate) SetRoleID(u uuid.UUID) *RolePermissionCreate {
-	rpc.mutation.SetRoleID(u)
-	return rpc
+func (_c *RolePermissionCreate) SetRoleID(v uuid.UUID) *RolePermissionCreate {
+	_c.mutation.SetRoleID(v)
+	return _c
 }
 
 // SetPermissionID sets the "permission_id" field.
-func (rpc *RolePermissionCreate) SetPermissionID(u uuid.UUID) *RolePermissionCreate {
-	rpc.mutation.SetPermissionID(u)
-	return rpc
+func (_c *RolePermissionCreate) SetPermissionID(v uuid.UUID) *RolePermissionCreate {
+	_c.mutation.SetPermissionID(v)
+	return _c
 }
 
 // SetRole sets the "role" edge to the OrderingRole entity.
-func (rpc *RolePermissionCreate) SetRole(o *OrderingRole) *RolePermissionCreate {
-	return rpc.SetRoleID(o.ID)
+func (_c *RolePermissionCreate) SetRole(v *OrderingRole) *RolePermissionCreate {
+	return _c.SetRoleID(v.ID)
 }
 
 // SetPermission sets the "permission" edge to the OrderingPermission entity.
-func (rpc *RolePermissionCreate) SetPermission(o *OrderingPermission) *RolePermissionCreate {
-	return rpc.SetPermissionID(o.ID)
+func (_c *RolePermissionCreate) SetPermission(v *OrderingPermission) *RolePermissionCreate {
+	return _c.SetPermissionID(v.ID)
 }
 
 // Mutation returns the RolePermissionMutation object of the builder.
-func (rpc *RolePermissionCreate) Mutation() *RolePermissionMutation {
-	return rpc.mutation
+func (_c *RolePermissionCreate) Mutation() *RolePermissionMutation {
+	return _c.mutation
 }
 
 // Save creates the RolePermission in the database.
-func (rpc *RolePermissionCreate) Save(ctx context.Context) (*RolePermission, error) {
-	return withHooks(ctx, rpc.sqlSave, rpc.mutation, rpc.hooks)
+func (_c *RolePermissionCreate) Save(ctx context.Context) (*RolePermission, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (rpc *RolePermissionCreate) SaveX(ctx context.Context) *RolePermission {
-	v, err := rpc.Save(ctx)
+func (_c *RolePermissionCreate) SaveX(ctx context.Context) *RolePermission {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -66,41 +66,41 @@ func (rpc *RolePermissionCreate) SaveX(ctx context.Context) *RolePermission {
 }
 
 // Exec executes the query.
-func (rpc *RolePermissionCreate) Exec(ctx context.Context) error {
-	_, err := rpc.Save(ctx)
+func (_c *RolePermissionCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (rpc *RolePermissionCreate) ExecX(ctx context.Context) {
-	if err := rpc.Exec(ctx); err != nil {
+func (_c *RolePermissionCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (rpc *RolePermissionCreate) check() error {
-	if _, ok := rpc.mutation.RoleID(); !ok {
+func (_c *RolePermissionCreate) check() error {
+	if _, ok := _c.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "RolePermission.role_id"`)}
 	}
-	if _, ok := rpc.mutation.PermissionID(); !ok {
+	if _, ok := _c.mutation.PermissionID(); !ok {
 		return &ValidationError{Name: "permission_id", err: errors.New(`ent: missing required field "RolePermission.permission_id"`)}
 	}
-	if _, ok := rpc.mutation.RoleID(); !ok {
+	if len(_c.mutation.RoleIDs()) == 0 {
 		return &ValidationError{Name: "role", err: errors.New(`ent: missing required edge "RolePermission.role"`)}
 	}
-	if _, ok := rpc.mutation.PermissionID(); !ok {
+	if len(_c.mutation.PermissionIDs()) == 0 {
 		return &ValidationError{Name: "permission", err: errors.New(`ent: missing required edge "RolePermission.permission"`)}
 	}
 	return nil
 }
 
-func (rpc *RolePermissionCreate) sqlSave(ctx context.Context) (*RolePermission, error) {
-	if err := rpc.check(); err != nil {
+func (_c *RolePermissionCreate) sqlSave(ctx context.Context) (*RolePermission, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := rpc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, rpc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -108,18 +108,18 @@ func (rpc *RolePermissionCreate) sqlSave(ctx context.Context) (*RolePermission, 
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	rpc.mutation.id = &_node.ID
-	rpc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (rpc *RolePermissionCreate) createSpec() (*RolePermission, *sqlgraph.CreateSpec) {
+func (_c *RolePermissionCreate) createSpec() (*RolePermission, *sqlgraph.CreateSpec) {
 	var (
-		_node = &RolePermission{config: rpc.config}
+		_node = &RolePermission{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(rolepermission.Table, sqlgraph.NewFieldSpec(rolepermission.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = rpc.conflict
-	if nodes := rpc.mutation.RoleIDs(); len(nodes) > 0 {
+	_spec.OnConflict = _c.conflict
+	if nodes := _c.mutation.RoleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -136,7 +136,7 @@ func (rpc *RolePermissionCreate) createSpec() (*RolePermission, *sqlgraph.Create
 		_node.RoleID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := rpc.mutation.PermissionIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.PermissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -172,10 +172,10 @@ func (rpc *RolePermissionCreate) createSpec() (*RolePermission, *sqlgraph.Create
 //			SetRoleID(v+v).
 //		}).
 //		Exec(ctx)
-func (rpc *RolePermissionCreate) OnConflict(opts ...sql.ConflictOption) *RolePermissionUpsertOne {
-	rpc.conflict = opts
+func (_c *RolePermissionCreate) OnConflict(opts ...sql.ConflictOption) *RolePermissionUpsertOne {
+	_c.conflict = opts
 	return &RolePermissionUpsertOne{
-		create: rpc,
+		create: _c,
 	}
 }
 
@@ -185,10 +185,10 @@ func (rpc *RolePermissionCreate) OnConflict(opts ...sql.ConflictOption) *RolePer
 //	client.RolePermission.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (rpc *RolePermissionCreate) OnConflictColumns(columns ...string) *RolePermissionUpsertOne {
-	rpc.conflict = append(rpc.conflict, sql.ConflictColumns(columns...))
+func (_c *RolePermissionCreate) OnConflictColumns(columns ...string) *RolePermissionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &RolePermissionUpsertOne{
-		create: rpc,
+		create: _c,
 	}
 }
 
@@ -339,16 +339,16 @@ type RolePermissionCreateBulk struct {
 }
 
 // Save creates the RolePermission entities in the database.
-func (rpcb *RolePermissionCreateBulk) Save(ctx context.Context) ([]*RolePermission, error) {
-	if rpcb.err != nil {
-		return nil, rpcb.err
+func (_c *RolePermissionCreateBulk) Save(ctx context.Context) ([]*RolePermission, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(rpcb.builders))
-	nodes := make([]*RolePermission, len(rpcb.builders))
-	mutators := make([]Mutator, len(rpcb.builders))
-	for i := range rpcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*RolePermission, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := rpcb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*RolePermissionMutation)
 				if !ok {
@@ -361,12 +361,12 @@ func (rpcb *RolePermissionCreateBulk) Save(ctx context.Context) ([]*RolePermissi
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, rpcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = rpcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, rpcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -390,7 +390,7 @@ func (rpcb *RolePermissionCreateBulk) Save(ctx context.Context) ([]*RolePermissi
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, rpcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -398,8 +398,8 @@ func (rpcb *RolePermissionCreateBulk) Save(ctx context.Context) ([]*RolePermissi
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (rpcb *RolePermissionCreateBulk) SaveX(ctx context.Context) []*RolePermission {
-	v, err := rpcb.Save(ctx)
+func (_c *RolePermissionCreateBulk) SaveX(ctx context.Context) []*RolePermission {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -407,14 +407,14 @@ func (rpcb *RolePermissionCreateBulk) SaveX(ctx context.Context) []*RolePermissi
 }
 
 // Exec executes the query.
-func (rpcb *RolePermissionCreateBulk) Exec(ctx context.Context) error {
-	_, err := rpcb.Save(ctx)
+func (_c *RolePermissionCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (rpcb *RolePermissionCreateBulk) ExecX(ctx context.Context) {
-	if err := rpcb.Exec(ctx); err != nil {
+func (_c *RolePermissionCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -434,10 +434,10 @@ func (rpcb *RolePermissionCreateBulk) ExecX(ctx context.Context) {
 //			SetRoleID(v+v).
 //		}).
 //		Exec(ctx)
-func (rpcb *RolePermissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *RolePermissionUpsertBulk {
-	rpcb.conflict = opts
+func (_c *RolePermissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *RolePermissionUpsertBulk {
+	_c.conflict = opts
 	return &RolePermissionUpsertBulk{
-		create: rpcb,
+		create: _c,
 	}
 }
 
@@ -447,10 +447,10 @@ func (rpcb *RolePermissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *Ro
 //	client.RolePermission.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (rpcb *RolePermissionCreateBulk) OnConflictColumns(columns ...string) *RolePermissionUpsertBulk {
-	rpcb.conflict = append(rpcb.conflict, sql.ConflictColumns(columns...))
+func (_c *RolePermissionCreateBulk) OnConflictColumns(columns ...string) *RolePermissionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &RolePermissionUpsertBulk{
-		create: rpcb,
+		create: _c,
 	}
 }
 

@@ -20,56 +20,56 @@ type TenantSettingDelete struct {
 }
 
 // Where appends a list predicates to the TenantSettingDelete builder.
-func (tsd *TenantSettingDelete) Where(ps ...predicate.TenantSetting) *TenantSettingDelete {
-	tsd.mutation.Where(ps...)
-	return tsd
+func (_d *TenantSettingDelete) Where(ps ...predicate.TenantSetting) *TenantSettingDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (tsd *TenantSettingDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, tsd.sqlExec, tsd.mutation, tsd.hooks)
+func (_d *TenantSettingDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsd *TenantSettingDelete) ExecX(ctx context.Context) int {
-	n, err := tsd.Exec(ctx)
+func (_d *TenantSettingDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (tsd *TenantSettingDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *TenantSettingDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(tenantsetting.Table, sqlgraph.NewFieldSpec(tenantsetting.FieldID, field.TypeInt))
-	if ps := tsd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, tsd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	tsd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // TenantSettingDeleteOne is the builder for deleting a single TenantSetting entity.
 type TenantSettingDeleteOne struct {
-	tsd *TenantSettingDelete
+	_d *TenantSettingDelete
 }
 
 // Where appends a list predicates to the TenantSettingDelete builder.
-func (tsdo *TenantSettingDeleteOne) Where(ps ...predicate.TenantSetting) *TenantSettingDeleteOne {
-	tsdo.tsd.mutation.Where(ps...)
-	return tsdo
+func (_d *TenantSettingDeleteOne) Where(ps ...predicate.TenantSetting) *TenantSettingDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (tsdo *TenantSettingDeleteOne) Exec(ctx context.Context) error {
-	n, err := tsdo.tsd.Exec(ctx)
+func (_d *TenantSettingDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (tsdo *TenantSettingDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tsdo *TenantSettingDeleteOne) ExecX(ctx context.Context) {
-	if err := tsdo.Exec(ctx); err != nil {
+func (_d *TenantSettingDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

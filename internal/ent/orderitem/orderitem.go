@@ -17,8 +17,8 @@ const (
 	FieldID = "id"
 	// FieldOrderID holds the string denoting the order_id field in the database.
 	FieldOrderID = "order_id"
-	// FieldCatalogItemID holds the string denoting the catalog_item_id field in the database.
-	FieldCatalogItemID = "catalog_item_id"
+	// FieldInventorySku holds the string denoting the inventory_sku field in the database.
+	FieldInventorySku = "inventory_sku"
 	// FieldVariantID holds the string denoting the variant_id field in the database.
 	FieldVariantID = "variant_id"
 	// FieldNameSnapshot holds the string denoting the name_snapshot field in the database.
@@ -56,7 +56,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldOrderID,
-	FieldCatalogItemID,
+	FieldInventorySku,
 	FieldVariantID,
 	FieldNameSnapshot,
 	FieldVariantNameSnapshot,
@@ -80,6 +80,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	InventorySkuValidator func(string) error
 	// NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
 	NameSnapshotValidator func(string) error
 	// VariantNameSnapshotValidator is a validator for the "variant_name_snapshot" field. It is called by the builders before save.
@@ -107,9 +109,9 @@ func ByOrderID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrderID, opts...).ToFunc()
 }
 
-// ByCatalogItemID orders the results by the catalog_item_id field.
-func ByCatalogItemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCatalogItemID, opts...).ToFunc()
+// ByInventorySku orders the results by the inventory_sku field.
+func ByInventorySku(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInventorySku, opts...).ToFunc()
 }
 
 // ByVariantID orders the results by the variant_id field.

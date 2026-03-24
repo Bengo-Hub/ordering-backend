@@ -8,17 +8,13 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/auditlog"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitemasset"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitemschedule"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
-	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -41,6 +37,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userfavorite"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
 	"github.com/bengobox/ordering-backend/internal/ent/userroleassignment"
@@ -121,6 +118,24 @@ func init() {
 	cart.DefaultID = cartDescID.Default.(func() uuid.UUID)
 	cartitemFields := schema.CartItem{}.Fields()
 	_ = cartitemFields
+	// cartitemDescInventorySku is the schema descriptor for inventory_sku field.
+	cartitemDescInventorySku := cartitemFields[2].Descriptor()
+	// cartitem.InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	cartitem.InventorySkuValidator = func() func(string) error {
+		validators := cartitemDescInventorySku.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(inventory_sku string) error {
+			for _, fn := range fns {
+				if err := fn(inventory_sku); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// cartitemDescNameSnapshot is the schema descriptor for name_snapshot field.
 	cartitemDescNameSnapshot := cartitemFields[4].Descriptor()
 	// cartitem.NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
@@ -153,202 +168,80 @@ func init() {
 	cartitemDescID := cartitemFields[0].Descriptor()
 	// cartitem.DefaultID holds the default value on creation for the id field.
 	cartitem.DefaultID = cartitemDescID.Default.(func() uuid.UUID)
-	catalogcategoryFields := schema.CatalogCategory{}.Fields()
-	_ = catalogcategoryFields
-	// catalogcategoryDescName is the schema descriptor for name field.
-	catalogcategoryDescName := catalogcategoryFields[4].Descriptor()
-	// catalogcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	catalogcategory.NameValidator = catalogcategoryDescName.Validators[0].(func(string) error)
-	// catalogcategoryDescImageURL is the schema descriptor for image_url field.
-	catalogcategoryDescImageURL := catalogcategoryFields[7].Descriptor()
-	// catalogcategory.ImageURLValidator is a validator for the "image_url" field. It is called by the builders before save.
-	catalogcategory.ImageURLValidator = catalogcategoryDescImageURL.Validators[0].(func(string) error)
-	// catalogcategoryDescDisplayOrder is the schema descriptor for display_order field.
-	catalogcategoryDescDisplayOrder := catalogcategoryFields[8].Descriptor()
-	// catalogcategory.DefaultDisplayOrder holds the default value on creation for the display_order field.
-	catalogcategory.DefaultDisplayOrder = catalogcategoryDescDisplayOrder.Default.(int)
-	// catalogcategoryDescIsActive is the schema descriptor for is_active field.
-	catalogcategoryDescIsActive := catalogcategoryFields[9].Descriptor()
-	// catalogcategory.DefaultIsActive holds the default value on creation for the is_active field.
-	catalogcategory.DefaultIsActive = catalogcategoryDescIsActive.Default.(bool)
-	// catalogcategoryDescCreatedAt is the schema descriptor for created_at field.
-	catalogcategoryDescCreatedAt := catalogcategoryFields[10].Descriptor()
-	// catalogcategory.DefaultCreatedAt holds the default value on creation for the created_at field.
-	catalogcategory.DefaultCreatedAt = catalogcategoryDescCreatedAt.Default.(func() time.Time)
-	// catalogcategoryDescUpdatedAt is the schema descriptor for updated_at field.
-	catalogcategoryDescUpdatedAt := catalogcategoryFields[11].Descriptor()
-	// catalogcategory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	catalogcategory.DefaultUpdatedAt = catalogcategoryDescUpdatedAt.Default.(func() time.Time)
-	// catalogcategory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	catalogcategory.UpdateDefaultUpdatedAt = catalogcategoryDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// catalogcategoryDescID is the schema descriptor for id field.
-	catalogcategoryDescID := catalogcategoryFields[0].Descriptor()
-	// catalogcategory.DefaultID holds the default value on creation for the id field.
-	catalogcategory.DefaultID = catalogcategoryDescID.Default.(func() uuid.UUID)
-	catalogitemFields := schema.CatalogItem{}.Fields()
-	_ = catalogitemFields
-	// catalogitemDescName is the schema descriptor for name field.
-	catalogitemDescName := catalogitemFields[5].Descriptor()
-	// catalogitem.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	catalogitem.NameValidator = catalogitemDescName.Validators[0].(func(string) error)
-	// catalogitemDescBasePrice is the schema descriptor for base_price field.
-	catalogitemDescBasePrice := catalogitemFields[7].Descriptor()
-	// catalogitem.DefaultBasePrice holds the default value on creation for the base_price field.
-	catalogitem.DefaultBasePrice = catalogitemDescBasePrice.Default.(float64)
-	// catalogitemDescCurrency is the schema descriptor for currency field.
-	catalogitemDescCurrency := catalogitemFields[8].Descriptor()
-	// catalogitem.DefaultCurrency holds the default value on creation for the currency field.
-	catalogitem.DefaultCurrency = catalogitemDescCurrency.Default.(string)
-	// catalogitem.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
-	catalogitem.CurrencyValidator = catalogitemDescCurrency.Validators[0].(func(string) error)
-	// catalogitemDescIsAvailable is the schema descriptor for is_available field.
-	catalogitemDescIsAvailable := catalogitemFields[9].Descriptor()
-	// catalogitem.DefaultIsAvailable holds the default value on creation for the is_available field.
-	catalogitem.DefaultIsAvailable = catalogitemDescIsAvailable.Default.(bool)
-	// catalogitemDescIsFeatured is the schema descriptor for is_featured field.
-	catalogitemDescIsFeatured := catalogitemFields[10].Descriptor()
-	// catalogitem.DefaultIsFeatured holds the default value on creation for the is_featured field.
-	catalogitem.DefaultIsFeatured = catalogitemDescIsFeatured.Default.(bool)
-	// catalogitemDescImageURL is the schema descriptor for image_url field.
-	catalogitemDescImageURL := catalogitemFields[12].Descriptor()
-	// catalogitem.ImageURLValidator is a validator for the "image_url" field. It is called by the builders before save.
-	catalogitem.ImageURLValidator = catalogitemDescImageURL.Validators[0].(func(string) error)
-	// catalogitemDescSku is the schema descriptor for sku field.
-	catalogitemDescSku := catalogitemFields[13].Descriptor()
-	// catalogitem.SkuValidator is a validator for the "sku" field. It is called by the builders before save.
-	catalogitem.SkuValidator = catalogitemDescSku.Validators[0].(func(string) error)
-	// catalogitemDescDisplayOrder is the schema descriptor for display_order field.
-	catalogitemDescDisplayOrder := catalogitemFields[15].Descriptor()
-	// catalogitem.DefaultDisplayOrder holds the default value on creation for the display_order field.
-	catalogitem.DefaultDisplayOrder = catalogitemDescDisplayOrder.Default.(int)
-	// catalogitemDescCreatedAt is the schema descriptor for created_at field.
-	catalogitemDescCreatedAt := catalogitemFields[16].Descriptor()
-	// catalogitem.DefaultCreatedAt holds the default value on creation for the created_at field.
-	catalogitem.DefaultCreatedAt = catalogitemDescCreatedAt.Default.(func() time.Time)
-	// catalogitemDescUpdatedAt is the schema descriptor for updated_at field.
-	catalogitemDescUpdatedAt := catalogitemFields[17].Descriptor()
-	// catalogitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	catalogitem.DefaultUpdatedAt = catalogitemDescUpdatedAt.Default.(func() time.Time)
-	// catalogitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	catalogitem.UpdateDefaultUpdatedAt = catalogitemDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// catalogitemDescID is the schema descriptor for id field.
-	catalogitemDescID := catalogitemFields[0].Descriptor()
-	// catalogitem.DefaultID holds the default value on creation for the id field.
-	catalogitem.DefaultID = catalogitemDescID.Default.(func() uuid.UUID)
-	catalogitemassetFields := schema.CatalogItemAsset{}.Fields()
-	_ = catalogitemassetFields
-	// catalogitemassetDescAssetType is the schema descriptor for asset_type field.
-	catalogitemassetDescAssetType := catalogitemassetFields[2].Descriptor()
-	// catalogitemasset.AssetTypeValidator is a validator for the "asset_type" field. It is called by the builders before save.
-	catalogitemasset.AssetTypeValidator = func() func(string) error {
-		validators := catalogitemassetDescAssetType.Validators
+	catalogoverrideFields := schema.CatalogOverride{}.Fields()
+	_ = catalogoverrideFields
+	// catalogoverrideDescInventorySku is the schema descriptor for inventory_sku field.
+	catalogoverrideDescInventorySku := catalogoverrideFields[3].Descriptor()
+	// catalogoverride.InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	catalogoverride.InventorySkuValidator = func() func(string) error {
+		validators := catalogoverrideDescInventorySku.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
 		}
-		return func(asset_type string) error {
+		return func(inventory_sku string) error {
 			for _, fn := range fns {
-				if err := fn(asset_type); err != nil {
+				if err := fn(inventory_sku); err != nil {
 					return err
 				}
 			}
 			return nil
 		}
 	}()
-	// catalogitemassetDescURL is the schema descriptor for url field.
-	catalogitemassetDescURL := catalogitemassetFields[3].Descriptor()
-	// catalogitemasset.URLValidator is a validator for the "url" field. It is called by the builders before save.
-	catalogitemasset.URLValidator = func() func(string) error {
-		validators := catalogitemassetDescURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(url string) error {
-			for _, fn := range fns {
-				if err := fn(url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// catalogitemassetDescDisplayOrder is the schema descriptor for display_order field.
-	catalogitemassetDescDisplayOrder := catalogitemassetFields[5].Descriptor()
-	// catalogitemasset.DefaultDisplayOrder holds the default value on creation for the display_order field.
-	catalogitemasset.DefaultDisplayOrder = catalogitemassetDescDisplayOrder.Default.(int)
-	// catalogitemassetDescCreatedAt is the schema descriptor for created_at field.
-	catalogitemassetDescCreatedAt := catalogitemassetFields[6].Descriptor()
-	// catalogitemasset.DefaultCreatedAt holds the default value on creation for the created_at field.
-	catalogitemasset.DefaultCreatedAt = catalogitemassetDescCreatedAt.Default.(func() time.Time)
-	// catalogitemassetDescID is the schema descriptor for id field.
-	catalogitemassetDescID := catalogitemassetFields[0].Descriptor()
-	// catalogitemasset.DefaultID holds the default value on creation for the id field.
-	catalogitemasset.DefaultID = catalogitemassetDescID.Default.(func() uuid.UUID)
-	catalogitemscheduleFields := schema.CatalogItemSchedule{}.Fields()
-	_ = catalogitemscheduleFields
-	// catalogitemscheduleDescDayOfWeek is the schema descriptor for day_of_week field.
-	catalogitemscheduleDescDayOfWeek := catalogitemscheduleFields[2].Descriptor()
-	// catalogitemschedule.DayOfWeekValidator is a validator for the "day_of_week" field. It is called by the builders before save.
-	catalogitemschedule.DayOfWeekValidator = func() func(int) error {
-		validators := catalogitemscheduleDescDayOfWeek.Validators
-		fns := [...]func(int) error{
-			validators[0].(func(int) error),
-			validators[1].(func(int) error),
-		}
-		return func(day_of_week int) error {
-			for _, fn := range fns {
-				if err := fn(day_of_week); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// catalogitemscheduleDescTimeStart is the schema descriptor for time_start field.
-	catalogitemscheduleDescTimeStart := catalogitemscheduleFields[3].Descriptor()
-	// catalogitemschedule.TimeStartValidator is a validator for the "time_start" field. It is called by the builders before save.
-	catalogitemschedule.TimeStartValidator = func() func(string) error {
-		validators := catalogitemscheduleDescTimeStart.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(time_start string) error {
-			for _, fn := range fns {
-				if err := fn(time_start); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// catalogitemscheduleDescTimeEnd is the schema descriptor for time_end field.
-	catalogitemscheduleDescTimeEnd := catalogitemscheduleFields[4].Descriptor()
-	// catalogitemschedule.TimeEndValidator is a validator for the "time_end" field. It is called by the builders before save.
-	catalogitemschedule.TimeEndValidator = func() func(string) error {
-		validators := catalogitemscheduleDescTimeEnd.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(time_end string) error {
-			for _, fn := range fns {
-				if err := fn(time_end); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// catalogitemscheduleDescCreatedAt is the schema descriptor for created_at field.
-	catalogitemscheduleDescCreatedAt := catalogitemscheduleFields[5].Descriptor()
-	// catalogitemschedule.DefaultCreatedAt holds the default value on creation for the created_at field.
-	catalogitemschedule.DefaultCreatedAt = catalogitemscheduleDescCreatedAt.Default.(func() time.Time)
-	// catalogitemscheduleDescID is the schema descriptor for id field.
-	catalogitemscheduleDescID := catalogitemscheduleFields[0].Descriptor()
-	// catalogitemschedule.DefaultID holds the default value on creation for the id field.
-	catalogitemschedule.DefaultID = catalogitemscheduleDescID.Default.(func() uuid.UUID)
+	// catalogoverrideDescBasePrice is the schema descriptor for base_price field.
+	catalogoverrideDescBasePrice := catalogoverrideFields[4].Descriptor()
+	// catalogoverride.DefaultBasePrice holds the default value on creation for the base_price field.
+	catalogoverride.DefaultBasePrice = catalogoverrideDescBasePrice.Default.(float64)
+	// catalogoverrideDescCurrency is the schema descriptor for currency field.
+	catalogoverrideDescCurrency := catalogoverrideFields[5].Descriptor()
+	// catalogoverride.DefaultCurrency holds the default value on creation for the currency field.
+	catalogoverride.DefaultCurrency = catalogoverrideDescCurrency.Default.(string)
+	// catalogoverride.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
+	catalogoverride.CurrencyValidator = catalogoverrideDescCurrency.Validators[0].(func(string) error)
+	// catalogoverrideDescIsAvailable is the schema descriptor for is_available field.
+	catalogoverrideDescIsAvailable := catalogoverrideFields[6].Descriptor()
+	// catalogoverride.DefaultIsAvailable holds the default value on creation for the is_available field.
+	catalogoverride.DefaultIsAvailable = catalogoverrideDescIsAvailable.Default.(bool)
+	// catalogoverrideDescIsFeatured is the schema descriptor for is_featured field.
+	catalogoverrideDescIsFeatured := catalogoverrideFields[7].Descriptor()
+	// catalogoverride.DefaultIsFeatured holds the default value on creation for the is_featured field.
+	catalogoverride.DefaultIsFeatured = catalogoverrideDescIsFeatured.Default.(bool)
+	// catalogoverrideDescDisplayOrder is the schema descriptor for display_order field.
+	catalogoverrideDescDisplayOrder := catalogoverrideFields[9].Descriptor()
+	// catalogoverride.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	catalogoverride.DefaultDisplayOrder = catalogoverrideDescDisplayOrder.Default.(int)
+	// catalogoverrideDescDisplaySection is the schema descriptor for display_section field.
+	catalogoverrideDescDisplaySection := catalogoverrideFields[10].Descriptor()
+	// catalogoverride.DefaultDisplaySection holds the default value on creation for the display_section field.
+	catalogoverride.DefaultDisplaySection = catalogoverrideDescDisplaySection.Default.(string)
+	// catalogoverride.DisplaySectionValidator is a validator for the "display_section" field. It is called by the builders before save.
+	catalogoverride.DisplaySectionValidator = catalogoverrideDescDisplaySection.Validators[0].(func(string) error)
+	// catalogoverrideDescPackagingFee is the schema descriptor for packaging_fee field.
+	catalogoverrideDescPackagingFee := catalogoverrideFields[11].Descriptor()
+	// catalogoverride.DefaultPackagingFee holds the default value on creation for the packaging_fee field.
+	catalogoverride.DefaultPackagingFee = catalogoverrideDescPackagingFee.Default.(float64)
+	// catalogoverrideDescServiceFeePercent is the schema descriptor for service_fee_percent field.
+	catalogoverrideDescServiceFeePercent := catalogoverrideFields[12].Descriptor()
+	// catalogoverride.DefaultServiceFeePercent holds the default value on creation for the service_fee_percent field.
+	catalogoverride.DefaultServiceFeePercent = catalogoverrideDescServiceFeePercent.Default.(float64)
+	// catalogoverrideDescImageURLOverride is the schema descriptor for image_url_override field.
+	catalogoverrideDescImageURLOverride := catalogoverrideFields[13].Descriptor()
+	// catalogoverride.ImageURLOverrideValidator is a validator for the "image_url_override" field. It is called by the builders before save.
+	catalogoverride.ImageURLOverrideValidator = catalogoverrideDescImageURLOverride.Validators[0].(func(string) error)
+	// catalogoverrideDescCreatedAt is the schema descriptor for created_at field.
+	catalogoverrideDescCreatedAt := catalogoverrideFields[14].Descriptor()
+	// catalogoverride.DefaultCreatedAt holds the default value on creation for the created_at field.
+	catalogoverride.DefaultCreatedAt = catalogoverrideDescCreatedAt.Default.(func() time.Time)
+	// catalogoverrideDescUpdatedAt is the schema descriptor for updated_at field.
+	catalogoverrideDescUpdatedAt := catalogoverrideFields[15].Descriptor()
+	// catalogoverride.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	catalogoverride.DefaultUpdatedAt = catalogoverrideDescUpdatedAt.Default.(func() time.Time)
+	// catalogoverride.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	catalogoverride.UpdateDefaultUpdatedAt = catalogoverrideDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// catalogoverrideDescID is the schema descriptor for id field.
+	catalogoverrideDescID := catalogoverrideFields[0].Descriptor()
+	// catalogoverride.DefaultID holds the default value on creation for the id field.
+	catalogoverride.DefaultID = catalogoverrideDescID.Default.(func() uuid.UUID)
 	customeraddressFields := schema.CustomerAddress{}.Fields()
 	_ = customeraddressFields
 	// customeraddressDescLabel is the schema descriptor for label field.
@@ -553,52 +446,6 @@ func init() {
 	deliveryzoneDescID := deliveryzoneFields[0].Descriptor()
 	// deliveryzone.DefaultID holds the default value on creation for the id field.
 	deliveryzone.DefaultID = deliveryzoneDescID.Default.(func() uuid.UUID)
-	dietarytagFields := schema.DietaryTag{}.Fields()
-	_ = dietarytagFields
-	// dietarytagDescCode is the schema descriptor for code field.
-	dietarytagDescCode := dietarytagFields[0].Descriptor()
-	// dietarytag.CodeValidator is a validator for the "code" field. It is called by the builders before save.
-	dietarytag.CodeValidator = func() func(string) error {
-		validators := dietarytagDescCode.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(code string) error {
-			for _, fn := range fns {
-				if err := fn(code); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// dietarytagDescLabel is the schema descriptor for label field.
-	dietarytagDescLabel := dietarytagFields[1].Descriptor()
-	// dietarytag.LabelValidator is a validator for the "label" field. It is called by the builders before save.
-	dietarytag.LabelValidator = func() func(string) error {
-		validators := dietarytagDescLabel.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(label string) error {
-			for _, fn := range fns {
-				if err := fn(label); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// dietarytagDescIconURL is the schema descriptor for icon_url field.
-	dietarytagDescIconURL := dietarytagFields[3].Descriptor()
-	// dietarytag.IconURLValidator is a validator for the "icon_url" field. It is called by the builders before save.
-	dietarytag.IconURLValidator = dietarytagDescIconURL.Validators[0].(func(string) error)
-	// dietarytagDescCreatedAt is the schema descriptor for created_at field.
-	dietarytagDescCreatedAt := dietarytagFields[4].Descriptor()
-	// dietarytag.DefaultCreatedAt holds the default value on creation for the created_at field.
-	dietarytag.DefaultCreatedAt = dietarytagDescCreatedAt.Default.(func() time.Time)
 	loyaltyaccountFields := schema.LoyaltyAccount{}.Fields()
 	_ = loyaltyaccountFields
 	// loyaltyaccountDescBalancePoints is the schema descriptor for balance_points field.
@@ -793,6 +640,24 @@ func init() {
 	orderevent.DefaultID = ordereventDescID.Default.(func() uuid.UUID)
 	orderitemFields := schema.OrderItem{}.Fields()
 	_ = orderitemFields
+	// orderitemDescInventorySku is the schema descriptor for inventory_sku field.
+	orderitemDescInventorySku := orderitemFields[2].Descriptor()
+	// orderitem.InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	orderitem.InventorySkuValidator = func() func(string) error {
+		validators := orderitemDescInventorySku.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(inventory_sku string) error {
+			for _, fn := range fns {
+				if err := fn(inventory_sku); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// orderitemDescNameSnapshot is the schema descriptor for name_snapshot field.
 	orderitemDescNameSnapshot := orderitemFields[4].Descriptor()
 	// orderitem.NameSnapshotValidator is a validator for the "name_snapshot" field. It is called by the builders before save.
@@ -1141,24 +1006,16 @@ func init() {
 	tenantDescStatus := tenantFields[3].Descriptor()
 	// tenant.DefaultStatus holds the default value on creation for the status field.
 	tenant.DefaultStatus = tenantDescStatus.Default.(string)
-	// tenantDescCountry is the schema descriptor for country field.
-	tenantDescCountry := tenantFields[8].Descriptor()
-	// tenant.DefaultCountry holds the default value on creation for the country field.
-	tenant.DefaultCountry = tenantDescCountry.Default.(string)
-	// tenantDescTimezone is the schema descriptor for timezone field.
-	tenantDescTimezone := tenantFields[9].Descriptor()
-	// tenant.DefaultTimezone holds the default value on creation for the timezone field.
-	tenant.DefaultTimezone = tenantDescTimezone.Default.(string)
-	// tenantDescMetadata is the schema descriptor for metadata field.
-	tenantDescMetadata := tenantFields[18].Descriptor()
-	// tenant.DefaultMetadata holds the default value on creation for the metadata field.
-	tenant.DefaultMetadata = tenantDescMetadata.Default.(map[string]interface{})
+	// tenantDescSyncStatus is the schema descriptor for sync_status field.
+	tenantDescSyncStatus := tenantFields[5].Descriptor()
+	// tenant.DefaultSyncStatus holds the default value on creation for the sync_status field.
+	tenant.DefaultSyncStatus = tenantDescSyncStatus.Default.(string)
 	// tenantDescCreatedAt is the schema descriptor for created_at field.
-	tenantDescCreatedAt := tenantFields[19].Descriptor()
+	tenantDescCreatedAt := tenantFields[7].Descriptor()
 	// tenant.DefaultCreatedAt holds the default value on creation for the created_at field.
 	tenant.DefaultCreatedAt = tenantDescCreatedAt.Default.(func() time.Time)
 	// tenantDescUpdatedAt is the schema descriptor for updated_at field.
-	tenantDescUpdatedAt := tenantFields[20].Descriptor()
+	tenantDescUpdatedAt := tenantFields[8].Descriptor()
 	// tenant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	tenant.DefaultUpdatedAt = tenantDescUpdatedAt.Default.(func() time.Time)
 	// tenant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -1271,6 +1128,34 @@ func init() {
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
+	userfavoriteFields := schema.UserFavorite{}.Fields()
+	_ = userfavoriteFields
+	// userfavoriteDescInventorySku is the schema descriptor for inventory_sku field.
+	userfavoriteDescInventorySku := userfavoriteFields[3].Descriptor()
+	// userfavorite.InventorySkuValidator is a validator for the "inventory_sku" field. It is called by the builders before save.
+	userfavorite.InventorySkuValidator = func() func(string) error {
+		validators := userfavoriteDescInventorySku.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(inventory_sku string) error {
+			for _, fn := range fns {
+				if err := fn(inventory_sku); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userfavoriteDescCreatedAt is the schema descriptor for created_at field.
+	userfavoriteDescCreatedAt := userfavoriteFields[4].Descriptor()
+	// userfavorite.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userfavorite.DefaultCreatedAt = userfavoriteDescCreatedAt.Default.(func() time.Time)
+	// userfavoriteDescID is the schema descriptor for id field.
+	userfavoriteDescID := userfavoriteFields[0].Descriptor()
+	// userfavorite.DefaultID holds the default value on creation for the id field.
+	userfavorite.DefaultID = userfavoriteDescID.Default.(func() uuid.UUID)
 	userpreferenceFields := schema.UserPreference{}.Fields()
 	_ = userpreferenceFields
 	// userpreferenceDescTheme is the schema descriptor for theme field.

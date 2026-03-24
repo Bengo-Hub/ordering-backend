@@ -25,219 +25,219 @@ type DataDeletionJobCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (ddjc *DataDeletionJobCreate) SetTenantID(u uuid.UUID) *DataDeletionJobCreate {
-	ddjc.mutation.SetTenantID(u)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetTenantID(v uuid.UUID) *DataDeletionJobCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (ddjc *DataDeletionJobCreate) SetUserID(u uuid.UUID) *DataDeletionJobCreate {
-	ddjc.mutation.SetUserID(u)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetUserID(v uuid.UUID) *DataDeletionJobCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetDeletionType sets the "deletion_type" field.
-func (ddjc *DataDeletionJobCreate) SetDeletionType(dt datadeletionjob.DeletionType) *DataDeletionJobCreate {
-	ddjc.mutation.SetDeletionType(dt)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetDeletionType(v datadeletionjob.DeletionType) *DataDeletionJobCreate {
+	_c.mutation.SetDeletionType(v)
+	return _c
 }
 
 // SetNillableDeletionType sets the "deletion_type" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableDeletionType(dt *datadeletionjob.DeletionType) *DataDeletionJobCreate {
-	if dt != nil {
-		ddjc.SetDeletionType(*dt)
+func (_c *DataDeletionJobCreate) SetNillableDeletionType(v *datadeletionjob.DeletionType) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetDeletionType(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (ddjc *DataDeletionJobCreate) SetStatus(d datadeletionjob.Status) *DataDeletionJobCreate {
-	ddjc.mutation.SetStatus(d)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetStatus(v datadeletionjob.Status) *DataDeletionJobCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableStatus(d *datadeletionjob.Status) *DataDeletionJobCreate {
-	if d != nil {
-		ddjc.SetStatus(*d)
+func (_c *DataDeletionJobCreate) SetNillableStatus(v *datadeletionjob.Status) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetReason sets the "reason" field.
-func (ddjc *DataDeletionJobCreate) SetReason(s string) *DataDeletionJobCreate {
-	ddjc.mutation.SetReason(s)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetReason(v string) *DataDeletionJobCreate {
+	_c.mutation.SetReason(v)
+	return _c
 }
 
 // SetNillableReason sets the "reason" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableReason(s *string) *DataDeletionJobCreate {
-	if s != nil {
-		ddjc.SetReason(*s)
+func (_c *DataDeletionJobCreate) SetNillableReason(v *string) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetReason(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetConfirmed sets the "confirmed" field.
-func (ddjc *DataDeletionJobCreate) SetConfirmed(b bool) *DataDeletionJobCreate {
-	ddjc.mutation.SetConfirmed(b)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetConfirmed(v bool) *DataDeletionJobCreate {
+	_c.mutation.SetConfirmed(v)
+	return _c
 }
 
 // SetNillableConfirmed sets the "confirmed" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableConfirmed(b *bool) *DataDeletionJobCreate {
-	if b != nil {
-		ddjc.SetConfirmed(*b)
+func (_c *DataDeletionJobCreate) SetNillableConfirmed(v *bool) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetConfirmed(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetRetentionDays sets the "retention_days" field.
-func (ddjc *DataDeletionJobCreate) SetRetentionDays(i int) *DataDeletionJobCreate {
-	ddjc.mutation.SetRetentionDays(i)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetRetentionDays(v int) *DataDeletionJobCreate {
+	_c.mutation.SetRetentionDays(v)
+	return _c
 }
 
 // SetNillableRetentionDays sets the "retention_days" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableRetentionDays(i *int) *DataDeletionJobCreate {
-	if i != nil {
-		ddjc.SetRetentionDays(*i)
+func (_c *DataDeletionJobCreate) SetNillableRetentionDays(v *int) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetRetentionDays(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (ddjc *DataDeletionJobCreate) SetErrorMessage(s string) *DataDeletionJobCreate {
-	ddjc.mutation.SetErrorMessage(s)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetErrorMessage(v string) *DataDeletionJobCreate {
+	_c.mutation.SetErrorMessage(v)
+	return _c
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableErrorMessage(s *string) *DataDeletionJobCreate {
-	if s != nil {
-		ddjc.SetErrorMessage(*s)
+func (_c *DataDeletionJobCreate) SetNillableErrorMessage(v *string) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetErrorMessage(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetDeletionSummary sets the "deletion_summary" field.
-func (ddjc *DataDeletionJobCreate) SetDeletionSummary(m map[string]int) *DataDeletionJobCreate {
-	ddjc.mutation.SetDeletionSummary(m)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetDeletionSummary(v map[string]int) *DataDeletionJobCreate {
+	_c.mutation.SetDeletionSummary(v)
+	return _c
 }
 
 // SetRequestedAt sets the "requested_at" field.
-func (ddjc *DataDeletionJobCreate) SetRequestedAt(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetRequestedAt(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetRequestedAt(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetRequestedAt(v)
+	return _c
 }
 
 // SetNillableRequestedAt sets the "requested_at" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableRequestedAt(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetRequestedAt(*t)
+func (_c *DataDeletionJobCreate) SetNillableRequestedAt(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetRequestedAt(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetScheduledFor sets the "scheduled_for" field.
-func (ddjc *DataDeletionJobCreate) SetScheduledFor(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetScheduledFor(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetScheduledFor(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetScheduledFor(v)
+	return _c
 }
 
 // SetNillableScheduledFor sets the "scheduled_for" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableScheduledFor(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetScheduledFor(*t)
+func (_c *DataDeletionJobCreate) SetNillableScheduledFor(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetScheduledFor(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetStartedAt sets the "started_at" field.
-func (ddjc *DataDeletionJobCreate) SetStartedAt(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetStartedAt(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetStartedAt(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableStartedAt(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetStartedAt(*t)
+func (_c *DataDeletionJobCreate) SetNillableStartedAt(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (ddjc *DataDeletionJobCreate) SetCompletedAt(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetCompletedAt(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetCompletedAt(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetCompletedAt(v)
+	return _c
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableCompletedAt(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetCompletedAt(*t)
+func (_c *DataDeletionJobCreate) SetNillableCompletedAt(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetCompletedAt(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ddjc *DataDeletionJobCreate) SetCreatedAt(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetCreatedAt(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetCreatedAt(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableCreatedAt(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetCreatedAt(*t)
+func (_c *DataDeletionJobCreate) SetNillableCreatedAt(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ddjc *DataDeletionJobCreate) SetUpdatedAt(t time.Time) *DataDeletionJobCreate {
-	ddjc.mutation.SetUpdatedAt(t)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetUpdatedAt(v time.Time) *DataDeletionJobCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableUpdatedAt(t *time.Time) *DataDeletionJobCreate {
-	if t != nil {
-		ddjc.SetUpdatedAt(*t)
+func (_c *DataDeletionJobCreate) SetNillableUpdatedAt(v *time.Time) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ddjc *DataDeletionJobCreate) SetID(u uuid.UUID) *DataDeletionJobCreate {
-	ddjc.mutation.SetID(u)
-	return ddjc
+func (_c *DataDeletionJobCreate) SetID(v uuid.UUID) *DataDeletionJobCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (ddjc *DataDeletionJobCreate) SetNillableID(u *uuid.UUID) *DataDeletionJobCreate {
-	if u != nil {
-		ddjc.SetID(*u)
+func (_c *DataDeletionJobCreate) SetNillableID(v *uuid.UUID) *DataDeletionJobCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return ddjc
+	return _c
 }
 
 // Mutation returns the DataDeletionJobMutation object of the builder.
-func (ddjc *DataDeletionJobCreate) Mutation() *DataDeletionJobMutation {
-	return ddjc.mutation
+func (_c *DataDeletionJobCreate) Mutation() *DataDeletionJobMutation {
+	return _c.mutation
 }
 
 // Save creates the DataDeletionJob in the database.
-func (ddjc *DataDeletionJobCreate) Save(ctx context.Context) (*DataDeletionJob, error) {
-	ddjc.defaults()
-	return withHooks(ctx, ddjc.sqlSave, ddjc.mutation, ddjc.hooks)
+func (_c *DataDeletionJobCreate) Save(ctx context.Context) (*DataDeletionJob, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ddjc *DataDeletionJobCreate) SaveX(ctx context.Context) *DataDeletionJob {
-	v, err := ddjc.Save(ctx)
+func (_c *DataDeletionJobCreate) SaveX(ctx context.Context) *DataDeletionJob {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -245,102 +245,102 @@ func (ddjc *DataDeletionJobCreate) SaveX(ctx context.Context) *DataDeletionJob {
 }
 
 // Exec executes the query.
-func (ddjc *DataDeletionJobCreate) Exec(ctx context.Context) error {
-	_, err := ddjc.Save(ctx)
+func (_c *DataDeletionJobCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ddjc *DataDeletionJobCreate) ExecX(ctx context.Context) {
-	if err := ddjc.Exec(ctx); err != nil {
+func (_c *DataDeletionJobCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ddjc *DataDeletionJobCreate) defaults() {
-	if _, ok := ddjc.mutation.DeletionType(); !ok {
+func (_c *DataDeletionJobCreate) defaults() {
+	if _, ok := _c.mutation.DeletionType(); !ok {
 		v := datadeletionjob.DefaultDeletionType
-		ddjc.mutation.SetDeletionType(v)
+		_c.mutation.SetDeletionType(v)
 	}
-	if _, ok := ddjc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := datadeletionjob.DefaultStatus
-		ddjc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := ddjc.mutation.Confirmed(); !ok {
+	if _, ok := _c.mutation.Confirmed(); !ok {
 		v := datadeletionjob.DefaultConfirmed
-		ddjc.mutation.SetConfirmed(v)
+		_c.mutation.SetConfirmed(v)
 	}
-	if _, ok := ddjc.mutation.RetentionDays(); !ok {
+	if _, ok := _c.mutation.RetentionDays(); !ok {
 		v := datadeletionjob.DefaultRetentionDays
-		ddjc.mutation.SetRetentionDays(v)
+		_c.mutation.SetRetentionDays(v)
 	}
-	if _, ok := ddjc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		v := datadeletionjob.DefaultRequestedAt()
-		ddjc.mutation.SetRequestedAt(v)
+		_c.mutation.SetRequestedAt(v)
 	}
-	if _, ok := ddjc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := datadeletionjob.DefaultCreatedAt()
-		ddjc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ddjc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := datadeletionjob.DefaultUpdatedAt()
-		ddjc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := ddjc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := datadeletionjob.DefaultID()
-		ddjc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ddjc *DataDeletionJobCreate) check() error {
-	if _, ok := ddjc.mutation.TenantID(); !ok {
+func (_c *DataDeletionJobCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "DataDeletionJob.tenant_id"`)}
 	}
-	if _, ok := ddjc.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "DataDeletionJob.user_id"`)}
 	}
-	if _, ok := ddjc.mutation.DeletionType(); !ok {
+	if _, ok := _c.mutation.DeletionType(); !ok {
 		return &ValidationError{Name: "deletion_type", err: errors.New(`ent: missing required field "DataDeletionJob.deletion_type"`)}
 	}
-	if v, ok := ddjc.mutation.DeletionType(); ok {
+	if v, ok := _c.mutation.DeletionType(); ok {
 		if err := datadeletionjob.DeletionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "deletion_type", err: fmt.Errorf(`ent: validator failed for field "DataDeletionJob.deletion_type": %w`, err)}
 		}
 	}
-	if _, ok := ddjc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DataDeletionJob.status"`)}
 	}
-	if v, ok := ddjc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := datadeletionjob.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataDeletionJob.status": %w`, err)}
 		}
 	}
-	if _, ok := ddjc.mutation.Confirmed(); !ok {
+	if _, ok := _c.mutation.Confirmed(); !ok {
 		return &ValidationError{Name: "confirmed", err: errors.New(`ent: missing required field "DataDeletionJob.confirmed"`)}
 	}
-	if _, ok := ddjc.mutation.RetentionDays(); !ok {
+	if _, ok := _c.mutation.RetentionDays(); !ok {
 		return &ValidationError{Name: "retention_days", err: errors.New(`ent: missing required field "DataDeletionJob.retention_days"`)}
 	}
-	if _, ok := ddjc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		return &ValidationError{Name: "requested_at", err: errors.New(`ent: missing required field "DataDeletionJob.requested_at"`)}
 	}
-	if _, ok := ddjc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DataDeletionJob.created_at"`)}
 	}
-	if _, ok := ddjc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DataDeletionJob.updated_at"`)}
 	}
 	return nil
 }
 
-func (ddjc *DataDeletionJobCreate) sqlSave(ctx context.Context) (*DataDeletionJob, error) {
-	if err := ddjc.check(); err != nil {
+func (_c *DataDeletionJobCreate) sqlSave(ctx context.Context) (*DataDeletionJob, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ddjc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ddjc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -353,78 +353,78 @@ func (ddjc *DataDeletionJobCreate) sqlSave(ctx context.Context) (*DataDeletionJo
 			return nil, err
 		}
 	}
-	ddjc.mutation.id = &_node.ID
-	ddjc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ddjc *DataDeletionJobCreate) createSpec() (*DataDeletionJob, *sqlgraph.CreateSpec) {
+func (_c *DataDeletionJobCreate) createSpec() (*DataDeletionJob, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DataDeletionJob{config: ddjc.config}
+		_node = &DataDeletionJob{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(datadeletionjob.Table, sqlgraph.NewFieldSpec(datadeletionjob.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = ddjc.conflict
-	if id, ok := ddjc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := ddjc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(datadeletionjob.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := ddjc.mutation.UserID(); ok {
+	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(datadeletionjob.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
-	if value, ok := ddjc.mutation.DeletionType(); ok {
+	if value, ok := _c.mutation.DeletionType(); ok {
 		_spec.SetField(datadeletionjob.FieldDeletionType, field.TypeEnum, value)
 		_node.DeletionType = value
 	}
-	if value, ok := ddjc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(datadeletionjob.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := ddjc.mutation.Reason(); ok {
+	if value, ok := _c.mutation.Reason(); ok {
 		_spec.SetField(datadeletionjob.FieldReason, field.TypeString, value)
 		_node.Reason = value
 	}
-	if value, ok := ddjc.mutation.Confirmed(); ok {
+	if value, ok := _c.mutation.Confirmed(); ok {
 		_spec.SetField(datadeletionjob.FieldConfirmed, field.TypeBool, value)
 		_node.Confirmed = value
 	}
-	if value, ok := ddjc.mutation.RetentionDays(); ok {
+	if value, ok := _c.mutation.RetentionDays(); ok {
 		_spec.SetField(datadeletionjob.FieldRetentionDays, field.TypeInt, value)
 		_node.RetentionDays = value
 	}
-	if value, ok := ddjc.mutation.ErrorMessage(); ok {
+	if value, ok := _c.mutation.ErrorMessage(); ok {
 		_spec.SetField(datadeletionjob.FieldErrorMessage, field.TypeString, value)
 		_node.ErrorMessage = value
 	}
-	if value, ok := ddjc.mutation.DeletionSummary(); ok {
+	if value, ok := _c.mutation.DeletionSummary(); ok {
 		_spec.SetField(datadeletionjob.FieldDeletionSummary, field.TypeJSON, value)
 		_node.DeletionSummary = value
 	}
-	if value, ok := ddjc.mutation.RequestedAt(); ok {
+	if value, ok := _c.mutation.RequestedAt(); ok {
 		_spec.SetField(datadeletionjob.FieldRequestedAt, field.TypeTime, value)
 		_node.RequestedAt = value
 	}
-	if value, ok := ddjc.mutation.ScheduledFor(); ok {
+	if value, ok := _c.mutation.ScheduledFor(); ok {
 		_spec.SetField(datadeletionjob.FieldScheduledFor, field.TypeTime, value)
 		_node.ScheduledFor = &value
 	}
-	if value, ok := ddjc.mutation.StartedAt(); ok {
+	if value, ok := _c.mutation.StartedAt(); ok {
 		_spec.SetField(datadeletionjob.FieldStartedAt, field.TypeTime, value)
 		_node.StartedAt = &value
 	}
-	if value, ok := ddjc.mutation.CompletedAt(); ok {
+	if value, ok := _c.mutation.CompletedAt(); ok {
 		_spec.SetField(datadeletionjob.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = &value
 	}
-	if value, ok := ddjc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(datadeletionjob.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := ddjc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(datadeletionjob.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -447,10 +447,10 @@ func (ddjc *DataDeletionJobCreate) createSpec() (*DataDeletionJob, *sqlgraph.Cre
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (ddjc *DataDeletionJobCreate) OnConflict(opts ...sql.ConflictOption) *DataDeletionJobUpsertOne {
-	ddjc.conflict = opts
+func (_c *DataDeletionJobCreate) OnConflict(opts ...sql.ConflictOption) *DataDeletionJobUpsertOne {
+	_c.conflict = opts
 	return &DataDeletionJobUpsertOne{
-		create: ddjc,
+		create: _c,
 	}
 }
 
@@ -460,10 +460,10 @@ func (ddjc *DataDeletionJobCreate) OnConflict(opts ...sql.ConflictOption) *DataD
 //	client.DataDeletionJob.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ddjc *DataDeletionJobCreate) OnConflictColumns(columns ...string) *DataDeletionJobUpsertOne {
-	ddjc.conflict = append(ddjc.conflict, sql.ConflictColumns(columns...))
+func (_c *DataDeletionJobCreate) OnConflictColumns(columns ...string) *DataDeletionJobUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataDeletionJobUpsertOne{
-		create: ddjc,
+		create: _c,
 	}
 }
 
@@ -1033,16 +1033,16 @@ type DataDeletionJobCreateBulk struct {
 }
 
 // Save creates the DataDeletionJob entities in the database.
-func (ddjcb *DataDeletionJobCreateBulk) Save(ctx context.Context) ([]*DataDeletionJob, error) {
-	if ddjcb.err != nil {
-		return nil, ddjcb.err
+func (_c *DataDeletionJobCreateBulk) Save(ctx context.Context) ([]*DataDeletionJob, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ddjcb.builders))
-	nodes := make([]*DataDeletionJob, len(ddjcb.builders))
-	mutators := make([]Mutator, len(ddjcb.builders))
-	for i := range ddjcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DataDeletionJob, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ddjcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DataDeletionJobMutation)
@@ -1056,12 +1056,12 @@ func (ddjcb *DataDeletionJobCreateBulk) Save(ctx context.Context) ([]*DataDeleti
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ddjcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ddjcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ddjcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1081,7 +1081,7 @@ func (ddjcb *DataDeletionJobCreateBulk) Save(ctx context.Context) ([]*DataDeleti
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ddjcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1089,8 +1089,8 @@ func (ddjcb *DataDeletionJobCreateBulk) Save(ctx context.Context) ([]*DataDeleti
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ddjcb *DataDeletionJobCreateBulk) SaveX(ctx context.Context) []*DataDeletionJob {
-	v, err := ddjcb.Save(ctx)
+func (_c *DataDeletionJobCreateBulk) SaveX(ctx context.Context) []*DataDeletionJob {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1098,14 +1098,14 @@ func (ddjcb *DataDeletionJobCreateBulk) SaveX(ctx context.Context) []*DataDeleti
 }
 
 // Exec executes the query.
-func (ddjcb *DataDeletionJobCreateBulk) Exec(ctx context.Context) error {
-	_, err := ddjcb.Save(ctx)
+func (_c *DataDeletionJobCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ddjcb *DataDeletionJobCreateBulk) ExecX(ctx context.Context) {
-	if err := ddjcb.Exec(ctx); err != nil {
+func (_c *DataDeletionJobCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1125,10 +1125,10 @@ func (ddjcb *DataDeletionJobCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (ddjcb *DataDeletionJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataDeletionJobUpsertBulk {
-	ddjcb.conflict = opts
+func (_c *DataDeletionJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataDeletionJobUpsertBulk {
+	_c.conflict = opts
 	return &DataDeletionJobUpsertBulk{
-		create: ddjcb,
+		create: _c,
 	}
 }
 
@@ -1138,10 +1138,10 @@ func (ddjcb *DataDeletionJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *
 //	client.DataDeletionJob.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ddjcb *DataDeletionJobCreateBulk) OnConflictColumns(columns ...string) *DataDeletionJobUpsertBulk {
-	ddjcb.conflict = append(ddjcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DataDeletionJobCreateBulk) OnConflictColumns(columns ...string) *DataDeletionJobUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataDeletionJobUpsertBulk{
-		create: ddjcb,
+		create: _c,
 	}
 }
 

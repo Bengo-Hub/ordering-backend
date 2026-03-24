@@ -24,181 +24,181 @@ type DataSubjectRequestUpdate struct {
 }
 
 // Where appends a list predicates to the DataSubjectRequestUpdate builder.
-func (dsru *DataSubjectRequestUpdate) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestUpdate {
-	dsru.mutation.Where(ps...)
-	return dsru
+func (_u *DataSubjectRequestUpdate) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dsru *DataSubjectRequestUpdate) SetTenantID(u uuid.UUID) *DataSubjectRequestUpdate {
-	dsru.mutation.SetTenantID(u)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetTenantID(v uuid.UUID) *DataSubjectRequestUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableTenantID(u *uuid.UUID) *DataSubjectRequestUpdate {
-	if u != nil {
-		dsru.SetTenantID(*u)
+func (_u *DataSubjectRequestUpdate) SetNillableTenantID(v *uuid.UUID) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dsru
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (dsru *DataSubjectRequestUpdate) SetUserID(u uuid.UUID) *DataSubjectRequestUpdate {
-	dsru.mutation.SetUserID(u)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetUserID(v uuid.UUID) *DataSubjectRequestUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableUserID(u *uuid.UUID) *DataSubjectRequestUpdate {
-	if u != nil {
-		dsru.SetUserID(*u)
+func (_u *DataSubjectRequestUpdate) SetNillableUserID(v *uuid.UUID) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return dsru
+	return _u
 }
 
 // SetRequestType sets the "request_type" field.
-func (dsru *DataSubjectRequestUpdate) SetRequestType(dt datasubjectrequest.RequestType) *DataSubjectRequestUpdate {
-	dsru.mutation.SetRequestType(dt)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetRequestType(v datasubjectrequest.RequestType) *DataSubjectRequestUpdate {
+	_u.mutation.SetRequestType(v)
+	return _u
 }
 
 // SetNillableRequestType sets the "request_type" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableRequestType(dt *datasubjectrequest.RequestType) *DataSubjectRequestUpdate {
-	if dt != nil {
-		dsru.SetRequestType(*dt)
+func (_u *DataSubjectRequestUpdate) SetNillableRequestType(v *datasubjectrequest.RequestType) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetRequestType(*v)
 	}
-	return dsru
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (dsru *DataSubjectRequestUpdate) SetStatus(d datasubjectrequest.Status) *DataSubjectRequestUpdate {
-	dsru.mutation.SetStatus(d)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetStatus(v datasubjectrequest.Status) *DataSubjectRequestUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableStatus(d *datasubjectrequest.Status) *DataSubjectRequestUpdate {
-	if d != nil {
-		dsru.SetStatus(*d)
+func (_u *DataSubjectRequestUpdate) SetNillableStatus(v *datasubjectrequest.Status) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return dsru
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (dsru *DataSubjectRequestUpdate) SetDescription(s string) *DataSubjectRequestUpdate {
-	dsru.mutation.SetDescription(s)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetDescription(v string) *DataSubjectRequestUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableDescription(s *string) *DataSubjectRequestUpdate {
-	if s != nil {
-		dsru.SetDescription(*s)
+func (_u *DataSubjectRequestUpdate) SetNillableDescription(v *string) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return dsru
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (dsru *DataSubjectRequestUpdate) ClearDescription() *DataSubjectRequestUpdate {
-	dsru.mutation.ClearDescription()
-	return dsru
+func (_u *DataSubjectRequestUpdate) ClearDescription() *DataSubjectRequestUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetNotes sets the "notes" field.
-func (dsru *DataSubjectRequestUpdate) SetNotes(s string) *DataSubjectRequestUpdate {
-	dsru.mutation.SetNotes(s)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetNotes(v string) *DataSubjectRequestUpdate {
+	_u.mutation.SetNotes(v)
+	return _u
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableNotes(s *string) *DataSubjectRequestUpdate {
-	if s != nil {
-		dsru.SetNotes(*s)
+func (_u *DataSubjectRequestUpdate) SetNillableNotes(v *string) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetNotes(*v)
 	}
-	return dsru
+	return _u
 }
 
 // ClearNotes clears the value of the "notes" field.
-func (dsru *DataSubjectRequestUpdate) ClearNotes() *DataSubjectRequestUpdate {
-	dsru.mutation.ClearNotes()
-	return dsru
+func (_u *DataSubjectRequestUpdate) ClearNotes() *DataSubjectRequestUpdate {
+	_u.mutation.ClearNotes()
+	return _u
 }
 
 // SetResultURL sets the "result_url" field.
-func (dsru *DataSubjectRequestUpdate) SetResultURL(s string) *DataSubjectRequestUpdate {
-	dsru.mutation.SetResultURL(s)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetResultURL(v string) *DataSubjectRequestUpdate {
+	_u.mutation.SetResultURL(v)
+	return _u
 }
 
 // SetNillableResultURL sets the "result_url" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableResultURL(s *string) *DataSubjectRequestUpdate {
-	if s != nil {
-		dsru.SetResultURL(*s)
+func (_u *DataSubjectRequestUpdate) SetNillableResultURL(v *string) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetResultURL(*v)
 	}
-	return dsru
+	return _u
 }
 
 // ClearResultURL clears the value of the "result_url" field.
-func (dsru *DataSubjectRequestUpdate) ClearResultURL() *DataSubjectRequestUpdate {
-	dsru.mutation.ClearResultURL()
-	return dsru
+func (_u *DataSubjectRequestUpdate) ClearResultURL() *DataSubjectRequestUpdate {
+	_u.mutation.ClearResultURL()
+	return _u
 }
 
 // SetSubmittedAt sets the "submitted_at" field.
-func (dsru *DataSubjectRequestUpdate) SetSubmittedAt(t time.Time) *DataSubjectRequestUpdate {
-	dsru.mutation.SetSubmittedAt(t)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetSubmittedAt(v time.Time) *DataSubjectRequestUpdate {
+	_u.mutation.SetSubmittedAt(v)
+	return _u
 }
 
 // SetNillableSubmittedAt sets the "submitted_at" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableSubmittedAt(t *time.Time) *DataSubjectRequestUpdate {
-	if t != nil {
-		dsru.SetSubmittedAt(*t)
+func (_u *DataSubjectRequestUpdate) SetNillableSubmittedAt(v *time.Time) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetSubmittedAt(*v)
 	}
-	return dsru
+	return _u
 }
 
 // SetProcessedAt sets the "processed_at" field.
-func (dsru *DataSubjectRequestUpdate) SetProcessedAt(t time.Time) *DataSubjectRequestUpdate {
-	dsru.mutation.SetProcessedAt(t)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetProcessedAt(v time.Time) *DataSubjectRequestUpdate {
+	_u.mutation.SetProcessedAt(v)
+	return _u
 }
 
 // SetNillableProcessedAt sets the "processed_at" field if the given value is not nil.
-func (dsru *DataSubjectRequestUpdate) SetNillableProcessedAt(t *time.Time) *DataSubjectRequestUpdate {
-	if t != nil {
-		dsru.SetProcessedAt(*t)
+func (_u *DataSubjectRequestUpdate) SetNillableProcessedAt(v *time.Time) *DataSubjectRequestUpdate {
+	if v != nil {
+		_u.SetProcessedAt(*v)
 	}
-	return dsru
+	return _u
 }
 
 // ClearProcessedAt clears the value of the "processed_at" field.
-func (dsru *DataSubjectRequestUpdate) ClearProcessedAt() *DataSubjectRequestUpdate {
-	dsru.mutation.ClearProcessedAt()
-	return dsru
+func (_u *DataSubjectRequestUpdate) ClearProcessedAt() *DataSubjectRequestUpdate {
+	_u.mutation.ClearProcessedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dsru *DataSubjectRequestUpdate) SetUpdatedAt(t time.Time) *DataSubjectRequestUpdate {
-	dsru.mutation.SetUpdatedAt(t)
-	return dsru
+func (_u *DataSubjectRequestUpdate) SetUpdatedAt(v time.Time) *DataSubjectRequestUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DataSubjectRequestMutation object of the builder.
-func (dsru *DataSubjectRequestUpdate) Mutation() *DataSubjectRequestMutation {
-	return dsru.mutation
+func (_u *DataSubjectRequestUpdate) Mutation() *DataSubjectRequestMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dsru *DataSubjectRequestUpdate) Save(ctx context.Context) (int, error) {
-	dsru.defaults()
-	return withHooks(ctx, dsru.sqlSave, dsru.mutation, dsru.hooks)
+func (_u *DataSubjectRequestUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dsru *DataSubjectRequestUpdate) SaveX(ctx context.Context) int {
-	affected, err := dsru.Save(ctx)
+func (_u *DataSubjectRequestUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -206,34 +206,34 @@ func (dsru *DataSubjectRequestUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dsru *DataSubjectRequestUpdate) Exec(ctx context.Context) error {
-	_, err := dsru.Save(ctx)
+func (_u *DataSubjectRequestUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsru *DataSubjectRequestUpdate) ExecX(ctx context.Context) {
-	if err := dsru.Exec(ctx); err != nil {
+func (_u *DataSubjectRequestUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dsru *DataSubjectRequestUpdate) defaults() {
-	if _, ok := dsru.mutation.UpdatedAt(); !ok {
+func (_u *DataSubjectRequestUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := datasubjectrequest.UpdateDefaultUpdatedAt()
-		dsru.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dsru *DataSubjectRequestUpdate) check() error {
-	if v, ok := dsru.mutation.RequestType(); ok {
+func (_u *DataSubjectRequestUpdate) check() error {
+	if v, ok := _u.mutation.RequestType(); ok {
 		if err := datasubjectrequest.RequestTypeValidator(v); err != nil {
 			return &ValidationError{Name: "request_type", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.request_type": %w`, err)}
 		}
 	}
-	if v, ok := dsru.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := datasubjectrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.status": %w`, err)}
 		}
@@ -241,61 +241,61 @@ func (dsru *DataSubjectRequestUpdate) check() error {
 	return nil
 }
 
-func (dsru *DataSubjectRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := dsru.check(); err != nil {
-		return n, err
+func (_u *DataSubjectRequestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(datasubjectrequest.Table, datasubjectrequest.Columns, sqlgraph.NewFieldSpec(datasubjectrequest.FieldID, field.TypeUUID))
-	if ps := dsru.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dsru.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(datasubjectrequest.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dsru.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(datasubjectrequest.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := dsru.mutation.RequestType(); ok {
+	if value, ok := _u.mutation.RequestType(); ok {
 		_spec.SetField(datasubjectrequest.FieldRequestType, field.TypeEnum, value)
 	}
-	if value, ok := dsru.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(datasubjectrequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := dsru.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(datasubjectrequest.FieldDescription, field.TypeString, value)
 	}
-	if dsru.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(datasubjectrequest.FieldDescription, field.TypeString)
 	}
-	if value, ok := dsru.mutation.Notes(); ok {
+	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(datasubjectrequest.FieldNotes, field.TypeString, value)
 	}
-	if dsru.mutation.NotesCleared() {
+	if _u.mutation.NotesCleared() {
 		_spec.ClearField(datasubjectrequest.FieldNotes, field.TypeString)
 	}
-	if value, ok := dsru.mutation.ResultURL(); ok {
+	if value, ok := _u.mutation.ResultURL(); ok {
 		_spec.SetField(datasubjectrequest.FieldResultURL, field.TypeString, value)
 	}
-	if dsru.mutation.ResultURLCleared() {
+	if _u.mutation.ResultURLCleared() {
 		_spec.ClearField(datasubjectrequest.FieldResultURL, field.TypeString)
 	}
-	if value, ok := dsru.mutation.SubmittedAt(); ok {
+	if value, ok := _u.mutation.SubmittedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldSubmittedAt, field.TypeTime, value)
 	}
-	if value, ok := dsru.mutation.ProcessedAt(); ok {
+	if value, ok := _u.mutation.ProcessedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldProcessedAt, field.TypeTime, value)
 	}
-	if dsru.mutation.ProcessedAtCleared() {
+	if _u.mutation.ProcessedAtCleared() {
 		_spec.ClearField(datasubjectrequest.FieldProcessedAt, field.TypeTime)
 	}
-	if value, ok := dsru.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dsru.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{datasubjectrequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -303,8 +303,8 @@ func (dsru *DataSubjectRequestUpdate) sqlSave(ctx context.Context) (n int, err e
 		}
 		return 0, err
 	}
-	dsru.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DataSubjectRequestUpdateOne is the builder for updating a single DataSubjectRequest entity.
@@ -316,188 +316,188 @@ type DataSubjectRequestUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetTenantID(u uuid.UUID) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetTenantID(u)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetTenantID(v uuid.UUID) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableTenantID(u *uuid.UUID) *DataSubjectRequestUpdateOne {
-	if u != nil {
-		dsruo.SetTenantID(*u)
+func (_u *DataSubjectRequestUpdateOne) SetNillableTenantID(v *uuid.UUID) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetUserID(u uuid.UUID) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetUserID(u)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetUserID(v uuid.UUID) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableUserID(u *uuid.UUID) *DataSubjectRequestUpdateOne {
-	if u != nil {
-		dsruo.SetUserID(*u)
+func (_u *DataSubjectRequestUpdateOne) SetNillableUserID(v *uuid.UUID) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // SetRequestType sets the "request_type" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetRequestType(dt datasubjectrequest.RequestType) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetRequestType(dt)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetRequestType(v datasubjectrequest.RequestType) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetRequestType(v)
+	return _u
 }
 
 // SetNillableRequestType sets the "request_type" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableRequestType(dt *datasubjectrequest.RequestType) *DataSubjectRequestUpdateOne {
-	if dt != nil {
-		dsruo.SetRequestType(*dt)
+func (_u *DataSubjectRequestUpdateOne) SetNillableRequestType(v *datasubjectrequest.RequestType) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetRequestType(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetStatus(d datasubjectrequest.Status) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetStatus(d)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetStatus(v datasubjectrequest.Status) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableStatus(d *datasubjectrequest.Status) *DataSubjectRequestUpdateOne {
-	if d != nil {
-		dsruo.SetStatus(*d)
+func (_u *DataSubjectRequestUpdateOne) SetNillableStatus(v *datasubjectrequest.Status) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetDescription(s string) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetDescription(s)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetDescription(v string) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableDescription(s *string) *DataSubjectRequestUpdateOne {
-	if s != nil {
-		dsruo.SetDescription(*s)
+func (_u *DataSubjectRequestUpdateOne) SetNillableDescription(v *string) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (dsruo *DataSubjectRequestUpdateOne) ClearDescription() *DataSubjectRequestUpdateOne {
-	dsruo.mutation.ClearDescription()
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) ClearDescription() *DataSubjectRequestUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetNotes sets the "notes" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetNotes(s string) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetNotes(s)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetNotes(v string) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetNotes(v)
+	return _u
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableNotes(s *string) *DataSubjectRequestUpdateOne {
-	if s != nil {
-		dsruo.SetNotes(*s)
+func (_u *DataSubjectRequestUpdateOne) SetNillableNotes(v *string) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetNotes(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // ClearNotes clears the value of the "notes" field.
-func (dsruo *DataSubjectRequestUpdateOne) ClearNotes() *DataSubjectRequestUpdateOne {
-	dsruo.mutation.ClearNotes()
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) ClearNotes() *DataSubjectRequestUpdateOne {
+	_u.mutation.ClearNotes()
+	return _u
 }
 
 // SetResultURL sets the "result_url" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetResultURL(s string) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetResultURL(s)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetResultURL(v string) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetResultURL(v)
+	return _u
 }
 
 // SetNillableResultURL sets the "result_url" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableResultURL(s *string) *DataSubjectRequestUpdateOne {
-	if s != nil {
-		dsruo.SetResultURL(*s)
+func (_u *DataSubjectRequestUpdateOne) SetNillableResultURL(v *string) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetResultURL(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // ClearResultURL clears the value of the "result_url" field.
-func (dsruo *DataSubjectRequestUpdateOne) ClearResultURL() *DataSubjectRequestUpdateOne {
-	dsruo.mutation.ClearResultURL()
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) ClearResultURL() *DataSubjectRequestUpdateOne {
+	_u.mutation.ClearResultURL()
+	return _u
 }
 
 // SetSubmittedAt sets the "submitted_at" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetSubmittedAt(t time.Time) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetSubmittedAt(t)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetSubmittedAt(v time.Time) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetSubmittedAt(v)
+	return _u
 }
 
 // SetNillableSubmittedAt sets the "submitted_at" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableSubmittedAt(t *time.Time) *DataSubjectRequestUpdateOne {
-	if t != nil {
-		dsruo.SetSubmittedAt(*t)
+func (_u *DataSubjectRequestUpdateOne) SetNillableSubmittedAt(v *time.Time) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetSubmittedAt(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // SetProcessedAt sets the "processed_at" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetProcessedAt(t time.Time) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetProcessedAt(t)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetProcessedAt(v time.Time) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetProcessedAt(v)
+	return _u
 }
 
 // SetNillableProcessedAt sets the "processed_at" field if the given value is not nil.
-func (dsruo *DataSubjectRequestUpdateOne) SetNillableProcessedAt(t *time.Time) *DataSubjectRequestUpdateOne {
-	if t != nil {
-		dsruo.SetProcessedAt(*t)
+func (_u *DataSubjectRequestUpdateOne) SetNillableProcessedAt(v *time.Time) *DataSubjectRequestUpdateOne {
+	if v != nil {
+		_u.SetProcessedAt(*v)
 	}
-	return dsruo
+	return _u
 }
 
 // ClearProcessedAt clears the value of the "processed_at" field.
-func (dsruo *DataSubjectRequestUpdateOne) ClearProcessedAt() *DataSubjectRequestUpdateOne {
-	dsruo.mutation.ClearProcessedAt()
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) ClearProcessedAt() *DataSubjectRequestUpdateOne {
+	_u.mutation.ClearProcessedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dsruo *DataSubjectRequestUpdateOne) SetUpdatedAt(t time.Time) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.SetUpdatedAt(t)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) SetUpdatedAt(v time.Time) *DataSubjectRequestUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the DataSubjectRequestMutation object of the builder.
-func (dsruo *DataSubjectRequestUpdateOne) Mutation() *DataSubjectRequestMutation {
-	return dsruo.mutation
+func (_u *DataSubjectRequestUpdateOne) Mutation() *DataSubjectRequestMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the DataSubjectRequestUpdate builder.
-func (dsruo *DataSubjectRequestUpdateOne) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestUpdateOne {
-	dsruo.mutation.Where(ps...)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dsruo *DataSubjectRequestUpdateOne) Select(field string, fields ...string) *DataSubjectRequestUpdateOne {
-	dsruo.fields = append([]string{field}, fields...)
-	return dsruo
+func (_u *DataSubjectRequestUpdateOne) Select(field string, fields ...string) *DataSubjectRequestUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DataSubjectRequest entity.
-func (dsruo *DataSubjectRequestUpdateOne) Save(ctx context.Context) (*DataSubjectRequest, error) {
-	dsruo.defaults()
-	return withHooks(ctx, dsruo.sqlSave, dsruo.mutation, dsruo.hooks)
+func (_u *DataSubjectRequestUpdateOne) Save(ctx context.Context) (*DataSubjectRequest, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dsruo *DataSubjectRequestUpdateOne) SaveX(ctx context.Context) *DataSubjectRequest {
-	node, err := dsruo.Save(ctx)
+func (_u *DataSubjectRequestUpdateOne) SaveX(ctx context.Context) *DataSubjectRequest {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -505,34 +505,34 @@ func (dsruo *DataSubjectRequestUpdateOne) SaveX(ctx context.Context) *DataSubjec
 }
 
 // Exec executes the query on the entity.
-func (dsruo *DataSubjectRequestUpdateOne) Exec(ctx context.Context) error {
-	_, err := dsruo.Save(ctx)
+func (_u *DataSubjectRequestUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsruo *DataSubjectRequestUpdateOne) ExecX(ctx context.Context) {
-	if err := dsruo.Exec(ctx); err != nil {
+func (_u *DataSubjectRequestUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dsruo *DataSubjectRequestUpdateOne) defaults() {
-	if _, ok := dsruo.mutation.UpdatedAt(); !ok {
+func (_u *DataSubjectRequestUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := datasubjectrequest.UpdateDefaultUpdatedAt()
-		dsruo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dsruo *DataSubjectRequestUpdateOne) check() error {
-	if v, ok := dsruo.mutation.RequestType(); ok {
+func (_u *DataSubjectRequestUpdateOne) check() error {
+	if v, ok := _u.mutation.RequestType(); ok {
 		if err := datasubjectrequest.RequestTypeValidator(v); err != nil {
 			return &ValidationError{Name: "request_type", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.request_type": %w`, err)}
 		}
 	}
-	if v, ok := dsruo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := datasubjectrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.status": %w`, err)}
 		}
@@ -540,17 +540,17 @@ func (dsruo *DataSubjectRequestUpdateOne) check() error {
 	return nil
 }
 
-func (dsruo *DataSubjectRequestUpdateOne) sqlSave(ctx context.Context) (_node *DataSubjectRequest, err error) {
-	if err := dsruo.check(); err != nil {
+func (_u *DataSubjectRequestUpdateOne) sqlSave(ctx context.Context) (_node *DataSubjectRequest, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(datasubjectrequest.Table, datasubjectrequest.Columns, sqlgraph.NewFieldSpec(datasubjectrequest.FieldID, field.TypeUUID))
-	id, ok := dsruo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DataSubjectRequest.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dsruo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, datasubjectrequest.FieldID)
 		for _, f := range fields {
@@ -562,59 +562,59 @@ func (dsruo *DataSubjectRequestUpdateOne) sqlSave(ctx context.Context) (_node *D
 			}
 		}
 	}
-	if ps := dsruo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dsruo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(datasubjectrequest.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dsruo.mutation.UserID(); ok {
+	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(datasubjectrequest.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := dsruo.mutation.RequestType(); ok {
+	if value, ok := _u.mutation.RequestType(); ok {
 		_spec.SetField(datasubjectrequest.FieldRequestType, field.TypeEnum, value)
 	}
-	if value, ok := dsruo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(datasubjectrequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := dsruo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(datasubjectrequest.FieldDescription, field.TypeString, value)
 	}
-	if dsruo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(datasubjectrequest.FieldDescription, field.TypeString)
 	}
-	if value, ok := dsruo.mutation.Notes(); ok {
+	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(datasubjectrequest.FieldNotes, field.TypeString, value)
 	}
-	if dsruo.mutation.NotesCleared() {
+	if _u.mutation.NotesCleared() {
 		_spec.ClearField(datasubjectrequest.FieldNotes, field.TypeString)
 	}
-	if value, ok := dsruo.mutation.ResultURL(); ok {
+	if value, ok := _u.mutation.ResultURL(); ok {
 		_spec.SetField(datasubjectrequest.FieldResultURL, field.TypeString, value)
 	}
-	if dsruo.mutation.ResultURLCleared() {
+	if _u.mutation.ResultURLCleared() {
 		_spec.ClearField(datasubjectrequest.FieldResultURL, field.TypeString)
 	}
-	if value, ok := dsruo.mutation.SubmittedAt(); ok {
+	if value, ok := _u.mutation.SubmittedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldSubmittedAt, field.TypeTime, value)
 	}
-	if value, ok := dsruo.mutation.ProcessedAt(); ok {
+	if value, ok := _u.mutation.ProcessedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldProcessedAt, field.TypeTime, value)
 	}
-	if dsruo.mutation.ProcessedAtCleared() {
+	if _u.mutation.ProcessedAtCleared() {
 		_spec.ClearField(datasubjectrequest.FieldProcessedAt, field.TypeTime)
 	}
-	if value, ok := dsruo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_node = &DataSubjectRequest{config: dsruo.config}
+	_node = &DataSubjectRequest{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dsruo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{datasubjectrequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -622,6 +622,6 @@ func (dsruo *DataSubjectRequestUpdateOne) sqlSave(ctx context.Context) (_node *D
 		}
 		return nil, err
 	}
-	dsruo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

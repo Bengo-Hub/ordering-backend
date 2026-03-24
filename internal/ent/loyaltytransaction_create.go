@@ -26,124 +26,124 @@ type LoyaltyTransactionCreate struct {
 }
 
 // SetAccountID sets the "account_id" field.
-func (ltc *LoyaltyTransactionCreate) SetAccountID(u uuid.UUID) *LoyaltyTransactionCreate {
-	ltc.mutation.SetAccountID(u)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetAccountID(v uuid.UUID) *LoyaltyTransactionCreate {
+	_c.mutation.SetAccountID(v)
+	return _c
 }
 
 // SetOrderID sets the "order_id" field.
-func (ltc *LoyaltyTransactionCreate) SetOrderID(u uuid.UUID) *LoyaltyTransactionCreate {
-	ltc.mutation.SetOrderID(u)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetOrderID(v uuid.UUID) *LoyaltyTransactionCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (ltc *LoyaltyTransactionCreate) SetNillableOrderID(u *uuid.UUID) *LoyaltyTransactionCreate {
-	if u != nil {
-		ltc.SetOrderID(*u)
+func (_c *LoyaltyTransactionCreate) SetNillableOrderID(v *uuid.UUID) *LoyaltyTransactionCreate {
+	if v != nil {
+		_c.SetOrderID(*v)
 	}
-	return ltc
+	return _c
 }
 
 // SetPoints sets the "points" field.
-func (ltc *LoyaltyTransactionCreate) SetPoints(i int) *LoyaltyTransactionCreate {
-	ltc.mutation.SetPoints(i)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetPoints(v int) *LoyaltyTransactionCreate {
+	_c.mutation.SetPoints(v)
+	return _c
 }
 
 // SetBalanceAfter sets the "balance_after" field.
-func (ltc *LoyaltyTransactionCreate) SetBalanceAfter(i int) *LoyaltyTransactionCreate {
-	ltc.mutation.SetBalanceAfter(i)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetBalanceAfter(v int) *LoyaltyTransactionCreate {
+	_c.mutation.SetBalanceAfter(v)
+	return _c
 }
 
 // SetTransactionType sets the "transaction_type" field.
-func (ltc *LoyaltyTransactionCreate) SetTransactionType(lt loyaltytransaction.TransactionType) *LoyaltyTransactionCreate {
-	ltc.mutation.SetTransactionType(lt)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetTransactionType(v loyaltytransaction.TransactionType) *LoyaltyTransactionCreate {
+	_c.mutation.SetTransactionType(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (ltc *LoyaltyTransactionCreate) SetDescription(s string) *LoyaltyTransactionCreate {
-	ltc.mutation.SetDescription(s)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetDescription(v string) *LoyaltyTransactionCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ltc *LoyaltyTransactionCreate) SetNillableDescription(s *string) *LoyaltyTransactionCreate {
-	if s != nil {
-		ltc.SetDescription(*s)
+func (_c *LoyaltyTransactionCreate) SetNillableDescription(v *string) *LoyaltyTransactionCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return ltc
+	return _c
 }
 
 // SetReference sets the "reference" field.
-func (ltc *LoyaltyTransactionCreate) SetReference(s string) *LoyaltyTransactionCreate {
-	ltc.mutation.SetReference(s)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetReference(v string) *LoyaltyTransactionCreate {
+	_c.mutation.SetReference(v)
+	return _c
 }
 
 // SetNillableReference sets the "reference" field if the given value is not nil.
-func (ltc *LoyaltyTransactionCreate) SetNillableReference(s *string) *LoyaltyTransactionCreate {
-	if s != nil {
-		ltc.SetReference(*s)
+func (_c *LoyaltyTransactionCreate) SetNillableReference(v *string) *LoyaltyTransactionCreate {
+	if v != nil {
+		_c.SetReference(*v)
 	}
-	return ltc
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (ltc *LoyaltyTransactionCreate) SetMetadata(m map[string]interface{}) *LoyaltyTransactionCreate {
-	ltc.mutation.SetMetadata(m)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetMetadata(v map[string]interface{}) *LoyaltyTransactionCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetOccurredAt sets the "occurred_at" field.
-func (ltc *LoyaltyTransactionCreate) SetOccurredAt(t time.Time) *LoyaltyTransactionCreate {
-	ltc.mutation.SetOccurredAt(t)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetOccurredAt(v time.Time) *LoyaltyTransactionCreate {
+	_c.mutation.SetOccurredAt(v)
+	return _c
 }
 
 // SetNillableOccurredAt sets the "occurred_at" field if the given value is not nil.
-func (ltc *LoyaltyTransactionCreate) SetNillableOccurredAt(t *time.Time) *LoyaltyTransactionCreate {
-	if t != nil {
-		ltc.SetOccurredAt(*t)
+func (_c *LoyaltyTransactionCreate) SetNillableOccurredAt(v *time.Time) *LoyaltyTransactionCreate {
+	if v != nil {
+		_c.SetOccurredAt(*v)
 	}
-	return ltc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ltc *LoyaltyTransactionCreate) SetID(u uuid.UUID) *LoyaltyTransactionCreate {
-	ltc.mutation.SetID(u)
-	return ltc
+func (_c *LoyaltyTransactionCreate) SetID(v uuid.UUID) *LoyaltyTransactionCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (ltc *LoyaltyTransactionCreate) SetNillableID(u *uuid.UUID) *LoyaltyTransactionCreate {
-	if u != nil {
-		ltc.SetID(*u)
+func (_c *LoyaltyTransactionCreate) SetNillableID(v *uuid.UUID) *LoyaltyTransactionCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return ltc
+	return _c
 }
 
 // SetAccount sets the "account" edge to the LoyaltyAccount entity.
-func (ltc *LoyaltyTransactionCreate) SetAccount(l *LoyaltyAccount) *LoyaltyTransactionCreate {
-	return ltc.SetAccountID(l.ID)
+func (_c *LoyaltyTransactionCreate) SetAccount(v *LoyaltyAccount) *LoyaltyTransactionCreate {
+	return _c.SetAccountID(v.ID)
 }
 
 // Mutation returns the LoyaltyTransactionMutation object of the builder.
-func (ltc *LoyaltyTransactionCreate) Mutation() *LoyaltyTransactionMutation {
-	return ltc.mutation
+func (_c *LoyaltyTransactionCreate) Mutation() *LoyaltyTransactionMutation {
+	return _c.mutation
 }
 
 // Save creates the LoyaltyTransaction in the database.
-func (ltc *LoyaltyTransactionCreate) Save(ctx context.Context) (*LoyaltyTransaction, error) {
-	ltc.defaults()
-	return withHooks(ctx, ltc.sqlSave, ltc.mutation, ltc.hooks)
+func (_c *LoyaltyTransactionCreate) Save(ctx context.Context) (*LoyaltyTransaction, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ltc *LoyaltyTransactionCreate) SaveX(ctx context.Context) *LoyaltyTransaction {
-	v, err := ltc.Save(ctx)
+func (_c *LoyaltyTransactionCreate) SaveX(ctx context.Context) *LoyaltyTransaction {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -151,69 +151,69 @@ func (ltc *LoyaltyTransactionCreate) SaveX(ctx context.Context) *LoyaltyTransact
 }
 
 // Exec executes the query.
-func (ltc *LoyaltyTransactionCreate) Exec(ctx context.Context) error {
-	_, err := ltc.Save(ctx)
+func (_c *LoyaltyTransactionCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltc *LoyaltyTransactionCreate) ExecX(ctx context.Context) {
-	if err := ltc.Exec(ctx); err != nil {
+func (_c *LoyaltyTransactionCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ltc *LoyaltyTransactionCreate) defaults() {
-	if _, ok := ltc.mutation.OccurredAt(); !ok {
+func (_c *LoyaltyTransactionCreate) defaults() {
+	if _, ok := _c.mutation.OccurredAt(); !ok {
 		v := loyaltytransaction.DefaultOccurredAt()
-		ltc.mutation.SetOccurredAt(v)
+		_c.mutation.SetOccurredAt(v)
 	}
-	if _, ok := ltc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := loyaltytransaction.DefaultID()
-		ltc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltc *LoyaltyTransactionCreate) check() error {
-	if _, ok := ltc.mutation.AccountID(); !ok {
+func (_c *LoyaltyTransactionCreate) check() error {
+	if _, ok := _c.mutation.AccountID(); !ok {
 		return &ValidationError{Name: "account_id", err: errors.New(`ent: missing required field "LoyaltyTransaction.account_id"`)}
 	}
-	if _, ok := ltc.mutation.Points(); !ok {
+	if _, ok := _c.mutation.Points(); !ok {
 		return &ValidationError{Name: "points", err: errors.New(`ent: missing required field "LoyaltyTransaction.points"`)}
 	}
-	if _, ok := ltc.mutation.BalanceAfter(); !ok {
+	if _, ok := _c.mutation.BalanceAfter(); !ok {
 		return &ValidationError{Name: "balance_after", err: errors.New(`ent: missing required field "LoyaltyTransaction.balance_after"`)}
 	}
-	if _, ok := ltc.mutation.TransactionType(); !ok {
+	if _, ok := _c.mutation.TransactionType(); !ok {
 		return &ValidationError{Name: "transaction_type", err: errors.New(`ent: missing required field "LoyaltyTransaction.transaction_type"`)}
 	}
-	if v, ok := ltc.mutation.TransactionType(); ok {
+	if v, ok := _c.mutation.TransactionType(); ok {
 		if err := loyaltytransaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.transaction_type": %w`, err)}
 		}
 	}
-	if v, ok := ltc.mutation.Reference(); ok {
+	if v, ok := _c.mutation.Reference(); ok {
 		if err := loyaltytransaction.ReferenceValidator(v); err != nil {
 			return &ValidationError{Name: "reference", err: fmt.Errorf(`ent: validator failed for field "LoyaltyTransaction.reference": %w`, err)}
 		}
 	}
-	if _, ok := ltc.mutation.OccurredAt(); !ok {
+	if _, ok := _c.mutation.OccurredAt(); !ok {
 		return &ValidationError{Name: "occurred_at", err: errors.New(`ent: missing required field "LoyaltyTransaction.occurred_at"`)}
 	}
-	if _, ok := ltc.mutation.AccountID(); !ok {
+	if len(_c.mutation.AccountIDs()) == 0 {
 		return &ValidationError{Name: "account", err: errors.New(`ent: missing required edge "LoyaltyTransaction.account"`)}
 	}
 	return nil
 }
 
-func (ltc *LoyaltyTransactionCreate) sqlSave(ctx context.Context) (*LoyaltyTransaction, error) {
-	if err := ltc.check(); err != nil {
+func (_c *LoyaltyTransactionCreate) sqlSave(ctx context.Context) (*LoyaltyTransaction, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ltc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ltc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -226,54 +226,54 @@ func (ltc *LoyaltyTransactionCreate) sqlSave(ctx context.Context) (*LoyaltyTrans
 			return nil, err
 		}
 	}
-	ltc.mutation.id = &_node.ID
-	ltc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ltc *LoyaltyTransactionCreate) createSpec() (*LoyaltyTransaction, *sqlgraph.CreateSpec) {
+func (_c *LoyaltyTransactionCreate) createSpec() (*LoyaltyTransaction, *sqlgraph.CreateSpec) {
 	var (
-		_node = &LoyaltyTransaction{config: ltc.config}
+		_node = &LoyaltyTransaction{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(loyaltytransaction.Table, sqlgraph.NewFieldSpec(loyaltytransaction.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = ltc.conflict
-	if id, ok := ltc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := ltc.mutation.OrderID(); ok {
+	if value, ok := _c.mutation.OrderID(); ok {
 		_spec.SetField(loyaltytransaction.FieldOrderID, field.TypeUUID, value)
 		_node.OrderID = &value
 	}
-	if value, ok := ltc.mutation.Points(); ok {
+	if value, ok := _c.mutation.Points(); ok {
 		_spec.SetField(loyaltytransaction.FieldPoints, field.TypeInt, value)
 		_node.Points = value
 	}
-	if value, ok := ltc.mutation.BalanceAfter(); ok {
+	if value, ok := _c.mutation.BalanceAfter(); ok {
 		_spec.SetField(loyaltytransaction.FieldBalanceAfter, field.TypeInt, value)
 		_node.BalanceAfter = value
 	}
-	if value, ok := ltc.mutation.TransactionType(); ok {
+	if value, ok := _c.mutation.TransactionType(); ok {
 		_spec.SetField(loyaltytransaction.FieldTransactionType, field.TypeEnum, value)
 		_node.TransactionType = value
 	}
-	if value, ok := ltc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(loyaltytransaction.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := ltc.mutation.Reference(); ok {
+	if value, ok := _c.mutation.Reference(); ok {
 		_spec.SetField(loyaltytransaction.FieldReference, field.TypeString, value)
 		_node.Reference = value
 	}
-	if value, ok := ltc.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(loyaltytransaction.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := ltc.mutation.OccurredAt(); ok {
+	if value, ok := _c.mutation.OccurredAt(); ok {
 		_spec.SetField(loyaltytransaction.FieldOccurredAt, field.TypeTime, value)
 		_node.OccurredAt = value
 	}
-	if nodes := ltc.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.AccountIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -309,10 +309,10 @@ func (ltc *LoyaltyTransactionCreate) createSpec() (*LoyaltyTransaction, *sqlgrap
 //			SetAccountID(v+v).
 //		}).
 //		Exec(ctx)
-func (ltc *LoyaltyTransactionCreate) OnConflict(opts ...sql.ConflictOption) *LoyaltyTransactionUpsertOne {
-	ltc.conflict = opts
+func (_c *LoyaltyTransactionCreate) OnConflict(opts ...sql.ConflictOption) *LoyaltyTransactionUpsertOne {
+	_c.conflict = opts
 	return &LoyaltyTransactionUpsertOne{
-		create: ltc,
+		create: _c,
 	}
 }
 
@@ -322,10 +322,10 @@ func (ltc *LoyaltyTransactionCreate) OnConflict(opts ...sql.ConflictOption) *Loy
 //	client.LoyaltyTransaction.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ltc *LoyaltyTransactionCreate) OnConflictColumns(columns ...string) *LoyaltyTransactionUpsertOne {
-	ltc.conflict = append(ltc.conflict, sql.ConflictColumns(columns...))
+func (_c *LoyaltyTransactionCreate) OnConflictColumns(columns ...string) *LoyaltyTransactionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LoyaltyTransactionUpsertOne{
-		create: ltc,
+		create: _c,
 	}
 }
 
@@ -726,16 +726,16 @@ type LoyaltyTransactionCreateBulk struct {
 }
 
 // Save creates the LoyaltyTransaction entities in the database.
-func (ltcb *LoyaltyTransactionCreateBulk) Save(ctx context.Context) ([]*LoyaltyTransaction, error) {
-	if ltcb.err != nil {
-		return nil, ltcb.err
+func (_c *LoyaltyTransactionCreateBulk) Save(ctx context.Context) ([]*LoyaltyTransaction, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ltcb.builders))
-	nodes := make([]*LoyaltyTransaction, len(ltcb.builders))
-	mutators := make([]Mutator, len(ltcb.builders))
-	for i := range ltcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*LoyaltyTransaction, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ltcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LoyaltyTransactionMutation)
@@ -749,12 +749,12 @@ func (ltcb *LoyaltyTransactionCreateBulk) Save(ctx context.Context) ([]*LoyaltyT
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ltcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ltcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ltcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -774,7 +774,7 @@ func (ltcb *LoyaltyTransactionCreateBulk) Save(ctx context.Context) ([]*LoyaltyT
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ltcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -782,8 +782,8 @@ func (ltcb *LoyaltyTransactionCreateBulk) Save(ctx context.Context) ([]*LoyaltyT
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltcb *LoyaltyTransactionCreateBulk) SaveX(ctx context.Context) []*LoyaltyTransaction {
-	v, err := ltcb.Save(ctx)
+func (_c *LoyaltyTransactionCreateBulk) SaveX(ctx context.Context) []*LoyaltyTransaction {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -791,14 +791,14 @@ func (ltcb *LoyaltyTransactionCreateBulk) SaveX(ctx context.Context) []*LoyaltyT
 }
 
 // Exec executes the query.
-func (ltcb *LoyaltyTransactionCreateBulk) Exec(ctx context.Context) error {
-	_, err := ltcb.Save(ctx)
+func (_c *LoyaltyTransactionCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltcb *LoyaltyTransactionCreateBulk) ExecX(ctx context.Context) {
-	if err := ltcb.Exec(ctx); err != nil {
+func (_c *LoyaltyTransactionCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -818,10 +818,10 @@ func (ltcb *LoyaltyTransactionCreateBulk) ExecX(ctx context.Context) {
 //			SetAccountID(v+v).
 //		}).
 //		Exec(ctx)
-func (ltcb *LoyaltyTransactionCreateBulk) OnConflict(opts ...sql.ConflictOption) *LoyaltyTransactionUpsertBulk {
-	ltcb.conflict = opts
+func (_c *LoyaltyTransactionCreateBulk) OnConflict(opts ...sql.ConflictOption) *LoyaltyTransactionUpsertBulk {
+	_c.conflict = opts
 	return &LoyaltyTransactionUpsertBulk{
-		create: ltcb,
+		create: _c,
 	}
 }
 
@@ -831,10 +831,10 @@ func (ltcb *LoyaltyTransactionCreateBulk) OnConflict(opts ...sql.ConflictOption)
 //	client.LoyaltyTransaction.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ltcb *LoyaltyTransactionCreateBulk) OnConflictColumns(columns ...string) *LoyaltyTransactionUpsertBulk {
-	ltcb.conflict = append(ltcb.conflict, sql.ConflictColumns(columns...))
+func (_c *LoyaltyTransactionCreateBulk) OnConflictColumns(columns ...string) *LoyaltyTransactionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LoyaltyTransactionUpsertBulk{
-		create: ltcb,
+		create: _c,
 	}
 }
 

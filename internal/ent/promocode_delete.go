@@ -20,56 +20,56 @@ type PromoCodeDelete struct {
 }
 
 // Where appends a list predicates to the PromoCodeDelete builder.
-func (pcd *PromoCodeDelete) Where(ps ...predicate.PromoCode) *PromoCodeDelete {
-	pcd.mutation.Where(ps...)
-	return pcd
+func (_d *PromoCodeDelete) Where(ps ...predicate.PromoCode) *PromoCodeDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (pcd *PromoCodeDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, pcd.sqlExec, pcd.mutation, pcd.hooks)
+func (_d *PromoCodeDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcd *PromoCodeDelete) ExecX(ctx context.Context) int {
-	n, err := pcd.Exec(ctx)
+func (_d *PromoCodeDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (pcd *PromoCodeDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *PromoCodeDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(promocode.Table, sqlgraph.NewFieldSpec(promocode.FieldID, field.TypeUUID))
-	if ps := pcd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, pcd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	pcd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // PromoCodeDeleteOne is the builder for deleting a single PromoCode entity.
 type PromoCodeDeleteOne struct {
-	pcd *PromoCodeDelete
+	_d *PromoCodeDelete
 }
 
 // Where appends a list predicates to the PromoCodeDelete builder.
-func (pcdo *PromoCodeDeleteOne) Where(ps ...predicate.PromoCode) *PromoCodeDeleteOne {
-	pcdo.pcd.mutation.Where(ps...)
-	return pcdo
+func (_d *PromoCodeDeleteOne) Where(ps ...predicate.PromoCode) *PromoCodeDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (pcdo *PromoCodeDeleteOne) Exec(ctx context.Context) error {
-	n, err := pcdo.pcd.Exec(ctx)
+func (_d *PromoCodeDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (pcdo *PromoCodeDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcdo *PromoCodeDeleteOne) ExecX(ctx context.Context) {
-	if err := pcdo.Exec(ctx); err != nil {
+func (_d *PromoCodeDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

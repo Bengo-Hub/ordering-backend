@@ -68,11 +68,14 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Tenant branding (logo, colors, contact info) is owned by auth-api.
+	// This endpoint returns only locally-available fields (name, slug) plus
+	// ordering-specific settings (features). Branding data should be fetched
+	// from auth-api GET /api/v1/tenants/by-slug/{slug} by the frontend and
+	// cached in TanStack Query with JWT TTL.
 	resp := PublicConfigResponse{
-		Name:         t.Name,
-		ShortName:    t.Slug,
-		SupportEmail: t.ContactEmail,
-		SupportPhone: t.ContactPhone,
+		Name:      t.Name,
+		ShortName: t.Slug,
 	}
 	if resp.Name == "" {
 		resp.Name = t.Slug
@@ -81,30 +84,9 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		resp.ShortName = resp.Name
 	}
 
-	// Logo from tenant metadata if present
-	if t.Metadata != nil {
-		if v, ok := t.Metadata["logo_url"].(string); ok && v != "" {
-			resp.LogoURL = v
-		}
-	}
-
-	// Brand palette and features from settings
+	// Ordering-specific features from settings (service-owned data)
 	if t.Edges.Settings != nil {
 		st := t.Edges.Settings
-		if st.BrandPalette != nil {
-			resp.BrandPalette = make(map[string]string)
-			for k, v := range st.BrandPalette {
-				if s, ok := v.(string); ok {
-					resp.BrandPalette[k] = s
-				}
-			}
-			if c, ok := resp.BrandPalette["primary"]; ok {
-				resp.PrimaryColor = c
-			}
-			if c, ok := resp.BrandPalette["secondary"]; ok {
-				resp.SecondaryColor = c
-			}
-		}
 		if st.Features != nil {
 			resp.Features = make(map[string]bool)
 			for k, v := range st.Features {

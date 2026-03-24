@@ -63,8 +63,6 @@ const (
 	EdgeAddresses = "addresses"
 	// EdgeLoyaltyAccount holds the string denoting the loyalty_account edge name in mutations.
 	EdgeLoyaltyAccount = "loyalty_account"
-	// EdgeFavoriteItems holds the string denoting the favorite_items edge name in mutations.
-	EdgeFavoriteItems = "favorite_items"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -121,11 +119,6 @@ const (
 	LoyaltyAccountInverseTable = "loyalty_accounts"
 	// LoyaltyAccountColumn is the table column denoting the loyalty_account relation/edge.
 	LoyaltyAccountColumn = "user_id"
-	// FavoriteItemsTable is the table that holds the favorite_items relation/edge. The primary key declared below.
-	FavoriteItemsTable = "user_favorite_items"
-	// FavoriteItemsInverseTable is the table name for the CatalogItem entity.
-	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
-	FavoriteItemsInverseTable = "catalog_items"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -153,9 +146,6 @@ var (
 	// RolesPrimaryKey and RolesColumn2 are the table columns denoting the
 	// primary key for the roles relation (M2M).
 	RolesPrimaryKey = []string{"user_id", "role_id"}
-	// FavoriteItemsPrimaryKey and FavoriteItemsColumn2 are the table columns denoting the
-	// primary key for the favorite_items relation (M2M).
-	FavoriteItemsPrimaryKey = []string{"user_id", "catalog_item_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -359,20 +349,6 @@ func ByLoyaltyAccountField(field string, opts ...sql.OrderTermOption) OrderOptio
 		sqlgraph.OrderByNeighborTerms(s, newLoyaltyAccountStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByFavoriteItemsCount orders the results by favorite_items count.
-func ByFavoriteItemsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newFavoriteItemsStep(), opts...)
-	}
-}
-
-// ByFavoriteItems orders the results by favorite_items terms.
-func ByFavoriteItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newFavoriteItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newTenantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -427,12 +403,5 @@ func newLoyaltyAccountStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LoyaltyAccountInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, LoyaltyAccountTable, LoyaltyAccountColumn),
-	)
-}
-func newFavoriteItemsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(FavoriteItemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, FavoriteItemsTable, FavoriteItemsPrimaryKey...),
 	)
 }

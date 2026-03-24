@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -32,44 +33,44 @@ type UserRoleAssignmentQuery struct {
 }
 
 // Where adds a new predicate for the UserRoleAssignmentQuery builder.
-func (uraq *UserRoleAssignmentQuery) Where(ps ...predicate.UserRoleAssignment) *UserRoleAssignmentQuery {
-	uraq.predicates = append(uraq.predicates, ps...)
-	return uraq
+func (_q *UserRoleAssignmentQuery) Where(ps ...predicate.UserRoleAssignment) *UserRoleAssignmentQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (uraq *UserRoleAssignmentQuery) Limit(limit int) *UserRoleAssignmentQuery {
-	uraq.ctx.Limit = &limit
-	return uraq
+func (_q *UserRoleAssignmentQuery) Limit(limit int) *UserRoleAssignmentQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (uraq *UserRoleAssignmentQuery) Offset(offset int) *UserRoleAssignmentQuery {
-	uraq.ctx.Offset = &offset
-	return uraq
+func (_q *UserRoleAssignmentQuery) Offset(offset int) *UserRoleAssignmentQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (uraq *UserRoleAssignmentQuery) Unique(unique bool) *UserRoleAssignmentQuery {
-	uraq.ctx.Unique = &unique
-	return uraq
+func (_q *UserRoleAssignmentQuery) Unique(unique bool) *UserRoleAssignmentQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (uraq *UserRoleAssignmentQuery) Order(o ...userroleassignment.OrderOption) *UserRoleAssignmentQuery {
-	uraq.order = append(uraq.order, o...)
-	return uraq
+func (_q *UserRoleAssignmentQuery) Order(o ...userroleassignment.OrderOption) *UserRoleAssignmentQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryUser chains the current query on the "user" edge.
-func (uraq *UserRoleAssignmentQuery) QueryUser() *UserQuery {
-	query := (&UserClient{config: uraq.config}).Query()
+func (_q *UserRoleAssignmentQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uraq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := uraq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -78,20 +79,20 @@ func (uraq *UserRoleAssignmentQuery) QueryUser() *UserQuery {
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, userroleassignment.UserTable, userroleassignment.UserColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(uraq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryRole chains the current query on the "role" edge.
-func (uraq *UserRoleAssignmentQuery) QueryRole() *OrderingRoleQuery {
-	query := (&OrderingRoleClient{config: uraq.config}).Query()
+func (_q *UserRoleAssignmentQuery) QueryRole() *OrderingRoleQuery {
+	query := (&OrderingRoleClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uraq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := uraq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -100,7 +101,7 @@ func (uraq *UserRoleAssignmentQuery) QueryRole() *OrderingRoleQuery {
 			sqlgraph.To(orderingrole.Table, orderingrole.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, userroleassignment.RoleTable, userroleassignment.RoleColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(uraq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -108,8 +109,8 @@ func (uraq *UserRoleAssignmentQuery) QueryRole() *OrderingRoleQuery {
 
 // First returns the first UserRoleAssignment entity from the query.
 // Returns a *NotFoundError when no UserRoleAssignment was found.
-func (uraq *UserRoleAssignmentQuery) First(ctx context.Context) (*UserRoleAssignment, error) {
-	nodes, err := uraq.Limit(1).All(setContextOp(ctx, uraq.ctx, "First"))
+func (_q *UserRoleAssignmentQuery) First(ctx context.Context) (*UserRoleAssignment, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -120,8 +121,8 @@ func (uraq *UserRoleAssignmentQuery) First(ctx context.Context) (*UserRoleAssign
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) FirstX(ctx context.Context) *UserRoleAssignment {
-	node, err := uraq.First(ctx)
+func (_q *UserRoleAssignmentQuery) FirstX(ctx context.Context) *UserRoleAssignment {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -130,9 +131,9 @@ func (uraq *UserRoleAssignmentQuery) FirstX(ctx context.Context) *UserRoleAssign
 
 // FirstID returns the first UserRoleAssignment ID from the query.
 // Returns a *NotFoundError when no UserRoleAssignment ID was found.
-func (uraq *UserRoleAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *UserRoleAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = uraq.Limit(1).IDs(setContextOp(ctx, uraq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -143,8 +144,8 @@ func (uraq *UserRoleAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID,
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := uraq.FirstID(ctx)
+func (_q *UserRoleAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -154,8 +155,8 @@ func (uraq *UserRoleAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single UserRoleAssignment entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one UserRoleAssignment entity is found.
 // Returns a *NotFoundError when no UserRoleAssignment entities are found.
-func (uraq *UserRoleAssignmentQuery) Only(ctx context.Context) (*UserRoleAssignment, error) {
-	nodes, err := uraq.Limit(2).All(setContextOp(ctx, uraq.ctx, "Only"))
+func (_q *UserRoleAssignmentQuery) Only(ctx context.Context) (*UserRoleAssignment, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -170,8 +171,8 @@ func (uraq *UserRoleAssignmentQuery) Only(ctx context.Context) (*UserRoleAssignm
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) OnlyX(ctx context.Context) *UserRoleAssignment {
-	node, err := uraq.Only(ctx)
+func (_q *UserRoleAssignmentQuery) OnlyX(ctx context.Context) *UserRoleAssignment {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -181,9 +182,9 @@ func (uraq *UserRoleAssignmentQuery) OnlyX(ctx context.Context) *UserRoleAssignm
 // OnlyID is like Only, but returns the only UserRoleAssignment ID in the query.
 // Returns a *NotSingularError when more than one UserRoleAssignment ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (uraq *UserRoleAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *UserRoleAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = uraq.Limit(2).IDs(setContextOp(ctx, uraq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -198,8 +199,8 @@ func (uraq *UserRoleAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := uraq.OnlyID(ctx)
+func (_q *UserRoleAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -207,18 +208,18 @@ func (uraq *UserRoleAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of UserRoleAssignments.
-func (uraq *UserRoleAssignmentQuery) All(ctx context.Context) ([]*UserRoleAssignment, error) {
-	ctx = setContextOp(ctx, uraq.ctx, "All")
-	if err := uraq.prepareQuery(ctx); err != nil {
+func (_q *UserRoleAssignmentQuery) All(ctx context.Context) ([]*UserRoleAssignment, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*UserRoleAssignment, *UserRoleAssignmentQuery]()
-	return withInterceptors[[]*UserRoleAssignment](ctx, uraq, qr, uraq.inters)
+	return withInterceptors[[]*UserRoleAssignment](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) AllX(ctx context.Context) []*UserRoleAssignment {
-	nodes, err := uraq.All(ctx)
+func (_q *UserRoleAssignmentQuery) AllX(ctx context.Context) []*UserRoleAssignment {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -226,20 +227,20 @@ func (uraq *UserRoleAssignmentQuery) AllX(ctx context.Context) []*UserRoleAssign
 }
 
 // IDs executes the query and returns a list of UserRoleAssignment IDs.
-func (uraq *UserRoleAssignmentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if uraq.ctx.Unique == nil && uraq.path != nil {
-		uraq.Unique(true)
+func (_q *UserRoleAssignmentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, uraq.ctx, "IDs")
-	if err = uraq.Select(userroleassignment.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(userroleassignment.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := uraq.IDs(ctx)
+func (_q *UserRoleAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -247,17 +248,17 @@ func (uraq *UserRoleAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (uraq *UserRoleAssignmentQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, uraq.ctx, "Count")
-	if err := uraq.prepareQuery(ctx); err != nil {
+func (_q *UserRoleAssignmentQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, uraq, querierCount[*UserRoleAssignmentQuery](), uraq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*UserRoleAssignmentQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) CountX(ctx context.Context) int {
-	count, err := uraq.Count(ctx)
+func (_q *UserRoleAssignmentQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -265,9 +266,9 @@ func (uraq *UserRoleAssignmentQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (uraq *UserRoleAssignmentQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, uraq.ctx, "Exist")
-	switch _, err := uraq.FirstID(ctx); {
+func (_q *UserRoleAssignmentQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -278,8 +279,8 @@ func (uraq *UserRoleAssignmentQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (uraq *UserRoleAssignmentQuery) ExistX(ctx context.Context) bool {
-	exist, err := uraq.Exist(ctx)
+func (_q *UserRoleAssignmentQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -288,44 +289,44 @@ func (uraq *UserRoleAssignmentQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the UserRoleAssignmentQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (uraq *UserRoleAssignmentQuery) Clone() *UserRoleAssignmentQuery {
-	if uraq == nil {
+func (_q *UserRoleAssignmentQuery) Clone() *UserRoleAssignmentQuery {
+	if _q == nil {
 		return nil
 	}
 	return &UserRoleAssignmentQuery{
-		config:     uraq.config,
-		ctx:        uraq.ctx.Clone(),
-		order:      append([]userroleassignment.OrderOption{}, uraq.order...),
-		inters:     append([]Interceptor{}, uraq.inters...),
-		predicates: append([]predicate.UserRoleAssignment{}, uraq.predicates...),
-		withUser:   uraq.withUser.Clone(),
-		withRole:   uraq.withRole.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]userroleassignment.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.UserRoleAssignment{}, _q.predicates...),
+		withUser:   _q.withUser.Clone(),
+		withRole:   _q.withRole.Clone(),
 		// clone intermediate query.
-		sql:  uraq.sql.Clone(),
-		path: uraq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithUser tells the query-builder to eager-load the nodes that are connected to
 // the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (uraq *UserRoleAssignmentQuery) WithUser(opts ...func(*UserQuery)) *UserRoleAssignmentQuery {
-	query := (&UserClient{config: uraq.config}).Query()
+func (_q *UserRoleAssignmentQuery) WithUser(opts ...func(*UserQuery)) *UserRoleAssignmentQuery {
+	query := (&UserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uraq.withUser = query
-	return uraq
+	_q.withUser = query
+	return _q
 }
 
 // WithRole tells the query-builder to eager-load the nodes that are connected to
 // the "role" edge. The optional arguments are used to configure the query builder of the edge.
-func (uraq *UserRoleAssignmentQuery) WithRole(opts ...func(*OrderingRoleQuery)) *UserRoleAssignmentQuery {
-	query := (&OrderingRoleClient{config: uraq.config}).Query()
+func (_q *UserRoleAssignmentQuery) WithRole(opts ...func(*OrderingRoleQuery)) *UserRoleAssignmentQuery {
+	query := (&OrderingRoleClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uraq.withRole = query
-	return uraq
+	_q.withRole = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -342,10 +343,10 @@ func (uraq *UserRoleAssignmentQuery) WithRole(opts ...func(*OrderingRoleQuery)) 
 //		GroupBy(userroleassignment.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (uraq *UserRoleAssignmentQuery) GroupBy(field string, fields ...string) *UserRoleAssignmentGroupBy {
-	uraq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &UserRoleAssignmentGroupBy{build: uraq}
-	grbuild.flds = &uraq.ctx.Fields
+func (_q *UserRoleAssignmentQuery) GroupBy(field string, fields ...string) *UserRoleAssignmentGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &UserRoleAssignmentGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = userroleassignment.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -363,59 +364,59 @@ func (uraq *UserRoleAssignmentQuery) GroupBy(field string, fields ...string) *Us
 //	client.UserRoleAssignment.Query().
 //		Select(userroleassignment.FieldTenantID).
 //		Scan(ctx, &v)
-func (uraq *UserRoleAssignmentQuery) Select(fields ...string) *UserRoleAssignmentSelect {
-	uraq.ctx.Fields = append(uraq.ctx.Fields, fields...)
-	sbuild := &UserRoleAssignmentSelect{UserRoleAssignmentQuery: uraq}
+func (_q *UserRoleAssignmentQuery) Select(fields ...string) *UserRoleAssignmentSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &UserRoleAssignmentSelect{UserRoleAssignmentQuery: _q}
 	sbuild.label = userroleassignment.Label
-	sbuild.flds, sbuild.scan = &uraq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a UserRoleAssignmentSelect configured with the given aggregations.
-func (uraq *UserRoleAssignmentQuery) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentSelect {
-	return uraq.Select().Aggregate(fns...)
+func (_q *UserRoleAssignmentQuery) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (uraq *UserRoleAssignmentQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range uraq.inters {
+func (_q *UserRoleAssignmentQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, uraq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range uraq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !userroleassignment.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if uraq.path != nil {
-		prev, err := uraq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		uraq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (uraq *UserRoleAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserRoleAssignment, error) {
+func (_q *UserRoleAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserRoleAssignment, error) {
 	var (
 		nodes       = []*UserRoleAssignment{}
-		_spec       = uraq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			uraq.withUser != nil,
-			uraq.withRole != nil,
+			_q.withUser != nil,
+			_q.withRole != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*UserRoleAssignment).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &UserRoleAssignment{config: uraq.config}
+		node := &UserRoleAssignment{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -423,20 +424,20 @@ func (uraq *UserRoleAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryH
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, uraq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := uraq.withUser; query != nil {
-		if err := uraq.loadUser(ctx, query, nodes, nil,
+	if query := _q.withUser; query != nil {
+		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *UserRoleAssignment, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := uraq.withRole; query != nil {
-		if err := uraq.loadRole(ctx, query, nodes, nil,
+	if query := _q.withRole; query != nil {
+		if err := _q.loadRole(ctx, query, nodes, nil,
 			func(n *UserRoleAssignment, e *OrderingRole) { n.Edges.Role = e }); err != nil {
 			return nil, err
 		}
@@ -444,7 +445,7 @@ func (uraq *UserRoleAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryH
 	return nodes, nil
 }
 
-func (uraq *UserRoleAssignmentQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserRoleAssignment, init func(*UserRoleAssignment), assign func(*UserRoleAssignment, *User)) error {
+func (_q *UserRoleAssignmentQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserRoleAssignment, init func(*UserRoleAssignment), assign func(*UserRoleAssignment, *User)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*UserRoleAssignment)
 	for i := range nodes {
@@ -473,7 +474,7 @@ func (uraq *UserRoleAssignmentQuery) loadUser(ctx context.Context, query *UserQu
 	}
 	return nil
 }
-func (uraq *UserRoleAssignmentQuery) loadRole(ctx context.Context, query *OrderingRoleQuery, nodes []*UserRoleAssignment, init func(*UserRoleAssignment), assign func(*UserRoleAssignment, *OrderingRole)) error {
+func (_q *UserRoleAssignmentQuery) loadRole(ctx context.Context, query *OrderingRoleQuery, nodes []*UserRoleAssignment, init func(*UserRoleAssignment), assign func(*UserRoleAssignment, *OrderingRole)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*UserRoleAssignment)
 	for i := range nodes {
@@ -503,24 +504,24 @@ func (uraq *UserRoleAssignmentQuery) loadRole(ctx context.Context, query *Orderi
 	return nil
 }
 
-func (uraq *UserRoleAssignmentQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := uraq.querySpec()
-	_spec.Node.Columns = uraq.ctx.Fields
-	if len(uraq.ctx.Fields) > 0 {
-		_spec.Unique = uraq.ctx.Unique != nil && *uraq.ctx.Unique
+func (_q *UserRoleAssignmentQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, uraq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (uraq *UserRoleAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *UserRoleAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(userroleassignment.Table, userroleassignment.Columns, sqlgraph.NewFieldSpec(userroleassignment.FieldID, field.TypeUUID))
-	_spec.From = uraq.sql
-	if unique := uraq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if uraq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := uraq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, userroleassignment.FieldID)
 		for i := range fields {
@@ -528,27 +529,27 @@ func (uraq *UserRoleAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if uraq.withUser != nil {
+		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(userroleassignment.FieldUserID)
 		}
-		if uraq.withRole != nil {
+		if _q.withRole != nil {
 			_spec.Node.AddColumnOnce(userroleassignment.FieldRoleID)
 		}
 	}
-	if ps := uraq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := uraq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := uraq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := uraq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -558,33 +559,33 @@ func (uraq *UserRoleAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (uraq *UserRoleAssignmentQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(uraq.driver.Dialect())
+func (_q *UserRoleAssignmentQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(userroleassignment.Table)
-	columns := uraq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = userroleassignment.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if uraq.sql != nil {
-		selector = uraq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if uraq.ctx.Unique != nil && *uraq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range uraq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range uraq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := uraq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := uraq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -597,41 +598,41 @@ type UserRoleAssignmentGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (uragb *UserRoleAssignmentGroupBy) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentGroupBy {
-	uragb.fns = append(uragb.fns, fns...)
-	return uragb
+func (_g *UserRoleAssignmentGroupBy) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (uragb *UserRoleAssignmentGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, uragb.build.ctx, "GroupBy")
-	if err := uragb.build.prepareQuery(ctx); err != nil {
+func (_g *UserRoleAssignmentGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*UserRoleAssignmentQuery, *UserRoleAssignmentGroupBy](ctx, uragb.build, uragb, uragb.build.inters, v)
+	return scanWithInterceptors[*UserRoleAssignmentQuery, *UserRoleAssignmentGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (uragb *UserRoleAssignmentGroupBy) sqlScan(ctx context.Context, root *UserRoleAssignmentQuery, v any) error {
+func (_g *UserRoleAssignmentGroupBy) sqlScan(ctx context.Context, root *UserRoleAssignmentQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(uragb.fns))
-	for _, fn := range uragb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*uragb.flds)+len(uragb.fns))
-		for _, f := range *uragb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*uragb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := uragb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -645,27 +646,27 @@ type UserRoleAssignmentSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (uras *UserRoleAssignmentSelect) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentSelect {
-	uras.fns = append(uras.fns, fns...)
-	return uras
+func (_s *UserRoleAssignmentSelect) Aggregate(fns ...AggregateFunc) *UserRoleAssignmentSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (uras *UserRoleAssignmentSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, uras.ctx, "Select")
-	if err := uras.prepareQuery(ctx); err != nil {
+func (_s *UserRoleAssignmentSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*UserRoleAssignmentQuery, *UserRoleAssignmentSelect](ctx, uras.UserRoleAssignmentQuery, uras, uras.inters, v)
+	return scanWithInterceptors[*UserRoleAssignmentQuery, *UserRoleAssignmentSelect](ctx, _s.UserRoleAssignmentQuery, _s, _s.inters, v)
 }
 
-func (uras *UserRoleAssignmentSelect) sqlScan(ctx context.Context, root *UserRoleAssignmentQuery, v any) error {
+func (_s *UserRoleAssignmentSelect) sqlScan(ctx context.Context, root *UserRoleAssignmentQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(uras.fns))
-	for _, fn := range uras.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*uras.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -673,7 +674,7 @@ func (uras *UserRoleAssignmentSelect) sqlScan(ctx context.Context, root *UserRol
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := uras.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

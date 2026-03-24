@@ -24,222 +24,222 @@ type SLAMetricUpdate struct {
 }
 
 // Where appends a list predicates to the SLAMetricUpdate builder.
-func (smu *SLAMetricUpdate) Where(ps ...predicate.SLAMetric) *SLAMetricUpdate {
-	smu.mutation.Where(ps...)
-	return smu
+func (_u *SLAMetricUpdate) Where(ps ...predicate.SLAMetric) *SLAMetricUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (smu *SLAMetricUpdate) SetTenantID(u uuid.UUID) *SLAMetricUpdate {
-	smu.mutation.SetTenantID(u)
-	return smu
+func (_u *SLAMetricUpdate) SetTenantID(v uuid.UUID) *SLAMetricUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableTenantID(u *uuid.UUID) *SLAMetricUpdate {
-	if u != nil {
-		smu.SetTenantID(*u)
+func (_u *SLAMetricUpdate) SetNillableTenantID(v *uuid.UUID) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (smu *SLAMetricUpdate) SetOrderID(u uuid.UUID) *SLAMetricUpdate {
-	smu.mutation.SetOrderID(u)
-	return smu
+func (_u *SLAMetricUpdate) SetOrderID(v uuid.UUID) *SLAMetricUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableOrderID(u *uuid.UUID) *SLAMetricUpdate {
-	if u != nil {
-		smu.SetOrderID(*u)
+func (_u *SLAMetricUpdate) SetNillableOrderID(v *uuid.UUID) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetMetricType sets the "metric_type" field.
-func (smu *SLAMetricUpdate) SetMetricType(st slametric.MetricType) *SLAMetricUpdate {
-	smu.mutation.SetMetricType(st)
-	return smu
+func (_u *SLAMetricUpdate) SetMetricType(v slametric.MetricType) *SLAMetricUpdate {
+	_u.mutation.SetMetricType(v)
+	return _u
 }
 
 // SetNillableMetricType sets the "metric_type" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableMetricType(st *slametric.MetricType) *SLAMetricUpdate {
-	if st != nil {
-		smu.SetMetricType(*st)
+func (_u *SLAMetricUpdate) SetNillableMetricType(v *slametric.MetricType) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetMetricType(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetTargetSeconds sets the "target_seconds" field.
-func (smu *SLAMetricUpdate) SetTargetSeconds(i int) *SLAMetricUpdate {
-	smu.mutation.ResetTargetSeconds()
-	smu.mutation.SetTargetSeconds(i)
-	return smu
+func (_u *SLAMetricUpdate) SetTargetSeconds(v int) *SLAMetricUpdate {
+	_u.mutation.ResetTargetSeconds()
+	_u.mutation.SetTargetSeconds(v)
+	return _u
 }
 
 // SetNillableTargetSeconds sets the "target_seconds" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableTargetSeconds(i *int) *SLAMetricUpdate {
-	if i != nil {
-		smu.SetTargetSeconds(*i)
+func (_u *SLAMetricUpdate) SetNillableTargetSeconds(v *int) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetTargetSeconds(*v)
 	}
-	return smu
+	return _u
 }
 
-// AddTargetSeconds adds i to the "target_seconds" field.
-func (smu *SLAMetricUpdate) AddTargetSeconds(i int) *SLAMetricUpdate {
-	smu.mutation.AddTargetSeconds(i)
-	return smu
+// AddTargetSeconds adds value to the "target_seconds" field.
+func (_u *SLAMetricUpdate) AddTargetSeconds(v int) *SLAMetricUpdate {
+	_u.mutation.AddTargetSeconds(v)
+	return _u
 }
 
 // SetActualSeconds sets the "actual_seconds" field.
-func (smu *SLAMetricUpdate) SetActualSeconds(i int) *SLAMetricUpdate {
-	smu.mutation.ResetActualSeconds()
-	smu.mutation.SetActualSeconds(i)
-	return smu
+func (_u *SLAMetricUpdate) SetActualSeconds(v int) *SLAMetricUpdate {
+	_u.mutation.ResetActualSeconds()
+	_u.mutation.SetActualSeconds(v)
+	return _u
 }
 
 // SetNillableActualSeconds sets the "actual_seconds" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableActualSeconds(i *int) *SLAMetricUpdate {
-	if i != nil {
-		smu.SetActualSeconds(*i)
+func (_u *SLAMetricUpdate) SetNillableActualSeconds(v *int) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetActualSeconds(*v)
 	}
-	return smu
+	return _u
 }
 
-// AddActualSeconds adds i to the "actual_seconds" field.
-func (smu *SLAMetricUpdate) AddActualSeconds(i int) *SLAMetricUpdate {
-	smu.mutation.AddActualSeconds(i)
-	return smu
+// AddActualSeconds adds value to the "actual_seconds" field.
+func (_u *SLAMetricUpdate) AddActualSeconds(v int) *SLAMetricUpdate {
+	_u.mutation.AddActualSeconds(v)
+	return _u
 }
 
 // ClearActualSeconds clears the value of the "actual_seconds" field.
-func (smu *SLAMetricUpdate) ClearActualSeconds() *SLAMetricUpdate {
-	smu.mutation.ClearActualSeconds()
-	return smu
+func (_u *SLAMetricUpdate) ClearActualSeconds() *SLAMetricUpdate {
+	_u.mutation.ClearActualSeconds()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (smu *SLAMetricUpdate) SetStatus(s slametric.Status) *SLAMetricUpdate {
-	smu.mutation.SetStatus(s)
-	return smu
+func (_u *SLAMetricUpdate) SetStatus(v slametric.Status) *SLAMetricUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableStatus(s *slametric.Status) *SLAMetricUpdate {
-	if s != nil {
-		smu.SetStatus(*s)
+func (_u *SLAMetricUpdate) SetNillableStatus(v *slametric.Status) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetBreachPercentage sets the "breach_percentage" field.
-func (smu *SLAMetricUpdate) SetBreachPercentage(f float64) *SLAMetricUpdate {
-	smu.mutation.ResetBreachPercentage()
-	smu.mutation.SetBreachPercentage(f)
-	return smu
+func (_u *SLAMetricUpdate) SetBreachPercentage(v float64) *SLAMetricUpdate {
+	_u.mutation.ResetBreachPercentage()
+	_u.mutation.SetBreachPercentage(v)
+	return _u
 }
 
 // SetNillableBreachPercentage sets the "breach_percentage" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableBreachPercentage(f *float64) *SLAMetricUpdate {
-	if f != nil {
-		smu.SetBreachPercentage(*f)
+func (_u *SLAMetricUpdate) SetNillableBreachPercentage(v *float64) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetBreachPercentage(*v)
 	}
-	return smu
+	return _u
 }
 
-// AddBreachPercentage adds f to the "breach_percentage" field.
-func (smu *SLAMetricUpdate) AddBreachPercentage(f float64) *SLAMetricUpdate {
-	smu.mutation.AddBreachPercentage(f)
-	return smu
+// AddBreachPercentage adds value to the "breach_percentage" field.
+func (_u *SLAMetricUpdate) AddBreachPercentage(v float64) *SLAMetricUpdate {
+	_u.mutation.AddBreachPercentage(v)
+	return _u
 }
 
 // ClearBreachPercentage clears the value of the "breach_percentage" field.
-func (smu *SLAMetricUpdate) ClearBreachPercentage() *SLAMetricUpdate {
-	smu.mutation.ClearBreachPercentage()
-	return smu
+func (_u *SLAMetricUpdate) ClearBreachPercentage() *SLAMetricUpdate {
+	_u.mutation.ClearBreachPercentage()
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (smu *SLAMetricUpdate) SetStartedAt(t time.Time) *SLAMetricUpdate {
-	smu.mutation.SetStartedAt(t)
-	return smu
+func (_u *SLAMetricUpdate) SetStartedAt(v time.Time) *SLAMetricUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableStartedAt(t *time.Time) *SLAMetricUpdate {
-	if t != nil {
-		smu.SetStartedAt(*t)
+func (_u *SLAMetricUpdate) SetNillableStartedAt(v *time.Time) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetEndedAt sets the "ended_at" field.
-func (smu *SLAMetricUpdate) SetEndedAt(t time.Time) *SLAMetricUpdate {
-	smu.mutation.SetEndedAt(t)
-	return smu
+func (_u *SLAMetricUpdate) SetEndedAt(v time.Time) *SLAMetricUpdate {
+	_u.mutation.SetEndedAt(v)
+	return _u
 }
 
 // SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableEndedAt(t *time.Time) *SLAMetricUpdate {
-	if t != nil {
-		smu.SetEndedAt(*t)
+func (_u *SLAMetricUpdate) SetNillableEndedAt(v *time.Time) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetEndedAt(*v)
 	}
-	return smu
+	return _u
 }
 
 // ClearEndedAt clears the value of the "ended_at" field.
-func (smu *SLAMetricUpdate) ClearEndedAt() *SLAMetricUpdate {
-	smu.mutation.ClearEndedAt()
-	return smu
+func (_u *SLAMetricUpdate) ClearEndedAt() *SLAMetricUpdate {
+	_u.mutation.ClearEndedAt()
+	return _u
 }
 
 // SetMeasuredAt sets the "measured_at" field.
-func (smu *SLAMetricUpdate) SetMeasuredAt(t time.Time) *SLAMetricUpdate {
-	smu.mutation.SetMeasuredAt(t)
-	return smu
+func (_u *SLAMetricUpdate) SetMeasuredAt(v time.Time) *SLAMetricUpdate {
+	_u.mutation.SetMeasuredAt(v)
+	return _u
 }
 
 // SetNillableMeasuredAt sets the "measured_at" field if the given value is not nil.
-func (smu *SLAMetricUpdate) SetNillableMeasuredAt(t *time.Time) *SLAMetricUpdate {
-	if t != nil {
-		smu.SetMeasuredAt(*t)
+func (_u *SLAMetricUpdate) SetNillableMeasuredAt(v *time.Time) *SLAMetricUpdate {
+	if v != nil {
+		_u.SetMeasuredAt(*v)
 	}
-	return smu
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (smu *SLAMetricUpdate) SetMetadata(m map[string]interface{}) *SLAMetricUpdate {
-	smu.mutation.SetMetadata(m)
-	return smu
+func (_u *SLAMetricUpdate) SetMetadata(v map[string]interface{}) *SLAMetricUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (smu *SLAMetricUpdate) ClearMetadata() *SLAMetricUpdate {
-	smu.mutation.ClearMetadata()
-	return smu
+func (_u *SLAMetricUpdate) ClearMetadata() *SLAMetricUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (smu *SLAMetricUpdate) SetUpdatedAt(t time.Time) *SLAMetricUpdate {
-	smu.mutation.SetUpdatedAt(t)
-	return smu
+func (_u *SLAMetricUpdate) SetUpdatedAt(v time.Time) *SLAMetricUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the SLAMetricMutation object of the builder.
-func (smu *SLAMetricUpdate) Mutation() *SLAMetricMutation {
-	return smu.mutation
+func (_u *SLAMetricUpdate) Mutation() *SLAMetricMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (smu *SLAMetricUpdate) Save(ctx context.Context) (int, error) {
-	smu.defaults()
-	return withHooks(ctx, smu.sqlSave, smu.mutation, smu.hooks)
+func (_u *SLAMetricUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (smu *SLAMetricUpdate) SaveX(ctx context.Context) int {
-	affected, err := smu.Save(ctx)
+func (_u *SLAMetricUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -247,34 +247,34 @@ func (smu *SLAMetricUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (smu *SLAMetricUpdate) Exec(ctx context.Context) error {
-	_, err := smu.Save(ctx)
+func (_u *SLAMetricUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (smu *SLAMetricUpdate) ExecX(ctx context.Context) {
-	if err := smu.Exec(ctx); err != nil {
+func (_u *SLAMetricUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (smu *SLAMetricUpdate) defaults() {
-	if _, ok := smu.mutation.UpdatedAt(); !ok {
+func (_u *SLAMetricUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := slametric.UpdateDefaultUpdatedAt()
-		smu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (smu *SLAMetricUpdate) check() error {
-	if v, ok := smu.mutation.MetricType(); ok {
+func (_u *SLAMetricUpdate) check() error {
+	if v, ok := _u.mutation.MetricType(); ok {
 		if err := slametric.MetricTypeValidator(v); err != nil {
 			return &ValidationError{Name: "metric_type", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.metric_type": %w`, err)}
 		}
 	}
-	if v, ok := smu.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := slametric.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.status": %w`, err)}
 		}
@@ -282,76 +282,76 @@ func (smu *SLAMetricUpdate) check() error {
 	return nil
 }
 
-func (smu *SLAMetricUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := smu.check(); err != nil {
-		return n, err
+func (_u *SLAMetricUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(slametric.Table, slametric.Columns, sqlgraph.NewFieldSpec(slametric.FieldID, field.TypeUUID))
-	if ps := smu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := smu.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(slametric.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := smu.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(slametric.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := smu.mutation.MetricType(); ok {
+	if value, ok := _u.mutation.MetricType(); ok {
 		_spec.SetField(slametric.FieldMetricType, field.TypeEnum, value)
 	}
-	if value, ok := smu.mutation.TargetSeconds(); ok {
+	if value, ok := _u.mutation.TargetSeconds(); ok {
 		_spec.SetField(slametric.FieldTargetSeconds, field.TypeInt, value)
 	}
-	if value, ok := smu.mutation.AddedTargetSeconds(); ok {
+	if value, ok := _u.mutation.AddedTargetSeconds(); ok {
 		_spec.AddField(slametric.FieldTargetSeconds, field.TypeInt, value)
 	}
-	if value, ok := smu.mutation.ActualSeconds(); ok {
+	if value, ok := _u.mutation.ActualSeconds(); ok {
 		_spec.SetField(slametric.FieldActualSeconds, field.TypeInt, value)
 	}
-	if value, ok := smu.mutation.AddedActualSeconds(); ok {
+	if value, ok := _u.mutation.AddedActualSeconds(); ok {
 		_spec.AddField(slametric.FieldActualSeconds, field.TypeInt, value)
 	}
-	if smu.mutation.ActualSecondsCleared() {
+	if _u.mutation.ActualSecondsCleared() {
 		_spec.ClearField(slametric.FieldActualSeconds, field.TypeInt)
 	}
-	if value, ok := smu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(slametric.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := smu.mutation.BreachPercentage(); ok {
+	if value, ok := _u.mutation.BreachPercentage(); ok {
 		_spec.SetField(slametric.FieldBreachPercentage, field.TypeFloat64, value)
 	}
-	if value, ok := smu.mutation.AddedBreachPercentage(); ok {
+	if value, ok := _u.mutation.AddedBreachPercentage(); ok {
 		_spec.AddField(slametric.FieldBreachPercentage, field.TypeFloat64, value)
 	}
-	if smu.mutation.BreachPercentageCleared() {
+	if _u.mutation.BreachPercentageCleared() {
 		_spec.ClearField(slametric.FieldBreachPercentage, field.TypeFloat64)
 	}
-	if value, ok := smu.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(slametric.FieldStartedAt, field.TypeTime, value)
 	}
-	if value, ok := smu.mutation.EndedAt(); ok {
+	if value, ok := _u.mutation.EndedAt(); ok {
 		_spec.SetField(slametric.FieldEndedAt, field.TypeTime, value)
 	}
-	if smu.mutation.EndedAtCleared() {
+	if _u.mutation.EndedAtCleared() {
 		_spec.ClearField(slametric.FieldEndedAt, field.TypeTime)
 	}
-	if value, ok := smu.mutation.MeasuredAt(); ok {
+	if value, ok := _u.mutation.MeasuredAt(); ok {
 		_spec.SetField(slametric.FieldMeasuredAt, field.TypeTime, value)
 	}
-	if value, ok := smu.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(slametric.FieldMetadata, field.TypeJSON, value)
 	}
-	if smu.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(slametric.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := smu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(slametric.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, smu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{slametric.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -359,8 +359,8 @@ func (smu *SLAMetricUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	smu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // SLAMetricUpdateOne is the builder for updating a single SLAMetric entity.
@@ -372,229 +372,229 @@ type SLAMetricUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (smuo *SLAMetricUpdateOne) SetTenantID(u uuid.UUID) *SLAMetricUpdateOne {
-	smuo.mutation.SetTenantID(u)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetTenantID(v uuid.UUID) *SLAMetricUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableTenantID(u *uuid.UUID) *SLAMetricUpdateOne {
-	if u != nil {
-		smuo.SetTenantID(*u)
+func (_u *SLAMetricUpdateOne) SetNillableTenantID(v *uuid.UUID) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (smuo *SLAMetricUpdateOne) SetOrderID(u uuid.UUID) *SLAMetricUpdateOne {
-	smuo.mutation.SetOrderID(u)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetOrderID(v uuid.UUID) *SLAMetricUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableOrderID(u *uuid.UUID) *SLAMetricUpdateOne {
-	if u != nil {
-		smuo.SetOrderID(*u)
+func (_u *SLAMetricUpdateOne) SetNillableOrderID(v *uuid.UUID) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetMetricType sets the "metric_type" field.
-func (smuo *SLAMetricUpdateOne) SetMetricType(st slametric.MetricType) *SLAMetricUpdateOne {
-	smuo.mutation.SetMetricType(st)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetMetricType(v slametric.MetricType) *SLAMetricUpdateOne {
+	_u.mutation.SetMetricType(v)
+	return _u
 }
 
 // SetNillableMetricType sets the "metric_type" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableMetricType(st *slametric.MetricType) *SLAMetricUpdateOne {
-	if st != nil {
-		smuo.SetMetricType(*st)
+func (_u *SLAMetricUpdateOne) SetNillableMetricType(v *slametric.MetricType) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetMetricType(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetTargetSeconds sets the "target_seconds" field.
-func (smuo *SLAMetricUpdateOne) SetTargetSeconds(i int) *SLAMetricUpdateOne {
-	smuo.mutation.ResetTargetSeconds()
-	smuo.mutation.SetTargetSeconds(i)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetTargetSeconds(v int) *SLAMetricUpdateOne {
+	_u.mutation.ResetTargetSeconds()
+	_u.mutation.SetTargetSeconds(v)
+	return _u
 }
 
 // SetNillableTargetSeconds sets the "target_seconds" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableTargetSeconds(i *int) *SLAMetricUpdateOne {
-	if i != nil {
-		smuo.SetTargetSeconds(*i)
+func (_u *SLAMetricUpdateOne) SetNillableTargetSeconds(v *int) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetTargetSeconds(*v)
 	}
-	return smuo
+	return _u
 }
 
-// AddTargetSeconds adds i to the "target_seconds" field.
-func (smuo *SLAMetricUpdateOne) AddTargetSeconds(i int) *SLAMetricUpdateOne {
-	smuo.mutation.AddTargetSeconds(i)
-	return smuo
+// AddTargetSeconds adds value to the "target_seconds" field.
+func (_u *SLAMetricUpdateOne) AddTargetSeconds(v int) *SLAMetricUpdateOne {
+	_u.mutation.AddTargetSeconds(v)
+	return _u
 }
 
 // SetActualSeconds sets the "actual_seconds" field.
-func (smuo *SLAMetricUpdateOne) SetActualSeconds(i int) *SLAMetricUpdateOne {
-	smuo.mutation.ResetActualSeconds()
-	smuo.mutation.SetActualSeconds(i)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetActualSeconds(v int) *SLAMetricUpdateOne {
+	_u.mutation.ResetActualSeconds()
+	_u.mutation.SetActualSeconds(v)
+	return _u
 }
 
 // SetNillableActualSeconds sets the "actual_seconds" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableActualSeconds(i *int) *SLAMetricUpdateOne {
-	if i != nil {
-		smuo.SetActualSeconds(*i)
+func (_u *SLAMetricUpdateOne) SetNillableActualSeconds(v *int) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetActualSeconds(*v)
 	}
-	return smuo
+	return _u
 }
 
-// AddActualSeconds adds i to the "actual_seconds" field.
-func (smuo *SLAMetricUpdateOne) AddActualSeconds(i int) *SLAMetricUpdateOne {
-	smuo.mutation.AddActualSeconds(i)
-	return smuo
+// AddActualSeconds adds value to the "actual_seconds" field.
+func (_u *SLAMetricUpdateOne) AddActualSeconds(v int) *SLAMetricUpdateOne {
+	_u.mutation.AddActualSeconds(v)
+	return _u
 }
 
 // ClearActualSeconds clears the value of the "actual_seconds" field.
-func (smuo *SLAMetricUpdateOne) ClearActualSeconds() *SLAMetricUpdateOne {
-	smuo.mutation.ClearActualSeconds()
-	return smuo
+func (_u *SLAMetricUpdateOne) ClearActualSeconds() *SLAMetricUpdateOne {
+	_u.mutation.ClearActualSeconds()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (smuo *SLAMetricUpdateOne) SetStatus(s slametric.Status) *SLAMetricUpdateOne {
-	smuo.mutation.SetStatus(s)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetStatus(v slametric.Status) *SLAMetricUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableStatus(s *slametric.Status) *SLAMetricUpdateOne {
-	if s != nil {
-		smuo.SetStatus(*s)
+func (_u *SLAMetricUpdateOne) SetNillableStatus(v *slametric.Status) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetBreachPercentage sets the "breach_percentage" field.
-func (smuo *SLAMetricUpdateOne) SetBreachPercentage(f float64) *SLAMetricUpdateOne {
-	smuo.mutation.ResetBreachPercentage()
-	smuo.mutation.SetBreachPercentage(f)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetBreachPercentage(v float64) *SLAMetricUpdateOne {
+	_u.mutation.ResetBreachPercentage()
+	_u.mutation.SetBreachPercentage(v)
+	return _u
 }
 
 // SetNillableBreachPercentage sets the "breach_percentage" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableBreachPercentage(f *float64) *SLAMetricUpdateOne {
-	if f != nil {
-		smuo.SetBreachPercentage(*f)
+func (_u *SLAMetricUpdateOne) SetNillableBreachPercentage(v *float64) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetBreachPercentage(*v)
 	}
-	return smuo
+	return _u
 }
 
-// AddBreachPercentage adds f to the "breach_percentage" field.
-func (smuo *SLAMetricUpdateOne) AddBreachPercentage(f float64) *SLAMetricUpdateOne {
-	smuo.mutation.AddBreachPercentage(f)
-	return smuo
+// AddBreachPercentage adds value to the "breach_percentage" field.
+func (_u *SLAMetricUpdateOne) AddBreachPercentage(v float64) *SLAMetricUpdateOne {
+	_u.mutation.AddBreachPercentage(v)
+	return _u
 }
 
 // ClearBreachPercentage clears the value of the "breach_percentage" field.
-func (smuo *SLAMetricUpdateOne) ClearBreachPercentage() *SLAMetricUpdateOne {
-	smuo.mutation.ClearBreachPercentage()
-	return smuo
+func (_u *SLAMetricUpdateOne) ClearBreachPercentage() *SLAMetricUpdateOne {
+	_u.mutation.ClearBreachPercentage()
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (smuo *SLAMetricUpdateOne) SetStartedAt(t time.Time) *SLAMetricUpdateOne {
-	smuo.mutation.SetStartedAt(t)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetStartedAt(v time.Time) *SLAMetricUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableStartedAt(t *time.Time) *SLAMetricUpdateOne {
-	if t != nil {
-		smuo.SetStartedAt(*t)
+func (_u *SLAMetricUpdateOne) SetNillableStartedAt(v *time.Time) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetEndedAt sets the "ended_at" field.
-func (smuo *SLAMetricUpdateOne) SetEndedAt(t time.Time) *SLAMetricUpdateOne {
-	smuo.mutation.SetEndedAt(t)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetEndedAt(v time.Time) *SLAMetricUpdateOne {
+	_u.mutation.SetEndedAt(v)
+	return _u
 }
 
 // SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableEndedAt(t *time.Time) *SLAMetricUpdateOne {
-	if t != nil {
-		smuo.SetEndedAt(*t)
+func (_u *SLAMetricUpdateOne) SetNillableEndedAt(v *time.Time) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetEndedAt(*v)
 	}
-	return smuo
+	return _u
 }
 
 // ClearEndedAt clears the value of the "ended_at" field.
-func (smuo *SLAMetricUpdateOne) ClearEndedAt() *SLAMetricUpdateOne {
-	smuo.mutation.ClearEndedAt()
-	return smuo
+func (_u *SLAMetricUpdateOne) ClearEndedAt() *SLAMetricUpdateOne {
+	_u.mutation.ClearEndedAt()
+	return _u
 }
 
 // SetMeasuredAt sets the "measured_at" field.
-func (smuo *SLAMetricUpdateOne) SetMeasuredAt(t time.Time) *SLAMetricUpdateOne {
-	smuo.mutation.SetMeasuredAt(t)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetMeasuredAt(v time.Time) *SLAMetricUpdateOne {
+	_u.mutation.SetMeasuredAt(v)
+	return _u
 }
 
 // SetNillableMeasuredAt sets the "measured_at" field if the given value is not nil.
-func (smuo *SLAMetricUpdateOne) SetNillableMeasuredAt(t *time.Time) *SLAMetricUpdateOne {
-	if t != nil {
-		smuo.SetMeasuredAt(*t)
+func (_u *SLAMetricUpdateOne) SetNillableMeasuredAt(v *time.Time) *SLAMetricUpdateOne {
+	if v != nil {
+		_u.SetMeasuredAt(*v)
 	}
-	return smuo
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (smuo *SLAMetricUpdateOne) SetMetadata(m map[string]interface{}) *SLAMetricUpdateOne {
-	smuo.mutation.SetMetadata(m)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetMetadata(v map[string]interface{}) *SLAMetricUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (smuo *SLAMetricUpdateOne) ClearMetadata() *SLAMetricUpdateOne {
-	smuo.mutation.ClearMetadata()
-	return smuo
+func (_u *SLAMetricUpdateOne) ClearMetadata() *SLAMetricUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (smuo *SLAMetricUpdateOne) SetUpdatedAt(t time.Time) *SLAMetricUpdateOne {
-	smuo.mutation.SetUpdatedAt(t)
-	return smuo
+func (_u *SLAMetricUpdateOne) SetUpdatedAt(v time.Time) *SLAMetricUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the SLAMetricMutation object of the builder.
-func (smuo *SLAMetricUpdateOne) Mutation() *SLAMetricMutation {
-	return smuo.mutation
+func (_u *SLAMetricUpdateOne) Mutation() *SLAMetricMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the SLAMetricUpdate builder.
-func (smuo *SLAMetricUpdateOne) Where(ps ...predicate.SLAMetric) *SLAMetricUpdateOne {
-	smuo.mutation.Where(ps...)
-	return smuo
+func (_u *SLAMetricUpdateOne) Where(ps ...predicate.SLAMetric) *SLAMetricUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (smuo *SLAMetricUpdateOne) Select(field string, fields ...string) *SLAMetricUpdateOne {
-	smuo.fields = append([]string{field}, fields...)
-	return smuo
+func (_u *SLAMetricUpdateOne) Select(field string, fields ...string) *SLAMetricUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated SLAMetric entity.
-func (smuo *SLAMetricUpdateOne) Save(ctx context.Context) (*SLAMetric, error) {
-	smuo.defaults()
-	return withHooks(ctx, smuo.sqlSave, smuo.mutation, smuo.hooks)
+func (_u *SLAMetricUpdateOne) Save(ctx context.Context) (*SLAMetric, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (smuo *SLAMetricUpdateOne) SaveX(ctx context.Context) *SLAMetric {
-	node, err := smuo.Save(ctx)
+func (_u *SLAMetricUpdateOne) SaveX(ctx context.Context) *SLAMetric {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -602,34 +602,34 @@ func (smuo *SLAMetricUpdateOne) SaveX(ctx context.Context) *SLAMetric {
 }
 
 // Exec executes the query on the entity.
-func (smuo *SLAMetricUpdateOne) Exec(ctx context.Context) error {
-	_, err := smuo.Save(ctx)
+func (_u *SLAMetricUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (smuo *SLAMetricUpdateOne) ExecX(ctx context.Context) {
-	if err := smuo.Exec(ctx); err != nil {
+func (_u *SLAMetricUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (smuo *SLAMetricUpdateOne) defaults() {
-	if _, ok := smuo.mutation.UpdatedAt(); !ok {
+func (_u *SLAMetricUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := slametric.UpdateDefaultUpdatedAt()
-		smuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (smuo *SLAMetricUpdateOne) check() error {
-	if v, ok := smuo.mutation.MetricType(); ok {
+func (_u *SLAMetricUpdateOne) check() error {
+	if v, ok := _u.mutation.MetricType(); ok {
 		if err := slametric.MetricTypeValidator(v); err != nil {
 			return &ValidationError{Name: "metric_type", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.metric_type": %w`, err)}
 		}
 	}
-	if v, ok := smuo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := slametric.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "SLAMetric.status": %w`, err)}
 		}
@@ -637,17 +637,17 @@ func (smuo *SLAMetricUpdateOne) check() error {
 	return nil
 }
 
-func (smuo *SLAMetricUpdateOne) sqlSave(ctx context.Context) (_node *SLAMetric, err error) {
-	if err := smuo.check(); err != nil {
+func (_u *SLAMetricUpdateOne) sqlSave(ctx context.Context) (_node *SLAMetric, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(slametric.Table, slametric.Columns, sqlgraph.NewFieldSpec(slametric.FieldID, field.TypeUUID))
-	id, ok := smuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "SLAMetric.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := smuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, slametric.FieldID)
 		for _, f := range fields {
@@ -659,74 +659,74 @@ func (smuo *SLAMetricUpdateOne) sqlSave(ctx context.Context) (_node *SLAMetric, 
 			}
 		}
 	}
-	if ps := smuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := smuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(slametric.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := smuo.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(slametric.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := smuo.mutation.MetricType(); ok {
+	if value, ok := _u.mutation.MetricType(); ok {
 		_spec.SetField(slametric.FieldMetricType, field.TypeEnum, value)
 	}
-	if value, ok := smuo.mutation.TargetSeconds(); ok {
+	if value, ok := _u.mutation.TargetSeconds(); ok {
 		_spec.SetField(slametric.FieldTargetSeconds, field.TypeInt, value)
 	}
-	if value, ok := smuo.mutation.AddedTargetSeconds(); ok {
+	if value, ok := _u.mutation.AddedTargetSeconds(); ok {
 		_spec.AddField(slametric.FieldTargetSeconds, field.TypeInt, value)
 	}
-	if value, ok := smuo.mutation.ActualSeconds(); ok {
+	if value, ok := _u.mutation.ActualSeconds(); ok {
 		_spec.SetField(slametric.FieldActualSeconds, field.TypeInt, value)
 	}
-	if value, ok := smuo.mutation.AddedActualSeconds(); ok {
+	if value, ok := _u.mutation.AddedActualSeconds(); ok {
 		_spec.AddField(slametric.FieldActualSeconds, field.TypeInt, value)
 	}
-	if smuo.mutation.ActualSecondsCleared() {
+	if _u.mutation.ActualSecondsCleared() {
 		_spec.ClearField(slametric.FieldActualSeconds, field.TypeInt)
 	}
-	if value, ok := smuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(slametric.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := smuo.mutation.BreachPercentage(); ok {
+	if value, ok := _u.mutation.BreachPercentage(); ok {
 		_spec.SetField(slametric.FieldBreachPercentage, field.TypeFloat64, value)
 	}
-	if value, ok := smuo.mutation.AddedBreachPercentage(); ok {
+	if value, ok := _u.mutation.AddedBreachPercentage(); ok {
 		_spec.AddField(slametric.FieldBreachPercentage, field.TypeFloat64, value)
 	}
-	if smuo.mutation.BreachPercentageCleared() {
+	if _u.mutation.BreachPercentageCleared() {
 		_spec.ClearField(slametric.FieldBreachPercentage, field.TypeFloat64)
 	}
-	if value, ok := smuo.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(slametric.FieldStartedAt, field.TypeTime, value)
 	}
-	if value, ok := smuo.mutation.EndedAt(); ok {
+	if value, ok := _u.mutation.EndedAt(); ok {
 		_spec.SetField(slametric.FieldEndedAt, field.TypeTime, value)
 	}
-	if smuo.mutation.EndedAtCleared() {
+	if _u.mutation.EndedAtCleared() {
 		_spec.ClearField(slametric.FieldEndedAt, field.TypeTime)
 	}
-	if value, ok := smuo.mutation.MeasuredAt(); ok {
+	if value, ok := _u.mutation.MeasuredAt(); ok {
 		_spec.SetField(slametric.FieldMeasuredAt, field.TypeTime, value)
 	}
-	if value, ok := smuo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(slametric.FieldMetadata, field.TypeJSON, value)
 	}
-	if smuo.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(slametric.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := smuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(slametric.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_node = &SLAMetric{config: smuo.config}
+	_node = &SLAMetric{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, smuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{slametric.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -734,6 +734,6 @@ func (smuo *SLAMetricUpdateOne) sqlSave(ctx context.Context) (_node *SLAMetric, 
 		}
 		return nil, err
 	}
-	smuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

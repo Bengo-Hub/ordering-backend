@@ -100,7 +100,7 @@ func (*OrderingRole) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OrderingRole fields.
-func (or *OrderingRole) assignValues(columns []string, values []any) error {
+func (_m *OrderingRole) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -110,52 +110,52 @@ func (or *OrderingRole) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				or.ID = *value
+				_m.ID = *value
 			}
 		case orderingrole.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				or.TenantID = *value
+				_m.TenantID = *value
 			}
 		case orderingrole.FieldRoleCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field role_code", values[i])
 			} else if value.Valid {
-				or.RoleCode = value.String
+				_m.RoleCode = value.String
 			}
 		case orderingrole.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				or.Name = value.String
+				_m.Name = value.String
 			}
 		case orderingrole.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				or.Description = value.String
+				_m.Description = value.String
 			}
 		case orderingrole.FieldIsSystemRole:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_system_role", values[i])
 			} else if value.Valid {
-				or.IsSystemRole = value.Bool
+				_m.IsSystemRole = value.Bool
 			}
 		case orderingrole.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				or.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case orderingrole.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				or.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			or.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -163,68 +163,68 @@ func (or *OrderingRole) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the OrderingRole.
 // This includes values selected through modifiers, order, etc.
-func (or *OrderingRole) Value(name string) (ent.Value, error) {
-	return or.selectValues.Get(name)
+func (_m *OrderingRole) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryPermissions queries the "permissions" edge of the OrderingRole entity.
-func (or *OrderingRole) QueryPermissions() *OrderingPermissionQuery {
-	return NewOrderingRoleClient(or.config).QueryPermissions(or)
+func (_m *OrderingRole) QueryPermissions() *OrderingPermissionQuery {
+	return NewOrderingRoleClient(_m.config).QueryPermissions(_m)
 }
 
 // QueryUserAssignments queries the "user_assignments" edge of the OrderingRole entity.
-func (or *OrderingRole) QueryUserAssignments() *UserRoleAssignmentQuery {
-	return NewOrderingRoleClient(or.config).QueryUserAssignments(or)
+func (_m *OrderingRole) QueryUserAssignments() *UserRoleAssignmentQuery {
+	return NewOrderingRoleClient(_m.config).QueryUserAssignments(_m)
 }
 
 // QueryRolePermissions queries the "role_permissions" edge of the OrderingRole entity.
-func (or *OrderingRole) QueryRolePermissions() *RolePermissionQuery {
-	return NewOrderingRoleClient(or.config).QueryRolePermissions(or)
+func (_m *OrderingRole) QueryRolePermissions() *RolePermissionQuery {
+	return NewOrderingRoleClient(_m.config).QueryRolePermissions(_m)
 }
 
 // Update returns a builder for updating this OrderingRole.
 // Note that you need to call OrderingRole.Unwrap() before calling this method if this OrderingRole
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (or *OrderingRole) Update() *OrderingRoleUpdateOne {
-	return NewOrderingRoleClient(or.config).UpdateOne(or)
+func (_m *OrderingRole) Update() *OrderingRoleUpdateOne {
+	return NewOrderingRoleClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OrderingRole entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (or *OrderingRole) Unwrap() *OrderingRole {
-	_tx, ok := or.config.driver.(*txDriver)
+func (_m *OrderingRole) Unwrap() *OrderingRole {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OrderingRole is not a transactional entity")
 	}
-	or.config.driver = _tx.drv
-	return or
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (or *OrderingRole) String() string {
+func (_m *OrderingRole) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderingRole(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", or.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", or.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("role_code=")
-	builder.WriteString(or.RoleCode)
+	builder.WriteString(_m.RoleCode)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(or.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(or.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("is_system_role=")
-	builder.WriteString(fmt.Sprintf("%v", or.IsSystemRole))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsSystemRole))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(or.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(or.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

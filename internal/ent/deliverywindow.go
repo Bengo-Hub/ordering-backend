@@ -102,7 +102,7 @@ func (*DeliveryWindow) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DeliveryWindow fields.
-func (dw *DeliveryWindow) assignValues(columns []string, values []any) error {
+func (_m *DeliveryWindow) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -112,83 +112,83 @@ func (dw *DeliveryWindow) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dw.ID = *value
+				_m.ID = *value
 			}
 		case deliverywindow.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				dw.TenantID = *value
+				_m.TenantID = *value
 			}
 		case deliverywindow.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				dw.OrderID = *value
+				_m.OrderID = *value
 			}
 		case deliverywindow.FieldAssignmentID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field assignment_id", values[i])
 			} else if value != nil {
-				dw.AssignmentID = *value
+				_m.AssignmentID = *value
 			}
 		case deliverywindow.FieldEtaStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field eta_start", values[i])
 			} else if value.Valid {
-				dw.EtaStart = value.Time
+				_m.EtaStart = value.Time
 			}
 		case deliverywindow.FieldEtaEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field eta_end", values[i])
 			} else if value.Valid {
-				dw.EtaEnd = value.Time
+				_m.EtaEnd = value.Time
 			}
 		case deliverywindow.FieldEtaMinutes:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field eta_minutes", values[i])
 			} else if value.Valid {
-				dw.EtaMinutes = new(int)
-				*dw.EtaMinutes = int(value.Int64)
+				_m.EtaMinutes = new(int)
+				*_m.EtaMinutes = int(value.Int64)
 			}
 		case deliverywindow.FieldDistanceKm:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field distance_km", values[i])
 			} else if value.Valid {
-				dw.DistanceKm = new(float64)
-				*dw.DistanceKm = value.Float64
+				_m.DistanceKm = new(float64)
+				*_m.DistanceKm = value.Float64
 			}
 		case deliverywindow.FieldActualArrival:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field actual_arrival", values[i])
 			} else if value.Valid {
-				dw.ActualArrival = new(time.Time)
-				*dw.ActualArrival = value.Time
+				_m.ActualArrival = new(time.Time)
+				*_m.ActualArrival = value.Time
 			}
 		case deliverywindow.FieldActualDropoff:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field actual_dropoff", values[i])
 			} else if value.Valid {
-				dw.ActualDropoff = new(time.Time)
-				*dw.ActualDropoff = value.Time
+				_m.ActualDropoff = new(time.Time)
+				*_m.ActualDropoff = value.Time
 			}
 		case deliverywindow.FieldSource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
-				dw.Source = value.String
+				_m.Source = value.String
 			}
 		case deliverywindow.FieldIsCurrent:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_current", values[i])
 			} else if value.Valid {
-				dw.IsCurrent = value.Bool
+				_m.IsCurrent = value.Bool
 			}
 		case deliverywindow.FieldRouteInfo:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field route_info", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &dw.RouteInfo); err != nil {
+				if err := json.Unmarshal(*value, &_m.RouteInfo); err != nil {
 					return fmt.Errorf("unmarshal field route_info: %w", err)
 				}
 			}
@@ -196,16 +196,16 @@ func (dw *DeliveryWindow) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dw.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case deliverywindow.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dw.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			dw.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -213,87 +213,87 @@ func (dw *DeliveryWindow) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DeliveryWindow.
 // This includes values selected through modifiers, order, etc.
-func (dw *DeliveryWindow) Value(name string) (ent.Value, error) {
-	return dw.selectValues.Get(name)
+func (_m *DeliveryWindow) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryAssignment queries the "assignment" edge of the DeliveryWindow entity.
-func (dw *DeliveryWindow) QueryAssignment() *OrderAssignmentQuery {
-	return NewDeliveryWindowClient(dw.config).QueryAssignment(dw)
+func (_m *DeliveryWindow) QueryAssignment() *OrderAssignmentQuery {
+	return NewDeliveryWindowClient(_m.config).QueryAssignment(_m)
 }
 
 // Update returns a builder for updating this DeliveryWindow.
 // Note that you need to call DeliveryWindow.Unwrap() before calling this method if this DeliveryWindow
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dw *DeliveryWindow) Update() *DeliveryWindowUpdateOne {
-	return NewDeliveryWindowClient(dw.config).UpdateOne(dw)
+func (_m *DeliveryWindow) Update() *DeliveryWindowUpdateOne {
+	return NewDeliveryWindowClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DeliveryWindow entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dw *DeliveryWindow) Unwrap() *DeliveryWindow {
-	_tx, ok := dw.config.driver.(*txDriver)
+func (_m *DeliveryWindow) Unwrap() *DeliveryWindow {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DeliveryWindow is not a transactional entity")
 	}
-	dw.config.driver = _tx.drv
-	return dw
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dw *DeliveryWindow) String() string {
+func (_m *DeliveryWindow) String() string {
 	var builder strings.Builder
 	builder.WriteString("DeliveryWindow(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dw.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", dw.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", dw.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
 	builder.WriteString("assignment_id=")
-	builder.WriteString(fmt.Sprintf("%v", dw.AssignmentID))
+	builder.WriteString(fmt.Sprintf("%v", _m.AssignmentID))
 	builder.WriteString(", ")
 	builder.WriteString("eta_start=")
-	builder.WriteString(dw.EtaStart.Format(time.ANSIC))
+	builder.WriteString(_m.EtaStart.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("eta_end=")
-	builder.WriteString(dw.EtaEnd.Format(time.ANSIC))
+	builder.WriteString(_m.EtaEnd.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := dw.EtaMinutes; v != nil {
+	if v := _m.EtaMinutes; v != nil {
 		builder.WriteString("eta_minutes=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := dw.DistanceKm; v != nil {
+	if v := _m.DistanceKm; v != nil {
 		builder.WriteString("distance_km=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := dw.ActualArrival; v != nil {
+	if v := _m.ActualArrival; v != nil {
 		builder.WriteString("actual_arrival=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := dw.ActualDropoff; v != nil {
+	if v := _m.ActualDropoff; v != nil {
 		builder.WriteString("actual_dropoff=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("source=")
-	builder.WriteString(dw.Source)
+	builder.WriteString(_m.Source)
 	builder.WriteString(", ")
 	builder.WriteString("is_current=")
-	builder.WriteString(fmt.Sprintf("%v", dw.IsCurrent))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsCurrent))
 	builder.WriteString(", ")
 	builder.WriteString("route_info=")
-	builder.WriteString(fmt.Sprintf("%v", dw.RouteInfo))
+	builder.WriteString(fmt.Sprintf("%v", _m.RouteInfo))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(dw.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dw.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

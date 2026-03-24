@@ -61,9 +61,9 @@ func OrderID(v uuid.UUID) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldEQ(FieldOrderID, v))
 }
 
-// CatalogItemID applies equality check predicate on the "catalog_item_id" field. It's identical to CatalogItemIDEQ.
-func CatalogItemID(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldEQ(FieldCatalogItemID, v))
+// InventorySku applies equality check predicate on the "inventory_sku" field. It's identical to InventorySkuEQ.
+func InventorySku(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldInventorySku, v))
 }
 
 // VariantID applies equality check predicate on the "variant_id" field. It's identical to VariantIDEQ.
@@ -126,44 +126,69 @@ func OrderIDNotIn(vs ...uuid.UUID) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldNotIn(FieldOrderID, vs...))
 }
 
-// CatalogItemIDEQ applies the EQ predicate on the "catalog_item_id" field.
-func CatalogItemIDEQ(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldEQ(FieldCatalogItemID, v))
+// InventorySkuEQ applies the EQ predicate on the "inventory_sku" field.
+func InventorySkuEQ(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldInventorySku, v))
 }
 
-// CatalogItemIDNEQ applies the NEQ predicate on the "catalog_item_id" field.
-func CatalogItemIDNEQ(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldNEQ(FieldCatalogItemID, v))
+// InventorySkuNEQ applies the NEQ predicate on the "inventory_sku" field.
+func InventorySkuNEQ(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNEQ(FieldInventorySku, v))
 }
 
-// CatalogItemIDIn applies the In predicate on the "catalog_item_id" field.
-func CatalogItemIDIn(vs ...uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldIn(FieldCatalogItemID, vs...))
+// InventorySkuIn applies the In predicate on the "inventory_sku" field.
+func InventorySkuIn(vs ...string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIn(FieldInventorySku, vs...))
 }
 
-// CatalogItemIDNotIn applies the NotIn predicate on the "catalog_item_id" field.
-func CatalogItemIDNotIn(vs ...uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldNotIn(FieldCatalogItemID, vs...))
+// InventorySkuNotIn applies the NotIn predicate on the "inventory_sku" field.
+func InventorySkuNotIn(vs ...string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotIn(FieldInventorySku, vs...))
 }
 
-// CatalogItemIDGT applies the GT predicate on the "catalog_item_id" field.
-func CatalogItemIDGT(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldGT(FieldCatalogItemID, v))
+// InventorySkuGT applies the GT predicate on the "inventory_sku" field.
+func InventorySkuGT(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGT(FieldInventorySku, v))
 }
 
-// CatalogItemIDGTE applies the GTE predicate on the "catalog_item_id" field.
-func CatalogItemIDGTE(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldGTE(FieldCatalogItemID, v))
+// InventorySkuGTE applies the GTE predicate on the "inventory_sku" field.
+func InventorySkuGTE(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGTE(FieldInventorySku, v))
 }
 
-// CatalogItemIDLT applies the LT predicate on the "catalog_item_id" field.
-func CatalogItemIDLT(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldLT(FieldCatalogItemID, v))
+// InventorySkuLT applies the LT predicate on the "inventory_sku" field.
+func InventorySkuLT(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLT(FieldInventorySku, v))
 }
 
-// CatalogItemIDLTE applies the LTE predicate on the "catalog_item_id" field.
-func CatalogItemIDLTE(v uuid.UUID) predicate.OrderItem {
-	return predicate.OrderItem(sql.FieldLTE(FieldCatalogItemID, v))
+// InventorySkuLTE applies the LTE predicate on the "inventory_sku" field.
+func InventorySkuLTE(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLTE(FieldInventorySku, v))
+}
+
+// InventorySkuContains applies the Contains predicate on the "inventory_sku" field.
+func InventorySkuContains(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldContains(FieldInventorySku, v))
+}
+
+// InventorySkuHasPrefix applies the HasPrefix predicate on the "inventory_sku" field.
+func InventorySkuHasPrefix(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldHasPrefix(FieldInventorySku, v))
+}
+
+// InventorySkuHasSuffix applies the HasSuffix predicate on the "inventory_sku" field.
+func InventorySkuHasSuffix(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldHasSuffix(FieldInventorySku, v))
+}
+
+// InventorySkuEqualFold applies the EqualFold predicate on the "inventory_sku" field.
+func InventorySkuEqualFold(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEqualFold(FieldInventorySku, v))
+}
+
+// InventorySkuContainsFold applies the ContainsFold predicate on the "inventory_sku" field.
+func InventorySkuContainsFold(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldContainsFold(FieldInventorySku, v))
 }
 
 // VariantIDEQ applies the EQ predicate on the "variant_id" field.

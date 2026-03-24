@@ -23,8 +23,10 @@ func (OrderItem) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("order_id", uuid.UUID{}).
 			Comment("Reference to order"),
-		field.UUID("catalog_item_id", uuid.UUID{}).
-			Comment("Reference to catalog item"),
+		field.String("inventory_sku").
+			NotEmpty().
+			MaxLen(100).
+			Comment("SKU from inventory-api master data"),
 		field.UUID("variant_id", uuid.UUID{}).
 			Optional().
 			Nillable().
@@ -73,6 +75,6 @@ func (OrderItem) Edges() []ent.Edge {
 func (OrderItem) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("order_id"),
-		index.Fields("catalog_item_id"),
+		index.Fields("inventory_sku"),
 	}
 }

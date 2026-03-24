@@ -25,183 +25,183 @@ type DeliveryZoneCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dzc *DeliveryZoneCreate) SetTenantID(u uuid.UUID) *DeliveryZoneCreate {
-	dzc.mutation.SetTenantID(u)
-	return dzc
+func (_c *DeliveryZoneCreate) SetTenantID(v uuid.UUID) *DeliveryZoneCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (dzc *DeliveryZoneCreate) SetOutletID(u uuid.UUID) *DeliveryZoneCreate {
-	dzc.mutation.SetOutletID(u)
-	return dzc
+func (_c *DeliveryZoneCreate) SetOutletID(v uuid.UUID) *DeliveryZoneCreate {
+	_c.mutation.SetOutletID(v)
+	return _c
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableOutletID(u *uuid.UUID) *DeliveryZoneCreate {
-	if u != nil {
-		dzc.SetOutletID(*u)
+func (_c *DeliveryZoneCreate) SetNillableOutletID(v *uuid.UUID) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetOutletID(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetName sets the "name" field.
-func (dzc *DeliveryZoneCreate) SetName(s string) *DeliveryZoneCreate {
-	dzc.mutation.SetName(s)
-	return dzc
+func (_c *DeliveryZoneCreate) SetName(v string) *DeliveryZoneCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetSlug sets the "slug" field.
-func (dzc *DeliveryZoneCreate) SetSlug(s string) *DeliveryZoneCreate {
-	dzc.mutation.SetSlug(s)
-	return dzc
+func (_c *DeliveryZoneCreate) SetSlug(v string) *DeliveryZoneCreate {
+	_c.mutation.SetSlug(v)
+	return _c
 }
 
 // SetNillableSlug sets the "slug" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableSlug(s *string) *DeliveryZoneCreate {
-	if s != nil {
-		dzc.SetSlug(*s)
+func (_c *DeliveryZoneCreate) SetNillableSlug(v *string) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetSlug(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetZonePolygon sets the "zone_polygon" field.
-func (dzc *DeliveryZoneCreate) SetZonePolygon(m map[string]interface{}) *DeliveryZoneCreate {
-	dzc.mutation.SetZonePolygon(m)
-	return dzc
+func (_c *DeliveryZoneCreate) SetZonePolygon(v map[string]interface{}) *DeliveryZoneCreate {
+	_c.mutation.SetZonePolygon(v)
+	return _c
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (dzc *DeliveryZoneCreate) SetDeliveryFee(f float64) *DeliveryZoneCreate {
-	dzc.mutation.SetDeliveryFee(f)
-	return dzc
+func (_c *DeliveryZoneCreate) SetDeliveryFee(v float64) *DeliveryZoneCreate {
+	_c.mutation.SetDeliveryFee(v)
+	return _c
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableDeliveryFee(f *float64) *DeliveryZoneCreate {
-	if f != nil {
-		dzc.SetDeliveryFee(*f)
+func (_c *DeliveryZoneCreate) SetNillableDeliveryFee(v *float64) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetDeliveryFee(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetMinimumOrder sets the "minimum_order" field.
-func (dzc *DeliveryZoneCreate) SetMinimumOrder(f float64) *DeliveryZoneCreate {
-	dzc.mutation.SetMinimumOrder(f)
-	return dzc
+func (_c *DeliveryZoneCreate) SetMinimumOrder(v float64) *DeliveryZoneCreate {
+	_c.mutation.SetMinimumOrder(v)
+	return _c
 }
 
 // SetNillableMinimumOrder sets the "minimum_order" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableMinimumOrder(f *float64) *DeliveryZoneCreate {
-	if f != nil {
-		dzc.SetMinimumOrder(*f)
+func (_c *DeliveryZoneCreate) SetNillableMinimumOrder(v *float64) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetMinimumOrder(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetEstimatedTimeMinutes sets the "estimated_time_minutes" field.
-func (dzc *DeliveryZoneCreate) SetEstimatedTimeMinutes(i int) *DeliveryZoneCreate {
-	dzc.mutation.SetEstimatedTimeMinutes(i)
-	return dzc
+func (_c *DeliveryZoneCreate) SetEstimatedTimeMinutes(v int) *DeliveryZoneCreate {
+	_c.mutation.SetEstimatedTimeMinutes(v)
+	return _c
 }
 
 // SetNillableEstimatedTimeMinutes sets the "estimated_time_minutes" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableEstimatedTimeMinutes(i *int) *DeliveryZoneCreate {
-	if i != nil {
-		dzc.SetEstimatedTimeMinutes(*i)
+func (_c *DeliveryZoneCreate) SetNillableEstimatedTimeMinutes(v *int) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetEstimatedTimeMinutes(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetIsActive sets the "is_active" field.
-func (dzc *DeliveryZoneCreate) SetIsActive(b bool) *DeliveryZoneCreate {
-	dzc.mutation.SetIsActive(b)
-	return dzc
+func (_c *DeliveryZoneCreate) SetIsActive(v bool) *DeliveryZoneCreate {
+	_c.mutation.SetIsActive(v)
+	return _c
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableIsActive(b *bool) *DeliveryZoneCreate {
-	if b != nil {
-		dzc.SetIsActive(*b)
+func (_c *DeliveryZoneCreate) SetNillableIsActive(v *bool) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetIsActive(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetSortOrder sets the "sort_order" field.
-func (dzc *DeliveryZoneCreate) SetSortOrder(i int) *DeliveryZoneCreate {
-	dzc.mutation.SetSortOrder(i)
-	return dzc
+func (_c *DeliveryZoneCreate) SetSortOrder(v int) *DeliveryZoneCreate {
+	_c.mutation.SetSortOrder(v)
+	return _c
 }
 
 // SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableSortOrder(i *int) *DeliveryZoneCreate {
-	if i != nil {
-		dzc.SetSortOrder(*i)
+func (_c *DeliveryZoneCreate) SetNillableSortOrder(v *int) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetSortOrder(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (dzc *DeliveryZoneCreate) SetMetadata(m map[string]interface{}) *DeliveryZoneCreate {
-	dzc.mutation.SetMetadata(m)
-	return dzc
+func (_c *DeliveryZoneCreate) SetMetadata(v map[string]interface{}) *DeliveryZoneCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (dzc *DeliveryZoneCreate) SetCreatedAt(t time.Time) *DeliveryZoneCreate {
-	dzc.mutation.SetCreatedAt(t)
-	return dzc
+func (_c *DeliveryZoneCreate) SetCreatedAt(v time.Time) *DeliveryZoneCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableCreatedAt(t *time.Time) *DeliveryZoneCreate {
-	if t != nil {
-		dzc.SetCreatedAt(*t)
+func (_c *DeliveryZoneCreate) SetNillableCreatedAt(v *time.Time) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dzc *DeliveryZoneCreate) SetUpdatedAt(t time.Time) *DeliveryZoneCreate {
-	dzc.mutation.SetUpdatedAt(t)
-	return dzc
+func (_c *DeliveryZoneCreate) SetUpdatedAt(v time.Time) *DeliveryZoneCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableUpdatedAt(t *time.Time) *DeliveryZoneCreate {
-	if t != nil {
-		dzc.SetUpdatedAt(*t)
+func (_c *DeliveryZoneCreate) SetNillableUpdatedAt(v *time.Time) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return dzc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dzc *DeliveryZoneCreate) SetID(u uuid.UUID) *DeliveryZoneCreate {
-	dzc.mutation.SetID(u)
-	return dzc
+func (_c *DeliveryZoneCreate) SetID(v uuid.UUID) *DeliveryZoneCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dzc *DeliveryZoneCreate) SetNillableID(u *uuid.UUID) *DeliveryZoneCreate {
-	if u != nil {
-		dzc.SetID(*u)
+func (_c *DeliveryZoneCreate) SetNillableID(v *uuid.UUID) *DeliveryZoneCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dzc
+	return _c
 }
 
 // Mutation returns the DeliveryZoneMutation object of the builder.
-func (dzc *DeliveryZoneCreate) Mutation() *DeliveryZoneMutation {
-	return dzc.mutation
+func (_c *DeliveryZoneCreate) Mutation() *DeliveryZoneMutation {
+	return _c.mutation
 }
 
 // Save creates the DeliveryZone in the database.
-func (dzc *DeliveryZoneCreate) Save(ctx context.Context) (*DeliveryZone, error) {
-	dzc.defaults()
-	return withHooks(ctx, dzc.sqlSave, dzc.mutation, dzc.hooks)
+func (_c *DeliveryZoneCreate) Save(ctx context.Context) (*DeliveryZone, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dzc *DeliveryZoneCreate) SaveX(ctx context.Context) *DeliveryZone {
-	v, err := dzc.Save(ctx)
+func (_c *DeliveryZoneCreate) SaveX(ctx context.Context) *DeliveryZone {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -209,104 +209,104 @@ func (dzc *DeliveryZoneCreate) SaveX(ctx context.Context) *DeliveryZone {
 }
 
 // Exec executes the query.
-func (dzc *DeliveryZoneCreate) Exec(ctx context.Context) error {
-	_, err := dzc.Save(ctx)
+func (_c *DeliveryZoneCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzc *DeliveryZoneCreate) ExecX(ctx context.Context) {
-	if err := dzc.Exec(ctx); err != nil {
+func (_c *DeliveryZoneCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dzc *DeliveryZoneCreate) defaults() {
-	if _, ok := dzc.mutation.DeliveryFee(); !ok {
+func (_c *DeliveryZoneCreate) defaults() {
+	if _, ok := _c.mutation.DeliveryFee(); !ok {
 		v := deliveryzone.DefaultDeliveryFee
-		dzc.mutation.SetDeliveryFee(v)
+		_c.mutation.SetDeliveryFee(v)
 	}
-	if _, ok := dzc.mutation.MinimumOrder(); !ok {
+	if _, ok := _c.mutation.MinimumOrder(); !ok {
 		v := deliveryzone.DefaultMinimumOrder
-		dzc.mutation.SetMinimumOrder(v)
+		_c.mutation.SetMinimumOrder(v)
 	}
-	if _, ok := dzc.mutation.EstimatedTimeMinutes(); !ok {
+	if _, ok := _c.mutation.EstimatedTimeMinutes(); !ok {
 		v := deliveryzone.DefaultEstimatedTimeMinutes
-		dzc.mutation.SetEstimatedTimeMinutes(v)
+		_c.mutation.SetEstimatedTimeMinutes(v)
 	}
-	if _, ok := dzc.mutation.IsActive(); !ok {
+	if _, ok := _c.mutation.IsActive(); !ok {
 		v := deliveryzone.DefaultIsActive
-		dzc.mutation.SetIsActive(v)
+		_c.mutation.SetIsActive(v)
 	}
-	if _, ok := dzc.mutation.SortOrder(); !ok {
+	if _, ok := _c.mutation.SortOrder(); !ok {
 		v := deliveryzone.DefaultSortOrder
-		dzc.mutation.SetSortOrder(v)
+		_c.mutation.SetSortOrder(v)
 	}
-	if _, ok := dzc.mutation.Metadata(); !ok {
+	if _, ok := _c.mutation.Metadata(); !ok {
 		v := deliveryzone.DefaultMetadata
-		dzc.mutation.SetMetadata(v)
+		_c.mutation.SetMetadata(v)
 	}
-	if _, ok := dzc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := deliveryzone.DefaultCreatedAt()
-		dzc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := dzc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := deliveryzone.DefaultUpdatedAt()
-		dzc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := dzc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := deliveryzone.DefaultID()
-		dzc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dzc *DeliveryZoneCreate) check() error {
-	if _, ok := dzc.mutation.TenantID(); !ok {
+func (_c *DeliveryZoneCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "DeliveryZone.tenant_id"`)}
 	}
-	if _, ok := dzc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "DeliveryZone.name"`)}
 	}
-	if v, ok := dzc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := deliveryzone.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "DeliveryZone.name": %w`, err)}
 		}
 	}
-	if _, ok := dzc.mutation.DeliveryFee(); !ok {
+	if _, ok := _c.mutation.DeliveryFee(); !ok {
 		return &ValidationError{Name: "delivery_fee", err: errors.New(`ent: missing required field "DeliveryZone.delivery_fee"`)}
 	}
-	if _, ok := dzc.mutation.MinimumOrder(); !ok {
+	if _, ok := _c.mutation.MinimumOrder(); !ok {
 		return &ValidationError{Name: "minimum_order", err: errors.New(`ent: missing required field "DeliveryZone.minimum_order"`)}
 	}
-	if _, ok := dzc.mutation.EstimatedTimeMinutes(); !ok {
+	if _, ok := _c.mutation.EstimatedTimeMinutes(); !ok {
 		return &ValidationError{Name: "estimated_time_minutes", err: errors.New(`ent: missing required field "DeliveryZone.estimated_time_minutes"`)}
 	}
-	if _, ok := dzc.mutation.IsActive(); !ok {
+	if _, ok := _c.mutation.IsActive(); !ok {
 		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "DeliveryZone.is_active"`)}
 	}
-	if _, ok := dzc.mutation.SortOrder(); !ok {
+	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "DeliveryZone.sort_order"`)}
 	}
-	if _, ok := dzc.mutation.Metadata(); !ok {
+	if _, ok := _c.mutation.Metadata(); !ok {
 		return &ValidationError{Name: "metadata", err: errors.New(`ent: missing required field "DeliveryZone.metadata"`)}
 	}
-	if _, ok := dzc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DeliveryZone.created_at"`)}
 	}
-	if _, ok := dzc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DeliveryZone.updated_at"`)}
 	}
 	return nil
 }
 
-func (dzc *DeliveryZoneCreate) sqlSave(ctx context.Context) (*DeliveryZone, error) {
-	if err := dzc.check(); err != nil {
+func (_c *DeliveryZoneCreate) sqlSave(ctx context.Context) (*DeliveryZone, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dzc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dzc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -319,70 +319,70 @@ func (dzc *DeliveryZoneCreate) sqlSave(ctx context.Context) (*DeliveryZone, erro
 			return nil, err
 		}
 	}
-	dzc.mutation.id = &_node.ID
-	dzc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dzc *DeliveryZoneCreate) createSpec() (*DeliveryZone, *sqlgraph.CreateSpec) {
+func (_c *DeliveryZoneCreate) createSpec() (*DeliveryZone, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DeliveryZone{config: dzc.config}
+		_node = &DeliveryZone{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(deliveryzone.Table, sqlgraph.NewFieldSpec(deliveryzone.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dzc.conflict
-	if id, ok := dzc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dzc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(deliveryzone.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := dzc.mutation.OutletID(); ok {
+	if value, ok := _c.mutation.OutletID(); ok {
 		_spec.SetField(deliveryzone.FieldOutletID, field.TypeUUID, value)
 		_node.OutletID = &value
 	}
-	if value, ok := dzc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(deliveryzone.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := dzc.mutation.Slug(); ok {
+	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(deliveryzone.FieldSlug, field.TypeString, value)
 		_node.Slug = value
 	}
-	if value, ok := dzc.mutation.ZonePolygon(); ok {
+	if value, ok := _c.mutation.ZonePolygon(); ok {
 		_spec.SetField(deliveryzone.FieldZonePolygon, field.TypeJSON, value)
 		_node.ZonePolygon = value
 	}
-	if value, ok := dzc.mutation.DeliveryFee(); ok {
+	if value, ok := _c.mutation.DeliveryFee(); ok {
 		_spec.SetField(deliveryzone.FieldDeliveryFee, field.TypeFloat64, value)
 		_node.DeliveryFee = value
 	}
-	if value, ok := dzc.mutation.MinimumOrder(); ok {
+	if value, ok := _c.mutation.MinimumOrder(); ok {
 		_spec.SetField(deliveryzone.FieldMinimumOrder, field.TypeFloat64, value)
 		_node.MinimumOrder = value
 	}
-	if value, ok := dzc.mutation.EstimatedTimeMinutes(); ok {
+	if value, ok := _c.mutation.EstimatedTimeMinutes(); ok {
 		_spec.SetField(deliveryzone.FieldEstimatedTimeMinutes, field.TypeInt, value)
 		_node.EstimatedTimeMinutes = value
 	}
-	if value, ok := dzc.mutation.IsActive(); ok {
+	if value, ok := _c.mutation.IsActive(); ok {
 		_spec.SetField(deliveryzone.FieldIsActive, field.TypeBool, value)
 		_node.IsActive = value
 	}
-	if value, ok := dzc.mutation.SortOrder(); ok {
+	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(deliveryzone.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
 	}
-	if value, ok := dzc.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(deliveryzone.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := dzc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(deliveryzone.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := dzc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliveryzone.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -405,10 +405,10 @@ func (dzc *DeliveryZoneCreate) createSpec() (*DeliveryZone, *sqlgraph.CreateSpec
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dzc *DeliveryZoneCreate) OnConflict(opts ...sql.ConflictOption) *DeliveryZoneUpsertOne {
-	dzc.conflict = opts
+func (_c *DeliveryZoneCreate) OnConflict(opts ...sql.ConflictOption) *DeliveryZoneUpsertOne {
+	_c.conflict = opts
 	return &DeliveryZoneUpsertOne{
-		create: dzc,
+		create: _c,
 	}
 }
 
@@ -418,10 +418,10 @@ func (dzc *DeliveryZoneCreate) OnConflict(opts ...sql.ConflictOption) *DeliveryZ
 //	client.DeliveryZone.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dzc *DeliveryZoneCreate) OnConflictColumns(columns ...string) *DeliveryZoneUpsertOne {
-	dzc.conflict = append(dzc.conflict, sql.ConflictColumns(columns...))
+func (_c *DeliveryZoneCreate) OnConflictColumns(columns ...string) *DeliveryZoneUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeliveryZoneUpsertOne{
-		create: dzc,
+		create: _c,
 	}
 }
 
@@ -939,16 +939,16 @@ type DeliveryZoneCreateBulk struct {
 }
 
 // Save creates the DeliveryZone entities in the database.
-func (dzcb *DeliveryZoneCreateBulk) Save(ctx context.Context) ([]*DeliveryZone, error) {
-	if dzcb.err != nil {
-		return nil, dzcb.err
+func (_c *DeliveryZoneCreateBulk) Save(ctx context.Context) ([]*DeliveryZone, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dzcb.builders))
-	nodes := make([]*DeliveryZone, len(dzcb.builders))
-	mutators := make([]Mutator, len(dzcb.builders))
-	for i := range dzcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DeliveryZone, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dzcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DeliveryZoneMutation)
@@ -962,12 +962,12 @@ func (dzcb *DeliveryZoneCreateBulk) Save(ctx context.Context) ([]*DeliveryZone, 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dzcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dzcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dzcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -987,7 +987,7 @@ func (dzcb *DeliveryZoneCreateBulk) Save(ctx context.Context) ([]*DeliveryZone, 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dzcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -995,8 +995,8 @@ func (dzcb *DeliveryZoneCreateBulk) Save(ctx context.Context) ([]*DeliveryZone, 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dzcb *DeliveryZoneCreateBulk) SaveX(ctx context.Context) []*DeliveryZone {
-	v, err := dzcb.Save(ctx)
+func (_c *DeliveryZoneCreateBulk) SaveX(ctx context.Context) []*DeliveryZone {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1004,14 +1004,14 @@ func (dzcb *DeliveryZoneCreateBulk) SaveX(ctx context.Context) []*DeliveryZone {
 }
 
 // Exec executes the query.
-func (dzcb *DeliveryZoneCreateBulk) Exec(ctx context.Context) error {
-	_, err := dzcb.Save(ctx)
+func (_c *DeliveryZoneCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzcb *DeliveryZoneCreateBulk) ExecX(ctx context.Context) {
-	if err := dzcb.Exec(ctx); err != nil {
+func (_c *DeliveryZoneCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1031,10 +1031,10 @@ func (dzcb *DeliveryZoneCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dzcb *DeliveryZoneCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeliveryZoneUpsertBulk {
-	dzcb.conflict = opts
+func (_c *DeliveryZoneCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeliveryZoneUpsertBulk {
+	_c.conflict = opts
 	return &DeliveryZoneUpsertBulk{
-		create: dzcb,
+		create: _c,
 	}
 }
 
@@ -1044,10 +1044,10 @@ func (dzcb *DeliveryZoneCreateBulk) OnConflict(opts ...sql.ConflictOption) *Deli
 //	client.DeliveryZone.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dzcb *DeliveryZoneCreateBulk) OnConflictColumns(columns ...string) *DeliveryZoneUpsertBulk {
-	dzcb.conflict = append(dzcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DeliveryZoneCreateBulk) OnConflictColumns(columns ...string) *DeliveryZoneUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeliveryZoneUpsertBulk{
-		create: dzcb,
+		create: _c,
 	}
 }
 

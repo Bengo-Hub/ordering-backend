@@ -41,7 +41,7 @@ type Cart struct {
 type CartItem struct {
 	ID           uuid.UUID              `json:"id"`
 	CartID       uuid.UUID              `json:"cartId"`
-	CatalogItemID uuid.UUID              `json:"catalogItemId"`
+	InventorySKU string                 `json:"inventorySku"`
 	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
 	NameSnapshot string                 `json:"nameSnapshot"`
 	Quantity     int                    `json:"quantity"`
@@ -138,7 +138,7 @@ type Order struct {
 type OrderItem struct {
 	ID           uuid.UUID              `json:"id"`
 	OrderID      uuid.UUID              `json:"orderId"`
-	CatalogItemID uuid.UUID              `json:"catalogItemId"`
+	InventorySKU string                 `json:"inventorySku"`
 	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
 	NameSnapshot string                 `json:"nameSnapshot"`
 	Quantity     int                    `json:"quantity"`
@@ -345,14 +345,14 @@ type OrderFilter struct {
 
 // AddItemRequest represents a request to add an item to cart.
 type AddItemRequest struct {
-	TenantID   uuid.UUID
-	OutletID   uuid.UUID
-	UserID     *uuid.UUID
-	SessionID  string
-	CatalogItemID uuid.UUID
-	VariantID  *uuid.UUID
-	Quantity   int
-	Notes      string
+	TenantID     uuid.UUID
+	OutletID     uuid.UUID
+	UserID       *uuid.UUID
+	SessionID    string
+	InventorySKU string
+	VariantID    *uuid.UUID
+	Quantity     int
+	Notes        string
 }
 
 // UpdateItemRequest represents a request to update a cart item.
@@ -394,11 +394,11 @@ type CreateOrderFromItemsRequest struct {
 
 // CreateOrderItemInput is a single line item when creating an order from items.
 type CreateOrderItemInput struct {
-	CatalogItemID uuid.UUID
-	Name       string
-	Quantity   int
-	UnitPrice  float64
-	TotalPrice float64
+	InventorySKU string
+	Name         string
+	Quantity     int
+	UnitPrice    float64
+	TotalPrice   float64
 }
 
 // GuestCheckoutRequest represents a request for guest checkout (no auth required).
@@ -451,10 +451,10 @@ type AnalyticsSummary struct {
 
 // ItemSalesSummary represents sales metrics for a single item.
 type ItemSalesSummary struct {
-	CatalogItemID   uuid.UUID `json:"catalogItemId"`
-	NameSnapshot string    `json:"nameSnapshot"`
-	Quantity     int       `json:"quantity"`
-	Revenue      float64   `json:"revenue"`
+	InventorySKU string  `json:"inventorySku"`
+	NameSnapshot string  `json:"nameSnapshot"`
+	Quantity     int     `json:"quantity"`
+	Revenue      float64 `json:"revenue"`
 }
 
 // DailyMetric represents a metric for a specific day.

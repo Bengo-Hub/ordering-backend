@@ -205,19 +205,11 @@ func (r *EntRepository) FindTenantBySlug(ctx context.Context, slug string) (*Ten
 		return nil, fmt.Errorf("identity: find tenant by slug: %w", err)
 	}
 
-	metadata := make(map[string]interface{})
-	if tenantEntity.Metadata != nil {
-		metadata = tenantEntity.Metadata
-	}
-
 	return &Tenant{
-		ID:           tenantEntity.ID,
-		Slug:         tenantEntity.Slug,
-		Name:         tenantEntity.Name,
-		Status:       tenantEntity.Status,
-		ContactEmail: tenantEntity.ContactEmail,
-		ContactPhone: tenantEntity.ContactPhone,
-		Metadata:     metadata,
+		ID:     tenantEntity.ID,
+		Slug:   tenantEntity.Slug,
+		Name:   tenantEntity.Name,
+		Status: tenantEntity.Status,
 	}, nil
 }
 
@@ -231,19 +223,11 @@ func (r *EntRepository) FindTenantByID(ctx context.Context, id uuid.UUID) (*Tena
 		return nil, fmt.Errorf("identity: find tenant by id: %w", err)
 	}
 
-	metadata := make(map[string]interface{})
-	if tenantEntity.Metadata != nil {
-		metadata = tenantEntity.Metadata
-	}
-
 	return &Tenant{
-		ID:           tenantEntity.ID,
-		Slug:         tenantEntity.Slug,
-		Name:         tenantEntity.Name,
-		Status:       tenantEntity.Status,
-		ContactEmail: tenantEntity.ContactEmail,
-		ContactPhone: tenantEntity.ContactPhone,
-		Metadata:     metadata,
+		ID:     tenantEntity.ID,
+		Slug:   tenantEntity.Slug,
+		Name:   tenantEntity.Name,
+		Status: tenantEntity.Status,
 	}, nil
 }
 
@@ -258,9 +242,6 @@ func (r *EntRepository) UpsertTenant(ctx context.Context, t *Tenant) error {
 		SetSlug(t.Slug).
 		SetName(t.Name).
 		SetStatus(t.Status).
-		SetContactEmail(t.ContactEmail).
-		SetContactPhone(t.ContactPhone).
-		SetMetadata(t.Metadata).
 		Exec(ctx)
 
 	if err != nil {
@@ -271,9 +252,6 @@ func (r *EntRepository) UpsertTenant(ctx context.Context, t *Tenant) error {
 				SetSlug(t.Slug).
 				SetName(t.Name).
 				SetStatus(t.Status).
-				SetContactEmail(t.ContactEmail).
-				SetContactPhone(t.ContactPhone).
-				SetMetadata(t.Metadata).
 				Exec(ctx)
 			if err != nil {
 				return fmt.Errorf("identity: create tenant: %w", err)
@@ -472,8 +450,6 @@ func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 		SetSlug(tenantID).
 		SetName("Ordering Platform").
 		SetStatus("active").
-		SetContactEmail("support@codevertexitsolutions.com").
-		SetContactPhone("+254700000000").
 		Exec(ctx)
 	if err != nil {
 		// Check if it's a unique constraint violation (tenant already exists)

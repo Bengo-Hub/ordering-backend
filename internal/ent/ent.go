@@ -15,17 +15,13 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/auditlog"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitemasset"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitemschedule"
+	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/datadeletionjob"
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
-	"github.com/bengobox/ordering-backend/internal/ent/dietarytag"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -48,6 +44,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsetting"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
+	"github.com/bengobox/ordering-backend/internal/ent/userfavorite"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
 	"github.com/bengobox/ordering-backend/internal/ent/userroleassignment"
@@ -107,52 +104,49 @@ var (
 	columnCheck sql.ColumnCheck
 )
 
-// columnChecker checks if the column exists in the given table.
-func checkColumn(table, column string) error {
+// checkColumn checks if the column exists in the given table.
+func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			auditlog.Table:            auditlog.ValidColumn,
-			cart.Table:                cart.ValidColumn,
-			cartitem.Table:            cartitem.ValidColumn,
-			catalogcategory.Table:     catalogcategory.ValidColumn,
-			catalogitem.Table:         catalogitem.ValidColumn,
-			catalogitemasset.Table:    catalogitemasset.ValidColumn,
-			catalogitemschedule.Table: catalogitemschedule.ValidColumn,
-			customeraddress.Table:     customeraddress.ValidColumn,
-			datadeletionjob.Table:     datadeletionjob.ValidColumn,
-			dataexportjob.Table:       dataexportjob.ValidColumn,
-			datasubjectrequest.Table:  datasubjectrequest.ValidColumn,
-			deliverywindow.Table:      deliverywindow.ValidColumn,
-			deliveryzone.Table:        deliveryzone.ValidColumn,
-			dietarytag.Table:          dietarytag.ValidColumn,
-			loyaltyaccount.Table:      loyaltyaccount.ValidColumn,
-			loyaltytransaction.Table:  loyaltytransaction.ValidColumn,
-			order.Table:               order.ValidColumn,
-			orderassignment.Table:     orderassignment.ValidColumn,
-			orderevent.Table:          orderevent.ValidColumn,
-			orderitem.Table:           orderitem.ValidColumn,
-			orderingpermission.Table:  orderingpermission.ValidColumn,
-			orderingrole.Table:        orderingrole.ValidColumn,
-			outboxevent.Table:         outboxevent.ValidColumn,
-			outlet.Table:              outlet.ValidColumn,
-			permission.Table:          permission.ValidColumn,
-			promocode.Table:           promocode.ValidColumn,
-			promoredemption.Table:     promoredemption.ValidColumn,
-			ratelimitconfig.Table:     ratelimitconfig.ValidColumn,
-			role.Table:                role.ValidColumn,
-			rolepermission.Table:      rolepermission.ValidColumn,
-			slametric.Table:           slametric.ValidColumn,
-			serviceconfig.Table:       serviceconfig.ValidColumn,
-			tenant.Table:              tenant.ValidColumn,
-			tenantsetting.Table:       tenantsetting.ValidColumn,
-			tenantsyncevent.Table:     tenantsyncevent.ValidColumn,
-			user.Table:                user.ValidColumn,
-			userpreference.Table:      userpreference.ValidColumn,
-			userprofile.Table:         userprofile.ValidColumn,
-			userroleassignment.Table:  userroleassignment.ValidColumn,
+			auditlog.Table:           auditlog.ValidColumn,
+			cart.Table:               cart.ValidColumn,
+			cartitem.Table:           cartitem.ValidColumn,
+			catalogoverride.Table:    catalogoverride.ValidColumn,
+			customeraddress.Table:    customeraddress.ValidColumn,
+			datadeletionjob.Table:    datadeletionjob.ValidColumn,
+			dataexportjob.Table:      dataexportjob.ValidColumn,
+			datasubjectrequest.Table: datasubjectrequest.ValidColumn,
+			deliverywindow.Table:     deliverywindow.ValidColumn,
+			deliveryzone.Table:       deliveryzone.ValidColumn,
+			loyaltyaccount.Table:     loyaltyaccount.ValidColumn,
+			loyaltytransaction.Table: loyaltytransaction.ValidColumn,
+			order.Table:              order.ValidColumn,
+			orderassignment.Table:    orderassignment.ValidColumn,
+			orderevent.Table:         orderevent.ValidColumn,
+			orderitem.Table:          orderitem.ValidColumn,
+			orderingpermission.Table: orderingpermission.ValidColumn,
+			orderingrole.Table:       orderingrole.ValidColumn,
+			outboxevent.Table:        outboxevent.ValidColumn,
+			outlet.Table:             outlet.ValidColumn,
+			permission.Table:         permission.ValidColumn,
+			promocode.Table:          promocode.ValidColumn,
+			promoredemption.Table:    promoredemption.ValidColumn,
+			ratelimitconfig.Table:    ratelimitconfig.ValidColumn,
+			role.Table:               role.ValidColumn,
+			rolepermission.Table:     rolepermission.ValidColumn,
+			slametric.Table:          slametric.ValidColumn,
+			serviceconfig.Table:      serviceconfig.ValidColumn,
+			tenant.Table:             tenant.ValidColumn,
+			tenantsetting.Table:      tenantsetting.ValidColumn,
+			tenantsyncevent.Table:    tenantsyncevent.ValidColumn,
+			user.Table:               user.ValidColumn,
+			userfavorite.Table:       userfavorite.ValidColumn,
+			userpreference.Table:     userpreference.ValidColumn,
+			userprofile.Table:        userprofile.ValidColumn,
+			userroleassignment.Table: userroleassignment.ValidColumn,
 		})
 	})
-	return columnCheck(table, column)
+	return columnCheck(t, c)
 }
 
 // Asc applies the given fields in ASC order.

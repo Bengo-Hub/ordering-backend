@@ -20,56 +20,56 @@ type LoyaltyAccountDelete struct {
 }
 
 // Where appends a list predicates to the LoyaltyAccountDelete builder.
-func (lad *LoyaltyAccountDelete) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountDelete {
-	lad.mutation.Where(ps...)
-	return lad
+func (_d *LoyaltyAccountDelete) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (lad *LoyaltyAccountDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, lad.sqlExec, lad.mutation, lad.hooks)
+func (_d *LoyaltyAccountDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lad *LoyaltyAccountDelete) ExecX(ctx context.Context) int {
-	n, err := lad.Exec(ctx)
+func (_d *LoyaltyAccountDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (lad *LoyaltyAccountDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *LoyaltyAccountDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(loyaltyaccount.Table, sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID))
-	if ps := lad.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, lad.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	lad.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // LoyaltyAccountDeleteOne is the builder for deleting a single LoyaltyAccount entity.
 type LoyaltyAccountDeleteOne struct {
-	lad *LoyaltyAccountDelete
+	_d *LoyaltyAccountDelete
 }
 
 // Where appends a list predicates to the LoyaltyAccountDelete builder.
-func (lado *LoyaltyAccountDeleteOne) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountDeleteOne {
-	lado.lad.mutation.Where(ps...)
-	return lado
+func (_d *LoyaltyAccountDeleteOne) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (lado *LoyaltyAccountDeleteOne) Exec(ctx context.Context) error {
-	n, err := lado.lad.Exec(ctx)
+func (_d *LoyaltyAccountDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (lado *LoyaltyAccountDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lado *LoyaltyAccountDeleteOne) ExecX(ctx context.Context) {
-	if err := lado.Exec(ctx); err != nil {
+func (_d *LoyaltyAccountDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

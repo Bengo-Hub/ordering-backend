@@ -27,247 +27,247 @@ type CartCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cc *CartCreate) SetTenantID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetTenantID(u)
-	return cc
+func (_c *CartCreate) SetTenantID(v uuid.UUID) *CartCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (cc *CartCreate) SetOutletID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetOutletID(u)
-	return cc
+func (_c *CartCreate) SetOutletID(v uuid.UUID) *CartCreate {
+	_c.mutation.SetOutletID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (cc *CartCreate) SetUserID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetUserID(u)
-	return cc
+func (_c *CartCreate) SetUserID(v uuid.UUID) *CartCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (cc *CartCreate) SetNillableUserID(u *uuid.UUID) *CartCreate {
-	if u != nil {
-		cc.SetUserID(*u)
+func (_c *CartCreate) SetNillableUserID(v *uuid.UUID) *CartCreate {
+	if v != nil {
+		_c.SetUserID(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetSessionID sets the "session_id" field.
-func (cc *CartCreate) SetSessionID(s string) *CartCreate {
-	cc.mutation.SetSessionID(s)
-	return cc
+func (_c *CartCreate) SetSessionID(v string) *CartCreate {
+	_c.mutation.SetSessionID(v)
+	return _c
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (cc *CartCreate) SetNillableSessionID(s *string) *CartCreate {
-	if s != nil {
-		cc.SetSessionID(*s)
+func (_c *CartCreate) SetNillableSessionID(v *string) *CartCreate {
+	if v != nil {
+		_c.SetSessionID(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (cc *CartCreate) SetStatus(c cart.Status) *CartCreate {
-	cc.mutation.SetStatus(c)
-	return cc
+func (_c *CartCreate) SetStatus(v cart.Status) *CartCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (cc *CartCreate) SetNillableStatus(c *cart.Status) *CartCreate {
-	if c != nil {
-		cc.SetStatus(*c)
+func (_c *CartCreate) SetNillableStatus(v *cart.Status) *CartCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetCurrency sets the "currency" field.
-func (cc *CartCreate) SetCurrency(s string) *CartCreate {
-	cc.mutation.SetCurrency(s)
-	return cc
+func (_c *CartCreate) SetCurrency(v string) *CartCreate {
+	_c.mutation.SetCurrency(v)
+	return _c
 }
 
 // SetNillableCurrency sets the "currency" field if the given value is not nil.
-func (cc *CartCreate) SetNillableCurrency(s *string) *CartCreate {
-	if s != nil {
-		cc.SetCurrency(*s)
+func (_c *CartCreate) SetNillableCurrency(v *string) *CartCreate {
+	if v != nil {
+		_c.SetCurrency(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetSubtotal sets the "subtotal" field.
-func (cc *CartCreate) SetSubtotal(f float64) *CartCreate {
-	cc.mutation.SetSubtotal(f)
-	return cc
+func (_c *CartCreate) SetSubtotal(v float64) *CartCreate {
+	_c.mutation.SetSubtotal(v)
+	return _c
 }
 
 // SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
-func (cc *CartCreate) SetNillableSubtotal(f *float64) *CartCreate {
-	if f != nil {
-		cc.SetSubtotal(*f)
+func (_c *CartCreate) SetNillableSubtotal(v *float64) *CartCreate {
+	if v != nil {
+		_c.SetSubtotal(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetDiscountTotal sets the "discount_total" field.
-func (cc *CartCreate) SetDiscountTotal(f float64) *CartCreate {
-	cc.mutation.SetDiscountTotal(f)
-	return cc
+func (_c *CartCreate) SetDiscountTotal(v float64) *CartCreate {
+	_c.mutation.SetDiscountTotal(v)
+	return _c
 }
 
 // SetNillableDiscountTotal sets the "discount_total" field if the given value is not nil.
-func (cc *CartCreate) SetNillableDiscountTotal(f *float64) *CartCreate {
-	if f != nil {
-		cc.SetDiscountTotal(*f)
+func (_c *CartCreate) SetNillableDiscountTotal(v *float64) *CartCreate {
+	if v != nil {
+		_c.SetDiscountTotal(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetTaxTotal sets the "tax_total" field.
-func (cc *CartCreate) SetTaxTotal(f float64) *CartCreate {
-	cc.mutation.SetTaxTotal(f)
-	return cc
+func (_c *CartCreate) SetTaxTotal(v float64) *CartCreate {
+	_c.mutation.SetTaxTotal(v)
+	return _c
 }
 
 // SetNillableTaxTotal sets the "tax_total" field if the given value is not nil.
-func (cc *CartCreate) SetNillableTaxTotal(f *float64) *CartCreate {
-	if f != nil {
-		cc.SetTaxTotal(*f)
+func (_c *CartCreate) SetNillableTaxTotal(v *float64) *CartCreate {
+	if v != nil {
+		_c.SetTaxTotal(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (cc *CartCreate) SetDeliveryFee(f float64) *CartCreate {
-	cc.mutation.SetDeliveryFee(f)
-	return cc
+func (_c *CartCreate) SetDeliveryFee(v float64) *CartCreate {
+	_c.mutation.SetDeliveryFee(v)
+	return _c
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (cc *CartCreate) SetNillableDeliveryFee(f *float64) *CartCreate {
-	if f != nil {
-		cc.SetDeliveryFee(*f)
+func (_c *CartCreate) SetNillableDeliveryFee(v *float64) *CartCreate {
+	if v != nil {
+		_c.SetDeliveryFee(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field.
-func (cc *CartCreate) SetLoyaltyPointsRedeemed(i int) *CartCreate {
-	cc.mutation.SetLoyaltyPointsRedeemed(i)
-	return cc
+func (_c *CartCreate) SetLoyaltyPointsRedeemed(v int) *CartCreate {
+	_c.mutation.SetLoyaltyPointsRedeemed(v)
+	return _c
 }
 
 // SetNillableLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field if the given value is not nil.
-func (cc *CartCreate) SetNillableLoyaltyPointsRedeemed(i *int) *CartCreate {
-	if i != nil {
-		cc.SetLoyaltyPointsRedeemed(*i)
+func (_c *CartCreate) SetNillableLoyaltyPointsRedeemed(v *int) *CartCreate {
+	if v != nil {
+		_c.SetLoyaltyPointsRedeemed(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (cc *CartCreate) SetPromoCodeID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetPromoCodeID(u)
-	return cc
+func (_c *CartCreate) SetPromoCodeID(v uuid.UUID) *CartCreate {
+	_c.mutation.SetPromoCodeID(v)
+	return _c
 }
 
 // SetNillablePromoCodeID sets the "promo_code_id" field if the given value is not nil.
-func (cc *CartCreate) SetNillablePromoCodeID(u *uuid.UUID) *CartCreate {
-	if u != nil {
-		cc.SetPromoCodeID(*u)
+func (_c *CartCreate) SetNillablePromoCodeID(v *uuid.UUID) *CartCreate {
+	if v != nil {
+		_c.SetPromoCodeID(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (cc *CartCreate) SetExpiresAt(t time.Time) *CartCreate {
-	cc.mutation.SetExpiresAt(t)
-	return cc
+func (_c *CartCreate) SetExpiresAt(v time.Time) *CartCreate {
+	_c.mutation.SetExpiresAt(v)
+	return _c
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (cc *CartCreate) SetNillableExpiresAt(t *time.Time) *CartCreate {
-	if t != nil {
-		cc.SetExpiresAt(*t)
+func (_c *CartCreate) SetNillableExpiresAt(v *time.Time) *CartCreate {
+	if v != nil {
+		_c.SetExpiresAt(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (cc *CartCreate) SetCreatedAt(t time.Time) *CartCreate {
-	cc.mutation.SetCreatedAt(t)
-	return cc
+func (_c *CartCreate) SetCreatedAt(v time.Time) *CartCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (cc *CartCreate) SetNillableCreatedAt(t *time.Time) *CartCreate {
-	if t != nil {
-		cc.SetCreatedAt(*t)
+func (_c *CartCreate) SetNillableCreatedAt(v *time.Time) *CartCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cc *CartCreate) SetUpdatedAt(t time.Time) *CartCreate {
-	cc.mutation.SetUpdatedAt(t)
-	return cc
+func (_c *CartCreate) SetUpdatedAt(v time.Time) *CartCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cc *CartCreate) SetNillableUpdatedAt(t *time.Time) *CartCreate {
-	if t != nil {
-		cc.SetUpdatedAt(*t)
+func (_c *CartCreate) SetNillableUpdatedAt(v *time.Time) *CartCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return cc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (cc *CartCreate) SetID(u uuid.UUID) *CartCreate {
-	cc.mutation.SetID(u)
-	return cc
+func (_c *CartCreate) SetID(v uuid.UUID) *CartCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (cc *CartCreate) SetNillableID(u *uuid.UUID) *CartCreate {
-	if u != nil {
-		cc.SetID(*u)
+func (_c *CartCreate) SetNillableID(v *uuid.UUID) *CartCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return cc
+	return _c
 }
 
 // AddItemIDs adds the "items" edge to the CartItem entity by IDs.
-func (cc *CartCreate) AddItemIDs(ids ...uuid.UUID) *CartCreate {
-	cc.mutation.AddItemIDs(ids...)
-	return cc
+func (_c *CartCreate) AddItemIDs(ids ...uuid.UUID) *CartCreate {
+	_c.mutation.AddItemIDs(ids...)
+	return _c
 }
 
 // AddItems adds the "items" edges to the CartItem entity.
-func (cc *CartCreate) AddItems(c ...*CartItem) *CartCreate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_c *CartCreate) AddItems(v ...*CartItem) *CartCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cc.AddItemIDs(ids...)
+	return _c.AddItemIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cc *CartCreate) SetUser(u *User) *CartCreate {
-	return cc.SetUserID(u.ID)
+func (_c *CartCreate) SetUser(v *User) *CartCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // Mutation returns the CartMutation object of the builder.
-func (cc *CartCreate) Mutation() *CartMutation {
-	return cc.mutation
+func (_c *CartCreate) Mutation() *CartMutation {
+	return _c.mutation
 }
 
 // Save creates the Cart in the database.
-func (cc *CartCreate) Save(ctx context.Context) (*Cart, error) {
-	cc.defaults()
-	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
+func (_c *CartCreate) Save(ctx context.Context) (*Cart, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (cc *CartCreate) SaveX(ctx context.Context) *Cart {
-	v, err := cc.Save(ctx)
+func (_c *CartCreate) SaveX(ctx context.Context) *Cart {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -275,121 +275,121 @@ func (cc *CartCreate) SaveX(ctx context.Context) *Cart {
 }
 
 // Exec executes the query.
-func (cc *CartCreate) Exec(ctx context.Context) error {
-	_, err := cc.Save(ctx)
+func (_c *CartCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cc *CartCreate) ExecX(ctx context.Context) {
-	if err := cc.Exec(ctx); err != nil {
+func (_c *CartCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CartCreate) defaults() {
-	if _, ok := cc.mutation.Status(); !ok {
+func (_c *CartCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := cart.DefaultStatus
-		cc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := cc.mutation.Currency(); !ok {
+	if _, ok := _c.mutation.Currency(); !ok {
 		v := cart.DefaultCurrency
-		cc.mutation.SetCurrency(v)
+		_c.mutation.SetCurrency(v)
 	}
-	if _, ok := cc.mutation.Subtotal(); !ok {
+	if _, ok := _c.mutation.Subtotal(); !ok {
 		v := cart.DefaultSubtotal
-		cc.mutation.SetSubtotal(v)
+		_c.mutation.SetSubtotal(v)
 	}
-	if _, ok := cc.mutation.DiscountTotal(); !ok {
+	if _, ok := _c.mutation.DiscountTotal(); !ok {
 		v := cart.DefaultDiscountTotal
-		cc.mutation.SetDiscountTotal(v)
+		_c.mutation.SetDiscountTotal(v)
 	}
-	if _, ok := cc.mutation.TaxTotal(); !ok {
+	if _, ok := _c.mutation.TaxTotal(); !ok {
 		v := cart.DefaultTaxTotal
-		cc.mutation.SetTaxTotal(v)
+		_c.mutation.SetTaxTotal(v)
 	}
-	if _, ok := cc.mutation.DeliveryFee(); !ok {
+	if _, ok := _c.mutation.DeliveryFee(); !ok {
 		v := cart.DefaultDeliveryFee
-		cc.mutation.SetDeliveryFee(v)
+		_c.mutation.SetDeliveryFee(v)
 	}
-	if _, ok := cc.mutation.LoyaltyPointsRedeemed(); !ok {
+	if _, ok := _c.mutation.LoyaltyPointsRedeemed(); !ok {
 		v := cart.DefaultLoyaltyPointsRedeemed
-		cc.mutation.SetLoyaltyPointsRedeemed(v)
+		_c.mutation.SetLoyaltyPointsRedeemed(v)
 	}
-	if _, ok := cc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := cart.DefaultCreatedAt()
-		cc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := cc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := cart.DefaultUpdatedAt()
-		cc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := cc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := cart.DefaultID()
-		cc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cc *CartCreate) check() error {
-	if _, ok := cc.mutation.TenantID(); !ok {
+func (_c *CartCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Cart.tenant_id"`)}
 	}
-	if _, ok := cc.mutation.OutletID(); !ok {
+	if _, ok := _c.mutation.OutletID(); !ok {
 		return &ValidationError{Name: "outlet_id", err: errors.New(`ent: missing required field "Cart.outlet_id"`)}
 	}
-	if v, ok := cc.mutation.SessionID(); ok {
+	if v, ok := _c.mutation.SessionID(); ok {
 		if err := cart.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "Cart.session_id": %w`, err)}
 		}
 	}
-	if _, ok := cc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Cart.status"`)}
 	}
-	if v, ok := cc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := cart.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Cart.status": %w`, err)}
 		}
 	}
-	if _, ok := cc.mutation.Currency(); !ok {
+	if _, ok := _c.mutation.Currency(); !ok {
 		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "Cart.currency"`)}
 	}
-	if v, ok := cc.mutation.Currency(); ok {
+	if v, ok := _c.mutation.Currency(); ok {
 		if err := cart.CurrencyValidator(v); err != nil {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Cart.currency": %w`, err)}
 		}
 	}
-	if _, ok := cc.mutation.Subtotal(); !ok {
+	if _, ok := _c.mutation.Subtotal(); !ok {
 		return &ValidationError{Name: "subtotal", err: errors.New(`ent: missing required field "Cart.subtotal"`)}
 	}
-	if _, ok := cc.mutation.DiscountTotal(); !ok {
+	if _, ok := _c.mutation.DiscountTotal(); !ok {
 		return &ValidationError{Name: "discount_total", err: errors.New(`ent: missing required field "Cart.discount_total"`)}
 	}
-	if _, ok := cc.mutation.TaxTotal(); !ok {
+	if _, ok := _c.mutation.TaxTotal(); !ok {
 		return &ValidationError{Name: "tax_total", err: errors.New(`ent: missing required field "Cart.tax_total"`)}
 	}
-	if _, ok := cc.mutation.DeliveryFee(); !ok {
+	if _, ok := _c.mutation.DeliveryFee(); !ok {
 		return &ValidationError{Name: "delivery_fee", err: errors.New(`ent: missing required field "Cart.delivery_fee"`)}
 	}
-	if _, ok := cc.mutation.LoyaltyPointsRedeemed(); !ok {
+	if _, ok := _c.mutation.LoyaltyPointsRedeemed(); !ok {
 		return &ValidationError{Name: "loyalty_points_redeemed", err: errors.New(`ent: missing required field "Cart.loyalty_points_redeemed"`)}
 	}
-	if _, ok := cc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Cart.created_at"`)}
 	}
-	if _, ok := cc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Cart.updated_at"`)}
 	}
 	return nil
 }
 
-func (cc *CartCreate) sqlSave(ctx context.Context) (*Cart, error) {
-	if err := cc.check(); err != nil {
+func (_c *CartCreate) sqlSave(ctx context.Context) (*Cart, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := cc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, cc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -402,78 +402,78 @@ func (cc *CartCreate) sqlSave(ctx context.Context) (*Cart, error) {
 			return nil, err
 		}
 	}
-	cc.mutation.id = &_node.ID
-	cc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (cc *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
+func (_c *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Cart{config: cc.config}
+		_node = &Cart{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(cart.Table, sqlgraph.NewFieldSpec(cart.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = cc.conflict
-	if id, ok := cc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := cc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := cc.mutation.OutletID(); ok {
+	if value, ok := _c.mutation.OutletID(); ok {
 		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
 		_node.OutletID = value
 	}
-	if value, ok := cc.mutation.SessionID(); ok {
+	if value, ok := _c.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)
 		_node.SessionID = value
 	}
-	if value, ok := cc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(cart.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := cc.mutation.Currency(); ok {
+	if value, ok := _c.mutation.Currency(); ok {
 		_spec.SetField(cart.FieldCurrency, field.TypeString, value)
 		_node.Currency = value
 	}
-	if value, ok := cc.mutation.Subtotal(); ok {
+	if value, ok := _c.mutation.Subtotal(); ok {
 		_spec.SetField(cart.FieldSubtotal, field.TypeFloat64, value)
 		_node.Subtotal = value
 	}
-	if value, ok := cc.mutation.DiscountTotal(); ok {
+	if value, ok := _c.mutation.DiscountTotal(); ok {
 		_spec.SetField(cart.FieldDiscountTotal, field.TypeFloat64, value)
 		_node.DiscountTotal = value
 	}
-	if value, ok := cc.mutation.TaxTotal(); ok {
+	if value, ok := _c.mutation.TaxTotal(); ok {
 		_spec.SetField(cart.FieldTaxTotal, field.TypeFloat64, value)
 		_node.TaxTotal = value
 	}
-	if value, ok := cc.mutation.DeliveryFee(); ok {
+	if value, ok := _c.mutation.DeliveryFee(); ok {
 		_spec.SetField(cart.FieldDeliveryFee, field.TypeFloat64, value)
 		_node.DeliveryFee = value
 	}
-	if value, ok := cc.mutation.LoyaltyPointsRedeemed(); ok {
+	if value, ok := _c.mutation.LoyaltyPointsRedeemed(); ok {
 		_spec.SetField(cart.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 		_node.LoyaltyPointsRedeemed = value
 	}
-	if value, ok := cc.mutation.PromoCodeID(); ok {
+	if value, ok := _c.mutation.PromoCodeID(); ok {
 		_spec.SetField(cart.FieldPromoCodeID, field.TypeUUID, value)
 		_node.PromoCodeID = &value
 	}
-	if value, ok := cc.mutation.ExpiresAt(); ok {
+	if value, ok := _c.mutation.ExpiresAt(); ok {
 		_spec.SetField(cart.FieldExpiresAt, field.TypeTime, value)
 		_node.ExpiresAt = &value
 	}
-	if value, ok := cc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(cart.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := cc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(cart.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := cc.mutation.ItemsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.ItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -489,7 +489,7 @@ func (cc *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -525,10 +525,10 @@ func (cc *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (cc *CartCreate) OnConflict(opts ...sql.ConflictOption) *CartUpsertOne {
-	cc.conflict = opts
+func (_c *CartCreate) OnConflict(opts ...sql.ConflictOption) *CartUpsertOne {
+	_c.conflict = opts
 	return &CartUpsertOne{
-		create: cc,
+		create: _c,
 	}
 }
 
@@ -538,10 +538,10 @@ func (cc *CartCreate) OnConflict(opts ...sql.ConflictOption) *CartUpsertOne {
 //	client.Cart.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (cc *CartCreate) OnConflictColumns(columns ...string) *CartUpsertOne {
-	cc.conflict = append(cc.conflict, sql.ConflictColumns(columns...))
+func (_c *CartCreate) OnConflictColumns(columns ...string) *CartUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CartUpsertOne{
-		create: cc,
+		create: _c,
 	}
 }
 
@@ -1137,16 +1137,16 @@ type CartCreateBulk struct {
 }
 
 // Save creates the Cart entities in the database.
-func (ccb *CartCreateBulk) Save(ctx context.Context) ([]*Cart, error) {
-	if ccb.err != nil {
-		return nil, ccb.err
+func (_c *CartCreateBulk) Save(ctx context.Context) ([]*Cart, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ccb.builders))
-	nodes := make([]*Cart, len(ccb.builders))
-	mutators := make([]Mutator, len(ccb.builders))
-	for i := range ccb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Cart, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ccb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CartMutation)
@@ -1160,12 +1160,12 @@ func (ccb *CartCreateBulk) Save(ctx context.Context) ([]*Cart, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ccb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ccb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ccb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1185,7 +1185,7 @@ func (ccb *CartCreateBulk) Save(ctx context.Context) ([]*Cart, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ccb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1193,8 +1193,8 @@ func (ccb *CartCreateBulk) Save(ctx context.Context) ([]*Cart, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ccb *CartCreateBulk) SaveX(ctx context.Context) []*Cart {
-	v, err := ccb.Save(ctx)
+func (_c *CartCreateBulk) SaveX(ctx context.Context) []*Cart {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1202,14 +1202,14 @@ func (ccb *CartCreateBulk) SaveX(ctx context.Context) []*Cart {
 }
 
 // Exec executes the query.
-func (ccb *CartCreateBulk) Exec(ctx context.Context) error {
-	_, err := ccb.Save(ctx)
+func (_c *CartCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ccb *CartCreateBulk) ExecX(ctx context.Context) {
-	if err := ccb.Exec(ctx); err != nil {
+func (_c *CartCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1229,10 +1229,10 @@ func (ccb *CartCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (ccb *CartCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartUpsertBulk {
-	ccb.conflict = opts
+func (_c *CartCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartUpsertBulk {
+	_c.conflict = opts
 	return &CartUpsertBulk{
-		create: ccb,
+		create: _c,
 	}
 }
 
@@ -1242,10 +1242,10 @@ func (ccb *CartCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartUpsertBul
 //	client.Cart.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ccb *CartCreateBulk) OnConflictColumns(columns ...string) *CartUpsertBulk {
-	ccb.conflict = append(ccb.conflict, sql.ConflictColumns(columns...))
+func (_c *CartCreateBulk) OnConflictColumns(columns ...string) *CartUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CartUpsertBulk{
-		create: ccb,
+		create: _c,
 	}
 }
 

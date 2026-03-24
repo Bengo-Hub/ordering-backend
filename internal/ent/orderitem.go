@@ -22,8 +22,8 @@ type OrderItem struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Reference to order
 	OrderID uuid.UUID `json:"order_id,omitempty"`
-	// Reference to catalog item
-	CatalogItemID uuid.UUID `json:"catalog_item_id,omitempty"`
+	// SKU from inventory-api master data
+	InventorySku string `json:"inventory_sku,omitempty"`
 	// Reference to catalog item variant
 	VariantID *uuid.UUID `json:"variant_id,omitempty"`
 	// Catalog item name at time of order
@@ -83,11 +83,11 @@ func (*OrderItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case orderitem.FieldQuantity:
 			values[i] = new(sql.NullInt64)
-		case orderitem.FieldNameSnapshot, orderitem.FieldVariantNameSnapshot, orderitem.FieldNotes:
+		case orderitem.FieldInventorySku, orderitem.FieldNameSnapshot, orderitem.FieldVariantNameSnapshot, orderitem.FieldNotes:
 			values[i] = new(sql.NullString)
 		case orderitem.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case orderitem.FieldID, orderitem.FieldOrderID, orderitem.FieldCatalogItemID:
+		case orderitem.FieldID, orderitem.FieldOrderID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -98,7 +98,7 @@ func (*OrderItem) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OrderItem fields.
-func (oi *OrderItem) assignValues(columns []string, values []any) error {
+func (_m *OrderItem) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -108,68 +108,68 @@ func (oi *OrderItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				oi.ID = *value
+				_m.ID = *value
 			}
 		case orderitem.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				oi.OrderID = *value
+				_m.OrderID = *value
 			}
-		case orderitem.FieldCatalogItemID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field catalog_item_id", values[i])
-			} else if value != nil {
-				oi.CatalogItemID = *value
+		case orderitem.FieldInventorySku:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field inventory_sku", values[i])
+			} else if value.Valid {
+				_m.InventorySku = value.String
 			}
 		case orderitem.FieldVariantID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field variant_id", values[i])
 			} else if value.Valid {
-				oi.VariantID = new(uuid.UUID)
-				*oi.VariantID = *value.S.(*uuid.UUID)
+				_m.VariantID = new(uuid.UUID)
+				*_m.VariantID = *value.S.(*uuid.UUID)
 			}
 		case orderitem.FieldNameSnapshot:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_snapshot", values[i])
 			} else if value.Valid {
-				oi.NameSnapshot = value.String
+				_m.NameSnapshot = value.String
 			}
 		case orderitem.FieldVariantNameSnapshot:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field variant_name_snapshot", values[i])
 			} else if value.Valid {
-				oi.VariantNameSnapshot = value.String
+				_m.VariantNameSnapshot = value.String
 			}
 		case orderitem.FieldQuantity:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field quantity", values[i])
 			} else if value.Valid {
-				oi.Quantity = int(value.Int64)
+				_m.Quantity = int(value.Int64)
 			}
 		case orderitem.FieldUnitPrice:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field unit_price", values[i])
 			} else if value.Valid {
-				oi.UnitPrice = value.Float64
+				_m.UnitPrice = value.Float64
 			}
 		case orderitem.FieldTotalPrice:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_price", values[i])
 			} else if value.Valid {
-				oi.TotalPrice = value.Float64
+				_m.TotalPrice = value.Float64
 			}
 		case orderitem.FieldNotes:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field notes", values[i])
 			} else if value.Valid {
-				oi.Notes = value.String
+				_m.Notes = value.String
 			}
 		case orderitem.FieldModifiers:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field modifiers", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &oi.Modifiers); err != nil {
+				if err := json.Unmarshal(*value, &_m.Modifiers); err != nil {
 					return fmt.Errorf("unmarshal field modifiers: %w", err)
 				}
 			}
@@ -177,7 +177,7 @@ func (oi *OrderItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &oi.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -185,10 +185,10 @@ func (oi *OrderItem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				oi.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		default:
-			oi.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -196,75 +196,75 @@ func (oi *OrderItem) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the OrderItem.
 // This includes values selected through modifiers, order, etc.
-func (oi *OrderItem) Value(name string) (ent.Value, error) {
-	return oi.selectValues.Get(name)
+func (_m *OrderItem) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryOrder queries the "order" edge of the OrderItem entity.
-func (oi *OrderItem) QueryOrder() *OrderQuery {
-	return NewOrderItemClient(oi.config).QueryOrder(oi)
+func (_m *OrderItem) QueryOrder() *OrderQuery {
+	return NewOrderItemClient(_m.config).QueryOrder(_m)
 }
 
 // Update returns a builder for updating this OrderItem.
 // Note that you need to call OrderItem.Unwrap() before calling this method if this OrderItem
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (oi *OrderItem) Update() *OrderItemUpdateOne {
-	return NewOrderItemClient(oi.config).UpdateOne(oi)
+func (_m *OrderItem) Update() *OrderItemUpdateOne {
+	return NewOrderItemClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OrderItem entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (oi *OrderItem) Unwrap() *OrderItem {
-	_tx, ok := oi.config.driver.(*txDriver)
+func (_m *OrderItem) Unwrap() *OrderItem {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OrderItem is not a transactional entity")
 	}
-	oi.config.driver = _tx.drv
-	return oi
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (oi *OrderItem) String() string {
+func (_m *OrderItem) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderItem(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", oi.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", oi.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
-	builder.WriteString("catalog_item_id=")
-	builder.WriteString(fmt.Sprintf("%v", oi.CatalogItemID))
+	builder.WriteString("inventory_sku=")
+	builder.WriteString(_m.InventorySku)
 	builder.WriteString(", ")
-	if v := oi.VariantID; v != nil {
+	if v := _m.VariantID; v != nil {
 		builder.WriteString("variant_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name_snapshot=")
-	builder.WriteString(oi.NameSnapshot)
+	builder.WriteString(_m.NameSnapshot)
 	builder.WriteString(", ")
 	builder.WriteString("variant_name_snapshot=")
-	builder.WriteString(oi.VariantNameSnapshot)
+	builder.WriteString(_m.VariantNameSnapshot)
 	builder.WriteString(", ")
 	builder.WriteString("quantity=")
-	builder.WriteString(fmt.Sprintf("%v", oi.Quantity))
+	builder.WriteString(fmt.Sprintf("%v", _m.Quantity))
 	builder.WriteString(", ")
 	builder.WriteString("unit_price=")
-	builder.WriteString(fmt.Sprintf("%v", oi.UnitPrice))
+	builder.WriteString(fmt.Sprintf("%v", _m.UnitPrice))
 	builder.WriteString(", ")
 	builder.WriteString("total_price=")
-	builder.WriteString(fmt.Sprintf("%v", oi.TotalPrice))
+	builder.WriteString(fmt.Sprintf("%v", _m.TotalPrice))
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
-	builder.WriteString(oi.Notes)
+	builder.WriteString(_m.Notes)
 	builder.WriteString(", ")
 	builder.WriteString("modifiers=")
-	builder.WriteString(fmt.Sprintf("%v", oi.Modifiers))
+	builder.WriteString(fmt.Sprintf("%v", _m.Modifiers))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", oi.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(oi.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

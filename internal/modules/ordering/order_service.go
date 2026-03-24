@@ -191,7 +191,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	for _, cartItem := range cart.Items {
 		orderItem := &OrderItem{
 			OrderID:       order.ID,
-			CatalogItemID: cartItem.CatalogItemID,
+			InventorySKU: cartItem.InventorySKU,
 			VariantID:     cartItem.VariantID,
 			NameSnapshot:  cartItem.NameSnapshot,
 			Quantity:     cartItem.Quantity,
@@ -302,7 +302,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	for _, it := range req.Items {
 		orderItem := &OrderItem{
 			OrderID:       order.ID,
-			CatalogItemID: it.CatalogItemID,
+			InventorySKU: it.InventorySKU,
 			NameSnapshot:  it.Name,
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
@@ -405,7 +405,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	for _, cartItem := range guestCart.Items {
 		orderItem := &OrderItem{
 			OrderID:       order.ID,
-			CatalogItemID: cartItem.CatalogItemID,
+			InventorySKU: cartItem.InventorySKU,
 			VariantID:     cartItem.VariantID,
 			NameSnapshot:  cartItem.NameSnapshot,
 			Quantity:      cartItem.Quantity,
@@ -468,18 +468,18 @@ func (s *OrderService) processStockConsumption(ctx context.Context, order *Order
 	consumptionMap := make(map[string]float64) // SKU -> Quantity
 
 	for _, item := range order.Items {
-		// Get catalog item to find its SKU code
-		catalogItem, err := s.repo.GetCatalogItemByID(ctx, order.TenantID, item.CatalogItemID)
-		if err != nil {
-			s.logger.Warn("failed to get catalog item for recipe lookup", zap.Error(err), zap.String("catalogItemID", item.CatalogItemID.String()))
+		// Item already carries its inventory SKU — no need to look up CatalogItem
+		sku := item.InventorySKU
+		if sku == "" {
+			s.logger.Warn("order item missing inventory SKU", zap.String("itemID", item.ID.String()))
 			continue
 		}
 
 		// Lookup recipe by SKU
-		recipe, err := s.inventoryClient.GetRecipeBySKU(ctx, tenant.Slug, catalogItem.SKU)
+		recipe, err := s.inventoryClient.GetRecipeBySKU(ctx, tenant.Slug, sku)
 		if err != nil {
 			// It's possible some items don't have recipes associated
-			s.logger.Debug("no recipe found for catalog item", zap.String("sku", catalogItem.SKU))
+			s.logger.Debug("no recipe found for catalog item", zap.String("sku", sku))
 			continue
 		}
 

@@ -20,56 +20,56 @@ type DeliveryZoneDelete struct {
 }
 
 // Where appends a list predicates to the DeliveryZoneDelete builder.
-func (dzd *DeliveryZoneDelete) Where(ps ...predicate.DeliveryZone) *DeliveryZoneDelete {
-	dzd.mutation.Where(ps...)
-	return dzd
+func (_d *DeliveryZoneDelete) Where(ps ...predicate.DeliveryZone) *DeliveryZoneDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dzd *DeliveryZoneDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dzd.sqlExec, dzd.mutation, dzd.hooks)
+func (_d *DeliveryZoneDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzd *DeliveryZoneDelete) ExecX(ctx context.Context) int {
-	n, err := dzd.Exec(ctx)
+func (_d *DeliveryZoneDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dzd *DeliveryZoneDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DeliveryZoneDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(deliveryzone.Table, sqlgraph.NewFieldSpec(deliveryzone.FieldID, field.TypeUUID))
-	if ps := dzd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dzd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dzd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DeliveryZoneDeleteOne is the builder for deleting a single DeliveryZone entity.
 type DeliveryZoneDeleteOne struct {
-	dzd *DeliveryZoneDelete
+	_d *DeliveryZoneDelete
 }
 
 // Where appends a list predicates to the DeliveryZoneDelete builder.
-func (dzdo *DeliveryZoneDeleteOne) Where(ps ...predicate.DeliveryZone) *DeliveryZoneDeleteOne {
-	dzdo.dzd.mutation.Where(ps...)
-	return dzdo
+func (_d *DeliveryZoneDeleteOne) Where(ps ...predicate.DeliveryZone) *DeliveryZoneDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dzdo *DeliveryZoneDeleteOne) Exec(ctx context.Context) error {
-	n, err := dzdo.dzd.Exec(ctx)
+func (_d *DeliveryZoneDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dzdo *DeliveryZoneDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dzdo *DeliveryZoneDeleteOne) ExecX(ctx context.Context) {
-	if err := dzdo.Exec(ctx); err != nil {
+func (_d *DeliveryZoneDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

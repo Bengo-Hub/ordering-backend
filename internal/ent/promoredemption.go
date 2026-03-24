@@ -75,7 +75,7 @@ func (*PromoRedemption) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the PromoRedemption fields.
-func (pr *PromoRedemption) assignValues(columns []string, values []any) error {
+func (_m *PromoRedemption) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -85,40 +85,40 @@ func (pr *PromoRedemption) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				pr.ID = *value
+				_m.ID = *value
 			}
 		case promoredemption.FieldPromoCodeID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field promo_code_id", values[i])
 			} else if value != nil {
-				pr.PromoCodeID = *value
+				_m.PromoCodeID = *value
 			}
 		case promoredemption.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				pr.OrderID = *value
+				_m.OrderID = *value
 			}
 		case promoredemption.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				pr.UserID = *value
+				_m.UserID = *value
 			}
 		case promoredemption.FieldDiscountAmount:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field discount_amount", values[i])
 			} else if value.Valid {
-				pr.DiscountAmount = value.Float64
+				_m.DiscountAmount = value.Float64
 			}
 		case promoredemption.FieldRedeemedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field redeemed_at", values[i])
 			} else if value.Valid {
-				pr.RedeemedAt = value.Time
+				_m.RedeemedAt = value.Time
 			}
 		default:
-			pr.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -126,52 +126,52 @@ func (pr *PromoRedemption) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the PromoRedemption.
 // This includes values selected through modifiers, order, etc.
-func (pr *PromoRedemption) Value(name string) (ent.Value, error) {
-	return pr.selectValues.Get(name)
+func (_m *PromoRedemption) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryPromoCode queries the "promo_code" edge of the PromoRedemption entity.
-func (pr *PromoRedemption) QueryPromoCode() *PromoCodeQuery {
-	return NewPromoRedemptionClient(pr.config).QueryPromoCode(pr)
+func (_m *PromoRedemption) QueryPromoCode() *PromoCodeQuery {
+	return NewPromoRedemptionClient(_m.config).QueryPromoCode(_m)
 }
 
 // Update returns a builder for updating this PromoRedemption.
 // Note that you need to call PromoRedemption.Unwrap() before calling this method if this PromoRedemption
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (pr *PromoRedemption) Update() *PromoRedemptionUpdateOne {
-	return NewPromoRedemptionClient(pr.config).UpdateOne(pr)
+func (_m *PromoRedemption) Update() *PromoRedemptionUpdateOne {
+	return NewPromoRedemptionClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the PromoRedemption entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (pr *PromoRedemption) Unwrap() *PromoRedemption {
-	_tx, ok := pr.config.driver.(*txDriver)
+func (_m *PromoRedemption) Unwrap() *PromoRedemption {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: PromoRedemption is not a transactional entity")
 	}
-	pr.config.driver = _tx.drv
-	return pr
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (pr *PromoRedemption) String() string {
+func (_m *PromoRedemption) String() string {
 	var builder strings.Builder
 	builder.WriteString("PromoRedemption(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", pr.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("promo_code_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.PromoCodeID))
+	builder.WriteString(fmt.Sprintf("%v", _m.PromoCodeID))
 	builder.WriteString(", ")
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("discount_amount=")
-	builder.WriteString(fmt.Sprintf("%v", pr.DiscountAmount))
+	builder.WriteString(fmt.Sprintf("%v", _m.DiscountAmount))
 	builder.WriteString(", ")
 	builder.WriteString("redeemed_at=")
-	builder.WriteString(pr.RedeemedAt.Format(time.ANSIC))
+	builder.WriteString(_m.RedeemedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

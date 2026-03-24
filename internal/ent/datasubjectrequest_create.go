@@ -25,163 +25,163 @@ type DataSubjectRequestCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dsrc *DataSubjectRequestCreate) SetTenantID(u uuid.UUID) *DataSubjectRequestCreate {
-	dsrc.mutation.SetTenantID(u)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetTenantID(v uuid.UUID) *DataSubjectRequestCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (dsrc *DataSubjectRequestCreate) SetUserID(u uuid.UUID) *DataSubjectRequestCreate {
-	dsrc.mutation.SetUserID(u)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetUserID(v uuid.UUID) *DataSubjectRequestCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetRequestType sets the "request_type" field.
-func (dsrc *DataSubjectRequestCreate) SetRequestType(dt datasubjectrequest.RequestType) *DataSubjectRequestCreate {
-	dsrc.mutation.SetRequestType(dt)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetRequestType(v datasubjectrequest.RequestType) *DataSubjectRequestCreate {
+	_c.mutation.SetRequestType(v)
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (dsrc *DataSubjectRequestCreate) SetStatus(d datasubjectrequest.Status) *DataSubjectRequestCreate {
-	dsrc.mutation.SetStatus(d)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetStatus(v datasubjectrequest.Status) *DataSubjectRequestCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableStatus(d *datasubjectrequest.Status) *DataSubjectRequestCreate {
-	if d != nil {
-		dsrc.SetStatus(*d)
+func (_c *DataSubjectRequestCreate) SetNillableStatus(v *datasubjectrequest.Status) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (dsrc *DataSubjectRequestCreate) SetDescription(s string) *DataSubjectRequestCreate {
-	dsrc.mutation.SetDescription(s)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetDescription(v string) *DataSubjectRequestCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableDescription(s *string) *DataSubjectRequestCreate {
-	if s != nil {
-		dsrc.SetDescription(*s)
+func (_c *DataSubjectRequestCreate) SetNillableDescription(v *string) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetNotes sets the "notes" field.
-func (dsrc *DataSubjectRequestCreate) SetNotes(s string) *DataSubjectRequestCreate {
-	dsrc.mutation.SetNotes(s)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetNotes(v string) *DataSubjectRequestCreate {
+	_c.mutation.SetNotes(v)
+	return _c
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableNotes(s *string) *DataSubjectRequestCreate {
-	if s != nil {
-		dsrc.SetNotes(*s)
+func (_c *DataSubjectRequestCreate) SetNillableNotes(v *string) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetNotes(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetResultURL sets the "result_url" field.
-func (dsrc *DataSubjectRequestCreate) SetResultURL(s string) *DataSubjectRequestCreate {
-	dsrc.mutation.SetResultURL(s)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetResultURL(v string) *DataSubjectRequestCreate {
+	_c.mutation.SetResultURL(v)
+	return _c
 }
 
 // SetNillableResultURL sets the "result_url" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableResultURL(s *string) *DataSubjectRequestCreate {
-	if s != nil {
-		dsrc.SetResultURL(*s)
+func (_c *DataSubjectRequestCreate) SetNillableResultURL(v *string) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetResultURL(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetSubmittedAt sets the "submitted_at" field.
-func (dsrc *DataSubjectRequestCreate) SetSubmittedAt(t time.Time) *DataSubjectRequestCreate {
-	dsrc.mutation.SetSubmittedAt(t)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetSubmittedAt(v time.Time) *DataSubjectRequestCreate {
+	_c.mutation.SetSubmittedAt(v)
+	return _c
 }
 
 // SetNillableSubmittedAt sets the "submitted_at" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableSubmittedAt(t *time.Time) *DataSubjectRequestCreate {
-	if t != nil {
-		dsrc.SetSubmittedAt(*t)
+func (_c *DataSubjectRequestCreate) SetNillableSubmittedAt(v *time.Time) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetSubmittedAt(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetProcessedAt sets the "processed_at" field.
-func (dsrc *DataSubjectRequestCreate) SetProcessedAt(t time.Time) *DataSubjectRequestCreate {
-	dsrc.mutation.SetProcessedAt(t)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetProcessedAt(v time.Time) *DataSubjectRequestCreate {
+	_c.mutation.SetProcessedAt(v)
+	return _c
 }
 
 // SetNillableProcessedAt sets the "processed_at" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableProcessedAt(t *time.Time) *DataSubjectRequestCreate {
-	if t != nil {
-		dsrc.SetProcessedAt(*t)
+func (_c *DataSubjectRequestCreate) SetNillableProcessedAt(v *time.Time) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetProcessedAt(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (dsrc *DataSubjectRequestCreate) SetCreatedAt(t time.Time) *DataSubjectRequestCreate {
-	dsrc.mutation.SetCreatedAt(t)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetCreatedAt(v time.Time) *DataSubjectRequestCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableCreatedAt(t *time.Time) *DataSubjectRequestCreate {
-	if t != nil {
-		dsrc.SetCreatedAt(*t)
+func (_c *DataSubjectRequestCreate) SetNillableCreatedAt(v *time.Time) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dsrc *DataSubjectRequestCreate) SetUpdatedAt(t time.Time) *DataSubjectRequestCreate {
-	dsrc.mutation.SetUpdatedAt(t)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetUpdatedAt(v time.Time) *DataSubjectRequestCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableUpdatedAt(t *time.Time) *DataSubjectRequestCreate {
-	if t != nil {
-		dsrc.SetUpdatedAt(*t)
+func (_c *DataSubjectRequestCreate) SetNillableUpdatedAt(v *time.Time) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dsrc *DataSubjectRequestCreate) SetID(u uuid.UUID) *DataSubjectRequestCreate {
-	dsrc.mutation.SetID(u)
-	return dsrc
+func (_c *DataSubjectRequestCreate) SetID(v uuid.UUID) *DataSubjectRequestCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dsrc *DataSubjectRequestCreate) SetNillableID(u *uuid.UUID) *DataSubjectRequestCreate {
-	if u != nil {
-		dsrc.SetID(*u)
+func (_c *DataSubjectRequestCreate) SetNillableID(v *uuid.UUID) *DataSubjectRequestCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dsrc
+	return _c
 }
 
 // Mutation returns the DataSubjectRequestMutation object of the builder.
-func (dsrc *DataSubjectRequestCreate) Mutation() *DataSubjectRequestMutation {
-	return dsrc.mutation
+func (_c *DataSubjectRequestCreate) Mutation() *DataSubjectRequestMutation {
+	return _c.mutation
 }
 
 // Save creates the DataSubjectRequest in the database.
-func (dsrc *DataSubjectRequestCreate) Save(ctx context.Context) (*DataSubjectRequest, error) {
-	dsrc.defaults()
-	return withHooks(ctx, dsrc.sqlSave, dsrc.mutation, dsrc.hooks)
+func (_c *DataSubjectRequestCreate) Save(ctx context.Context) (*DataSubjectRequest, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dsrc *DataSubjectRequestCreate) SaveX(ctx context.Context) *DataSubjectRequest {
-	v, err := dsrc.Save(ctx)
+func (_c *DataSubjectRequestCreate) SaveX(ctx context.Context) *DataSubjectRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -189,84 +189,84 @@ func (dsrc *DataSubjectRequestCreate) SaveX(ctx context.Context) *DataSubjectReq
 }
 
 // Exec executes the query.
-func (dsrc *DataSubjectRequestCreate) Exec(ctx context.Context) error {
-	_, err := dsrc.Save(ctx)
+func (_c *DataSubjectRequestCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsrc *DataSubjectRequestCreate) ExecX(ctx context.Context) {
-	if err := dsrc.Exec(ctx); err != nil {
+func (_c *DataSubjectRequestCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dsrc *DataSubjectRequestCreate) defaults() {
-	if _, ok := dsrc.mutation.Status(); !ok {
+func (_c *DataSubjectRequestCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := datasubjectrequest.DefaultStatus
-		dsrc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := dsrc.mutation.SubmittedAt(); !ok {
+	if _, ok := _c.mutation.SubmittedAt(); !ok {
 		v := datasubjectrequest.DefaultSubmittedAt()
-		dsrc.mutation.SetSubmittedAt(v)
+		_c.mutation.SetSubmittedAt(v)
 	}
-	if _, ok := dsrc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := datasubjectrequest.DefaultCreatedAt()
-		dsrc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := dsrc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := datasubjectrequest.DefaultUpdatedAt()
-		dsrc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := dsrc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := datasubjectrequest.DefaultID()
-		dsrc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dsrc *DataSubjectRequestCreate) check() error {
-	if _, ok := dsrc.mutation.TenantID(); !ok {
+func (_c *DataSubjectRequestCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "DataSubjectRequest.tenant_id"`)}
 	}
-	if _, ok := dsrc.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "DataSubjectRequest.user_id"`)}
 	}
-	if _, ok := dsrc.mutation.RequestType(); !ok {
+	if _, ok := _c.mutation.RequestType(); !ok {
 		return &ValidationError{Name: "request_type", err: errors.New(`ent: missing required field "DataSubjectRequest.request_type"`)}
 	}
-	if v, ok := dsrc.mutation.RequestType(); ok {
+	if v, ok := _c.mutation.RequestType(); ok {
 		if err := datasubjectrequest.RequestTypeValidator(v); err != nil {
 			return &ValidationError{Name: "request_type", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.request_type": %w`, err)}
 		}
 	}
-	if _, ok := dsrc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DataSubjectRequest.status"`)}
 	}
-	if v, ok := dsrc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := datasubjectrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataSubjectRequest.status": %w`, err)}
 		}
 	}
-	if _, ok := dsrc.mutation.SubmittedAt(); !ok {
+	if _, ok := _c.mutation.SubmittedAt(); !ok {
 		return &ValidationError{Name: "submitted_at", err: errors.New(`ent: missing required field "DataSubjectRequest.submitted_at"`)}
 	}
-	if _, ok := dsrc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DataSubjectRequest.created_at"`)}
 	}
-	if _, ok := dsrc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DataSubjectRequest.updated_at"`)}
 	}
 	return nil
 }
 
-func (dsrc *DataSubjectRequestCreate) sqlSave(ctx context.Context) (*DataSubjectRequest, error) {
-	if err := dsrc.check(); err != nil {
+func (_c *DataSubjectRequestCreate) sqlSave(ctx context.Context) (*DataSubjectRequest, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dsrc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dsrc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -279,62 +279,62 @@ func (dsrc *DataSubjectRequestCreate) sqlSave(ctx context.Context) (*DataSubject
 			return nil, err
 		}
 	}
-	dsrc.mutation.id = &_node.ID
-	dsrc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dsrc *DataSubjectRequestCreate) createSpec() (*DataSubjectRequest, *sqlgraph.CreateSpec) {
+func (_c *DataSubjectRequestCreate) createSpec() (*DataSubjectRequest, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DataSubjectRequest{config: dsrc.config}
+		_node = &DataSubjectRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(datasubjectrequest.Table, sqlgraph.NewFieldSpec(datasubjectrequest.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dsrc.conflict
-	if id, ok := dsrc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dsrc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(datasubjectrequest.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := dsrc.mutation.UserID(); ok {
+	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(datasubjectrequest.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
-	if value, ok := dsrc.mutation.RequestType(); ok {
+	if value, ok := _c.mutation.RequestType(); ok {
 		_spec.SetField(datasubjectrequest.FieldRequestType, field.TypeEnum, value)
 		_node.RequestType = value
 	}
-	if value, ok := dsrc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(datasubjectrequest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := dsrc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(datasubjectrequest.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := dsrc.mutation.Notes(); ok {
+	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(datasubjectrequest.FieldNotes, field.TypeString, value)
 		_node.Notes = value
 	}
-	if value, ok := dsrc.mutation.ResultURL(); ok {
+	if value, ok := _c.mutation.ResultURL(); ok {
 		_spec.SetField(datasubjectrequest.FieldResultURL, field.TypeString, value)
 		_node.ResultURL = value
 	}
-	if value, ok := dsrc.mutation.SubmittedAt(); ok {
+	if value, ok := _c.mutation.SubmittedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldSubmittedAt, field.TypeTime, value)
 		_node.SubmittedAt = value
 	}
-	if value, ok := dsrc.mutation.ProcessedAt(); ok {
+	if value, ok := _c.mutation.ProcessedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldProcessedAt, field.TypeTime, value)
 		_node.ProcessedAt = &value
 	}
-	if value, ok := dsrc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := dsrc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(datasubjectrequest.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -357,10 +357,10 @@ func (dsrc *DataSubjectRequestCreate) createSpec() (*DataSubjectRequest, *sqlgra
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dsrc *DataSubjectRequestCreate) OnConflict(opts ...sql.ConflictOption) *DataSubjectRequestUpsertOne {
-	dsrc.conflict = opts
+func (_c *DataSubjectRequestCreate) OnConflict(opts ...sql.ConflictOption) *DataSubjectRequestUpsertOne {
+	_c.conflict = opts
 	return &DataSubjectRequestUpsertOne{
-		create: dsrc,
+		create: _c,
 	}
 }
 
@@ -370,10 +370,10 @@ func (dsrc *DataSubjectRequestCreate) OnConflict(opts ...sql.ConflictOption) *Da
 //	client.DataSubjectRequest.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dsrc *DataSubjectRequestCreate) OnConflictColumns(columns ...string) *DataSubjectRequestUpsertOne {
-	dsrc.conflict = append(dsrc.conflict, sql.ConflictColumns(columns...))
+func (_c *DataSubjectRequestCreate) OnConflictColumns(columns ...string) *DataSubjectRequestUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataSubjectRequestUpsertOne{
-		create: dsrc,
+		create: _c,
 	}
 }
 
@@ -800,16 +800,16 @@ type DataSubjectRequestCreateBulk struct {
 }
 
 // Save creates the DataSubjectRequest entities in the database.
-func (dsrcb *DataSubjectRequestCreateBulk) Save(ctx context.Context) ([]*DataSubjectRequest, error) {
-	if dsrcb.err != nil {
-		return nil, dsrcb.err
+func (_c *DataSubjectRequestCreateBulk) Save(ctx context.Context) ([]*DataSubjectRequest, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dsrcb.builders))
-	nodes := make([]*DataSubjectRequest, len(dsrcb.builders))
-	mutators := make([]Mutator, len(dsrcb.builders))
-	for i := range dsrcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DataSubjectRequest, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dsrcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DataSubjectRequestMutation)
@@ -823,12 +823,12 @@ func (dsrcb *DataSubjectRequestCreateBulk) Save(ctx context.Context) ([]*DataSub
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dsrcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dsrcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dsrcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -848,7 +848,7 @@ func (dsrcb *DataSubjectRequestCreateBulk) Save(ctx context.Context) ([]*DataSub
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dsrcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -856,8 +856,8 @@ func (dsrcb *DataSubjectRequestCreateBulk) Save(ctx context.Context) ([]*DataSub
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dsrcb *DataSubjectRequestCreateBulk) SaveX(ctx context.Context) []*DataSubjectRequest {
-	v, err := dsrcb.Save(ctx)
+func (_c *DataSubjectRequestCreateBulk) SaveX(ctx context.Context) []*DataSubjectRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -865,14 +865,14 @@ func (dsrcb *DataSubjectRequestCreateBulk) SaveX(ctx context.Context) []*DataSub
 }
 
 // Exec executes the query.
-func (dsrcb *DataSubjectRequestCreateBulk) Exec(ctx context.Context) error {
-	_, err := dsrcb.Save(ctx)
+func (_c *DataSubjectRequestCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsrcb *DataSubjectRequestCreateBulk) ExecX(ctx context.Context) {
-	if err := dsrcb.Exec(ctx); err != nil {
+func (_c *DataSubjectRequestCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -892,10 +892,10 @@ func (dsrcb *DataSubjectRequestCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dsrcb *DataSubjectRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataSubjectRequestUpsertBulk {
-	dsrcb.conflict = opts
+func (_c *DataSubjectRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataSubjectRequestUpsertBulk {
+	_c.conflict = opts
 	return &DataSubjectRequestUpsertBulk{
-		create: dsrcb,
+		create: _c,
 	}
 }
 
@@ -905,10 +905,10 @@ func (dsrcb *DataSubjectRequestCreateBulk) OnConflict(opts ...sql.ConflictOption
 //	client.DataSubjectRequest.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dsrcb *DataSubjectRequestCreateBulk) OnConflictColumns(columns ...string) *DataSubjectRequestUpsertBulk {
-	dsrcb.conflict = append(dsrcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DataSubjectRequestCreateBulk) OnConflictColumns(columns ...string) *DataSubjectRequestUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataSubjectRequestUpsertBulk{
-		create: dsrcb,
+		create: _c,
 	}
 }
 

@@ -27,287 +27,287 @@ type OrderAssignmentCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oac *OrderAssignmentCreate) SetTenantID(u uuid.UUID) *OrderAssignmentCreate {
-	oac.mutation.SetTenantID(u)
-	return oac
+func (_c *OrderAssignmentCreate) SetTenantID(v uuid.UUID) *OrderAssignmentCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOrderID sets the "order_id" field.
-func (oac *OrderAssignmentCreate) SetOrderID(u uuid.UUID) *OrderAssignmentCreate {
-	oac.mutation.SetOrderID(u)
-	return oac
+func (_c *OrderAssignmentCreate) SetOrderID(v uuid.UUID) *OrderAssignmentCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetLogisticsTaskID sets the "logistics_task_id" field.
-func (oac *OrderAssignmentCreate) SetLogisticsTaskID(s string) *OrderAssignmentCreate {
-	oac.mutation.SetLogisticsTaskID(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetLogisticsTaskID(v string) *OrderAssignmentCreate {
+	_c.mutation.SetLogisticsTaskID(v)
+	return _c
 }
 
 // SetRiderID sets the "rider_id" field.
-func (oac *OrderAssignmentCreate) SetRiderID(s string) *OrderAssignmentCreate {
-	oac.mutation.SetRiderID(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetRiderID(v string) *OrderAssignmentCreate {
+	_c.mutation.SetRiderID(v)
+	return _c
 }
 
 // SetNillableRiderID sets the "rider_id" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableRiderID(s *string) *OrderAssignmentCreate {
-	if s != nil {
-		oac.SetRiderID(*s)
+func (_c *OrderAssignmentCreate) SetNillableRiderID(v *string) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetRiderID(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (oac *OrderAssignmentCreate) SetStatus(o orderassignment.Status) *OrderAssignmentCreate {
-	oac.mutation.SetStatus(o)
-	return oac
+func (_c *OrderAssignmentCreate) SetStatus(v orderassignment.Status) *OrderAssignmentCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableStatus(o *orderassignment.Status) *OrderAssignmentCreate {
-	if o != nil {
-		oac.SetStatus(*o)
+func (_c *OrderAssignmentCreate) SetNillableStatus(v *orderassignment.Status) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetPriority sets the "priority" field.
-func (oac *OrderAssignmentCreate) SetPriority(o orderassignment.Priority) *OrderAssignmentCreate {
-	oac.mutation.SetPriority(o)
-	return oac
+func (_c *OrderAssignmentCreate) SetPriority(v orderassignment.Priority) *OrderAssignmentCreate {
+	_c.mutation.SetPriority(v)
+	return _c
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillablePriority(o *orderassignment.Priority) *OrderAssignmentCreate {
-	if o != nil {
-		oac.SetPriority(*o)
+func (_c *OrderAssignmentCreate) SetNillablePriority(v *orderassignment.Priority) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetPriority(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetSpecialInstructions sets the "special_instructions" field.
-func (oac *OrderAssignmentCreate) SetSpecialInstructions(s string) *OrderAssignmentCreate {
-	oac.mutation.SetSpecialInstructions(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetSpecialInstructions(v string) *OrderAssignmentCreate {
+	_c.mutation.SetSpecialInstructions(v)
+	return _c
 }
 
 // SetNillableSpecialInstructions sets the "special_instructions" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableSpecialInstructions(s *string) *OrderAssignmentCreate {
-	if s != nil {
-		oac.SetSpecialInstructions(*s)
+func (_c *OrderAssignmentCreate) SetNillableSpecialInstructions(v *string) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetSpecialInstructions(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetRejectionReason sets the "rejection_reason" field.
-func (oac *OrderAssignmentCreate) SetRejectionReason(s string) *OrderAssignmentCreate {
-	oac.mutation.SetRejectionReason(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetRejectionReason(v string) *OrderAssignmentCreate {
+	_c.mutation.SetRejectionReason(v)
+	return _c
 }
 
 // SetNillableRejectionReason sets the "rejection_reason" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableRejectionReason(s *string) *OrderAssignmentCreate {
-	if s != nil {
-		oac.SetRejectionReason(*s)
+func (_c *OrderAssignmentCreate) SetNillableRejectionReason(v *string) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetRejectionReason(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetCancellationReason sets the "cancellation_reason" field.
-func (oac *OrderAssignmentCreate) SetCancellationReason(s string) *OrderAssignmentCreate {
-	oac.mutation.SetCancellationReason(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetCancellationReason(v string) *OrderAssignmentCreate {
+	_c.mutation.SetCancellationReason(v)
+	return _c
 }
 
 // SetNillableCancellationReason sets the "cancellation_reason" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableCancellationReason(s *string) *OrderAssignmentCreate {
-	if s != nil {
-		oac.SetCancellationReason(*s)
+func (_c *OrderAssignmentCreate) SetNillableCancellationReason(v *string) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetCancellationReason(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetFailureReason sets the "failure_reason" field.
-func (oac *OrderAssignmentCreate) SetFailureReason(s string) *OrderAssignmentCreate {
-	oac.mutation.SetFailureReason(s)
-	return oac
+func (_c *OrderAssignmentCreate) SetFailureReason(v string) *OrderAssignmentCreate {
+	_c.mutation.SetFailureReason(v)
+	return _c
 }
 
 // SetNillableFailureReason sets the "failure_reason" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableFailureReason(s *string) *OrderAssignmentCreate {
-	if s != nil {
-		oac.SetFailureReason(*s)
+func (_c *OrderAssignmentCreate) SetNillableFailureReason(v *string) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetFailureReason(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetAttemptCount sets the "attempt_count" field.
-func (oac *OrderAssignmentCreate) SetAttemptCount(i int) *OrderAssignmentCreate {
-	oac.mutation.SetAttemptCount(i)
-	return oac
+func (_c *OrderAssignmentCreate) SetAttemptCount(v int) *OrderAssignmentCreate {
+	_c.mutation.SetAttemptCount(v)
+	return _c
 }
 
 // SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableAttemptCount(i *int) *OrderAssignmentCreate {
-	if i != nil {
-		oac.SetAttemptCount(*i)
+func (_c *OrderAssignmentCreate) SetNillableAttemptCount(v *int) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetAttemptCount(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (oac *OrderAssignmentCreate) SetMetadata(m map[string]interface{}) *OrderAssignmentCreate {
-	oac.mutation.SetMetadata(m)
-	return oac
+func (_c *OrderAssignmentCreate) SetMetadata(v map[string]interface{}) *OrderAssignmentCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetAssignedAt sets the "assigned_at" field.
-func (oac *OrderAssignmentCreate) SetAssignedAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetAssignedAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetAssignedAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetAssignedAt(v)
+	return _c
 }
 
 // SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableAssignedAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetAssignedAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableAssignedAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetAssignedAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetAcceptedAt sets the "accepted_at" field.
-func (oac *OrderAssignmentCreate) SetAcceptedAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetAcceptedAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetAcceptedAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetAcceptedAt(v)
+	return _c
 }
 
 // SetNillableAcceptedAt sets the "accepted_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableAcceptedAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetAcceptedAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableAcceptedAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetAcceptedAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetPickedUpAt sets the "picked_up_at" field.
-func (oac *OrderAssignmentCreate) SetPickedUpAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetPickedUpAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetPickedUpAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetPickedUpAt(v)
+	return _c
 }
 
 // SetNillablePickedUpAt sets the "picked_up_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillablePickedUpAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetPickedUpAt(*t)
+func (_c *OrderAssignmentCreate) SetNillablePickedUpAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetPickedUpAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (oac *OrderAssignmentCreate) SetCompletedAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetCompletedAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetCompletedAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetCompletedAt(v)
+	return _c
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableCompletedAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetCompletedAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableCompletedAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetCompletedAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetCancelledAt sets the "cancelled_at" field.
-func (oac *OrderAssignmentCreate) SetCancelledAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetCancelledAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetCancelledAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetCancelledAt(v)
+	return _c
 }
 
 // SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableCancelledAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetCancelledAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableCancelledAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetCancelledAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (oac *OrderAssignmentCreate) SetCreatedAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetCreatedAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetCreatedAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableCreatedAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetCreatedAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableCreatedAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oac *OrderAssignmentCreate) SetUpdatedAt(t time.Time) *OrderAssignmentCreate {
-	oac.mutation.SetUpdatedAt(t)
-	return oac
+func (_c *OrderAssignmentCreate) SetUpdatedAt(v time.Time) *OrderAssignmentCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableUpdatedAt(t *time.Time) *OrderAssignmentCreate {
-	if t != nil {
-		oac.SetUpdatedAt(*t)
+func (_c *OrderAssignmentCreate) SetNillableUpdatedAt(v *time.Time) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (oac *OrderAssignmentCreate) SetID(u uuid.UUID) *OrderAssignmentCreate {
-	oac.mutation.SetID(u)
-	return oac
+func (_c *OrderAssignmentCreate) SetID(v uuid.UUID) *OrderAssignmentCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (oac *OrderAssignmentCreate) SetNillableID(u *uuid.UUID) *OrderAssignmentCreate {
-	if u != nil {
-		oac.SetID(*u)
+func (_c *OrderAssignmentCreate) SetNillableID(v *uuid.UUID) *OrderAssignmentCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return oac
+	return _c
 }
 
 // SetOrder sets the "order" edge to the Order entity.
-func (oac *OrderAssignmentCreate) SetOrder(o *Order) *OrderAssignmentCreate {
-	return oac.SetOrderID(o.ID)
+func (_c *OrderAssignmentCreate) SetOrder(v *Order) *OrderAssignmentCreate {
+	return _c.SetOrderID(v.ID)
 }
 
 // AddDeliveryWindowIDs adds the "delivery_windows" edge to the DeliveryWindow entity by IDs.
-func (oac *OrderAssignmentCreate) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentCreate {
-	oac.mutation.AddDeliveryWindowIDs(ids...)
-	return oac
+func (_c *OrderAssignmentCreate) AddDeliveryWindowIDs(ids ...uuid.UUID) *OrderAssignmentCreate {
+	_c.mutation.AddDeliveryWindowIDs(ids...)
+	return _c
 }
 
 // AddDeliveryWindows adds the "delivery_windows" edges to the DeliveryWindow entity.
-func (oac *OrderAssignmentCreate) AddDeliveryWindows(d ...*DeliveryWindow) *OrderAssignmentCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *OrderAssignmentCreate) AddDeliveryWindows(v ...*DeliveryWindow) *OrderAssignmentCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oac.AddDeliveryWindowIDs(ids...)
+	return _c.AddDeliveryWindowIDs(ids...)
 }
 
 // Mutation returns the OrderAssignmentMutation object of the builder.
-func (oac *OrderAssignmentCreate) Mutation() *OrderAssignmentMutation {
-	return oac.mutation
+func (_c *OrderAssignmentCreate) Mutation() *OrderAssignmentMutation {
+	return _c.mutation
 }
 
 // Save creates the OrderAssignment in the database.
-func (oac *OrderAssignmentCreate) Save(ctx context.Context) (*OrderAssignment, error) {
-	oac.defaults()
-	return withHooks(ctx, oac.sqlSave, oac.mutation, oac.hooks)
+func (_c *OrderAssignmentCreate) Save(ctx context.Context) (*OrderAssignment, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (oac *OrderAssignmentCreate) SaveX(ctx context.Context) *OrderAssignment {
-	v, err := oac.Save(ctx)
+func (_c *OrderAssignmentCreate) SaveX(ctx context.Context) *OrderAssignment {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -315,119 +315,119 @@ func (oac *OrderAssignmentCreate) SaveX(ctx context.Context) *OrderAssignment {
 }
 
 // Exec executes the query.
-func (oac *OrderAssignmentCreate) Exec(ctx context.Context) error {
-	_, err := oac.Save(ctx)
+func (_c *OrderAssignmentCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oac *OrderAssignmentCreate) ExecX(ctx context.Context) {
-	if err := oac.Exec(ctx); err != nil {
+func (_c *OrderAssignmentCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oac *OrderAssignmentCreate) defaults() {
-	if _, ok := oac.mutation.Status(); !ok {
+func (_c *OrderAssignmentCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := orderassignment.DefaultStatus
-		oac.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := oac.mutation.Priority(); !ok {
+	if _, ok := _c.mutation.Priority(); !ok {
 		v := orderassignment.DefaultPriority
-		oac.mutation.SetPriority(v)
+		_c.mutation.SetPriority(v)
 	}
-	if _, ok := oac.mutation.AttemptCount(); !ok {
+	if _, ok := _c.mutation.AttemptCount(); !ok {
 		v := orderassignment.DefaultAttemptCount
-		oac.mutation.SetAttemptCount(v)
+		_c.mutation.SetAttemptCount(v)
 	}
-	if _, ok := oac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := orderassignment.DefaultCreatedAt()
-		oac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := oac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := orderassignment.DefaultUpdatedAt()
-		oac.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := oac.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := orderassignment.DefaultID()
-		oac.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oac *OrderAssignmentCreate) check() error {
-	if _, ok := oac.mutation.TenantID(); !ok {
+func (_c *OrderAssignmentCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "OrderAssignment.tenant_id"`)}
 	}
-	if _, ok := oac.mutation.OrderID(); !ok {
+	if _, ok := _c.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "OrderAssignment.order_id"`)}
 	}
-	if _, ok := oac.mutation.LogisticsTaskID(); !ok {
+	if _, ok := _c.mutation.LogisticsTaskID(); !ok {
 		return &ValidationError{Name: "logistics_task_id", err: errors.New(`ent: missing required field "OrderAssignment.logistics_task_id"`)}
 	}
-	if v, ok := oac.mutation.LogisticsTaskID(); ok {
+	if v, ok := _c.mutation.LogisticsTaskID(); ok {
 		if err := orderassignment.LogisticsTaskIDValidator(v); err != nil {
 			return &ValidationError{Name: "logistics_task_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.logistics_task_id": %w`, err)}
 		}
 	}
-	if v, ok := oac.mutation.RiderID(); ok {
+	if v, ok := _c.mutation.RiderID(); ok {
 		if err := orderassignment.RiderIDValidator(v); err != nil {
 			return &ValidationError{Name: "rider_id", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rider_id": %w`, err)}
 		}
 	}
-	if _, ok := oac.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "OrderAssignment.status"`)}
 	}
-	if v, ok := oac.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := orderassignment.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.status": %w`, err)}
 		}
 	}
-	if _, ok := oac.mutation.Priority(); !ok {
+	if _, ok := _c.mutation.Priority(); !ok {
 		return &ValidationError{Name: "priority", err: errors.New(`ent: missing required field "OrderAssignment.priority"`)}
 	}
-	if v, ok := oac.mutation.Priority(); ok {
+	if v, ok := _c.mutation.Priority(); ok {
 		if err := orderassignment.PriorityValidator(v); err != nil {
 			return &ValidationError{Name: "priority", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.priority": %w`, err)}
 		}
 	}
-	if v, ok := oac.mutation.RejectionReason(); ok {
+	if v, ok := _c.mutation.RejectionReason(); ok {
 		if err := orderassignment.RejectionReasonValidator(v); err != nil {
 			return &ValidationError{Name: "rejection_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.rejection_reason": %w`, err)}
 		}
 	}
-	if v, ok := oac.mutation.CancellationReason(); ok {
+	if v, ok := _c.mutation.CancellationReason(); ok {
 		if err := orderassignment.CancellationReasonValidator(v); err != nil {
 			return &ValidationError{Name: "cancellation_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.cancellation_reason": %w`, err)}
 		}
 	}
-	if v, ok := oac.mutation.FailureReason(); ok {
+	if v, ok := _c.mutation.FailureReason(); ok {
 		if err := orderassignment.FailureReasonValidator(v); err != nil {
 			return &ValidationError{Name: "failure_reason", err: fmt.Errorf(`ent: validator failed for field "OrderAssignment.failure_reason": %w`, err)}
 		}
 	}
-	if _, ok := oac.mutation.AttemptCount(); !ok {
+	if _, ok := _c.mutation.AttemptCount(); !ok {
 		return &ValidationError{Name: "attempt_count", err: errors.New(`ent: missing required field "OrderAssignment.attempt_count"`)}
 	}
-	if _, ok := oac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "OrderAssignment.created_at"`)}
 	}
-	if _, ok := oac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "OrderAssignment.updated_at"`)}
 	}
-	if _, ok := oac.mutation.OrderID(); !ok {
+	if len(_c.mutation.OrderIDs()) == 0 {
 		return &ValidationError{Name: "order", err: errors.New(`ent: missing required edge "OrderAssignment.order"`)}
 	}
 	return nil
 }
 
-func (oac *OrderAssignmentCreate) sqlSave(ctx context.Context) (*OrderAssignment, error) {
-	if err := oac.check(); err != nil {
+func (_c *OrderAssignmentCreate) sqlSave(ctx context.Context) (*OrderAssignment, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := oac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, oac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -440,94 +440,94 @@ func (oac *OrderAssignmentCreate) sqlSave(ctx context.Context) (*OrderAssignment
 			return nil, err
 		}
 	}
-	oac.mutation.id = &_node.ID
-	oac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (oac *OrderAssignmentCreate) createSpec() (*OrderAssignment, *sqlgraph.CreateSpec) {
+func (_c *OrderAssignmentCreate) createSpec() (*OrderAssignment, *sqlgraph.CreateSpec) {
 	var (
-		_node = &OrderAssignment{config: oac.config}
+		_node = &OrderAssignment{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(orderassignment.Table, sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = oac.conflict
-	if id, ok := oac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := oac.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(orderassignment.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := oac.mutation.LogisticsTaskID(); ok {
+	if value, ok := _c.mutation.LogisticsTaskID(); ok {
 		_spec.SetField(orderassignment.FieldLogisticsTaskID, field.TypeString, value)
 		_node.LogisticsTaskID = value
 	}
-	if value, ok := oac.mutation.RiderID(); ok {
+	if value, ok := _c.mutation.RiderID(); ok {
 		_spec.SetField(orderassignment.FieldRiderID, field.TypeString, value)
 		_node.RiderID = value
 	}
-	if value, ok := oac.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(orderassignment.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := oac.mutation.Priority(); ok {
+	if value, ok := _c.mutation.Priority(); ok {
 		_spec.SetField(orderassignment.FieldPriority, field.TypeEnum, value)
 		_node.Priority = value
 	}
-	if value, ok := oac.mutation.SpecialInstructions(); ok {
+	if value, ok := _c.mutation.SpecialInstructions(); ok {
 		_spec.SetField(orderassignment.FieldSpecialInstructions, field.TypeString, value)
 		_node.SpecialInstructions = value
 	}
-	if value, ok := oac.mutation.RejectionReason(); ok {
+	if value, ok := _c.mutation.RejectionReason(); ok {
 		_spec.SetField(orderassignment.FieldRejectionReason, field.TypeString, value)
 		_node.RejectionReason = value
 	}
-	if value, ok := oac.mutation.CancellationReason(); ok {
+	if value, ok := _c.mutation.CancellationReason(); ok {
 		_spec.SetField(orderassignment.FieldCancellationReason, field.TypeString, value)
 		_node.CancellationReason = value
 	}
-	if value, ok := oac.mutation.FailureReason(); ok {
+	if value, ok := _c.mutation.FailureReason(); ok {
 		_spec.SetField(orderassignment.FieldFailureReason, field.TypeString, value)
 		_node.FailureReason = value
 	}
-	if value, ok := oac.mutation.AttemptCount(); ok {
+	if value, ok := _c.mutation.AttemptCount(); ok {
 		_spec.SetField(orderassignment.FieldAttemptCount, field.TypeInt, value)
 		_node.AttemptCount = value
 	}
-	if value, ok := oac.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(orderassignment.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := oac.mutation.AssignedAt(); ok {
+	if value, ok := _c.mutation.AssignedAt(); ok {
 		_spec.SetField(orderassignment.FieldAssignedAt, field.TypeTime, value)
 		_node.AssignedAt = &value
 	}
-	if value, ok := oac.mutation.AcceptedAt(); ok {
+	if value, ok := _c.mutation.AcceptedAt(); ok {
 		_spec.SetField(orderassignment.FieldAcceptedAt, field.TypeTime, value)
 		_node.AcceptedAt = &value
 	}
-	if value, ok := oac.mutation.PickedUpAt(); ok {
+	if value, ok := _c.mutation.PickedUpAt(); ok {
 		_spec.SetField(orderassignment.FieldPickedUpAt, field.TypeTime, value)
 		_node.PickedUpAt = &value
 	}
-	if value, ok := oac.mutation.CompletedAt(); ok {
+	if value, ok := _c.mutation.CompletedAt(); ok {
 		_spec.SetField(orderassignment.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = &value
 	}
-	if value, ok := oac.mutation.CancelledAt(); ok {
+	if value, ok := _c.mutation.CancelledAt(); ok {
 		_spec.SetField(orderassignment.FieldCancelledAt, field.TypeTime, value)
 		_node.CancelledAt = &value
 	}
-	if value, ok := oac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(orderassignment.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := oac.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(orderassignment.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := oac.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OrderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -544,7 +544,7 @@ func (oac *OrderAssignmentCreate) createSpec() (*OrderAssignment, *sqlgraph.Crea
 		_node.OrderID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := oac.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DeliveryWindowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -579,10 +579,10 @@ func (oac *OrderAssignmentCreate) createSpec() (*OrderAssignment, *sqlgraph.Crea
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (oac *OrderAssignmentCreate) OnConflict(opts ...sql.ConflictOption) *OrderAssignmentUpsertOne {
-	oac.conflict = opts
+func (_c *OrderAssignmentCreate) OnConflict(opts ...sql.ConflictOption) *OrderAssignmentUpsertOne {
+	_c.conflict = opts
 	return &OrderAssignmentUpsertOne{
-		create: oac,
+		create: _c,
 	}
 }
 
@@ -592,10 +592,10 @@ func (oac *OrderAssignmentCreate) OnConflict(opts ...sql.ConflictOption) *OrderA
 //	client.OrderAssignment.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (oac *OrderAssignmentCreate) OnConflictColumns(columns ...string) *OrderAssignmentUpsertOne {
-	oac.conflict = append(oac.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderAssignmentCreate) OnConflictColumns(columns ...string) *OrderAssignmentUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderAssignmentUpsertOne{
-		create: oac,
+		create: _c,
 	}
 }
 
@@ -1334,16 +1334,16 @@ type OrderAssignmentCreateBulk struct {
 }
 
 // Save creates the OrderAssignment entities in the database.
-func (oacb *OrderAssignmentCreateBulk) Save(ctx context.Context) ([]*OrderAssignment, error) {
-	if oacb.err != nil {
-		return nil, oacb.err
+func (_c *OrderAssignmentCreateBulk) Save(ctx context.Context) ([]*OrderAssignment, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(oacb.builders))
-	nodes := make([]*OrderAssignment, len(oacb.builders))
-	mutators := make([]Mutator, len(oacb.builders))
-	for i := range oacb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*OrderAssignment, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := oacb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*OrderAssignmentMutation)
@@ -1357,12 +1357,12 @@ func (oacb *OrderAssignmentCreateBulk) Save(ctx context.Context) ([]*OrderAssign
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, oacb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = oacb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, oacb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1382,7 +1382,7 @@ func (oacb *OrderAssignmentCreateBulk) Save(ctx context.Context) ([]*OrderAssign
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, oacb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1390,8 +1390,8 @@ func (oacb *OrderAssignmentCreateBulk) Save(ctx context.Context) ([]*OrderAssign
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oacb *OrderAssignmentCreateBulk) SaveX(ctx context.Context) []*OrderAssignment {
-	v, err := oacb.Save(ctx)
+func (_c *OrderAssignmentCreateBulk) SaveX(ctx context.Context) []*OrderAssignment {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1399,14 +1399,14 @@ func (oacb *OrderAssignmentCreateBulk) SaveX(ctx context.Context) []*OrderAssign
 }
 
 // Exec executes the query.
-func (oacb *OrderAssignmentCreateBulk) Exec(ctx context.Context) error {
-	_, err := oacb.Save(ctx)
+func (_c *OrderAssignmentCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oacb *OrderAssignmentCreateBulk) ExecX(ctx context.Context) {
-	if err := oacb.Exec(ctx); err != nil {
+func (_c *OrderAssignmentCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1426,10 +1426,10 @@ func (oacb *OrderAssignmentCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (oacb *OrderAssignmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderAssignmentUpsertBulk {
-	oacb.conflict = opts
+func (_c *OrderAssignmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderAssignmentUpsertBulk {
+	_c.conflict = opts
 	return &OrderAssignmentUpsertBulk{
-		create: oacb,
+		create: _c,
 	}
 }
 
@@ -1439,10 +1439,10 @@ func (oacb *OrderAssignmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *O
 //	client.OrderAssignment.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (oacb *OrderAssignmentCreateBulk) OnConflictColumns(columns ...string) *OrderAssignmentUpsertBulk {
-	oacb.conflict = append(oacb.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderAssignmentCreateBulk) OnConflictColumns(columns ...string) *OrderAssignmentUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderAssignmentUpsertBulk{
-		create: oacb,
+		create: _c,
 	}
 }
 

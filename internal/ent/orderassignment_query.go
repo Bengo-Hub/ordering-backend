@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -33,44 +34,44 @@ type OrderAssignmentQuery struct {
 }
 
 // Where adds a new predicate for the OrderAssignmentQuery builder.
-func (oaq *OrderAssignmentQuery) Where(ps ...predicate.OrderAssignment) *OrderAssignmentQuery {
-	oaq.predicates = append(oaq.predicates, ps...)
-	return oaq
+func (_q *OrderAssignmentQuery) Where(ps ...predicate.OrderAssignment) *OrderAssignmentQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (oaq *OrderAssignmentQuery) Limit(limit int) *OrderAssignmentQuery {
-	oaq.ctx.Limit = &limit
-	return oaq
+func (_q *OrderAssignmentQuery) Limit(limit int) *OrderAssignmentQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (oaq *OrderAssignmentQuery) Offset(offset int) *OrderAssignmentQuery {
-	oaq.ctx.Offset = &offset
-	return oaq
+func (_q *OrderAssignmentQuery) Offset(offset int) *OrderAssignmentQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (oaq *OrderAssignmentQuery) Unique(unique bool) *OrderAssignmentQuery {
-	oaq.ctx.Unique = &unique
-	return oaq
+func (_q *OrderAssignmentQuery) Unique(unique bool) *OrderAssignmentQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (oaq *OrderAssignmentQuery) Order(o ...orderassignment.OrderOption) *OrderAssignmentQuery {
-	oaq.order = append(oaq.order, o...)
-	return oaq
+func (_q *OrderAssignmentQuery) Order(o ...orderassignment.OrderOption) *OrderAssignmentQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryOrder chains the current query on the "order" edge.
-func (oaq *OrderAssignmentQuery) QueryOrder() *OrderQuery {
-	query := (&OrderClient{config: oaq.config}).Query()
+func (_q *OrderAssignmentQuery) QueryOrder() *OrderQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oaq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := oaq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -79,20 +80,20 @@ func (oaq *OrderAssignmentQuery) QueryOrder() *OrderQuery {
 			sqlgraph.To(order.Table, order.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, orderassignment.OrderTable, orderassignment.OrderColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(oaq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryDeliveryWindows chains the current query on the "delivery_windows" edge.
-func (oaq *OrderAssignmentQuery) QueryDeliveryWindows() *DeliveryWindowQuery {
-	query := (&DeliveryWindowClient{config: oaq.config}).Query()
+func (_q *OrderAssignmentQuery) QueryDeliveryWindows() *DeliveryWindowQuery {
+	query := (&DeliveryWindowClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oaq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := oaq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -101,7 +102,7 @@ func (oaq *OrderAssignmentQuery) QueryDeliveryWindows() *DeliveryWindowQuery {
 			sqlgraph.To(deliverywindow.Table, deliverywindow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, orderassignment.DeliveryWindowsTable, orderassignment.DeliveryWindowsColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(oaq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -109,8 +110,8 @@ func (oaq *OrderAssignmentQuery) QueryDeliveryWindows() *DeliveryWindowQuery {
 
 // First returns the first OrderAssignment entity from the query.
 // Returns a *NotFoundError when no OrderAssignment was found.
-func (oaq *OrderAssignmentQuery) First(ctx context.Context) (*OrderAssignment, error) {
-	nodes, err := oaq.Limit(1).All(setContextOp(ctx, oaq.ctx, "First"))
+func (_q *OrderAssignmentQuery) First(ctx context.Context) (*OrderAssignment, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +122,8 @@ func (oaq *OrderAssignmentQuery) First(ctx context.Context) (*OrderAssignment, e
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) FirstX(ctx context.Context) *OrderAssignment {
-	node, err := oaq.First(ctx)
+func (_q *OrderAssignmentQuery) FirstX(ctx context.Context) *OrderAssignment {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -131,9 +132,9 @@ func (oaq *OrderAssignmentQuery) FirstX(ctx context.Context) *OrderAssignment {
 
 // FirstID returns the first OrderAssignment ID from the query.
 // Returns a *NotFoundError when no OrderAssignment ID was found.
-func (oaq *OrderAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oaq.Limit(1).IDs(setContextOp(ctx, oaq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -144,8 +145,8 @@ func (oaq *OrderAssignmentQuery) FirstID(ctx context.Context) (id uuid.UUID, err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := oaq.FirstID(ctx)
+func (_q *OrderAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -155,8 +156,8 @@ func (oaq *OrderAssignmentQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single OrderAssignment entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one OrderAssignment entity is found.
 // Returns a *NotFoundError when no OrderAssignment entities are found.
-func (oaq *OrderAssignmentQuery) Only(ctx context.Context) (*OrderAssignment, error) {
-	nodes, err := oaq.Limit(2).All(setContextOp(ctx, oaq.ctx, "Only"))
+func (_q *OrderAssignmentQuery) Only(ctx context.Context) (*OrderAssignment, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -171,8 +172,8 @@ func (oaq *OrderAssignmentQuery) Only(ctx context.Context) (*OrderAssignment, er
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) OnlyX(ctx context.Context) *OrderAssignment {
-	node, err := oaq.Only(ctx)
+func (_q *OrderAssignmentQuery) OnlyX(ctx context.Context) *OrderAssignment {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -182,9 +183,9 @@ func (oaq *OrderAssignmentQuery) OnlyX(ctx context.Context) *OrderAssignment {
 // OnlyID is like Only, but returns the only OrderAssignment ID in the query.
 // Returns a *NotSingularError when more than one OrderAssignment ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (oaq *OrderAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oaq.Limit(2).IDs(setContextOp(ctx, oaq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -199,8 +200,8 @@ func (oaq *OrderAssignmentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := oaq.OnlyID(ctx)
+func (_q *OrderAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -208,18 +209,18 @@ func (oaq *OrderAssignmentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of OrderAssignments.
-func (oaq *OrderAssignmentQuery) All(ctx context.Context) ([]*OrderAssignment, error) {
-	ctx = setContextOp(ctx, oaq.ctx, "All")
-	if err := oaq.prepareQuery(ctx); err != nil {
+func (_q *OrderAssignmentQuery) All(ctx context.Context) ([]*OrderAssignment, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*OrderAssignment, *OrderAssignmentQuery]()
-	return withInterceptors[[]*OrderAssignment](ctx, oaq, qr, oaq.inters)
+	return withInterceptors[[]*OrderAssignment](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) AllX(ctx context.Context) []*OrderAssignment {
-	nodes, err := oaq.All(ctx)
+func (_q *OrderAssignmentQuery) AllX(ctx context.Context) []*OrderAssignment {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -227,20 +228,20 @@ func (oaq *OrderAssignmentQuery) AllX(ctx context.Context) []*OrderAssignment {
 }
 
 // IDs executes the query and returns a list of OrderAssignment IDs.
-func (oaq *OrderAssignmentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if oaq.ctx.Unique == nil && oaq.path != nil {
-		oaq.Unique(true)
+func (_q *OrderAssignmentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, oaq.ctx, "IDs")
-	if err = oaq.Select(orderassignment.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(orderassignment.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := oaq.IDs(ctx)
+func (_q *OrderAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -248,17 +249,17 @@ func (oaq *OrderAssignmentQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (oaq *OrderAssignmentQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, oaq.ctx, "Count")
-	if err := oaq.prepareQuery(ctx); err != nil {
+func (_q *OrderAssignmentQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, oaq, querierCount[*OrderAssignmentQuery](), oaq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*OrderAssignmentQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) CountX(ctx context.Context) int {
-	count, err := oaq.Count(ctx)
+func (_q *OrderAssignmentQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -266,9 +267,9 @@ func (oaq *OrderAssignmentQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (oaq *OrderAssignmentQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, oaq.ctx, "Exist")
-	switch _, err := oaq.FirstID(ctx); {
+func (_q *OrderAssignmentQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -279,8 +280,8 @@ func (oaq *OrderAssignmentQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (oaq *OrderAssignmentQuery) ExistX(ctx context.Context) bool {
-	exist, err := oaq.Exist(ctx)
+func (_q *OrderAssignmentQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -289,44 +290,44 @@ func (oaq *OrderAssignmentQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the OrderAssignmentQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (oaq *OrderAssignmentQuery) Clone() *OrderAssignmentQuery {
-	if oaq == nil {
+func (_q *OrderAssignmentQuery) Clone() *OrderAssignmentQuery {
+	if _q == nil {
 		return nil
 	}
 	return &OrderAssignmentQuery{
-		config:              oaq.config,
-		ctx:                 oaq.ctx.Clone(),
-		order:               append([]orderassignment.OrderOption{}, oaq.order...),
-		inters:              append([]Interceptor{}, oaq.inters...),
-		predicates:          append([]predicate.OrderAssignment{}, oaq.predicates...),
-		withOrder:           oaq.withOrder.Clone(),
-		withDeliveryWindows: oaq.withDeliveryWindows.Clone(),
+		config:              _q.config,
+		ctx:                 _q.ctx.Clone(),
+		order:               append([]orderassignment.OrderOption{}, _q.order...),
+		inters:              append([]Interceptor{}, _q.inters...),
+		predicates:          append([]predicate.OrderAssignment{}, _q.predicates...),
+		withOrder:           _q.withOrder.Clone(),
+		withDeliveryWindows: _q.withDeliveryWindows.Clone(),
 		// clone intermediate query.
-		sql:  oaq.sql.Clone(),
-		path: oaq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithOrder tells the query-builder to eager-load the nodes that are connected to
 // the "order" edge. The optional arguments are used to configure the query builder of the edge.
-func (oaq *OrderAssignmentQuery) WithOrder(opts ...func(*OrderQuery)) *OrderAssignmentQuery {
-	query := (&OrderClient{config: oaq.config}).Query()
+func (_q *OrderAssignmentQuery) WithOrder(opts ...func(*OrderQuery)) *OrderAssignmentQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oaq.withOrder = query
-	return oaq
+	_q.withOrder = query
+	return _q
 }
 
 // WithDeliveryWindows tells the query-builder to eager-load the nodes that are connected to
 // the "delivery_windows" edge. The optional arguments are used to configure the query builder of the edge.
-func (oaq *OrderAssignmentQuery) WithDeliveryWindows(opts ...func(*DeliveryWindowQuery)) *OrderAssignmentQuery {
-	query := (&DeliveryWindowClient{config: oaq.config}).Query()
+func (_q *OrderAssignmentQuery) WithDeliveryWindows(opts ...func(*DeliveryWindowQuery)) *OrderAssignmentQuery {
+	query := (&DeliveryWindowClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oaq.withDeliveryWindows = query
-	return oaq
+	_q.withDeliveryWindows = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -343,10 +344,10 @@ func (oaq *OrderAssignmentQuery) WithDeliveryWindows(opts ...func(*DeliveryWindo
 //		GroupBy(orderassignment.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (oaq *OrderAssignmentQuery) GroupBy(field string, fields ...string) *OrderAssignmentGroupBy {
-	oaq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &OrderAssignmentGroupBy{build: oaq}
-	grbuild.flds = &oaq.ctx.Fields
+func (_q *OrderAssignmentQuery) GroupBy(field string, fields ...string) *OrderAssignmentGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &OrderAssignmentGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = orderassignment.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -364,59 +365,59 @@ func (oaq *OrderAssignmentQuery) GroupBy(field string, fields ...string) *OrderA
 //	client.OrderAssignment.Query().
 //		Select(orderassignment.FieldTenantID).
 //		Scan(ctx, &v)
-func (oaq *OrderAssignmentQuery) Select(fields ...string) *OrderAssignmentSelect {
-	oaq.ctx.Fields = append(oaq.ctx.Fields, fields...)
-	sbuild := &OrderAssignmentSelect{OrderAssignmentQuery: oaq}
+func (_q *OrderAssignmentQuery) Select(fields ...string) *OrderAssignmentSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &OrderAssignmentSelect{OrderAssignmentQuery: _q}
 	sbuild.label = orderassignment.Label
-	sbuild.flds, sbuild.scan = &oaq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a OrderAssignmentSelect configured with the given aggregations.
-func (oaq *OrderAssignmentQuery) Aggregate(fns ...AggregateFunc) *OrderAssignmentSelect {
-	return oaq.Select().Aggregate(fns...)
+func (_q *OrderAssignmentQuery) Aggregate(fns ...AggregateFunc) *OrderAssignmentSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (oaq *OrderAssignmentQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range oaq.inters {
+func (_q *OrderAssignmentQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, oaq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range oaq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !orderassignment.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if oaq.path != nil {
-		prev, err := oaq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		oaq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (oaq *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderAssignment, error) {
+func (_q *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderAssignment, error) {
 	var (
 		nodes       = []*OrderAssignment{}
-		_spec       = oaq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			oaq.withOrder != nil,
-			oaq.withDeliveryWindows != nil,
+			_q.withOrder != nil,
+			_q.withDeliveryWindows != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*OrderAssignment).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &OrderAssignment{config: oaq.config}
+		node := &OrderAssignment{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -424,20 +425,20 @@ func (oaq *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, oaq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := oaq.withOrder; query != nil {
-		if err := oaq.loadOrder(ctx, query, nodes, nil,
+	if query := _q.withOrder; query != nil {
+		if err := _q.loadOrder(ctx, query, nodes, nil,
 			func(n *OrderAssignment, e *Order) { n.Edges.Order = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := oaq.withDeliveryWindows; query != nil {
-		if err := oaq.loadDeliveryWindows(ctx, query, nodes,
+	if query := _q.withDeliveryWindows; query != nil {
+		if err := _q.loadDeliveryWindows(ctx, query, nodes,
 			func(n *OrderAssignment) { n.Edges.DeliveryWindows = []*DeliveryWindow{} },
 			func(n *OrderAssignment, e *DeliveryWindow) {
 				n.Edges.DeliveryWindows = append(n.Edges.DeliveryWindows, e)
@@ -448,7 +449,7 @@ func (oaq *OrderAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	return nodes, nil
 }
 
-func (oaq *OrderAssignmentQuery) loadOrder(ctx context.Context, query *OrderQuery, nodes []*OrderAssignment, init func(*OrderAssignment), assign func(*OrderAssignment, *Order)) error {
+func (_q *OrderAssignmentQuery) loadOrder(ctx context.Context, query *OrderQuery, nodes []*OrderAssignment, init func(*OrderAssignment), assign func(*OrderAssignment, *Order)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*OrderAssignment)
 	for i := range nodes {
@@ -477,7 +478,7 @@ func (oaq *OrderAssignmentQuery) loadOrder(ctx context.Context, query *OrderQuer
 	}
 	return nil
 }
-func (oaq *OrderAssignmentQuery) loadDeliveryWindows(ctx context.Context, query *DeliveryWindowQuery, nodes []*OrderAssignment, init func(*OrderAssignment), assign func(*OrderAssignment, *DeliveryWindow)) error {
+func (_q *OrderAssignmentQuery) loadDeliveryWindows(ctx context.Context, query *DeliveryWindowQuery, nodes []*OrderAssignment, init func(*OrderAssignment), assign func(*OrderAssignment, *DeliveryWindow)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*OrderAssignment)
 	for i := range nodes {
@@ -508,24 +509,24 @@ func (oaq *OrderAssignmentQuery) loadDeliveryWindows(ctx context.Context, query 
 	return nil
 }
 
-func (oaq *OrderAssignmentQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := oaq.querySpec()
-	_spec.Node.Columns = oaq.ctx.Fields
-	if len(oaq.ctx.Fields) > 0 {
-		_spec.Unique = oaq.ctx.Unique != nil && *oaq.ctx.Unique
+func (_q *OrderAssignmentQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, oaq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (oaq *OrderAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *OrderAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(orderassignment.Table, orderassignment.Columns, sqlgraph.NewFieldSpec(orderassignment.FieldID, field.TypeUUID))
-	_spec.From = oaq.sql
-	if unique := oaq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if oaq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := oaq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderassignment.FieldID)
 		for i := range fields {
@@ -533,24 +534,24 @@ func (oaq *OrderAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if oaq.withOrder != nil {
+		if _q.withOrder != nil {
 			_spec.Node.AddColumnOnce(orderassignment.FieldOrderID)
 		}
 	}
-	if ps := oaq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := oaq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := oaq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := oaq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -560,33 +561,33 @@ func (oaq *OrderAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (oaq *OrderAssignmentQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(oaq.driver.Dialect())
+func (_q *OrderAssignmentQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(orderassignment.Table)
-	columns := oaq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = orderassignment.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if oaq.sql != nil {
-		selector = oaq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if oaq.ctx.Unique != nil && *oaq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range oaq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range oaq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := oaq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := oaq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -599,41 +600,41 @@ type OrderAssignmentGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (oagb *OrderAssignmentGroupBy) Aggregate(fns ...AggregateFunc) *OrderAssignmentGroupBy {
-	oagb.fns = append(oagb.fns, fns...)
-	return oagb
+func (_g *OrderAssignmentGroupBy) Aggregate(fns ...AggregateFunc) *OrderAssignmentGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (oagb *OrderAssignmentGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, oagb.build.ctx, "GroupBy")
-	if err := oagb.build.prepareQuery(ctx); err != nil {
+func (_g *OrderAssignmentGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderAssignmentQuery, *OrderAssignmentGroupBy](ctx, oagb.build, oagb, oagb.build.inters, v)
+	return scanWithInterceptors[*OrderAssignmentQuery, *OrderAssignmentGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (oagb *OrderAssignmentGroupBy) sqlScan(ctx context.Context, root *OrderAssignmentQuery, v any) error {
+func (_g *OrderAssignmentGroupBy) sqlScan(ctx context.Context, root *OrderAssignmentQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(oagb.fns))
-	for _, fn := range oagb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*oagb.flds)+len(oagb.fns))
-		for _, f := range *oagb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*oagb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := oagb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -647,27 +648,27 @@ type OrderAssignmentSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (oas *OrderAssignmentSelect) Aggregate(fns ...AggregateFunc) *OrderAssignmentSelect {
-	oas.fns = append(oas.fns, fns...)
-	return oas
+func (_s *OrderAssignmentSelect) Aggregate(fns ...AggregateFunc) *OrderAssignmentSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (oas *OrderAssignmentSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, oas.ctx, "Select")
-	if err := oas.prepareQuery(ctx); err != nil {
+func (_s *OrderAssignmentSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderAssignmentQuery, *OrderAssignmentSelect](ctx, oas.OrderAssignmentQuery, oas, oas.inters, v)
+	return scanWithInterceptors[*OrderAssignmentQuery, *OrderAssignmentSelect](ctx, _s.OrderAssignmentQuery, _s, _s.inters, v)
 }
 
-func (oas *OrderAssignmentSelect) sqlScan(ctx context.Context, root *OrderAssignmentQuery, v any) error {
+func (_s *OrderAssignmentSelect) sqlScan(ctx context.Context, root *OrderAssignmentQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(oas.fns))
-	for _, fn := range oas.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*oas.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -675,7 +676,7 @@ func (oas *OrderAssignmentSelect) sqlScan(ctx context.Context, root *OrderAssign
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := oas.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

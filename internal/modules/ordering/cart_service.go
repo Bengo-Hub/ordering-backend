@@ -34,12 +34,12 @@ func degreesToRadians(degrees float64) float64 {
 // CartService provides shopping cart business logic.
 type CartService struct {
 	repo       Repository
-	catalogSvc *catalog.Service
+	catalogSvc *catalog.ProxyService
 	logger     *zap.Logger
 }
 
 // NewCartService creates a new cart service.
-func NewCartService(repo Repository, catalogSvc *catalog.Service, logger *zap.Logger) *CartService {
+func NewCartService(repo Repository, catalogSvc *catalog.ProxyService, logger *zap.Logger) *CartService {
 	return &CartService{
 		repo:       repo,
 		catalogSvc: catalogSvc,
@@ -135,8 +135,15 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		return nil, ErrInvalidQuantity
 	}
 
-	// Get catalog item to validate availability and price
-	catalogItem, err := s.catalogSvc.GetCatalogItem(ctx, req.TenantID, req.CatalogItemID)
+	// Resolve tenant slug for inventory-api call
+	tenantInfo, err := s.repo.GetTenantByID(ctx, req.TenantID)
+	if err != nil {
+		s.logger.Error("failed to resolve tenant", zap.Error(err))
+		return nil, ErrCatalogItemUnavailable
+	}
+
+	// Get catalog item to validate availability and price via proxy service
+	catalogItem, err := s.catalogSvc.GetItem(ctx, tenantInfo.Slug, req.TenantID, req.InventorySKU, nil)
 	if err != nil {
 		return nil, ErrCatalogItemUnavailable
 	}
@@ -148,26 +155,8 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 	// Calculate unit price
 	unitPrice := catalogItem.BasePrice
 
-	// If variant specified, validate and adjust price
-	if req.VariantID != nil {
-		var found bool
-		for _, v := range catalogItem.Variants {
-			if v.ID == *req.VariantID {
-				if !v.IsAvailable {
-					return nil, ErrVariantUnavailable
-				}
-				unitPrice += v.PriceDelta
-				found = true
-				break
-			}
-		}
-		if !found {
-			return nil, ErrVariantUnavailable
-		}
-	}
-
 	// Check if item already exists in cart
-	existingItem, err := s.repo.GetCartItemByCatalogItem(ctx, cart.ID, req.CatalogItemID, req.VariantID)
+	existingItem, err := s.repo.GetCartItemBySKU(ctx, cart.ID, req.InventorySKU, req.VariantID)
 	if err == nil && existingItem != nil {
 		// Update quantity
 		existingItem.Quantity += req.Quantity
@@ -184,7 +173,7 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		// Create new cart item
 		item := &CartItem{
 			CartID:       cart.ID,
-			CatalogItemID: req.CatalogItemID,
+			InventorySKU: req.InventorySKU,
 			VariantID:    req.VariantID,
 			NameSnapshot: catalogItem.Name,
 			Quantity:     req.Quantity,
@@ -433,7 +422,7 @@ func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, outletID uui
 
 	// Merge items
 	for _, guestItem := range guestItems {
-		existingItem, err := s.repo.GetCartItemByCatalogItem(ctx, userCart.ID, guestItem.CatalogItemID, guestItem.VariantID)
+		existingItem, err := s.repo.GetCartItemBySKU(ctx, userCart.ID, guestItem.InventorySKU, guestItem.VariantID)
 		if err == nil && existingItem != nil {
 			// Combine quantities
 			existingItem.Quantity += guestItem.Quantity
@@ -445,7 +434,7 @@ func (s *CartService) MergeGuestCart(ctx context.Context, tenantID, outletID uui
 			// Move item to user cart
 			newItem := &CartItem{
 				CartID:       userCart.ID,
-				CatalogItemID: guestItem.CatalogItemID,
+				InventorySKU: guestItem.InventorySKU,
 				VariantID:    guestItem.VariantID,
 				NameSnapshot: guestItem.NameSnapshot,
 				Quantity:     guestItem.Quantity,

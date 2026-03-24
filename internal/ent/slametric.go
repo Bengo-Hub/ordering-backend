@@ -74,7 +74,7 @@ func (*SLAMetric) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the SLAMetric fields.
-func (sm *SLAMetric) assignValues(columns []string, values []any) error {
+func (_m *SLAMetric) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -84,76 +84,76 @@ func (sm *SLAMetric) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				sm.ID = *value
+				_m.ID = *value
 			}
 		case slametric.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				sm.TenantID = *value
+				_m.TenantID = *value
 			}
 		case slametric.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				sm.OrderID = *value
+				_m.OrderID = *value
 			}
 		case slametric.FieldMetricType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field metric_type", values[i])
 			} else if value.Valid {
-				sm.MetricType = slametric.MetricType(value.String)
+				_m.MetricType = slametric.MetricType(value.String)
 			}
 		case slametric.FieldTargetSeconds:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field target_seconds", values[i])
 			} else if value.Valid {
-				sm.TargetSeconds = int(value.Int64)
+				_m.TargetSeconds = int(value.Int64)
 			}
 		case slametric.FieldActualSeconds:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field actual_seconds", values[i])
 			} else if value.Valid {
-				sm.ActualSeconds = new(int)
-				*sm.ActualSeconds = int(value.Int64)
+				_m.ActualSeconds = new(int)
+				*_m.ActualSeconds = int(value.Int64)
 			}
 		case slametric.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				sm.Status = slametric.Status(value.String)
+				_m.Status = slametric.Status(value.String)
 			}
 		case slametric.FieldBreachPercentage:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field breach_percentage", values[i])
 			} else if value.Valid {
-				sm.BreachPercentage = new(float64)
-				*sm.BreachPercentage = value.Float64
+				_m.BreachPercentage = new(float64)
+				*_m.BreachPercentage = value.Float64
 			}
 		case slametric.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
-				sm.StartedAt = value.Time
+				_m.StartedAt = value.Time
 			}
 		case slametric.FieldEndedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field ended_at", values[i])
 			} else if value.Valid {
-				sm.EndedAt = new(time.Time)
-				*sm.EndedAt = value.Time
+				_m.EndedAt = new(time.Time)
+				*_m.EndedAt = value.Time
 			}
 		case slametric.FieldMeasuredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field measured_at", values[i])
 			} else if value.Valid {
-				sm.MeasuredAt = value.Time
+				_m.MeasuredAt = value.Time
 			}
 		case slametric.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &sm.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -161,16 +161,16 @@ func (sm *SLAMetric) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				sm.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case slametric.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				sm.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			sm.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -178,77 +178,77 @@ func (sm *SLAMetric) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the SLAMetric.
 // This includes values selected through modifiers, order, etc.
-func (sm *SLAMetric) Value(name string) (ent.Value, error) {
-	return sm.selectValues.Get(name)
+func (_m *SLAMetric) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this SLAMetric.
 // Note that you need to call SLAMetric.Unwrap() before calling this method if this SLAMetric
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (sm *SLAMetric) Update() *SLAMetricUpdateOne {
-	return NewSLAMetricClient(sm.config).UpdateOne(sm)
+func (_m *SLAMetric) Update() *SLAMetricUpdateOne {
+	return NewSLAMetricClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the SLAMetric entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (sm *SLAMetric) Unwrap() *SLAMetric {
-	_tx, ok := sm.config.driver.(*txDriver)
+func (_m *SLAMetric) Unwrap() *SLAMetric {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: SLAMetric is not a transactional entity")
 	}
-	sm.config.driver = _tx.drv
-	return sm
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (sm *SLAMetric) String() string {
+func (_m *SLAMetric) String() string {
 	var builder strings.Builder
 	builder.WriteString("SLAMetric(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", sm.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", sm.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", sm.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
 	builder.WriteString("metric_type=")
-	builder.WriteString(fmt.Sprintf("%v", sm.MetricType))
+	builder.WriteString(fmt.Sprintf("%v", _m.MetricType))
 	builder.WriteString(", ")
 	builder.WriteString("target_seconds=")
-	builder.WriteString(fmt.Sprintf("%v", sm.TargetSeconds))
+	builder.WriteString(fmt.Sprintf("%v", _m.TargetSeconds))
 	builder.WriteString(", ")
-	if v := sm.ActualSeconds; v != nil {
+	if v := _m.ActualSeconds; v != nil {
 		builder.WriteString("actual_seconds=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", sm.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
-	if v := sm.BreachPercentage; v != nil {
+	if v := _m.BreachPercentage; v != nil {
 		builder.WriteString("breach_percentage=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("started_at=")
-	builder.WriteString(sm.StartedAt.Format(time.ANSIC))
+	builder.WriteString(_m.StartedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := sm.EndedAt; v != nil {
+	if v := _m.EndedAt; v != nil {
 		builder.WriteString("ended_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("measured_at=")
-	builder.WriteString(sm.MeasuredAt.Format(time.ANSIC))
+	builder.WriteString(_m.MeasuredAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", sm.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(sm.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(sm.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

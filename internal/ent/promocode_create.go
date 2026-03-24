@@ -26,278 +26,278 @@ type PromoCodeCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (pcc *PromoCodeCreate) SetTenantID(u uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetTenantID(u)
-	return pcc
+func (_c *PromoCodeCreate) SetTenantID(v uuid.UUID) *PromoCodeCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (pcc *PromoCodeCreate) SetOutletID(u uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetOutletID(u)
-	return pcc
+func (_c *PromoCodeCreate) SetOutletID(v uuid.UUID) *PromoCodeCreate {
+	_c.mutation.SetOutletID(v)
+	return _c
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableOutletID(u *uuid.UUID) *PromoCodeCreate {
-	if u != nil {
-		pcc.SetOutletID(*u)
+func (_c *PromoCodeCreate) SetNillableOutletID(v *uuid.UUID) *PromoCodeCreate {
+	if v != nil {
+		_c.SetOutletID(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetCode sets the "code" field.
-func (pcc *PromoCodeCreate) SetCode(s string) *PromoCodeCreate {
-	pcc.mutation.SetCode(s)
-	return pcc
+func (_c *PromoCodeCreate) SetCode(v string) *PromoCodeCreate {
+	_c.mutation.SetCode(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (pcc *PromoCodeCreate) SetName(s string) *PromoCodeCreate {
-	pcc.mutation.SetName(s)
-	return pcc
+func (_c *PromoCodeCreate) SetName(v string) *PromoCodeCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (pcc *PromoCodeCreate) SetDescription(s string) *PromoCodeCreate {
-	pcc.mutation.SetDescription(s)
-	return pcc
+func (_c *PromoCodeCreate) SetDescription(v string) *PromoCodeCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableDescription(s *string) *PromoCodeCreate {
-	if s != nil {
-		pcc.SetDescription(*s)
+func (_c *PromoCodeCreate) SetNillableDescription(v *string) *PromoCodeCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetDiscountType sets the "discount_type" field.
-func (pcc *PromoCodeCreate) SetDiscountType(pt promocode.DiscountType) *PromoCodeCreate {
-	pcc.mutation.SetDiscountType(pt)
-	return pcc
+func (_c *PromoCodeCreate) SetDiscountType(v promocode.DiscountType) *PromoCodeCreate {
+	_c.mutation.SetDiscountType(v)
+	return _c
 }
 
 // SetDiscountValue sets the "discount_value" field.
-func (pcc *PromoCodeCreate) SetDiscountValue(f float64) *PromoCodeCreate {
-	pcc.mutation.SetDiscountValue(f)
-	return pcc
+func (_c *PromoCodeCreate) SetDiscountValue(v float64) *PromoCodeCreate {
+	_c.mutation.SetDiscountValue(v)
+	return _c
 }
 
 // SetMaxDiscountAmount sets the "max_discount_amount" field.
-func (pcc *PromoCodeCreate) SetMaxDiscountAmount(f float64) *PromoCodeCreate {
-	pcc.mutation.SetMaxDiscountAmount(f)
-	return pcc
+func (_c *PromoCodeCreate) SetMaxDiscountAmount(v float64) *PromoCodeCreate {
+	_c.mutation.SetMaxDiscountAmount(v)
+	return _c
 }
 
 // SetNillableMaxDiscountAmount sets the "max_discount_amount" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableMaxDiscountAmount(f *float64) *PromoCodeCreate {
-	if f != nil {
-		pcc.SetMaxDiscountAmount(*f)
+func (_c *PromoCodeCreate) SetNillableMaxDiscountAmount(v *float64) *PromoCodeCreate {
+	if v != nil {
+		_c.SetMaxDiscountAmount(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetMinSubtotal sets the "min_subtotal" field.
-func (pcc *PromoCodeCreate) SetMinSubtotal(f float64) *PromoCodeCreate {
-	pcc.mutation.SetMinSubtotal(f)
-	return pcc
+func (_c *PromoCodeCreate) SetMinSubtotal(v float64) *PromoCodeCreate {
+	_c.mutation.SetMinSubtotal(v)
+	return _c
 }
 
 // SetNillableMinSubtotal sets the "min_subtotal" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableMinSubtotal(f *float64) *PromoCodeCreate {
-	if f != nil {
-		pcc.SetMinSubtotal(*f)
+func (_c *PromoCodeCreate) SetNillableMinSubtotal(v *float64) *PromoCodeCreate {
+	if v != nil {
+		_c.SetMinSubtotal(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetMaxUses sets the "max_uses" field.
-func (pcc *PromoCodeCreate) SetMaxUses(i int) *PromoCodeCreate {
-	pcc.mutation.SetMaxUses(i)
-	return pcc
+func (_c *PromoCodeCreate) SetMaxUses(v int) *PromoCodeCreate {
+	_c.mutation.SetMaxUses(v)
+	return _c
 }
 
 // SetNillableMaxUses sets the "max_uses" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableMaxUses(i *int) *PromoCodeCreate {
-	if i != nil {
-		pcc.SetMaxUses(*i)
+func (_c *PromoCodeCreate) SetNillableMaxUses(v *int) *PromoCodeCreate {
+	if v != nil {
+		_c.SetMaxUses(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetMaxUsesPerUser sets the "max_uses_per_user" field.
-func (pcc *PromoCodeCreate) SetMaxUsesPerUser(i int) *PromoCodeCreate {
-	pcc.mutation.SetMaxUsesPerUser(i)
-	return pcc
+func (_c *PromoCodeCreate) SetMaxUsesPerUser(v int) *PromoCodeCreate {
+	_c.mutation.SetMaxUsesPerUser(v)
+	return _c
 }
 
 // SetNillableMaxUsesPerUser sets the "max_uses_per_user" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableMaxUsesPerUser(i *int) *PromoCodeCreate {
-	if i != nil {
-		pcc.SetMaxUsesPerUser(*i)
+func (_c *PromoCodeCreate) SetNillableMaxUsesPerUser(v *int) *PromoCodeCreate {
+	if v != nil {
+		_c.SetMaxUsesPerUser(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetUsageCount sets the "usage_count" field.
-func (pcc *PromoCodeCreate) SetUsageCount(i int) *PromoCodeCreate {
-	pcc.mutation.SetUsageCount(i)
-	return pcc
+func (_c *PromoCodeCreate) SetUsageCount(v int) *PromoCodeCreate {
+	_c.mutation.SetUsageCount(v)
+	return _c
 }
 
 // SetNillableUsageCount sets the "usage_count" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableUsageCount(i *int) *PromoCodeCreate {
-	if i != nil {
-		pcc.SetUsageCount(*i)
+func (_c *PromoCodeCreate) SetNillableUsageCount(v *int) *PromoCodeCreate {
+	if v != nil {
+		_c.SetUsageCount(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetIsActive sets the "is_active" field.
-func (pcc *PromoCodeCreate) SetIsActive(b bool) *PromoCodeCreate {
-	pcc.mutation.SetIsActive(b)
-	return pcc
+func (_c *PromoCodeCreate) SetIsActive(v bool) *PromoCodeCreate {
+	_c.mutation.SetIsActive(v)
+	return _c
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableIsActive(b *bool) *PromoCodeCreate {
-	if b != nil {
-		pcc.SetIsActive(*b)
+func (_c *PromoCodeCreate) SetNillableIsActive(v *bool) *PromoCodeCreate {
+	if v != nil {
+		_c.SetIsActive(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetFirstOrderOnly sets the "first_order_only" field.
-func (pcc *PromoCodeCreate) SetFirstOrderOnly(b bool) *PromoCodeCreate {
-	pcc.mutation.SetFirstOrderOnly(b)
-	return pcc
+func (_c *PromoCodeCreate) SetFirstOrderOnly(v bool) *PromoCodeCreate {
+	_c.mutation.SetFirstOrderOnly(v)
+	return _c
 }
 
 // SetNillableFirstOrderOnly sets the "first_order_only" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableFirstOrderOnly(b *bool) *PromoCodeCreate {
-	if b != nil {
-		pcc.SetFirstOrderOnly(*b)
+func (_c *PromoCodeCreate) SetNillableFirstOrderOnly(v *bool) *PromoCodeCreate {
+	if v != nil {
+		_c.SetFirstOrderOnly(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetStartsAt sets the "starts_at" field.
-func (pcc *PromoCodeCreate) SetStartsAt(t time.Time) *PromoCodeCreate {
-	pcc.mutation.SetStartsAt(t)
-	return pcc
+func (_c *PromoCodeCreate) SetStartsAt(v time.Time) *PromoCodeCreate {
+	_c.mutation.SetStartsAt(v)
+	return _c
 }
 
 // SetNillableStartsAt sets the "starts_at" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableStartsAt(t *time.Time) *PromoCodeCreate {
-	if t != nil {
-		pcc.SetStartsAt(*t)
+func (_c *PromoCodeCreate) SetNillableStartsAt(v *time.Time) *PromoCodeCreate {
+	if v != nil {
+		_c.SetStartsAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetEndsAt sets the "ends_at" field.
-func (pcc *PromoCodeCreate) SetEndsAt(t time.Time) *PromoCodeCreate {
-	pcc.mutation.SetEndsAt(t)
-	return pcc
+func (_c *PromoCodeCreate) SetEndsAt(v time.Time) *PromoCodeCreate {
+	_c.mutation.SetEndsAt(v)
+	return _c
 }
 
 // SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableEndsAt(t *time.Time) *PromoCodeCreate {
-	if t != nil {
-		pcc.SetEndsAt(*t)
+func (_c *PromoCodeCreate) SetNillableEndsAt(v *time.Time) *PromoCodeCreate {
+	if v != nil {
+		_c.SetEndsAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetEligibleCategories sets the "eligible_categories" field.
-func (pcc *PromoCodeCreate) SetEligibleCategories(u []uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetEligibleCategories(u)
-	return pcc
+func (_c *PromoCodeCreate) SetEligibleCategories(v []uuid.UUID) *PromoCodeCreate {
+	_c.mutation.SetEligibleCategories(v)
+	return _c
 }
 
 // SetEligibleItems sets the "eligible_items" field.
-func (pcc *PromoCodeCreate) SetEligibleItems(u []uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetEligibleItems(u)
-	return pcc
+func (_c *PromoCodeCreate) SetEligibleItems(v []uuid.UUID) *PromoCodeCreate {
+	_c.mutation.SetEligibleItems(v)
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (pcc *PromoCodeCreate) SetMetadata(m map[string]interface{}) *PromoCodeCreate {
-	pcc.mutation.SetMetadata(m)
-	return pcc
+func (_c *PromoCodeCreate) SetMetadata(v map[string]interface{}) *PromoCodeCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (pcc *PromoCodeCreate) SetCreatedAt(t time.Time) *PromoCodeCreate {
-	pcc.mutation.SetCreatedAt(t)
-	return pcc
+func (_c *PromoCodeCreate) SetCreatedAt(v time.Time) *PromoCodeCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableCreatedAt(t *time.Time) *PromoCodeCreate {
-	if t != nil {
-		pcc.SetCreatedAt(*t)
+func (_c *PromoCodeCreate) SetNillableCreatedAt(v *time.Time) *PromoCodeCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (pcc *PromoCodeCreate) SetUpdatedAt(t time.Time) *PromoCodeCreate {
-	pcc.mutation.SetUpdatedAt(t)
-	return pcc
+func (_c *PromoCodeCreate) SetUpdatedAt(v time.Time) *PromoCodeCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableUpdatedAt(t *time.Time) *PromoCodeCreate {
-	if t != nil {
-		pcc.SetUpdatedAt(*t)
+func (_c *PromoCodeCreate) SetNillableUpdatedAt(v *time.Time) *PromoCodeCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (pcc *PromoCodeCreate) SetID(u uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.SetID(u)
-	return pcc
+func (_c *PromoCodeCreate) SetID(v uuid.UUID) *PromoCodeCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (pcc *PromoCodeCreate) SetNillableID(u *uuid.UUID) *PromoCodeCreate {
-	if u != nil {
-		pcc.SetID(*u)
+func (_c *PromoCodeCreate) SetNillableID(v *uuid.UUID) *PromoCodeCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return pcc
+	return _c
 }
 
 // AddRedemptionIDs adds the "redemptions" edge to the PromoRedemption entity by IDs.
-func (pcc *PromoCodeCreate) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeCreate {
-	pcc.mutation.AddRedemptionIDs(ids...)
-	return pcc
+func (_c *PromoCodeCreate) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeCreate {
+	_c.mutation.AddRedemptionIDs(ids...)
+	return _c
 }
 
 // AddRedemptions adds the "redemptions" edges to the PromoRedemption entity.
-func (pcc *PromoCodeCreate) AddRedemptions(p ...*PromoRedemption) *PromoCodeCreate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_c *PromoCodeCreate) AddRedemptions(v ...*PromoRedemption) *PromoCodeCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcc.AddRedemptionIDs(ids...)
+	return _c.AddRedemptionIDs(ids...)
 }
 
 // Mutation returns the PromoCodeMutation object of the builder.
-func (pcc *PromoCodeCreate) Mutation() *PromoCodeMutation {
-	return pcc.mutation
+func (_c *PromoCodeCreate) Mutation() *PromoCodeMutation {
+	return _c.mutation
 }
 
 // Save creates the PromoCode in the database.
-func (pcc *PromoCodeCreate) Save(ctx context.Context) (*PromoCode, error) {
-	pcc.defaults()
-	return withHooks(ctx, pcc.sqlSave, pcc.mutation, pcc.hooks)
+func (_c *PromoCodeCreate) Save(ctx context.Context) (*PromoCode, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (pcc *PromoCodeCreate) SaveX(ctx context.Context) *PromoCode {
-	v, err := pcc.Save(ctx)
+func (_c *PromoCodeCreate) SaveX(ctx context.Context) *PromoCode {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -305,109 +305,109 @@ func (pcc *PromoCodeCreate) SaveX(ctx context.Context) *PromoCode {
 }
 
 // Exec executes the query.
-func (pcc *PromoCodeCreate) Exec(ctx context.Context) error {
-	_, err := pcc.Save(ctx)
+func (_c *PromoCodeCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcc *PromoCodeCreate) ExecX(ctx context.Context) {
-	if err := pcc.Exec(ctx); err != nil {
+func (_c *PromoCodeCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (pcc *PromoCodeCreate) defaults() {
-	if _, ok := pcc.mutation.MinSubtotal(); !ok {
+func (_c *PromoCodeCreate) defaults() {
+	if _, ok := _c.mutation.MinSubtotal(); !ok {
 		v := promocode.DefaultMinSubtotal
-		pcc.mutation.SetMinSubtotal(v)
+		_c.mutation.SetMinSubtotal(v)
 	}
-	if _, ok := pcc.mutation.UsageCount(); !ok {
+	if _, ok := _c.mutation.UsageCount(); !ok {
 		v := promocode.DefaultUsageCount
-		pcc.mutation.SetUsageCount(v)
+		_c.mutation.SetUsageCount(v)
 	}
-	if _, ok := pcc.mutation.IsActive(); !ok {
+	if _, ok := _c.mutation.IsActive(); !ok {
 		v := promocode.DefaultIsActive
-		pcc.mutation.SetIsActive(v)
+		_c.mutation.SetIsActive(v)
 	}
-	if _, ok := pcc.mutation.FirstOrderOnly(); !ok {
+	if _, ok := _c.mutation.FirstOrderOnly(); !ok {
 		v := promocode.DefaultFirstOrderOnly
-		pcc.mutation.SetFirstOrderOnly(v)
+		_c.mutation.SetFirstOrderOnly(v)
 	}
-	if _, ok := pcc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := promocode.DefaultCreatedAt()
-		pcc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := pcc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := promocode.DefaultUpdatedAt()
-		pcc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := pcc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := promocode.DefaultID()
-		pcc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pcc *PromoCodeCreate) check() error {
-	if _, ok := pcc.mutation.TenantID(); !ok {
+func (_c *PromoCodeCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "PromoCode.tenant_id"`)}
 	}
-	if _, ok := pcc.mutation.Code(); !ok {
+	if _, ok := _c.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "PromoCode.code"`)}
 	}
-	if v, ok := pcc.mutation.Code(); ok {
+	if v, ok := _c.mutation.Code(); ok {
 		if err := promocode.CodeValidator(v); err != nil {
 			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "PromoCode.code": %w`, err)}
 		}
 	}
-	if _, ok := pcc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "PromoCode.name"`)}
 	}
-	if v, ok := pcc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := promocode.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PromoCode.name": %w`, err)}
 		}
 	}
-	if _, ok := pcc.mutation.DiscountType(); !ok {
+	if _, ok := _c.mutation.DiscountType(); !ok {
 		return &ValidationError{Name: "discount_type", err: errors.New(`ent: missing required field "PromoCode.discount_type"`)}
 	}
-	if v, ok := pcc.mutation.DiscountType(); ok {
+	if v, ok := _c.mutation.DiscountType(); ok {
 		if err := promocode.DiscountTypeValidator(v); err != nil {
 			return &ValidationError{Name: "discount_type", err: fmt.Errorf(`ent: validator failed for field "PromoCode.discount_type": %w`, err)}
 		}
 	}
-	if _, ok := pcc.mutation.DiscountValue(); !ok {
+	if _, ok := _c.mutation.DiscountValue(); !ok {
 		return &ValidationError{Name: "discount_value", err: errors.New(`ent: missing required field "PromoCode.discount_value"`)}
 	}
-	if _, ok := pcc.mutation.MinSubtotal(); !ok {
+	if _, ok := _c.mutation.MinSubtotal(); !ok {
 		return &ValidationError{Name: "min_subtotal", err: errors.New(`ent: missing required field "PromoCode.min_subtotal"`)}
 	}
-	if _, ok := pcc.mutation.UsageCount(); !ok {
+	if _, ok := _c.mutation.UsageCount(); !ok {
 		return &ValidationError{Name: "usage_count", err: errors.New(`ent: missing required field "PromoCode.usage_count"`)}
 	}
-	if _, ok := pcc.mutation.IsActive(); !ok {
+	if _, ok := _c.mutation.IsActive(); !ok {
 		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "PromoCode.is_active"`)}
 	}
-	if _, ok := pcc.mutation.FirstOrderOnly(); !ok {
+	if _, ok := _c.mutation.FirstOrderOnly(); !ok {
 		return &ValidationError{Name: "first_order_only", err: errors.New(`ent: missing required field "PromoCode.first_order_only"`)}
 	}
-	if _, ok := pcc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PromoCode.created_at"`)}
 	}
-	if _, ok := pcc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PromoCode.updated_at"`)}
 	}
 	return nil
 }
 
-func (pcc *PromoCodeCreate) sqlSave(ctx context.Context) (*PromoCode, error) {
-	if err := pcc.check(); err != nil {
+func (_c *PromoCodeCreate) sqlSave(ctx context.Context) (*PromoCode, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := pcc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, pcc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -420,106 +420,106 @@ func (pcc *PromoCodeCreate) sqlSave(ctx context.Context) (*PromoCode, error) {
 			return nil, err
 		}
 	}
-	pcc.mutation.id = &_node.ID
-	pcc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (pcc *PromoCodeCreate) createSpec() (*PromoCode, *sqlgraph.CreateSpec) {
+func (_c *PromoCodeCreate) createSpec() (*PromoCode, *sqlgraph.CreateSpec) {
 	var (
-		_node = &PromoCode{config: pcc.config}
+		_node = &PromoCode{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(promocode.Table, sqlgraph.NewFieldSpec(promocode.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = pcc.conflict
-	if id, ok := pcc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := pcc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := pcc.mutation.OutletID(); ok {
+	if value, ok := _c.mutation.OutletID(); ok {
 		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
 		_node.OutletID = &value
 	}
-	if value, ok := pcc.mutation.Code(); ok {
+	if value, ok := _c.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)
 		_node.Code = value
 	}
-	if value, ok := pcc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(promocode.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := pcc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(promocode.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := pcc.mutation.DiscountType(); ok {
+	if value, ok := _c.mutation.DiscountType(); ok {
 		_spec.SetField(promocode.FieldDiscountType, field.TypeEnum, value)
 		_node.DiscountType = value
 	}
-	if value, ok := pcc.mutation.DiscountValue(); ok {
+	if value, ok := _c.mutation.DiscountValue(); ok {
 		_spec.SetField(promocode.FieldDiscountValue, field.TypeFloat64, value)
 		_node.DiscountValue = value
 	}
-	if value, ok := pcc.mutation.MaxDiscountAmount(); ok {
+	if value, ok := _c.mutation.MaxDiscountAmount(); ok {
 		_spec.SetField(promocode.FieldMaxDiscountAmount, field.TypeFloat64, value)
 		_node.MaxDiscountAmount = &value
 	}
-	if value, ok := pcc.mutation.MinSubtotal(); ok {
+	if value, ok := _c.mutation.MinSubtotal(); ok {
 		_spec.SetField(promocode.FieldMinSubtotal, field.TypeFloat64, value)
 		_node.MinSubtotal = value
 	}
-	if value, ok := pcc.mutation.MaxUses(); ok {
+	if value, ok := _c.mutation.MaxUses(); ok {
 		_spec.SetField(promocode.FieldMaxUses, field.TypeInt, value)
 		_node.MaxUses = &value
 	}
-	if value, ok := pcc.mutation.MaxUsesPerUser(); ok {
+	if value, ok := _c.mutation.MaxUsesPerUser(); ok {
 		_spec.SetField(promocode.FieldMaxUsesPerUser, field.TypeInt, value)
 		_node.MaxUsesPerUser = &value
 	}
-	if value, ok := pcc.mutation.UsageCount(); ok {
+	if value, ok := _c.mutation.UsageCount(); ok {
 		_spec.SetField(promocode.FieldUsageCount, field.TypeInt, value)
 		_node.UsageCount = value
 	}
-	if value, ok := pcc.mutation.IsActive(); ok {
+	if value, ok := _c.mutation.IsActive(); ok {
 		_spec.SetField(promocode.FieldIsActive, field.TypeBool, value)
 		_node.IsActive = value
 	}
-	if value, ok := pcc.mutation.FirstOrderOnly(); ok {
+	if value, ok := _c.mutation.FirstOrderOnly(); ok {
 		_spec.SetField(promocode.FieldFirstOrderOnly, field.TypeBool, value)
 		_node.FirstOrderOnly = value
 	}
-	if value, ok := pcc.mutation.StartsAt(); ok {
+	if value, ok := _c.mutation.StartsAt(); ok {
 		_spec.SetField(promocode.FieldStartsAt, field.TypeTime, value)
 		_node.StartsAt = &value
 	}
-	if value, ok := pcc.mutation.EndsAt(); ok {
+	if value, ok := _c.mutation.EndsAt(); ok {
 		_spec.SetField(promocode.FieldEndsAt, field.TypeTime, value)
 		_node.EndsAt = &value
 	}
-	if value, ok := pcc.mutation.EligibleCategories(); ok {
+	if value, ok := _c.mutation.EligibleCategories(); ok {
 		_spec.SetField(promocode.FieldEligibleCategories, field.TypeJSON, value)
 		_node.EligibleCategories = value
 	}
-	if value, ok := pcc.mutation.EligibleItems(); ok {
+	if value, ok := _c.mutation.EligibleItems(); ok {
 		_spec.SetField(promocode.FieldEligibleItems, field.TypeJSON, value)
 		_node.EligibleItems = value
 	}
-	if value, ok := pcc.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(promocode.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := pcc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(promocode.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := pcc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(promocode.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := pcc.mutation.RedemptionsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.RedemptionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -554,10 +554,10 @@ func (pcc *PromoCodeCreate) createSpec() (*PromoCode, *sqlgraph.CreateSpec) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (pcc *PromoCodeCreate) OnConflict(opts ...sql.ConflictOption) *PromoCodeUpsertOne {
-	pcc.conflict = opts
+func (_c *PromoCodeCreate) OnConflict(opts ...sql.ConflictOption) *PromoCodeUpsertOne {
+	_c.conflict = opts
 	return &PromoCodeUpsertOne{
-		create: pcc,
+		create: _c,
 	}
 }
 
@@ -567,10 +567,10 @@ func (pcc *PromoCodeCreate) OnConflict(opts ...sql.ConflictOption) *PromoCodeUps
 //	client.PromoCode.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pcc *PromoCodeCreate) OnConflictColumns(columns ...string) *PromoCodeUpsertOne {
-	pcc.conflict = append(pcc.conflict, sql.ConflictColumns(columns...))
+func (_c *PromoCodeCreate) OnConflictColumns(columns ...string) *PromoCodeUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PromoCodeUpsertOne{
-		create: pcc,
+		create: _c,
 	}
 }
 
@@ -1413,16 +1413,16 @@ type PromoCodeCreateBulk struct {
 }
 
 // Save creates the PromoCode entities in the database.
-func (pccb *PromoCodeCreateBulk) Save(ctx context.Context) ([]*PromoCode, error) {
-	if pccb.err != nil {
-		return nil, pccb.err
+func (_c *PromoCodeCreateBulk) Save(ctx context.Context) ([]*PromoCode, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(pccb.builders))
-	nodes := make([]*PromoCode, len(pccb.builders))
-	mutators := make([]Mutator, len(pccb.builders))
-	for i := range pccb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*PromoCode, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := pccb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PromoCodeMutation)
@@ -1436,12 +1436,12 @@ func (pccb *PromoCodeCreateBulk) Save(ctx context.Context) ([]*PromoCode, error)
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, pccb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = pccb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, pccb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1461,7 +1461,7 @@ func (pccb *PromoCodeCreateBulk) Save(ctx context.Context) ([]*PromoCode, error)
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, pccb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1469,8 +1469,8 @@ func (pccb *PromoCodeCreateBulk) Save(ctx context.Context) ([]*PromoCode, error)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pccb *PromoCodeCreateBulk) SaveX(ctx context.Context) []*PromoCode {
-	v, err := pccb.Save(ctx)
+func (_c *PromoCodeCreateBulk) SaveX(ctx context.Context) []*PromoCode {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1478,14 +1478,14 @@ func (pccb *PromoCodeCreateBulk) SaveX(ctx context.Context) []*PromoCode {
 }
 
 // Exec executes the query.
-func (pccb *PromoCodeCreateBulk) Exec(ctx context.Context) error {
-	_, err := pccb.Save(ctx)
+func (_c *PromoCodeCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pccb *PromoCodeCreateBulk) ExecX(ctx context.Context) {
-	if err := pccb.Exec(ctx); err != nil {
+func (_c *PromoCodeCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1505,10 +1505,10 @@ func (pccb *PromoCodeCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (pccb *PromoCodeCreateBulk) OnConflict(opts ...sql.ConflictOption) *PromoCodeUpsertBulk {
-	pccb.conflict = opts
+func (_c *PromoCodeCreateBulk) OnConflict(opts ...sql.ConflictOption) *PromoCodeUpsertBulk {
+	_c.conflict = opts
 	return &PromoCodeUpsertBulk{
-		create: pccb,
+		create: _c,
 	}
 }
 
@@ -1518,10 +1518,10 @@ func (pccb *PromoCodeCreateBulk) OnConflict(opts ...sql.ConflictOption) *PromoCo
 //	client.PromoCode.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pccb *PromoCodeCreateBulk) OnConflictColumns(columns ...string) *PromoCodeUpsertBulk {
-	pccb.conflict = append(pccb.conflict, sql.ConflictColumns(columns...))
+func (_c *PromoCodeCreateBulk) OnConflictColumns(columns ...string) *PromoCodeUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PromoCodeUpsertBulk{
-		create: pccb,
+		create: _c,
 	}
 }
 

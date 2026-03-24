@@ -26,384 +26,384 @@ type CustomerAddressUpdate struct {
 }
 
 // Where appends a list predicates to the CustomerAddressUpdate builder.
-func (cau *CustomerAddressUpdate) Where(ps ...predicate.CustomerAddress) *CustomerAddressUpdate {
-	cau.mutation.Where(ps...)
-	return cau
+func (_u *CustomerAddressUpdate) Where(ps ...predicate.CustomerAddress) *CustomerAddressUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cau *CustomerAddressUpdate) SetTenantID(u uuid.UUID) *CustomerAddressUpdate {
-	cau.mutation.SetTenantID(u)
-	return cau
+func (_u *CustomerAddressUpdate) SetTenantID(v uuid.UUID) *CustomerAddressUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableTenantID(u *uuid.UUID) *CustomerAddressUpdate {
-	if u != nil {
-		cau.SetTenantID(*u)
+func (_u *CustomerAddressUpdate) SetNillableTenantID(v *uuid.UUID) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (cau *CustomerAddressUpdate) SetUserID(u uuid.UUID) *CustomerAddressUpdate {
-	cau.mutation.SetUserID(u)
-	return cau
+func (_u *CustomerAddressUpdate) SetUserID(v uuid.UUID) *CustomerAddressUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableUserID(u *uuid.UUID) *CustomerAddressUpdate {
-	if u != nil {
-		cau.SetUserID(*u)
+func (_u *CustomerAddressUpdate) SetNillableUserID(v *uuid.UUID) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetLabel sets the "label" field.
-func (cau *CustomerAddressUpdate) SetLabel(s string) *CustomerAddressUpdate {
-	cau.mutation.SetLabel(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetLabel(v string) *CustomerAddressUpdate {
+	_u.mutation.SetLabel(v)
+	return _u
 }
 
 // SetNillableLabel sets the "label" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableLabel(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetLabel(*s)
+func (_u *CustomerAddressUpdate) SetNillableLabel(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetLabel(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetAddressLine1 sets the "address_line1" field.
-func (cau *CustomerAddressUpdate) SetAddressLine1(s string) *CustomerAddressUpdate {
-	cau.mutation.SetAddressLine1(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetAddressLine1(v string) *CustomerAddressUpdate {
+	_u.mutation.SetAddressLine1(v)
+	return _u
 }
 
 // SetNillableAddressLine1 sets the "address_line1" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableAddressLine1(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetAddressLine1(*s)
+func (_u *CustomerAddressUpdate) SetNillableAddressLine1(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetAddressLine1(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetAddressLine2 sets the "address_line2" field.
-func (cau *CustomerAddressUpdate) SetAddressLine2(s string) *CustomerAddressUpdate {
-	cau.mutation.SetAddressLine2(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetAddressLine2(v string) *CustomerAddressUpdate {
+	_u.mutation.SetAddressLine2(v)
+	return _u
 }
 
 // SetNillableAddressLine2 sets the "address_line2" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableAddressLine2(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetAddressLine2(*s)
+func (_u *CustomerAddressUpdate) SetNillableAddressLine2(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetAddressLine2(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearAddressLine2 clears the value of the "address_line2" field.
-func (cau *CustomerAddressUpdate) ClearAddressLine2() *CustomerAddressUpdate {
-	cau.mutation.ClearAddressLine2()
-	return cau
+func (_u *CustomerAddressUpdate) ClearAddressLine2() *CustomerAddressUpdate {
+	_u.mutation.ClearAddressLine2()
+	return _u
 }
 
 // SetCity sets the "city" field.
-func (cau *CustomerAddressUpdate) SetCity(s string) *CustomerAddressUpdate {
-	cau.mutation.SetCity(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetCity(v string) *CustomerAddressUpdate {
+	_u.mutation.SetCity(v)
+	return _u
 }
 
 // SetNillableCity sets the "city" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableCity(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetCity(*s)
+func (_u *CustomerAddressUpdate) SetNillableCity(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetCity(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetCounty sets the "county" field.
-func (cau *CustomerAddressUpdate) SetCounty(s string) *CustomerAddressUpdate {
-	cau.mutation.SetCounty(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetCounty(v string) *CustomerAddressUpdate {
+	_u.mutation.SetCounty(v)
+	return _u
 }
 
 // SetNillableCounty sets the "county" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableCounty(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetCounty(*s)
+func (_u *CustomerAddressUpdate) SetNillableCounty(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetCounty(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearCounty clears the value of the "county" field.
-func (cau *CustomerAddressUpdate) ClearCounty() *CustomerAddressUpdate {
-	cau.mutation.ClearCounty()
-	return cau
+func (_u *CustomerAddressUpdate) ClearCounty() *CustomerAddressUpdate {
+	_u.mutation.ClearCounty()
+	return _u
 }
 
 // SetPostalCode sets the "postal_code" field.
-func (cau *CustomerAddressUpdate) SetPostalCode(s string) *CustomerAddressUpdate {
-	cau.mutation.SetPostalCode(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetPostalCode(v string) *CustomerAddressUpdate {
+	_u.mutation.SetPostalCode(v)
+	return _u
 }
 
 // SetNillablePostalCode sets the "postal_code" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillablePostalCode(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetPostalCode(*s)
+func (_u *CustomerAddressUpdate) SetNillablePostalCode(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetPostalCode(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearPostalCode clears the value of the "postal_code" field.
-func (cau *CustomerAddressUpdate) ClearPostalCode() *CustomerAddressUpdate {
-	cau.mutation.ClearPostalCode()
-	return cau
+func (_u *CustomerAddressUpdate) ClearPostalCode() *CustomerAddressUpdate {
+	_u.mutation.ClearPostalCode()
+	return _u
 }
 
 // SetCountry sets the "country" field.
-func (cau *CustomerAddressUpdate) SetCountry(s string) *CustomerAddressUpdate {
-	cau.mutation.SetCountry(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetCountry(v string) *CustomerAddressUpdate {
+	_u.mutation.SetCountry(v)
+	return _u
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableCountry(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetCountry(*s)
+func (_u *CustomerAddressUpdate) SetNillableCountry(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetCountry(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetLatitude sets the "latitude" field.
-func (cau *CustomerAddressUpdate) SetLatitude(f float64) *CustomerAddressUpdate {
-	cau.mutation.ResetLatitude()
-	cau.mutation.SetLatitude(f)
-	return cau
+func (_u *CustomerAddressUpdate) SetLatitude(v float64) *CustomerAddressUpdate {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableLatitude(f *float64) *CustomerAddressUpdate {
-	if f != nil {
-		cau.SetLatitude(*f)
+func (_u *CustomerAddressUpdate) SetNillableLatitude(v *float64) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetLatitude(*v)
 	}
-	return cau
+	return _u
 }
 
-// AddLatitude adds f to the "latitude" field.
-func (cau *CustomerAddressUpdate) AddLatitude(f float64) *CustomerAddressUpdate {
-	cau.mutation.AddLatitude(f)
-	return cau
+// AddLatitude adds value to the "latitude" field.
+func (_u *CustomerAddressUpdate) AddLatitude(v float64) *CustomerAddressUpdate {
+	_u.mutation.AddLatitude(v)
+	return _u
 }
 
 // ClearLatitude clears the value of the "latitude" field.
-func (cau *CustomerAddressUpdate) ClearLatitude() *CustomerAddressUpdate {
-	cau.mutation.ClearLatitude()
-	return cau
+func (_u *CustomerAddressUpdate) ClearLatitude() *CustomerAddressUpdate {
+	_u.mutation.ClearLatitude()
+	return _u
 }
 
 // SetLongitude sets the "longitude" field.
-func (cau *CustomerAddressUpdate) SetLongitude(f float64) *CustomerAddressUpdate {
-	cau.mutation.ResetLongitude()
-	cau.mutation.SetLongitude(f)
-	return cau
+func (_u *CustomerAddressUpdate) SetLongitude(v float64) *CustomerAddressUpdate {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableLongitude(f *float64) *CustomerAddressUpdate {
-	if f != nil {
-		cau.SetLongitude(*f)
+func (_u *CustomerAddressUpdate) SetNillableLongitude(v *float64) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetLongitude(*v)
 	}
-	return cau
+	return _u
 }
 
-// AddLongitude adds f to the "longitude" field.
-func (cau *CustomerAddressUpdate) AddLongitude(f float64) *CustomerAddressUpdate {
-	cau.mutation.AddLongitude(f)
-	return cau
+// AddLongitude adds value to the "longitude" field.
+func (_u *CustomerAddressUpdate) AddLongitude(v float64) *CustomerAddressUpdate {
+	_u.mutation.AddLongitude(v)
+	return _u
 }
 
 // ClearLongitude clears the value of the "longitude" field.
-func (cau *CustomerAddressUpdate) ClearLongitude() *CustomerAddressUpdate {
-	cau.mutation.ClearLongitude()
-	return cau
+func (_u *CustomerAddressUpdate) ClearLongitude() *CustomerAddressUpdate {
+	_u.mutation.ClearLongitude()
+	return _u
 }
 
 // SetPlusCode sets the "plus_code" field.
-func (cau *CustomerAddressUpdate) SetPlusCode(s string) *CustomerAddressUpdate {
-	cau.mutation.SetPlusCode(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetPlusCode(v string) *CustomerAddressUpdate {
+	_u.mutation.SetPlusCode(v)
+	return _u
 }
 
 // SetNillablePlusCode sets the "plus_code" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillablePlusCode(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetPlusCode(*s)
+func (_u *CustomerAddressUpdate) SetNillablePlusCode(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetPlusCode(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearPlusCode clears the value of the "plus_code" field.
-func (cau *CustomerAddressUpdate) ClearPlusCode() *CustomerAddressUpdate {
-	cau.mutation.ClearPlusCode()
-	return cau
+func (_u *CustomerAddressUpdate) ClearPlusCode() *CustomerAddressUpdate {
+	_u.mutation.ClearPlusCode()
+	return _u
 }
 
 // SetInstructions sets the "instructions" field.
-func (cau *CustomerAddressUpdate) SetInstructions(s string) *CustomerAddressUpdate {
-	cau.mutation.SetInstructions(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetInstructions(v string) *CustomerAddressUpdate {
+	_u.mutation.SetInstructions(v)
+	return _u
 }
 
 // SetNillableInstructions sets the "instructions" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableInstructions(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetInstructions(*s)
+func (_u *CustomerAddressUpdate) SetNillableInstructions(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetInstructions(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearInstructions clears the value of the "instructions" field.
-func (cau *CustomerAddressUpdate) ClearInstructions() *CustomerAddressUpdate {
-	cau.mutation.ClearInstructions()
-	return cau
+func (_u *CustomerAddressUpdate) ClearInstructions() *CustomerAddressUpdate {
+	_u.mutation.ClearInstructions()
+	return _u
 }
 
 // SetContactName sets the "contact_name" field.
-func (cau *CustomerAddressUpdate) SetContactName(s string) *CustomerAddressUpdate {
-	cau.mutation.SetContactName(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetContactName(v string) *CustomerAddressUpdate {
+	_u.mutation.SetContactName(v)
+	return _u
 }
 
 // SetNillableContactName sets the "contact_name" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableContactName(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetContactName(*s)
+func (_u *CustomerAddressUpdate) SetNillableContactName(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetContactName(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearContactName clears the value of the "contact_name" field.
-func (cau *CustomerAddressUpdate) ClearContactName() *CustomerAddressUpdate {
-	cau.mutation.ClearContactName()
-	return cau
+func (_u *CustomerAddressUpdate) ClearContactName() *CustomerAddressUpdate {
+	_u.mutation.ClearContactName()
+	return _u
 }
 
 // SetContactPhone sets the "contact_phone" field.
-func (cau *CustomerAddressUpdate) SetContactPhone(s string) *CustomerAddressUpdate {
-	cau.mutation.SetContactPhone(s)
-	return cau
+func (_u *CustomerAddressUpdate) SetContactPhone(v string) *CustomerAddressUpdate {
+	_u.mutation.SetContactPhone(v)
+	return _u
 }
 
 // SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableContactPhone(s *string) *CustomerAddressUpdate {
-	if s != nil {
-		cau.SetContactPhone(*s)
+func (_u *CustomerAddressUpdate) SetNillableContactPhone(v *string) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetContactPhone(*v)
 	}
-	return cau
+	return _u
 }
 
 // ClearContactPhone clears the value of the "contact_phone" field.
-func (cau *CustomerAddressUpdate) ClearContactPhone() *CustomerAddressUpdate {
-	cau.mutation.ClearContactPhone()
-	return cau
+func (_u *CustomerAddressUpdate) ClearContactPhone() *CustomerAddressUpdate {
+	_u.mutation.ClearContactPhone()
+	return _u
 }
 
 // SetIsDefault sets the "is_default" field.
-func (cau *CustomerAddressUpdate) SetIsDefault(b bool) *CustomerAddressUpdate {
-	cau.mutation.SetIsDefault(b)
-	return cau
+func (_u *CustomerAddressUpdate) SetIsDefault(v bool) *CustomerAddressUpdate {
+	_u.mutation.SetIsDefault(v)
+	return _u
 }
 
 // SetNillableIsDefault sets the "is_default" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableIsDefault(b *bool) *CustomerAddressUpdate {
-	if b != nil {
-		cau.SetIsDefault(*b)
+func (_u *CustomerAddressUpdate) SetNillableIsDefault(v *bool) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetIsDefault(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetIsVerified sets the "is_verified" field.
-func (cau *CustomerAddressUpdate) SetIsVerified(b bool) *CustomerAddressUpdate {
-	cau.mutation.SetIsVerified(b)
-	return cau
+func (_u *CustomerAddressUpdate) SetIsVerified(v bool) *CustomerAddressUpdate {
+	_u.mutation.SetIsVerified(v)
+	return _u
 }
 
 // SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
-func (cau *CustomerAddressUpdate) SetNillableIsVerified(b *bool) *CustomerAddressUpdate {
-	if b != nil {
-		cau.SetIsVerified(*b)
+func (_u *CustomerAddressUpdate) SetNillableIsVerified(v *bool) *CustomerAddressUpdate {
+	if v != nil {
+		_u.SetIsVerified(*v)
 	}
-	return cau
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cau *CustomerAddressUpdate) SetUpdatedAt(t time.Time) *CustomerAddressUpdate {
-	cau.mutation.SetUpdatedAt(t)
-	return cau
+func (_u *CustomerAddressUpdate) SetUpdatedAt(v time.Time) *CustomerAddressUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cau *CustomerAddressUpdate) SetUser(u *User) *CustomerAddressUpdate {
-	return cau.SetUserID(u.ID)
+func (_u *CustomerAddressUpdate) SetUser(v *User) *CustomerAddressUpdate {
+	return _u.SetUserID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (cau *CustomerAddressUpdate) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdate {
-	cau.mutation.AddOrderIDs(ids...)
-	return cau
+func (_u *CustomerAddressUpdate) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdate {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (cau *CustomerAddressUpdate) AddOrders(o ...*Order) *CustomerAddressUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *CustomerAddressUpdate) AddOrders(v ...*Order) *CustomerAddressUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cau.AddOrderIDs(ids...)
+	return _u.AddOrderIDs(ids...)
 }
 
 // Mutation returns the CustomerAddressMutation object of the builder.
-func (cau *CustomerAddressUpdate) Mutation() *CustomerAddressMutation {
-	return cau.mutation
+func (_u *CustomerAddressUpdate) Mutation() *CustomerAddressMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (cau *CustomerAddressUpdate) ClearUser() *CustomerAddressUpdate {
-	cau.mutation.ClearUser()
-	return cau
+func (_u *CustomerAddressUpdate) ClearUser() *CustomerAddressUpdate {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // ClearOrders clears all "orders" edges to the Order entity.
-func (cau *CustomerAddressUpdate) ClearOrders() *CustomerAddressUpdate {
-	cau.mutation.ClearOrders()
-	return cau
+func (_u *CustomerAddressUpdate) ClearOrders() *CustomerAddressUpdate {
+	_u.mutation.ClearOrders()
+	return _u
 }
 
 // RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
-func (cau *CustomerAddressUpdate) RemoveOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdate {
-	cau.mutation.RemoveOrderIDs(ids...)
-	return cau
+func (_u *CustomerAddressUpdate) RemoveOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdate {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
 }
 
 // RemoveOrders removes "orders" edges to Order entities.
-func (cau *CustomerAddressUpdate) RemoveOrders(o ...*Order) *CustomerAddressUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *CustomerAddressUpdate) RemoveOrders(v ...*Order) *CustomerAddressUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cau.RemoveOrderIDs(ids...)
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (cau *CustomerAddressUpdate) Save(ctx context.Context) (int, error) {
-	cau.defaults()
-	return withHooks(ctx, cau.sqlSave, cau.mutation, cau.hooks)
+func (_u *CustomerAddressUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cau *CustomerAddressUpdate) SaveX(ctx context.Context) int {
-	affected, err := cau.Save(ctx)
+func (_u *CustomerAddressUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -411,181 +411,181 @@ func (cau *CustomerAddressUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (cau *CustomerAddressUpdate) Exec(ctx context.Context) error {
-	_, err := cau.Save(ctx)
+func (_u *CustomerAddressUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cau *CustomerAddressUpdate) ExecX(ctx context.Context) {
-	if err := cau.Exec(ctx); err != nil {
+func (_u *CustomerAddressUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cau *CustomerAddressUpdate) defaults() {
-	if _, ok := cau.mutation.UpdatedAt(); !ok {
+func (_u *CustomerAddressUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := customeraddress.UpdateDefaultUpdatedAt()
-		cau.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cau *CustomerAddressUpdate) check() error {
-	if v, ok := cau.mutation.Label(); ok {
+func (_u *CustomerAddressUpdate) check() error {
+	if v, ok := _u.mutation.Label(); ok {
 		if err := customeraddress.LabelValidator(v); err != nil {
 			return &ValidationError{Name: "label", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.label": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.AddressLine1(); ok {
+	if v, ok := _u.mutation.AddressLine1(); ok {
 		if err := customeraddress.AddressLine1Validator(v); err != nil {
 			return &ValidationError{Name: "address_line1", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line1": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.AddressLine2(); ok {
+	if v, ok := _u.mutation.AddressLine2(); ok {
 		if err := customeraddress.AddressLine2Validator(v); err != nil {
 			return &ValidationError{Name: "address_line2", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line2": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.City(); ok {
+	if v, ok := _u.mutation.City(); ok {
 		if err := customeraddress.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.city": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.County(); ok {
+	if v, ok := _u.mutation.County(); ok {
 		if err := customeraddress.CountyValidator(v); err != nil {
 			return &ValidationError{Name: "county", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.county": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.PostalCode(); ok {
+	if v, ok := _u.mutation.PostalCode(); ok {
 		if err := customeraddress.PostalCodeValidator(v); err != nil {
 			return &ValidationError{Name: "postal_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.postal_code": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.Country(); ok {
+	if v, ok := _u.mutation.Country(); ok {
 		if err := customeraddress.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.country": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.PlusCode(); ok {
+	if v, ok := _u.mutation.PlusCode(); ok {
 		if err := customeraddress.PlusCodeValidator(v); err != nil {
 			return &ValidationError{Name: "plus_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.plus_code": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.ContactName(); ok {
+	if v, ok := _u.mutation.ContactName(); ok {
 		if err := customeraddress.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_name": %w`, err)}
 		}
 	}
-	if v, ok := cau.mutation.ContactPhone(); ok {
+	if v, ok := _u.mutation.ContactPhone(); ok {
 		if err := customeraddress.ContactPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "contact_phone", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_phone": %w`, err)}
 		}
 	}
-	if _, ok := cau.mutation.UserID(); cau.mutation.UserCleared() && !ok {
+	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CustomerAddress.user"`)
 	}
 	return nil
 }
 
-func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := cau.check(); err != nil {
-		return n, err
+func (_u *CustomerAddressUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(customeraddress.Table, customeraddress.Columns, sqlgraph.NewFieldSpec(customeraddress.FieldID, field.TypeUUID))
-	if ps := cau.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := cau.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(customeraddress.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cau.mutation.Label(); ok {
+	if value, ok := _u.mutation.Label(); ok {
 		_spec.SetField(customeraddress.FieldLabel, field.TypeString, value)
 	}
-	if value, ok := cau.mutation.AddressLine1(); ok {
+	if value, ok := _u.mutation.AddressLine1(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine1, field.TypeString, value)
 	}
-	if value, ok := cau.mutation.AddressLine2(); ok {
+	if value, ok := _u.mutation.AddressLine2(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine2, field.TypeString, value)
 	}
-	if cau.mutation.AddressLine2Cleared() {
+	if _u.mutation.AddressLine2Cleared() {
 		_spec.ClearField(customeraddress.FieldAddressLine2, field.TypeString)
 	}
-	if value, ok := cau.mutation.City(); ok {
+	if value, ok := _u.mutation.City(); ok {
 		_spec.SetField(customeraddress.FieldCity, field.TypeString, value)
 	}
-	if value, ok := cau.mutation.County(); ok {
+	if value, ok := _u.mutation.County(); ok {
 		_spec.SetField(customeraddress.FieldCounty, field.TypeString, value)
 	}
-	if cau.mutation.CountyCleared() {
+	if _u.mutation.CountyCleared() {
 		_spec.ClearField(customeraddress.FieldCounty, field.TypeString)
 	}
-	if value, ok := cau.mutation.PostalCode(); ok {
+	if value, ok := _u.mutation.PostalCode(); ok {
 		_spec.SetField(customeraddress.FieldPostalCode, field.TypeString, value)
 	}
-	if cau.mutation.PostalCodeCleared() {
+	if _u.mutation.PostalCodeCleared() {
 		_spec.ClearField(customeraddress.FieldPostalCode, field.TypeString)
 	}
-	if value, ok := cau.mutation.Country(); ok {
+	if value, ok := _u.mutation.Country(); ok {
 		_spec.SetField(customeraddress.FieldCountry, field.TypeString, value)
 	}
-	if value, ok := cau.mutation.Latitude(); ok {
+	if value, ok := _u.mutation.Latitude(); ok {
 		_spec.SetField(customeraddress.FieldLatitude, field.TypeFloat64, value)
 	}
-	if value, ok := cau.mutation.AddedLatitude(); ok {
+	if value, ok := _u.mutation.AddedLatitude(); ok {
 		_spec.AddField(customeraddress.FieldLatitude, field.TypeFloat64, value)
 	}
-	if cau.mutation.LatitudeCleared() {
+	if _u.mutation.LatitudeCleared() {
 		_spec.ClearField(customeraddress.FieldLatitude, field.TypeFloat64)
 	}
-	if value, ok := cau.mutation.Longitude(); ok {
+	if value, ok := _u.mutation.Longitude(); ok {
 		_spec.SetField(customeraddress.FieldLongitude, field.TypeFloat64, value)
 	}
-	if value, ok := cau.mutation.AddedLongitude(); ok {
+	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(customeraddress.FieldLongitude, field.TypeFloat64, value)
 	}
-	if cau.mutation.LongitudeCleared() {
+	if _u.mutation.LongitudeCleared() {
 		_spec.ClearField(customeraddress.FieldLongitude, field.TypeFloat64)
 	}
-	if value, ok := cau.mutation.PlusCode(); ok {
+	if value, ok := _u.mutation.PlusCode(); ok {
 		_spec.SetField(customeraddress.FieldPlusCode, field.TypeString, value)
 	}
-	if cau.mutation.PlusCodeCleared() {
+	if _u.mutation.PlusCodeCleared() {
 		_spec.ClearField(customeraddress.FieldPlusCode, field.TypeString)
 	}
-	if value, ok := cau.mutation.Instructions(); ok {
+	if value, ok := _u.mutation.Instructions(); ok {
 		_spec.SetField(customeraddress.FieldInstructions, field.TypeString, value)
 	}
-	if cau.mutation.InstructionsCleared() {
+	if _u.mutation.InstructionsCleared() {
 		_spec.ClearField(customeraddress.FieldInstructions, field.TypeString)
 	}
-	if value, ok := cau.mutation.ContactName(); ok {
+	if value, ok := _u.mutation.ContactName(); ok {
 		_spec.SetField(customeraddress.FieldContactName, field.TypeString, value)
 	}
-	if cau.mutation.ContactNameCleared() {
+	if _u.mutation.ContactNameCleared() {
 		_spec.ClearField(customeraddress.FieldContactName, field.TypeString)
 	}
-	if value, ok := cau.mutation.ContactPhone(); ok {
+	if value, ok := _u.mutation.ContactPhone(); ok {
 		_spec.SetField(customeraddress.FieldContactPhone, field.TypeString, value)
 	}
-	if cau.mutation.ContactPhoneCleared() {
+	if _u.mutation.ContactPhoneCleared() {
 		_spec.ClearField(customeraddress.FieldContactPhone, field.TypeString)
 	}
-	if value, ok := cau.mutation.IsDefault(); ok {
+	if value, ok := _u.mutation.IsDefault(); ok {
 		_spec.SetField(customeraddress.FieldIsDefault, field.TypeBool, value)
 	}
-	if value, ok := cau.mutation.IsVerified(); ok {
+	if value, ok := _u.mutation.IsVerified(); ok {
 		_spec.SetField(customeraddress.FieldIsVerified, field.TypeBool, value)
 	}
-	if value, ok := cau.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(customeraddress.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if cau.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -598,7 +598,7 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cau.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -614,7 +614,7 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cau.mutation.OrdersCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -627,7 +627,7 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cau.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !cau.mutation.OrdersCleared() {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -643,7 +643,7 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cau.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -659,7 +659,7 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, cau.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{customeraddress.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -667,8 +667,8 @@ func (cau *CustomerAddressUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		return 0, err
 	}
-	cau.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // CustomerAddressUpdateOne is the builder for updating a single CustomerAddress entity.
@@ -680,391 +680,391 @@ type CustomerAddressUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cauo *CustomerAddressUpdateOne) SetTenantID(u uuid.UUID) *CustomerAddressUpdateOne {
-	cauo.mutation.SetTenantID(u)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetTenantID(v uuid.UUID) *CustomerAddressUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableTenantID(u *uuid.UUID) *CustomerAddressUpdateOne {
-	if u != nil {
-		cauo.SetTenantID(*u)
+func (_u *CustomerAddressUpdateOne) SetNillableTenantID(v *uuid.UUID) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (cauo *CustomerAddressUpdateOne) SetUserID(u uuid.UUID) *CustomerAddressUpdateOne {
-	cauo.mutation.SetUserID(u)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetUserID(v uuid.UUID) *CustomerAddressUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableUserID(u *uuid.UUID) *CustomerAddressUpdateOne {
-	if u != nil {
-		cauo.SetUserID(*u)
+func (_u *CustomerAddressUpdateOne) SetNillableUserID(v *uuid.UUID) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetLabel sets the "label" field.
-func (cauo *CustomerAddressUpdateOne) SetLabel(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetLabel(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetLabel(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetLabel(v)
+	return _u
 }
 
 // SetNillableLabel sets the "label" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableLabel(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetLabel(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableLabel(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetLabel(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetAddressLine1 sets the "address_line1" field.
-func (cauo *CustomerAddressUpdateOne) SetAddressLine1(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetAddressLine1(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetAddressLine1(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetAddressLine1(v)
+	return _u
 }
 
 // SetNillableAddressLine1 sets the "address_line1" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableAddressLine1(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetAddressLine1(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableAddressLine1(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetAddressLine1(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetAddressLine2 sets the "address_line2" field.
-func (cauo *CustomerAddressUpdateOne) SetAddressLine2(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetAddressLine2(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetAddressLine2(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetAddressLine2(v)
+	return _u
 }
 
 // SetNillableAddressLine2 sets the "address_line2" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableAddressLine2(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetAddressLine2(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableAddressLine2(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetAddressLine2(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearAddressLine2 clears the value of the "address_line2" field.
-func (cauo *CustomerAddressUpdateOne) ClearAddressLine2() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearAddressLine2()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearAddressLine2() *CustomerAddressUpdateOne {
+	_u.mutation.ClearAddressLine2()
+	return _u
 }
 
 // SetCity sets the "city" field.
-func (cauo *CustomerAddressUpdateOne) SetCity(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetCity(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetCity(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetCity(v)
+	return _u
 }
 
 // SetNillableCity sets the "city" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableCity(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetCity(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableCity(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetCity(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetCounty sets the "county" field.
-func (cauo *CustomerAddressUpdateOne) SetCounty(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetCounty(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetCounty(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetCounty(v)
+	return _u
 }
 
 // SetNillableCounty sets the "county" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableCounty(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetCounty(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableCounty(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetCounty(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearCounty clears the value of the "county" field.
-func (cauo *CustomerAddressUpdateOne) ClearCounty() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearCounty()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearCounty() *CustomerAddressUpdateOne {
+	_u.mutation.ClearCounty()
+	return _u
 }
 
 // SetPostalCode sets the "postal_code" field.
-func (cauo *CustomerAddressUpdateOne) SetPostalCode(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetPostalCode(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetPostalCode(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetPostalCode(v)
+	return _u
 }
 
 // SetNillablePostalCode sets the "postal_code" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillablePostalCode(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetPostalCode(*s)
+func (_u *CustomerAddressUpdateOne) SetNillablePostalCode(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetPostalCode(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearPostalCode clears the value of the "postal_code" field.
-func (cauo *CustomerAddressUpdateOne) ClearPostalCode() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearPostalCode()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearPostalCode() *CustomerAddressUpdateOne {
+	_u.mutation.ClearPostalCode()
+	return _u
 }
 
 // SetCountry sets the "country" field.
-func (cauo *CustomerAddressUpdateOne) SetCountry(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetCountry(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetCountry(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetCountry(v)
+	return _u
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableCountry(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetCountry(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableCountry(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetCountry(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetLatitude sets the "latitude" field.
-func (cauo *CustomerAddressUpdateOne) SetLatitude(f float64) *CustomerAddressUpdateOne {
-	cauo.mutation.ResetLatitude()
-	cauo.mutation.SetLatitude(f)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetLatitude(v float64) *CustomerAddressUpdateOne {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableLatitude(f *float64) *CustomerAddressUpdateOne {
-	if f != nil {
-		cauo.SetLatitude(*f)
+func (_u *CustomerAddressUpdateOne) SetNillableLatitude(v *float64) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetLatitude(*v)
 	}
-	return cauo
+	return _u
 }
 
-// AddLatitude adds f to the "latitude" field.
-func (cauo *CustomerAddressUpdateOne) AddLatitude(f float64) *CustomerAddressUpdateOne {
-	cauo.mutation.AddLatitude(f)
-	return cauo
+// AddLatitude adds value to the "latitude" field.
+func (_u *CustomerAddressUpdateOne) AddLatitude(v float64) *CustomerAddressUpdateOne {
+	_u.mutation.AddLatitude(v)
+	return _u
 }
 
 // ClearLatitude clears the value of the "latitude" field.
-func (cauo *CustomerAddressUpdateOne) ClearLatitude() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearLatitude()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearLatitude() *CustomerAddressUpdateOne {
+	_u.mutation.ClearLatitude()
+	return _u
 }
 
 // SetLongitude sets the "longitude" field.
-func (cauo *CustomerAddressUpdateOne) SetLongitude(f float64) *CustomerAddressUpdateOne {
-	cauo.mutation.ResetLongitude()
-	cauo.mutation.SetLongitude(f)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetLongitude(v float64) *CustomerAddressUpdateOne {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableLongitude(f *float64) *CustomerAddressUpdateOne {
-	if f != nil {
-		cauo.SetLongitude(*f)
+func (_u *CustomerAddressUpdateOne) SetNillableLongitude(v *float64) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetLongitude(*v)
 	}
-	return cauo
+	return _u
 }
 
-// AddLongitude adds f to the "longitude" field.
-func (cauo *CustomerAddressUpdateOne) AddLongitude(f float64) *CustomerAddressUpdateOne {
-	cauo.mutation.AddLongitude(f)
-	return cauo
+// AddLongitude adds value to the "longitude" field.
+func (_u *CustomerAddressUpdateOne) AddLongitude(v float64) *CustomerAddressUpdateOne {
+	_u.mutation.AddLongitude(v)
+	return _u
 }
 
 // ClearLongitude clears the value of the "longitude" field.
-func (cauo *CustomerAddressUpdateOne) ClearLongitude() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearLongitude()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearLongitude() *CustomerAddressUpdateOne {
+	_u.mutation.ClearLongitude()
+	return _u
 }
 
 // SetPlusCode sets the "plus_code" field.
-func (cauo *CustomerAddressUpdateOne) SetPlusCode(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetPlusCode(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetPlusCode(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetPlusCode(v)
+	return _u
 }
 
 // SetNillablePlusCode sets the "plus_code" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillablePlusCode(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetPlusCode(*s)
+func (_u *CustomerAddressUpdateOne) SetNillablePlusCode(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetPlusCode(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearPlusCode clears the value of the "plus_code" field.
-func (cauo *CustomerAddressUpdateOne) ClearPlusCode() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearPlusCode()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearPlusCode() *CustomerAddressUpdateOne {
+	_u.mutation.ClearPlusCode()
+	return _u
 }
 
 // SetInstructions sets the "instructions" field.
-func (cauo *CustomerAddressUpdateOne) SetInstructions(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetInstructions(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetInstructions(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetInstructions(v)
+	return _u
 }
 
 // SetNillableInstructions sets the "instructions" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableInstructions(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetInstructions(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableInstructions(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetInstructions(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearInstructions clears the value of the "instructions" field.
-func (cauo *CustomerAddressUpdateOne) ClearInstructions() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearInstructions()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearInstructions() *CustomerAddressUpdateOne {
+	_u.mutation.ClearInstructions()
+	return _u
 }
 
 // SetContactName sets the "contact_name" field.
-func (cauo *CustomerAddressUpdateOne) SetContactName(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetContactName(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetContactName(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetContactName(v)
+	return _u
 }
 
 // SetNillableContactName sets the "contact_name" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableContactName(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetContactName(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableContactName(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetContactName(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearContactName clears the value of the "contact_name" field.
-func (cauo *CustomerAddressUpdateOne) ClearContactName() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearContactName()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearContactName() *CustomerAddressUpdateOne {
+	_u.mutation.ClearContactName()
+	return _u
 }
 
 // SetContactPhone sets the "contact_phone" field.
-func (cauo *CustomerAddressUpdateOne) SetContactPhone(s string) *CustomerAddressUpdateOne {
-	cauo.mutation.SetContactPhone(s)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetContactPhone(v string) *CustomerAddressUpdateOne {
+	_u.mutation.SetContactPhone(v)
+	return _u
 }
 
 // SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableContactPhone(s *string) *CustomerAddressUpdateOne {
-	if s != nil {
-		cauo.SetContactPhone(*s)
+func (_u *CustomerAddressUpdateOne) SetNillableContactPhone(v *string) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetContactPhone(*v)
 	}
-	return cauo
+	return _u
 }
 
 // ClearContactPhone clears the value of the "contact_phone" field.
-func (cauo *CustomerAddressUpdateOne) ClearContactPhone() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearContactPhone()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearContactPhone() *CustomerAddressUpdateOne {
+	_u.mutation.ClearContactPhone()
+	return _u
 }
 
 // SetIsDefault sets the "is_default" field.
-func (cauo *CustomerAddressUpdateOne) SetIsDefault(b bool) *CustomerAddressUpdateOne {
-	cauo.mutation.SetIsDefault(b)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetIsDefault(v bool) *CustomerAddressUpdateOne {
+	_u.mutation.SetIsDefault(v)
+	return _u
 }
 
 // SetNillableIsDefault sets the "is_default" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableIsDefault(b *bool) *CustomerAddressUpdateOne {
-	if b != nil {
-		cauo.SetIsDefault(*b)
+func (_u *CustomerAddressUpdateOne) SetNillableIsDefault(v *bool) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetIsDefault(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetIsVerified sets the "is_verified" field.
-func (cauo *CustomerAddressUpdateOne) SetIsVerified(b bool) *CustomerAddressUpdateOne {
-	cauo.mutation.SetIsVerified(b)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetIsVerified(v bool) *CustomerAddressUpdateOne {
+	_u.mutation.SetIsVerified(v)
+	return _u
 }
 
 // SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
-func (cauo *CustomerAddressUpdateOne) SetNillableIsVerified(b *bool) *CustomerAddressUpdateOne {
-	if b != nil {
-		cauo.SetIsVerified(*b)
+func (_u *CustomerAddressUpdateOne) SetNillableIsVerified(v *bool) *CustomerAddressUpdateOne {
+	if v != nil {
+		_u.SetIsVerified(*v)
 	}
-	return cauo
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cauo *CustomerAddressUpdateOne) SetUpdatedAt(t time.Time) *CustomerAddressUpdateOne {
-	cauo.mutation.SetUpdatedAt(t)
-	return cauo
+func (_u *CustomerAddressUpdateOne) SetUpdatedAt(v time.Time) *CustomerAddressUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cauo *CustomerAddressUpdateOne) SetUser(u *User) *CustomerAddressUpdateOne {
-	return cauo.SetUserID(u.ID)
+func (_u *CustomerAddressUpdateOne) SetUser(v *User) *CustomerAddressUpdateOne {
+	return _u.SetUserID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (cauo *CustomerAddressUpdateOne) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdateOne {
-	cauo.mutation.AddOrderIDs(ids...)
-	return cauo
+func (_u *CustomerAddressUpdateOne) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdateOne {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (cauo *CustomerAddressUpdateOne) AddOrders(o ...*Order) *CustomerAddressUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *CustomerAddressUpdateOne) AddOrders(v ...*Order) *CustomerAddressUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cauo.AddOrderIDs(ids...)
+	return _u.AddOrderIDs(ids...)
 }
 
 // Mutation returns the CustomerAddressMutation object of the builder.
-func (cauo *CustomerAddressUpdateOne) Mutation() *CustomerAddressMutation {
-	return cauo.mutation
+func (_u *CustomerAddressUpdateOne) Mutation() *CustomerAddressMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (cauo *CustomerAddressUpdateOne) ClearUser() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearUser()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearUser() *CustomerAddressUpdateOne {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // ClearOrders clears all "orders" edges to the Order entity.
-func (cauo *CustomerAddressUpdateOne) ClearOrders() *CustomerAddressUpdateOne {
-	cauo.mutation.ClearOrders()
-	return cauo
+func (_u *CustomerAddressUpdateOne) ClearOrders() *CustomerAddressUpdateOne {
+	_u.mutation.ClearOrders()
+	return _u
 }
 
 // RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
-func (cauo *CustomerAddressUpdateOne) RemoveOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdateOne {
-	cauo.mutation.RemoveOrderIDs(ids...)
-	return cauo
+func (_u *CustomerAddressUpdateOne) RemoveOrderIDs(ids ...uuid.UUID) *CustomerAddressUpdateOne {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
 }
 
 // RemoveOrders removes "orders" edges to Order entities.
-func (cauo *CustomerAddressUpdateOne) RemoveOrders(o ...*Order) *CustomerAddressUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *CustomerAddressUpdateOne) RemoveOrders(v ...*Order) *CustomerAddressUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cauo.RemoveOrderIDs(ids...)
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // Where appends a list predicates to the CustomerAddressUpdate builder.
-func (cauo *CustomerAddressUpdateOne) Where(ps ...predicate.CustomerAddress) *CustomerAddressUpdateOne {
-	cauo.mutation.Where(ps...)
-	return cauo
+func (_u *CustomerAddressUpdateOne) Where(ps ...predicate.CustomerAddress) *CustomerAddressUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (cauo *CustomerAddressUpdateOne) Select(field string, fields ...string) *CustomerAddressUpdateOne {
-	cauo.fields = append([]string{field}, fields...)
-	return cauo
+func (_u *CustomerAddressUpdateOne) Select(field string, fields ...string) *CustomerAddressUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated CustomerAddress entity.
-func (cauo *CustomerAddressUpdateOne) Save(ctx context.Context) (*CustomerAddress, error) {
-	cauo.defaults()
-	return withHooks(ctx, cauo.sqlSave, cauo.mutation, cauo.hooks)
+func (_u *CustomerAddressUpdateOne) Save(ctx context.Context) (*CustomerAddress, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cauo *CustomerAddressUpdateOne) SaveX(ctx context.Context) *CustomerAddress {
-	node, err := cauo.Save(ctx)
+func (_u *CustomerAddressUpdateOne) SaveX(ctx context.Context) *CustomerAddress {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1072,95 +1072,95 @@ func (cauo *CustomerAddressUpdateOne) SaveX(ctx context.Context) *CustomerAddres
 }
 
 // Exec executes the query on the entity.
-func (cauo *CustomerAddressUpdateOne) Exec(ctx context.Context) error {
-	_, err := cauo.Save(ctx)
+func (_u *CustomerAddressUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cauo *CustomerAddressUpdateOne) ExecX(ctx context.Context) {
-	if err := cauo.Exec(ctx); err != nil {
+func (_u *CustomerAddressUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cauo *CustomerAddressUpdateOne) defaults() {
-	if _, ok := cauo.mutation.UpdatedAt(); !ok {
+func (_u *CustomerAddressUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := customeraddress.UpdateDefaultUpdatedAt()
-		cauo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cauo *CustomerAddressUpdateOne) check() error {
-	if v, ok := cauo.mutation.Label(); ok {
+func (_u *CustomerAddressUpdateOne) check() error {
+	if v, ok := _u.mutation.Label(); ok {
 		if err := customeraddress.LabelValidator(v); err != nil {
 			return &ValidationError{Name: "label", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.label": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.AddressLine1(); ok {
+	if v, ok := _u.mutation.AddressLine1(); ok {
 		if err := customeraddress.AddressLine1Validator(v); err != nil {
 			return &ValidationError{Name: "address_line1", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line1": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.AddressLine2(); ok {
+	if v, ok := _u.mutation.AddressLine2(); ok {
 		if err := customeraddress.AddressLine2Validator(v); err != nil {
 			return &ValidationError{Name: "address_line2", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line2": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.City(); ok {
+	if v, ok := _u.mutation.City(); ok {
 		if err := customeraddress.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.city": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.County(); ok {
+	if v, ok := _u.mutation.County(); ok {
 		if err := customeraddress.CountyValidator(v); err != nil {
 			return &ValidationError{Name: "county", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.county": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.PostalCode(); ok {
+	if v, ok := _u.mutation.PostalCode(); ok {
 		if err := customeraddress.PostalCodeValidator(v); err != nil {
 			return &ValidationError{Name: "postal_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.postal_code": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.Country(); ok {
+	if v, ok := _u.mutation.Country(); ok {
 		if err := customeraddress.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.country": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.PlusCode(); ok {
+	if v, ok := _u.mutation.PlusCode(); ok {
 		if err := customeraddress.PlusCodeValidator(v); err != nil {
 			return &ValidationError{Name: "plus_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.plus_code": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.ContactName(); ok {
+	if v, ok := _u.mutation.ContactName(); ok {
 		if err := customeraddress.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_name": %w`, err)}
 		}
 	}
-	if v, ok := cauo.mutation.ContactPhone(); ok {
+	if v, ok := _u.mutation.ContactPhone(); ok {
 		if err := customeraddress.ContactPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "contact_phone", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_phone": %w`, err)}
 		}
 	}
-	if _, ok := cauo.mutation.UserID(); cauo.mutation.UserCleared() && !ok {
+	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CustomerAddress.user"`)
 	}
 	return nil
 }
 
-func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *CustomerAddress, err error) {
-	if err := cauo.check(); err != nil {
+func (_u *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *CustomerAddress, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(customeraddress.Table, customeraddress.Columns, sqlgraph.NewFieldSpec(customeraddress.FieldID, field.TypeUUID))
-	id, ok := cauo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "CustomerAddress.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := cauo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, customeraddress.FieldID)
 		for _, f := range fields {
@@ -1172,98 +1172,98 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 			}
 		}
 	}
-	if ps := cauo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := cauo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(customeraddress.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cauo.mutation.Label(); ok {
+	if value, ok := _u.mutation.Label(); ok {
 		_spec.SetField(customeraddress.FieldLabel, field.TypeString, value)
 	}
-	if value, ok := cauo.mutation.AddressLine1(); ok {
+	if value, ok := _u.mutation.AddressLine1(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine1, field.TypeString, value)
 	}
-	if value, ok := cauo.mutation.AddressLine2(); ok {
+	if value, ok := _u.mutation.AddressLine2(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine2, field.TypeString, value)
 	}
-	if cauo.mutation.AddressLine2Cleared() {
+	if _u.mutation.AddressLine2Cleared() {
 		_spec.ClearField(customeraddress.FieldAddressLine2, field.TypeString)
 	}
-	if value, ok := cauo.mutation.City(); ok {
+	if value, ok := _u.mutation.City(); ok {
 		_spec.SetField(customeraddress.FieldCity, field.TypeString, value)
 	}
-	if value, ok := cauo.mutation.County(); ok {
+	if value, ok := _u.mutation.County(); ok {
 		_spec.SetField(customeraddress.FieldCounty, field.TypeString, value)
 	}
-	if cauo.mutation.CountyCleared() {
+	if _u.mutation.CountyCleared() {
 		_spec.ClearField(customeraddress.FieldCounty, field.TypeString)
 	}
-	if value, ok := cauo.mutation.PostalCode(); ok {
+	if value, ok := _u.mutation.PostalCode(); ok {
 		_spec.SetField(customeraddress.FieldPostalCode, field.TypeString, value)
 	}
-	if cauo.mutation.PostalCodeCleared() {
+	if _u.mutation.PostalCodeCleared() {
 		_spec.ClearField(customeraddress.FieldPostalCode, field.TypeString)
 	}
-	if value, ok := cauo.mutation.Country(); ok {
+	if value, ok := _u.mutation.Country(); ok {
 		_spec.SetField(customeraddress.FieldCountry, field.TypeString, value)
 	}
-	if value, ok := cauo.mutation.Latitude(); ok {
+	if value, ok := _u.mutation.Latitude(); ok {
 		_spec.SetField(customeraddress.FieldLatitude, field.TypeFloat64, value)
 	}
-	if value, ok := cauo.mutation.AddedLatitude(); ok {
+	if value, ok := _u.mutation.AddedLatitude(); ok {
 		_spec.AddField(customeraddress.FieldLatitude, field.TypeFloat64, value)
 	}
-	if cauo.mutation.LatitudeCleared() {
+	if _u.mutation.LatitudeCleared() {
 		_spec.ClearField(customeraddress.FieldLatitude, field.TypeFloat64)
 	}
-	if value, ok := cauo.mutation.Longitude(); ok {
+	if value, ok := _u.mutation.Longitude(); ok {
 		_spec.SetField(customeraddress.FieldLongitude, field.TypeFloat64, value)
 	}
-	if value, ok := cauo.mutation.AddedLongitude(); ok {
+	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(customeraddress.FieldLongitude, field.TypeFloat64, value)
 	}
-	if cauo.mutation.LongitudeCleared() {
+	if _u.mutation.LongitudeCleared() {
 		_spec.ClearField(customeraddress.FieldLongitude, field.TypeFloat64)
 	}
-	if value, ok := cauo.mutation.PlusCode(); ok {
+	if value, ok := _u.mutation.PlusCode(); ok {
 		_spec.SetField(customeraddress.FieldPlusCode, field.TypeString, value)
 	}
-	if cauo.mutation.PlusCodeCleared() {
+	if _u.mutation.PlusCodeCleared() {
 		_spec.ClearField(customeraddress.FieldPlusCode, field.TypeString)
 	}
-	if value, ok := cauo.mutation.Instructions(); ok {
+	if value, ok := _u.mutation.Instructions(); ok {
 		_spec.SetField(customeraddress.FieldInstructions, field.TypeString, value)
 	}
-	if cauo.mutation.InstructionsCleared() {
+	if _u.mutation.InstructionsCleared() {
 		_spec.ClearField(customeraddress.FieldInstructions, field.TypeString)
 	}
-	if value, ok := cauo.mutation.ContactName(); ok {
+	if value, ok := _u.mutation.ContactName(); ok {
 		_spec.SetField(customeraddress.FieldContactName, field.TypeString, value)
 	}
-	if cauo.mutation.ContactNameCleared() {
+	if _u.mutation.ContactNameCleared() {
 		_spec.ClearField(customeraddress.FieldContactName, field.TypeString)
 	}
-	if value, ok := cauo.mutation.ContactPhone(); ok {
+	if value, ok := _u.mutation.ContactPhone(); ok {
 		_spec.SetField(customeraddress.FieldContactPhone, field.TypeString, value)
 	}
-	if cauo.mutation.ContactPhoneCleared() {
+	if _u.mutation.ContactPhoneCleared() {
 		_spec.ClearField(customeraddress.FieldContactPhone, field.TypeString)
 	}
-	if value, ok := cauo.mutation.IsDefault(); ok {
+	if value, ok := _u.mutation.IsDefault(); ok {
 		_spec.SetField(customeraddress.FieldIsDefault, field.TypeBool, value)
 	}
-	if value, ok := cauo.mutation.IsVerified(); ok {
+	if value, ok := _u.mutation.IsVerified(); ok {
 		_spec.SetField(customeraddress.FieldIsVerified, field.TypeBool, value)
 	}
-	if value, ok := cauo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(customeraddress.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if cauo.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1276,7 +1276,7 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cauo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1292,7 +1292,7 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cauo.mutation.OrdersCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1305,7 +1305,7 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cauo.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !cauo.mutation.OrdersCleared() {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1321,7 +1321,7 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cauo.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1337,10 +1337,10 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &CustomerAddress{config: cauo.config}
+	_node = &CustomerAddress{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, cauo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{customeraddress.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1348,6 +1348,6 @@ func (cauo *CustomerAddressUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 		}
 		return nil, err
 	}
-	cauo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }
