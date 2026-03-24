@@ -56,6 +56,9 @@ func (Outlet) Fields() []ent.Field {
 		field.String("use_case").
 			Optional().
 			Comment("Specific use case for this outlet (hospitality, retail, etc.)"),
+		field.Bool("supports_pickup").
+			Default(false).
+			Comment("Whether the outlet supports customer pickup"),
 		field.String("status").
 			Default("active").
 			Comment("active | inactive | closed"),

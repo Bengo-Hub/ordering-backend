@@ -1058,6 +1058,7 @@ var (
 		{Name: "opening_hours", Type: field.TypeJSON, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "use_case", Type: field.TypeString, Nullable: true},
+		{Name: "supports_pickup", Type: field.TypeBool, Default: false},
 		{Name: "status", Type: field.TypeString, Default: "active"},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -1071,7 +1072,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "outlets_tenants_outlets",
-				Columns:    []*schema.Column{OutletsColumns[16]},
+				Columns:    []*schema.Column{OutletsColumns[17]},
 				RefColumns: []*schema.Column{TenantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1080,12 +1081,12 @@ var (
 			{
 				Name:    "outlet_tenant_id_slug",
 				Unique:  true,
-				Columns: []*schema.Column{OutletsColumns[16], OutletsColumns[2]},
+				Columns: []*schema.Column{OutletsColumns[17], OutletsColumns[2]},
 			},
 			{
 				Name:    "outlet_status",
 				Unique:  false,
-				Columns: []*schema.Column{OutletsColumns[13]},
+				Columns: []*schema.Column{OutletsColumns[14]},
 			},
 		},
 	}

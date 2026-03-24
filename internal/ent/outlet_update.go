@@ -279,6 +279,20 @@ func (_u *OutletUpdate) ClearUseCase() *OutletUpdate {
 	return _u
 }
 
+// SetSupportsPickup sets the "supports_pickup" field.
+func (_u *OutletUpdate) SetSupportsPickup(v bool) *OutletUpdate {
+	_u.mutation.SetSupportsPickup(v)
+	return _u
+}
+
+// SetNillableSupportsPickup sets the "supports_pickup" field if the given value is not nil.
+func (_u *OutletUpdate) SetNillableSupportsPickup(v *bool) *OutletUpdate {
+	if v != nil {
+		_u.SetSupportsPickup(*v)
+	}
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *OutletUpdate) SetStatus(v string) *OutletUpdate {
 	_u.mutation.SetStatus(v)
@@ -488,6 +502,9 @@ func (_u *OutletUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.UseCaseCleared() {
 		_spec.ClearField(outlet.FieldUseCase, field.TypeString)
+	}
+	if value, ok := _u.mutation.SupportsPickup(); ok {
+		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
@@ -837,6 +854,20 @@ func (_u *OutletUpdateOne) ClearUseCase() *OutletUpdateOne {
 	return _u
 }
 
+// SetSupportsPickup sets the "supports_pickup" field.
+func (_u *OutletUpdateOne) SetSupportsPickup(v bool) *OutletUpdateOne {
+	_u.mutation.SetSupportsPickup(v)
+	return _u
+}
+
+// SetNillableSupportsPickup sets the "supports_pickup" field if the given value is not nil.
+func (_u *OutletUpdateOne) SetNillableSupportsPickup(v *bool) *OutletUpdateOne {
+	if v != nil {
+		_u.SetSupportsPickup(*v)
+	}
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *OutletUpdateOne) SetStatus(v string) *OutletUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -1076,6 +1107,9 @@ func (_u *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err erro
 	}
 	if _u.mutation.UseCaseCleared() {
 		_spec.ClearField(outlet.FieldUseCase, field.TypeString)
+	}
+	if value, ok := _u.mutation.SupportsPickup(); ok {
+		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)

@@ -176,6 +176,20 @@ func (_c *OutletCreate) SetNillableUseCase(v *string) *OutletCreate {
 	return _c
 }
 
+// SetSupportsPickup sets the "supports_pickup" field.
+func (_c *OutletCreate) SetSupportsPickup(v bool) *OutletCreate {
+	_c.mutation.SetSupportsPickup(v)
+	return _c
+}
+
+// SetNillableSupportsPickup sets the "supports_pickup" field if the given value is not nil.
+func (_c *OutletCreate) SetNillableSupportsPickup(v *bool) *OutletCreate {
+	if v != nil {
+		_c.SetSupportsPickup(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *OutletCreate) SetStatus(v string) *OutletCreate {
 	_c.mutation.SetStatus(v)
@@ -291,6 +305,10 @@ func (_c *OutletCreate) defaults() {
 		v := outlet.DefaultImageURL
 		_c.mutation.SetImageURL(v)
 	}
+	if _, ok := _c.mutation.SupportsPickup(); !ok {
+		v := outlet.DefaultSupportsPickup
+		_c.mutation.SetSupportsPickup(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := outlet.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -329,6 +347,9 @@ func (_c *OutletCreate) check() error {
 		if err := outlet.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.SupportsPickup(); !ok {
+		return &ValidationError{Name: "supports_pickup", err: errors.New(`ent: missing required field "Outlet.supports_pickup"`)}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Outlet.status"`)}
@@ -425,6 +446,10 @@ func (_c *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
 		_node.UseCase = value
+	}
+	if value, ok := _c.mutation.SupportsPickup(); ok {
+		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
+		_node.SupportsPickup = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
@@ -748,6 +773,18 @@ func (u *OutletUpsert) UpdateUseCase() *OutletUpsert {
 // ClearUseCase clears the value of the "use_case" field.
 func (u *OutletUpsert) ClearUseCase() *OutletUpsert {
 	u.SetNull(outlet.FieldUseCase)
+	return u
+}
+
+// SetSupportsPickup sets the "supports_pickup" field.
+func (u *OutletUpsert) SetSupportsPickup(v bool) *OutletUpsert {
+	u.Set(outlet.FieldSupportsPickup, v)
+	return u
+}
+
+// UpdateSupportsPickup sets the "supports_pickup" field to the value that was provided on create.
+func (u *OutletUpsert) UpdateSupportsPickup() *OutletUpsert {
+	u.SetExcluded(outlet.FieldSupportsPickup)
 	return u
 }
 
@@ -1089,6 +1126,20 @@ func (u *OutletUpsertOne) UpdateUseCase() *OutletUpsertOne {
 func (u *OutletUpsertOne) ClearUseCase() *OutletUpsertOne {
 	return u.Update(func(s *OutletUpsert) {
 		s.ClearUseCase()
+	})
+}
+
+// SetSupportsPickup sets the "supports_pickup" field.
+func (u *OutletUpsertOne) SetSupportsPickup(v bool) *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetSupportsPickup(v)
+	})
+}
+
+// UpdateSupportsPickup sets the "supports_pickup" field to the value that was provided on create.
+func (u *OutletUpsertOne) UpdateSupportsPickup() *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateSupportsPickup()
 	})
 }
 
@@ -1601,6 +1652,20 @@ func (u *OutletUpsertBulk) UpdateUseCase() *OutletUpsertBulk {
 func (u *OutletUpsertBulk) ClearUseCase() *OutletUpsertBulk {
 	return u.Update(func(s *OutletUpsert) {
 		s.ClearUseCase()
+	})
+}
+
+// SetSupportsPickup sets the "supports_pickup" field.
+func (u *OutletUpsertBulk) SetSupportsPickup(v bool) *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetSupportsPickup(v)
+	})
+}
+
+// UpdateSupportsPickup sets the "supports_pickup" field to the value that was provided on create.
+func (u *OutletUpsertBulk) UpdateSupportsPickup() *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateSupportsPickup()
 	})
 }
 

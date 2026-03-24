@@ -119,8 +119,10 @@ func (s *Subscriber) Unsubscribe() error {
 
 const (
 	// Inventory events
-	SubjectInventoryStockUpdated       = "inventory.stock.updated"
-	SubjectInventoryStockLow           = "inventory.stock.low"
+	SubjectInventoryStockUpdated         = "inventory.stock.updated"
+	SubjectInventoryStockLow             = "inventory.stock.low"
+	SubjectInventoryStockOut             = "inventory.stock.out"
+	SubjectInventoryItemUpdated          = "inventory.item.updated"
 	SubjectInventoryReservationConfirmed = "inventory.reservation.confirmed"
 
 	// Notifications events

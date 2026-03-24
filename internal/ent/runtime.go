@@ -785,16 +785,20 @@ func init() {
 	outletDescImageURL := outletFields[12].Descriptor()
 	// outlet.DefaultImageURL holds the default value on creation for the image_url field.
 	outlet.DefaultImageURL = outletDescImageURL.Default.(string)
+	// outletDescSupportsPickup is the schema descriptor for supports_pickup field.
+	outletDescSupportsPickup := outletFields[14].Descriptor()
+	// outlet.DefaultSupportsPickup holds the default value on creation for the supports_pickup field.
+	outlet.DefaultSupportsPickup = outletDescSupportsPickup.Default.(bool)
 	// outletDescStatus is the schema descriptor for status field.
-	outletDescStatus := outletFields[14].Descriptor()
+	outletDescStatus := outletFields[15].Descriptor()
 	// outlet.DefaultStatus holds the default value on creation for the status field.
 	outlet.DefaultStatus = outletDescStatus.Default.(string)
 	// outletDescCreatedAt is the schema descriptor for created_at field.
-	outletDescCreatedAt := outletFields[15].Descriptor()
+	outletDescCreatedAt := outletFields[16].Descriptor()
 	// outlet.DefaultCreatedAt holds the default value on creation for the created_at field.
 	outlet.DefaultCreatedAt = outletDescCreatedAt.Default.(func() time.Time)
 	// outletDescUpdatedAt is the schema descriptor for updated_at field.
-	outletDescUpdatedAt := outletFields[16].Descriptor()
+	outletDescUpdatedAt := outletFields[17].Descriptor()
 	// outlet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	outlet.DefaultUpdatedAt = outletDescUpdatedAt.Default.(func() time.Time)
 	// outlet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

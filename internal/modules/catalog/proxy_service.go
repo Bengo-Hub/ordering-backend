@@ -380,6 +380,7 @@ func entOutletToSummary(o *ent.Outlet) OutletSummary {
 		ImageURL:     o.ImageURL,
 		Status:       o.Status,
 		UseCase:      o.UseCase,
+		IsOpen:       IsOutletOpen(o.OpeningHours),
 	}
 }
 

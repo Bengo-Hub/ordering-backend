@@ -116,6 +116,11 @@ func UseCase(v string) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldUseCase, v))
 }
 
+// SupportsPickup applies equality check predicate on the "supports_pickup" field. It's identical to SupportsPickupEQ.
+func SupportsPickup(v bool) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldSupportsPickup, v))
+}
+
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldStatus, v))
@@ -914,6 +919,16 @@ func UseCaseEqualFold(v string) predicate.Outlet {
 // UseCaseContainsFold applies the ContainsFold predicate on the "use_case" field.
 func UseCaseContainsFold(v string) predicate.Outlet {
 	return predicate.Outlet(sql.FieldContainsFold(FieldUseCase, v))
+}
+
+// SupportsPickupEQ applies the EQ predicate on the "supports_pickup" field.
+func SupportsPickupEQ(v bool) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldSupportsPickup, v))
+}
+
+// SupportsPickupNEQ applies the NEQ predicate on the "supports_pickup" field.
+func SupportsPickupNEQ(v bool) predicate.Outlet {
+	return predicate.Outlet(sql.FieldNEQ(FieldSupportsPickup, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
