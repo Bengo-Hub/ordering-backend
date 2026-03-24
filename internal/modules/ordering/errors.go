@@ -67,6 +67,10 @@ var (
 	ErrStockNotAvailable    = errors.New("stock not available for one or more items")
 	ErrDeliveryNotServiceable = errors.New("delivery location is outside serviceable zones")
 
+	// Scheduled order errors
+	ErrScheduledForRequired     = errors.New("scheduled_for is required for scheduled orders")
+	ErrScheduledForTooSoon      = errors.New("scheduled_for must be at least 30 minutes in the future")
+
 	// Subscription errors
 	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
 

@@ -357,6 +357,12 @@ const (
 	FreeDeliveryMinimum = 2000.0 // KES - free delivery for orders above this
 )
 
+// Scheduled order constants
+const (
+	ScheduledMinLeadTime    = 30 * time.Minute // Minimum lead time for scheduled orders
+	ScheduledPrepTimeBuffer = 30 * time.Minute // How far ahead to start preparing scheduled orders
+)
+
 // CartFilter defines filter options for listing carts.
 type CartFilter struct {
 	TenantID  uuid.UUID
@@ -414,6 +420,8 @@ type CheckoutRequest struct {
 	Instructions          string
 	Channel               OrderChannel
 	IdempotencyKey        string
+	FulfillmentType       FulfillmentType
+	ScheduledFor          *time.Time
 }
 
 // CreateOrderFromItemsRequest is the request to create an order directly from a list of items (frontend contract).
@@ -429,6 +437,8 @@ type CreateOrderFromItemsRequest struct {
 	PaymentMethod   string // "mpesa" | "cod"
 	PromoCode       string
 	Channel         OrderChannel
+	FulfillmentType FulfillmentType
+	ScheduledFor    *time.Time
 }
 
 // CreateOrderItemInput is a single line item when creating an order from items.

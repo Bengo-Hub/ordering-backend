@@ -106,9 +106,27 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		return nil, ErrCartEmpty
 	}
 
-	// Validate delivery address if provided
+	// Determine fulfillment type (default to delivery)
+	fulfillmentType := req.FulfillmentType
+	if fulfillmentType == "" {
+		fulfillmentType = FulfillmentTypeDelivery
+	}
+
+	// Validate scheduled orders
+	if fulfillmentType == FulfillmentTypeScheduled {
+		if req.ScheduledFor == nil {
+			return nil, ErrScheduledForRequired
+		}
+		if req.ScheduledFor.Before(time.Now().Add(ScheduledMinLeadTime)) {
+			return nil, ErrScheduledForTooSoon
+		}
+	}
+
+	// Validate delivery address if provided (not required for pickup orders)
 	var deliveryAddress *CustomerAddress
-	if req.DeliveryAddressID != nil {
+	if fulfillmentType == FulfillmentTypePickup {
+		// Pickup orders don't need a delivery address
+	} else if req.DeliveryAddressID != nil {
 		deliveryAddress, err = s.repo.GetAddress(ctx, req.TenantID, *req.DeliveryAddressID)
 		if err != nil {
 			return nil, ErrInvalidDeliveryAddress
@@ -142,8 +160,14 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		}
 	}
 
+	// Pickup orders have no delivery fee
+	deliveryFee := cart.DeliveryFee
+	if fulfillmentType == FulfillmentTypePickup {
+		deliveryFee = 0
+	}
+
 	// Calculate totals
-	grandTotal := cart.Subtotal - discountTotal - loyaltyDiscount + cart.TaxTotal + cart.DeliveryFee
+	grandTotal := cart.Subtotal - discountTotal - loyaltyDiscount + cart.TaxTotal + deliveryFee
 
 	// Generate order number
 	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, cart.OutletID)
@@ -196,11 +220,13 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		OrderNumber:           orderNumber,
 		Status:                OrderStatusPending,
 		PaymentStatus:         PaymentStatusPending,
+		FulfillmentType:       fulfillmentType,
+		ScheduledFor:          req.ScheduledFor,
 		Currency:              cart.Currency,
 		Subtotal:              cart.Subtotal,
 		DiscountTotal:         discountTotal,
 		TaxTotal:              cart.TaxTotal,
-		DeliveryFee:           cart.DeliveryFee,
+		DeliveryFee:           deliveryFee,
 		GrandTotal:            grandTotal,
 		LoyaltyPointsEarned:   loyaltyPointsEarned,
 		LoyaltyPointsRedeemed: loyaltyPointsRedeemed,
@@ -263,9 +289,15 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Publish order.created event to NATS
 	s.publishOrderCreated(ctx, order, len(cart.Items))
 
+	// For scheduled orders, publish a scheduling event so logistics can plan ahead
+	if fulfillmentType == FulfillmentTypeScheduled {
+		s.publishOrderScheduled(ctx, order)
+	}
+
 	s.logger.Info("order created",
 		zap.String("id", order.ID.String()),
 		zap.String("orderNumber", order.OrderNumber),
+		zap.String("fulfillmentType", string(fulfillmentType)),
 		zap.Float64("grandTotal", order.GrandTotal))
 
 	return order, nil
@@ -282,13 +314,32 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		return nil, ErrCartEmpty
 	}
 
+	// Determine fulfillment type (default to delivery)
+	fulfillmentType := req.FulfillmentType
+	if fulfillmentType == "" {
+		fulfillmentType = FulfillmentTypeDelivery
+	}
+
+	// Validate scheduled orders
+	if fulfillmentType == FulfillmentTypeScheduled {
+		if req.ScheduledFor == nil {
+			return nil, ErrScheduledForRequired
+		}
+		if req.ScheduledFor.Before(time.Now().Add(ScheduledMinLeadTime)) {
+			return nil, ErrScheduledForTooSoon
+		}
+	}
+
 	var subtotal float64
 	for _, it := range req.Items {
 		subtotal += it.TotalPrice
 	}
 
 	deliveryFee := 0.0
-	if req.DeliveryLat != nil && req.DeliveryLng != nil {
+	if fulfillmentType == FulfillmentTypePickup {
+		// Pickup orders have no delivery fee
+		deliveryFee = 0
+	} else if req.DeliveryLat != nil && req.DeliveryLng != nil {
 		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
 		if zoneErr == nil {
 			deliveryFee = fee
@@ -323,6 +374,8 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		OrderNumber:         orderNumber,
 		Status:              OrderStatusPending,
 		PaymentStatus:       PaymentStatusPending,
+		FulfillmentType:     fulfillmentType,
+		ScheduledFor:        req.ScheduledFor,
 		Currency:            "KES",
 		Subtotal:            subtotal,
 		DiscountTotal:       discountTotal,
@@ -359,9 +412,15 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, &req.UserID, "user", "")
 	s.publishOrderCreated(ctx, order, len(req.Items))
 
+	// For scheduled orders, publish a scheduling event so logistics can plan ahead
+	if fulfillmentType == FulfillmentTypeScheduled {
+		s.publishOrderScheduled(ctx, order)
+	}
+
 	s.logger.Info("order created from items",
 		zap.String("id", order.ID.String()),
 		zap.String("orderNumber", order.OrderNumber),
+		zap.String("fulfillmentType", string(fulfillmentType)),
 		zap.Float64("grandTotal", order.GrandTotal))
 
 	return order, nil
@@ -1005,9 +1064,61 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 	// Publish specific events for key status changes
 	switch newStatus {
 	case OrderStatusReady:
-		s.publishOrderReady(ctx, order)
+		if order.FulfillmentType == FulfillmentTypePickup {
+			// Pickup orders: notify customer for pickup instead of logistics dispatch
+			s.publishOrderForPickup(ctx, order)
+		} else {
+			s.publishOrderReady(ctx, order)
+		}
 	case OrderStatusCompleted:
 		s.publishOrderCompleted(ctx, order)
+	}
+}
+
+// publishOrderScheduled publishes an order.scheduled event to NATS so logistics can plan ahead.
+func (s *OrderService) publishOrderScheduled(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	if order.ScheduledFor == nil {
+		return
+	}
+
+	data := events.OrderScheduledData{
+		OrderID:      order.ID,
+		OrderNumber:  order.OrderNumber,
+		CustomerID:   order.CustomerID,
+		OutletID:     order.OutletID,
+		ScheduledFor: *order.ScheduledFor,
+		TotalAmount:  order.GrandTotal,
+		Currency:     order.Currency,
+	}
+
+	if err := s.eventPublisher.PublishOrderScheduled(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.scheduled event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderForPickup publishes an order.for_pickup event to NATS (notify customer for pickup).
+func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderForPickupData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CustomerID:  order.CustomerID,
+		OutletID:    order.OutletID,
+	}
+
+	if err := s.eventPublisher.PublishOrderForPickup(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.for_pickup event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
 	}
 }
 

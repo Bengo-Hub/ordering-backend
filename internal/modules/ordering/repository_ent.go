@@ -551,6 +551,29 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 }
 
 
+// --- Scheduled Orders ---
+
+func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error) {
+	cutoff := time.Now().Add(prepBuffer)
+	ents, err := r.client.Order.Query().
+		Where(
+			order.FulfillmentTypeEQ(order.FulfillmentTypeScheduled),
+			order.StatusEQ(order.StatusConfirmed),
+			order.ScheduledForNotNil(),
+			order.ScheduledForLTE(cutoff),
+		).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]Order, 0, len(ents))
+	for _, o := range ents {
+		result = append(result, *entOrderToDomain(o))
+	}
+	return result, nil
+}
+
 // --- Analytics ---
 
 func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {

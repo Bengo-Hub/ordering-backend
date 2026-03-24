@@ -312,6 +312,34 @@ func (p *Publisher) PublishLoyaltyPointsAwarded(ctx context.Context, tenantID uu
 	return p.Publish(ctx, "cafe.loyalty.points_awarded", event)
 }
 
+// --- Scheduled Order Events ---
+
+// OrderScheduledData represents data for order.scheduled event.
+type OrderScheduledData struct {
+	OrderID      uuid.UUID  `json:"order_id"`
+	OrderNumber  string     `json:"order_number"`
+	CustomerID   uuid.UUID  `json:"customer_id"`
+	OutletID     uuid.UUID  `json:"outlet_id"`
+	ScheduledFor time.Time  `json:"scheduled_for"`
+	TotalAmount  float64    `json:"total_amount"`
+	Currency     string     `json:"currency"`
+}
+
+// PublishOrderScheduled publishes an order.scheduled event (for logistics planning).
+func (p *Publisher) PublishOrderScheduled(ctx context.Context, tenantID uuid.UUID, data OrderScheduledData) error {
+	event := NewEvent("ordering.order.scheduled", tenantID, map[string]interface{}{
+		"order_id":      data.OrderID.String(),
+		"order_number":  data.OrderNumber,
+		"customer_id":   data.CustomerID.String(),
+		"outlet_id":     data.OutletID.String(),
+		"scheduled_for": data.ScheduledFor.Format(time.RFC3339),
+		"total_amount":  data.TotalAmount,
+		"currency":      data.Currency,
+	})
+
+	return p.Publish(ctx, "ordering.order.scheduled", event)
+}
+
 // --- Catalog Events (for POS sync) ---
 
 // CatalogUpdatedData represents data for catalog.updated event.
