@@ -52,6 +52,8 @@ type Tx struct {
 	OutboxEvent *OutboxEventClient
 	// Outlet is the client for interacting with the Outlet builders.
 	Outlet *OutletClient
+	// OutletRating is the client for interacting with the OutletRating builders.
+	OutletRating *OutletRatingClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// PromoCode is the client for interacting with the PromoCode builders.
@@ -235,6 +237,7 @@ func (tx *Tx) init() {
 	tx.OrderingRole = NewOrderingRoleClient(tx.config)
 	tx.OutboxEvent = NewOutboxEventClient(tx.config)
 	tx.Outlet = NewOutletClient(tx.config)
+	tx.OutletRating = NewOutletRatingClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.PromoCode = NewPromoCodeClient(tx.config)
 	tx.PromoRedemption = NewPromoRedemptionClient(tx.config)

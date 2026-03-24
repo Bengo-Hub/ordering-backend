@@ -249,6 +249,18 @@ func (f OutletFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OutletMutation", m)
 }
 
+// The OutletRatingFunc type is an adapter to allow the use of ordinary
+// function as OutletRating mutator.
+type OutletRatingFunc func(context.Context, *ent.OutletRatingMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OutletRatingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OutletRatingMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OutletRatingMutation", m)
+}
+
 // The PermissionFunc type is an adapter to allow the use of ordinary
 // function as Permission mutator.
 type PermissionFunc func(context.Context, *ent.PermissionMutation) (ent.Value, error)

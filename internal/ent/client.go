@@ -36,6 +36,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
@@ -99,6 +100,8 @@ type Client struct {
 	OutboxEvent *OutboxEventClient
 	// Outlet is the client for interacting with the Outlet builders.
 	Outlet *OutletClient
+	// OutletRating is the client for interacting with the OutletRating builders.
+	OutletRating *OutletRatingClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// PromoCode is the client for interacting with the PromoCode builders.
@@ -162,6 +165,7 @@ func (c *Client) init() {
 	c.OrderingRole = NewOrderingRoleClient(c.config)
 	c.OutboxEvent = NewOutboxEventClient(c.config)
 	c.Outlet = NewOutletClient(c.config)
+	c.OutletRating = NewOutletRatingClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.PromoCode = NewPromoCodeClient(c.config)
 	c.PromoRedemption = NewPromoRedemptionClient(c.config)
@@ -290,6 +294,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		OrderingRole:       NewOrderingRoleClient(cfg),
 		OutboxEvent:        NewOutboxEventClient(cfg),
 		Outlet:             NewOutletClient(cfg),
+		OutletRating:       NewOutletRatingClient(cfg),
 		Permission:         NewPermissionClient(cfg),
 		PromoCode:          NewPromoCodeClient(cfg),
 		PromoRedemption:    NewPromoRedemptionClient(cfg),
@@ -345,6 +350,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		OrderingRole:       NewOrderingRoleClient(cfg),
 		OutboxEvent:        NewOutboxEventClient(cfg),
 		Outlet:             NewOutletClient(cfg),
+		OutletRating:       NewOutletRatingClient(cfg),
 		Permission:         NewPermissionClient(cfg),
 		PromoCode:          NewPromoCodeClient(cfg),
 		PromoRedemption:    NewPromoRedemptionClient(cfg),
@@ -394,10 +400,10 @@ func (c *Client) Use(hooks ...Hook) {
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
 		c.DeliveryZone, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
 		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.Permission, c.PromoCode,
-		c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission, c.SLAMetric,
-		c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.User,
-		c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
+		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
+		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
+		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Use(hooks...)
 	}
@@ -411,10 +417,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
 		c.DeliveryZone, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
 		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.Permission, c.PromoCode,
-		c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission, c.SLAMetric,
-		c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.User,
-		c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
+		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
+		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
+		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -463,6 +469,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OutboxEvent.mutate(ctx, m)
 	case *OutletMutation:
 		return c.Outlet.mutate(ctx, m)
+	case *OutletRatingMutation:
+		return c.OutletRating.mutate(ctx, m)
 	case *PermissionMutation:
 		return c.Permission.mutate(ctx, m)
 	case *PromoCodeMutation:
@@ -3576,6 +3584,139 @@ func (c *OutletClient) mutate(ctx context.Context, m *OutletMutation) (Value, er
 	}
 }
 
+// OutletRatingClient is a client for the OutletRating schema.
+type OutletRatingClient struct {
+	config
+}
+
+// NewOutletRatingClient returns a client for the OutletRating from the given config.
+func NewOutletRatingClient(c config) *OutletRatingClient {
+	return &OutletRatingClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `outletrating.Hooks(f(g(h())))`.
+func (c *OutletRatingClient) Use(hooks ...Hook) {
+	c.hooks.OutletRating = append(c.hooks.OutletRating, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `outletrating.Intercept(f(g(h())))`.
+func (c *OutletRatingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.OutletRating = append(c.inters.OutletRating, interceptors...)
+}
+
+// Create returns a builder for creating a OutletRating entity.
+func (c *OutletRatingClient) Create() *OutletRatingCreate {
+	mutation := newOutletRatingMutation(c.config, OpCreate)
+	return &OutletRatingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of OutletRating entities.
+func (c *OutletRatingClient) CreateBulk(builders ...*OutletRatingCreate) *OutletRatingCreateBulk {
+	return &OutletRatingCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OutletRatingClient) MapCreateBulk(slice any, setFunc func(*OutletRatingCreate, int)) *OutletRatingCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OutletRatingCreateBulk{err: fmt.Errorf("calling to OutletRatingClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OutletRatingCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OutletRatingCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for OutletRating.
+func (c *OutletRatingClient) Update() *OutletRatingUpdate {
+	mutation := newOutletRatingMutation(c.config, OpUpdate)
+	return &OutletRatingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OutletRatingClient) UpdateOne(_m *OutletRating) *OutletRatingUpdateOne {
+	mutation := newOutletRatingMutation(c.config, OpUpdateOne, withOutletRating(_m))
+	return &OutletRatingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OutletRatingClient) UpdateOneID(id uuid.UUID) *OutletRatingUpdateOne {
+	mutation := newOutletRatingMutation(c.config, OpUpdateOne, withOutletRatingID(id))
+	return &OutletRatingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for OutletRating.
+func (c *OutletRatingClient) Delete() *OutletRatingDelete {
+	mutation := newOutletRatingMutation(c.config, OpDelete)
+	return &OutletRatingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OutletRatingClient) DeleteOne(_m *OutletRating) *OutletRatingDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OutletRatingClient) DeleteOneID(id uuid.UUID) *OutletRatingDeleteOne {
+	builder := c.Delete().Where(outletrating.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OutletRatingDeleteOne{builder}
+}
+
+// Query returns a query builder for OutletRating.
+func (c *OutletRatingClient) Query() *OutletRatingQuery {
+	return &OutletRatingQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOutletRating},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a OutletRating entity by its id.
+func (c *OutletRatingClient) Get(ctx context.Context, id uuid.UUID) (*OutletRating, error) {
+	return c.Query().Where(outletrating.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OutletRatingClient) GetX(ctx context.Context, id uuid.UUID) *OutletRating {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *OutletRatingClient) Hooks() []Hook {
+	return c.hooks.OutletRating
+}
+
+// Interceptors returns the client interceptors.
+func (c *OutletRatingClient) Interceptors() []Interceptor {
+	return c.inters.OutletRating
+}
+
+func (c *OutletRatingClient) mutate(ctx context.Context, m *OutletRatingMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OutletRatingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OutletRatingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OutletRatingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OutletRatingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown OutletRating mutation op: %q", m.Op())
+	}
+}
+
 // PermissionClient is a client for the Permission schema.
 type PermissionClient struct {
 	config
@@ -6110,18 +6251,18 @@ type (
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
 		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
 		LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment, OrderEvent,
-		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, Permission,
-		PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission, SLAMetric,
-		ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User, UserFavorite,
-		UserPreference, UserProfile, UserRoleAssignment []ent.Hook
+		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
+		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
+		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
+		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Hook
 	}
 	inters struct {
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
 		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
 		LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment, OrderEvent,
-		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, Permission,
-		PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission, SLAMetric,
-		ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User, UserFavorite,
-		UserPreference, UserProfile, UserRoleAssignment []ent.Interceptor
+		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
+		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
+		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
+		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Interceptor
 	}
 )

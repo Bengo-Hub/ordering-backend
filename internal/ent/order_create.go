@@ -172,6 +172,90 @@ func (_c *OrderCreate) SetNillableDeliveryFee(v *float64) *OrderCreate {
 	return _c
 }
 
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (_c *OrderCreate) SetFulfillmentType(v order.FulfillmentType) *OrderCreate {
+	_c.mutation.SetFulfillmentType(v)
+	return _c
+}
+
+// SetNillableFulfillmentType sets the "fulfillment_type" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableFulfillmentType(v *order.FulfillmentType) *OrderCreate {
+	if v != nil {
+		_c.SetFulfillmentType(*v)
+	}
+	return _c
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (_c *OrderCreate) SetScheduledFor(v time.Time) *OrderCreate {
+	_c.mutation.SetScheduledFor(v)
+	return _c
+}
+
+// SetNillableScheduledFor sets the "scheduled_for" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableScheduledFor(v *time.Time) *OrderCreate {
+	if v != nil {
+		_c.SetScheduledFor(*v)
+	}
+	return _c
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (_c *OrderCreate) SetPackagingFee(v float64) *OrderCreate {
+	_c.mutation.SetPackagingFee(v)
+	return _c
+}
+
+// SetNillablePackagingFee sets the "packaging_fee" field if the given value is not nil.
+func (_c *OrderCreate) SetNillablePackagingFee(v *float64) *OrderCreate {
+	if v != nil {
+		_c.SetPackagingFee(*v)
+	}
+	return _c
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (_c *OrderCreate) SetServiceFee(v float64) *OrderCreate {
+	_c.mutation.SetServiceFee(v)
+	return _c
+}
+
+// SetNillableServiceFee sets the "service_fee" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableServiceFee(v *float64) *OrderCreate {
+	if v != nil {
+		_c.SetServiceFee(*v)
+	}
+	return _c
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (_c *OrderCreate) SetSmallOrderFee(v float64) *OrderCreate {
+	_c.mutation.SetSmallOrderFee(v)
+	return _c
+}
+
+// SetNillableSmallOrderFee sets the "small_order_fee" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableSmallOrderFee(v *float64) *OrderCreate {
+	if v != nil {
+		_c.SetSmallOrderFee(*v)
+	}
+	return _c
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (_c *OrderCreate) SetReservationID(v uuid.UUID) *OrderCreate {
+	_c.mutation.SetReservationID(v)
+	return _c
+}
+
+// SetNillableReservationID sets the "reservation_id" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableReservationID(v *uuid.UUID) *OrderCreate {
+	if v != nil {
+		_c.SetReservationID(*v)
+	}
+	return _c
+}
+
 // SetTipTotal sets the "tip_total" field.
 func (_c *OrderCreate) SetTipTotal(v float64) *OrderCreate {
 	_c.mutation.SetTipTotal(v)
@@ -611,6 +695,22 @@ func (_c *OrderCreate) defaults() {
 		v := order.DefaultDeliveryFee
 		_c.mutation.SetDeliveryFee(v)
 	}
+	if _, ok := _c.mutation.FulfillmentType(); !ok {
+		v := order.DefaultFulfillmentType
+		_c.mutation.SetFulfillmentType(v)
+	}
+	if _, ok := _c.mutation.PackagingFee(); !ok {
+		v := order.DefaultPackagingFee
+		_c.mutation.SetPackagingFee(v)
+	}
+	if _, ok := _c.mutation.ServiceFee(); !ok {
+		v := order.DefaultServiceFee
+		_c.mutation.SetServiceFee(v)
+	}
+	if _, ok := _c.mutation.SmallOrderFee(); !ok {
+		v := order.DefaultSmallOrderFee
+		_c.mutation.SetSmallOrderFee(v)
+	}
 	if _, ok := _c.mutation.TipTotal(); !ok {
 		v := order.DefaultTipTotal
 		_c.mutation.SetTipTotal(v)
@@ -695,6 +795,23 @@ func (_c *OrderCreate) check() error {
 	}
 	if _, ok := _c.mutation.DeliveryFee(); !ok {
 		return &ValidationError{Name: "delivery_fee", err: errors.New(`ent: missing required field "Order.delivery_fee"`)}
+	}
+	if _, ok := _c.mutation.FulfillmentType(); !ok {
+		return &ValidationError{Name: "fulfillment_type", err: errors.New(`ent: missing required field "Order.fulfillment_type"`)}
+	}
+	if v, ok := _c.mutation.FulfillmentType(); ok {
+		if err := order.FulfillmentTypeValidator(v); err != nil {
+			return &ValidationError{Name: "fulfillment_type", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_type": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.PackagingFee(); !ok {
+		return &ValidationError{Name: "packaging_fee", err: errors.New(`ent: missing required field "Order.packaging_fee"`)}
+	}
+	if _, ok := _c.mutation.ServiceFee(); !ok {
+		return &ValidationError{Name: "service_fee", err: errors.New(`ent: missing required field "Order.service_fee"`)}
+	}
+	if _, ok := _c.mutation.SmallOrderFee(); !ok {
+		return &ValidationError{Name: "small_order_fee", err: errors.New(`ent: missing required field "Order.small_order_fee"`)}
 	}
 	if _, ok := _c.mutation.TipTotal(); !ok {
 		return &ValidationError{Name: "tip_total", err: errors.New(`ent: missing required field "Order.tip_total"`)}
@@ -822,6 +939,30 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeliveryFee(); ok {
 		_spec.SetField(order.FieldDeliveryFee, field.TypeFloat64, value)
 		_node.DeliveryFee = value
+	}
+	if value, ok := _c.mutation.FulfillmentType(); ok {
+		_spec.SetField(order.FieldFulfillmentType, field.TypeEnum, value)
+		_node.FulfillmentType = value
+	}
+	if value, ok := _c.mutation.ScheduledFor(); ok {
+		_spec.SetField(order.FieldScheduledFor, field.TypeTime, value)
+		_node.ScheduledFor = &value
+	}
+	if value, ok := _c.mutation.PackagingFee(); ok {
+		_spec.SetField(order.FieldPackagingFee, field.TypeFloat64, value)
+		_node.PackagingFee = value
+	}
+	if value, ok := _c.mutation.ServiceFee(); ok {
+		_spec.SetField(order.FieldServiceFee, field.TypeFloat64, value)
+		_node.ServiceFee = value
+	}
+	if value, ok := _c.mutation.SmallOrderFee(); ok {
+		_spec.SetField(order.FieldSmallOrderFee, field.TypeFloat64, value)
+		_node.SmallOrderFee = value
+	}
+	if value, ok := _c.mutation.ReservationID(); ok {
+		_spec.SetField(order.FieldReservationID, field.TypeUUID, value)
+		_node.ReservationID = &value
 	}
 	if value, ok := _c.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)
@@ -1251,6 +1392,108 @@ func (u *OrderUpsert) UpdateDeliveryFee() *OrderUpsert {
 // AddDeliveryFee adds v to the "delivery_fee" field.
 func (u *OrderUpsert) AddDeliveryFee(v float64) *OrderUpsert {
 	u.Add(order.FieldDeliveryFee, v)
+	return u
+}
+
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (u *OrderUpsert) SetFulfillmentType(v order.FulfillmentType) *OrderUpsert {
+	u.Set(order.FieldFulfillmentType, v)
+	return u
+}
+
+// UpdateFulfillmentType sets the "fulfillment_type" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateFulfillmentType() *OrderUpsert {
+	u.SetExcluded(order.FieldFulfillmentType)
+	return u
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (u *OrderUpsert) SetScheduledFor(v time.Time) *OrderUpsert {
+	u.Set(order.FieldScheduledFor, v)
+	return u
+}
+
+// UpdateScheduledFor sets the "scheduled_for" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateScheduledFor() *OrderUpsert {
+	u.SetExcluded(order.FieldScheduledFor)
+	return u
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (u *OrderUpsert) ClearScheduledFor() *OrderUpsert {
+	u.SetNull(order.FieldScheduledFor)
+	return u
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (u *OrderUpsert) SetPackagingFee(v float64) *OrderUpsert {
+	u.Set(order.FieldPackagingFee, v)
+	return u
+}
+
+// UpdatePackagingFee sets the "packaging_fee" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePackagingFee() *OrderUpsert {
+	u.SetExcluded(order.FieldPackagingFee)
+	return u
+}
+
+// AddPackagingFee adds v to the "packaging_fee" field.
+func (u *OrderUpsert) AddPackagingFee(v float64) *OrderUpsert {
+	u.Add(order.FieldPackagingFee, v)
+	return u
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (u *OrderUpsert) SetServiceFee(v float64) *OrderUpsert {
+	u.Set(order.FieldServiceFee, v)
+	return u
+}
+
+// UpdateServiceFee sets the "service_fee" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateServiceFee() *OrderUpsert {
+	u.SetExcluded(order.FieldServiceFee)
+	return u
+}
+
+// AddServiceFee adds v to the "service_fee" field.
+func (u *OrderUpsert) AddServiceFee(v float64) *OrderUpsert {
+	u.Add(order.FieldServiceFee, v)
+	return u
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (u *OrderUpsert) SetSmallOrderFee(v float64) *OrderUpsert {
+	u.Set(order.FieldSmallOrderFee, v)
+	return u
+}
+
+// UpdateSmallOrderFee sets the "small_order_fee" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateSmallOrderFee() *OrderUpsert {
+	u.SetExcluded(order.FieldSmallOrderFee)
+	return u
+}
+
+// AddSmallOrderFee adds v to the "small_order_fee" field.
+func (u *OrderUpsert) AddSmallOrderFee(v float64) *OrderUpsert {
+	u.Add(order.FieldSmallOrderFee, v)
+	return u
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (u *OrderUpsert) SetReservationID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldReservationID, v)
+	return u
+}
+
+// UpdateReservationID sets the "reservation_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateReservationID() *OrderUpsert {
+	u.SetExcluded(order.FieldReservationID)
+	return u
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (u *OrderUpsert) ClearReservationID() *OrderUpsert {
+	u.SetNull(order.FieldReservationID)
 	return u
 }
 
@@ -1916,6 +2159,125 @@ func (u *OrderUpsertOne) AddDeliveryFee(v float64) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateDeliveryFee() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateDeliveryFee()
+	})
+}
+
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (u *OrderUpsertOne) SetFulfillmentType(v order.FulfillmentType) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetFulfillmentType(v)
+	})
+}
+
+// UpdateFulfillmentType sets the "fulfillment_type" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateFulfillmentType() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateFulfillmentType()
+	})
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (u *OrderUpsertOne) SetScheduledFor(v time.Time) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetScheduledFor(v)
+	})
+}
+
+// UpdateScheduledFor sets the "scheduled_for" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateScheduledFor() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateScheduledFor()
+	})
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (u *OrderUpsertOne) ClearScheduledFor() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearScheduledFor()
+	})
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (u *OrderUpsertOne) SetPackagingFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPackagingFee(v)
+	})
+}
+
+// AddPackagingFee adds v to the "packaging_fee" field.
+func (u *OrderUpsertOne) AddPackagingFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddPackagingFee(v)
+	})
+}
+
+// UpdatePackagingFee sets the "packaging_fee" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePackagingFee() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePackagingFee()
+	})
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (u *OrderUpsertOne) SetServiceFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetServiceFee(v)
+	})
+}
+
+// AddServiceFee adds v to the "service_fee" field.
+func (u *OrderUpsertOne) AddServiceFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddServiceFee(v)
+	})
+}
+
+// UpdateServiceFee sets the "service_fee" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateServiceFee() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateServiceFee()
+	})
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (u *OrderUpsertOne) SetSmallOrderFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetSmallOrderFee(v)
+	})
+}
+
+// AddSmallOrderFee adds v to the "small_order_fee" field.
+func (u *OrderUpsertOne) AddSmallOrderFee(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddSmallOrderFee(v)
+	})
+}
+
+// UpdateSmallOrderFee sets the "small_order_fee" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateSmallOrderFee() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateSmallOrderFee()
+	})
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (u *OrderUpsertOne) SetReservationID(v uuid.UUID) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetReservationID(v)
+	})
+}
+
+// UpdateReservationID sets the "reservation_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateReservationID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateReservationID()
+	})
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (u *OrderUpsertOne) ClearReservationID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearReservationID()
 	})
 }
 
@@ -2813,6 +3175,125 @@ func (u *OrderUpsertBulk) AddDeliveryFee(v float64) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateDeliveryFee() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateDeliveryFee()
+	})
+}
+
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (u *OrderUpsertBulk) SetFulfillmentType(v order.FulfillmentType) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetFulfillmentType(v)
+	})
+}
+
+// UpdateFulfillmentType sets the "fulfillment_type" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateFulfillmentType() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateFulfillmentType()
+	})
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (u *OrderUpsertBulk) SetScheduledFor(v time.Time) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetScheduledFor(v)
+	})
+}
+
+// UpdateScheduledFor sets the "scheduled_for" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateScheduledFor() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateScheduledFor()
+	})
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (u *OrderUpsertBulk) ClearScheduledFor() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearScheduledFor()
+	})
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (u *OrderUpsertBulk) SetPackagingFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPackagingFee(v)
+	})
+}
+
+// AddPackagingFee adds v to the "packaging_fee" field.
+func (u *OrderUpsertBulk) AddPackagingFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddPackagingFee(v)
+	})
+}
+
+// UpdatePackagingFee sets the "packaging_fee" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePackagingFee() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePackagingFee()
+	})
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (u *OrderUpsertBulk) SetServiceFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetServiceFee(v)
+	})
+}
+
+// AddServiceFee adds v to the "service_fee" field.
+func (u *OrderUpsertBulk) AddServiceFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddServiceFee(v)
+	})
+}
+
+// UpdateServiceFee sets the "service_fee" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateServiceFee() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateServiceFee()
+	})
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (u *OrderUpsertBulk) SetSmallOrderFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetSmallOrderFee(v)
+	})
+}
+
+// AddSmallOrderFee adds v to the "small_order_fee" field.
+func (u *OrderUpsertBulk) AddSmallOrderFee(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddSmallOrderFee(v)
+	})
+}
+
+// UpdateSmallOrderFee sets the "small_order_fee" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateSmallOrderFee() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateSmallOrderFee()
+	})
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (u *OrderUpsertBulk) SetReservationID(v uuid.UUID) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetReservationID(v)
+	})
+}
+
+// UpdateReservationID sets the "reservation_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateReservationID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateReservationID()
+	})
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (u *OrderUpsertBulk) ClearReservationID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearReservationID()
 	})
 }
 
