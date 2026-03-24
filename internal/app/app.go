@@ -228,6 +228,7 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize payments module (treasury-api is source of truth; ordering only keeps payment_intent_id on Order)
 	treasuryClient := treasury.NewClient(cfg.Treasury, log)
+	orderSvc.SetTreasuryClient(treasuryClient)
 	paymentsRepo := payments.NewTreasuryRepository(treasuryClient)
 	paymentSvc := payments.NewPaymentService(paymentsRepo, treasuryClient, log)
 	paymentMethodSvc := payments.NewPaymentMethodService(paymentsRepo, log)

@@ -155,12 +155,19 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 	// Calculate unit price
 	unitPrice := catalogItem.BasePrice
 
-	// Check if item already exists in cart
+	// Calculate modifier total from selected modifiers
+	var modifierTotal float64
+	for _, m := range req.Modifiers {
+		modifierTotal += m.PriceAdjustment
+	}
+
+	// Check if item already exists in cart (only merge if no modifiers or same modifiers)
 	existingItem, err := s.repo.GetCartItemBySKU(ctx, cart.ID, req.InventorySKU, req.VariantID)
-	if err == nil && existingItem != nil {
-		// Update quantity
+	hasModifiers := len(req.Modifiers) > 0
+	if err == nil && existingItem != nil && !hasModifiers && len(existingItem.Modifiers) == 0 {
+		// Update quantity (only merge items without modifiers)
 		existingItem.Quantity += req.Quantity
-		existingItem.TotalPrice = unitPrice * float64(existingItem.Quantity)
+		existingItem.TotalPrice = (unitPrice + existingItem.ModifierTotal) * float64(existingItem.Quantity)
 		if req.Notes != "" {
 			existingItem.Notes = req.Notes
 		}
@@ -170,16 +177,18 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 			return nil, err
 		}
 	} else {
-		// Create new cart item
+		// Create new cart item (always new line item when modifiers are present)
 		item := &CartItem{
-			CartID:       cart.ID,
-			InventorySKU: req.InventorySKU,
-			VariantID:    req.VariantID,
-			NameSnapshot: catalogItem.Name,
-			Quantity:     req.Quantity,
-			UnitPrice:    unitPrice,
-			TotalPrice:   unitPrice * float64(req.Quantity),
-			Notes:        req.Notes,
+			CartID:        cart.ID,
+			InventorySKU:  req.InventorySKU,
+			VariantID:     req.VariantID,
+			NameSnapshot:  catalogItem.Name,
+			Quantity:      req.Quantity,
+			UnitPrice:     unitPrice,
+			Modifiers:     req.Modifiers,
+			ModifierTotal: modifierTotal,
+			TotalPrice:    (unitPrice + modifierTotal) * float64(req.Quantity),
+			Notes:         req.Notes,
 		}
 
 		if err := s.repo.CreateCartItem(ctx, item); err != nil {
@@ -222,7 +231,7 @@ func (s *CartService) UpdateItem(ctx context.Context, req UpdateItemRequest) (*C
 			}
 		} else {
 			item.Quantity = *req.Quantity
-			item.TotalPrice = item.UnitPrice * float64(item.Quantity)
+			item.TotalPrice = (item.UnitPrice + item.ModifierTotal) * float64(item.Quantity)
 		}
 	}
 
@@ -326,6 +335,7 @@ func (s *CartService) recalculateCartTotals(ctx context.Context, cart *Cart) err
 
 	var subtotal float64
 	for _, item := range items {
+		// TotalPrice already includes modifiers: (unitPrice + modifierTotal) * quantity
 		subtotal += item.TotalPrice
 	}
 

@@ -37,20 +37,31 @@ type Cart struct {
 	UpdatedAt             time.Time  `json:"updatedAt"`
 }
 
+// CartItemModifier represents a selected modifier option on a cart item.
+type CartItemModifier struct {
+	GroupID         uuid.UUID `json:"group_id"`
+	GroupName       string    `json:"group_name"`
+	OptionID        uuid.UUID `json:"option_id"`
+	OptionName      string    `json:"option_name"`
+	PriceAdjustment float64  `json:"price_adjustment"`
+}
+
 // CartItem represents an item in a shopping cart.
 type CartItem struct {
-	ID           uuid.UUID              `json:"id"`
-	CartID       uuid.UUID              `json:"cartId"`
-	InventorySKU string                 `json:"inventorySku"`
-	VariantID    *uuid.UUID             `json:"variantId,omitempty"`
-	NameSnapshot string                 `json:"nameSnapshot"`
-	Quantity     int                    `json:"quantity"`
-	UnitPrice    float64                `json:"unitPrice"`
-	TotalPrice   float64                `json:"totalPrice"`
-	Notes        string                 `json:"notes,omitempty"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt    time.Time              `json:"createdAt"`
-	UpdatedAt    time.Time              `json:"updatedAt"`
+	ID            uuid.UUID              `json:"id"`
+	CartID        uuid.UUID              `json:"cartId"`
+	InventorySKU  string                 `json:"inventorySku"`
+	VariantID     *uuid.UUID             `json:"variantId,omitempty"`
+	NameSnapshot  string                 `json:"nameSnapshot"`
+	Quantity      int                    `json:"quantity"`
+	UnitPrice     float64                `json:"unitPrice"`
+	Modifiers     []CartItemModifier     `json:"modifiers,omitempty"`
+	ModifierTotal float64                `json:"modifierTotal"`
+	TotalPrice    float64                `json:"totalPrice"`
+	Notes         string                 `json:"notes,omitempty"`
+	Metadata      map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	UpdatedAt     time.Time              `json:"updatedAt"`
 }
 
 // OrderStatus represents the status of an order.
@@ -398,6 +409,7 @@ type AddItemRequest struct {
 	VariantID    *uuid.UUID
 	Quantity     int
 	Notes        string
+	Modifiers    []CartItemModifier // Selected modifier options
 }
 
 // UpdateItemRequest represents a request to update a cart item.
@@ -464,6 +476,14 @@ type GuestCheckoutRequest struct {
 	PaymentMethod string
 	Instructions  string
 	Channel       OrderChannel
+}
+
+// RefundOrderRequest represents a request to refund an order.
+type RefundOrderRequest struct {
+	TenantID uuid.UUID
+	OrderID  uuid.UUID
+	Reason   string
+	ActorID  *uuid.UUID
 }
 
 // PromoValidationResult represents the result of promo code validation.

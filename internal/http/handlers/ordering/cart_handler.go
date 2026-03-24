@@ -57,13 +57,23 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 
 // --- Request/Response Types ---
 
+// CartItemModifierDTO represents a selected modifier option.
+type CartItemModifierDTO struct {
+	GroupID         string  `json:"groupId"`
+	GroupName       string  `json:"groupName"`
+	OptionID        string  `json:"optionId"`
+	OptionName      string  `json:"optionName"`
+	PriceAdjustment float64 `json:"priceAdjustment"`
+}
+
 // AddItemRequest represents a request to add an item to cart.
 type AddItemRequest struct {
-	OutletID     string  `json:"outletId"`
-	InventorySKU string  `json:"inventorySku"`
-	VariantID    *string `json:"variantId,omitempty"`
-	Quantity     int     `json:"quantity"`
-	Notes        string  `json:"notes,omitempty"`
+	OutletID     string                `json:"outletId"`
+	InventorySKU string                `json:"inventorySku"`
+	VariantID    *string               `json:"variantId,omitempty"`
+	Quantity     int                   `json:"quantity"`
+	Notes        string                `json:"notes,omitempty"`
+	Modifiers    []CartItemModifierDTO `json:"modifiers,omitempty"`
 }
 
 // UpdateItemRequest represents a request to update a cart item.
@@ -258,6 +268,20 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		variantID = &id
 	}
 
+	// Convert modifier DTOs to domain objects
+	var domainModifiers []ordering.CartItemModifier
+	for _, m := range req.Modifiers {
+		groupID, _ := uuid.Parse(m.GroupID)
+		optionID, _ := uuid.Parse(m.OptionID)
+		domainModifiers = append(domainModifiers, ordering.CartItemModifier{
+			GroupID:         groupID,
+			GroupName:       m.GroupName,
+			OptionID:        optionID,
+			OptionName:      m.OptionName,
+			PriceAdjustment: m.PriceAdjustment,
+		})
+	}
+
 	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
 		TenantID:     tenantID,
 		OutletID:     outletID,
@@ -266,6 +290,7 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		VariantID:    variantID,
 		Quantity:     req.Quantity,
 		Notes:        req.Notes,
+		Modifiers:    domainModifiers,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -648,6 +673,20 @@ func (h *CartHandler) AddGuestItem(w http.ResponseWriter, r *http.Request) {
 		variantID = &id
 	}
 
+	// Convert modifier DTOs to domain objects
+	var guestModifiers []ordering.CartItemModifier
+	for _, m := range req.Modifiers {
+		groupID, _ := uuid.Parse(m.GroupID)
+		optionID, _ := uuid.Parse(m.OptionID)
+		guestModifiers = append(guestModifiers, ordering.CartItemModifier{
+			GroupID:         groupID,
+			GroupName:       m.GroupName,
+			OptionID:        optionID,
+			OptionName:      m.OptionName,
+			PriceAdjustment: m.PriceAdjustment,
+		})
+	}
+
 	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
 		TenantID:     tenantID,
 		OutletID:     outletID,
@@ -657,6 +696,7 @@ func (h *CartHandler) AddGuestItem(w http.ResponseWriter, r *http.Request) {
 		VariantID:    variantID,
 		Quantity:     req.Quantity,
 		Notes:        req.Notes,
+		Modifiers:    guestModifiers,
 	})
 	if err != nil {
 		h.handleError(w, err)
