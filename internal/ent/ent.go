@@ -22,6 +22,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
+	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -119,6 +121,8 @@ func checkColumn(t, c string) error {
 			datasubjectrequest.Table: datasubjectrequest.ValidColumn,
 			deliverywindow.Table:     deliverywindow.ValidColumn,
 			deliveryzone.Table:       deliveryzone.ValidColumn,
+			grouporder.Table:         grouporder.ValidColumn,
+			groupparticipant.Table:   groupparticipant.ValidColumn,
 			loyaltyaccount.Table:     loyaltyaccount.ValidColumn,
 			loyaltytransaction.Table: loyaltytransaction.ValidColumn,
 			order.Table:              order.ValidColumn,

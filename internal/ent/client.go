@@ -26,6 +26,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
+	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -80,6 +82,10 @@ type Client struct {
 	DeliveryWindow *DeliveryWindowClient
 	// DeliveryZone is the client for interacting with the DeliveryZone builders.
 	DeliveryZone *DeliveryZoneClient
+	// GroupOrder is the client for interacting with the GroupOrder builders.
+	GroupOrder *GroupOrderClient
+	// GroupParticipant is the client for interacting with the GroupParticipant builders.
+	GroupParticipant *GroupParticipantClient
 	// LoyaltyAccount is the client for interacting with the LoyaltyAccount builders.
 	LoyaltyAccount *LoyaltyAccountClient
 	// LoyaltyTransaction is the client for interacting with the LoyaltyTransaction builders.
@@ -155,6 +161,8 @@ func (c *Client) init() {
 	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
 	c.DeliveryZone = NewDeliveryZoneClient(c.config)
+	c.GroupOrder = NewGroupOrderClient(c.config)
+	c.GroupParticipant = NewGroupParticipantClient(c.config)
 	c.LoyaltyAccount = NewLoyaltyAccountClient(c.config)
 	c.LoyaltyTransaction = NewLoyaltyTransactionClient(c.config)
 	c.Order = NewOrderClient(c.config)
@@ -284,6 +292,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DataSubjectRequest: NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:     NewDeliveryWindowClient(cfg),
 		DeliveryZone:       NewDeliveryZoneClient(cfg),
+		GroupOrder:         NewGroupOrderClient(cfg),
+		GroupParticipant:   NewGroupParticipantClient(cfg),
 		LoyaltyAccount:     NewLoyaltyAccountClient(cfg),
 		LoyaltyTransaction: NewLoyaltyTransactionClient(cfg),
 		Order:              NewOrderClient(cfg),
@@ -340,6 +350,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DataSubjectRequest: NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:     NewDeliveryWindowClient(cfg),
 		DeliveryZone:       NewDeliveryZoneClient(cfg),
+		GroupOrder:         NewGroupOrderClient(cfg),
+		GroupParticipant:   NewGroupParticipantClient(cfg),
 		LoyaltyAccount:     NewLoyaltyAccountClient(cfg),
 		LoyaltyTransaction: NewLoyaltyTransactionClient(cfg),
 		Order:              NewOrderClient(cfg),
@@ -398,12 +410,13 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AuditLog, c.Cart, c.CartItem, c.CatalogOverride, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.DeliveryZone, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
-		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.DeliveryZone, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
+		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
+		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
+		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
+		c.UserRoleAssignment,
 	} {
 		n.Use(hooks...)
 	}
@@ -415,12 +428,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AuditLog, c.Cart, c.CartItem, c.CatalogOverride, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.DeliveryZone, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
-		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.DeliveryZone, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
+		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
+		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
+		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
+		c.UserRoleAssignment,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -449,6 +463,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DeliveryWindow.mutate(ctx, m)
 	case *DeliveryZoneMutation:
 		return c.DeliveryZone.mutate(ctx, m)
+	case *GroupOrderMutation:
+		return c.GroupOrder.mutate(ctx, m)
+	case *GroupParticipantMutation:
+		return c.GroupParticipant.mutate(ctx, m)
 	case *LoyaltyAccountMutation:
 		return c.LoyaltyAccount.mutate(ctx, m)
 	case *LoyaltyTransactionMutation:
@@ -1931,6 +1949,304 @@ func (c *DeliveryZoneClient) mutate(ctx context.Context, m *DeliveryZoneMutation
 		return (&DeliveryZoneDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DeliveryZone mutation op: %q", m.Op())
+	}
+}
+
+// GroupOrderClient is a client for the GroupOrder schema.
+type GroupOrderClient struct {
+	config
+}
+
+// NewGroupOrderClient returns a client for the GroupOrder from the given config.
+func NewGroupOrderClient(c config) *GroupOrderClient {
+	return &GroupOrderClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `grouporder.Hooks(f(g(h())))`.
+func (c *GroupOrderClient) Use(hooks ...Hook) {
+	c.hooks.GroupOrder = append(c.hooks.GroupOrder, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `grouporder.Intercept(f(g(h())))`.
+func (c *GroupOrderClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GroupOrder = append(c.inters.GroupOrder, interceptors...)
+}
+
+// Create returns a builder for creating a GroupOrder entity.
+func (c *GroupOrderClient) Create() *GroupOrderCreate {
+	mutation := newGroupOrderMutation(c.config, OpCreate)
+	return &GroupOrderCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of GroupOrder entities.
+func (c *GroupOrderClient) CreateBulk(builders ...*GroupOrderCreate) *GroupOrderCreateBulk {
+	return &GroupOrderCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *GroupOrderClient) MapCreateBulk(slice any, setFunc func(*GroupOrderCreate, int)) *GroupOrderCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &GroupOrderCreateBulk{err: fmt.Errorf("calling to GroupOrderClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*GroupOrderCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &GroupOrderCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for GroupOrder.
+func (c *GroupOrderClient) Update() *GroupOrderUpdate {
+	mutation := newGroupOrderMutation(c.config, OpUpdate)
+	return &GroupOrderUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GroupOrderClient) UpdateOne(_m *GroupOrder) *GroupOrderUpdateOne {
+	mutation := newGroupOrderMutation(c.config, OpUpdateOne, withGroupOrder(_m))
+	return &GroupOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GroupOrderClient) UpdateOneID(id uuid.UUID) *GroupOrderUpdateOne {
+	mutation := newGroupOrderMutation(c.config, OpUpdateOne, withGroupOrderID(id))
+	return &GroupOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for GroupOrder.
+func (c *GroupOrderClient) Delete() *GroupOrderDelete {
+	mutation := newGroupOrderMutation(c.config, OpDelete)
+	return &GroupOrderDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GroupOrderClient) DeleteOne(_m *GroupOrder) *GroupOrderDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *GroupOrderClient) DeleteOneID(id uuid.UUID) *GroupOrderDeleteOne {
+	builder := c.Delete().Where(grouporder.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GroupOrderDeleteOne{builder}
+}
+
+// Query returns a query builder for GroupOrder.
+func (c *GroupOrderClient) Query() *GroupOrderQuery {
+	return &GroupOrderQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeGroupOrder},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a GroupOrder entity by its id.
+func (c *GroupOrderClient) Get(ctx context.Context, id uuid.UUID) (*GroupOrder, error) {
+	return c.Query().Where(grouporder.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GroupOrderClient) GetX(ctx context.Context, id uuid.UUID) *GroupOrder {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryParticipants queries the participants edge of a GroupOrder.
+func (c *GroupOrderClient) QueryParticipants(_m *GroupOrder) *GroupParticipantQuery {
+	query := (&GroupParticipantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(grouporder.Table, grouporder.FieldID, id),
+			sqlgraph.To(groupparticipant.Table, groupparticipant.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, grouporder.ParticipantsTable, grouporder.ParticipantsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *GroupOrderClient) Hooks() []Hook {
+	return c.hooks.GroupOrder
+}
+
+// Interceptors returns the client interceptors.
+func (c *GroupOrderClient) Interceptors() []Interceptor {
+	return c.inters.GroupOrder
+}
+
+func (c *GroupOrderClient) mutate(ctx context.Context, m *GroupOrderMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&GroupOrderCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&GroupOrderUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&GroupOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&GroupOrderDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown GroupOrder mutation op: %q", m.Op())
+	}
+}
+
+// GroupParticipantClient is a client for the GroupParticipant schema.
+type GroupParticipantClient struct {
+	config
+}
+
+// NewGroupParticipantClient returns a client for the GroupParticipant from the given config.
+func NewGroupParticipantClient(c config) *GroupParticipantClient {
+	return &GroupParticipantClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `groupparticipant.Hooks(f(g(h())))`.
+func (c *GroupParticipantClient) Use(hooks ...Hook) {
+	c.hooks.GroupParticipant = append(c.hooks.GroupParticipant, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `groupparticipant.Intercept(f(g(h())))`.
+func (c *GroupParticipantClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GroupParticipant = append(c.inters.GroupParticipant, interceptors...)
+}
+
+// Create returns a builder for creating a GroupParticipant entity.
+func (c *GroupParticipantClient) Create() *GroupParticipantCreate {
+	mutation := newGroupParticipantMutation(c.config, OpCreate)
+	return &GroupParticipantCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of GroupParticipant entities.
+func (c *GroupParticipantClient) CreateBulk(builders ...*GroupParticipantCreate) *GroupParticipantCreateBulk {
+	return &GroupParticipantCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *GroupParticipantClient) MapCreateBulk(slice any, setFunc func(*GroupParticipantCreate, int)) *GroupParticipantCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &GroupParticipantCreateBulk{err: fmt.Errorf("calling to GroupParticipantClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*GroupParticipantCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &GroupParticipantCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for GroupParticipant.
+func (c *GroupParticipantClient) Update() *GroupParticipantUpdate {
+	mutation := newGroupParticipantMutation(c.config, OpUpdate)
+	return &GroupParticipantUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GroupParticipantClient) UpdateOne(_m *GroupParticipant) *GroupParticipantUpdateOne {
+	mutation := newGroupParticipantMutation(c.config, OpUpdateOne, withGroupParticipant(_m))
+	return &GroupParticipantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GroupParticipantClient) UpdateOneID(id uuid.UUID) *GroupParticipantUpdateOne {
+	mutation := newGroupParticipantMutation(c.config, OpUpdateOne, withGroupParticipantID(id))
+	return &GroupParticipantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for GroupParticipant.
+func (c *GroupParticipantClient) Delete() *GroupParticipantDelete {
+	mutation := newGroupParticipantMutation(c.config, OpDelete)
+	return &GroupParticipantDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GroupParticipantClient) DeleteOne(_m *GroupParticipant) *GroupParticipantDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *GroupParticipantClient) DeleteOneID(id uuid.UUID) *GroupParticipantDeleteOne {
+	builder := c.Delete().Where(groupparticipant.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GroupParticipantDeleteOne{builder}
+}
+
+// Query returns a query builder for GroupParticipant.
+func (c *GroupParticipantClient) Query() *GroupParticipantQuery {
+	return &GroupParticipantQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeGroupParticipant},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a GroupParticipant entity by its id.
+func (c *GroupParticipantClient) Get(ctx context.Context, id uuid.UUID) (*GroupParticipant, error) {
+	return c.Query().Where(groupparticipant.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GroupParticipantClient) GetX(ctx context.Context, id uuid.UUID) *GroupParticipant {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryGroupOrder queries the group_order edge of a GroupParticipant.
+func (c *GroupParticipantClient) QueryGroupOrder(_m *GroupParticipant) *GroupOrderQuery {
+	query := (&GroupOrderClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(groupparticipant.Table, groupparticipant.FieldID, id),
+			sqlgraph.To(grouporder.Table, grouporder.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, groupparticipant.GroupOrderTable, groupparticipant.GroupOrderColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *GroupParticipantClient) Hooks() []Hook {
+	return c.hooks.GroupParticipant
+}
+
+// Interceptors returns the client interceptors.
+func (c *GroupParticipantClient) Interceptors() []Interceptor {
+	return c.inters.GroupParticipant
+}
+
+func (c *GroupParticipantClient) mutate(ctx context.Context, m *GroupParticipantMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&GroupParticipantCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&GroupParticipantUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&GroupParticipantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&GroupParticipantDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown GroupParticipant mutation op: %q", m.Op())
 	}
 }
 
@@ -6249,20 +6565,22 @@ func (c *UserRoleAssignmentClient) mutate(ctx context.Context, m *UserRoleAssign
 type (
 	hooks struct {
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
-		LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment, OrderEvent,
-		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
-		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
-		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
-		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Hook
+		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone, GroupOrder,
+		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
+		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
+		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
+		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
+		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
+		UserRoleAssignment []ent.Hook
 	}
 	inters struct {
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
-		LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment, OrderEvent,
-		OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
-		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
-		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
-		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Interceptor
+		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone, GroupOrder,
+		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
+		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
+		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
+		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
+		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
+		UserRoleAssignment []ent.Interceptor
 	}
 )

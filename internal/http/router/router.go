@@ -45,6 +45,7 @@ func New(
 	promoHandler *orderinghandler.PromoHandler,
 	loyaltyHandler *orderinghandler.LoyaltyHandler,
 	addressHandler *orderinghandler.AddressHandler,
+	groupOrderHandler *orderinghandler.GroupOrderHandler,
 	paymentHandler *paymentshandler.PaymentHandler,
 	paymentMethodHandler *paymentshandler.PaymentMethodHandler,
 	paymentWebhookHandler *paymentshandler.WebhookHandler,
@@ -274,6 +275,9 @@ func New(
 					}
 					if addressHandler != nil {
 						addressHandler.Register(tenant, authenticator)
+					}
+					if groupOrderHandler != nil {
+						groupOrderHandler.Register(tenant, authenticator)
 					}
 
 					// Register delivery zones

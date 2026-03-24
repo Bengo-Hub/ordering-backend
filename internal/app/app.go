@@ -219,12 +219,15 @@ func New(ctx context.Context) (*App, error) {
 	go orderScheduler.Start(ctx)
 	log.Info("app: order scheduler started (scheduled delivery flow)")
 
+	groupOrderSvc := ordering.NewGroupOrderService(orderingRepo, log)
+
 	// Create ordering handlers
 	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
 	orderHandler := orderinghandler.NewOrderHandler(log, orderSvc)
 	promoHandler := orderinghandler.NewPromoHandler(log, promoSvc, cartSvc)
 	loyaltyHandler := orderinghandler.NewLoyaltyHandler(log, loyaltySvc)
 	addressHandler := orderinghandler.NewAddressHandler(log, addressSvc)
+	groupOrderHandler := orderinghandler.NewGroupOrderHandler(log, groupOrderSvc)
 
 	// Initialize payments module (treasury-api is source of truth; ordering only keeps payment_intent_id on Order)
 	treasuryClient := treasury.NewClient(cfg.Treasury, log)
@@ -350,7 +353,7 @@ func New(ctx context.Context) (*App, error) {
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
 	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

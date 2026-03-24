@@ -349,6 +349,48 @@ type RateOrderRequest struct {
 	Comment string `json:"comment,omitempty"`
 }
 
+// GroupOrderStatus represents the status of a group order session.
+type GroupOrderStatus string
+
+const (
+	GroupOrderStatusOpen       GroupOrderStatus = "open"
+	GroupOrderStatusLocked     GroupOrderStatus = "locked"
+	GroupOrderStatusCheckedOut GroupOrderStatus = "checked_out"
+	GroupOrderStatusExpired    GroupOrderStatus = "expired"
+)
+
+// GroupOrder represents a collaborative ordering session.
+type GroupOrder struct {
+	ID              uuid.UUID          `json:"id"`
+	TenantID        uuid.UUID          `json:"tenantId"`
+	HostUserID      uuid.UUID          `json:"hostUserId"`
+	CartID          uuid.UUID          `json:"cartId"`
+	InviteCode      string             `json:"inviteCode"`
+	Status          GroupOrderStatus   `json:"status"`
+	MaxParticipants int                `json:"maxParticipants"`
+	Participants    []GroupParticipant  `json:"participants,omitempty"`
+	ExpiresAt       time.Time          `json:"expiresAt"`
+	CreatedAt       time.Time          `json:"createdAt"`
+	UpdatedAt       time.Time          `json:"updatedAt"`
+}
+
+// GroupParticipant represents a participant in a group order.
+type GroupParticipant struct {
+	ID           uuid.UUID `json:"id"`
+	GroupOrderID uuid.UUID `json:"groupOrderId"`
+	UserID       uuid.UUID `json:"userId"`
+	UserName     string    `json:"userName"`
+	JoinedAt     time.Time `json:"joinedAt"`
+}
+
+// ItemImage represents an image in a multi-image gallery for a catalog item.
+type ItemImage struct {
+	URL          string `json:"url"`
+	Type         string `json:"type"`
+	IsPrimary    bool   `json:"is_primary"`
+	DisplayOrder int    `json:"display_order"`
+}
+
 // DefaultCurrency is the default currency for orders.
 const DefaultCurrency = "KES"
 

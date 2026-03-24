@@ -79,6 +79,16 @@ var (
 	// Subscription errors
 	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
 
+	// Group order errors
+	ErrGroupOrderNotFound     = errors.New("group order not found")
+	ErrGroupOrderExpired      = errors.New("group order has expired")
+	ErrGroupOrderLocked       = errors.New("group order is locked")
+	ErrGroupOrderNotOpen      = errors.New("group order is not open")
+	ErrGroupOrderFull         = errors.New("group order has reached maximum participants")
+	ErrAlreadyParticipant     = errors.New("user is already a participant")
+	ErrNotGroupOrderHost      = errors.New("only the host can perform this action")
+	ErrInvalidInviteCode      = errors.New("invalid invite code")
+
 	// General errors
 	ErrInvalidTenant   = errors.New("invalid tenant")
 	ErrInvalidCafe     = errors.New("invalid cafe")

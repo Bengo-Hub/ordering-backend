@@ -94,6 +94,19 @@ type Repository interface {
 	GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error)
 	UpsertOutletRating(ctx context.Context, rating *OutletRatingData) error
 
+	// GroupOrder operations
+	CreateGroupOrder(ctx context.Context, g *GroupOrder) error
+	GetGroupOrder(ctx context.Context, id uuid.UUID) (*GroupOrder, error)
+	GetGroupOrderByInviteCode(ctx context.Context, code string) (*GroupOrder, error)
+	UpdateGroupOrder(ctx context.Context, g *GroupOrder) error
+	CreateGroupParticipant(ctx context.Context, p *GroupParticipant) error
+	ListGroupParticipants(ctx context.Context, groupOrderID uuid.UUID) ([]GroupParticipant, error)
+	CountGroupParticipants(ctx context.Context, groupOrderID uuid.UUID) (int, error)
+	IsGroupParticipant(ctx context.Context, groupOrderID, userID uuid.UUID) (bool, error)
+
+	// ActivePromos returns active promo codes for a tenant, optionally filtered by outlet
+	ListActivePromoCodesForOutlet(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]PromoCode, error)
+
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 }

@@ -15,6 +15,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
+	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -447,6 +449,44 @@ func init() {
 	deliveryzoneDescID := deliveryzoneFields[0].Descriptor()
 	// deliveryzone.DefaultID holds the default value on creation for the id field.
 	deliveryzone.DefaultID = deliveryzoneDescID.Default.(func() uuid.UUID)
+	grouporderFields := schema.GroupOrder{}.Fields()
+	_ = grouporderFields
+	// grouporderDescInviteCode is the schema descriptor for invite_code field.
+	grouporderDescInviteCode := grouporderFields[4].Descriptor()
+	// grouporder.InviteCodeValidator is a validator for the "invite_code" field. It is called by the builders before save.
+	grouporder.InviteCodeValidator = grouporderDescInviteCode.Validators[0].(func(string) error)
+	// grouporderDescMaxParticipants is the schema descriptor for max_participants field.
+	grouporderDescMaxParticipants := grouporderFields[6].Descriptor()
+	// grouporder.DefaultMaxParticipants holds the default value on creation for the max_participants field.
+	grouporder.DefaultMaxParticipants = grouporderDescMaxParticipants.Default.(int)
+	// grouporderDescCreatedAt is the schema descriptor for created_at field.
+	grouporderDescCreatedAt := grouporderFields[8].Descriptor()
+	// grouporder.DefaultCreatedAt holds the default value on creation for the created_at field.
+	grouporder.DefaultCreatedAt = grouporderDescCreatedAt.Default.(func() time.Time)
+	// grouporderDescUpdatedAt is the schema descriptor for updated_at field.
+	grouporderDescUpdatedAt := grouporderFields[9].Descriptor()
+	// grouporder.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	grouporder.DefaultUpdatedAt = grouporderDescUpdatedAt.Default.(func() time.Time)
+	// grouporder.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	grouporder.UpdateDefaultUpdatedAt = grouporderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// grouporderDescID is the schema descriptor for id field.
+	grouporderDescID := grouporderFields[0].Descriptor()
+	// grouporder.DefaultID holds the default value on creation for the id field.
+	grouporder.DefaultID = grouporderDescID.Default.(func() uuid.UUID)
+	groupparticipantFields := schema.GroupParticipant{}.Fields()
+	_ = groupparticipantFields
+	// groupparticipantDescUserName is the schema descriptor for user_name field.
+	groupparticipantDescUserName := groupparticipantFields[3].Descriptor()
+	// groupparticipant.UserNameValidator is a validator for the "user_name" field. It is called by the builders before save.
+	groupparticipant.UserNameValidator = groupparticipantDescUserName.Validators[0].(func(string) error)
+	// groupparticipantDescJoinedAt is the schema descriptor for joined_at field.
+	groupparticipantDescJoinedAt := groupparticipantFields[4].Descriptor()
+	// groupparticipant.DefaultJoinedAt holds the default value on creation for the joined_at field.
+	groupparticipant.DefaultJoinedAt = groupparticipantDescJoinedAt.Default.(func() time.Time)
+	// groupparticipantDescID is the schema descriptor for id field.
+	groupparticipantDescID := groupparticipantFields[0].Descriptor()
+	// groupparticipant.DefaultID holds the default value on creation for the id field.
+	groupparticipant.DefaultID = groupparticipantDescID.Default.(func() uuid.UUID)
 	loyaltyaccountFields := schema.LoyaltyAccount{}.Fields()
 	_ = loyaltyaccountFields
 	// loyaltyaccountDescBalancePoints is the schema descriptor for balance_points field.

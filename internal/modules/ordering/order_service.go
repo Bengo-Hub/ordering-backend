@@ -1335,6 +1335,58 @@ func (s *OrderService) publishOrderCancelled(ctx context.Context, order *Order, 
 	}
 }
 
+// ReorderFromPastOrder creates a new cart populated with items from a past order.
+// Items that are no longer available are silently skipped.
+func (s *OrderService) ReorderFromPastOrder(ctx context.Context, tenantID, userID, orderID uuid.UUID) (*Cart, error) {
+	// 1. Get past order with items
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure the order belongs to this user
+	if order.CustomerID != userID {
+		return nil, ErrUnauthorized
+	}
+
+	// Load order items
+	items, err := s.repo.ListOrderItems(ctx, orderID)
+	if err != nil {
+		return nil, err
+	}
+	if len(items) == 0 {
+		return nil, ErrCartEmpty
+	}
+
+	// 2. Create new cart
+	cart, err := s.cartSvc.GetOrCreateCart(ctx, tenantID, order.OutletID, &userID, "")
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. For each order item, add to cart (best-effort: skip unavailable)
+	for _, item := range items {
+		_, addErr := s.cartSvc.AddItem(ctx, AddItemRequest{
+			TenantID:     tenantID,
+			OutletID:     order.OutletID,
+			UserID:       &userID,
+			InventorySKU: item.InventorySKU,
+			VariantID:    item.VariantID,
+			Quantity:     item.Quantity,
+			Notes:        item.Notes,
+		})
+		if addErr != nil {
+			s.logger.Warn("skipping unavailable item during reorder",
+				zap.String("sku", item.InventorySKU),
+				zap.Error(addErr))
+			continue
+		}
+	}
+
+	// 4. Return cart with items
+	return s.cartSvc.GetCart(ctx, tenantID, cart.ID)
+}
+
 // OrderStateMachine defines valid order status transitions.
 type OrderStateMachine struct {
 	transitions map[OrderStatus][]OrderStatus
