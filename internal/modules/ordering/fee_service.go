@@ -32,14 +32,15 @@ type FeeConfig struct {
 	DeliveryDiscountPct float64 `json:"delivery_discount_pct"`
 }
 
-// DefaultFeeConfig returns sensible defaults when no tenant config is found.
+// DefaultFeeConfig returns zero defaults when no tenant config is found.
+// Fees are only charged when the tenant explicitly configures them in TenantSetting.features.
 func DefaultFeeConfig() FeeConfig {
 	return FeeConfig{
-		ServiceFeePercent:   0.05,  // 5%
-		PackagingFeeFlat:    15.0,  // KES 15
-		SmallOrderFee:       296.0, // KES 296
-		SmallOrderThreshold: 500.0, // KES 500 minimum
-		DeliveryDiscountPct: 0.0,   // no delivery discount by default
+		ServiceFeePercent:   0, // 0% — tenant must configure
+		PackagingFeeFlat:    0, // 0 — tenant must configure
+		SmallOrderFee:       0, // 0 — tenant must configure
+		SmallOrderThreshold: 0, // 0 — no threshold by default
+		DeliveryDiscountPct: 0, // 0 — no delivery discount by default
 	}
 }
 
