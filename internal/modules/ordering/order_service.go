@@ -22,6 +22,7 @@ type OrderService struct {
 	cartSvc             *CartService
 	promoSvc            *PromoService
 	loyaltySvc          *LoyaltyService
+	feeSvc              *FeeService
 	stateMachine        *OrderStateMachine
 	eventPublisher      *events.Publisher
 	inventoryClient     *inventory.Client
@@ -36,6 +37,7 @@ func NewOrderService(
 	cartSvc *CartService,
 	promoSvc *PromoService,
 	loyaltySvc *LoyaltyService,
+	feeSvc *FeeService,
 	inventoryClient *inventory.Client,
 	subscriptionsClient *subscriptions.Client,
 	logger *zap.Logger,
@@ -45,6 +47,7 @@ func NewOrderService(
 		cartSvc:             cartSvc,
 		promoSvc:            promoSvc,
 		loyaltySvc:          loyaltySvc,
+		feeSvc:              feeSvc,
 		inventoryClient:     inventoryClient,
 		subscriptionsClient: subscriptionsClient,
 		stateMachine:        NewOrderStateMachine(),
@@ -167,14 +170,14 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		}
 	}
 
-	// Pickup orders have no delivery fee
-	deliveryFee := cart.DeliveryFee
-	if fulfillmentType == FulfillmentTypePickup {
-		deliveryFee = 0
+	// Calculate full fee breakdown (service fee, packaging fee, small order fee, etc.)
+	fees, feeErr := s.feeSvc.CalculateFees(ctx, req.TenantID, cart, fulfillmentType, discountTotal, loyaltyDiscount)
+	if feeErr != nil {
+		s.logger.Error("failed to calculate fees", zap.Error(feeErr))
+		return nil, feeErr
 	}
-
-	// Calculate totals
-	grandTotal := cart.Subtotal - discountTotal - loyaltyDiscount + cart.TaxTotal + deliveryFee
+	grandTotal := fees.GrandTotal
+	deliveryFee := fees.DeliveryFee
 
 	// Generate order number
 	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, cart.OutletID)
@@ -234,6 +237,9 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		DiscountTotal:         discountTotal,
 		TaxTotal:              cart.TaxTotal,
 		DeliveryFee:           deliveryFee,
+		PackagingFee:          fees.PackagingFee,
+		ServiceFee:            fees.ServiceFee,
+		SmallOrderFee:         fees.SmallOrderFee,
 		GrandTotal:            grandTotal,
 		LoyaltyPointsEarned:   loyaltyPointsEarned,
 		LoyaltyPointsRedeemed: loyaltyPointsRedeemed,
@@ -325,6 +331,11 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	fulfillmentType := req.FulfillmentType
 	if fulfillmentType == "" {
 		fulfillmentType = FulfillmentTypeDelivery
+	}
+
+	// Cash on delivery is not available for pickup orders
+	if fulfillmentType == FulfillmentTypePickup && req.PaymentMethod == "cod" {
+		return nil, ErrCashNotAvailableForPickup
 	}
 
 	// Validate scheduled orders

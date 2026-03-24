@@ -109,4 +109,7 @@ type Repository interface {
 
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
+
+	// Tenant feature configuration (from TenantSetting.features JSON)
+	GetTenantFeatures(ctx context.Context, tenantID uuid.UUID) (map[string]interface{}, error)
 }

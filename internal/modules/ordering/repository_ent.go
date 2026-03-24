@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	tenantpredicate "github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/google/uuid"
 )
 
@@ -1022,6 +1023,21 @@ func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenan
 		Slug: t.Slug,
 		Name: t.Name,
 	}, nil
+}
+
+// GetTenantFeatures returns the features JSON map from the TenantSetting for the given tenant.
+func (r *EntRepository) GetTenantFeatures(ctx context.Context, tenantID uuid.UUID) (map[string]interface{}, error) {
+	t, err := r.client.Tenant.Query().
+		Where(tenantpredicate.ID(tenantID)).
+		WithSettings().
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get tenant features: %w", err)
+	}
+	if t.Edges.Settings == nil {
+		return map[string]interface{}{}, nil
+	}
+	return t.Edges.Settings.Features, nil
 }
 
 // ListActiveDeliveryZones returns active delivery zones for a tenant (and optionally a specific outlet).
