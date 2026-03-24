@@ -71,6 +71,11 @@ var (
 	ErrScheduledForRequired     = errors.New("scheduled_for is required for scheduled orders")
 	ErrScheduledForTooSoon      = errors.New("scheduled_for must be at least 30 minutes in the future")
 
+	// Refund errors
+	ErrOrderNotRefundable     = errors.New("order cannot be refunded: must be delivered or completed")
+	ErrOrderAlreadyRefunded   = errors.New("order has already been refunded")
+	ErrRefundFailed           = errors.New("refund processing failed")
+
 	// Subscription errors
 	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
 

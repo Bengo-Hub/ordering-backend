@@ -222,6 +222,32 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 	return p.Publish(ctx, "ordering.order.completed", event)
 }
 
+// OrderRefundedData represents data for order.refunded event.
+type OrderRefundedData struct {
+	OrderID     uuid.UUID `json:"order_id"`
+	OrderNumber string    `json:"order_number"`
+	CustomerID  uuid.UUID `json:"customer_id"`
+	TotalAmount float64   `json:"total_amount"`
+	Currency    string    `json:"currency"`
+	Reason      string    `json:"reason"`
+	RefundedAt  time.Time `json:"refunded_at"`
+}
+
+// PublishOrderRefunded publishes an order.refunded event.
+func (p *Publisher) PublishOrderRefunded(ctx context.Context, tenantID uuid.UUID, data OrderRefundedData) error {
+	event := NewEvent("ordering.order.refunded", tenantID, map[string]interface{}{
+		"order_id":     data.OrderID.String(),
+		"order_number": data.OrderNumber,
+		"customer_id":  data.CustomerID.String(),
+		"total_amount": data.TotalAmount,
+		"currency":     data.Currency,
+		"reason":       data.Reason,
+		"refunded_at":  data.RefundedAt.Format(time.RFC3339),
+	})
+
+	return p.Publish(ctx, "ordering.order.refunded", event)
+}
+
 // --- Payment Events ---
 
 // PaymentInitiatedData represents data for payment.initiated event.

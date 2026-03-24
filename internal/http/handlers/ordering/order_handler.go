@@ -73,6 +73,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Get("/{orderId}", h.AdminGetOrder)
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
+		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
 	})
 }
 
@@ -170,8 +171,13 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		handlers.RespondError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ordering.ErrInvalidStatusTransition),
-		errors.Is(err, ordering.ErrOrderCannotBeCancelled):
+		errors.Is(err, ordering.ErrOrderCannotBeCancelled),
+		errors.Is(err, ordering.ErrOrderNotRefundable),
+		errors.Is(err, ordering.ErrOrderAlreadyRefunded):
 		handlers.RespondError(w, http.StatusConflict, err.Error())
+
+	case errors.Is(err, ordering.ErrRefundFailed):
+		handlers.RespondError(w, http.StatusBadGateway, err.Error())
 
 	case errors.Is(err, ordering.ErrCartEmpty),
 		errors.Is(err, ordering.ErrCartAlreadyCheckedOut),
@@ -1045,6 +1051,56 @@ func (h *OrderHandler) AdminCancelOrder(w http.ResponseWriter, r *http.Request) 
 	}
 
 	order, err := h.orderService.CancelOrder(r.Context(), tenantID, orderID, req.Reason, &user.ID, "staff", getClientIP(r))
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// RefundOrderRequest represents a request to refund an order.
+type RefundOrderRequestDTO struct {
+	Reason string `json:"reason"`
+}
+
+// RefundOrder handles POST /admin/orders/{orderId}/refund
+func (h *OrderHandler) RefundOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	var req RefundOrderRequestDTO
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.Reason == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "reason is required")
+		return
+	}
+
+	order, err := h.orderService.RefundOrder(r.Context(), ordering.RefundOrderRequest{
+		TenantID: tenantID,
+		OrderID:  orderID,
+		Reason:   req.Reason,
+		ActorID:  &user.ID,
+	})
 	if err != nil {
 		h.handleError(w, err)
 		return

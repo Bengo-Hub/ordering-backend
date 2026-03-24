@@ -226,8 +226,18 @@ func (r *EntRepository) CreateCartItem(ctx context.Context, item *CartItem) erro
 	if item.VariantID != nil {
 		builder.SetVariantID(*item.VariantID)
 	}
-	if item.Metadata != nil {
-		builder.SetMetadata(item.Metadata)
+
+	// Persist modifiers and modifier_total in metadata
+	meta := item.Metadata
+	if meta == nil {
+		meta = make(map[string]interface{})
+	}
+	if len(item.Modifiers) > 0 {
+		meta["modifiers"] = item.Modifiers
+		meta["modifier_total"] = item.ModifierTotal
+	}
+	if len(meta) > 0 {
+		builder.SetMetadata(meta)
 	}
 
 	created, err := builder.Save(ctx)
@@ -840,6 +850,42 @@ func entCartItemToDomain(item *ent.CartItem) *CartItem {
 
 	if item.VariantID != nil {
 		ci.VariantID = item.VariantID
+	}
+
+	// Extract modifiers from metadata
+	if item.Metadata != nil {
+		if modTotal, ok := item.Metadata["modifier_total"]; ok {
+			if v, ok := modTotal.(float64); ok {
+				ci.ModifierTotal = v
+			}
+		}
+		if rawMods, ok := item.Metadata["modifiers"]; ok {
+			if modsSlice, ok := rawMods.([]interface{}); ok {
+				for _, raw := range modsSlice {
+					if m, ok := raw.(map[string]interface{}); ok {
+						mod := CartItemModifier{
+							PriceAdjustment: 0,
+						}
+						if v, ok := m["group_id"].(string); ok {
+							mod.GroupID, _ = uuid.Parse(v)
+						}
+						if v, ok := m["group_name"].(string); ok {
+							mod.GroupName = v
+						}
+						if v, ok := m["option_id"].(string); ok {
+							mod.OptionID, _ = uuid.Parse(v)
+						}
+						if v, ok := m["option_name"].(string); ok {
+							mod.OptionName = v
+						}
+						if v, ok := m["price_adjustment"].(float64); ok {
+							mod.PriceAdjustment = v
+						}
+						ci.Modifiers = append(ci.Modifiers, mod)
+					}
+				}
+			}
+		}
 	}
 
 	return ci

@@ -13,6 +13,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
+	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
 // OrderService provides order business logic.
@@ -24,6 +25,7 @@ type OrderService struct {
 	stateMachine        *OrderStateMachine
 	eventPublisher      *events.Publisher
 	inventoryClient     *inventory.Client
+	treasuryClient      *treasury.Client
 	subscriptionsClient *subscriptions.Client
 	logger              *zap.Logger
 }
@@ -48,6 +50,11 @@ func NewOrderService(
 		stateMachine:        NewOrderStateMachine(),
 		logger:              logger,
 	}
+}
+
+// SetTreasuryClient sets the treasury client for refund processing.
+func (s *OrderService) SetTreasuryClient(client *treasury.Client) {
+	s.treasuryClient = client
 }
 
 // SetEventPublisher sets the event publisher for the order service.
@@ -868,6 +875,130 @@ func (s *OrderService) GetOutletRating(ctx context.Context, tenantID, outletID u
 	return s.repo.GetOutletRating(ctx, tenantID, outletID)
 }
 
+// RefundOrder processes a full refund for an order.
+// It validates the order status, initiates a refund via treasury-api,
+// releases inventory reservations, and publishes an order.refunded event.
+func (s *OrderService) RefundOrder(ctx context.Context, req RefundOrderRequest) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, req.TenantID, req.OrderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate order can be refunded (must be delivered or completed)
+	if order.Status != OrderStatusDelivered && order.Status != OrderStatusCompleted {
+		return nil, ErrOrderNotRefundable
+	}
+
+	// Check if already refunded
+	if order.PaymentStatus == PaymentStatusRefunded {
+		return nil, ErrOrderAlreadyRefunded
+	}
+
+	// Validate state machine transition
+	if !s.stateMachine.CanTransition(order.Status, OrderStatusRefunded) {
+		return nil, ErrOrderNotRefundable
+	}
+
+	// Initiate refund via treasury-api if a treasury client is configured
+	// and the order has a payment (grand total > 0)
+	if s.treasuryClient != nil && order.GrandTotal > 0 {
+		// Look up payment intent for this order from metadata or payments module
+		// The order stores payment_intent_id in metadata after payment processing
+		var paymentID uuid.UUID
+		if order.Metadata != nil {
+			if pidStr, ok := order.Metadata["payment_intent_id"].(string); ok {
+				paymentID, _ = uuid.Parse(pidStr)
+			}
+		}
+
+		if paymentID != uuid.Nil {
+			refundReq := treasury.RefundRequest{
+				TenantID:       req.TenantID,
+				PaymentID:      paymentID,
+				Amount:         order.GrandTotal,
+				Reason:         req.Reason,
+				IdempotencyKey: fmt.Sprintf("refund-%s", req.OrderID.String()),
+			}
+
+			_, refundErr := s.treasuryClient.CreateRefund(ctx, refundReq)
+			if refundErr != nil {
+				s.logger.Error("failed to create refund via treasury",
+					zap.Error(refundErr),
+					zap.String("orderID", req.OrderID.String()))
+				return nil, fmt.Errorf("%w: %v", ErrRefundFailed, refundErr)
+			}
+		}
+	}
+
+	// Release inventory reservation if one exists
+	if order.ReservationID != nil && s.inventoryClient != nil {
+		tenant, tenantErr := s.repo.GetTenantByID(ctx, req.TenantID)
+		if tenantErr == nil {
+			if releaseErr := s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, "order_refunded"); releaseErr != nil {
+				s.logger.Warn("failed to release reservation on refund",
+					zap.Error(releaseErr),
+					zap.String("reservationID", order.ReservationID.String()))
+			}
+		}
+	}
+
+	// Update order status
+	oldStatus := order.Status
+	now := time.Now()
+	order.Status = OrderStatusRefunded
+	order.PaymentStatus = PaymentStatusRefunded
+	order.CancellationReason = req.Reason
+	order.CancelledAt = &now
+
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		return nil, fmt.Errorf("failed to update order status to refunded: %w", err)
+	}
+
+	// Create order event
+	payload := map[string]interface{}{
+		"reason": req.Reason,
+	}
+	actorType := "staff"
+	s.createOrderEvent(ctx, order.ID, "order_refunded", string(oldStatus), string(OrderStatusRefunded), payload, req.ActorID, actorType, "")
+
+	// Publish order.refunded event to NATS
+	s.publishOrderRefunded(ctx, order, req.Reason)
+
+	// Publish status change event
+	s.publishOrderStatusChanged(ctx, order, oldStatus, OrderStatusRefunded)
+
+	s.logger.Info("order refunded",
+		zap.String("id", order.ID.String()),
+		zap.String("orderNumber", order.OrderNumber),
+		zap.String("reason", req.Reason),
+		zap.Float64("grandTotal", order.GrandTotal))
+
+	return order, nil
+}
+
+// publishOrderRefunded publishes an order.refunded event to NATS.
+func (s *OrderService) publishOrderRefunded(ctx context.Context, order *Order, reason string) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	data := events.OrderRefundedData{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		CustomerID:  order.CustomerID,
+		TotalAmount: order.GrandTotal,
+		Currency:    order.Currency,
+		Reason:      reason,
+		RefundedAt:  time.Now(),
+	}
+
+	if err := s.eventPublisher.PublishOrderRefunded(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.refunded event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
 // CalculateDeliveryFee determines the delivery fee by matching a coordinate against
 // active DeliveryZone polygons. Returns the fee and estimated time, or an error if
 // the location is not serviceable.
@@ -1236,6 +1367,7 @@ func NewOrderStateMachine() *OrderStateMachine {
 			},
 			OrderStatusDelivered: {
 				OrderStatusCompleted,
+				OrderStatusRefunded,
 			},
 			OrderStatusCompleted: {
 				OrderStatusRefunded,
