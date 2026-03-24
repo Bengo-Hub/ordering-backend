@@ -121,6 +121,11 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 		"total_amount":   data.TotalAmount,
 		"currency":       data.Currency,
 		"item_count":     data.ItemCount,
+		"notification": map[string]interface{}{
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.created", event)
@@ -145,6 +150,9 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 		"previous_status": data.PreviousStatus,
 		"new_status":      data.NewStatus,
 		"changed_at":      data.ChangedAt.Format(time.RFC3339),
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.status.changed", event)
@@ -169,6 +177,9 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 		"customer_id":      data.CustomerID.String(),
 		"delivery_address": data.DeliveryAddress,
 		"items":            data.Items,
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.ready", event)
@@ -193,6 +204,9 @@ func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUI
 		"reason":       data.Reason,
 		"cancelled_by": data.CancelledBy,
 		"cancelled_at": data.CancelledAt.Format(time.RFC3339),
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.cancelled", event)
@@ -217,6 +231,9 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 		"total_amount": data.TotalAmount,
 		"currency":     data.Currency,
 		"completed_at": data.CompletedAt.Format(time.RFC3339),
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.completed", event)
@@ -243,6 +260,9 @@ func (p *Publisher) PublishOrderRefunded(ctx context.Context, tenantID uuid.UUID
 		"currency":     data.Currency,
 		"reason":       data.Reason,
 		"refunded_at":  data.RefundedAt.Format(time.RFC3339),
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.refunded", event)
@@ -361,6 +381,9 @@ func (p *Publisher) PublishOrderScheduled(ctx context.Context, tenantID uuid.UUI
 		"scheduled_for": data.ScheduledFor.Format(time.RFC3339),
 		"total_amount":  data.TotalAmount,
 		"currency":      data.Currency,
+		"notification": map[string]interface{}{
+			"target": "customer",
+		},
 	})
 
 	return p.Publish(ctx, "ordering.order.scheduled", event)
@@ -420,6 +443,12 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 
 	if data.PickupTime != nil {
 		eventData["pickup_time"] = data.PickupTime.Format(time.RFC3339)
+	}
+
+	eventData["notification"] = map[string]interface{}{
+		"target":          "customer",
+		"recipient_name":  data.CustomerName,
+		"recipient_phone": data.CustomerPhone,
 	}
 
 	event := NewEvent("ordering.order.for_pickup", tenantID, eventData)
