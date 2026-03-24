@@ -86,7 +86,7 @@ func (*UserPreference) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the UserPreference fields.
-func (up *UserPreference) assignValues(columns []string, values []any) error {
+func (_m *UserPreference) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -97,64 +97,64 @@ func (up *UserPreference) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			up.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case userpreference.FieldTheme:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field theme", values[i])
 			} else if value.Valid {
-				up.Theme = value.String
+				_m.Theme = value.String
 			}
 		case userpreference.FieldLanguage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field language", values[i])
 			} else if value.Valid {
-				up.Language = value.String
+				_m.Language = value.String
 			}
 		case userpreference.FieldNotifyEmail:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field notify_email", values[i])
 			} else if value.Valid {
-				up.NotifyEmail = value.Bool
+				_m.NotifyEmail = value.Bool
 			}
 		case userpreference.FieldNotifySms:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field notify_sms", values[i])
 			} else if value.Valid {
-				up.NotifySms = value.Bool
+				_m.NotifySms = value.Bool
 			}
 		case userpreference.FieldNotifyPush:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field notify_push", values[i])
 			} else if value.Valid {
-				up.NotifyPush = value.Bool
+				_m.NotifyPush = value.Bool
 			}
 		case userpreference.FieldTimezone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field timezone", values[i])
 			} else if value.Valid {
-				up.Timezone = value.String
+				_m.Timezone = value.String
 			}
 		case userpreference.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				up.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case userpreference.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				up.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case userpreference.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_preferences", values[i])
 			} else if value.Valid {
-				up.user_preferences = new(uuid.UUID)
-				*up.user_preferences = *value.S.(*uuid.UUID)
+				_m.user_preferences = new(uuid.UUID)
+				*_m.user_preferences = *value.S.(*uuid.UUID)
 			}
 		default:
-			up.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -162,61 +162,61 @@ func (up *UserPreference) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the UserPreference.
 // This includes values selected through modifiers, order, etc.
-func (up *UserPreference) Value(name string) (ent.Value, error) {
-	return up.selectValues.Get(name)
+func (_m *UserPreference) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryUser queries the "user" edge of the UserPreference entity.
-func (up *UserPreference) QueryUser() *UserQuery {
-	return NewUserPreferenceClient(up.config).QueryUser(up)
+func (_m *UserPreference) QueryUser() *UserQuery {
+	return NewUserPreferenceClient(_m.config).QueryUser(_m)
 }
 
 // Update returns a builder for updating this UserPreference.
 // Note that you need to call UserPreference.Unwrap() before calling this method if this UserPreference
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (up *UserPreference) Update() *UserPreferenceUpdateOne {
-	return NewUserPreferenceClient(up.config).UpdateOne(up)
+func (_m *UserPreference) Update() *UserPreferenceUpdateOne {
+	return NewUserPreferenceClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the UserPreference entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (up *UserPreference) Unwrap() *UserPreference {
-	_tx, ok := up.config.driver.(*txDriver)
+func (_m *UserPreference) Unwrap() *UserPreference {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: UserPreference is not a transactional entity")
 	}
-	up.config.driver = _tx.drv
-	return up
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (up *UserPreference) String() string {
+func (_m *UserPreference) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserPreference(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", up.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("theme=")
-	builder.WriteString(up.Theme)
+	builder.WriteString(_m.Theme)
 	builder.WriteString(", ")
 	builder.WriteString("language=")
-	builder.WriteString(up.Language)
+	builder.WriteString(_m.Language)
 	builder.WriteString(", ")
 	builder.WriteString("notify_email=")
-	builder.WriteString(fmt.Sprintf("%v", up.NotifyEmail))
+	builder.WriteString(fmt.Sprintf("%v", _m.NotifyEmail))
 	builder.WriteString(", ")
 	builder.WriteString("notify_sms=")
-	builder.WriteString(fmt.Sprintf("%v", up.NotifySms))
+	builder.WriteString(fmt.Sprintf("%v", _m.NotifySms))
 	builder.WriteString(", ")
 	builder.WriteString("notify_push=")
-	builder.WriteString(fmt.Sprintf("%v", up.NotifyPush))
+	builder.WriteString(fmt.Sprintf("%v", _m.NotifyPush))
 	builder.WriteString(", ")
 	builder.WriteString("timezone=")
-	builder.WriteString(up.Timezone)
+	builder.WriteString(_m.Timezone)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(up.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(up.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

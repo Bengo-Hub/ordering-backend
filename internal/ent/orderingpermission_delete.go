@@ -20,56 +20,56 @@ type OrderingPermissionDelete struct {
 }
 
 // Where appends a list predicates to the OrderingPermissionDelete builder.
-func (opd *OrderingPermissionDelete) Where(ps ...predicate.OrderingPermission) *OrderingPermissionDelete {
-	opd.mutation.Where(ps...)
-	return opd
+func (_d *OrderingPermissionDelete) Where(ps ...predicate.OrderingPermission) *OrderingPermissionDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (opd *OrderingPermissionDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, opd.sqlExec, opd.mutation, opd.hooks)
+func (_d *OrderingPermissionDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opd *OrderingPermissionDelete) ExecX(ctx context.Context) int {
-	n, err := opd.Exec(ctx)
+func (_d *OrderingPermissionDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (opd *OrderingPermissionDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *OrderingPermissionDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(orderingpermission.Table, sqlgraph.NewFieldSpec(orderingpermission.FieldID, field.TypeUUID))
-	if ps := opd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, opd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	opd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // OrderingPermissionDeleteOne is the builder for deleting a single OrderingPermission entity.
 type OrderingPermissionDeleteOne struct {
-	opd *OrderingPermissionDelete
+	_d *OrderingPermissionDelete
 }
 
 // Where appends a list predicates to the OrderingPermissionDelete builder.
-func (opdo *OrderingPermissionDeleteOne) Where(ps ...predicate.OrderingPermission) *OrderingPermissionDeleteOne {
-	opdo.opd.mutation.Where(ps...)
-	return opdo
+func (_d *OrderingPermissionDeleteOne) Where(ps ...predicate.OrderingPermission) *OrderingPermissionDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (opdo *OrderingPermissionDeleteOne) Exec(ctx context.Context) error {
-	n, err := opdo.opd.Exec(ctx)
+func (_d *OrderingPermissionDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (opdo *OrderingPermissionDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opdo *OrderingPermissionDeleteOne) ExecX(ctx context.Context) {
-	if err := opdo.Exec(ctx); err != nil {
+func (_d *OrderingPermissionDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

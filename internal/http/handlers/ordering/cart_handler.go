@@ -59,11 +59,11 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 
 // AddItemRequest represents a request to add an item to cart.
 type AddItemRequest struct {
-	OutletID      string  `json:"outletId"`
-	CatalogItemID string  `json:"catalogItemId"`
-	VariantID     *string `json:"variantId,omitempty"`
-	Quantity      int     `json:"quantity"`
-	Notes         string  `json:"notes,omitempty"`
+	OutletID     string  `json:"outletId"`
+	InventorySKU string  `json:"inventorySku"`
+	VariantID    *string `json:"variantId,omitempty"`
+	Quantity     int     `json:"quantity"`
+	Notes        string  `json:"notes,omitempty"`
 }
 
 // UpdateItemRequest represents a request to update a cart item.
@@ -239,13 +239,12 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 
 	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
 		return
 	}
 
-	catalogItemID, err := uuid.Parse(req.CatalogItemID)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid catalog item ID")
+	if req.InventorySKU == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "inventorySku is required")
 		return
 	}
 
@@ -260,13 +259,13 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
-		TenantID:      tenantID,
-		OutletID:      outletID,
-		UserID:        &user.ID,
-		CatalogItemID: catalogItemID,
-		VariantID:     variantID,
-		Quantity:      req.Quantity,
-		Notes:         req.Notes,
+		TenantID:     tenantID,
+		OutletID:     outletID,
+		UserID:       &user.ID,
+		InventorySKU: req.InventorySKU,
+		VariantID:    variantID,
+		Quantity:     req.Quantity,
+		Notes:        req.Notes,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -630,13 +629,12 @@ func (h *CartHandler) AddGuestItem(w http.ResponseWriter, r *http.Request) {
 
 	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid cafe ID")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
 		return
 	}
 
-	catalogItemID, err := uuid.Parse(req.CatalogItemID)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid catalog item ID")
+	if req.InventorySKU == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "inventorySku is required")
 		return
 	}
 
@@ -651,14 +649,14 @@ func (h *CartHandler) AddGuestItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cart, err := h.cartService.AddItem(r.Context(), ordering.AddItemRequest{
-		TenantID:      tenantID,
-		OutletID:      outletID,
-		UserID:        nil,
-		SessionID:     sessionID,
-		CatalogItemID: catalogItemID,
-		VariantID:     variantID,
-		Quantity:      req.Quantity,
-		Notes:         req.Notes,
+		TenantID:     tenantID,
+		OutletID:     outletID,
+		UserID:       nil,
+		SessionID:    sessionID,
+		InventorySKU: req.InventorySKU,
+		VariantID:    variantID,
+		Quantity:     req.Quantity,
+		Notes:        req.Notes,
 	})
 	if err != nil {
 		h.handleError(w, err)

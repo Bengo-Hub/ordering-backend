@@ -20,56 +20,56 @@ type OrderingRoleDelete struct {
 }
 
 // Where appends a list predicates to the OrderingRoleDelete builder.
-func (ord *OrderingRoleDelete) Where(ps ...predicate.OrderingRole) *OrderingRoleDelete {
-	ord.mutation.Where(ps...)
-	return ord
+func (_d *OrderingRoleDelete) Where(ps ...predicate.OrderingRole) *OrderingRoleDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (ord *OrderingRoleDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, ord.sqlExec, ord.mutation, ord.hooks)
+func (_d *OrderingRoleDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ord *OrderingRoleDelete) ExecX(ctx context.Context) int {
-	n, err := ord.Exec(ctx)
+func (_d *OrderingRoleDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (ord *OrderingRoleDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *OrderingRoleDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(orderingrole.Table, sqlgraph.NewFieldSpec(orderingrole.FieldID, field.TypeUUID))
-	if ps := ord.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, ord.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	ord.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // OrderingRoleDeleteOne is the builder for deleting a single OrderingRole entity.
 type OrderingRoleDeleteOne struct {
-	ord *OrderingRoleDelete
+	_d *OrderingRoleDelete
 }
 
 // Where appends a list predicates to the OrderingRoleDelete builder.
-func (ordo *OrderingRoleDeleteOne) Where(ps ...predicate.OrderingRole) *OrderingRoleDeleteOne {
-	ordo.ord.mutation.Where(ps...)
-	return ordo
+func (_d *OrderingRoleDeleteOne) Where(ps ...predicate.OrderingRole) *OrderingRoleDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (ordo *OrderingRoleDeleteOne) Exec(ctx context.Context) error {
-	n, err := ordo.ord.Exec(ctx)
+func (_d *OrderingRoleDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (ordo *OrderingRoleDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ordo *OrderingRoleDeleteOne) ExecX(ctx context.Context) {
-	if err := ordo.Exec(ctx); err != nil {
+func (_d *OrderingRoleDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

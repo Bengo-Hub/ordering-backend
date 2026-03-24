@@ -78,7 +78,7 @@ func (*DeliveryZone) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DeliveryZone fields.
-func (dz *DeliveryZone) assignValues(columns []string, values []any) error {
+func (_m *DeliveryZone) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -88,38 +88,38 @@ func (dz *DeliveryZone) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dz.ID = *value
+				_m.ID = *value
 			}
 		case deliveryzone.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				dz.TenantID = *value
+				_m.TenantID = *value
 			}
 		case deliveryzone.FieldOutletID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value.Valid {
-				dz.OutletID = new(uuid.UUID)
-				*dz.OutletID = *value.S.(*uuid.UUID)
+				_m.OutletID = new(uuid.UUID)
+				*_m.OutletID = *value.S.(*uuid.UUID)
 			}
 		case deliveryzone.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				dz.Name = value.String
+				_m.Name = value.String
 			}
 		case deliveryzone.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field slug", values[i])
 			} else if value.Valid {
-				dz.Slug = value.String
+				_m.Slug = value.String
 			}
 		case deliveryzone.FieldZonePolygon:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field zone_polygon", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &dz.ZonePolygon); err != nil {
+				if err := json.Unmarshal(*value, &_m.ZonePolygon); err != nil {
 					return fmt.Errorf("unmarshal field zone_polygon: %w", err)
 				}
 			}
@@ -127,37 +127,37 @@ func (dz *DeliveryZone) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field delivery_fee", values[i])
 			} else if value.Valid {
-				dz.DeliveryFee = value.Float64
+				_m.DeliveryFee = value.Float64
 			}
 		case deliveryzone.FieldMinimumOrder:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field minimum_order", values[i])
 			} else if value.Valid {
-				dz.MinimumOrder = value.Float64
+				_m.MinimumOrder = value.Float64
 			}
 		case deliveryzone.FieldEstimatedTimeMinutes:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field estimated_time_minutes", values[i])
 			} else if value.Valid {
-				dz.EstimatedTimeMinutes = int(value.Int64)
+				_m.EstimatedTimeMinutes = int(value.Int64)
 			}
 		case deliveryzone.FieldIsActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_active", values[i])
 			} else if value.Valid {
-				dz.IsActive = value.Bool
+				_m.IsActive = value.Bool
 			}
 		case deliveryzone.FieldSortOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
 			} else if value.Valid {
-				dz.SortOrder = int(value.Int64)
+				_m.SortOrder = int(value.Int64)
 			}
 		case deliveryzone.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &dz.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -165,16 +165,16 @@ func (dz *DeliveryZone) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dz.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case deliveryzone.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dz.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			dz.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -182,73 +182,73 @@ func (dz *DeliveryZone) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DeliveryZone.
 // This includes values selected through modifiers, order, etc.
-func (dz *DeliveryZone) Value(name string) (ent.Value, error) {
-	return dz.selectValues.Get(name)
+func (_m *DeliveryZone) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this DeliveryZone.
 // Note that you need to call DeliveryZone.Unwrap() before calling this method if this DeliveryZone
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dz *DeliveryZone) Update() *DeliveryZoneUpdateOne {
-	return NewDeliveryZoneClient(dz.config).UpdateOne(dz)
+func (_m *DeliveryZone) Update() *DeliveryZoneUpdateOne {
+	return NewDeliveryZoneClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DeliveryZone entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dz *DeliveryZone) Unwrap() *DeliveryZone {
-	_tx, ok := dz.config.driver.(*txDriver)
+func (_m *DeliveryZone) Unwrap() *DeliveryZone {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DeliveryZone is not a transactional entity")
 	}
-	dz.config.driver = _tx.drv
-	return dz
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dz *DeliveryZone) String() string {
+func (_m *DeliveryZone) String() string {
 	var builder strings.Builder
 	builder.WriteString("DeliveryZone(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dz.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", dz.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
-	if v := dz.OutletID; v != nil {
+	if v := _m.OutletID; v != nil {
 		builder.WriteString("outlet_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(dz.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("slug=")
-	builder.WriteString(dz.Slug)
+	builder.WriteString(_m.Slug)
 	builder.WriteString(", ")
 	builder.WriteString("zone_polygon=")
-	builder.WriteString(fmt.Sprintf("%v", dz.ZonePolygon))
+	builder.WriteString(fmt.Sprintf("%v", _m.ZonePolygon))
 	builder.WriteString(", ")
 	builder.WriteString("delivery_fee=")
-	builder.WriteString(fmt.Sprintf("%v", dz.DeliveryFee))
+	builder.WriteString(fmt.Sprintf("%v", _m.DeliveryFee))
 	builder.WriteString(", ")
 	builder.WriteString("minimum_order=")
-	builder.WriteString(fmt.Sprintf("%v", dz.MinimumOrder))
+	builder.WriteString(fmt.Sprintf("%v", _m.MinimumOrder))
 	builder.WriteString(", ")
 	builder.WriteString("estimated_time_minutes=")
-	builder.WriteString(fmt.Sprintf("%v", dz.EstimatedTimeMinutes))
+	builder.WriteString(fmt.Sprintf("%v", _m.EstimatedTimeMinutes))
 	builder.WriteString(", ")
 	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", dz.IsActive))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsActive))
 	builder.WriteString(", ")
 	builder.WriteString("sort_order=")
-	builder.WriteString(fmt.Sprintf("%v", dz.SortOrder))
+	builder.WriteString(fmt.Sprintf("%v", _m.SortOrder))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", dz.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(dz.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dz.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

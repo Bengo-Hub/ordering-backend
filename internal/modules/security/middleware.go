@@ -119,7 +119,13 @@ func RequestSizeLimit(maxBytes int64) func(http.Handler) http.Handler {
 }
 
 // ContentTypeValidation returns middleware that validates Content-Type for POST/PUT/PATCH requests.
+// Paths listed in excludePaths are exempt from validation (e.g. file-upload endpoints that use multipart/form-data).
 func ContentTypeValidation(allowedTypes ...string) func(http.Handler) http.Handler {
+	return ContentTypeValidationWithExclusions(nil, allowedTypes...)
+}
+
+// ContentTypeValidationWithExclusions is like ContentTypeValidation but skips validation for the given path prefixes.
+func ContentTypeValidationWithExclusions(excludePaths []string, allowedTypes ...string) func(http.Handler) http.Handler {
 	allowed := make(map[string]bool)
 	for _, t := range allowedTypes {
 		allowed[strings.ToLower(t)] = true
@@ -132,6 +138,14 @@ func ContentTypeValidation(allowedTypes ...string) func(http.Handler) http.Handl
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Only check for methods that typically have a body
 			if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch {
+				// Skip validation for excluded paths (e.g. media upload)
+				for _, prefix := range excludePaths {
+					if strings.HasPrefix(r.URL.Path, prefix) {
+						next.ServeHTTP(w, r)
+						return
+					}
+				}
+
 				contentType := r.Header.Get("Content-Type")
 				if contentType == "" {
 					http.Error(w, `{"error":"missing content type","message":"Content-Type header is required"}`, http.StatusBadRequest)

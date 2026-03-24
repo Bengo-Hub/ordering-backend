@@ -74,7 +74,7 @@ func (*AuditLog) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the AuditLog fields.
-func (al *AuditLog) assignValues(columns []string, values []any) error {
+func (_m *AuditLog) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -84,73 +84,73 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				al.ID = *value
+				_m.ID = *value
 			}
 		case auditlog.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				al.TenantID = *value
+				_m.TenantID = *value
 			}
 		case auditlog.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				al.UserID = *value
+				_m.UserID = *value
 			}
 		case auditlog.FieldAction:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field action", values[i])
 			} else if value.Valid {
-				al.Action = value.String
+				_m.Action = value.String
 			}
 		case auditlog.FieldResourceType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field resource_type", values[i])
 			} else if value.Valid {
-				al.ResourceType = value.String
+				_m.ResourceType = value.String
 			}
 		case auditlog.FieldResourceID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field resource_id", values[i])
 			} else if value.Valid {
-				al.ResourceID = value.String
+				_m.ResourceID = value.String
 			}
 		case auditlog.FieldHTTPMethod:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field http_method", values[i])
 			} else if value.Valid {
-				al.HTTPMethod = value.String
+				_m.HTTPMethod = value.String
 			}
 		case auditlog.FieldPath:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field path", values[i])
 			} else if value.Valid {
-				al.Path = value.String
+				_m.Path = value.String
 			}
 		case auditlog.FieldStatusCode:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status_code", values[i])
 			} else if value.Valid {
-				al.StatusCode = int(value.Int64)
+				_m.StatusCode = int(value.Int64)
 			}
 		case auditlog.FieldIPAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ip_address", values[i])
 			} else if value.Valid {
-				al.IPAddress = value.String
+				_m.IPAddress = value.String
 			}
 		case auditlog.FieldUserAgent:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field user_agent", values[i])
 			} else if value.Valid {
-				al.UserAgent = value.String
+				_m.UserAgent = value.String
 			}
 		case auditlog.FieldRequestBody:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field request_body", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &al.RequestBody); err != nil {
+				if err := json.Unmarshal(*value, &_m.RequestBody); err != nil {
 					return fmt.Errorf("unmarshal field request_body: %w", err)
 				}
 			}
@@ -158,7 +158,7 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field context", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &al.Context); err != nil {
+				if err := json.Unmarshal(*value, &_m.Context); err != nil {
 					return fmt.Errorf("unmarshal field context: %w", err)
 				}
 			}
@@ -166,16 +166,16 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field duration_ms", values[i])
 			} else if value.Valid {
-				al.DurationMs = value.Int64
+				_m.DurationMs = value.Int64
 			}
 		case auditlog.FieldOccurredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field occurred_at", values[i])
 			} else if value.Valid {
-				al.OccurredAt = value.Time
+				_m.OccurredAt = value.Time
 			}
 		default:
-			al.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -183,74 +183,74 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the AuditLog.
 // This includes values selected through modifiers, order, etc.
-func (al *AuditLog) Value(name string) (ent.Value, error) {
-	return al.selectValues.Get(name)
+func (_m *AuditLog) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this AuditLog.
 // Note that you need to call AuditLog.Unwrap() before calling this method if this AuditLog
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (al *AuditLog) Update() *AuditLogUpdateOne {
-	return NewAuditLogClient(al.config).UpdateOne(al)
+func (_m *AuditLog) Update() *AuditLogUpdateOne {
+	return NewAuditLogClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the AuditLog entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (al *AuditLog) Unwrap() *AuditLog {
-	_tx, ok := al.config.driver.(*txDriver)
+func (_m *AuditLog) Unwrap() *AuditLog {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: AuditLog is not a transactional entity")
 	}
-	al.config.driver = _tx.drv
-	return al
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (al *AuditLog) String() string {
+func (_m *AuditLog) String() string {
 	var builder strings.Builder
 	builder.WriteString("AuditLog(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", al.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", al.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", al.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("action=")
-	builder.WriteString(al.Action)
+	builder.WriteString(_m.Action)
 	builder.WriteString(", ")
 	builder.WriteString("resource_type=")
-	builder.WriteString(al.ResourceType)
+	builder.WriteString(_m.ResourceType)
 	builder.WriteString(", ")
 	builder.WriteString("resource_id=")
-	builder.WriteString(al.ResourceID)
+	builder.WriteString(_m.ResourceID)
 	builder.WriteString(", ")
 	builder.WriteString("http_method=")
-	builder.WriteString(al.HTTPMethod)
+	builder.WriteString(_m.HTTPMethod)
 	builder.WriteString(", ")
 	builder.WriteString("path=")
-	builder.WriteString(al.Path)
+	builder.WriteString(_m.Path)
 	builder.WriteString(", ")
 	builder.WriteString("status_code=")
-	builder.WriteString(fmt.Sprintf("%v", al.StatusCode))
+	builder.WriteString(fmt.Sprintf("%v", _m.StatusCode))
 	builder.WriteString(", ")
 	builder.WriteString("ip_address=")
-	builder.WriteString(al.IPAddress)
+	builder.WriteString(_m.IPAddress)
 	builder.WriteString(", ")
 	builder.WriteString("user_agent=")
-	builder.WriteString(al.UserAgent)
+	builder.WriteString(_m.UserAgent)
 	builder.WriteString(", ")
 	builder.WriteString("request_body=")
-	builder.WriteString(fmt.Sprintf("%v", al.RequestBody))
+	builder.WriteString(fmt.Sprintf("%v", _m.RequestBody))
 	builder.WriteString(", ")
 	builder.WriteString("context=")
-	builder.WriteString(fmt.Sprintf("%v", al.Context))
+	builder.WriteString(fmt.Sprintf("%v", _m.Context))
 	builder.WriteString(", ")
 	builder.WriteString("duration_ms=")
-	builder.WriteString(fmt.Sprintf("%v", al.DurationMs))
+	builder.WriteString(fmt.Sprintf("%v", _m.DurationMs))
 	builder.WriteString(", ")
 	builder.WriteString("occurred_at=")
-	builder.WriteString(al.OccurredAt.Format(time.ANSIC))
+	builder.WriteString(_m.OccurredAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

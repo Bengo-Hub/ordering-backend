@@ -12,9 +12,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
-	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
 // EntRepository implements Repository using Ent ORM.
@@ -217,7 +215,7 @@ func (r *EntRepository) ExpireOldCarts(ctx context.Context, tenantID uuid.UUID) 
 func (r *EntRepository) CreateCartItem(ctx context.Context, item *CartItem) error {
 	builder := r.client.CartItem.Create().
 		SetCartID(item.CartID).
-		SetCatalogItemID(item.CatalogItemID).
+		SetInventorySku(item.InventorySKU).
 		SetNameSnapshot(item.NameSnapshot).
 		SetQuantity(item.Quantity).
 		SetUnitPrice(item.UnitPrice).
@@ -258,11 +256,11 @@ func (r *EntRepository) GetCartItem(ctx context.Context, cartID, itemID uuid.UUI
 	return entCartItemToDomain(item), nil
 }
 
-func (r *EntRepository) GetCartItemByCatalogItem(ctx context.Context, cartID, catalogItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error) {
+func (r *EntRepository) GetCartItemBySKU(ctx context.Context, cartID uuid.UUID, sku string, variantID *uuid.UUID) (*CartItem, error) {
 	query := r.client.CartItem.Query().
 		Where(
 			cartitem.CartID(cartID),
-			cartitem.CatalogItemID(catalogItemID),
+			cartitem.InventorySku(sku),
 		)
 
 	if variantID != nil {
@@ -600,16 +598,16 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 			Where(orderitem.OrderIDIn(orderIDs...)).
 			All(ctx)
 		if err == nil {
-			itemStats := make(map[uuid.UUID]*ItemSalesSummary)
+			itemStats := make(map[string]*ItemSalesSummary)
 			for _, it := range items {
-				if _, ok := itemStats[it.CatalogItemID]; !ok {
-					itemStats[it.CatalogItemID] = &ItemSalesSummary{
-						CatalogItemID: it.CatalogItemID,
-						NameSnapshot:  it.NameSnapshot,
+				if _, ok := itemStats[it.InventorySku]; !ok {
+					itemStats[it.InventorySku] = &ItemSalesSummary{
+						InventorySKU: it.InventorySku,
+						NameSnapshot: it.NameSnapshot,
 					}
 				}
-				itemStats[it.CatalogItemID].Quantity += it.Quantity
-				itemStats[it.CatalogItemID].Revenue += it.TotalPrice
+				itemStats[it.InventorySku].Quantity += it.Quantity
+				itemStats[it.InventorySku].Revenue += it.TotalPrice
 			}
 			for _, stats := range itemStats {
 				summary.TopSellingItems = append(summary.TopSellingItems, *stats)
@@ -651,7 +649,7 @@ func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, outle
 func (r *EntRepository) CreateOrderItem(ctx context.Context, item *OrderItem) error {
 	builder := r.client.OrderItem.Create().
 		SetOrderID(item.OrderID).
-		SetCatalogItemID(item.CatalogItemID).
+		SetInventorySku(item.InventorySKU).
 		SetNameSnapshot(item.NameSnapshot).
 		SetQuantity(item.Quantity).
 		SetUnitPrice(item.UnitPrice).
@@ -791,9 +789,9 @@ func entCartToDomain(c *ent.Cart) *Cart {
 
 func entCartItemToDomain(item *ent.CartItem) *CartItem {
 	ci := &CartItem{
-		ID:            item.ID,
-		CartID:        item.CartID,
-		CatalogItemID: item.CatalogItemID,
+		ID:           item.ID,
+		CartID:       item.CartID,
+		InventorySKU: item.InventorySku,
 		NameSnapshot: item.NameSnapshot,
 		Quantity:     item.Quantity,
 		UnitPrice:    item.UnitPrice,
@@ -884,7 +882,7 @@ func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	oi := &OrderItem{
 		ID:           item.ID,
 		OrderID:      item.OrderID,
-		CatalogItemID: item.CatalogItemID,
+		InventorySKU: item.InventorySku,
 		NameSnapshot: item.NameSnapshot,
 		Quantity:     item.Quantity,
 		UnitPrice:    item.UnitPrice,
@@ -932,48 +930,6 @@ func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenan
 		Slug: t.Slug,
 		Name: t.Name,
 	}, nil
-}
-
-func (r *EntRepository) GetCatalogItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.CatalogItem, error) {
-	ci, err := r.client.CatalogItem.Query().
-		Where(
-			catalogitem.ID(id),
-			catalogitem.TenantID(tenantID),
-		).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, catalog.ErrCatalogItemNotFound
-		}
-		return nil, err
-	}
-	return entCatalogItemToDomain(ci), nil
-}
-
-func entCatalogItemToDomain(ci *ent.CatalogItem) *catalog.CatalogItem {
-	leadTimeMinutes := 0
-	if ci.LeadTimeMinutes != nil {
-		leadTimeMinutes = *ci.LeadTimeMinutes
-	}
-	return &catalog.CatalogItem{
-		ID:              ci.ID,
-		TenantID:        ci.TenantID,
-		OutletID:        ci.OutletID,
-		InventoryItemID: ci.InventoryItemID,
-		CategoryID:      ci.CategoryID,
-		Name:            ci.Name,
-		Description:     ci.Description,
-		BasePrice:       ci.BasePrice,
-		Currency:        ci.Currency,
-		IsAvailable:     ci.IsAvailable,
-		IsFeatured:      ci.IsFeatured,
-		LeadTimeMinutes: leadTimeMinutes,
-		RecipeID:        ci.RecipeID,
-		SKU:             ci.Sku,
-		DisplayOrder:    ci.DisplayOrder,
-		CreatedAt:       ci.CreatedAt,
-		UpdatedAt:       ci.UpdatedAt,
-	}
 }
 
 // ListActiveDeliveryZones returns active delivery zones for a tenant (and optionally a specific outlet).

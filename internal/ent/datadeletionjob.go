@@ -78,7 +78,7 @@ func (*DataDeletionJob) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DataDeletionJob fields.
-func (ddj *DataDeletionJob) assignValues(columns []string, values []any) error {
+func (_m *DataDeletionJob) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -88,61 +88,61 @@ func (ddj *DataDeletionJob) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				ddj.ID = *value
+				_m.ID = *value
 			}
 		case datadeletionjob.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				ddj.TenantID = *value
+				_m.TenantID = *value
 			}
 		case datadeletionjob.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				ddj.UserID = *value
+				_m.UserID = *value
 			}
 		case datadeletionjob.FieldDeletionType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deletion_type", values[i])
 			} else if value.Valid {
-				ddj.DeletionType = datadeletionjob.DeletionType(value.String)
+				_m.DeletionType = datadeletionjob.DeletionType(value.String)
 			}
 		case datadeletionjob.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				ddj.Status = datadeletionjob.Status(value.String)
+				_m.Status = datadeletionjob.Status(value.String)
 			}
 		case datadeletionjob.FieldReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reason", values[i])
 			} else if value.Valid {
-				ddj.Reason = value.String
+				_m.Reason = value.String
 			}
 		case datadeletionjob.FieldConfirmed:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field confirmed", values[i])
 			} else if value.Valid {
-				ddj.Confirmed = value.Bool
+				_m.Confirmed = value.Bool
 			}
 		case datadeletionjob.FieldRetentionDays:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field retention_days", values[i])
 			} else if value.Valid {
-				ddj.RetentionDays = int(value.Int64)
+				_m.RetentionDays = int(value.Int64)
 			}
 		case datadeletionjob.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field error_message", values[i])
 			} else if value.Valid {
-				ddj.ErrorMessage = value.String
+				_m.ErrorMessage = value.String
 			}
 		case datadeletionjob.FieldDeletionSummary:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field deletion_summary", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ddj.DeletionSummary); err != nil {
+				if err := json.Unmarshal(*value, &_m.DeletionSummary); err != nil {
 					return fmt.Errorf("unmarshal field deletion_summary: %w", err)
 				}
 			}
@@ -150,43 +150,43 @@ func (ddj *DataDeletionJob) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field requested_at", values[i])
 			} else if value.Valid {
-				ddj.RequestedAt = value.Time
+				_m.RequestedAt = value.Time
 			}
 		case datadeletionjob.FieldScheduledFor:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field scheduled_for", values[i])
 			} else if value.Valid {
-				ddj.ScheduledFor = new(time.Time)
-				*ddj.ScheduledFor = value.Time
+				_m.ScheduledFor = new(time.Time)
+				*_m.ScheduledFor = value.Time
 			}
 		case datadeletionjob.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
-				ddj.StartedAt = new(time.Time)
-				*ddj.StartedAt = value.Time
+				_m.StartedAt = new(time.Time)
+				*_m.StartedAt = value.Time
 			}
 		case datadeletionjob.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				ddj.CompletedAt = new(time.Time)
-				*ddj.CompletedAt = value.Time
+				_m.CompletedAt = new(time.Time)
+				*_m.CompletedAt = value.Time
 			}
 		case datadeletionjob.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ddj.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case datadeletionjob.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ddj.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			ddj.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -194,83 +194,83 @@ func (ddj *DataDeletionJob) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DataDeletionJob.
 // This includes values selected through modifiers, order, etc.
-func (ddj *DataDeletionJob) Value(name string) (ent.Value, error) {
-	return ddj.selectValues.Get(name)
+func (_m *DataDeletionJob) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this DataDeletionJob.
 // Note that you need to call DataDeletionJob.Unwrap() before calling this method if this DataDeletionJob
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ddj *DataDeletionJob) Update() *DataDeletionJobUpdateOne {
-	return NewDataDeletionJobClient(ddj.config).UpdateOne(ddj)
+func (_m *DataDeletionJob) Update() *DataDeletionJobUpdateOne {
+	return NewDataDeletionJobClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DataDeletionJob entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ddj *DataDeletionJob) Unwrap() *DataDeletionJob {
-	_tx, ok := ddj.config.driver.(*txDriver)
+func (_m *DataDeletionJob) Unwrap() *DataDeletionJob {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DataDeletionJob is not a transactional entity")
 	}
-	ddj.config.driver = _tx.drv
-	return ddj
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ddj *DataDeletionJob) String() string {
+func (_m *DataDeletionJob) String() string {
 	var builder strings.Builder
 	builder.WriteString("DataDeletionJob(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ddj.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("deletion_type=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.DeletionType))
+	builder.WriteString(fmt.Sprintf("%v", _m.DeletionType))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("reason=")
-	builder.WriteString(ddj.Reason)
+	builder.WriteString(_m.Reason)
 	builder.WriteString(", ")
 	builder.WriteString("confirmed=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.Confirmed))
+	builder.WriteString(fmt.Sprintf("%v", _m.Confirmed))
 	builder.WriteString(", ")
 	builder.WriteString("retention_days=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.RetentionDays))
+	builder.WriteString(fmt.Sprintf("%v", _m.RetentionDays))
 	builder.WriteString(", ")
 	builder.WriteString("error_message=")
-	builder.WriteString(ddj.ErrorMessage)
+	builder.WriteString(_m.ErrorMessage)
 	builder.WriteString(", ")
 	builder.WriteString("deletion_summary=")
-	builder.WriteString(fmt.Sprintf("%v", ddj.DeletionSummary))
+	builder.WriteString(fmt.Sprintf("%v", _m.DeletionSummary))
 	builder.WriteString(", ")
 	builder.WriteString("requested_at=")
-	builder.WriteString(ddj.RequestedAt.Format(time.ANSIC))
+	builder.WriteString(_m.RequestedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := ddj.ScheduledFor; v != nil {
+	if v := _m.ScheduledFor; v != nil {
 		builder.WriteString("scheduled_for=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := ddj.StartedAt; v != nil {
+	if v := _m.StartedAt; v != nil {
 		builder.WriteString("started_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := ddj.CompletedAt; v != nil {
+	if v := _m.CompletedAt; v != nil {
 		builder.WriteString("completed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(ddj.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(ddj.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

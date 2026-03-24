@@ -20,56 +20,56 @@ type DataExportJobDelete struct {
 }
 
 // Where appends a list predicates to the DataExportJobDelete builder.
-func (dejd *DataExportJobDelete) Where(ps ...predicate.DataExportJob) *DataExportJobDelete {
-	dejd.mutation.Where(ps...)
-	return dejd
+func (_d *DataExportJobDelete) Where(ps ...predicate.DataExportJob) *DataExportJobDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dejd *DataExportJobDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dejd.sqlExec, dejd.mutation, dejd.hooks)
+func (_d *DataExportJobDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dejd *DataExportJobDelete) ExecX(ctx context.Context) int {
-	n, err := dejd.Exec(ctx)
+func (_d *DataExportJobDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dejd *DataExportJobDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DataExportJobDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(dataexportjob.Table, sqlgraph.NewFieldSpec(dataexportjob.FieldID, field.TypeUUID))
-	if ps := dejd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dejd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dejd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DataExportJobDeleteOne is the builder for deleting a single DataExportJob entity.
 type DataExportJobDeleteOne struct {
-	dejd *DataExportJobDelete
+	_d *DataExportJobDelete
 }
 
 // Where appends a list predicates to the DataExportJobDelete builder.
-func (dejdo *DataExportJobDeleteOne) Where(ps ...predicate.DataExportJob) *DataExportJobDeleteOne {
-	dejdo.dejd.mutation.Where(ps...)
-	return dejdo
+func (_d *DataExportJobDeleteOne) Where(ps ...predicate.DataExportJob) *DataExportJobDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dejdo *DataExportJobDeleteOne) Exec(ctx context.Context) error {
-	n, err := dejdo.dejd.Exec(ctx)
+func (_d *DataExportJobDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dejdo *DataExportJobDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dejdo *DataExportJobDeleteOne) ExecX(ctx context.Context) {
-	if err := dejdo.Exec(ctx); err != nil {
+func (_d *DataExportJobDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

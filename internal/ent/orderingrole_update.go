@@ -27,215 +27,215 @@ type OrderingRoleUpdate struct {
 }
 
 // Where appends a list predicates to the OrderingRoleUpdate builder.
-func (oru *OrderingRoleUpdate) Where(ps ...predicate.OrderingRole) *OrderingRoleUpdate {
-	oru.mutation.Where(ps...)
-	return oru
+func (_u *OrderingRoleUpdate) Where(ps ...predicate.OrderingRole) *OrderingRoleUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oru *OrderingRoleUpdate) SetTenantID(u uuid.UUID) *OrderingRoleUpdate {
-	oru.mutation.SetTenantID(u)
-	return oru
+func (_u *OrderingRoleUpdate) SetTenantID(v uuid.UUID) *OrderingRoleUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (oru *OrderingRoleUpdate) SetNillableTenantID(u *uuid.UUID) *OrderingRoleUpdate {
-	if u != nil {
-		oru.SetTenantID(*u)
+func (_u *OrderingRoleUpdate) SetNillableTenantID(v *uuid.UUID) *OrderingRoleUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return oru
+	return _u
 }
 
 // SetRoleCode sets the "role_code" field.
-func (oru *OrderingRoleUpdate) SetRoleCode(s string) *OrderingRoleUpdate {
-	oru.mutation.SetRoleCode(s)
-	return oru
+func (_u *OrderingRoleUpdate) SetRoleCode(v string) *OrderingRoleUpdate {
+	_u.mutation.SetRoleCode(v)
+	return _u
 }
 
 // SetNillableRoleCode sets the "role_code" field if the given value is not nil.
-func (oru *OrderingRoleUpdate) SetNillableRoleCode(s *string) *OrderingRoleUpdate {
-	if s != nil {
-		oru.SetRoleCode(*s)
+func (_u *OrderingRoleUpdate) SetNillableRoleCode(v *string) *OrderingRoleUpdate {
+	if v != nil {
+		_u.SetRoleCode(*v)
 	}
-	return oru
+	return _u
 }
 
 // SetName sets the "name" field.
-func (oru *OrderingRoleUpdate) SetName(s string) *OrderingRoleUpdate {
-	oru.mutation.SetName(s)
-	return oru
+func (_u *OrderingRoleUpdate) SetName(v string) *OrderingRoleUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (oru *OrderingRoleUpdate) SetNillableName(s *string) *OrderingRoleUpdate {
-	if s != nil {
-		oru.SetName(*s)
+func (_u *OrderingRoleUpdate) SetNillableName(v *string) *OrderingRoleUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return oru
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (oru *OrderingRoleUpdate) SetDescription(s string) *OrderingRoleUpdate {
-	oru.mutation.SetDescription(s)
-	return oru
+func (_u *OrderingRoleUpdate) SetDescription(v string) *OrderingRoleUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (oru *OrderingRoleUpdate) SetNillableDescription(s *string) *OrderingRoleUpdate {
-	if s != nil {
-		oru.SetDescription(*s)
+func (_u *OrderingRoleUpdate) SetNillableDescription(v *string) *OrderingRoleUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return oru
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (oru *OrderingRoleUpdate) ClearDescription() *OrderingRoleUpdate {
-	oru.mutation.ClearDescription()
-	return oru
+func (_u *OrderingRoleUpdate) ClearDescription() *OrderingRoleUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetIsSystemRole sets the "is_system_role" field.
-func (oru *OrderingRoleUpdate) SetIsSystemRole(b bool) *OrderingRoleUpdate {
-	oru.mutation.SetIsSystemRole(b)
-	return oru
+func (_u *OrderingRoleUpdate) SetIsSystemRole(v bool) *OrderingRoleUpdate {
+	_u.mutation.SetIsSystemRole(v)
+	return _u
 }
 
 // SetNillableIsSystemRole sets the "is_system_role" field if the given value is not nil.
-func (oru *OrderingRoleUpdate) SetNillableIsSystemRole(b *bool) *OrderingRoleUpdate {
-	if b != nil {
-		oru.SetIsSystemRole(*b)
+func (_u *OrderingRoleUpdate) SetNillableIsSystemRole(v *bool) *OrderingRoleUpdate {
+	if v != nil {
+		_u.SetIsSystemRole(*v)
 	}
-	return oru
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oru *OrderingRoleUpdate) SetUpdatedAt(t time.Time) *OrderingRoleUpdate {
-	oru.mutation.SetUpdatedAt(t)
-	return oru
+func (_u *OrderingRoleUpdate) SetUpdatedAt(v time.Time) *OrderingRoleUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddPermissionIDs adds the "permissions" edge to the OrderingPermission entity by IDs.
-func (oru *OrderingRoleUpdate) AddPermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
-	oru.mutation.AddPermissionIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) AddPermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
+	_u.mutation.AddPermissionIDs(ids...)
+	return _u
 }
 
 // AddPermissions adds the "permissions" edges to the OrderingPermission entity.
-func (oru *OrderingRoleUpdate) AddPermissions(o ...*OrderingPermission) *OrderingRoleUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingRoleUpdate) AddPermissions(v ...*OrderingPermission) *OrderingRoleUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.AddPermissionIDs(ids...)
+	return _u.AddPermissionIDs(ids...)
 }
 
 // AddUserAssignmentIDs adds the "user_assignments" edge to the UserRoleAssignment entity by IDs.
-func (oru *OrderingRoleUpdate) AddUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
-	oru.mutation.AddUserAssignmentIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) AddUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
+	_u.mutation.AddUserAssignmentIDs(ids...)
+	return _u
 }
 
 // AddUserAssignments adds the "user_assignments" edges to the UserRoleAssignment entity.
-func (oru *OrderingRoleUpdate) AddUserAssignments(u ...*UserRoleAssignment) *OrderingRoleUpdate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+func (_u *OrderingRoleUpdate) AddUserAssignments(v ...*UserRoleAssignment) *OrderingRoleUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.AddUserAssignmentIDs(ids...)
+	return _u.AddUserAssignmentIDs(ids...)
 }
 
 // AddRolePermissionIDs adds the "role_permissions" edge to the RolePermission entity by IDs.
-func (oru *OrderingRoleUpdate) AddRolePermissionIDs(ids ...int) *OrderingRoleUpdate {
-	oru.mutation.AddRolePermissionIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) AddRolePermissionIDs(ids ...int) *OrderingRoleUpdate {
+	_u.mutation.AddRolePermissionIDs(ids...)
+	return _u
 }
 
 // AddRolePermissions adds the "role_permissions" edges to the RolePermission entity.
-func (oru *OrderingRoleUpdate) AddRolePermissions(r ...*RolePermission) *OrderingRoleUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingRoleUpdate) AddRolePermissions(v ...*RolePermission) *OrderingRoleUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.AddRolePermissionIDs(ids...)
+	return _u.AddRolePermissionIDs(ids...)
 }
 
 // Mutation returns the OrderingRoleMutation object of the builder.
-func (oru *OrderingRoleUpdate) Mutation() *OrderingRoleMutation {
-	return oru.mutation
+func (_u *OrderingRoleUpdate) Mutation() *OrderingRoleMutation {
+	return _u.mutation
 }
 
 // ClearPermissions clears all "permissions" edges to the OrderingPermission entity.
-func (oru *OrderingRoleUpdate) ClearPermissions() *OrderingRoleUpdate {
-	oru.mutation.ClearPermissions()
-	return oru
+func (_u *OrderingRoleUpdate) ClearPermissions() *OrderingRoleUpdate {
+	_u.mutation.ClearPermissions()
+	return _u
 }
 
 // RemovePermissionIDs removes the "permissions" edge to OrderingPermission entities by IDs.
-func (oru *OrderingRoleUpdate) RemovePermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
-	oru.mutation.RemovePermissionIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) RemovePermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
+	_u.mutation.RemovePermissionIDs(ids...)
+	return _u
 }
 
 // RemovePermissions removes "permissions" edges to OrderingPermission entities.
-func (oru *OrderingRoleUpdate) RemovePermissions(o ...*OrderingPermission) *OrderingRoleUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingRoleUpdate) RemovePermissions(v ...*OrderingPermission) *OrderingRoleUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.RemovePermissionIDs(ids...)
+	return _u.RemovePermissionIDs(ids...)
 }
 
 // ClearUserAssignments clears all "user_assignments" edges to the UserRoleAssignment entity.
-func (oru *OrderingRoleUpdate) ClearUserAssignments() *OrderingRoleUpdate {
-	oru.mutation.ClearUserAssignments()
-	return oru
+func (_u *OrderingRoleUpdate) ClearUserAssignments() *OrderingRoleUpdate {
+	_u.mutation.ClearUserAssignments()
+	return _u
 }
 
 // RemoveUserAssignmentIDs removes the "user_assignments" edge to UserRoleAssignment entities by IDs.
-func (oru *OrderingRoleUpdate) RemoveUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
-	oru.mutation.RemoveUserAssignmentIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) RemoveUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdate {
+	_u.mutation.RemoveUserAssignmentIDs(ids...)
+	return _u
 }
 
 // RemoveUserAssignments removes "user_assignments" edges to UserRoleAssignment entities.
-func (oru *OrderingRoleUpdate) RemoveUserAssignments(u ...*UserRoleAssignment) *OrderingRoleUpdate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+func (_u *OrderingRoleUpdate) RemoveUserAssignments(v ...*UserRoleAssignment) *OrderingRoleUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.RemoveUserAssignmentIDs(ids...)
+	return _u.RemoveUserAssignmentIDs(ids...)
 }
 
 // ClearRolePermissions clears all "role_permissions" edges to the RolePermission entity.
-func (oru *OrderingRoleUpdate) ClearRolePermissions() *OrderingRoleUpdate {
-	oru.mutation.ClearRolePermissions()
-	return oru
+func (_u *OrderingRoleUpdate) ClearRolePermissions() *OrderingRoleUpdate {
+	_u.mutation.ClearRolePermissions()
+	return _u
 }
 
 // RemoveRolePermissionIDs removes the "role_permissions" edge to RolePermission entities by IDs.
-func (oru *OrderingRoleUpdate) RemoveRolePermissionIDs(ids ...int) *OrderingRoleUpdate {
-	oru.mutation.RemoveRolePermissionIDs(ids...)
-	return oru
+func (_u *OrderingRoleUpdate) RemoveRolePermissionIDs(ids ...int) *OrderingRoleUpdate {
+	_u.mutation.RemoveRolePermissionIDs(ids...)
+	return _u
 }
 
 // RemoveRolePermissions removes "role_permissions" edges to RolePermission entities.
-func (oru *OrderingRoleUpdate) RemoveRolePermissions(r ...*RolePermission) *OrderingRoleUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingRoleUpdate) RemoveRolePermissions(v ...*RolePermission) *OrderingRoleUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oru.RemoveRolePermissionIDs(ids...)
+	return _u.RemoveRolePermissionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (oru *OrderingRoleUpdate) Save(ctx context.Context) (int, error) {
-	oru.defaults()
-	return withHooks(ctx, oru.sqlSave, oru.mutation, oru.hooks)
+func (_u *OrderingRoleUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oru *OrderingRoleUpdate) SaveX(ctx context.Context) int {
-	affected, err := oru.Save(ctx)
+func (_u *OrderingRoleUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -243,34 +243,34 @@ func (oru *OrderingRoleUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (oru *OrderingRoleUpdate) Exec(ctx context.Context) error {
-	_, err := oru.Save(ctx)
+func (_u *OrderingRoleUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oru *OrderingRoleUpdate) ExecX(ctx context.Context) {
-	if err := oru.Exec(ctx); err != nil {
+func (_u *OrderingRoleUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oru *OrderingRoleUpdate) defaults() {
-	if _, ok := oru.mutation.UpdatedAt(); !ok {
+func (_u *OrderingRoleUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := orderingrole.UpdateDefaultUpdatedAt()
-		oru.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oru *OrderingRoleUpdate) check() error {
-	if v, ok := oru.mutation.RoleCode(); ok {
+func (_u *OrderingRoleUpdate) check() error {
+	if v, ok := _u.mutation.RoleCode(); ok {
 		if err := orderingrole.RoleCodeValidator(v); err != nil {
 			return &ValidationError{Name: "role_code", err: fmt.Errorf(`ent: validator failed for field "OrderingRole.role_code": %w`, err)}
 		}
 	}
-	if v, ok := oru.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := orderingrole.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OrderingRole.name": %w`, err)}
 		}
@@ -278,40 +278,40 @@ func (oru *OrderingRoleUpdate) check() error {
 	return nil
 }
 
-func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := oru.check(); err != nil {
-		return n, err
+func (_u *OrderingRoleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderingrole.Table, orderingrole.Columns, sqlgraph.NewFieldSpec(orderingrole.FieldID, field.TypeUUID))
-	if ps := oru.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oru.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderingrole.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := oru.mutation.RoleCode(); ok {
+	if value, ok := _u.mutation.RoleCode(); ok {
 		_spec.SetField(orderingrole.FieldRoleCode, field.TypeString, value)
 	}
-	if value, ok := oru.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(orderingrole.FieldName, field.TypeString, value)
 	}
-	if value, ok := oru.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(orderingrole.FieldDescription, field.TypeString, value)
 	}
-	if oru.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(orderingrole.FieldDescription, field.TypeString)
 	}
-	if value, ok := oru.mutation.IsSystemRole(); ok {
+	if value, ok := _u.mutation.IsSystemRole(); ok {
 		_spec.SetField(orderingrole.FieldIsSystemRole, field.TypeBool, value)
 	}
-	if value, ok := oru.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(orderingrole.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if oru.mutation.PermissionsCleared() {
+	if _u.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -324,7 +324,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !oru.mutation.PermissionsCleared() {
+	if nodes := _u.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !_u.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -340,7 +340,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.PermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -356,7 +356,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oru.mutation.UserAssignmentsCleared() {
+	if _u.mutation.UserAssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -369,7 +369,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.RemovedUserAssignmentsIDs(); len(nodes) > 0 && !oru.mutation.UserAssignmentsCleared() {
+	if nodes := _u.mutation.RemovedUserAssignmentsIDs(); len(nodes) > 0 && !_u.mutation.UserAssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -385,7 +385,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.UserAssignmentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserAssignmentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -401,7 +401,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oru.mutation.RolePermissionsCleared() {
+	if _u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -414,7 +414,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !oru.mutation.RolePermissionsCleared() {
+	if nodes := _u.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !_u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -430,7 +430,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oru.mutation.RolePermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolePermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -446,7 +446,7 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, oru.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderingrole.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -454,8 +454,8 @@ func (oru *OrderingRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	oru.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // OrderingRoleUpdateOne is the builder for updating a single OrderingRole entity.
@@ -467,222 +467,222 @@ type OrderingRoleUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oruo *OrderingRoleUpdateOne) SetTenantID(u uuid.UUID) *OrderingRoleUpdateOne {
-	oruo.mutation.SetTenantID(u)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetTenantID(v uuid.UUID) *OrderingRoleUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (oruo *OrderingRoleUpdateOne) SetNillableTenantID(u *uuid.UUID) *OrderingRoleUpdateOne {
-	if u != nil {
-		oruo.SetTenantID(*u)
+func (_u *OrderingRoleUpdateOne) SetNillableTenantID(v *uuid.UUID) *OrderingRoleUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return oruo
+	return _u
 }
 
 // SetRoleCode sets the "role_code" field.
-func (oruo *OrderingRoleUpdateOne) SetRoleCode(s string) *OrderingRoleUpdateOne {
-	oruo.mutation.SetRoleCode(s)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetRoleCode(v string) *OrderingRoleUpdateOne {
+	_u.mutation.SetRoleCode(v)
+	return _u
 }
 
 // SetNillableRoleCode sets the "role_code" field if the given value is not nil.
-func (oruo *OrderingRoleUpdateOne) SetNillableRoleCode(s *string) *OrderingRoleUpdateOne {
-	if s != nil {
-		oruo.SetRoleCode(*s)
+func (_u *OrderingRoleUpdateOne) SetNillableRoleCode(v *string) *OrderingRoleUpdateOne {
+	if v != nil {
+		_u.SetRoleCode(*v)
 	}
-	return oruo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (oruo *OrderingRoleUpdateOne) SetName(s string) *OrderingRoleUpdateOne {
-	oruo.mutation.SetName(s)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetName(v string) *OrderingRoleUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (oruo *OrderingRoleUpdateOne) SetNillableName(s *string) *OrderingRoleUpdateOne {
-	if s != nil {
-		oruo.SetName(*s)
+func (_u *OrderingRoleUpdateOne) SetNillableName(v *string) *OrderingRoleUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return oruo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (oruo *OrderingRoleUpdateOne) SetDescription(s string) *OrderingRoleUpdateOne {
-	oruo.mutation.SetDescription(s)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetDescription(v string) *OrderingRoleUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (oruo *OrderingRoleUpdateOne) SetNillableDescription(s *string) *OrderingRoleUpdateOne {
-	if s != nil {
-		oruo.SetDescription(*s)
+func (_u *OrderingRoleUpdateOne) SetNillableDescription(v *string) *OrderingRoleUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return oruo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (oruo *OrderingRoleUpdateOne) ClearDescription() *OrderingRoleUpdateOne {
-	oruo.mutation.ClearDescription()
-	return oruo
+func (_u *OrderingRoleUpdateOne) ClearDescription() *OrderingRoleUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetIsSystemRole sets the "is_system_role" field.
-func (oruo *OrderingRoleUpdateOne) SetIsSystemRole(b bool) *OrderingRoleUpdateOne {
-	oruo.mutation.SetIsSystemRole(b)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetIsSystemRole(v bool) *OrderingRoleUpdateOne {
+	_u.mutation.SetIsSystemRole(v)
+	return _u
 }
 
 // SetNillableIsSystemRole sets the "is_system_role" field if the given value is not nil.
-func (oruo *OrderingRoleUpdateOne) SetNillableIsSystemRole(b *bool) *OrderingRoleUpdateOne {
-	if b != nil {
-		oruo.SetIsSystemRole(*b)
+func (_u *OrderingRoleUpdateOne) SetNillableIsSystemRole(v *bool) *OrderingRoleUpdateOne {
+	if v != nil {
+		_u.SetIsSystemRole(*v)
 	}
-	return oruo
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oruo *OrderingRoleUpdateOne) SetUpdatedAt(t time.Time) *OrderingRoleUpdateOne {
-	oruo.mutation.SetUpdatedAt(t)
-	return oruo
+func (_u *OrderingRoleUpdateOne) SetUpdatedAt(v time.Time) *OrderingRoleUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddPermissionIDs adds the "permissions" edge to the OrderingPermission entity by IDs.
-func (oruo *OrderingRoleUpdateOne) AddPermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
-	oruo.mutation.AddPermissionIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) AddPermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
+	_u.mutation.AddPermissionIDs(ids...)
+	return _u
 }
 
 // AddPermissions adds the "permissions" edges to the OrderingPermission entity.
-func (oruo *OrderingRoleUpdateOne) AddPermissions(o ...*OrderingPermission) *OrderingRoleUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingRoleUpdateOne) AddPermissions(v ...*OrderingPermission) *OrderingRoleUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.AddPermissionIDs(ids...)
+	return _u.AddPermissionIDs(ids...)
 }
 
 // AddUserAssignmentIDs adds the "user_assignments" edge to the UserRoleAssignment entity by IDs.
-func (oruo *OrderingRoleUpdateOne) AddUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
-	oruo.mutation.AddUserAssignmentIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) AddUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
+	_u.mutation.AddUserAssignmentIDs(ids...)
+	return _u
 }
 
 // AddUserAssignments adds the "user_assignments" edges to the UserRoleAssignment entity.
-func (oruo *OrderingRoleUpdateOne) AddUserAssignments(u ...*UserRoleAssignment) *OrderingRoleUpdateOne {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+func (_u *OrderingRoleUpdateOne) AddUserAssignments(v ...*UserRoleAssignment) *OrderingRoleUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.AddUserAssignmentIDs(ids...)
+	return _u.AddUserAssignmentIDs(ids...)
 }
 
 // AddRolePermissionIDs adds the "role_permissions" edge to the RolePermission entity by IDs.
-func (oruo *OrderingRoleUpdateOne) AddRolePermissionIDs(ids ...int) *OrderingRoleUpdateOne {
-	oruo.mutation.AddRolePermissionIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) AddRolePermissionIDs(ids ...int) *OrderingRoleUpdateOne {
+	_u.mutation.AddRolePermissionIDs(ids...)
+	return _u
 }
 
 // AddRolePermissions adds the "role_permissions" edges to the RolePermission entity.
-func (oruo *OrderingRoleUpdateOne) AddRolePermissions(r ...*RolePermission) *OrderingRoleUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingRoleUpdateOne) AddRolePermissions(v ...*RolePermission) *OrderingRoleUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.AddRolePermissionIDs(ids...)
+	return _u.AddRolePermissionIDs(ids...)
 }
 
 // Mutation returns the OrderingRoleMutation object of the builder.
-func (oruo *OrderingRoleUpdateOne) Mutation() *OrderingRoleMutation {
-	return oruo.mutation
+func (_u *OrderingRoleUpdateOne) Mutation() *OrderingRoleMutation {
+	return _u.mutation
 }
 
 // ClearPermissions clears all "permissions" edges to the OrderingPermission entity.
-func (oruo *OrderingRoleUpdateOne) ClearPermissions() *OrderingRoleUpdateOne {
-	oruo.mutation.ClearPermissions()
-	return oruo
+func (_u *OrderingRoleUpdateOne) ClearPermissions() *OrderingRoleUpdateOne {
+	_u.mutation.ClearPermissions()
+	return _u
 }
 
 // RemovePermissionIDs removes the "permissions" edge to OrderingPermission entities by IDs.
-func (oruo *OrderingRoleUpdateOne) RemovePermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
-	oruo.mutation.RemovePermissionIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) RemovePermissionIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
+	_u.mutation.RemovePermissionIDs(ids...)
+	return _u
 }
 
 // RemovePermissions removes "permissions" edges to OrderingPermission entities.
-func (oruo *OrderingRoleUpdateOne) RemovePermissions(o ...*OrderingPermission) *OrderingRoleUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingRoleUpdateOne) RemovePermissions(v ...*OrderingPermission) *OrderingRoleUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.RemovePermissionIDs(ids...)
+	return _u.RemovePermissionIDs(ids...)
 }
 
 // ClearUserAssignments clears all "user_assignments" edges to the UserRoleAssignment entity.
-func (oruo *OrderingRoleUpdateOne) ClearUserAssignments() *OrderingRoleUpdateOne {
-	oruo.mutation.ClearUserAssignments()
-	return oruo
+func (_u *OrderingRoleUpdateOne) ClearUserAssignments() *OrderingRoleUpdateOne {
+	_u.mutation.ClearUserAssignments()
+	return _u
 }
 
 // RemoveUserAssignmentIDs removes the "user_assignments" edge to UserRoleAssignment entities by IDs.
-func (oruo *OrderingRoleUpdateOne) RemoveUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
-	oruo.mutation.RemoveUserAssignmentIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) RemoveUserAssignmentIDs(ids ...uuid.UUID) *OrderingRoleUpdateOne {
+	_u.mutation.RemoveUserAssignmentIDs(ids...)
+	return _u
 }
 
 // RemoveUserAssignments removes "user_assignments" edges to UserRoleAssignment entities.
-func (oruo *OrderingRoleUpdateOne) RemoveUserAssignments(u ...*UserRoleAssignment) *OrderingRoleUpdateOne {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+func (_u *OrderingRoleUpdateOne) RemoveUserAssignments(v ...*UserRoleAssignment) *OrderingRoleUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.RemoveUserAssignmentIDs(ids...)
+	return _u.RemoveUserAssignmentIDs(ids...)
 }
 
 // ClearRolePermissions clears all "role_permissions" edges to the RolePermission entity.
-func (oruo *OrderingRoleUpdateOne) ClearRolePermissions() *OrderingRoleUpdateOne {
-	oruo.mutation.ClearRolePermissions()
-	return oruo
+func (_u *OrderingRoleUpdateOne) ClearRolePermissions() *OrderingRoleUpdateOne {
+	_u.mutation.ClearRolePermissions()
+	return _u
 }
 
 // RemoveRolePermissionIDs removes the "role_permissions" edge to RolePermission entities by IDs.
-func (oruo *OrderingRoleUpdateOne) RemoveRolePermissionIDs(ids ...int) *OrderingRoleUpdateOne {
-	oruo.mutation.RemoveRolePermissionIDs(ids...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) RemoveRolePermissionIDs(ids ...int) *OrderingRoleUpdateOne {
+	_u.mutation.RemoveRolePermissionIDs(ids...)
+	return _u
 }
 
 // RemoveRolePermissions removes "role_permissions" edges to RolePermission entities.
-func (oruo *OrderingRoleUpdateOne) RemoveRolePermissions(r ...*RolePermission) *OrderingRoleUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingRoleUpdateOne) RemoveRolePermissions(v ...*RolePermission) *OrderingRoleUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oruo.RemoveRolePermissionIDs(ids...)
+	return _u.RemoveRolePermissionIDs(ids...)
 }
 
 // Where appends a list predicates to the OrderingRoleUpdate builder.
-func (oruo *OrderingRoleUpdateOne) Where(ps ...predicate.OrderingRole) *OrderingRoleUpdateOne {
-	oruo.mutation.Where(ps...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) Where(ps ...predicate.OrderingRole) *OrderingRoleUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (oruo *OrderingRoleUpdateOne) Select(field string, fields ...string) *OrderingRoleUpdateOne {
-	oruo.fields = append([]string{field}, fields...)
-	return oruo
+func (_u *OrderingRoleUpdateOne) Select(field string, fields ...string) *OrderingRoleUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated OrderingRole entity.
-func (oruo *OrderingRoleUpdateOne) Save(ctx context.Context) (*OrderingRole, error) {
-	oruo.defaults()
-	return withHooks(ctx, oruo.sqlSave, oruo.mutation, oruo.hooks)
+func (_u *OrderingRoleUpdateOne) Save(ctx context.Context) (*OrderingRole, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (oruo *OrderingRoleUpdateOne) SaveX(ctx context.Context) *OrderingRole {
-	node, err := oruo.Save(ctx)
+func (_u *OrderingRoleUpdateOne) SaveX(ctx context.Context) *OrderingRole {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -690,34 +690,34 @@ func (oruo *OrderingRoleUpdateOne) SaveX(ctx context.Context) *OrderingRole {
 }
 
 // Exec executes the query on the entity.
-func (oruo *OrderingRoleUpdateOne) Exec(ctx context.Context) error {
-	_, err := oruo.Save(ctx)
+func (_u *OrderingRoleUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oruo *OrderingRoleUpdateOne) ExecX(ctx context.Context) {
-	if err := oruo.Exec(ctx); err != nil {
+func (_u *OrderingRoleUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oruo *OrderingRoleUpdateOne) defaults() {
-	if _, ok := oruo.mutation.UpdatedAt(); !ok {
+func (_u *OrderingRoleUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := orderingrole.UpdateDefaultUpdatedAt()
-		oruo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oruo *OrderingRoleUpdateOne) check() error {
-	if v, ok := oruo.mutation.RoleCode(); ok {
+func (_u *OrderingRoleUpdateOne) check() error {
+	if v, ok := _u.mutation.RoleCode(); ok {
 		if err := orderingrole.RoleCodeValidator(v); err != nil {
 			return &ValidationError{Name: "role_code", err: fmt.Errorf(`ent: validator failed for field "OrderingRole.role_code": %w`, err)}
 		}
 	}
-	if v, ok := oruo.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := orderingrole.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OrderingRole.name": %w`, err)}
 		}
@@ -725,17 +725,17 @@ func (oruo *OrderingRoleUpdateOne) check() error {
 	return nil
 }
 
-func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *OrderingRole, err error) {
-	if err := oruo.check(); err != nil {
+func (_u *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *OrderingRole, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderingrole.Table, orderingrole.Columns, sqlgraph.NewFieldSpec(orderingrole.FieldID, field.TypeUUID))
-	id, ok := oruo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "OrderingRole.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := oruo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderingrole.FieldID)
 		for _, f := range fields {
@@ -747,35 +747,35 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 			}
 		}
 	}
-	if ps := oruo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := oruo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderingrole.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := oruo.mutation.RoleCode(); ok {
+	if value, ok := _u.mutation.RoleCode(); ok {
 		_spec.SetField(orderingrole.FieldRoleCode, field.TypeString, value)
 	}
-	if value, ok := oruo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(orderingrole.FieldName, field.TypeString, value)
 	}
-	if value, ok := oruo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(orderingrole.FieldDescription, field.TypeString, value)
 	}
-	if oruo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(orderingrole.FieldDescription, field.TypeString)
 	}
-	if value, ok := oruo.mutation.IsSystemRole(); ok {
+	if value, ok := _u.mutation.IsSystemRole(); ok {
 		_spec.SetField(orderingrole.FieldIsSystemRole, field.TypeBool, value)
 	}
-	if value, ok := oruo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(orderingrole.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if oruo.mutation.PermissionsCleared() {
+	if _u.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -788,7 +788,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !oruo.mutation.PermissionsCleared() {
+	if nodes := _u.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !_u.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -804,7 +804,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.PermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -820,7 +820,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oruo.mutation.UserAssignmentsCleared() {
+	if _u.mutation.UserAssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -833,7 +833,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.RemovedUserAssignmentsIDs(); len(nodes) > 0 && !oruo.mutation.UserAssignmentsCleared() {
+	if nodes := _u.mutation.RemovedUserAssignmentsIDs(); len(nodes) > 0 && !_u.mutation.UserAssignmentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -849,7 +849,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.UserAssignmentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserAssignmentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -865,7 +865,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if oruo.mutation.RolePermissionsCleared() {
+	if _u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -878,7 +878,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !oruo.mutation.RolePermissionsCleared() {
+	if nodes := _u.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !_u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -894,7 +894,7 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oruo.mutation.RolePermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolePermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -910,10 +910,10 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &OrderingRole{config: oruo.config}
+	_node = &OrderingRole{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, oruo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderingrole.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -921,6 +921,6 @@ func (oruo *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *Ordering
 		}
 		return nil, err
 	}
-	oruo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -45,52 +45,16 @@ func (f CartItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CartItemMutation", m)
 }
 
-// The CatalogCategoryFunc type is an adapter to allow the use of ordinary
-// function as CatalogCategory mutator.
-type CatalogCategoryFunc func(context.Context, *ent.CatalogCategoryMutation) (ent.Value, error)
+// The CatalogOverrideFunc type is an adapter to allow the use of ordinary
+// function as CatalogOverride mutator.
+type CatalogOverrideFunc func(context.Context, *ent.CatalogOverrideMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f CatalogCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CatalogCategoryMutation); ok {
+func (f CatalogOverrideFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CatalogOverrideMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CatalogCategoryMutation", m)
-}
-
-// The CatalogItemFunc type is an adapter to allow the use of ordinary
-// function as CatalogItem mutator.
-type CatalogItemFunc func(context.Context, *ent.CatalogItemMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CatalogItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CatalogItemMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CatalogItemMutation", m)
-}
-
-// The CatalogItemAssetFunc type is an adapter to allow the use of ordinary
-// function as CatalogItemAsset mutator.
-type CatalogItemAssetFunc func(context.Context, *ent.CatalogItemAssetMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CatalogItemAssetFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CatalogItemAssetMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CatalogItemAssetMutation", m)
-}
-
-// The CatalogItemScheduleFunc type is an adapter to allow the use of ordinary
-// function as CatalogItemSchedule mutator.
-type CatalogItemScheduleFunc func(context.Context, *ent.CatalogItemScheduleMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CatalogItemScheduleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CatalogItemScheduleMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CatalogItemScheduleMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CatalogOverrideMutation", m)
 }
 
 // The CustomerAddressFunc type is an adapter to allow the use of ordinary
@@ -163,18 +127,6 @@ func (f DeliveryZoneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryZoneMutation", m)
-}
-
-// The DietaryTagFunc type is an adapter to allow the use of ordinary
-// function as DietaryTag mutator.
-type DietaryTagFunc func(context.Context, *ent.DietaryTagMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f DietaryTagFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.DietaryTagMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DietaryTagMutation", m)
 }
 
 // The LoyaltyAccountFunc type is an adapter to allow the use of ordinary
@@ -439,6 +391,18 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+}
+
+// The UserFavoriteFunc type is an adapter to allow the use of ordinary
+// function as UserFavorite mutator.
+type UserFavoriteFunc func(context.Context, *ent.UserFavoriteMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserFavoriteFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserFavoriteMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserFavoriteMutation", m)
 }
 
 // The UserPreferenceFunc type is an adapter to allow the use of ordinary

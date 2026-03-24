@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/google/uuid"
 )
@@ -27,248 +26,237 @@ type CartItemUpdate struct {
 }
 
 // Where appends a list predicates to the CartItemUpdate builder.
-func (ciu *CartItemUpdate) Where(ps ...predicate.CartItem) *CartItemUpdate {
-	ciu.mutation.Where(ps...)
-	return ciu
+func (_u *CartItemUpdate) Where(ps ...predicate.CartItem) *CartItemUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetCartID sets the "cart_id" field.
-func (ciu *CartItemUpdate) SetCartID(u uuid.UUID) *CartItemUpdate {
-	ciu.mutation.SetCartID(u)
-	return ciu
+func (_u *CartItemUpdate) SetCartID(v uuid.UUID) *CartItemUpdate {
+	_u.mutation.SetCartID(v)
+	return _u
 }
 
 // SetNillableCartID sets the "cart_id" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableCartID(u *uuid.UUID) *CartItemUpdate {
-	if u != nil {
-		ciu.SetCartID(*u)
+func (_u *CartItemUpdate) SetNillableCartID(v *uuid.UUID) *CartItemUpdate {
+	if v != nil {
+		_u.SetCartID(*v)
 	}
-	return ciu
+	return _u
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (ciu *CartItemUpdate) SetCatalogItemID(u uuid.UUID) *CartItemUpdate {
-	ciu.mutation.SetCatalogItemID(u)
-	return ciu
+// SetInventorySku sets the "inventory_sku" field.
+func (_u *CartItemUpdate) SetInventorySku(v string) *CartItemUpdate {
+	_u.mutation.SetInventorySku(v)
+	return _u
 }
 
-// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableCatalogItemID(u *uuid.UUID) *CartItemUpdate {
-	if u != nil {
-		ciu.SetCatalogItemID(*u)
+// SetNillableInventorySku sets the "inventory_sku" field if the given value is not nil.
+func (_u *CartItemUpdate) SetNillableInventorySku(v *string) *CartItemUpdate {
+	if v != nil {
+		_u.SetInventorySku(*v)
 	}
-	return ciu
+	return _u
 }
 
 // SetVariantID sets the "variant_id" field.
-func (ciu *CartItemUpdate) SetVariantID(u uuid.UUID) *CartItemUpdate {
-	ciu.mutation.SetVariantID(u)
-	return ciu
+func (_u *CartItemUpdate) SetVariantID(v uuid.UUID) *CartItemUpdate {
+	_u.mutation.SetVariantID(v)
+	return _u
 }
 
 // SetNillableVariantID sets the "variant_id" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableVariantID(u *uuid.UUID) *CartItemUpdate {
-	if u != nil {
-		ciu.SetVariantID(*u)
+func (_u *CartItemUpdate) SetNillableVariantID(v *uuid.UUID) *CartItemUpdate {
+	if v != nil {
+		_u.SetVariantID(*v)
 	}
-	return ciu
+	return _u
 }
 
 // ClearVariantID clears the value of the "variant_id" field.
-func (ciu *CartItemUpdate) ClearVariantID() *CartItemUpdate {
-	ciu.mutation.ClearVariantID()
-	return ciu
+func (_u *CartItemUpdate) ClearVariantID() *CartItemUpdate {
+	_u.mutation.ClearVariantID()
+	return _u
 }
 
 // SetNameSnapshot sets the "name_snapshot" field.
-func (ciu *CartItemUpdate) SetNameSnapshot(s string) *CartItemUpdate {
-	ciu.mutation.SetNameSnapshot(s)
-	return ciu
+func (_u *CartItemUpdate) SetNameSnapshot(v string) *CartItemUpdate {
+	_u.mutation.SetNameSnapshot(v)
+	return _u
 }
 
 // SetNillableNameSnapshot sets the "name_snapshot" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableNameSnapshot(s *string) *CartItemUpdate {
-	if s != nil {
-		ciu.SetNameSnapshot(*s)
+func (_u *CartItemUpdate) SetNillableNameSnapshot(v *string) *CartItemUpdate {
+	if v != nil {
+		_u.SetNameSnapshot(*v)
 	}
-	return ciu
+	return _u
 }
 
 // SetVariantNameSnapshot sets the "variant_name_snapshot" field.
-func (ciu *CartItemUpdate) SetVariantNameSnapshot(s string) *CartItemUpdate {
-	ciu.mutation.SetVariantNameSnapshot(s)
-	return ciu
+func (_u *CartItemUpdate) SetVariantNameSnapshot(v string) *CartItemUpdate {
+	_u.mutation.SetVariantNameSnapshot(v)
+	return _u
 }
 
 // SetNillableVariantNameSnapshot sets the "variant_name_snapshot" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableVariantNameSnapshot(s *string) *CartItemUpdate {
-	if s != nil {
-		ciu.SetVariantNameSnapshot(*s)
+func (_u *CartItemUpdate) SetNillableVariantNameSnapshot(v *string) *CartItemUpdate {
+	if v != nil {
+		_u.SetVariantNameSnapshot(*v)
 	}
-	return ciu
+	return _u
 }
 
 // ClearVariantNameSnapshot clears the value of the "variant_name_snapshot" field.
-func (ciu *CartItemUpdate) ClearVariantNameSnapshot() *CartItemUpdate {
-	ciu.mutation.ClearVariantNameSnapshot()
-	return ciu
+func (_u *CartItemUpdate) ClearVariantNameSnapshot() *CartItemUpdate {
+	_u.mutation.ClearVariantNameSnapshot()
+	return _u
 }
 
 // SetQuantity sets the "quantity" field.
-func (ciu *CartItemUpdate) SetQuantity(i int) *CartItemUpdate {
-	ciu.mutation.ResetQuantity()
-	ciu.mutation.SetQuantity(i)
-	return ciu
+func (_u *CartItemUpdate) SetQuantity(v int) *CartItemUpdate {
+	_u.mutation.ResetQuantity()
+	_u.mutation.SetQuantity(v)
+	return _u
 }
 
 // SetNillableQuantity sets the "quantity" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableQuantity(i *int) *CartItemUpdate {
-	if i != nil {
-		ciu.SetQuantity(*i)
+func (_u *CartItemUpdate) SetNillableQuantity(v *int) *CartItemUpdate {
+	if v != nil {
+		_u.SetQuantity(*v)
 	}
-	return ciu
+	return _u
 }
 
-// AddQuantity adds i to the "quantity" field.
-func (ciu *CartItemUpdate) AddQuantity(i int) *CartItemUpdate {
-	ciu.mutation.AddQuantity(i)
-	return ciu
+// AddQuantity adds value to the "quantity" field.
+func (_u *CartItemUpdate) AddQuantity(v int) *CartItemUpdate {
+	_u.mutation.AddQuantity(v)
+	return _u
 }
 
 // SetUnitPrice sets the "unit_price" field.
-func (ciu *CartItemUpdate) SetUnitPrice(f float64) *CartItemUpdate {
-	ciu.mutation.ResetUnitPrice()
-	ciu.mutation.SetUnitPrice(f)
-	return ciu
+func (_u *CartItemUpdate) SetUnitPrice(v float64) *CartItemUpdate {
+	_u.mutation.ResetUnitPrice()
+	_u.mutation.SetUnitPrice(v)
+	return _u
 }
 
 // SetNillableUnitPrice sets the "unit_price" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableUnitPrice(f *float64) *CartItemUpdate {
-	if f != nil {
-		ciu.SetUnitPrice(*f)
+func (_u *CartItemUpdate) SetNillableUnitPrice(v *float64) *CartItemUpdate {
+	if v != nil {
+		_u.SetUnitPrice(*v)
 	}
-	return ciu
+	return _u
 }
 
-// AddUnitPrice adds f to the "unit_price" field.
-func (ciu *CartItemUpdate) AddUnitPrice(f float64) *CartItemUpdate {
-	ciu.mutation.AddUnitPrice(f)
-	return ciu
+// AddUnitPrice adds value to the "unit_price" field.
+func (_u *CartItemUpdate) AddUnitPrice(v float64) *CartItemUpdate {
+	_u.mutation.AddUnitPrice(v)
+	return _u
 }
 
 // SetTotalPrice sets the "total_price" field.
-func (ciu *CartItemUpdate) SetTotalPrice(f float64) *CartItemUpdate {
-	ciu.mutation.ResetTotalPrice()
-	ciu.mutation.SetTotalPrice(f)
-	return ciu
+func (_u *CartItemUpdate) SetTotalPrice(v float64) *CartItemUpdate {
+	_u.mutation.ResetTotalPrice()
+	_u.mutation.SetTotalPrice(v)
+	return _u
 }
 
 // SetNillableTotalPrice sets the "total_price" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableTotalPrice(f *float64) *CartItemUpdate {
-	if f != nil {
-		ciu.SetTotalPrice(*f)
+func (_u *CartItemUpdate) SetNillableTotalPrice(v *float64) *CartItemUpdate {
+	if v != nil {
+		_u.SetTotalPrice(*v)
 	}
-	return ciu
+	return _u
 }
 
-// AddTotalPrice adds f to the "total_price" field.
-func (ciu *CartItemUpdate) AddTotalPrice(f float64) *CartItemUpdate {
-	ciu.mutation.AddTotalPrice(f)
-	return ciu
+// AddTotalPrice adds value to the "total_price" field.
+func (_u *CartItemUpdate) AddTotalPrice(v float64) *CartItemUpdate {
+	_u.mutation.AddTotalPrice(v)
+	return _u
 }
 
 // SetNotes sets the "notes" field.
-func (ciu *CartItemUpdate) SetNotes(s string) *CartItemUpdate {
-	ciu.mutation.SetNotes(s)
-	return ciu
+func (_u *CartItemUpdate) SetNotes(v string) *CartItemUpdate {
+	_u.mutation.SetNotes(v)
+	return _u
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (ciu *CartItemUpdate) SetNillableNotes(s *string) *CartItemUpdate {
-	if s != nil {
-		ciu.SetNotes(*s)
+func (_u *CartItemUpdate) SetNillableNotes(v *string) *CartItemUpdate {
+	if v != nil {
+		_u.SetNotes(*v)
 	}
-	return ciu
+	return _u
 }
 
 // ClearNotes clears the value of the "notes" field.
-func (ciu *CartItemUpdate) ClearNotes() *CartItemUpdate {
-	ciu.mutation.ClearNotes()
-	return ciu
+func (_u *CartItemUpdate) ClearNotes() *CartItemUpdate {
+	_u.mutation.ClearNotes()
+	return _u
 }
 
 // SetModifiers sets the "modifiers" field.
-func (ciu *CartItemUpdate) SetModifiers(m []map[string]interface{}) *CartItemUpdate {
-	ciu.mutation.SetModifiers(m)
-	return ciu
+func (_u *CartItemUpdate) SetModifiers(v []map[string]interface{}) *CartItemUpdate {
+	_u.mutation.SetModifiers(v)
+	return _u
 }
 
-// AppendModifiers appends m to the "modifiers" field.
-func (ciu *CartItemUpdate) AppendModifiers(m []map[string]interface{}) *CartItemUpdate {
-	ciu.mutation.AppendModifiers(m)
-	return ciu
+// AppendModifiers appends value to the "modifiers" field.
+func (_u *CartItemUpdate) AppendModifiers(v []map[string]interface{}) *CartItemUpdate {
+	_u.mutation.AppendModifiers(v)
+	return _u
 }
 
 // ClearModifiers clears the value of the "modifiers" field.
-func (ciu *CartItemUpdate) ClearModifiers() *CartItemUpdate {
-	ciu.mutation.ClearModifiers()
-	return ciu
+func (_u *CartItemUpdate) ClearModifiers() *CartItemUpdate {
+	_u.mutation.ClearModifiers()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (ciu *CartItemUpdate) SetMetadata(m map[string]interface{}) *CartItemUpdate {
-	ciu.mutation.SetMetadata(m)
-	return ciu
+func (_u *CartItemUpdate) SetMetadata(v map[string]interface{}) *CartItemUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (ciu *CartItemUpdate) ClearMetadata() *CartItemUpdate {
-	ciu.mutation.ClearMetadata()
-	return ciu
+func (_u *CartItemUpdate) ClearMetadata() *CartItemUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ciu *CartItemUpdate) SetUpdatedAt(t time.Time) *CartItemUpdate {
-	ciu.mutation.SetUpdatedAt(t)
-	return ciu
+func (_u *CartItemUpdate) SetUpdatedAt(v time.Time) *CartItemUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetCart sets the "cart" edge to the Cart entity.
-func (ciu *CartItemUpdate) SetCart(c *Cart) *CartItemUpdate {
-	return ciu.SetCartID(c.ID)
-}
-
-// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
-func (ciu *CartItemUpdate) SetCatalogItem(c *CatalogItem) *CartItemUpdate {
-	return ciu.SetCatalogItemID(c.ID)
+func (_u *CartItemUpdate) SetCart(v *Cart) *CartItemUpdate {
+	return _u.SetCartID(v.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
-func (ciu *CartItemUpdate) Mutation() *CartItemMutation {
-	return ciu.mutation
+func (_u *CartItemUpdate) Mutation() *CartItemMutation {
+	return _u.mutation
 }
 
 // ClearCart clears the "cart" edge to the Cart entity.
-func (ciu *CartItemUpdate) ClearCart() *CartItemUpdate {
-	ciu.mutation.ClearCart()
-	return ciu
-}
-
-// ClearCatalogItem clears the "catalog_item" edge to the CatalogItem entity.
-func (ciu *CartItemUpdate) ClearCatalogItem() *CartItemUpdate {
-	ciu.mutation.ClearCatalogItem()
-	return ciu
+func (_u *CartItemUpdate) ClearCart() *CartItemUpdate {
+	_u.mutation.ClearCart()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (ciu *CartItemUpdate) Save(ctx context.Context) (int, error) {
-	ciu.defaults()
-	return withHooks(ctx, ciu.sqlSave, ciu.mutation, ciu.hooks)
+func (_u *CartItemUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ciu *CartItemUpdate) SaveX(ctx context.Context) int {
-	affected, err := ciu.Save(ctx)
+func (_u *CartItemUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -276,129 +264,134 @@ func (ciu *CartItemUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (ciu *CartItemUpdate) Exec(ctx context.Context) error {
-	_, err := ciu.Save(ctx)
+func (_u *CartItemUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ciu *CartItemUpdate) ExecX(ctx context.Context) {
-	if err := ciu.Exec(ctx); err != nil {
+func (_u *CartItemUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ciu *CartItemUpdate) defaults() {
-	if _, ok := ciu.mutation.UpdatedAt(); !ok {
+func (_u *CartItemUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := cartitem.UpdateDefaultUpdatedAt()
-		ciu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ciu *CartItemUpdate) check() error {
-	if v, ok := ciu.mutation.NameSnapshot(); ok {
+func (_u *CartItemUpdate) check() error {
+	if v, ok := _u.mutation.InventorySku(); ok {
+		if err := cartitem.InventorySkuValidator(v); err != nil {
+			return &ValidationError{Name: "inventory_sku", err: fmt.Errorf(`ent: validator failed for field "CartItem.inventory_sku": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.NameSnapshot(); ok {
 		if err := cartitem.NameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.name_snapshot": %w`, err)}
 		}
 	}
-	if v, ok := ciu.mutation.VariantNameSnapshot(); ok {
+	if v, ok := _u.mutation.VariantNameSnapshot(); ok {
 		if err := cartitem.VariantNameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "variant_name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.variant_name_snapshot": %w`, err)}
 		}
 	}
-	if v, ok := ciu.mutation.Quantity(); ok {
+	if v, ok := _u.mutation.Quantity(); ok {
 		if err := cartitem.QuantityValidator(v); err != nil {
 			return &ValidationError{Name: "quantity", err: fmt.Errorf(`ent: validator failed for field "CartItem.quantity": %w`, err)}
 		}
 	}
-	if v, ok := ciu.mutation.UnitPrice(); ok {
+	if v, ok := _u.mutation.UnitPrice(); ok {
 		if err := cartitem.UnitPriceValidator(v); err != nil {
 			return &ValidationError{Name: "unit_price", err: fmt.Errorf(`ent: validator failed for field "CartItem.unit_price": %w`, err)}
 		}
 	}
-	if _, ok := ciu.mutation.CartID(); ciu.mutation.CartCleared() && !ok {
+	if _u.mutation.CartCleared() && len(_u.mutation.CartIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CartItem.cart"`)
-	}
-	if _, ok := ciu.mutation.CatalogItemID(); ciu.mutation.CatalogItemCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "CartItem.catalog_item"`)
 	}
 	return nil
 }
 
-func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := ciu.check(); err != nil {
-		return n, err
+func (_u *CartItemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(cartitem.Table, cartitem.Columns, sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID))
-	if ps := ciu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ciu.mutation.VariantID(); ok {
+	if value, ok := _u.mutation.InventorySku(); ok {
+		_spec.SetField(cartitem.FieldInventorySku, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.VariantID(); ok {
 		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
 	}
-	if ciu.mutation.VariantIDCleared() {
+	if _u.mutation.VariantIDCleared() {
 		_spec.ClearField(cartitem.FieldVariantID, field.TypeUUID)
 	}
-	if value, ok := ciu.mutation.NameSnapshot(); ok {
+	if value, ok := _u.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
 	}
-	if value, ok := ciu.mutation.VariantNameSnapshot(); ok {
+	if value, ok := _u.mutation.VariantNameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldVariantNameSnapshot, field.TypeString, value)
 	}
-	if ciu.mutation.VariantNameSnapshotCleared() {
+	if _u.mutation.VariantNameSnapshotCleared() {
 		_spec.ClearField(cartitem.FieldVariantNameSnapshot, field.TypeString)
 	}
-	if value, ok := ciu.mutation.Quantity(); ok {
+	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(cartitem.FieldQuantity, field.TypeInt, value)
 	}
-	if value, ok := ciu.mutation.AddedQuantity(); ok {
+	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(cartitem.FieldQuantity, field.TypeInt, value)
 	}
-	if value, ok := ciu.mutation.UnitPrice(); ok {
+	if value, ok := _u.mutation.UnitPrice(); ok {
 		_spec.SetField(cartitem.FieldUnitPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciu.mutation.AddedUnitPrice(); ok {
+	if value, ok := _u.mutation.AddedUnitPrice(); ok {
 		_spec.AddField(cartitem.FieldUnitPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciu.mutation.TotalPrice(); ok {
+	if value, ok := _u.mutation.TotalPrice(); ok {
 		_spec.SetField(cartitem.FieldTotalPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciu.mutation.AddedTotalPrice(); ok {
+	if value, ok := _u.mutation.AddedTotalPrice(); ok {
 		_spec.AddField(cartitem.FieldTotalPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciu.mutation.Notes(); ok {
+	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(cartitem.FieldNotes, field.TypeString, value)
 	}
-	if ciu.mutation.NotesCleared() {
+	if _u.mutation.NotesCleared() {
 		_spec.ClearField(cartitem.FieldNotes, field.TypeString)
 	}
-	if value, ok := ciu.mutation.Modifiers(); ok {
+	if value, ok := _u.mutation.Modifiers(); ok {
 		_spec.SetField(cartitem.FieldModifiers, field.TypeJSON, value)
 	}
-	if value, ok := ciu.mutation.AppendedModifiers(); ok {
+	if value, ok := _u.mutation.AppendedModifiers(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, cartitem.FieldModifiers, value)
 		})
 	}
-	if ciu.mutation.ModifiersCleared() {
+	if _u.mutation.ModifiersCleared() {
 		_spec.ClearField(cartitem.FieldModifiers, field.TypeJSON)
 	}
-	if value, ok := ciu.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(cartitem.FieldMetadata, field.TypeJSON, value)
 	}
-	if ciu.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(cartitem.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := ciu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(cartitem.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ciu.mutation.CartCleared() {
+	if _u.mutation.CartCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -411,7 +404,7 @@ func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ciu.mutation.CartIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CartIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -427,36 +420,7 @@ func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ciu.mutation.CatalogItemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.CatalogItemTable,
-			Columns: []string{cartitem.CatalogItemColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ciu.mutation.CatalogItemIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.CatalogItemTable,
-			Columns: []string{cartitem.CatalogItemColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if n, err = sqlgraph.UpdateNodes(ctx, ciu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{cartitem.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -464,8 +428,8 @@ func (ciu *CartItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	ciu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // CartItemUpdateOne is the builder for updating a single CartItem entity.
@@ -477,255 +441,244 @@ type CartItemUpdateOne struct {
 }
 
 // SetCartID sets the "cart_id" field.
-func (ciuo *CartItemUpdateOne) SetCartID(u uuid.UUID) *CartItemUpdateOne {
-	ciuo.mutation.SetCartID(u)
-	return ciuo
+func (_u *CartItemUpdateOne) SetCartID(v uuid.UUID) *CartItemUpdateOne {
+	_u.mutation.SetCartID(v)
+	return _u
 }
 
 // SetNillableCartID sets the "cart_id" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableCartID(u *uuid.UUID) *CartItemUpdateOne {
-	if u != nil {
-		ciuo.SetCartID(*u)
+func (_u *CartItemUpdateOne) SetNillableCartID(v *uuid.UUID) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetCartID(*v)
 	}
-	return ciuo
+	return _u
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (ciuo *CartItemUpdateOne) SetCatalogItemID(u uuid.UUID) *CartItemUpdateOne {
-	ciuo.mutation.SetCatalogItemID(u)
-	return ciuo
+// SetInventorySku sets the "inventory_sku" field.
+func (_u *CartItemUpdateOne) SetInventorySku(v string) *CartItemUpdateOne {
+	_u.mutation.SetInventorySku(v)
+	return _u
 }
 
-// SetNillableCatalogItemID sets the "catalog_item_id" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableCatalogItemID(u *uuid.UUID) *CartItemUpdateOne {
-	if u != nil {
-		ciuo.SetCatalogItemID(*u)
+// SetNillableInventorySku sets the "inventory_sku" field if the given value is not nil.
+func (_u *CartItemUpdateOne) SetNillableInventorySku(v *string) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetInventorySku(*v)
 	}
-	return ciuo
+	return _u
 }
 
 // SetVariantID sets the "variant_id" field.
-func (ciuo *CartItemUpdateOne) SetVariantID(u uuid.UUID) *CartItemUpdateOne {
-	ciuo.mutation.SetVariantID(u)
-	return ciuo
+func (_u *CartItemUpdateOne) SetVariantID(v uuid.UUID) *CartItemUpdateOne {
+	_u.mutation.SetVariantID(v)
+	return _u
 }
 
 // SetNillableVariantID sets the "variant_id" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableVariantID(u *uuid.UUID) *CartItemUpdateOne {
-	if u != nil {
-		ciuo.SetVariantID(*u)
+func (_u *CartItemUpdateOne) SetNillableVariantID(v *uuid.UUID) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetVariantID(*v)
 	}
-	return ciuo
+	return _u
 }
 
 // ClearVariantID clears the value of the "variant_id" field.
-func (ciuo *CartItemUpdateOne) ClearVariantID() *CartItemUpdateOne {
-	ciuo.mutation.ClearVariantID()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearVariantID() *CartItemUpdateOne {
+	_u.mutation.ClearVariantID()
+	return _u
 }
 
 // SetNameSnapshot sets the "name_snapshot" field.
-func (ciuo *CartItemUpdateOne) SetNameSnapshot(s string) *CartItemUpdateOne {
-	ciuo.mutation.SetNameSnapshot(s)
-	return ciuo
+func (_u *CartItemUpdateOne) SetNameSnapshot(v string) *CartItemUpdateOne {
+	_u.mutation.SetNameSnapshot(v)
+	return _u
 }
 
 // SetNillableNameSnapshot sets the "name_snapshot" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableNameSnapshot(s *string) *CartItemUpdateOne {
-	if s != nil {
-		ciuo.SetNameSnapshot(*s)
+func (_u *CartItemUpdateOne) SetNillableNameSnapshot(v *string) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetNameSnapshot(*v)
 	}
-	return ciuo
+	return _u
 }
 
 // SetVariantNameSnapshot sets the "variant_name_snapshot" field.
-func (ciuo *CartItemUpdateOne) SetVariantNameSnapshot(s string) *CartItemUpdateOne {
-	ciuo.mutation.SetVariantNameSnapshot(s)
-	return ciuo
+func (_u *CartItemUpdateOne) SetVariantNameSnapshot(v string) *CartItemUpdateOne {
+	_u.mutation.SetVariantNameSnapshot(v)
+	return _u
 }
 
 // SetNillableVariantNameSnapshot sets the "variant_name_snapshot" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableVariantNameSnapshot(s *string) *CartItemUpdateOne {
-	if s != nil {
-		ciuo.SetVariantNameSnapshot(*s)
+func (_u *CartItemUpdateOne) SetNillableVariantNameSnapshot(v *string) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetVariantNameSnapshot(*v)
 	}
-	return ciuo
+	return _u
 }
 
 // ClearVariantNameSnapshot clears the value of the "variant_name_snapshot" field.
-func (ciuo *CartItemUpdateOne) ClearVariantNameSnapshot() *CartItemUpdateOne {
-	ciuo.mutation.ClearVariantNameSnapshot()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearVariantNameSnapshot() *CartItemUpdateOne {
+	_u.mutation.ClearVariantNameSnapshot()
+	return _u
 }
 
 // SetQuantity sets the "quantity" field.
-func (ciuo *CartItemUpdateOne) SetQuantity(i int) *CartItemUpdateOne {
-	ciuo.mutation.ResetQuantity()
-	ciuo.mutation.SetQuantity(i)
-	return ciuo
+func (_u *CartItemUpdateOne) SetQuantity(v int) *CartItemUpdateOne {
+	_u.mutation.ResetQuantity()
+	_u.mutation.SetQuantity(v)
+	return _u
 }
 
 // SetNillableQuantity sets the "quantity" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableQuantity(i *int) *CartItemUpdateOne {
-	if i != nil {
-		ciuo.SetQuantity(*i)
+func (_u *CartItemUpdateOne) SetNillableQuantity(v *int) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetQuantity(*v)
 	}
-	return ciuo
+	return _u
 }
 
-// AddQuantity adds i to the "quantity" field.
-func (ciuo *CartItemUpdateOne) AddQuantity(i int) *CartItemUpdateOne {
-	ciuo.mutation.AddQuantity(i)
-	return ciuo
+// AddQuantity adds value to the "quantity" field.
+func (_u *CartItemUpdateOne) AddQuantity(v int) *CartItemUpdateOne {
+	_u.mutation.AddQuantity(v)
+	return _u
 }
 
 // SetUnitPrice sets the "unit_price" field.
-func (ciuo *CartItemUpdateOne) SetUnitPrice(f float64) *CartItemUpdateOne {
-	ciuo.mutation.ResetUnitPrice()
-	ciuo.mutation.SetUnitPrice(f)
-	return ciuo
+func (_u *CartItemUpdateOne) SetUnitPrice(v float64) *CartItemUpdateOne {
+	_u.mutation.ResetUnitPrice()
+	_u.mutation.SetUnitPrice(v)
+	return _u
 }
 
 // SetNillableUnitPrice sets the "unit_price" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableUnitPrice(f *float64) *CartItemUpdateOne {
-	if f != nil {
-		ciuo.SetUnitPrice(*f)
+func (_u *CartItemUpdateOne) SetNillableUnitPrice(v *float64) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetUnitPrice(*v)
 	}
-	return ciuo
+	return _u
 }
 
-// AddUnitPrice adds f to the "unit_price" field.
-func (ciuo *CartItemUpdateOne) AddUnitPrice(f float64) *CartItemUpdateOne {
-	ciuo.mutation.AddUnitPrice(f)
-	return ciuo
+// AddUnitPrice adds value to the "unit_price" field.
+func (_u *CartItemUpdateOne) AddUnitPrice(v float64) *CartItemUpdateOne {
+	_u.mutation.AddUnitPrice(v)
+	return _u
 }
 
 // SetTotalPrice sets the "total_price" field.
-func (ciuo *CartItemUpdateOne) SetTotalPrice(f float64) *CartItemUpdateOne {
-	ciuo.mutation.ResetTotalPrice()
-	ciuo.mutation.SetTotalPrice(f)
-	return ciuo
+func (_u *CartItemUpdateOne) SetTotalPrice(v float64) *CartItemUpdateOne {
+	_u.mutation.ResetTotalPrice()
+	_u.mutation.SetTotalPrice(v)
+	return _u
 }
 
 // SetNillableTotalPrice sets the "total_price" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableTotalPrice(f *float64) *CartItemUpdateOne {
-	if f != nil {
-		ciuo.SetTotalPrice(*f)
+func (_u *CartItemUpdateOne) SetNillableTotalPrice(v *float64) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetTotalPrice(*v)
 	}
-	return ciuo
+	return _u
 }
 
-// AddTotalPrice adds f to the "total_price" field.
-func (ciuo *CartItemUpdateOne) AddTotalPrice(f float64) *CartItemUpdateOne {
-	ciuo.mutation.AddTotalPrice(f)
-	return ciuo
+// AddTotalPrice adds value to the "total_price" field.
+func (_u *CartItemUpdateOne) AddTotalPrice(v float64) *CartItemUpdateOne {
+	_u.mutation.AddTotalPrice(v)
+	return _u
 }
 
 // SetNotes sets the "notes" field.
-func (ciuo *CartItemUpdateOne) SetNotes(s string) *CartItemUpdateOne {
-	ciuo.mutation.SetNotes(s)
-	return ciuo
+func (_u *CartItemUpdateOne) SetNotes(v string) *CartItemUpdateOne {
+	_u.mutation.SetNotes(v)
+	return _u
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (ciuo *CartItemUpdateOne) SetNillableNotes(s *string) *CartItemUpdateOne {
-	if s != nil {
-		ciuo.SetNotes(*s)
+func (_u *CartItemUpdateOne) SetNillableNotes(v *string) *CartItemUpdateOne {
+	if v != nil {
+		_u.SetNotes(*v)
 	}
-	return ciuo
+	return _u
 }
 
 // ClearNotes clears the value of the "notes" field.
-func (ciuo *CartItemUpdateOne) ClearNotes() *CartItemUpdateOne {
-	ciuo.mutation.ClearNotes()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearNotes() *CartItemUpdateOne {
+	_u.mutation.ClearNotes()
+	return _u
 }
 
 // SetModifiers sets the "modifiers" field.
-func (ciuo *CartItemUpdateOne) SetModifiers(m []map[string]interface{}) *CartItemUpdateOne {
-	ciuo.mutation.SetModifiers(m)
-	return ciuo
+func (_u *CartItemUpdateOne) SetModifiers(v []map[string]interface{}) *CartItemUpdateOne {
+	_u.mutation.SetModifiers(v)
+	return _u
 }
 
-// AppendModifiers appends m to the "modifiers" field.
-func (ciuo *CartItemUpdateOne) AppendModifiers(m []map[string]interface{}) *CartItemUpdateOne {
-	ciuo.mutation.AppendModifiers(m)
-	return ciuo
+// AppendModifiers appends value to the "modifiers" field.
+func (_u *CartItemUpdateOne) AppendModifiers(v []map[string]interface{}) *CartItemUpdateOne {
+	_u.mutation.AppendModifiers(v)
+	return _u
 }
 
 // ClearModifiers clears the value of the "modifiers" field.
-func (ciuo *CartItemUpdateOne) ClearModifiers() *CartItemUpdateOne {
-	ciuo.mutation.ClearModifiers()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearModifiers() *CartItemUpdateOne {
+	_u.mutation.ClearModifiers()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (ciuo *CartItemUpdateOne) SetMetadata(m map[string]interface{}) *CartItemUpdateOne {
-	ciuo.mutation.SetMetadata(m)
-	return ciuo
+func (_u *CartItemUpdateOne) SetMetadata(v map[string]interface{}) *CartItemUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (ciuo *CartItemUpdateOne) ClearMetadata() *CartItemUpdateOne {
-	ciuo.mutation.ClearMetadata()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearMetadata() *CartItemUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ciuo *CartItemUpdateOne) SetUpdatedAt(t time.Time) *CartItemUpdateOne {
-	ciuo.mutation.SetUpdatedAt(t)
-	return ciuo
+func (_u *CartItemUpdateOne) SetUpdatedAt(v time.Time) *CartItemUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetCart sets the "cart" edge to the Cart entity.
-func (ciuo *CartItemUpdateOne) SetCart(c *Cart) *CartItemUpdateOne {
-	return ciuo.SetCartID(c.ID)
-}
-
-// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
-func (ciuo *CartItemUpdateOne) SetCatalogItem(c *CatalogItem) *CartItemUpdateOne {
-	return ciuo.SetCatalogItemID(c.ID)
+func (_u *CartItemUpdateOne) SetCart(v *Cart) *CartItemUpdateOne {
+	return _u.SetCartID(v.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
-func (ciuo *CartItemUpdateOne) Mutation() *CartItemMutation {
-	return ciuo.mutation
+func (_u *CartItemUpdateOne) Mutation() *CartItemMutation {
+	return _u.mutation
 }
 
 // ClearCart clears the "cart" edge to the Cart entity.
-func (ciuo *CartItemUpdateOne) ClearCart() *CartItemUpdateOne {
-	ciuo.mutation.ClearCart()
-	return ciuo
-}
-
-// ClearCatalogItem clears the "catalog_item" edge to the CatalogItem entity.
-func (ciuo *CartItemUpdateOne) ClearCatalogItem() *CartItemUpdateOne {
-	ciuo.mutation.ClearCatalogItem()
-	return ciuo
+func (_u *CartItemUpdateOne) ClearCart() *CartItemUpdateOne {
+	_u.mutation.ClearCart()
+	return _u
 }
 
 // Where appends a list predicates to the CartItemUpdate builder.
-func (ciuo *CartItemUpdateOne) Where(ps ...predicate.CartItem) *CartItemUpdateOne {
-	ciuo.mutation.Where(ps...)
-	return ciuo
+func (_u *CartItemUpdateOne) Where(ps ...predicate.CartItem) *CartItemUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (ciuo *CartItemUpdateOne) Select(field string, fields ...string) *CartItemUpdateOne {
-	ciuo.fields = append([]string{field}, fields...)
-	return ciuo
+func (_u *CartItemUpdateOne) Select(field string, fields ...string) *CartItemUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated CartItem entity.
-func (ciuo *CartItemUpdateOne) Save(ctx context.Context) (*CartItem, error) {
-	ciuo.defaults()
-	return withHooks(ctx, ciuo.sqlSave, ciuo.mutation, ciuo.hooks)
+func (_u *CartItemUpdateOne) Save(ctx context.Context) (*CartItem, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ciuo *CartItemUpdateOne) SaveX(ctx context.Context) *CartItem {
-	node, err := ciuo.Save(ctx)
+func (_u *CartItemUpdateOne) SaveX(ctx context.Context) *CartItem {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -733,68 +686,70 @@ func (ciuo *CartItemUpdateOne) SaveX(ctx context.Context) *CartItem {
 }
 
 // Exec executes the query on the entity.
-func (ciuo *CartItemUpdateOne) Exec(ctx context.Context) error {
-	_, err := ciuo.Save(ctx)
+func (_u *CartItemUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ciuo *CartItemUpdateOne) ExecX(ctx context.Context) {
-	if err := ciuo.Exec(ctx); err != nil {
+func (_u *CartItemUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ciuo *CartItemUpdateOne) defaults() {
-	if _, ok := ciuo.mutation.UpdatedAt(); !ok {
+func (_u *CartItemUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := cartitem.UpdateDefaultUpdatedAt()
-		ciuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ciuo *CartItemUpdateOne) check() error {
-	if v, ok := ciuo.mutation.NameSnapshot(); ok {
+func (_u *CartItemUpdateOne) check() error {
+	if v, ok := _u.mutation.InventorySku(); ok {
+		if err := cartitem.InventorySkuValidator(v); err != nil {
+			return &ValidationError{Name: "inventory_sku", err: fmt.Errorf(`ent: validator failed for field "CartItem.inventory_sku": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.NameSnapshot(); ok {
 		if err := cartitem.NameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.name_snapshot": %w`, err)}
 		}
 	}
-	if v, ok := ciuo.mutation.VariantNameSnapshot(); ok {
+	if v, ok := _u.mutation.VariantNameSnapshot(); ok {
 		if err := cartitem.VariantNameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "variant_name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.variant_name_snapshot": %w`, err)}
 		}
 	}
-	if v, ok := ciuo.mutation.Quantity(); ok {
+	if v, ok := _u.mutation.Quantity(); ok {
 		if err := cartitem.QuantityValidator(v); err != nil {
 			return &ValidationError{Name: "quantity", err: fmt.Errorf(`ent: validator failed for field "CartItem.quantity": %w`, err)}
 		}
 	}
-	if v, ok := ciuo.mutation.UnitPrice(); ok {
+	if v, ok := _u.mutation.UnitPrice(); ok {
 		if err := cartitem.UnitPriceValidator(v); err != nil {
 			return &ValidationError{Name: "unit_price", err: fmt.Errorf(`ent: validator failed for field "CartItem.unit_price": %w`, err)}
 		}
 	}
-	if _, ok := ciuo.mutation.CartID(); ciuo.mutation.CartCleared() && !ok {
+	if _u.mutation.CartCleared() && len(_u.mutation.CartIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CartItem.cart"`)
-	}
-	if _, ok := ciuo.mutation.CatalogItemID(); ciuo.mutation.CatalogItemCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "CartItem.catalog_item"`)
 	}
 	return nil
 }
 
-func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, err error) {
-	if err := ciuo.check(); err != nil {
+func (_u *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(cartitem.Table, cartitem.Columns, sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID))
-	id, ok := ciuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "CartItem.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := ciuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, cartitem.FieldID)
 		for _, f := range fields {
@@ -806,73 +761,76 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 			}
 		}
 	}
-	if ps := ciuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ciuo.mutation.VariantID(); ok {
+	if value, ok := _u.mutation.InventorySku(); ok {
+		_spec.SetField(cartitem.FieldInventorySku, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.VariantID(); ok {
 		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
 	}
-	if ciuo.mutation.VariantIDCleared() {
+	if _u.mutation.VariantIDCleared() {
 		_spec.ClearField(cartitem.FieldVariantID, field.TypeUUID)
 	}
-	if value, ok := ciuo.mutation.NameSnapshot(); ok {
+	if value, ok := _u.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
 	}
-	if value, ok := ciuo.mutation.VariantNameSnapshot(); ok {
+	if value, ok := _u.mutation.VariantNameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldVariantNameSnapshot, field.TypeString, value)
 	}
-	if ciuo.mutation.VariantNameSnapshotCleared() {
+	if _u.mutation.VariantNameSnapshotCleared() {
 		_spec.ClearField(cartitem.FieldVariantNameSnapshot, field.TypeString)
 	}
-	if value, ok := ciuo.mutation.Quantity(); ok {
+	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(cartitem.FieldQuantity, field.TypeInt, value)
 	}
-	if value, ok := ciuo.mutation.AddedQuantity(); ok {
+	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(cartitem.FieldQuantity, field.TypeInt, value)
 	}
-	if value, ok := ciuo.mutation.UnitPrice(); ok {
+	if value, ok := _u.mutation.UnitPrice(); ok {
 		_spec.SetField(cartitem.FieldUnitPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciuo.mutation.AddedUnitPrice(); ok {
+	if value, ok := _u.mutation.AddedUnitPrice(); ok {
 		_spec.AddField(cartitem.FieldUnitPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciuo.mutation.TotalPrice(); ok {
+	if value, ok := _u.mutation.TotalPrice(); ok {
 		_spec.SetField(cartitem.FieldTotalPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciuo.mutation.AddedTotalPrice(); ok {
+	if value, ok := _u.mutation.AddedTotalPrice(); ok {
 		_spec.AddField(cartitem.FieldTotalPrice, field.TypeFloat64, value)
 	}
-	if value, ok := ciuo.mutation.Notes(); ok {
+	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(cartitem.FieldNotes, field.TypeString, value)
 	}
-	if ciuo.mutation.NotesCleared() {
+	if _u.mutation.NotesCleared() {
 		_spec.ClearField(cartitem.FieldNotes, field.TypeString)
 	}
-	if value, ok := ciuo.mutation.Modifiers(); ok {
+	if value, ok := _u.mutation.Modifiers(); ok {
 		_spec.SetField(cartitem.FieldModifiers, field.TypeJSON, value)
 	}
-	if value, ok := ciuo.mutation.AppendedModifiers(); ok {
+	if value, ok := _u.mutation.AppendedModifiers(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, cartitem.FieldModifiers, value)
 		})
 	}
-	if ciuo.mutation.ModifiersCleared() {
+	if _u.mutation.ModifiersCleared() {
 		_spec.ClearField(cartitem.FieldModifiers, field.TypeJSON)
 	}
-	if value, ok := ciuo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(cartitem.FieldMetadata, field.TypeJSON, value)
 	}
-	if ciuo.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(cartitem.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := ciuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(cartitem.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if ciuo.mutation.CartCleared() {
+	if _u.mutation.CartCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -885,7 +843,7 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ciuo.mutation.CartIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CartIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -901,39 +859,10 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ciuo.mutation.CatalogItemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.CatalogItemTable,
-			Columns: []string{cartitem.CatalogItemColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ciuo.mutation.CatalogItemIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.CatalogItemTable,
-			Columns: []string{cartitem.CatalogItemColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	_node = &CartItem{config: ciuo.config}
+	_node = &CartItem{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, ciuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{cartitem.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -941,6 +870,6 @@ func (ciuo *CartItemUpdateOne) sqlSave(ctx context.Context) (_node *CartItem, er
 		}
 		return nil, err
 	}
-	ciuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -26,423 +26,423 @@ type PromoCodeUpdate struct {
 }
 
 // Where appends a list predicates to the PromoCodeUpdate builder.
-func (pcu *PromoCodeUpdate) Where(ps ...predicate.PromoCode) *PromoCodeUpdate {
-	pcu.mutation.Where(ps...)
-	return pcu
+func (_u *PromoCodeUpdate) Where(ps ...predicate.PromoCode) *PromoCodeUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (pcu *PromoCodeUpdate) SetTenantID(u uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.SetTenantID(u)
-	return pcu
+func (_u *PromoCodeUpdate) SetTenantID(v uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableTenantID(u *uuid.UUID) *PromoCodeUpdate {
-	if u != nil {
-		pcu.SetTenantID(*u)
+func (_u *PromoCodeUpdate) SetNillableTenantID(v *uuid.UUID) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (pcu *PromoCodeUpdate) SetOutletID(u uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.SetOutletID(u)
-	return pcu
+func (_u *PromoCodeUpdate) SetOutletID(v uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableOutletID(u *uuid.UUID) *PromoCodeUpdate {
-	if u != nil {
-		pcu.SetOutletID(*u)
+func (_u *PromoCodeUpdate) SetNillableOutletID(v *uuid.UUID) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return pcu
+	return _u
 }
 
 // ClearOutletID clears the value of the "outlet_id" field.
-func (pcu *PromoCodeUpdate) ClearOutletID() *PromoCodeUpdate {
-	pcu.mutation.ClearOutletID()
-	return pcu
+func (_u *PromoCodeUpdate) ClearOutletID() *PromoCodeUpdate {
+	_u.mutation.ClearOutletID()
+	return _u
 }
 
 // SetCode sets the "code" field.
-func (pcu *PromoCodeUpdate) SetCode(s string) *PromoCodeUpdate {
-	pcu.mutation.SetCode(s)
-	return pcu
+func (_u *PromoCodeUpdate) SetCode(v string) *PromoCodeUpdate {
+	_u.mutation.SetCode(v)
+	return _u
 }
 
 // SetNillableCode sets the "code" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableCode(s *string) *PromoCodeUpdate {
-	if s != nil {
-		pcu.SetCode(*s)
+func (_u *PromoCodeUpdate) SetNillableCode(v *string) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetCode(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetName sets the "name" field.
-func (pcu *PromoCodeUpdate) SetName(s string) *PromoCodeUpdate {
-	pcu.mutation.SetName(s)
-	return pcu
+func (_u *PromoCodeUpdate) SetName(v string) *PromoCodeUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableName(s *string) *PromoCodeUpdate {
-	if s != nil {
-		pcu.SetName(*s)
+func (_u *PromoCodeUpdate) SetNillableName(v *string) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (pcu *PromoCodeUpdate) SetDescription(s string) *PromoCodeUpdate {
-	pcu.mutation.SetDescription(s)
-	return pcu
+func (_u *PromoCodeUpdate) SetDescription(v string) *PromoCodeUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableDescription(s *string) *PromoCodeUpdate {
-	if s != nil {
-		pcu.SetDescription(*s)
+func (_u *PromoCodeUpdate) SetNillableDescription(v *string) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return pcu
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (pcu *PromoCodeUpdate) ClearDescription() *PromoCodeUpdate {
-	pcu.mutation.ClearDescription()
-	return pcu
+func (_u *PromoCodeUpdate) ClearDescription() *PromoCodeUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetDiscountType sets the "discount_type" field.
-func (pcu *PromoCodeUpdate) SetDiscountType(pt promocode.DiscountType) *PromoCodeUpdate {
-	pcu.mutation.SetDiscountType(pt)
-	return pcu
+func (_u *PromoCodeUpdate) SetDiscountType(v promocode.DiscountType) *PromoCodeUpdate {
+	_u.mutation.SetDiscountType(v)
+	return _u
 }
 
 // SetNillableDiscountType sets the "discount_type" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableDiscountType(pt *promocode.DiscountType) *PromoCodeUpdate {
-	if pt != nil {
-		pcu.SetDiscountType(*pt)
+func (_u *PromoCodeUpdate) SetNillableDiscountType(v *promocode.DiscountType) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetDiscountType(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetDiscountValue sets the "discount_value" field.
-func (pcu *PromoCodeUpdate) SetDiscountValue(f float64) *PromoCodeUpdate {
-	pcu.mutation.ResetDiscountValue()
-	pcu.mutation.SetDiscountValue(f)
-	return pcu
+func (_u *PromoCodeUpdate) SetDiscountValue(v float64) *PromoCodeUpdate {
+	_u.mutation.ResetDiscountValue()
+	_u.mutation.SetDiscountValue(v)
+	return _u
 }
 
 // SetNillableDiscountValue sets the "discount_value" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableDiscountValue(f *float64) *PromoCodeUpdate {
-	if f != nil {
-		pcu.SetDiscountValue(*f)
+func (_u *PromoCodeUpdate) SetNillableDiscountValue(v *float64) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetDiscountValue(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddDiscountValue adds f to the "discount_value" field.
-func (pcu *PromoCodeUpdate) AddDiscountValue(f float64) *PromoCodeUpdate {
-	pcu.mutation.AddDiscountValue(f)
-	return pcu
+// AddDiscountValue adds value to the "discount_value" field.
+func (_u *PromoCodeUpdate) AddDiscountValue(v float64) *PromoCodeUpdate {
+	_u.mutation.AddDiscountValue(v)
+	return _u
 }
 
 // SetMaxDiscountAmount sets the "max_discount_amount" field.
-func (pcu *PromoCodeUpdate) SetMaxDiscountAmount(f float64) *PromoCodeUpdate {
-	pcu.mutation.ResetMaxDiscountAmount()
-	pcu.mutation.SetMaxDiscountAmount(f)
-	return pcu
+func (_u *PromoCodeUpdate) SetMaxDiscountAmount(v float64) *PromoCodeUpdate {
+	_u.mutation.ResetMaxDiscountAmount()
+	_u.mutation.SetMaxDiscountAmount(v)
+	return _u
 }
 
 // SetNillableMaxDiscountAmount sets the "max_discount_amount" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableMaxDiscountAmount(f *float64) *PromoCodeUpdate {
-	if f != nil {
-		pcu.SetMaxDiscountAmount(*f)
+func (_u *PromoCodeUpdate) SetNillableMaxDiscountAmount(v *float64) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetMaxDiscountAmount(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddMaxDiscountAmount adds f to the "max_discount_amount" field.
-func (pcu *PromoCodeUpdate) AddMaxDiscountAmount(f float64) *PromoCodeUpdate {
-	pcu.mutation.AddMaxDiscountAmount(f)
-	return pcu
+// AddMaxDiscountAmount adds value to the "max_discount_amount" field.
+func (_u *PromoCodeUpdate) AddMaxDiscountAmount(v float64) *PromoCodeUpdate {
+	_u.mutation.AddMaxDiscountAmount(v)
+	return _u
 }
 
 // ClearMaxDiscountAmount clears the value of the "max_discount_amount" field.
-func (pcu *PromoCodeUpdate) ClearMaxDiscountAmount() *PromoCodeUpdate {
-	pcu.mutation.ClearMaxDiscountAmount()
-	return pcu
+func (_u *PromoCodeUpdate) ClearMaxDiscountAmount() *PromoCodeUpdate {
+	_u.mutation.ClearMaxDiscountAmount()
+	return _u
 }
 
 // SetMinSubtotal sets the "min_subtotal" field.
-func (pcu *PromoCodeUpdate) SetMinSubtotal(f float64) *PromoCodeUpdate {
-	pcu.mutation.ResetMinSubtotal()
-	pcu.mutation.SetMinSubtotal(f)
-	return pcu
+func (_u *PromoCodeUpdate) SetMinSubtotal(v float64) *PromoCodeUpdate {
+	_u.mutation.ResetMinSubtotal()
+	_u.mutation.SetMinSubtotal(v)
+	return _u
 }
 
 // SetNillableMinSubtotal sets the "min_subtotal" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableMinSubtotal(f *float64) *PromoCodeUpdate {
-	if f != nil {
-		pcu.SetMinSubtotal(*f)
+func (_u *PromoCodeUpdate) SetNillableMinSubtotal(v *float64) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetMinSubtotal(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddMinSubtotal adds f to the "min_subtotal" field.
-func (pcu *PromoCodeUpdate) AddMinSubtotal(f float64) *PromoCodeUpdate {
-	pcu.mutation.AddMinSubtotal(f)
-	return pcu
+// AddMinSubtotal adds value to the "min_subtotal" field.
+func (_u *PromoCodeUpdate) AddMinSubtotal(v float64) *PromoCodeUpdate {
+	_u.mutation.AddMinSubtotal(v)
+	return _u
 }
 
 // SetMaxUses sets the "max_uses" field.
-func (pcu *PromoCodeUpdate) SetMaxUses(i int) *PromoCodeUpdate {
-	pcu.mutation.ResetMaxUses()
-	pcu.mutation.SetMaxUses(i)
-	return pcu
+func (_u *PromoCodeUpdate) SetMaxUses(v int) *PromoCodeUpdate {
+	_u.mutation.ResetMaxUses()
+	_u.mutation.SetMaxUses(v)
+	return _u
 }
 
 // SetNillableMaxUses sets the "max_uses" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableMaxUses(i *int) *PromoCodeUpdate {
-	if i != nil {
-		pcu.SetMaxUses(*i)
+func (_u *PromoCodeUpdate) SetNillableMaxUses(v *int) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetMaxUses(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddMaxUses adds i to the "max_uses" field.
-func (pcu *PromoCodeUpdate) AddMaxUses(i int) *PromoCodeUpdate {
-	pcu.mutation.AddMaxUses(i)
-	return pcu
+// AddMaxUses adds value to the "max_uses" field.
+func (_u *PromoCodeUpdate) AddMaxUses(v int) *PromoCodeUpdate {
+	_u.mutation.AddMaxUses(v)
+	return _u
 }
 
 // ClearMaxUses clears the value of the "max_uses" field.
-func (pcu *PromoCodeUpdate) ClearMaxUses() *PromoCodeUpdate {
-	pcu.mutation.ClearMaxUses()
-	return pcu
+func (_u *PromoCodeUpdate) ClearMaxUses() *PromoCodeUpdate {
+	_u.mutation.ClearMaxUses()
+	return _u
 }
 
 // SetMaxUsesPerUser sets the "max_uses_per_user" field.
-func (pcu *PromoCodeUpdate) SetMaxUsesPerUser(i int) *PromoCodeUpdate {
-	pcu.mutation.ResetMaxUsesPerUser()
-	pcu.mutation.SetMaxUsesPerUser(i)
-	return pcu
+func (_u *PromoCodeUpdate) SetMaxUsesPerUser(v int) *PromoCodeUpdate {
+	_u.mutation.ResetMaxUsesPerUser()
+	_u.mutation.SetMaxUsesPerUser(v)
+	return _u
 }
 
 // SetNillableMaxUsesPerUser sets the "max_uses_per_user" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableMaxUsesPerUser(i *int) *PromoCodeUpdate {
-	if i != nil {
-		pcu.SetMaxUsesPerUser(*i)
+func (_u *PromoCodeUpdate) SetNillableMaxUsesPerUser(v *int) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetMaxUsesPerUser(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddMaxUsesPerUser adds i to the "max_uses_per_user" field.
-func (pcu *PromoCodeUpdate) AddMaxUsesPerUser(i int) *PromoCodeUpdate {
-	pcu.mutation.AddMaxUsesPerUser(i)
-	return pcu
+// AddMaxUsesPerUser adds value to the "max_uses_per_user" field.
+func (_u *PromoCodeUpdate) AddMaxUsesPerUser(v int) *PromoCodeUpdate {
+	_u.mutation.AddMaxUsesPerUser(v)
+	return _u
 }
 
 // ClearMaxUsesPerUser clears the value of the "max_uses_per_user" field.
-func (pcu *PromoCodeUpdate) ClearMaxUsesPerUser() *PromoCodeUpdate {
-	pcu.mutation.ClearMaxUsesPerUser()
-	return pcu
+func (_u *PromoCodeUpdate) ClearMaxUsesPerUser() *PromoCodeUpdate {
+	_u.mutation.ClearMaxUsesPerUser()
+	return _u
 }
 
 // SetUsageCount sets the "usage_count" field.
-func (pcu *PromoCodeUpdate) SetUsageCount(i int) *PromoCodeUpdate {
-	pcu.mutation.ResetUsageCount()
-	pcu.mutation.SetUsageCount(i)
-	return pcu
+func (_u *PromoCodeUpdate) SetUsageCount(v int) *PromoCodeUpdate {
+	_u.mutation.ResetUsageCount()
+	_u.mutation.SetUsageCount(v)
+	return _u
 }
 
 // SetNillableUsageCount sets the "usage_count" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableUsageCount(i *int) *PromoCodeUpdate {
-	if i != nil {
-		pcu.SetUsageCount(*i)
+func (_u *PromoCodeUpdate) SetNillableUsageCount(v *int) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetUsageCount(*v)
 	}
-	return pcu
+	return _u
 }
 
-// AddUsageCount adds i to the "usage_count" field.
-func (pcu *PromoCodeUpdate) AddUsageCount(i int) *PromoCodeUpdate {
-	pcu.mutation.AddUsageCount(i)
-	return pcu
+// AddUsageCount adds value to the "usage_count" field.
+func (_u *PromoCodeUpdate) AddUsageCount(v int) *PromoCodeUpdate {
+	_u.mutation.AddUsageCount(v)
+	return _u
 }
 
 // SetIsActive sets the "is_active" field.
-func (pcu *PromoCodeUpdate) SetIsActive(b bool) *PromoCodeUpdate {
-	pcu.mutation.SetIsActive(b)
-	return pcu
+func (_u *PromoCodeUpdate) SetIsActive(v bool) *PromoCodeUpdate {
+	_u.mutation.SetIsActive(v)
+	return _u
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableIsActive(b *bool) *PromoCodeUpdate {
-	if b != nil {
-		pcu.SetIsActive(*b)
+func (_u *PromoCodeUpdate) SetNillableIsActive(v *bool) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetIsActive(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetFirstOrderOnly sets the "first_order_only" field.
-func (pcu *PromoCodeUpdate) SetFirstOrderOnly(b bool) *PromoCodeUpdate {
-	pcu.mutation.SetFirstOrderOnly(b)
-	return pcu
+func (_u *PromoCodeUpdate) SetFirstOrderOnly(v bool) *PromoCodeUpdate {
+	_u.mutation.SetFirstOrderOnly(v)
+	return _u
 }
 
 // SetNillableFirstOrderOnly sets the "first_order_only" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableFirstOrderOnly(b *bool) *PromoCodeUpdate {
-	if b != nil {
-		pcu.SetFirstOrderOnly(*b)
+func (_u *PromoCodeUpdate) SetNillableFirstOrderOnly(v *bool) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetFirstOrderOnly(*v)
 	}
-	return pcu
+	return _u
 }
 
 // SetStartsAt sets the "starts_at" field.
-func (pcu *PromoCodeUpdate) SetStartsAt(t time.Time) *PromoCodeUpdate {
-	pcu.mutation.SetStartsAt(t)
-	return pcu
+func (_u *PromoCodeUpdate) SetStartsAt(v time.Time) *PromoCodeUpdate {
+	_u.mutation.SetStartsAt(v)
+	return _u
 }
 
 // SetNillableStartsAt sets the "starts_at" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableStartsAt(t *time.Time) *PromoCodeUpdate {
-	if t != nil {
-		pcu.SetStartsAt(*t)
+func (_u *PromoCodeUpdate) SetNillableStartsAt(v *time.Time) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetStartsAt(*v)
 	}
-	return pcu
+	return _u
 }
 
 // ClearStartsAt clears the value of the "starts_at" field.
-func (pcu *PromoCodeUpdate) ClearStartsAt() *PromoCodeUpdate {
-	pcu.mutation.ClearStartsAt()
-	return pcu
+func (_u *PromoCodeUpdate) ClearStartsAt() *PromoCodeUpdate {
+	_u.mutation.ClearStartsAt()
+	return _u
 }
 
 // SetEndsAt sets the "ends_at" field.
-func (pcu *PromoCodeUpdate) SetEndsAt(t time.Time) *PromoCodeUpdate {
-	pcu.mutation.SetEndsAt(t)
-	return pcu
+func (_u *PromoCodeUpdate) SetEndsAt(v time.Time) *PromoCodeUpdate {
+	_u.mutation.SetEndsAt(v)
+	return _u
 }
 
 // SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (pcu *PromoCodeUpdate) SetNillableEndsAt(t *time.Time) *PromoCodeUpdate {
-	if t != nil {
-		pcu.SetEndsAt(*t)
+func (_u *PromoCodeUpdate) SetNillableEndsAt(v *time.Time) *PromoCodeUpdate {
+	if v != nil {
+		_u.SetEndsAt(*v)
 	}
-	return pcu
+	return _u
 }
 
 // ClearEndsAt clears the value of the "ends_at" field.
-func (pcu *PromoCodeUpdate) ClearEndsAt() *PromoCodeUpdate {
-	pcu.mutation.ClearEndsAt()
-	return pcu
+func (_u *PromoCodeUpdate) ClearEndsAt() *PromoCodeUpdate {
+	_u.mutation.ClearEndsAt()
+	return _u
 }
 
 // SetEligibleCategories sets the "eligible_categories" field.
-func (pcu *PromoCodeUpdate) SetEligibleCategories(u []uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.SetEligibleCategories(u)
-	return pcu
+func (_u *PromoCodeUpdate) SetEligibleCategories(v []uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.SetEligibleCategories(v)
+	return _u
 }
 
-// AppendEligibleCategories appends u to the "eligible_categories" field.
-func (pcu *PromoCodeUpdate) AppendEligibleCategories(u []uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.AppendEligibleCategories(u)
-	return pcu
+// AppendEligibleCategories appends value to the "eligible_categories" field.
+func (_u *PromoCodeUpdate) AppendEligibleCategories(v []uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.AppendEligibleCategories(v)
+	return _u
 }
 
 // ClearEligibleCategories clears the value of the "eligible_categories" field.
-func (pcu *PromoCodeUpdate) ClearEligibleCategories() *PromoCodeUpdate {
-	pcu.mutation.ClearEligibleCategories()
-	return pcu
+func (_u *PromoCodeUpdate) ClearEligibleCategories() *PromoCodeUpdate {
+	_u.mutation.ClearEligibleCategories()
+	return _u
 }
 
 // SetEligibleItems sets the "eligible_items" field.
-func (pcu *PromoCodeUpdate) SetEligibleItems(u []uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.SetEligibleItems(u)
-	return pcu
+func (_u *PromoCodeUpdate) SetEligibleItems(v []uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.SetEligibleItems(v)
+	return _u
 }
 
-// AppendEligibleItems appends u to the "eligible_items" field.
-func (pcu *PromoCodeUpdate) AppendEligibleItems(u []uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.AppendEligibleItems(u)
-	return pcu
+// AppendEligibleItems appends value to the "eligible_items" field.
+func (_u *PromoCodeUpdate) AppendEligibleItems(v []uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.AppendEligibleItems(v)
+	return _u
 }
 
 // ClearEligibleItems clears the value of the "eligible_items" field.
-func (pcu *PromoCodeUpdate) ClearEligibleItems() *PromoCodeUpdate {
-	pcu.mutation.ClearEligibleItems()
-	return pcu
+func (_u *PromoCodeUpdate) ClearEligibleItems() *PromoCodeUpdate {
+	_u.mutation.ClearEligibleItems()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (pcu *PromoCodeUpdate) SetMetadata(m map[string]interface{}) *PromoCodeUpdate {
-	pcu.mutation.SetMetadata(m)
-	return pcu
+func (_u *PromoCodeUpdate) SetMetadata(v map[string]interface{}) *PromoCodeUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (pcu *PromoCodeUpdate) ClearMetadata() *PromoCodeUpdate {
-	pcu.mutation.ClearMetadata()
-	return pcu
+func (_u *PromoCodeUpdate) ClearMetadata() *PromoCodeUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (pcu *PromoCodeUpdate) SetUpdatedAt(t time.Time) *PromoCodeUpdate {
-	pcu.mutation.SetUpdatedAt(t)
-	return pcu
+func (_u *PromoCodeUpdate) SetUpdatedAt(v time.Time) *PromoCodeUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddRedemptionIDs adds the "redemptions" edge to the PromoRedemption entity by IDs.
-func (pcu *PromoCodeUpdate) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.AddRedemptionIDs(ids...)
-	return pcu
+func (_u *PromoCodeUpdate) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.AddRedemptionIDs(ids...)
+	return _u
 }
 
 // AddRedemptions adds the "redemptions" edges to the PromoRedemption entity.
-func (pcu *PromoCodeUpdate) AddRedemptions(p ...*PromoRedemption) *PromoCodeUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *PromoCodeUpdate) AddRedemptions(v ...*PromoRedemption) *PromoCodeUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcu.AddRedemptionIDs(ids...)
+	return _u.AddRedemptionIDs(ids...)
 }
 
 // Mutation returns the PromoCodeMutation object of the builder.
-func (pcu *PromoCodeUpdate) Mutation() *PromoCodeMutation {
-	return pcu.mutation
+func (_u *PromoCodeUpdate) Mutation() *PromoCodeMutation {
+	return _u.mutation
 }
 
 // ClearRedemptions clears all "redemptions" edges to the PromoRedemption entity.
-func (pcu *PromoCodeUpdate) ClearRedemptions() *PromoCodeUpdate {
-	pcu.mutation.ClearRedemptions()
-	return pcu
+func (_u *PromoCodeUpdate) ClearRedemptions() *PromoCodeUpdate {
+	_u.mutation.ClearRedemptions()
+	return _u
 }
 
 // RemoveRedemptionIDs removes the "redemptions" edge to PromoRedemption entities by IDs.
-func (pcu *PromoCodeUpdate) RemoveRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdate {
-	pcu.mutation.RemoveRedemptionIDs(ids...)
-	return pcu
+func (_u *PromoCodeUpdate) RemoveRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdate {
+	_u.mutation.RemoveRedemptionIDs(ids...)
+	return _u
 }
 
 // RemoveRedemptions removes "redemptions" edges to PromoRedemption entities.
-func (pcu *PromoCodeUpdate) RemoveRedemptions(p ...*PromoRedemption) *PromoCodeUpdate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *PromoCodeUpdate) RemoveRedemptions(v ...*PromoRedemption) *PromoCodeUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcu.RemoveRedemptionIDs(ids...)
+	return _u.RemoveRedemptionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (pcu *PromoCodeUpdate) Save(ctx context.Context) (int, error) {
-	pcu.defaults()
-	return withHooks(ctx, pcu.sqlSave, pcu.mutation, pcu.hooks)
+func (_u *PromoCodeUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pcu *PromoCodeUpdate) SaveX(ctx context.Context) int {
-	affected, err := pcu.Save(ctx)
+func (_u *PromoCodeUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -450,39 +450,39 @@ func (pcu *PromoCodeUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (pcu *PromoCodeUpdate) Exec(ctx context.Context) error {
-	_, err := pcu.Save(ctx)
+func (_u *PromoCodeUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcu *PromoCodeUpdate) ExecX(ctx context.Context) {
-	if err := pcu.Exec(ctx); err != nil {
+func (_u *PromoCodeUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (pcu *PromoCodeUpdate) defaults() {
-	if _, ok := pcu.mutation.UpdatedAt(); !ok {
+func (_u *PromoCodeUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := promocode.UpdateDefaultUpdatedAt()
-		pcu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pcu *PromoCodeUpdate) check() error {
-	if v, ok := pcu.mutation.Code(); ok {
+func (_u *PromoCodeUpdate) check() error {
+	if v, ok := _u.mutation.Code(); ok {
 		if err := promocode.CodeValidator(v); err != nil {
 			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "PromoCode.code": %w`, err)}
 		}
 	}
-	if v, ok := pcu.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := promocode.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PromoCode.name": %w`, err)}
 		}
 	}
-	if v, ok := pcu.mutation.DiscountType(); ok {
+	if v, ok := _u.mutation.DiscountType(); ok {
 		if err := promocode.DiscountTypeValidator(v); err != nil {
 			return &ValidationError{Name: "discount_type", err: fmt.Errorf(`ent: validator failed for field "PromoCode.discount_type": %w`, err)}
 		}
@@ -490,137 +490,137 @@ func (pcu *PromoCodeUpdate) check() error {
 	return nil
 }
 
-func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := pcu.check(); err != nil {
-		return n, err
+func (_u *PromoCodeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(promocode.Table, promocode.Columns, sqlgraph.NewFieldSpec(promocode.FieldID, field.TypeUUID))
-	if ps := pcu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := pcu.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := pcu.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
 	}
-	if pcu.mutation.OutletIDCleared() {
+	if _u.mutation.OutletIDCleared() {
 		_spec.ClearField(promocode.FieldOutletID, field.TypeUUID)
 	}
-	if value, ok := pcu.mutation.Code(); ok {
+	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)
 	}
-	if value, ok := pcu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(promocode.FieldName, field.TypeString, value)
 	}
-	if value, ok := pcu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(promocode.FieldDescription, field.TypeString, value)
 	}
-	if pcu.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(promocode.FieldDescription, field.TypeString)
 	}
-	if value, ok := pcu.mutation.DiscountType(); ok {
+	if value, ok := _u.mutation.DiscountType(); ok {
 		_spec.SetField(promocode.FieldDiscountType, field.TypeEnum, value)
 	}
-	if value, ok := pcu.mutation.DiscountValue(); ok {
+	if value, ok := _u.mutation.DiscountValue(); ok {
 		_spec.SetField(promocode.FieldDiscountValue, field.TypeFloat64, value)
 	}
-	if value, ok := pcu.mutation.AddedDiscountValue(); ok {
+	if value, ok := _u.mutation.AddedDiscountValue(); ok {
 		_spec.AddField(promocode.FieldDiscountValue, field.TypeFloat64, value)
 	}
-	if value, ok := pcu.mutation.MaxDiscountAmount(); ok {
+	if value, ok := _u.mutation.MaxDiscountAmount(); ok {
 		_spec.SetField(promocode.FieldMaxDiscountAmount, field.TypeFloat64, value)
 	}
-	if value, ok := pcu.mutation.AddedMaxDiscountAmount(); ok {
+	if value, ok := _u.mutation.AddedMaxDiscountAmount(); ok {
 		_spec.AddField(promocode.FieldMaxDiscountAmount, field.TypeFloat64, value)
 	}
-	if pcu.mutation.MaxDiscountAmountCleared() {
+	if _u.mutation.MaxDiscountAmountCleared() {
 		_spec.ClearField(promocode.FieldMaxDiscountAmount, field.TypeFloat64)
 	}
-	if value, ok := pcu.mutation.MinSubtotal(); ok {
+	if value, ok := _u.mutation.MinSubtotal(); ok {
 		_spec.SetField(promocode.FieldMinSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := pcu.mutation.AddedMinSubtotal(); ok {
+	if value, ok := _u.mutation.AddedMinSubtotal(); ok {
 		_spec.AddField(promocode.FieldMinSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := pcu.mutation.MaxUses(); ok {
+	if value, ok := _u.mutation.MaxUses(); ok {
 		_spec.SetField(promocode.FieldMaxUses, field.TypeInt, value)
 	}
-	if value, ok := pcu.mutation.AddedMaxUses(); ok {
+	if value, ok := _u.mutation.AddedMaxUses(); ok {
 		_spec.AddField(promocode.FieldMaxUses, field.TypeInt, value)
 	}
-	if pcu.mutation.MaxUsesCleared() {
+	if _u.mutation.MaxUsesCleared() {
 		_spec.ClearField(promocode.FieldMaxUses, field.TypeInt)
 	}
-	if value, ok := pcu.mutation.MaxUsesPerUser(); ok {
+	if value, ok := _u.mutation.MaxUsesPerUser(); ok {
 		_spec.SetField(promocode.FieldMaxUsesPerUser, field.TypeInt, value)
 	}
-	if value, ok := pcu.mutation.AddedMaxUsesPerUser(); ok {
+	if value, ok := _u.mutation.AddedMaxUsesPerUser(); ok {
 		_spec.AddField(promocode.FieldMaxUsesPerUser, field.TypeInt, value)
 	}
-	if pcu.mutation.MaxUsesPerUserCleared() {
+	if _u.mutation.MaxUsesPerUserCleared() {
 		_spec.ClearField(promocode.FieldMaxUsesPerUser, field.TypeInt)
 	}
-	if value, ok := pcu.mutation.UsageCount(); ok {
+	if value, ok := _u.mutation.UsageCount(); ok {
 		_spec.SetField(promocode.FieldUsageCount, field.TypeInt, value)
 	}
-	if value, ok := pcu.mutation.AddedUsageCount(); ok {
+	if value, ok := _u.mutation.AddedUsageCount(); ok {
 		_spec.AddField(promocode.FieldUsageCount, field.TypeInt, value)
 	}
-	if value, ok := pcu.mutation.IsActive(); ok {
+	if value, ok := _u.mutation.IsActive(); ok {
 		_spec.SetField(promocode.FieldIsActive, field.TypeBool, value)
 	}
-	if value, ok := pcu.mutation.FirstOrderOnly(); ok {
+	if value, ok := _u.mutation.FirstOrderOnly(); ok {
 		_spec.SetField(promocode.FieldFirstOrderOnly, field.TypeBool, value)
 	}
-	if value, ok := pcu.mutation.StartsAt(); ok {
+	if value, ok := _u.mutation.StartsAt(); ok {
 		_spec.SetField(promocode.FieldStartsAt, field.TypeTime, value)
 	}
-	if pcu.mutation.StartsAtCleared() {
+	if _u.mutation.StartsAtCleared() {
 		_spec.ClearField(promocode.FieldStartsAt, field.TypeTime)
 	}
-	if value, ok := pcu.mutation.EndsAt(); ok {
+	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(promocode.FieldEndsAt, field.TypeTime, value)
 	}
-	if pcu.mutation.EndsAtCleared() {
+	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(promocode.FieldEndsAt, field.TypeTime)
 	}
-	if value, ok := pcu.mutation.EligibleCategories(); ok {
+	if value, ok := _u.mutation.EligibleCategories(); ok {
 		_spec.SetField(promocode.FieldEligibleCategories, field.TypeJSON, value)
 	}
-	if value, ok := pcu.mutation.AppendedEligibleCategories(); ok {
+	if value, ok := _u.mutation.AppendedEligibleCategories(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, promocode.FieldEligibleCategories, value)
 		})
 	}
-	if pcu.mutation.EligibleCategoriesCleared() {
+	if _u.mutation.EligibleCategoriesCleared() {
 		_spec.ClearField(promocode.FieldEligibleCategories, field.TypeJSON)
 	}
-	if value, ok := pcu.mutation.EligibleItems(); ok {
+	if value, ok := _u.mutation.EligibleItems(); ok {
 		_spec.SetField(promocode.FieldEligibleItems, field.TypeJSON, value)
 	}
-	if value, ok := pcu.mutation.AppendedEligibleItems(); ok {
+	if value, ok := _u.mutation.AppendedEligibleItems(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, promocode.FieldEligibleItems, value)
 		})
 	}
-	if pcu.mutation.EligibleItemsCleared() {
+	if _u.mutation.EligibleItemsCleared() {
 		_spec.ClearField(promocode.FieldEligibleItems, field.TypeJSON)
 	}
-	if value, ok := pcu.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(promocode.FieldMetadata, field.TypeJSON, value)
 	}
-	if pcu.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(promocode.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := pcu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(promocode.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if pcu.mutation.RedemptionsCleared() {
+	if _u.mutation.RedemptionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -633,7 +633,7 @@ func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pcu.mutation.RemovedRedemptionsIDs(); len(nodes) > 0 && !pcu.mutation.RedemptionsCleared() {
+	if nodes := _u.mutation.RemovedRedemptionsIDs(); len(nodes) > 0 && !_u.mutation.RedemptionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -649,7 +649,7 @@ func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pcu.mutation.RedemptionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RedemptionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -665,7 +665,7 @@ func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, pcu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{promocode.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -673,8 +673,8 @@ func (pcu *PromoCodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	pcu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // PromoCodeUpdateOne is the builder for updating a single PromoCode entity.
@@ -686,430 +686,430 @@ type PromoCodeUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (pcuo *PromoCodeUpdateOne) SetTenantID(u uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.SetTenantID(u)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetTenantID(v uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableTenantID(u *uuid.UUID) *PromoCodeUpdateOne {
-	if u != nil {
-		pcuo.SetTenantID(*u)
+func (_u *PromoCodeUpdateOne) SetNillableTenantID(v *uuid.UUID) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (pcuo *PromoCodeUpdateOne) SetOutletID(u uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.SetOutletID(u)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetOutletID(v uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableOutletID(u *uuid.UUID) *PromoCodeUpdateOne {
-	if u != nil {
-		pcuo.SetOutletID(*u)
+func (_u *PromoCodeUpdateOne) SetNillableOutletID(v *uuid.UUID) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // ClearOutletID clears the value of the "outlet_id" field.
-func (pcuo *PromoCodeUpdateOne) ClearOutletID() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearOutletID()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearOutletID() *PromoCodeUpdateOne {
+	_u.mutation.ClearOutletID()
+	return _u
 }
 
 // SetCode sets the "code" field.
-func (pcuo *PromoCodeUpdateOne) SetCode(s string) *PromoCodeUpdateOne {
-	pcuo.mutation.SetCode(s)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetCode(v string) *PromoCodeUpdateOne {
+	_u.mutation.SetCode(v)
+	return _u
 }
 
 // SetNillableCode sets the "code" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableCode(s *string) *PromoCodeUpdateOne {
-	if s != nil {
-		pcuo.SetCode(*s)
+func (_u *PromoCodeUpdateOne) SetNillableCode(v *string) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetCode(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (pcuo *PromoCodeUpdateOne) SetName(s string) *PromoCodeUpdateOne {
-	pcuo.mutation.SetName(s)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetName(v string) *PromoCodeUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableName(s *string) *PromoCodeUpdateOne {
-	if s != nil {
-		pcuo.SetName(*s)
+func (_u *PromoCodeUpdateOne) SetNillableName(v *string) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (pcuo *PromoCodeUpdateOne) SetDescription(s string) *PromoCodeUpdateOne {
-	pcuo.mutation.SetDescription(s)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetDescription(v string) *PromoCodeUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableDescription(s *string) *PromoCodeUpdateOne {
-	if s != nil {
-		pcuo.SetDescription(*s)
+func (_u *PromoCodeUpdateOne) SetNillableDescription(v *string) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (pcuo *PromoCodeUpdateOne) ClearDescription() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearDescription()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearDescription() *PromoCodeUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetDiscountType sets the "discount_type" field.
-func (pcuo *PromoCodeUpdateOne) SetDiscountType(pt promocode.DiscountType) *PromoCodeUpdateOne {
-	pcuo.mutation.SetDiscountType(pt)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetDiscountType(v promocode.DiscountType) *PromoCodeUpdateOne {
+	_u.mutation.SetDiscountType(v)
+	return _u
 }
 
 // SetNillableDiscountType sets the "discount_type" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableDiscountType(pt *promocode.DiscountType) *PromoCodeUpdateOne {
-	if pt != nil {
-		pcuo.SetDiscountType(*pt)
+func (_u *PromoCodeUpdateOne) SetNillableDiscountType(v *promocode.DiscountType) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetDiscountType(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetDiscountValue sets the "discount_value" field.
-func (pcuo *PromoCodeUpdateOne) SetDiscountValue(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetDiscountValue()
-	pcuo.mutation.SetDiscountValue(f)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetDiscountValue(v float64) *PromoCodeUpdateOne {
+	_u.mutation.ResetDiscountValue()
+	_u.mutation.SetDiscountValue(v)
+	return _u
 }
 
 // SetNillableDiscountValue sets the "discount_value" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableDiscountValue(f *float64) *PromoCodeUpdateOne {
-	if f != nil {
-		pcuo.SetDiscountValue(*f)
+func (_u *PromoCodeUpdateOne) SetNillableDiscountValue(v *float64) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetDiscountValue(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddDiscountValue adds f to the "discount_value" field.
-func (pcuo *PromoCodeUpdateOne) AddDiscountValue(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.AddDiscountValue(f)
-	return pcuo
+// AddDiscountValue adds value to the "discount_value" field.
+func (_u *PromoCodeUpdateOne) AddDiscountValue(v float64) *PromoCodeUpdateOne {
+	_u.mutation.AddDiscountValue(v)
+	return _u
 }
 
 // SetMaxDiscountAmount sets the "max_discount_amount" field.
-func (pcuo *PromoCodeUpdateOne) SetMaxDiscountAmount(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetMaxDiscountAmount()
-	pcuo.mutation.SetMaxDiscountAmount(f)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetMaxDiscountAmount(v float64) *PromoCodeUpdateOne {
+	_u.mutation.ResetMaxDiscountAmount()
+	_u.mutation.SetMaxDiscountAmount(v)
+	return _u
 }
 
 // SetNillableMaxDiscountAmount sets the "max_discount_amount" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableMaxDiscountAmount(f *float64) *PromoCodeUpdateOne {
-	if f != nil {
-		pcuo.SetMaxDiscountAmount(*f)
+func (_u *PromoCodeUpdateOne) SetNillableMaxDiscountAmount(v *float64) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetMaxDiscountAmount(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddMaxDiscountAmount adds f to the "max_discount_amount" field.
-func (pcuo *PromoCodeUpdateOne) AddMaxDiscountAmount(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.AddMaxDiscountAmount(f)
-	return pcuo
+// AddMaxDiscountAmount adds value to the "max_discount_amount" field.
+func (_u *PromoCodeUpdateOne) AddMaxDiscountAmount(v float64) *PromoCodeUpdateOne {
+	_u.mutation.AddMaxDiscountAmount(v)
+	return _u
 }
 
 // ClearMaxDiscountAmount clears the value of the "max_discount_amount" field.
-func (pcuo *PromoCodeUpdateOne) ClearMaxDiscountAmount() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearMaxDiscountAmount()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearMaxDiscountAmount() *PromoCodeUpdateOne {
+	_u.mutation.ClearMaxDiscountAmount()
+	return _u
 }
 
 // SetMinSubtotal sets the "min_subtotal" field.
-func (pcuo *PromoCodeUpdateOne) SetMinSubtotal(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetMinSubtotal()
-	pcuo.mutation.SetMinSubtotal(f)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetMinSubtotal(v float64) *PromoCodeUpdateOne {
+	_u.mutation.ResetMinSubtotal()
+	_u.mutation.SetMinSubtotal(v)
+	return _u
 }
 
 // SetNillableMinSubtotal sets the "min_subtotal" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableMinSubtotal(f *float64) *PromoCodeUpdateOne {
-	if f != nil {
-		pcuo.SetMinSubtotal(*f)
+func (_u *PromoCodeUpdateOne) SetNillableMinSubtotal(v *float64) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetMinSubtotal(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddMinSubtotal adds f to the "min_subtotal" field.
-func (pcuo *PromoCodeUpdateOne) AddMinSubtotal(f float64) *PromoCodeUpdateOne {
-	pcuo.mutation.AddMinSubtotal(f)
-	return pcuo
+// AddMinSubtotal adds value to the "min_subtotal" field.
+func (_u *PromoCodeUpdateOne) AddMinSubtotal(v float64) *PromoCodeUpdateOne {
+	_u.mutation.AddMinSubtotal(v)
+	return _u
 }
 
 // SetMaxUses sets the "max_uses" field.
-func (pcuo *PromoCodeUpdateOne) SetMaxUses(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetMaxUses()
-	pcuo.mutation.SetMaxUses(i)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetMaxUses(v int) *PromoCodeUpdateOne {
+	_u.mutation.ResetMaxUses()
+	_u.mutation.SetMaxUses(v)
+	return _u
 }
 
 // SetNillableMaxUses sets the "max_uses" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableMaxUses(i *int) *PromoCodeUpdateOne {
-	if i != nil {
-		pcuo.SetMaxUses(*i)
+func (_u *PromoCodeUpdateOne) SetNillableMaxUses(v *int) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetMaxUses(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddMaxUses adds i to the "max_uses" field.
-func (pcuo *PromoCodeUpdateOne) AddMaxUses(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.AddMaxUses(i)
-	return pcuo
+// AddMaxUses adds value to the "max_uses" field.
+func (_u *PromoCodeUpdateOne) AddMaxUses(v int) *PromoCodeUpdateOne {
+	_u.mutation.AddMaxUses(v)
+	return _u
 }
 
 // ClearMaxUses clears the value of the "max_uses" field.
-func (pcuo *PromoCodeUpdateOne) ClearMaxUses() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearMaxUses()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearMaxUses() *PromoCodeUpdateOne {
+	_u.mutation.ClearMaxUses()
+	return _u
 }
 
 // SetMaxUsesPerUser sets the "max_uses_per_user" field.
-func (pcuo *PromoCodeUpdateOne) SetMaxUsesPerUser(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetMaxUsesPerUser()
-	pcuo.mutation.SetMaxUsesPerUser(i)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetMaxUsesPerUser(v int) *PromoCodeUpdateOne {
+	_u.mutation.ResetMaxUsesPerUser()
+	_u.mutation.SetMaxUsesPerUser(v)
+	return _u
 }
 
 // SetNillableMaxUsesPerUser sets the "max_uses_per_user" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableMaxUsesPerUser(i *int) *PromoCodeUpdateOne {
-	if i != nil {
-		pcuo.SetMaxUsesPerUser(*i)
+func (_u *PromoCodeUpdateOne) SetNillableMaxUsesPerUser(v *int) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetMaxUsesPerUser(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddMaxUsesPerUser adds i to the "max_uses_per_user" field.
-func (pcuo *PromoCodeUpdateOne) AddMaxUsesPerUser(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.AddMaxUsesPerUser(i)
-	return pcuo
+// AddMaxUsesPerUser adds value to the "max_uses_per_user" field.
+func (_u *PromoCodeUpdateOne) AddMaxUsesPerUser(v int) *PromoCodeUpdateOne {
+	_u.mutation.AddMaxUsesPerUser(v)
+	return _u
 }
 
 // ClearMaxUsesPerUser clears the value of the "max_uses_per_user" field.
-func (pcuo *PromoCodeUpdateOne) ClearMaxUsesPerUser() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearMaxUsesPerUser()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearMaxUsesPerUser() *PromoCodeUpdateOne {
+	_u.mutation.ClearMaxUsesPerUser()
+	return _u
 }
 
 // SetUsageCount sets the "usage_count" field.
-func (pcuo *PromoCodeUpdateOne) SetUsageCount(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.ResetUsageCount()
-	pcuo.mutation.SetUsageCount(i)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetUsageCount(v int) *PromoCodeUpdateOne {
+	_u.mutation.ResetUsageCount()
+	_u.mutation.SetUsageCount(v)
+	return _u
 }
 
 // SetNillableUsageCount sets the "usage_count" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableUsageCount(i *int) *PromoCodeUpdateOne {
-	if i != nil {
-		pcuo.SetUsageCount(*i)
+func (_u *PromoCodeUpdateOne) SetNillableUsageCount(v *int) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetUsageCount(*v)
 	}
-	return pcuo
+	return _u
 }
 
-// AddUsageCount adds i to the "usage_count" field.
-func (pcuo *PromoCodeUpdateOne) AddUsageCount(i int) *PromoCodeUpdateOne {
-	pcuo.mutation.AddUsageCount(i)
-	return pcuo
+// AddUsageCount adds value to the "usage_count" field.
+func (_u *PromoCodeUpdateOne) AddUsageCount(v int) *PromoCodeUpdateOne {
+	_u.mutation.AddUsageCount(v)
+	return _u
 }
 
 // SetIsActive sets the "is_active" field.
-func (pcuo *PromoCodeUpdateOne) SetIsActive(b bool) *PromoCodeUpdateOne {
-	pcuo.mutation.SetIsActive(b)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetIsActive(v bool) *PromoCodeUpdateOne {
+	_u.mutation.SetIsActive(v)
+	return _u
 }
 
 // SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableIsActive(b *bool) *PromoCodeUpdateOne {
-	if b != nil {
-		pcuo.SetIsActive(*b)
+func (_u *PromoCodeUpdateOne) SetNillableIsActive(v *bool) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetIsActive(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetFirstOrderOnly sets the "first_order_only" field.
-func (pcuo *PromoCodeUpdateOne) SetFirstOrderOnly(b bool) *PromoCodeUpdateOne {
-	pcuo.mutation.SetFirstOrderOnly(b)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetFirstOrderOnly(v bool) *PromoCodeUpdateOne {
+	_u.mutation.SetFirstOrderOnly(v)
+	return _u
 }
 
 // SetNillableFirstOrderOnly sets the "first_order_only" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableFirstOrderOnly(b *bool) *PromoCodeUpdateOne {
-	if b != nil {
-		pcuo.SetFirstOrderOnly(*b)
+func (_u *PromoCodeUpdateOne) SetNillableFirstOrderOnly(v *bool) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetFirstOrderOnly(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // SetStartsAt sets the "starts_at" field.
-func (pcuo *PromoCodeUpdateOne) SetStartsAt(t time.Time) *PromoCodeUpdateOne {
-	pcuo.mutation.SetStartsAt(t)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetStartsAt(v time.Time) *PromoCodeUpdateOne {
+	_u.mutation.SetStartsAt(v)
+	return _u
 }
 
 // SetNillableStartsAt sets the "starts_at" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableStartsAt(t *time.Time) *PromoCodeUpdateOne {
-	if t != nil {
-		pcuo.SetStartsAt(*t)
+func (_u *PromoCodeUpdateOne) SetNillableStartsAt(v *time.Time) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetStartsAt(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // ClearStartsAt clears the value of the "starts_at" field.
-func (pcuo *PromoCodeUpdateOne) ClearStartsAt() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearStartsAt()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearStartsAt() *PromoCodeUpdateOne {
+	_u.mutation.ClearStartsAt()
+	return _u
 }
 
 // SetEndsAt sets the "ends_at" field.
-func (pcuo *PromoCodeUpdateOne) SetEndsAt(t time.Time) *PromoCodeUpdateOne {
-	pcuo.mutation.SetEndsAt(t)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetEndsAt(v time.Time) *PromoCodeUpdateOne {
+	_u.mutation.SetEndsAt(v)
+	return _u
 }
 
 // SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (pcuo *PromoCodeUpdateOne) SetNillableEndsAt(t *time.Time) *PromoCodeUpdateOne {
-	if t != nil {
-		pcuo.SetEndsAt(*t)
+func (_u *PromoCodeUpdateOne) SetNillableEndsAt(v *time.Time) *PromoCodeUpdateOne {
+	if v != nil {
+		_u.SetEndsAt(*v)
 	}
-	return pcuo
+	return _u
 }
 
 // ClearEndsAt clears the value of the "ends_at" field.
-func (pcuo *PromoCodeUpdateOne) ClearEndsAt() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearEndsAt()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearEndsAt() *PromoCodeUpdateOne {
+	_u.mutation.ClearEndsAt()
+	return _u
 }
 
 // SetEligibleCategories sets the "eligible_categories" field.
-func (pcuo *PromoCodeUpdateOne) SetEligibleCategories(u []uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.SetEligibleCategories(u)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetEligibleCategories(v []uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.SetEligibleCategories(v)
+	return _u
 }
 
-// AppendEligibleCategories appends u to the "eligible_categories" field.
-func (pcuo *PromoCodeUpdateOne) AppendEligibleCategories(u []uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.AppendEligibleCategories(u)
-	return pcuo
+// AppendEligibleCategories appends value to the "eligible_categories" field.
+func (_u *PromoCodeUpdateOne) AppendEligibleCategories(v []uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.AppendEligibleCategories(v)
+	return _u
 }
 
 // ClearEligibleCategories clears the value of the "eligible_categories" field.
-func (pcuo *PromoCodeUpdateOne) ClearEligibleCategories() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearEligibleCategories()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearEligibleCategories() *PromoCodeUpdateOne {
+	_u.mutation.ClearEligibleCategories()
+	return _u
 }
 
 // SetEligibleItems sets the "eligible_items" field.
-func (pcuo *PromoCodeUpdateOne) SetEligibleItems(u []uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.SetEligibleItems(u)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetEligibleItems(v []uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.SetEligibleItems(v)
+	return _u
 }
 
-// AppendEligibleItems appends u to the "eligible_items" field.
-func (pcuo *PromoCodeUpdateOne) AppendEligibleItems(u []uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.AppendEligibleItems(u)
-	return pcuo
+// AppendEligibleItems appends value to the "eligible_items" field.
+func (_u *PromoCodeUpdateOne) AppendEligibleItems(v []uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.AppendEligibleItems(v)
+	return _u
 }
 
 // ClearEligibleItems clears the value of the "eligible_items" field.
-func (pcuo *PromoCodeUpdateOne) ClearEligibleItems() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearEligibleItems()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearEligibleItems() *PromoCodeUpdateOne {
+	_u.mutation.ClearEligibleItems()
+	return _u
 }
 
 // SetMetadata sets the "metadata" field.
-func (pcuo *PromoCodeUpdateOne) SetMetadata(m map[string]interface{}) *PromoCodeUpdateOne {
-	pcuo.mutation.SetMetadata(m)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetMetadata(v map[string]interface{}) *PromoCodeUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
 }
 
 // ClearMetadata clears the value of the "metadata" field.
-func (pcuo *PromoCodeUpdateOne) ClearMetadata() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearMetadata()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearMetadata() *PromoCodeUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (pcuo *PromoCodeUpdateOne) SetUpdatedAt(t time.Time) *PromoCodeUpdateOne {
-	pcuo.mutation.SetUpdatedAt(t)
-	return pcuo
+func (_u *PromoCodeUpdateOne) SetUpdatedAt(v time.Time) *PromoCodeUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddRedemptionIDs adds the "redemptions" edge to the PromoRedemption entity by IDs.
-func (pcuo *PromoCodeUpdateOne) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.AddRedemptionIDs(ids...)
-	return pcuo
+func (_u *PromoCodeUpdateOne) AddRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.AddRedemptionIDs(ids...)
+	return _u
 }
 
 // AddRedemptions adds the "redemptions" edges to the PromoRedemption entity.
-func (pcuo *PromoCodeUpdateOne) AddRedemptions(p ...*PromoRedemption) *PromoCodeUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *PromoCodeUpdateOne) AddRedemptions(v ...*PromoRedemption) *PromoCodeUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcuo.AddRedemptionIDs(ids...)
+	return _u.AddRedemptionIDs(ids...)
 }
 
 // Mutation returns the PromoCodeMutation object of the builder.
-func (pcuo *PromoCodeUpdateOne) Mutation() *PromoCodeMutation {
-	return pcuo.mutation
+func (_u *PromoCodeUpdateOne) Mutation() *PromoCodeMutation {
+	return _u.mutation
 }
 
 // ClearRedemptions clears all "redemptions" edges to the PromoRedemption entity.
-func (pcuo *PromoCodeUpdateOne) ClearRedemptions() *PromoCodeUpdateOne {
-	pcuo.mutation.ClearRedemptions()
-	return pcuo
+func (_u *PromoCodeUpdateOne) ClearRedemptions() *PromoCodeUpdateOne {
+	_u.mutation.ClearRedemptions()
+	return _u
 }
 
 // RemoveRedemptionIDs removes the "redemptions" edge to PromoRedemption entities by IDs.
-func (pcuo *PromoCodeUpdateOne) RemoveRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdateOne {
-	pcuo.mutation.RemoveRedemptionIDs(ids...)
-	return pcuo
+func (_u *PromoCodeUpdateOne) RemoveRedemptionIDs(ids ...uuid.UUID) *PromoCodeUpdateOne {
+	_u.mutation.RemoveRedemptionIDs(ids...)
+	return _u
 }
 
 // RemoveRedemptions removes "redemptions" edges to PromoRedemption entities.
-func (pcuo *PromoCodeUpdateOne) RemoveRedemptions(p ...*PromoRedemption) *PromoCodeUpdateOne {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *PromoCodeUpdateOne) RemoveRedemptions(v ...*PromoRedemption) *PromoCodeUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcuo.RemoveRedemptionIDs(ids...)
+	return _u.RemoveRedemptionIDs(ids...)
 }
 
 // Where appends a list predicates to the PromoCodeUpdate builder.
-func (pcuo *PromoCodeUpdateOne) Where(ps ...predicate.PromoCode) *PromoCodeUpdateOne {
-	pcuo.mutation.Where(ps...)
-	return pcuo
+func (_u *PromoCodeUpdateOne) Where(ps ...predicate.PromoCode) *PromoCodeUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (pcuo *PromoCodeUpdateOne) Select(field string, fields ...string) *PromoCodeUpdateOne {
-	pcuo.fields = append([]string{field}, fields...)
-	return pcuo
+func (_u *PromoCodeUpdateOne) Select(field string, fields ...string) *PromoCodeUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated PromoCode entity.
-func (pcuo *PromoCodeUpdateOne) Save(ctx context.Context) (*PromoCode, error) {
-	pcuo.defaults()
-	return withHooks(ctx, pcuo.sqlSave, pcuo.mutation, pcuo.hooks)
+func (_u *PromoCodeUpdateOne) Save(ctx context.Context) (*PromoCode, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pcuo *PromoCodeUpdateOne) SaveX(ctx context.Context) *PromoCode {
-	node, err := pcuo.Save(ctx)
+func (_u *PromoCodeUpdateOne) SaveX(ctx context.Context) *PromoCode {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1117,39 +1117,39 @@ func (pcuo *PromoCodeUpdateOne) SaveX(ctx context.Context) *PromoCode {
 }
 
 // Exec executes the query on the entity.
-func (pcuo *PromoCodeUpdateOne) Exec(ctx context.Context) error {
-	_, err := pcuo.Save(ctx)
+func (_u *PromoCodeUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcuo *PromoCodeUpdateOne) ExecX(ctx context.Context) {
-	if err := pcuo.Exec(ctx); err != nil {
+func (_u *PromoCodeUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (pcuo *PromoCodeUpdateOne) defaults() {
-	if _, ok := pcuo.mutation.UpdatedAt(); !ok {
+func (_u *PromoCodeUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := promocode.UpdateDefaultUpdatedAt()
-		pcuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pcuo *PromoCodeUpdateOne) check() error {
-	if v, ok := pcuo.mutation.Code(); ok {
+func (_u *PromoCodeUpdateOne) check() error {
+	if v, ok := _u.mutation.Code(); ok {
 		if err := promocode.CodeValidator(v); err != nil {
 			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "PromoCode.code": %w`, err)}
 		}
 	}
-	if v, ok := pcuo.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := promocode.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PromoCode.name": %w`, err)}
 		}
 	}
-	if v, ok := pcuo.mutation.DiscountType(); ok {
+	if v, ok := _u.mutation.DiscountType(); ok {
 		if err := promocode.DiscountTypeValidator(v); err != nil {
 			return &ValidationError{Name: "discount_type", err: fmt.Errorf(`ent: validator failed for field "PromoCode.discount_type": %w`, err)}
 		}
@@ -1157,17 +1157,17 @@ func (pcuo *PromoCodeUpdateOne) check() error {
 	return nil
 }
 
-func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, err error) {
-	if err := pcuo.check(); err != nil {
+func (_u *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(promocode.Table, promocode.Columns, sqlgraph.NewFieldSpec(promocode.FieldID, field.TypeUUID))
-	id, ok := pcuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "PromoCode.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := pcuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, promocode.FieldID)
 		for _, f := range fields {
@@ -1179,132 +1179,132 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 			}
 		}
 	}
-	if ps := pcuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := pcuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(promocode.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := pcuo.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(promocode.FieldOutletID, field.TypeUUID, value)
 	}
-	if pcuo.mutation.OutletIDCleared() {
+	if _u.mutation.OutletIDCleared() {
 		_spec.ClearField(promocode.FieldOutletID, field.TypeUUID)
 	}
-	if value, ok := pcuo.mutation.Code(); ok {
+	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(promocode.FieldCode, field.TypeString, value)
 	}
-	if value, ok := pcuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(promocode.FieldName, field.TypeString, value)
 	}
-	if value, ok := pcuo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(promocode.FieldDescription, field.TypeString, value)
 	}
-	if pcuo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(promocode.FieldDescription, field.TypeString)
 	}
-	if value, ok := pcuo.mutation.DiscountType(); ok {
+	if value, ok := _u.mutation.DiscountType(); ok {
 		_spec.SetField(promocode.FieldDiscountType, field.TypeEnum, value)
 	}
-	if value, ok := pcuo.mutation.DiscountValue(); ok {
+	if value, ok := _u.mutation.DiscountValue(); ok {
 		_spec.SetField(promocode.FieldDiscountValue, field.TypeFloat64, value)
 	}
-	if value, ok := pcuo.mutation.AddedDiscountValue(); ok {
+	if value, ok := _u.mutation.AddedDiscountValue(); ok {
 		_spec.AddField(promocode.FieldDiscountValue, field.TypeFloat64, value)
 	}
-	if value, ok := pcuo.mutation.MaxDiscountAmount(); ok {
+	if value, ok := _u.mutation.MaxDiscountAmount(); ok {
 		_spec.SetField(promocode.FieldMaxDiscountAmount, field.TypeFloat64, value)
 	}
-	if value, ok := pcuo.mutation.AddedMaxDiscountAmount(); ok {
+	if value, ok := _u.mutation.AddedMaxDiscountAmount(); ok {
 		_spec.AddField(promocode.FieldMaxDiscountAmount, field.TypeFloat64, value)
 	}
-	if pcuo.mutation.MaxDiscountAmountCleared() {
+	if _u.mutation.MaxDiscountAmountCleared() {
 		_spec.ClearField(promocode.FieldMaxDiscountAmount, field.TypeFloat64)
 	}
-	if value, ok := pcuo.mutation.MinSubtotal(); ok {
+	if value, ok := _u.mutation.MinSubtotal(); ok {
 		_spec.SetField(promocode.FieldMinSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := pcuo.mutation.AddedMinSubtotal(); ok {
+	if value, ok := _u.mutation.AddedMinSubtotal(); ok {
 		_spec.AddField(promocode.FieldMinSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := pcuo.mutation.MaxUses(); ok {
+	if value, ok := _u.mutation.MaxUses(); ok {
 		_spec.SetField(promocode.FieldMaxUses, field.TypeInt, value)
 	}
-	if value, ok := pcuo.mutation.AddedMaxUses(); ok {
+	if value, ok := _u.mutation.AddedMaxUses(); ok {
 		_spec.AddField(promocode.FieldMaxUses, field.TypeInt, value)
 	}
-	if pcuo.mutation.MaxUsesCleared() {
+	if _u.mutation.MaxUsesCleared() {
 		_spec.ClearField(promocode.FieldMaxUses, field.TypeInt)
 	}
-	if value, ok := pcuo.mutation.MaxUsesPerUser(); ok {
+	if value, ok := _u.mutation.MaxUsesPerUser(); ok {
 		_spec.SetField(promocode.FieldMaxUsesPerUser, field.TypeInt, value)
 	}
-	if value, ok := pcuo.mutation.AddedMaxUsesPerUser(); ok {
+	if value, ok := _u.mutation.AddedMaxUsesPerUser(); ok {
 		_spec.AddField(promocode.FieldMaxUsesPerUser, field.TypeInt, value)
 	}
-	if pcuo.mutation.MaxUsesPerUserCleared() {
+	if _u.mutation.MaxUsesPerUserCleared() {
 		_spec.ClearField(promocode.FieldMaxUsesPerUser, field.TypeInt)
 	}
-	if value, ok := pcuo.mutation.UsageCount(); ok {
+	if value, ok := _u.mutation.UsageCount(); ok {
 		_spec.SetField(promocode.FieldUsageCount, field.TypeInt, value)
 	}
-	if value, ok := pcuo.mutation.AddedUsageCount(); ok {
+	if value, ok := _u.mutation.AddedUsageCount(); ok {
 		_spec.AddField(promocode.FieldUsageCount, field.TypeInt, value)
 	}
-	if value, ok := pcuo.mutation.IsActive(); ok {
+	if value, ok := _u.mutation.IsActive(); ok {
 		_spec.SetField(promocode.FieldIsActive, field.TypeBool, value)
 	}
-	if value, ok := pcuo.mutation.FirstOrderOnly(); ok {
+	if value, ok := _u.mutation.FirstOrderOnly(); ok {
 		_spec.SetField(promocode.FieldFirstOrderOnly, field.TypeBool, value)
 	}
-	if value, ok := pcuo.mutation.StartsAt(); ok {
+	if value, ok := _u.mutation.StartsAt(); ok {
 		_spec.SetField(promocode.FieldStartsAt, field.TypeTime, value)
 	}
-	if pcuo.mutation.StartsAtCleared() {
+	if _u.mutation.StartsAtCleared() {
 		_spec.ClearField(promocode.FieldStartsAt, field.TypeTime)
 	}
-	if value, ok := pcuo.mutation.EndsAt(); ok {
+	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(promocode.FieldEndsAt, field.TypeTime, value)
 	}
-	if pcuo.mutation.EndsAtCleared() {
+	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(promocode.FieldEndsAt, field.TypeTime)
 	}
-	if value, ok := pcuo.mutation.EligibleCategories(); ok {
+	if value, ok := _u.mutation.EligibleCategories(); ok {
 		_spec.SetField(promocode.FieldEligibleCategories, field.TypeJSON, value)
 	}
-	if value, ok := pcuo.mutation.AppendedEligibleCategories(); ok {
+	if value, ok := _u.mutation.AppendedEligibleCategories(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, promocode.FieldEligibleCategories, value)
 		})
 	}
-	if pcuo.mutation.EligibleCategoriesCleared() {
+	if _u.mutation.EligibleCategoriesCleared() {
 		_spec.ClearField(promocode.FieldEligibleCategories, field.TypeJSON)
 	}
-	if value, ok := pcuo.mutation.EligibleItems(); ok {
+	if value, ok := _u.mutation.EligibleItems(); ok {
 		_spec.SetField(promocode.FieldEligibleItems, field.TypeJSON, value)
 	}
-	if value, ok := pcuo.mutation.AppendedEligibleItems(); ok {
+	if value, ok := _u.mutation.AppendedEligibleItems(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, promocode.FieldEligibleItems, value)
 		})
 	}
-	if pcuo.mutation.EligibleItemsCleared() {
+	if _u.mutation.EligibleItemsCleared() {
 		_spec.ClearField(promocode.FieldEligibleItems, field.TypeJSON)
 	}
-	if value, ok := pcuo.mutation.Metadata(); ok {
+	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(promocode.FieldMetadata, field.TypeJSON, value)
 	}
-	if pcuo.mutation.MetadataCleared() {
+	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(promocode.FieldMetadata, field.TypeJSON)
 	}
-	if value, ok := pcuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(promocode.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if pcuo.mutation.RedemptionsCleared() {
+	if _u.mutation.RedemptionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1317,7 +1317,7 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pcuo.mutation.RemovedRedemptionsIDs(); len(nodes) > 0 && !pcuo.mutation.RedemptionsCleared() {
+	if nodes := _u.mutation.RemovedRedemptionsIDs(); len(nodes) > 0 && !_u.mutation.RedemptionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1333,7 +1333,7 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pcuo.mutation.RedemptionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RedemptionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1349,10 +1349,10 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &PromoCode{config: pcuo.config}
+	_node = &PromoCode{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, pcuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{promocode.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1360,6 +1360,6 @@ func (pcuo *PromoCodeUpdateOne) sqlSave(ctx context.Context) (_node *PromoCode, 
 		}
 		return nil, err
 	}
-	pcuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -79,7 +79,7 @@ func (*TenantSetting) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the TenantSetting fields.
-func (ts *TenantSetting) assignValues(columns []string, values []any) error {
+func (_m *TenantSetting) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -90,12 +90,12 @@ func (ts *TenantSetting) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			ts.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case tenantsetting.FieldBrandPalette:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field brand_palette", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ts.BrandPalette); err != nil {
+				if err := json.Unmarshal(*value, &_m.BrandPalette); err != nil {
 					return fmt.Errorf("unmarshal field brand_palette: %w", err)
 				}
 			}
@@ -103,7 +103,7 @@ func (ts *TenantSetting) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field locales", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ts.Locales); err != nil {
+				if err := json.Unmarshal(*value, &_m.Locales); err != nil {
 					return fmt.Errorf("unmarshal field locales: %w", err)
 				}
 			}
@@ -111,7 +111,7 @@ func (ts *TenantSetting) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field features", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &ts.Features); err != nil {
+				if err := json.Unmarshal(*value, &_m.Features); err != nil {
 					return fmt.Errorf("unmarshal field features: %w", err)
 				}
 			}
@@ -119,23 +119,23 @@ func (ts *TenantSetting) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ts.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case tenantsetting.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ts.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case tenantsetting.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_settings", values[i])
 			} else if value.Valid {
-				ts.tenant_settings = new(uuid.UUID)
-				*ts.tenant_settings = *value.S.(*uuid.UUID)
+				_m.tenant_settings = new(uuid.UUID)
+				*_m.tenant_settings = *value.S.(*uuid.UUID)
 			}
 		default:
-			ts.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -143,52 +143,52 @@ func (ts *TenantSetting) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the TenantSetting.
 // This includes values selected through modifiers, order, etc.
-func (ts *TenantSetting) Value(name string) (ent.Value, error) {
-	return ts.selectValues.Get(name)
+func (_m *TenantSetting) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryTenant queries the "tenant" edge of the TenantSetting entity.
-func (ts *TenantSetting) QueryTenant() *TenantQuery {
-	return NewTenantSettingClient(ts.config).QueryTenant(ts)
+func (_m *TenantSetting) QueryTenant() *TenantQuery {
+	return NewTenantSettingClient(_m.config).QueryTenant(_m)
 }
 
 // Update returns a builder for updating this TenantSetting.
 // Note that you need to call TenantSetting.Unwrap() before calling this method if this TenantSetting
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ts *TenantSetting) Update() *TenantSettingUpdateOne {
-	return NewTenantSettingClient(ts.config).UpdateOne(ts)
+func (_m *TenantSetting) Update() *TenantSettingUpdateOne {
+	return NewTenantSettingClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the TenantSetting entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ts *TenantSetting) Unwrap() *TenantSetting {
-	_tx, ok := ts.config.driver.(*txDriver)
+func (_m *TenantSetting) Unwrap() *TenantSetting {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: TenantSetting is not a transactional entity")
 	}
-	ts.config.driver = _tx.drv
-	return ts
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ts *TenantSetting) String() string {
+func (_m *TenantSetting) String() string {
 	var builder strings.Builder
 	builder.WriteString("TenantSetting(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ts.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("brand_palette=")
-	builder.WriteString(fmt.Sprintf("%v", ts.BrandPalette))
+	builder.WriteString(fmt.Sprintf("%v", _m.BrandPalette))
 	builder.WriteString(", ")
 	builder.WriteString("locales=")
-	builder.WriteString(fmt.Sprintf("%v", ts.Locales))
+	builder.WriteString(fmt.Sprintf("%v", _m.Locales))
 	builder.WriteString(", ")
 	builder.WriteString("features=")
-	builder.WriteString(fmt.Sprintf("%v", ts.Features))
+	builder.WriteString(fmt.Sprintf("%v", _m.Features))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(ts.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(ts.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

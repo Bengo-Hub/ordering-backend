@@ -27,129 +27,129 @@ type OrderingPermissionCreate struct {
 }
 
 // SetPermissionCode sets the "permission_code" field.
-func (opc *OrderingPermissionCreate) SetPermissionCode(s string) *OrderingPermissionCreate {
-	opc.mutation.SetPermissionCode(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetPermissionCode(v string) *OrderingPermissionCreate {
+	_c.mutation.SetPermissionCode(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (opc *OrderingPermissionCreate) SetName(s string) *OrderingPermissionCreate {
-	opc.mutation.SetName(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetName(v string) *OrderingPermissionCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetModule sets the "module" field.
-func (opc *OrderingPermissionCreate) SetModule(s string) *OrderingPermissionCreate {
-	opc.mutation.SetModule(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetModule(v string) *OrderingPermissionCreate {
+	_c.mutation.SetModule(v)
+	return _c
 }
 
 // SetAction sets the "action" field.
-func (opc *OrderingPermissionCreate) SetAction(s string) *OrderingPermissionCreate {
-	opc.mutation.SetAction(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetAction(v string) *OrderingPermissionCreate {
+	_c.mutation.SetAction(v)
+	return _c
 }
 
 // SetResource sets the "resource" field.
-func (opc *OrderingPermissionCreate) SetResource(s string) *OrderingPermissionCreate {
-	opc.mutation.SetResource(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetResource(v string) *OrderingPermissionCreate {
+	_c.mutation.SetResource(v)
+	return _c
 }
 
 // SetNillableResource sets the "resource" field if the given value is not nil.
-func (opc *OrderingPermissionCreate) SetNillableResource(s *string) *OrderingPermissionCreate {
-	if s != nil {
-		opc.SetResource(*s)
+func (_c *OrderingPermissionCreate) SetNillableResource(v *string) *OrderingPermissionCreate {
+	if v != nil {
+		_c.SetResource(*v)
 	}
-	return opc
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (opc *OrderingPermissionCreate) SetDescription(s string) *OrderingPermissionCreate {
-	opc.mutation.SetDescription(s)
-	return opc
+func (_c *OrderingPermissionCreate) SetDescription(v string) *OrderingPermissionCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (opc *OrderingPermissionCreate) SetNillableDescription(s *string) *OrderingPermissionCreate {
-	if s != nil {
-		opc.SetDescription(*s)
+func (_c *OrderingPermissionCreate) SetNillableDescription(v *string) *OrderingPermissionCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return opc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (opc *OrderingPermissionCreate) SetCreatedAt(t time.Time) *OrderingPermissionCreate {
-	opc.mutation.SetCreatedAt(t)
-	return opc
+func (_c *OrderingPermissionCreate) SetCreatedAt(v time.Time) *OrderingPermissionCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (opc *OrderingPermissionCreate) SetNillableCreatedAt(t *time.Time) *OrderingPermissionCreate {
-	if t != nil {
-		opc.SetCreatedAt(*t)
+func (_c *OrderingPermissionCreate) SetNillableCreatedAt(v *time.Time) *OrderingPermissionCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return opc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (opc *OrderingPermissionCreate) SetID(u uuid.UUID) *OrderingPermissionCreate {
-	opc.mutation.SetID(u)
-	return opc
+func (_c *OrderingPermissionCreate) SetID(v uuid.UUID) *OrderingPermissionCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (opc *OrderingPermissionCreate) SetNillableID(u *uuid.UUID) *OrderingPermissionCreate {
-	if u != nil {
-		opc.SetID(*u)
+func (_c *OrderingPermissionCreate) SetNillableID(v *uuid.UUID) *OrderingPermissionCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return opc
+	return _c
 }
 
 // AddRoleIDs adds the "roles" edge to the OrderingRole entity by IDs.
-func (opc *OrderingPermissionCreate) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionCreate {
-	opc.mutation.AddRoleIDs(ids...)
-	return opc
+func (_c *OrderingPermissionCreate) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionCreate {
+	_c.mutation.AddRoleIDs(ids...)
+	return _c
 }
 
 // AddRoles adds the "roles" edges to the OrderingRole entity.
-func (opc *OrderingPermissionCreate) AddRoles(o ...*OrderingRole) *OrderingPermissionCreate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_c *OrderingPermissionCreate) AddRoles(v ...*OrderingRole) *OrderingPermissionCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opc.AddRoleIDs(ids...)
+	return _c.AddRoleIDs(ids...)
 }
 
 // AddRolePermissionIDs adds the "role_permissions" edge to the RolePermission entity by IDs.
-func (opc *OrderingPermissionCreate) AddRolePermissionIDs(ids ...int) *OrderingPermissionCreate {
-	opc.mutation.AddRolePermissionIDs(ids...)
-	return opc
+func (_c *OrderingPermissionCreate) AddRolePermissionIDs(ids ...int) *OrderingPermissionCreate {
+	_c.mutation.AddRolePermissionIDs(ids...)
+	return _c
 }
 
 // AddRolePermissions adds the "role_permissions" edges to the RolePermission entity.
-func (opc *OrderingPermissionCreate) AddRolePermissions(r ...*RolePermission) *OrderingPermissionCreate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_c *OrderingPermissionCreate) AddRolePermissions(v ...*RolePermission) *OrderingPermissionCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opc.AddRolePermissionIDs(ids...)
+	return _c.AddRolePermissionIDs(ids...)
 }
 
 // Mutation returns the OrderingPermissionMutation object of the builder.
-func (opc *OrderingPermissionCreate) Mutation() *OrderingPermissionMutation {
-	return opc.mutation
+func (_c *OrderingPermissionCreate) Mutation() *OrderingPermissionMutation {
+	return _c.mutation
 }
 
 // Save creates the OrderingPermission in the database.
-func (opc *OrderingPermissionCreate) Save(ctx context.Context) (*OrderingPermission, error) {
-	opc.defaults()
-	return withHooks(ctx, opc.sqlSave, opc.mutation, opc.hooks)
+func (_c *OrderingPermissionCreate) Save(ctx context.Context) (*OrderingPermission, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (opc *OrderingPermissionCreate) SaveX(ctx context.Context) *OrderingPermission {
-	v, err := opc.Save(ctx)
+func (_c *OrderingPermissionCreate) SaveX(ctx context.Context) *OrderingPermission {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -157,76 +157,76 @@ func (opc *OrderingPermissionCreate) SaveX(ctx context.Context) *OrderingPermiss
 }
 
 // Exec executes the query.
-func (opc *OrderingPermissionCreate) Exec(ctx context.Context) error {
-	_, err := opc.Save(ctx)
+func (_c *OrderingPermissionCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opc *OrderingPermissionCreate) ExecX(ctx context.Context) {
-	if err := opc.Exec(ctx); err != nil {
+func (_c *OrderingPermissionCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (opc *OrderingPermissionCreate) defaults() {
-	if _, ok := opc.mutation.CreatedAt(); !ok {
+func (_c *OrderingPermissionCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := orderingpermission.DefaultCreatedAt()
-		opc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := opc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := orderingpermission.DefaultID()
-		opc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (opc *OrderingPermissionCreate) check() error {
-	if _, ok := opc.mutation.PermissionCode(); !ok {
+func (_c *OrderingPermissionCreate) check() error {
+	if _, ok := _c.mutation.PermissionCode(); !ok {
 		return &ValidationError{Name: "permission_code", err: errors.New(`ent: missing required field "OrderingPermission.permission_code"`)}
 	}
-	if v, ok := opc.mutation.PermissionCode(); ok {
+	if v, ok := _c.mutation.PermissionCode(); ok {
 		if err := orderingpermission.PermissionCodeValidator(v); err != nil {
 			return &ValidationError{Name: "permission_code", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.permission_code": %w`, err)}
 		}
 	}
-	if _, ok := opc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "OrderingPermission.name"`)}
 	}
-	if v, ok := opc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := orderingpermission.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.name": %w`, err)}
 		}
 	}
-	if _, ok := opc.mutation.Module(); !ok {
+	if _, ok := _c.mutation.Module(); !ok {
 		return &ValidationError{Name: "module", err: errors.New(`ent: missing required field "OrderingPermission.module"`)}
 	}
-	if v, ok := opc.mutation.Module(); ok {
+	if v, ok := _c.mutation.Module(); ok {
 		if err := orderingpermission.ModuleValidator(v); err != nil {
 			return &ValidationError{Name: "module", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.module": %w`, err)}
 		}
 	}
-	if _, ok := opc.mutation.Action(); !ok {
+	if _, ok := _c.mutation.Action(); !ok {
 		return &ValidationError{Name: "action", err: errors.New(`ent: missing required field "OrderingPermission.action"`)}
 	}
-	if v, ok := opc.mutation.Action(); ok {
+	if v, ok := _c.mutation.Action(); ok {
 		if err := orderingpermission.ActionValidator(v); err != nil {
 			return &ValidationError{Name: "action", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.action": %w`, err)}
 		}
 	}
-	if _, ok := opc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "OrderingPermission.created_at"`)}
 	}
 	return nil
 }
 
-func (opc *OrderingPermissionCreate) sqlSave(ctx context.Context) (*OrderingPermission, error) {
-	if err := opc.check(); err != nil {
+func (_c *OrderingPermissionCreate) sqlSave(ctx context.Context) (*OrderingPermission, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := opc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, opc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -239,50 +239,50 @@ func (opc *OrderingPermissionCreate) sqlSave(ctx context.Context) (*OrderingPerm
 			return nil, err
 		}
 	}
-	opc.mutation.id = &_node.ID
-	opc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (opc *OrderingPermissionCreate) createSpec() (*OrderingPermission, *sqlgraph.CreateSpec) {
+func (_c *OrderingPermissionCreate) createSpec() (*OrderingPermission, *sqlgraph.CreateSpec) {
 	var (
-		_node = &OrderingPermission{config: opc.config}
+		_node = &OrderingPermission{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(orderingpermission.Table, sqlgraph.NewFieldSpec(orderingpermission.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = opc.conflict
-	if id, ok := opc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := opc.mutation.PermissionCode(); ok {
+	if value, ok := _c.mutation.PermissionCode(); ok {
 		_spec.SetField(orderingpermission.FieldPermissionCode, field.TypeString, value)
 		_node.PermissionCode = value
 	}
-	if value, ok := opc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(orderingpermission.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := opc.mutation.Module(); ok {
+	if value, ok := _c.mutation.Module(); ok {
 		_spec.SetField(orderingpermission.FieldModule, field.TypeString, value)
 		_node.Module = value
 	}
-	if value, ok := opc.mutation.Action(); ok {
+	if value, ok := _c.mutation.Action(); ok {
 		_spec.SetField(orderingpermission.FieldAction, field.TypeString, value)
 		_node.Action = value
 	}
-	if value, ok := opc.mutation.Resource(); ok {
+	if value, ok := _c.mutation.Resource(); ok {
 		_spec.SetField(orderingpermission.FieldResource, field.TypeString, value)
 		_node.Resource = value
 	}
-	if value, ok := opc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(orderingpermission.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := opc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(orderingpermission.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := opc.mutation.RolesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -298,7 +298,7 @@ func (opc *OrderingPermissionCreate) createSpec() (*OrderingPermission, *sqlgrap
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := opc.mutation.RolePermissionsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.RolePermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -333,10 +333,10 @@ func (opc *OrderingPermissionCreate) createSpec() (*OrderingPermission, *sqlgrap
 //			SetPermissionCode(v+v).
 //		}).
 //		Exec(ctx)
-func (opc *OrderingPermissionCreate) OnConflict(opts ...sql.ConflictOption) *OrderingPermissionUpsertOne {
-	opc.conflict = opts
+func (_c *OrderingPermissionCreate) OnConflict(opts ...sql.ConflictOption) *OrderingPermissionUpsertOne {
+	_c.conflict = opts
 	return &OrderingPermissionUpsertOne{
-		create: opc,
+		create: _c,
 	}
 }
 
@@ -346,10 +346,10 @@ func (opc *OrderingPermissionCreate) OnConflict(opts ...sql.ConflictOption) *Ord
 //	client.OrderingPermission.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (opc *OrderingPermissionCreate) OnConflictColumns(columns ...string) *OrderingPermissionUpsertOne {
-	opc.conflict = append(opc.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderingPermissionCreate) OnConflictColumns(columns ...string) *OrderingPermissionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderingPermissionUpsertOne{
-		create: opc,
+		create: _c,
 	}
 }
 
@@ -646,16 +646,16 @@ type OrderingPermissionCreateBulk struct {
 }
 
 // Save creates the OrderingPermission entities in the database.
-func (opcb *OrderingPermissionCreateBulk) Save(ctx context.Context) ([]*OrderingPermission, error) {
-	if opcb.err != nil {
-		return nil, opcb.err
+func (_c *OrderingPermissionCreateBulk) Save(ctx context.Context) ([]*OrderingPermission, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(opcb.builders))
-	nodes := make([]*OrderingPermission, len(opcb.builders))
-	mutators := make([]Mutator, len(opcb.builders))
-	for i := range opcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*OrderingPermission, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := opcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*OrderingPermissionMutation)
@@ -669,12 +669,12 @@ func (opcb *OrderingPermissionCreateBulk) Save(ctx context.Context) ([]*Ordering
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, opcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = opcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, opcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -694,7 +694,7 @@ func (opcb *OrderingPermissionCreateBulk) Save(ctx context.Context) ([]*Ordering
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, opcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -702,8 +702,8 @@ func (opcb *OrderingPermissionCreateBulk) Save(ctx context.Context) ([]*Ordering
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (opcb *OrderingPermissionCreateBulk) SaveX(ctx context.Context) []*OrderingPermission {
-	v, err := opcb.Save(ctx)
+func (_c *OrderingPermissionCreateBulk) SaveX(ctx context.Context) []*OrderingPermission {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -711,14 +711,14 @@ func (opcb *OrderingPermissionCreateBulk) SaveX(ctx context.Context) []*Ordering
 }
 
 // Exec executes the query.
-func (opcb *OrderingPermissionCreateBulk) Exec(ctx context.Context) error {
-	_, err := opcb.Save(ctx)
+func (_c *OrderingPermissionCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opcb *OrderingPermissionCreateBulk) ExecX(ctx context.Context) {
-	if err := opcb.Exec(ctx); err != nil {
+func (_c *OrderingPermissionCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -738,10 +738,10 @@ func (opcb *OrderingPermissionCreateBulk) ExecX(ctx context.Context) {
 //			SetPermissionCode(v+v).
 //		}).
 //		Exec(ctx)
-func (opcb *OrderingPermissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderingPermissionUpsertBulk {
-	opcb.conflict = opts
+func (_c *OrderingPermissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderingPermissionUpsertBulk {
+	_c.conflict = opts
 	return &OrderingPermissionUpsertBulk{
-		create: opcb,
+		create: _c,
 	}
 }
 
@@ -751,10 +751,10 @@ func (opcb *OrderingPermissionCreateBulk) OnConflict(opts ...sql.ConflictOption)
 //	client.OrderingPermission.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (opcb *OrderingPermissionCreateBulk) OnConflictColumns(columns ...string) *OrderingPermissionUpsertBulk {
-	opcb.conflict = append(opcb.conflict, sql.ConflictColumns(columns...))
+func (_c *OrderingPermissionCreateBulk) OnConflictColumns(columns ...string) *OrderingPermissionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OrderingPermissionUpsertBulk{
-		create: opcb,
+		create: _c,
 	}
 }
 

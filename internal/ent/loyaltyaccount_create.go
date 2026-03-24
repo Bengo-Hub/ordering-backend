@@ -27,177 +27,177 @@ type LoyaltyAccountCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (lac *LoyaltyAccountCreate) SetTenantID(u uuid.UUID) *LoyaltyAccountCreate {
-	lac.mutation.SetTenantID(u)
-	return lac
+func (_c *LoyaltyAccountCreate) SetTenantID(v uuid.UUID) *LoyaltyAccountCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (lac *LoyaltyAccountCreate) SetUserID(u uuid.UUID) *LoyaltyAccountCreate {
-	lac.mutation.SetUserID(u)
-	return lac
+func (_c *LoyaltyAccountCreate) SetUserID(v uuid.UUID) *LoyaltyAccountCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetBalancePoints sets the "balance_points" field.
-func (lac *LoyaltyAccountCreate) SetBalancePoints(i int) *LoyaltyAccountCreate {
-	lac.mutation.SetBalancePoints(i)
-	return lac
+func (_c *LoyaltyAccountCreate) SetBalancePoints(v int) *LoyaltyAccountCreate {
+	_c.mutation.SetBalancePoints(v)
+	return _c
 }
 
 // SetNillableBalancePoints sets the "balance_points" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableBalancePoints(i *int) *LoyaltyAccountCreate {
-	if i != nil {
-		lac.SetBalancePoints(*i)
+func (_c *LoyaltyAccountCreate) SetNillableBalancePoints(v *int) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetBalancePoints(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetLifetimePoints sets the "lifetime_points" field.
-func (lac *LoyaltyAccountCreate) SetLifetimePoints(i int) *LoyaltyAccountCreate {
-	lac.mutation.SetLifetimePoints(i)
-	return lac
+func (_c *LoyaltyAccountCreate) SetLifetimePoints(v int) *LoyaltyAccountCreate {
+	_c.mutation.SetLifetimePoints(v)
+	return _c
 }
 
 // SetNillableLifetimePoints sets the "lifetime_points" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableLifetimePoints(i *int) *LoyaltyAccountCreate {
-	if i != nil {
-		lac.SetLifetimePoints(*i)
+func (_c *LoyaltyAccountCreate) SetNillableLifetimePoints(v *int) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetLifetimePoints(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetRedeemedPoints sets the "redeemed_points" field.
-func (lac *LoyaltyAccountCreate) SetRedeemedPoints(i int) *LoyaltyAccountCreate {
-	lac.mutation.SetRedeemedPoints(i)
-	return lac
+func (_c *LoyaltyAccountCreate) SetRedeemedPoints(v int) *LoyaltyAccountCreate {
+	_c.mutation.SetRedeemedPoints(v)
+	return _c
 }
 
 // SetNillableRedeemedPoints sets the "redeemed_points" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableRedeemedPoints(i *int) *LoyaltyAccountCreate {
-	if i != nil {
-		lac.SetRedeemedPoints(*i)
+func (_c *LoyaltyAccountCreate) SetNillableRedeemedPoints(v *int) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetRedeemedPoints(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetTier sets the "tier" field.
-func (lac *LoyaltyAccountCreate) SetTier(l loyaltyaccount.Tier) *LoyaltyAccountCreate {
-	lac.mutation.SetTier(l)
-	return lac
+func (_c *LoyaltyAccountCreate) SetTier(v loyaltyaccount.Tier) *LoyaltyAccountCreate {
+	_c.mutation.SetTier(v)
+	return _c
 }
 
 // SetNillableTier sets the "tier" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableTier(l *loyaltyaccount.Tier) *LoyaltyAccountCreate {
-	if l != nil {
-		lac.SetTier(*l)
+func (_c *LoyaltyAccountCreate) SetNillableTier(v *loyaltyaccount.Tier) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetTier(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetTierProgress sets the "tier_progress" field.
-func (lac *LoyaltyAccountCreate) SetTierProgress(i int) *LoyaltyAccountCreate {
-	lac.mutation.SetTierProgress(i)
-	return lac
+func (_c *LoyaltyAccountCreate) SetTierProgress(v int) *LoyaltyAccountCreate {
+	_c.mutation.SetTierProgress(v)
+	return _c
 }
 
 // SetNillableTierProgress sets the "tier_progress" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableTierProgress(i *int) *LoyaltyAccountCreate {
-	if i != nil {
-		lac.SetTierProgress(*i)
+func (_c *LoyaltyAccountCreate) SetNillableTierProgress(v *int) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetTierProgress(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetTierExpiresAt sets the "tier_expires_at" field.
-func (lac *LoyaltyAccountCreate) SetTierExpiresAt(t time.Time) *LoyaltyAccountCreate {
-	lac.mutation.SetTierExpiresAt(t)
-	return lac
+func (_c *LoyaltyAccountCreate) SetTierExpiresAt(v time.Time) *LoyaltyAccountCreate {
+	_c.mutation.SetTierExpiresAt(v)
+	return _c
 }
 
 // SetNillableTierExpiresAt sets the "tier_expires_at" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableTierExpiresAt(t *time.Time) *LoyaltyAccountCreate {
-	if t != nil {
-		lac.SetTierExpiresAt(*t)
+func (_c *LoyaltyAccountCreate) SetNillableTierExpiresAt(v *time.Time) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetTierExpiresAt(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (lac *LoyaltyAccountCreate) SetCreatedAt(t time.Time) *LoyaltyAccountCreate {
-	lac.mutation.SetCreatedAt(t)
-	return lac
+func (_c *LoyaltyAccountCreate) SetCreatedAt(v time.Time) *LoyaltyAccountCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableCreatedAt(t *time.Time) *LoyaltyAccountCreate {
-	if t != nil {
-		lac.SetCreatedAt(*t)
+func (_c *LoyaltyAccountCreate) SetNillableCreatedAt(v *time.Time) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (lac *LoyaltyAccountCreate) SetUpdatedAt(t time.Time) *LoyaltyAccountCreate {
-	lac.mutation.SetUpdatedAt(t)
-	return lac
+func (_c *LoyaltyAccountCreate) SetUpdatedAt(v time.Time) *LoyaltyAccountCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableUpdatedAt(t *time.Time) *LoyaltyAccountCreate {
-	if t != nil {
-		lac.SetUpdatedAt(*t)
+func (_c *LoyaltyAccountCreate) SetNillableUpdatedAt(v *time.Time) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (lac *LoyaltyAccountCreate) SetID(u uuid.UUID) *LoyaltyAccountCreate {
-	lac.mutation.SetID(u)
-	return lac
+func (_c *LoyaltyAccountCreate) SetID(v uuid.UUID) *LoyaltyAccountCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (lac *LoyaltyAccountCreate) SetNillableID(u *uuid.UUID) *LoyaltyAccountCreate {
-	if u != nil {
-		lac.SetID(*u)
+func (_c *LoyaltyAccountCreate) SetNillableID(v *uuid.UUID) *LoyaltyAccountCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return lac
+	return _c
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (lac *LoyaltyAccountCreate) SetUser(u *User) *LoyaltyAccountCreate {
-	return lac.SetUserID(u.ID)
+func (_c *LoyaltyAccountCreate) SetUser(v *User) *LoyaltyAccountCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // AddTransactionIDs adds the "transactions" edge to the LoyaltyTransaction entity by IDs.
-func (lac *LoyaltyAccountCreate) AddTransactionIDs(ids ...uuid.UUID) *LoyaltyAccountCreate {
-	lac.mutation.AddTransactionIDs(ids...)
-	return lac
+func (_c *LoyaltyAccountCreate) AddTransactionIDs(ids ...uuid.UUID) *LoyaltyAccountCreate {
+	_c.mutation.AddTransactionIDs(ids...)
+	return _c
 }
 
 // AddTransactions adds the "transactions" edges to the LoyaltyTransaction entity.
-func (lac *LoyaltyAccountCreate) AddTransactions(l ...*LoyaltyTransaction) *LoyaltyAccountCreate {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_c *LoyaltyAccountCreate) AddTransactions(v ...*LoyaltyTransaction) *LoyaltyAccountCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lac.AddTransactionIDs(ids...)
+	return _c.AddTransactionIDs(ids...)
 }
 
 // Mutation returns the LoyaltyAccountMutation object of the builder.
-func (lac *LoyaltyAccountCreate) Mutation() *LoyaltyAccountMutation {
-	return lac.mutation
+func (_c *LoyaltyAccountCreate) Mutation() *LoyaltyAccountMutation {
+	return _c.mutation
 }
 
 // Save creates the LoyaltyAccount in the database.
-func (lac *LoyaltyAccountCreate) Save(ctx context.Context) (*LoyaltyAccount, error) {
-	lac.defaults()
-	return withHooks(ctx, lac.sqlSave, lac.mutation, lac.hooks)
+func (_c *LoyaltyAccountCreate) Save(ctx context.Context) (*LoyaltyAccount, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (lac *LoyaltyAccountCreate) SaveX(ctx context.Context) *LoyaltyAccount {
-	v, err := lac.Save(ctx)
+func (_c *LoyaltyAccountCreate) SaveX(ctx context.Context) *LoyaltyAccount {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -205,100 +205,100 @@ func (lac *LoyaltyAccountCreate) SaveX(ctx context.Context) *LoyaltyAccount {
 }
 
 // Exec executes the query.
-func (lac *LoyaltyAccountCreate) Exec(ctx context.Context) error {
-	_, err := lac.Save(ctx)
+func (_c *LoyaltyAccountCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lac *LoyaltyAccountCreate) ExecX(ctx context.Context) {
-	if err := lac.Exec(ctx); err != nil {
+func (_c *LoyaltyAccountCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (lac *LoyaltyAccountCreate) defaults() {
-	if _, ok := lac.mutation.BalancePoints(); !ok {
+func (_c *LoyaltyAccountCreate) defaults() {
+	if _, ok := _c.mutation.BalancePoints(); !ok {
 		v := loyaltyaccount.DefaultBalancePoints
-		lac.mutation.SetBalancePoints(v)
+		_c.mutation.SetBalancePoints(v)
 	}
-	if _, ok := lac.mutation.LifetimePoints(); !ok {
+	if _, ok := _c.mutation.LifetimePoints(); !ok {
 		v := loyaltyaccount.DefaultLifetimePoints
-		lac.mutation.SetLifetimePoints(v)
+		_c.mutation.SetLifetimePoints(v)
 	}
-	if _, ok := lac.mutation.RedeemedPoints(); !ok {
+	if _, ok := _c.mutation.RedeemedPoints(); !ok {
 		v := loyaltyaccount.DefaultRedeemedPoints
-		lac.mutation.SetRedeemedPoints(v)
+		_c.mutation.SetRedeemedPoints(v)
 	}
-	if _, ok := lac.mutation.Tier(); !ok {
+	if _, ok := _c.mutation.Tier(); !ok {
 		v := loyaltyaccount.DefaultTier
-		lac.mutation.SetTier(v)
+		_c.mutation.SetTier(v)
 	}
-	if _, ok := lac.mutation.TierProgress(); !ok {
+	if _, ok := _c.mutation.TierProgress(); !ok {
 		v := loyaltyaccount.DefaultTierProgress
-		lac.mutation.SetTierProgress(v)
+		_c.mutation.SetTierProgress(v)
 	}
-	if _, ok := lac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := loyaltyaccount.DefaultCreatedAt()
-		lac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := lac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := loyaltyaccount.DefaultUpdatedAt()
-		lac.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := lac.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := loyaltyaccount.DefaultID()
-		lac.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (lac *LoyaltyAccountCreate) check() error {
-	if _, ok := lac.mutation.TenantID(); !ok {
+func (_c *LoyaltyAccountCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "LoyaltyAccount.tenant_id"`)}
 	}
-	if _, ok := lac.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "LoyaltyAccount.user_id"`)}
 	}
-	if _, ok := lac.mutation.BalancePoints(); !ok {
+	if _, ok := _c.mutation.BalancePoints(); !ok {
 		return &ValidationError{Name: "balance_points", err: errors.New(`ent: missing required field "LoyaltyAccount.balance_points"`)}
 	}
-	if _, ok := lac.mutation.LifetimePoints(); !ok {
+	if _, ok := _c.mutation.LifetimePoints(); !ok {
 		return &ValidationError{Name: "lifetime_points", err: errors.New(`ent: missing required field "LoyaltyAccount.lifetime_points"`)}
 	}
-	if _, ok := lac.mutation.RedeemedPoints(); !ok {
+	if _, ok := _c.mutation.RedeemedPoints(); !ok {
 		return &ValidationError{Name: "redeemed_points", err: errors.New(`ent: missing required field "LoyaltyAccount.redeemed_points"`)}
 	}
-	if _, ok := lac.mutation.Tier(); !ok {
+	if _, ok := _c.mutation.Tier(); !ok {
 		return &ValidationError{Name: "tier", err: errors.New(`ent: missing required field "LoyaltyAccount.tier"`)}
 	}
-	if v, ok := lac.mutation.Tier(); ok {
+	if v, ok := _c.mutation.Tier(); ok {
 		if err := loyaltyaccount.TierValidator(v); err != nil {
 			return &ValidationError{Name: "tier", err: fmt.Errorf(`ent: validator failed for field "LoyaltyAccount.tier": %w`, err)}
 		}
 	}
-	if _, ok := lac.mutation.TierProgress(); !ok {
+	if _, ok := _c.mutation.TierProgress(); !ok {
 		return &ValidationError{Name: "tier_progress", err: errors.New(`ent: missing required field "LoyaltyAccount.tier_progress"`)}
 	}
-	if _, ok := lac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "LoyaltyAccount.created_at"`)}
 	}
-	if _, ok := lac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "LoyaltyAccount.updated_at"`)}
 	}
-	if _, ok := lac.mutation.UserID(); !ok {
+	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "LoyaltyAccount.user"`)}
 	}
 	return nil
 }
 
-func (lac *LoyaltyAccountCreate) sqlSave(ctx context.Context) (*LoyaltyAccount, error) {
-	if err := lac.check(); err != nil {
+func (_c *LoyaltyAccountCreate) sqlSave(ctx context.Context) (*LoyaltyAccount, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := lac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, lac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -311,58 +311,58 @@ func (lac *LoyaltyAccountCreate) sqlSave(ctx context.Context) (*LoyaltyAccount, 
 			return nil, err
 		}
 	}
-	lac.mutation.id = &_node.ID
-	lac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (lac *LoyaltyAccountCreate) createSpec() (*LoyaltyAccount, *sqlgraph.CreateSpec) {
+func (_c *LoyaltyAccountCreate) createSpec() (*LoyaltyAccount, *sqlgraph.CreateSpec) {
 	var (
-		_node = &LoyaltyAccount{config: lac.config}
+		_node = &LoyaltyAccount{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(loyaltyaccount.Table, sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = lac.conflict
-	if id, ok := lac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := lac.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(loyaltyaccount.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := lac.mutation.BalancePoints(); ok {
+	if value, ok := _c.mutation.BalancePoints(); ok {
 		_spec.SetField(loyaltyaccount.FieldBalancePoints, field.TypeInt, value)
 		_node.BalancePoints = value
 	}
-	if value, ok := lac.mutation.LifetimePoints(); ok {
+	if value, ok := _c.mutation.LifetimePoints(); ok {
 		_spec.SetField(loyaltyaccount.FieldLifetimePoints, field.TypeInt, value)
 		_node.LifetimePoints = value
 	}
-	if value, ok := lac.mutation.RedeemedPoints(); ok {
+	if value, ok := _c.mutation.RedeemedPoints(); ok {
 		_spec.SetField(loyaltyaccount.FieldRedeemedPoints, field.TypeInt, value)
 		_node.RedeemedPoints = value
 	}
-	if value, ok := lac.mutation.Tier(); ok {
+	if value, ok := _c.mutation.Tier(); ok {
 		_spec.SetField(loyaltyaccount.FieldTier, field.TypeEnum, value)
 		_node.Tier = value
 	}
-	if value, ok := lac.mutation.TierProgress(); ok {
+	if value, ok := _c.mutation.TierProgress(); ok {
 		_spec.SetField(loyaltyaccount.FieldTierProgress, field.TypeInt, value)
 		_node.TierProgress = value
 	}
-	if value, ok := lac.mutation.TierExpiresAt(); ok {
+	if value, ok := _c.mutation.TierExpiresAt(); ok {
 		_spec.SetField(loyaltyaccount.FieldTierExpiresAt, field.TypeTime, value)
 		_node.TierExpiresAt = &value
 	}
-	if value, ok := lac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(loyaltyaccount.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := lac.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(loyaltyaccount.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := lac.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -379,7 +379,7 @@ func (lac *LoyaltyAccountCreate) createSpec() (*LoyaltyAccount, *sqlgraph.Create
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := lac.mutation.TransactionsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.TransactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -414,10 +414,10 @@ func (lac *LoyaltyAccountCreate) createSpec() (*LoyaltyAccount, *sqlgraph.Create
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (lac *LoyaltyAccountCreate) OnConflict(opts ...sql.ConflictOption) *LoyaltyAccountUpsertOne {
-	lac.conflict = opts
+func (_c *LoyaltyAccountCreate) OnConflict(opts ...sql.ConflictOption) *LoyaltyAccountUpsertOne {
+	_c.conflict = opts
 	return &LoyaltyAccountUpsertOne{
-		create: lac,
+		create: _c,
 	}
 }
 
@@ -427,10 +427,10 @@ func (lac *LoyaltyAccountCreate) OnConflict(opts ...sql.ConflictOption) *Loyalty
 //	client.LoyaltyAccount.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lac *LoyaltyAccountCreate) OnConflictColumns(columns ...string) *LoyaltyAccountUpsertOne {
-	lac.conflict = append(lac.conflict, sql.ConflictColumns(columns...))
+func (_c *LoyaltyAccountCreate) OnConflictColumns(columns ...string) *LoyaltyAccountUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LoyaltyAccountUpsertOne{
-		create: lac,
+		create: _c,
 	}
 }
 
@@ -844,16 +844,16 @@ type LoyaltyAccountCreateBulk struct {
 }
 
 // Save creates the LoyaltyAccount entities in the database.
-func (lacb *LoyaltyAccountCreateBulk) Save(ctx context.Context) ([]*LoyaltyAccount, error) {
-	if lacb.err != nil {
-		return nil, lacb.err
+func (_c *LoyaltyAccountCreateBulk) Save(ctx context.Context) ([]*LoyaltyAccount, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(lacb.builders))
-	nodes := make([]*LoyaltyAccount, len(lacb.builders))
-	mutators := make([]Mutator, len(lacb.builders))
-	for i := range lacb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*LoyaltyAccount, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := lacb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LoyaltyAccountMutation)
@@ -867,12 +867,12 @@ func (lacb *LoyaltyAccountCreateBulk) Save(ctx context.Context) ([]*LoyaltyAccou
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, lacb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = lacb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, lacb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -892,7 +892,7 @@ func (lacb *LoyaltyAccountCreateBulk) Save(ctx context.Context) ([]*LoyaltyAccou
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, lacb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -900,8 +900,8 @@ func (lacb *LoyaltyAccountCreateBulk) Save(ctx context.Context) ([]*LoyaltyAccou
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lacb *LoyaltyAccountCreateBulk) SaveX(ctx context.Context) []*LoyaltyAccount {
-	v, err := lacb.Save(ctx)
+func (_c *LoyaltyAccountCreateBulk) SaveX(ctx context.Context) []*LoyaltyAccount {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -909,14 +909,14 @@ func (lacb *LoyaltyAccountCreateBulk) SaveX(ctx context.Context) []*LoyaltyAccou
 }
 
 // Exec executes the query.
-func (lacb *LoyaltyAccountCreateBulk) Exec(ctx context.Context) error {
-	_, err := lacb.Save(ctx)
+func (_c *LoyaltyAccountCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lacb *LoyaltyAccountCreateBulk) ExecX(ctx context.Context) {
-	if err := lacb.Exec(ctx); err != nil {
+func (_c *LoyaltyAccountCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -936,10 +936,10 @@ func (lacb *LoyaltyAccountCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (lacb *LoyaltyAccountCreateBulk) OnConflict(opts ...sql.ConflictOption) *LoyaltyAccountUpsertBulk {
-	lacb.conflict = opts
+func (_c *LoyaltyAccountCreateBulk) OnConflict(opts ...sql.ConflictOption) *LoyaltyAccountUpsertBulk {
+	_c.conflict = opts
 	return &LoyaltyAccountUpsertBulk{
-		create: lacb,
+		create: _c,
 	}
 }
 
@@ -949,10 +949,10 @@ func (lacb *LoyaltyAccountCreateBulk) OnConflict(opts ...sql.ConflictOption) *Lo
 //	client.LoyaltyAccount.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lacb *LoyaltyAccountCreateBulk) OnConflictColumns(columns ...string) *LoyaltyAccountUpsertBulk {
-	lacb.conflict = append(lacb.conflict, sql.ConflictColumns(columns...))
+func (_c *LoyaltyAccountCreateBulk) OnConflictColumns(columns ...string) *LoyaltyAccountUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LoyaltyAccountUpsertBulk{
-		create: lacb,
+		create: _c,
 	}
 }
 

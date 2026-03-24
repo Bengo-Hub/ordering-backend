@@ -1084,52 +1084,6 @@ func HasTenantWith(preds ...predicate.Tenant) predicate.Outlet {
 	})
 }
 
-// HasCatalogCategories applies the HasEdge predicate on the "catalog_categories" edge.
-func HasCatalogCategories() predicate.Outlet {
-	return predicate.Outlet(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CatalogCategoriesTable, CatalogCategoriesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCatalogCategoriesWith applies the HasEdge predicate on the "catalog_categories" edge with a given conditions (other predicates).
-func HasCatalogCategoriesWith(preds ...predicate.CatalogCategory) predicate.Outlet {
-	return predicate.Outlet(func(s *sql.Selector) {
-		step := newCatalogCategoriesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasCatalogItems applies the HasEdge predicate on the "catalog_items" edge.
-func HasCatalogItems() predicate.Outlet {
-	return predicate.Outlet(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CatalogItemsTable, CatalogItemsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCatalogItemsWith applies the HasEdge predicate on the "catalog_items" edge with a given conditions (other predicates).
-func HasCatalogItemsWith(preds ...predicate.CatalogItem) predicate.Outlet {
-	return predicate.Outlet(func(s *sql.Selector) {
-		step := newCatalogItemsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasOrders applies the HasEdge predicate on the "orders" edge.
 func HasOrders() predicate.Outlet {
 	return predicate.Outlet(func(s *sql.Selector) {

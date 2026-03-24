@@ -63,7 +63,7 @@ func (*DataSubjectRequest) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DataSubjectRequest fields.
-func (dsr *DataSubjectRequest) assignValues(columns []string, values []any) error {
+func (_m *DataSubjectRequest) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -73,77 +73,77 @@ func (dsr *DataSubjectRequest) assignValues(columns []string, values []any) erro
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dsr.ID = *value
+				_m.ID = *value
 			}
 		case datasubjectrequest.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				dsr.TenantID = *value
+				_m.TenantID = *value
 			}
 		case datasubjectrequest.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				dsr.UserID = *value
+				_m.UserID = *value
 			}
 		case datasubjectrequest.FieldRequestType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field request_type", values[i])
 			} else if value.Valid {
-				dsr.RequestType = datasubjectrequest.RequestType(value.String)
+				_m.RequestType = datasubjectrequest.RequestType(value.String)
 			}
 		case datasubjectrequest.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				dsr.Status = datasubjectrequest.Status(value.String)
+				_m.Status = datasubjectrequest.Status(value.String)
 			}
 		case datasubjectrequest.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				dsr.Description = value.String
+				_m.Description = value.String
 			}
 		case datasubjectrequest.FieldNotes:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field notes", values[i])
 			} else if value.Valid {
-				dsr.Notes = value.String
+				_m.Notes = value.String
 			}
 		case datasubjectrequest.FieldResultURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field result_url", values[i])
 			} else if value.Valid {
-				dsr.ResultURL = value.String
+				_m.ResultURL = value.String
 			}
 		case datasubjectrequest.FieldSubmittedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field submitted_at", values[i])
 			} else if value.Valid {
-				dsr.SubmittedAt = value.Time
+				_m.SubmittedAt = value.Time
 			}
 		case datasubjectrequest.FieldProcessedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field processed_at", values[i])
 			} else if value.Valid {
-				dsr.ProcessedAt = new(time.Time)
-				*dsr.ProcessedAt = value.Time
+				_m.ProcessedAt = new(time.Time)
+				*_m.ProcessedAt = value.Time
 			}
 		case datasubjectrequest.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dsr.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case datasubjectrequest.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dsr.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			dsr.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -151,67 +151,67 @@ func (dsr *DataSubjectRequest) assignValues(columns []string, values []any) erro
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DataSubjectRequest.
 // This includes values selected through modifiers, order, etc.
-func (dsr *DataSubjectRequest) Value(name string) (ent.Value, error) {
-	return dsr.selectValues.Get(name)
+func (_m *DataSubjectRequest) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this DataSubjectRequest.
 // Note that you need to call DataSubjectRequest.Unwrap() before calling this method if this DataSubjectRequest
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dsr *DataSubjectRequest) Update() *DataSubjectRequestUpdateOne {
-	return NewDataSubjectRequestClient(dsr.config).UpdateOne(dsr)
+func (_m *DataSubjectRequest) Update() *DataSubjectRequestUpdateOne {
+	return NewDataSubjectRequestClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DataSubjectRequest entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dsr *DataSubjectRequest) Unwrap() *DataSubjectRequest {
-	_tx, ok := dsr.config.driver.(*txDriver)
+func (_m *DataSubjectRequest) Unwrap() *DataSubjectRequest {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DataSubjectRequest is not a transactional entity")
 	}
-	dsr.config.driver = _tx.drv
-	return dsr
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dsr *DataSubjectRequest) String() string {
+func (_m *DataSubjectRequest) String() string {
 	var builder strings.Builder
 	builder.WriteString("DataSubjectRequest(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dsr.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", dsr.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", dsr.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("request_type=")
-	builder.WriteString(fmt.Sprintf("%v", dsr.RequestType))
+	builder.WriteString(fmt.Sprintf("%v", _m.RequestType))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", dsr.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(dsr.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
-	builder.WriteString(dsr.Notes)
+	builder.WriteString(_m.Notes)
 	builder.WriteString(", ")
 	builder.WriteString("result_url=")
-	builder.WriteString(dsr.ResultURL)
+	builder.WriteString(_m.ResultURL)
 	builder.WriteString(", ")
 	builder.WriteString("submitted_at=")
-	builder.WriteString(dsr.SubmittedAt.Format(time.ANSIC))
+	builder.WriteString(_m.SubmittedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := dsr.ProcessedAt; v != nil {
+	if v := _m.ProcessedAt; v != nil {
 		builder.WriteString("processed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(dsr.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dsr.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

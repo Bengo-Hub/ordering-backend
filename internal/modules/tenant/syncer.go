@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -27,29 +28,18 @@ func NewSyncer(client *ent.Client, authURL string) *Syncer {
 	return &Syncer{client: client, authURL: authURL}
 }
 
-// authAPITenantResponse is the full tenant JSON response from GET /api/v1/tenants/by-slug/{slug}.
+// authAPITenantResponse is the minimal tenant JSON response from GET /api/v1/tenants/by-slug/{slug}.
+// Only fields that this service persists locally are included.
 type authAPITenantResponse struct {
-	ID                  string         `json:"id"`
-	Name                string         `json:"name"`
-	Slug                string         `json:"slug"`
-	Status              string         `json:"status"`
-	ContactEmail        string         `json:"contact_email"`
-	ContactPhone        string         `json:"contact_phone"`
-	LogoURL             string         `json:"logo_url"`
-	Website             string         `json:"website"`
-	Country             string         `json:"country"`
-	Timezone            string         `json:"timezone"`
-	BrandColors         map[string]any `json:"brand_colors"`
-	OrgSize             string         `json:"org_size"`
-	UseCase             string         `json:"use_case"`
-	SubscriptionPlan    string         `json:"subscription_plan"`
-	SubscriptionStatus  string         `json:"subscription_status"`
-	TierLimits          map[string]any `json:"tier_limits"`
-	Metadata            map[string]any `json:"metadata"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Slug    string `json:"slug"`
+	Status  string `json:"status"`
+	UseCase string `json:"use_case"`
 }
 
-// SyncTenant fetches the FULL tenant record from auth-api and persists it
-// in the local DB with the same UUID as auth-api. Used for JIT provisioning.
+// SyncTenant fetches the tenant record from auth-api and persists the minimal
+// reference in the local DB with the same UUID as auth-api. Used for JIT provisioning.
 func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error) {
 	// Fast path: check if tenant already exists locally
 	existingFast, err := s.client.Tenant.Query().Where(enttenant.SlugEQ(slug)).Only(ctx)
@@ -86,6 +76,8 @@ func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error)
 		return uuid.Nil, fmt.Errorf("tenant.Syncer: invalid UUID %q: %w", remote.ID, err)
 	}
 
+	now := time.Now()
+
 	// Make a transaction.
 	tx, err := s.client.Tx(ctx)
 	if err != nil {
@@ -101,58 +93,13 @@ func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error)
 
 	existing, queryErr := tx.Tenant.Query().Where(enttenant.IDEQ(realID)).Only(ctx)
 
-	extMeta := map[string]any{}
-	for k, v := range remote.Metadata {
-		extMeta[k] = v
-	}
-	if remote.LogoURL != "" {
-		extMeta["logo_url"] = remote.LogoURL
-	}
-	if remote.Website != "" {
-		extMeta["website"] = remote.Website
-	}
-	if remote.Country != "" {
-		extMeta["country"] = remote.Country
-	}
-	if remote.Timezone != "" {
-		extMeta["timezone"] = remote.Timezone
-	}
-	if len(remote.BrandColors) > 0 {
-		extMeta["brand_colors"] = remote.BrandColors
-	}
-	if remote.OrgSize != "" {
-		extMeta["org_size"] = remote.OrgSize
-	}
-	if remote.UseCase != "" {
-		extMeta["use_case"] = remote.UseCase
-	}
-	if remote.SubscriptionPlan != "" {
-		extMeta["subscription_plan"] = remote.SubscriptionPlan
-	}
-	if remote.SubscriptionStatus != "" {
-		extMeta["subscription_status"] = remote.SubscriptionStatus
-	}
-	if len(remote.TierLimits) > 0 {
-		extMeta["tier_limits"] = remote.TierLimits
-	}
-
 	if queryErr == nil && existing != nil {
 		upd := existing.Update().
 			SetName(remote.Name).
 			SetStatus(remote.Status).
-			SetContactEmail(remote.ContactEmail).
-			SetContactPhone(remote.ContactPhone).
-			SetLogoURL(remote.LogoURL).
-			SetWebsite(remote.Website).
-			SetCountry(remote.Country).
-			SetTimezone(remote.Timezone).
-			SetBrandColors(remote.BrandColors).
-			SetOrgSize(remote.OrgSize).
-			SetUseCase(remote.UseCase).
-			SetSubscriptionPlan(remote.SubscriptionPlan).
-			SetSubscriptionStatus(remote.SubscriptionStatus).
-			SetTierLimits(remote.TierLimits).
-			SetMetadata(extMeta)
+			SetNillableUseCase(nillableStr(remote.UseCase)).
+			SetSyncStatus("synced").
+			SetLastSyncAt(now)
 		if _, err := upd.Save(ctx); err != nil {
 			return uuid.Nil, fmt.Errorf("tenant.Syncer: update tenant: %w", err)
 		}
@@ -175,19 +122,9 @@ func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error)
 		SetSlug(remote.Slug).
 		SetName(remote.Name).
 		SetStatus(remote.Status).
-		SetContactEmail(remote.ContactEmail).
-		SetContactPhone(remote.ContactPhone).
-		SetLogoURL(remote.LogoURL).
-		SetWebsite(remote.Website).
-		SetCountry(remote.Country).
-		SetTimezone(remote.Timezone).
-		SetBrandColors(remote.BrandColors).
-		SetOrgSize(remote.OrgSize).
-		SetUseCase(remote.UseCase).
-		SetSubscriptionPlan(remote.SubscriptionPlan).
-		SetSubscriptionStatus(remote.SubscriptionStatus).
-		SetTierLimits(remote.TierLimits).
-		SetMetadata(extMeta)
+		SetNillableUseCase(nillableStr(remote.UseCase)).
+		SetSyncStatus("synced").
+		SetLastSyncAt(now)
 
 	created, createErr := create.Save(ctx)
 	if createErr != nil {
@@ -196,4 +133,12 @@ func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error)
 
 	log.Printf("  [tenant-sync] dynamically created %s (UUID %s, synced from auth-api)", slug, created.ID)
 	return created.ID, nil
+}
+
+// nillableStr returns a *string if non-empty, nil otherwise.
+func nillableStr(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

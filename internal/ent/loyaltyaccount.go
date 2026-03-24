@@ -98,7 +98,7 @@ func (*LoyaltyAccount) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the LoyaltyAccount fields.
-func (la *LoyaltyAccount) assignValues(columns []string, values []any) error {
+func (_m *LoyaltyAccount) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -108,71 +108,71 @@ func (la *LoyaltyAccount) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				la.ID = *value
+				_m.ID = *value
 			}
 		case loyaltyaccount.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				la.TenantID = *value
+				_m.TenantID = *value
 			}
 		case loyaltyaccount.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				la.UserID = *value
+				_m.UserID = *value
 			}
 		case loyaltyaccount.FieldBalancePoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field balance_points", values[i])
 			} else if value.Valid {
-				la.BalancePoints = int(value.Int64)
+				_m.BalancePoints = int(value.Int64)
 			}
 		case loyaltyaccount.FieldLifetimePoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field lifetime_points", values[i])
 			} else if value.Valid {
-				la.LifetimePoints = int(value.Int64)
+				_m.LifetimePoints = int(value.Int64)
 			}
 		case loyaltyaccount.FieldRedeemedPoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field redeemed_points", values[i])
 			} else if value.Valid {
-				la.RedeemedPoints = int(value.Int64)
+				_m.RedeemedPoints = int(value.Int64)
 			}
 		case loyaltyaccount.FieldTier:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field tier", values[i])
 			} else if value.Valid {
-				la.Tier = loyaltyaccount.Tier(value.String)
+				_m.Tier = loyaltyaccount.Tier(value.String)
 			}
 		case loyaltyaccount.FieldTierProgress:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field tier_progress", values[i])
 			} else if value.Valid {
-				la.TierProgress = int(value.Int64)
+				_m.TierProgress = int(value.Int64)
 			}
 		case loyaltyaccount.FieldTierExpiresAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field tier_expires_at", values[i])
 			} else if value.Valid {
-				la.TierExpiresAt = new(time.Time)
-				*la.TierExpiresAt = value.Time
+				_m.TierExpiresAt = new(time.Time)
+				*_m.TierExpiresAt = value.Time
 			}
 		case loyaltyaccount.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				la.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case loyaltyaccount.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				la.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			la.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -180,74 +180,74 @@ func (la *LoyaltyAccount) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the LoyaltyAccount.
 // This includes values selected through modifiers, order, etc.
-func (la *LoyaltyAccount) Value(name string) (ent.Value, error) {
-	return la.selectValues.Get(name)
+func (_m *LoyaltyAccount) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryUser queries the "user" edge of the LoyaltyAccount entity.
-func (la *LoyaltyAccount) QueryUser() *UserQuery {
-	return NewLoyaltyAccountClient(la.config).QueryUser(la)
+func (_m *LoyaltyAccount) QueryUser() *UserQuery {
+	return NewLoyaltyAccountClient(_m.config).QueryUser(_m)
 }
 
 // QueryTransactions queries the "transactions" edge of the LoyaltyAccount entity.
-func (la *LoyaltyAccount) QueryTransactions() *LoyaltyTransactionQuery {
-	return NewLoyaltyAccountClient(la.config).QueryTransactions(la)
+func (_m *LoyaltyAccount) QueryTransactions() *LoyaltyTransactionQuery {
+	return NewLoyaltyAccountClient(_m.config).QueryTransactions(_m)
 }
 
 // Update returns a builder for updating this LoyaltyAccount.
 // Note that you need to call LoyaltyAccount.Unwrap() before calling this method if this LoyaltyAccount
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (la *LoyaltyAccount) Update() *LoyaltyAccountUpdateOne {
-	return NewLoyaltyAccountClient(la.config).UpdateOne(la)
+func (_m *LoyaltyAccount) Update() *LoyaltyAccountUpdateOne {
+	return NewLoyaltyAccountClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the LoyaltyAccount entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (la *LoyaltyAccount) Unwrap() *LoyaltyAccount {
-	_tx, ok := la.config.driver.(*txDriver)
+func (_m *LoyaltyAccount) Unwrap() *LoyaltyAccount {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: LoyaltyAccount is not a transactional entity")
 	}
-	la.config.driver = _tx.drv
-	return la
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (la *LoyaltyAccount) String() string {
+func (_m *LoyaltyAccount) String() string {
 	var builder strings.Builder
 	builder.WriteString("LoyaltyAccount(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", la.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", la.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", la.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("balance_points=")
-	builder.WriteString(fmt.Sprintf("%v", la.BalancePoints))
+	builder.WriteString(fmt.Sprintf("%v", _m.BalancePoints))
 	builder.WriteString(", ")
 	builder.WriteString("lifetime_points=")
-	builder.WriteString(fmt.Sprintf("%v", la.LifetimePoints))
+	builder.WriteString(fmt.Sprintf("%v", _m.LifetimePoints))
 	builder.WriteString(", ")
 	builder.WriteString("redeemed_points=")
-	builder.WriteString(fmt.Sprintf("%v", la.RedeemedPoints))
+	builder.WriteString(fmt.Sprintf("%v", _m.RedeemedPoints))
 	builder.WriteString(", ")
 	builder.WriteString("tier=")
-	builder.WriteString(fmt.Sprintf("%v", la.Tier))
+	builder.WriteString(fmt.Sprintf("%v", _m.Tier))
 	builder.WriteString(", ")
 	builder.WriteString("tier_progress=")
-	builder.WriteString(fmt.Sprintf("%v", la.TierProgress))
+	builder.WriteString(fmt.Sprintf("%v", _m.TierProgress))
 	builder.WriteString(", ")
-	if v := la.TierExpiresAt; v != nil {
+	if v := _m.TierExpiresAt; v != nil {
 		builder.WriteString("tier_expires_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(la.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(la.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -25,192 +25,192 @@ type OrderingPermissionUpdate struct {
 }
 
 // Where appends a list predicates to the OrderingPermissionUpdate builder.
-func (opu *OrderingPermissionUpdate) Where(ps ...predicate.OrderingPermission) *OrderingPermissionUpdate {
-	opu.mutation.Where(ps...)
-	return opu
+func (_u *OrderingPermissionUpdate) Where(ps ...predicate.OrderingPermission) *OrderingPermissionUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetPermissionCode sets the "permission_code" field.
-func (opu *OrderingPermissionUpdate) SetPermissionCode(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetPermissionCode(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetPermissionCode(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetPermissionCode(v)
+	return _u
 }
 
 // SetNillablePermissionCode sets the "permission_code" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillablePermissionCode(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetPermissionCode(*s)
+func (_u *OrderingPermissionUpdate) SetNillablePermissionCode(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetPermissionCode(*v)
 	}
-	return opu
+	return _u
 }
 
 // SetName sets the "name" field.
-func (opu *OrderingPermissionUpdate) SetName(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetName(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetName(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillableName(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetName(*s)
+func (_u *OrderingPermissionUpdate) SetNillableName(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return opu
+	return _u
 }
 
 // SetModule sets the "module" field.
-func (opu *OrderingPermissionUpdate) SetModule(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetModule(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetModule(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetModule(v)
+	return _u
 }
 
 // SetNillableModule sets the "module" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillableModule(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetModule(*s)
+func (_u *OrderingPermissionUpdate) SetNillableModule(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetModule(*v)
 	}
-	return opu
+	return _u
 }
 
 // SetAction sets the "action" field.
-func (opu *OrderingPermissionUpdate) SetAction(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetAction(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetAction(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetAction(v)
+	return _u
 }
 
 // SetNillableAction sets the "action" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillableAction(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetAction(*s)
+func (_u *OrderingPermissionUpdate) SetNillableAction(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetAction(*v)
 	}
-	return opu
+	return _u
 }
 
 // SetResource sets the "resource" field.
-func (opu *OrderingPermissionUpdate) SetResource(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetResource(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetResource(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetResource(v)
+	return _u
 }
 
 // SetNillableResource sets the "resource" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillableResource(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetResource(*s)
+func (_u *OrderingPermissionUpdate) SetNillableResource(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetResource(*v)
 	}
-	return opu
+	return _u
 }
 
 // ClearResource clears the value of the "resource" field.
-func (opu *OrderingPermissionUpdate) ClearResource() *OrderingPermissionUpdate {
-	opu.mutation.ClearResource()
-	return opu
+func (_u *OrderingPermissionUpdate) ClearResource() *OrderingPermissionUpdate {
+	_u.mutation.ClearResource()
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (opu *OrderingPermissionUpdate) SetDescription(s string) *OrderingPermissionUpdate {
-	opu.mutation.SetDescription(s)
-	return opu
+func (_u *OrderingPermissionUpdate) SetDescription(v string) *OrderingPermissionUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (opu *OrderingPermissionUpdate) SetNillableDescription(s *string) *OrderingPermissionUpdate {
-	if s != nil {
-		opu.SetDescription(*s)
+func (_u *OrderingPermissionUpdate) SetNillableDescription(v *string) *OrderingPermissionUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return opu
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (opu *OrderingPermissionUpdate) ClearDescription() *OrderingPermissionUpdate {
-	opu.mutation.ClearDescription()
-	return opu
+func (_u *OrderingPermissionUpdate) ClearDescription() *OrderingPermissionUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // AddRoleIDs adds the "roles" edge to the OrderingRole entity by IDs.
-func (opu *OrderingPermissionUpdate) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdate {
-	opu.mutation.AddRoleIDs(ids...)
-	return opu
+func (_u *OrderingPermissionUpdate) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdate {
+	_u.mutation.AddRoleIDs(ids...)
+	return _u
 }
 
 // AddRoles adds the "roles" edges to the OrderingRole entity.
-func (opu *OrderingPermissionUpdate) AddRoles(o ...*OrderingRole) *OrderingPermissionUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingPermissionUpdate) AddRoles(v ...*OrderingRole) *OrderingPermissionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opu.AddRoleIDs(ids...)
+	return _u.AddRoleIDs(ids...)
 }
 
 // AddRolePermissionIDs adds the "role_permissions" edge to the RolePermission entity by IDs.
-func (opu *OrderingPermissionUpdate) AddRolePermissionIDs(ids ...int) *OrderingPermissionUpdate {
-	opu.mutation.AddRolePermissionIDs(ids...)
-	return opu
+func (_u *OrderingPermissionUpdate) AddRolePermissionIDs(ids ...int) *OrderingPermissionUpdate {
+	_u.mutation.AddRolePermissionIDs(ids...)
+	return _u
 }
 
 // AddRolePermissions adds the "role_permissions" edges to the RolePermission entity.
-func (opu *OrderingPermissionUpdate) AddRolePermissions(r ...*RolePermission) *OrderingPermissionUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingPermissionUpdate) AddRolePermissions(v ...*RolePermission) *OrderingPermissionUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opu.AddRolePermissionIDs(ids...)
+	return _u.AddRolePermissionIDs(ids...)
 }
 
 // Mutation returns the OrderingPermissionMutation object of the builder.
-func (opu *OrderingPermissionUpdate) Mutation() *OrderingPermissionMutation {
-	return opu.mutation
+func (_u *OrderingPermissionUpdate) Mutation() *OrderingPermissionMutation {
+	return _u.mutation
 }
 
 // ClearRoles clears all "roles" edges to the OrderingRole entity.
-func (opu *OrderingPermissionUpdate) ClearRoles() *OrderingPermissionUpdate {
-	opu.mutation.ClearRoles()
-	return opu
+func (_u *OrderingPermissionUpdate) ClearRoles() *OrderingPermissionUpdate {
+	_u.mutation.ClearRoles()
+	return _u
 }
 
 // RemoveRoleIDs removes the "roles" edge to OrderingRole entities by IDs.
-func (opu *OrderingPermissionUpdate) RemoveRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdate {
-	opu.mutation.RemoveRoleIDs(ids...)
-	return opu
+func (_u *OrderingPermissionUpdate) RemoveRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdate {
+	_u.mutation.RemoveRoleIDs(ids...)
+	return _u
 }
 
 // RemoveRoles removes "roles" edges to OrderingRole entities.
-func (opu *OrderingPermissionUpdate) RemoveRoles(o ...*OrderingRole) *OrderingPermissionUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingPermissionUpdate) RemoveRoles(v ...*OrderingRole) *OrderingPermissionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opu.RemoveRoleIDs(ids...)
+	return _u.RemoveRoleIDs(ids...)
 }
 
 // ClearRolePermissions clears all "role_permissions" edges to the RolePermission entity.
-func (opu *OrderingPermissionUpdate) ClearRolePermissions() *OrderingPermissionUpdate {
-	opu.mutation.ClearRolePermissions()
-	return opu
+func (_u *OrderingPermissionUpdate) ClearRolePermissions() *OrderingPermissionUpdate {
+	_u.mutation.ClearRolePermissions()
+	return _u
 }
 
 // RemoveRolePermissionIDs removes the "role_permissions" edge to RolePermission entities by IDs.
-func (opu *OrderingPermissionUpdate) RemoveRolePermissionIDs(ids ...int) *OrderingPermissionUpdate {
-	opu.mutation.RemoveRolePermissionIDs(ids...)
-	return opu
+func (_u *OrderingPermissionUpdate) RemoveRolePermissionIDs(ids ...int) *OrderingPermissionUpdate {
+	_u.mutation.RemoveRolePermissionIDs(ids...)
+	return _u
 }
 
 // RemoveRolePermissions removes "role_permissions" edges to RolePermission entities.
-func (opu *OrderingPermissionUpdate) RemoveRolePermissions(r ...*RolePermission) *OrderingPermissionUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingPermissionUpdate) RemoveRolePermissions(v ...*RolePermission) *OrderingPermissionUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opu.RemoveRolePermissionIDs(ids...)
+	return _u.RemoveRolePermissionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (opu *OrderingPermissionUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, opu.sqlSave, opu.mutation, opu.hooks)
+func (_u *OrderingPermissionUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (opu *OrderingPermissionUpdate) SaveX(ctx context.Context) int {
-	affected, err := opu.Save(ctx)
+func (_u *OrderingPermissionUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -218,36 +218,36 @@ func (opu *OrderingPermissionUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (opu *OrderingPermissionUpdate) Exec(ctx context.Context) error {
-	_, err := opu.Save(ctx)
+func (_u *OrderingPermissionUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opu *OrderingPermissionUpdate) ExecX(ctx context.Context) {
-	if err := opu.Exec(ctx); err != nil {
+func (_u *OrderingPermissionUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (opu *OrderingPermissionUpdate) check() error {
-	if v, ok := opu.mutation.PermissionCode(); ok {
+func (_u *OrderingPermissionUpdate) check() error {
+	if v, ok := _u.mutation.PermissionCode(); ok {
 		if err := orderingpermission.PermissionCodeValidator(v); err != nil {
 			return &ValidationError{Name: "permission_code", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.permission_code": %w`, err)}
 		}
 	}
-	if v, ok := opu.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := orderingpermission.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.name": %w`, err)}
 		}
 	}
-	if v, ok := opu.mutation.Module(); ok {
+	if v, ok := _u.mutation.Module(); ok {
 		if err := orderingpermission.ModuleValidator(v); err != nil {
 			return &ValidationError{Name: "module", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.module": %w`, err)}
 		}
 	}
-	if v, ok := opu.mutation.Action(); ok {
+	if v, ok := _u.mutation.Action(); ok {
 		if err := orderingpermission.ActionValidator(v); err != nil {
 			return &ValidationError{Name: "action", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.action": %w`, err)}
 		}
@@ -255,43 +255,43 @@ func (opu *OrderingPermissionUpdate) check() error {
 	return nil
 }
 
-func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := opu.check(); err != nil {
-		return n, err
+func (_u *OrderingPermissionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderingpermission.Table, orderingpermission.Columns, sqlgraph.NewFieldSpec(orderingpermission.FieldID, field.TypeUUID))
-	if ps := opu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := opu.mutation.PermissionCode(); ok {
+	if value, ok := _u.mutation.PermissionCode(); ok {
 		_spec.SetField(orderingpermission.FieldPermissionCode, field.TypeString, value)
 	}
-	if value, ok := opu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(orderingpermission.FieldName, field.TypeString, value)
 	}
-	if value, ok := opu.mutation.Module(); ok {
+	if value, ok := _u.mutation.Module(); ok {
 		_spec.SetField(orderingpermission.FieldModule, field.TypeString, value)
 	}
-	if value, ok := opu.mutation.Action(); ok {
+	if value, ok := _u.mutation.Action(); ok {
 		_spec.SetField(orderingpermission.FieldAction, field.TypeString, value)
 	}
-	if value, ok := opu.mutation.Resource(); ok {
+	if value, ok := _u.mutation.Resource(); ok {
 		_spec.SetField(orderingpermission.FieldResource, field.TypeString, value)
 	}
-	if opu.mutation.ResourceCleared() {
+	if _u.mutation.ResourceCleared() {
 		_spec.ClearField(orderingpermission.FieldResource, field.TypeString)
 	}
-	if value, ok := opu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(orderingpermission.FieldDescription, field.TypeString, value)
 	}
-	if opu.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(orderingpermission.FieldDescription, field.TypeString)
 	}
-	if opu.mutation.RolesCleared() {
+	if _u.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -304,7 +304,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opu.mutation.RemovedRolesIDs(); len(nodes) > 0 && !opu.mutation.RolesCleared() {
+	if nodes := _u.mutation.RemovedRolesIDs(); len(nodes) > 0 && !_u.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -320,7 +320,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opu.mutation.RolesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -336,7 +336,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if opu.mutation.RolePermissionsCleared() {
+	if _u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -349,7 +349,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opu.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !opu.mutation.RolePermissionsCleared() {
+	if nodes := _u.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !_u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -365,7 +365,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opu.mutation.RolePermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolePermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -381,7 +381,7 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, opu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderingpermission.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -389,8 +389,8 @@ func (opu *OrderingPermissionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		return 0, err
 	}
-	opu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // OrderingPermissionUpdateOne is the builder for updating a single OrderingPermission entity.
@@ -402,199 +402,199 @@ type OrderingPermissionUpdateOne struct {
 }
 
 // SetPermissionCode sets the "permission_code" field.
-func (opuo *OrderingPermissionUpdateOne) SetPermissionCode(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetPermissionCode(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetPermissionCode(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetPermissionCode(v)
+	return _u
 }
 
 // SetNillablePermissionCode sets the "permission_code" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillablePermissionCode(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetPermissionCode(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillablePermissionCode(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetPermissionCode(*v)
 	}
-	return opuo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (opuo *OrderingPermissionUpdateOne) SetName(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetName(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetName(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillableName(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetName(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillableName(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return opuo
+	return _u
 }
 
 // SetModule sets the "module" field.
-func (opuo *OrderingPermissionUpdateOne) SetModule(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetModule(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetModule(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetModule(v)
+	return _u
 }
 
 // SetNillableModule sets the "module" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillableModule(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetModule(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillableModule(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetModule(*v)
 	}
-	return opuo
+	return _u
 }
 
 // SetAction sets the "action" field.
-func (opuo *OrderingPermissionUpdateOne) SetAction(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetAction(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetAction(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetAction(v)
+	return _u
 }
 
 // SetNillableAction sets the "action" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillableAction(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetAction(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillableAction(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetAction(*v)
 	}
-	return opuo
+	return _u
 }
 
 // SetResource sets the "resource" field.
-func (opuo *OrderingPermissionUpdateOne) SetResource(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetResource(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetResource(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetResource(v)
+	return _u
 }
 
 // SetNillableResource sets the "resource" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillableResource(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetResource(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillableResource(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetResource(*v)
 	}
-	return opuo
+	return _u
 }
 
 // ClearResource clears the value of the "resource" field.
-func (opuo *OrderingPermissionUpdateOne) ClearResource() *OrderingPermissionUpdateOne {
-	opuo.mutation.ClearResource()
-	return opuo
+func (_u *OrderingPermissionUpdateOne) ClearResource() *OrderingPermissionUpdateOne {
+	_u.mutation.ClearResource()
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (opuo *OrderingPermissionUpdateOne) SetDescription(s string) *OrderingPermissionUpdateOne {
-	opuo.mutation.SetDescription(s)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) SetDescription(v string) *OrderingPermissionUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (opuo *OrderingPermissionUpdateOne) SetNillableDescription(s *string) *OrderingPermissionUpdateOne {
-	if s != nil {
-		opuo.SetDescription(*s)
+func (_u *OrderingPermissionUpdateOne) SetNillableDescription(v *string) *OrderingPermissionUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return opuo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (opuo *OrderingPermissionUpdateOne) ClearDescription() *OrderingPermissionUpdateOne {
-	opuo.mutation.ClearDescription()
-	return opuo
+func (_u *OrderingPermissionUpdateOne) ClearDescription() *OrderingPermissionUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // AddRoleIDs adds the "roles" edge to the OrderingRole entity by IDs.
-func (opuo *OrderingPermissionUpdateOne) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdateOne {
-	opuo.mutation.AddRoleIDs(ids...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) AddRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdateOne {
+	_u.mutation.AddRoleIDs(ids...)
+	return _u
 }
 
 // AddRoles adds the "roles" edges to the OrderingRole entity.
-func (opuo *OrderingPermissionUpdateOne) AddRoles(o ...*OrderingRole) *OrderingPermissionUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingPermissionUpdateOne) AddRoles(v ...*OrderingRole) *OrderingPermissionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opuo.AddRoleIDs(ids...)
+	return _u.AddRoleIDs(ids...)
 }
 
 // AddRolePermissionIDs adds the "role_permissions" edge to the RolePermission entity by IDs.
-func (opuo *OrderingPermissionUpdateOne) AddRolePermissionIDs(ids ...int) *OrderingPermissionUpdateOne {
-	opuo.mutation.AddRolePermissionIDs(ids...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) AddRolePermissionIDs(ids ...int) *OrderingPermissionUpdateOne {
+	_u.mutation.AddRolePermissionIDs(ids...)
+	return _u
 }
 
 // AddRolePermissions adds the "role_permissions" edges to the RolePermission entity.
-func (opuo *OrderingPermissionUpdateOne) AddRolePermissions(r ...*RolePermission) *OrderingPermissionUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingPermissionUpdateOne) AddRolePermissions(v ...*RolePermission) *OrderingPermissionUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opuo.AddRolePermissionIDs(ids...)
+	return _u.AddRolePermissionIDs(ids...)
 }
 
 // Mutation returns the OrderingPermissionMutation object of the builder.
-func (opuo *OrderingPermissionUpdateOne) Mutation() *OrderingPermissionMutation {
-	return opuo.mutation
+func (_u *OrderingPermissionUpdateOne) Mutation() *OrderingPermissionMutation {
+	return _u.mutation
 }
 
 // ClearRoles clears all "roles" edges to the OrderingRole entity.
-func (opuo *OrderingPermissionUpdateOne) ClearRoles() *OrderingPermissionUpdateOne {
-	opuo.mutation.ClearRoles()
-	return opuo
+func (_u *OrderingPermissionUpdateOne) ClearRoles() *OrderingPermissionUpdateOne {
+	_u.mutation.ClearRoles()
+	return _u
 }
 
 // RemoveRoleIDs removes the "roles" edge to OrderingRole entities by IDs.
-func (opuo *OrderingPermissionUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdateOne {
-	opuo.mutation.RemoveRoleIDs(ids...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *OrderingPermissionUpdateOne {
+	_u.mutation.RemoveRoleIDs(ids...)
+	return _u
 }
 
 // RemoveRoles removes "roles" edges to OrderingRole entities.
-func (opuo *OrderingPermissionUpdateOne) RemoveRoles(o ...*OrderingRole) *OrderingPermissionUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_u *OrderingPermissionUpdateOne) RemoveRoles(v ...*OrderingRole) *OrderingPermissionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opuo.RemoveRoleIDs(ids...)
+	return _u.RemoveRoleIDs(ids...)
 }
 
 // ClearRolePermissions clears all "role_permissions" edges to the RolePermission entity.
-func (opuo *OrderingPermissionUpdateOne) ClearRolePermissions() *OrderingPermissionUpdateOne {
-	opuo.mutation.ClearRolePermissions()
-	return opuo
+func (_u *OrderingPermissionUpdateOne) ClearRolePermissions() *OrderingPermissionUpdateOne {
+	_u.mutation.ClearRolePermissions()
+	return _u
 }
 
 // RemoveRolePermissionIDs removes the "role_permissions" edge to RolePermission entities by IDs.
-func (opuo *OrderingPermissionUpdateOne) RemoveRolePermissionIDs(ids ...int) *OrderingPermissionUpdateOne {
-	opuo.mutation.RemoveRolePermissionIDs(ids...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) RemoveRolePermissionIDs(ids ...int) *OrderingPermissionUpdateOne {
+	_u.mutation.RemoveRolePermissionIDs(ids...)
+	return _u
 }
 
 // RemoveRolePermissions removes "role_permissions" edges to RolePermission entities.
-func (opuo *OrderingPermissionUpdateOne) RemoveRolePermissions(r ...*RolePermission) *OrderingPermissionUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *OrderingPermissionUpdateOne) RemoveRolePermissions(v ...*RolePermission) *OrderingPermissionUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return opuo.RemoveRolePermissionIDs(ids...)
+	return _u.RemoveRolePermissionIDs(ids...)
 }
 
 // Where appends a list predicates to the OrderingPermissionUpdate builder.
-func (opuo *OrderingPermissionUpdateOne) Where(ps ...predicate.OrderingPermission) *OrderingPermissionUpdateOne {
-	opuo.mutation.Where(ps...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) Where(ps ...predicate.OrderingPermission) *OrderingPermissionUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (opuo *OrderingPermissionUpdateOne) Select(field string, fields ...string) *OrderingPermissionUpdateOne {
-	opuo.fields = append([]string{field}, fields...)
-	return opuo
+func (_u *OrderingPermissionUpdateOne) Select(field string, fields ...string) *OrderingPermissionUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated OrderingPermission entity.
-func (opuo *OrderingPermissionUpdateOne) Save(ctx context.Context) (*OrderingPermission, error) {
-	return withHooks(ctx, opuo.sqlSave, opuo.mutation, opuo.hooks)
+func (_u *OrderingPermissionUpdateOne) Save(ctx context.Context) (*OrderingPermission, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (opuo *OrderingPermissionUpdateOne) SaveX(ctx context.Context) *OrderingPermission {
-	node, err := opuo.Save(ctx)
+func (_u *OrderingPermissionUpdateOne) SaveX(ctx context.Context) *OrderingPermission {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -602,36 +602,36 @@ func (opuo *OrderingPermissionUpdateOne) SaveX(ctx context.Context) *OrderingPer
 }
 
 // Exec executes the query on the entity.
-func (opuo *OrderingPermissionUpdateOne) Exec(ctx context.Context) error {
-	_, err := opuo.Save(ctx)
+func (_u *OrderingPermissionUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (opuo *OrderingPermissionUpdateOne) ExecX(ctx context.Context) {
-	if err := opuo.Exec(ctx); err != nil {
+func (_u *OrderingPermissionUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (opuo *OrderingPermissionUpdateOne) check() error {
-	if v, ok := opuo.mutation.PermissionCode(); ok {
+func (_u *OrderingPermissionUpdateOne) check() error {
+	if v, ok := _u.mutation.PermissionCode(); ok {
 		if err := orderingpermission.PermissionCodeValidator(v); err != nil {
 			return &ValidationError{Name: "permission_code", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.permission_code": %w`, err)}
 		}
 	}
-	if v, ok := opuo.mutation.Name(); ok {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := orderingpermission.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.name": %w`, err)}
 		}
 	}
-	if v, ok := opuo.mutation.Module(); ok {
+	if v, ok := _u.mutation.Module(); ok {
 		if err := orderingpermission.ModuleValidator(v); err != nil {
 			return &ValidationError{Name: "module", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.module": %w`, err)}
 		}
 	}
-	if v, ok := opuo.mutation.Action(); ok {
+	if v, ok := _u.mutation.Action(); ok {
 		if err := orderingpermission.ActionValidator(v); err != nil {
 			return &ValidationError{Name: "action", err: fmt.Errorf(`ent: validator failed for field "OrderingPermission.action": %w`, err)}
 		}
@@ -639,17 +639,17 @@ func (opuo *OrderingPermissionUpdateOne) check() error {
 	return nil
 }
 
-func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *OrderingPermission, err error) {
-	if err := opuo.check(); err != nil {
+func (_u *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *OrderingPermission, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(orderingpermission.Table, orderingpermission.Columns, sqlgraph.NewFieldSpec(orderingpermission.FieldID, field.TypeUUID))
-	id, ok := opuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "OrderingPermission.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := opuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderingpermission.FieldID)
 		for _, f := range fields {
@@ -661,38 +661,38 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 			}
 		}
 	}
-	if ps := opuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := opuo.mutation.PermissionCode(); ok {
+	if value, ok := _u.mutation.PermissionCode(); ok {
 		_spec.SetField(orderingpermission.FieldPermissionCode, field.TypeString, value)
 	}
-	if value, ok := opuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(orderingpermission.FieldName, field.TypeString, value)
 	}
-	if value, ok := opuo.mutation.Module(); ok {
+	if value, ok := _u.mutation.Module(); ok {
 		_spec.SetField(orderingpermission.FieldModule, field.TypeString, value)
 	}
-	if value, ok := opuo.mutation.Action(); ok {
+	if value, ok := _u.mutation.Action(); ok {
 		_spec.SetField(orderingpermission.FieldAction, field.TypeString, value)
 	}
-	if value, ok := opuo.mutation.Resource(); ok {
+	if value, ok := _u.mutation.Resource(); ok {
 		_spec.SetField(orderingpermission.FieldResource, field.TypeString, value)
 	}
-	if opuo.mutation.ResourceCleared() {
+	if _u.mutation.ResourceCleared() {
 		_spec.ClearField(orderingpermission.FieldResource, field.TypeString)
 	}
-	if value, ok := opuo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(orderingpermission.FieldDescription, field.TypeString, value)
 	}
-	if opuo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(orderingpermission.FieldDescription, field.TypeString)
 	}
-	if opuo.mutation.RolesCleared() {
+	if _u.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -705,7 +705,7 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opuo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !opuo.mutation.RolesCleared() {
+	if nodes := _u.mutation.RemovedRolesIDs(); len(nodes) > 0 && !_u.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -721,7 +721,7 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opuo.mutation.RolesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -737,7 +737,7 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if opuo.mutation.RolePermissionsCleared() {
+	if _u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -750,7 +750,7 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opuo.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !opuo.mutation.RolePermissionsCleared() {
+	if nodes := _u.mutation.RemovedRolePermissionsIDs(); len(nodes) > 0 && !_u.mutation.RolePermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -766,7 +766,7 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := opuo.mutation.RolePermissionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RolePermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -782,10 +782,10 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &OrderingPermission{config: opuo.config}
+	_node = &OrderingPermission{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, opuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{orderingpermission.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -793,6 +793,6 @@ func (opuo *OrderingPermissionUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		return nil, err
 	}
-	opuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

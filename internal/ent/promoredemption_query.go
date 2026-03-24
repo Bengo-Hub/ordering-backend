@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -30,44 +31,44 @@ type PromoRedemptionQuery struct {
 }
 
 // Where adds a new predicate for the PromoRedemptionQuery builder.
-func (prq *PromoRedemptionQuery) Where(ps ...predicate.PromoRedemption) *PromoRedemptionQuery {
-	prq.predicates = append(prq.predicates, ps...)
-	return prq
+func (_q *PromoRedemptionQuery) Where(ps ...predicate.PromoRedemption) *PromoRedemptionQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (prq *PromoRedemptionQuery) Limit(limit int) *PromoRedemptionQuery {
-	prq.ctx.Limit = &limit
-	return prq
+func (_q *PromoRedemptionQuery) Limit(limit int) *PromoRedemptionQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (prq *PromoRedemptionQuery) Offset(offset int) *PromoRedemptionQuery {
-	prq.ctx.Offset = &offset
-	return prq
+func (_q *PromoRedemptionQuery) Offset(offset int) *PromoRedemptionQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (prq *PromoRedemptionQuery) Unique(unique bool) *PromoRedemptionQuery {
-	prq.ctx.Unique = &unique
-	return prq
+func (_q *PromoRedemptionQuery) Unique(unique bool) *PromoRedemptionQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (prq *PromoRedemptionQuery) Order(o ...promoredemption.OrderOption) *PromoRedemptionQuery {
-	prq.order = append(prq.order, o...)
-	return prq
+func (_q *PromoRedemptionQuery) Order(o ...promoredemption.OrderOption) *PromoRedemptionQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryPromoCode chains the current query on the "promo_code" edge.
-func (prq *PromoRedemptionQuery) QueryPromoCode() *PromoCodeQuery {
-	query := (&PromoCodeClient{config: prq.config}).Query()
+func (_q *PromoRedemptionQuery) QueryPromoCode() *PromoCodeQuery {
+	query := (&PromoCodeClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := prq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := prq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -76,7 +77,7 @@ func (prq *PromoRedemptionQuery) QueryPromoCode() *PromoCodeQuery {
 			sqlgraph.To(promocode.Table, promocode.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, promoredemption.PromoCodeTable, promoredemption.PromoCodeColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(prq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -84,8 +85,8 @@ func (prq *PromoRedemptionQuery) QueryPromoCode() *PromoCodeQuery {
 
 // First returns the first PromoRedemption entity from the query.
 // Returns a *NotFoundError when no PromoRedemption was found.
-func (prq *PromoRedemptionQuery) First(ctx context.Context) (*PromoRedemption, error) {
-	nodes, err := prq.Limit(1).All(setContextOp(ctx, prq.ctx, "First"))
+func (_q *PromoRedemptionQuery) First(ctx context.Context) (*PromoRedemption, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +97,8 @@ func (prq *PromoRedemptionQuery) First(ctx context.Context) (*PromoRedemption, e
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) FirstX(ctx context.Context) *PromoRedemption {
-	node, err := prq.First(ctx)
+func (_q *PromoRedemptionQuery) FirstX(ctx context.Context) *PromoRedemption {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -106,9 +107,9 @@ func (prq *PromoRedemptionQuery) FirstX(ctx context.Context) *PromoRedemption {
 
 // FirstID returns the first PromoRedemption ID from the query.
 // Returns a *NotFoundError when no PromoRedemption ID was found.
-func (prq *PromoRedemptionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *PromoRedemptionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = prq.Limit(1).IDs(setContextOp(ctx, prq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -119,8 +120,8 @@ func (prq *PromoRedemptionQuery) FirstID(ctx context.Context) (id uuid.UUID, err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := prq.FirstID(ctx)
+func (_q *PromoRedemptionQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -130,8 +131,8 @@ func (prq *PromoRedemptionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single PromoRedemption entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one PromoRedemption entity is found.
 // Returns a *NotFoundError when no PromoRedemption entities are found.
-func (prq *PromoRedemptionQuery) Only(ctx context.Context) (*PromoRedemption, error) {
-	nodes, err := prq.Limit(2).All(setContextOp(ctx, prq.ctx, "Only"))
+func (_q *PromoRedemptionQuery) Only(ctx context.Context) (*PromoRedemption, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +147,8 @@ func (prq *PromoRedemptionQuery) Only(ctx context.Context) (*PromoRedemption, er
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) OnlyX(ctx context.Context) *PromoRedemption {
-	node, err := prq.Only(ctx)
+func (_q *PromoRedemptionQuery) OnlyX(ctx context.Context) *PromoRedemption {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -157,9 +158,9 @@ func (prq *PromoRedemptionQuery) OnlyX(ctx context.Context) *PromoRedemption {
 // OnlyID is like Only, but returns the only PromoRedemption ID in the query.
 // Returns a *NotSingularError when more than one PromoRedemption ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (prq *PromoRedemptionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *PromoRedemptionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = prq.Limit(2).IDs(setContextOp(ctx, prq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -174,8 +175,8 @@ func (prq *PromoRedemptionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := prq.OnlyID(ctx)
+func (_q *PromoRedemptionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -183,18 +184,18 @@ func (prq *PromoRedemptionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of PromoRedemptions.
-func (prq *PromoRedemptionQuery) All(ctx context.Context) ([]*PromoRedemption, error) {
-	ctx = setContextOp(ctx, prq.ctx, "All")
-	if err := prq.prepareQuery(ctx); err != nil {
+func (_q *PromoRedemptionQuery) All(ctx context.Context) ([]*PromoRedemption, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*PromoRedemption, *PromoRedemptionQuery]()
-	return withInterceptors[[]*PromoRedemption](ctx, prq, qr, prq.inters)
+	return withInterceptors[[]*PromoRedemption](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) AllX(ctx context.Context) []*PromoRedemption {
-	nodes, err := prq.All(ctx)
+func (_q *PromoRedemptionQuery) AllX(ctx context.Context) []*PromoRedemption {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -202,20 +203,20 @@ func (prq *PromoRedemptionQuery) AllX(ctx context.Context) []*PromoRedemption {
 }
 
 // IDs executes the query and returns a list of PromoRedemption IDs.
-func (prq *PromoRedemptionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if prq.ctx.Unique == nil && prq.path != nil {
-		prq.Unique(true)
+func (_q *PromoRedemptionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, prq.ctx, "IDs")
-	if err = prq.Select(promoredemption.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(promoredemption.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := prq.IDs(ctx)
+func (_q *PromoRedemptionQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -223,17 +224,17 @@ func (prq *PromoRedemptionQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (prq *PromoRedemptionQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, prq.ctx, "Count")
-	if err := prq.prepareQuery(ctx); err != nil {
+func (_q *PromoRedemptionQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, prq, querierCount[*PromoRedemptionQuery](), prq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*PromoRedemptionQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) CountX(ctx context.Context) int {
-	count, err := prq.Count(ctx)
+func (_q *PromoRedemptionQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -241,9 +242,9 @@ func (prq *PromoRedemptionQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (prq *PromoRedemptionQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, prq.ctx, "Exist")
-	switch _, err := prq.FirstID(ctx); {
+func (_q *PromoRedemptionQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -254,8 +255,8 @@ func (prq *PromoRedemptionQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (prq *PromoRedemptionQuery) ExistX(ctx context.Context) bool {
-	exist, err := prq.Exist(ctx)
+func (_q *PromoRedemptionQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -264,32 +265,32 @@ func (prq *PromoRedemptionQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the PromoRedemptionQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (prq *PromoRedemptionQuery) Clone() *PromoRedemptionQuery {
-	if prq == nil {
+func (_q *PromoRedemptionQuery) Clone() *PromoRedemptionQuery {
+	if _q == nil {
 		return nil
 	}
 	return &PromoRedemptionQuery{
-		config:        prq.config,
-		ctx:           prq.ctx.Clone(),
-		order:         append([]promoredemption.OrderOption{}, prq.order...),
-		inters:        append([]Interceptor{}, prq.inters...),
-		predicates:    append([]predicate.PromoRedemption{}, prq.predicates...),
-		withPromoCode: prq.withPromoCode.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]promoredemption.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.PromoRedemption{}, _q.predicates...),
+		withPromoCode: _q.withPromoCode.Clone(),
 		// clone intermediate query.
-		sql:  prq.sql.Clone(),
-		path: prq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithPromoCode tells the query-builder to eager-load the nodes that are connected to
 // the "promo_code" edge. The optional arguments are used to configure the query builder of the edge.
-func (prq *PromoRedemptionQuery) WithPromoCode(opts ...func(*PromoCodeQuery)) *PromoRedemptionQuery {
-	query := (&PromoCodeClient{config: prq.config}).Query()
+func (_q *PromoRedemptionQuery) WithPromoCode(opts ...func(*PromoCodeQuery)) *PromoRedemptionQuery {
+	query := (&PromoCodeClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	prq.withPromoCode = query
-	return prq
+	_q.withPromoCode = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -306,10 +307,10 @@ func (prq *PromoRedemptionQuery) WithPromoCode(opts ...func(*PromoCodeQuery)) *P
 //		GroupBy(promoredemption.FieldPromoCodeID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (prq *PromoRedemptionQuery) GroupBy(field string, fields ...string) *PromoRedemptionGroupBy {
-	prq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &PromoRedemptionGroupBy{build: prq}
-	grbuild.flds = &prq.ctx.Fields
+func (_q *PromoRedemptionQuery) GroupBy(field string, fields ...string) *PromoRedemptionGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &PromoRedemptionGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = promoredemption.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -327,58 +328,58 @@ func (prq *PromoRedemptionQuery) GroupBy(field string, fields ...string) *PromoR
 //	client.PromoRedemption.Query().
 //		Select(promoredemption.FieldPromoCodeID).
 //		Scan(ctx, &v)
-func (prq *PromoRedemptionQuery) Select(fields ...string) *PromoRedemptionSelect {
-	prq.ctx.Fields = append(prq.ctx.Fields, fields...)
-	sbuild := &PromoRedemptionSelect{PromoRedemptionQuery: prq}
+func (_q *PromoRedemptionQuery) Select(fields ...string) *PromoRedemptionSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &PromoRedemptionSelect{PromoRedemptionQuery: _q}
 	sbuild.label = promoredemption.Label
-	sbuild.flds, sbuild.scan = &prq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a PromoRedemptionSelect configured with the given aggregations.
-func (prq *PromoRedemptionQuery) Aggregate(fns ...AggregateFunc) *PromoRedemptionSelect {
-	return prq.Select().Aggregate(fns...)
+func (_q *PromoRedemptionQuery) Aggregate(fns ...AggregateFunc) *PromoRedemptionSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (prq *PromoRedemptionQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range prq.inters {
+func (_q *PromoRedemptionQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, prq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range prq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !promoredemption.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if prq.path != nil {
-		prev, err := prq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		prq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (prq *PromoRedemptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*PromoRedemption, error) {
+func (_q *PromoRedemptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*PromoRedemption, error) {
 	var (
 		nodes       = []*PromoRedemption{}
-		_spec       = prq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			prq.withPromoCode != nil,
+			_q.withPromoCode != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*PromoRedemption).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &PromoRedemption{config: prq.config}
+		node := &PromoRedemption{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -386,14 +387,14 @@ func (prq *PromoRedemptionQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, prq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := prq.withPromoCode; query != nil {
-		if err := prq.loadPromoCode(ctx, query, nodes, nil,
+	if query := _q.withPromoCode; query != nil {
+		if err := _q.loadPromoCode(ctx, query, nodes, nil,
 			func(n *PromoRedemption, e *PromoCode) { n.Edges.PromoCode = e }); err != nil {
 			return nil, err
 		}
@@ -401,7 +402,7 @@ func (prq *PromoRedemptionQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	return nodes, nil
 }
 
-func (prq *PromoRedemptionQuery) loadPromoCode(ctx context.Context, query *PromoCodeQuery, nodes []*PromoRedemption, init func(*PromoRedemption), assign func(*PromoRedemption, *PromoCode)) error {
+func (_q *PromoRedemptionQuery) loadPromoCode(ctx context.Context, query *PromoCodeQuery, nodes []*PromoRedemption, init func(*PromoRedemption), assign func(*PromoRedemption, *PromoCode)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*PromoRedemption)
 	for i := range nodes {
@@ -431,24 +432,24 @@ func (prq *PromoRedemptionQuery) loadPromoCode(ctx context.Context, query *Promo
 	return nil
 }
 
-func (prq *PromoRedemptionQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := prq.querySpec()
-	_spec.Node.Columns = prq.ctx.Fields
-	if len(prq.ctx.Fields) > 0 {
-		_spec.Unique = prq.ctx.Unique != nil && *prq.ctx.Unique
+func (_q *PromoRedemptionQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, prq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (prq *PromoRedemptionQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *PromoRedemptionQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(promoredemption.Table, promoredemption.Columns, sqlgraph.NewFieldSpec(promoredemption.FieldID, field.TypeUUID))
-	_spec.From = prq.sql
-	if unique := prq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if prq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := prq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, promoredemption.FieldID)
 		for i := range fields {
@@ -456,24 +457,24 @@ func (prq *PromoRedemptionQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if prq.withPromoCode != nil {
+		if _q.withPromoCode != nil {
 			_spec.Node.AddColumnOnce(promoredemption.FieldPromoCodeID)
 		}
 	}
-	if ps := prq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := prq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := prq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := prq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -483,33 +484,33 @@ func (prq *PromoRedemptionQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (prq *PromoRedemptionQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(prq.driver.Dialect())
+func (_q *PromoRedemptionQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(promoredemption.Table)
-	columns := prq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = promoredemption.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if prq.sql != nil {
-		selector = prq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if prq.ctx.Unique != nil && *prq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range prq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range prq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := prq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := prq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -522,41 +523,41 @@ type PromoRedemptionGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (prgb *PromoRedemptionGroupBy) Aggregate(fns ...AggregateFunc) *PromoRedemptionGroupBy {
-	prgb.fns = append(prgb.fns, fns...)
-	return prgb
+func (_g *PromoRedemptionGroupBy) Aggregate(fns ...AggregateFunc) *PromoRedemptionGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (prgb *PromoRedemptionGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, prgb.build.ctx, "GroupBy")
-	if err := prgb.build.prepareQuery(ctx); err != nil {
+func (_g *PromoRedemptionGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*PromoRedemptionQuery, *PromoRedemptionGroupBy](ctx, prgb.build, prgb, prgb.build.inters, v)
+	return scanWithInterceptors[*PromoRedemptionQuery, *PromoRedemptionGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (prgb *PromoRedemptionGroupBy) sqlScan(ctx context.Context, root *PromoRedemptionQuery, v any) error {
+func (_g *PromoRedemptionGroupBy) sqlScan(ctx context.Context, root *PromoRedemptionQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(prgb.fns))
-	for _, fn := range prgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*prgb.flds)+len(prgb.fns))
-		for _, f := range *prgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*prgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := prgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -570,27 +571,27 @@ type PromoRedemptionSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (prs *PromoRedemptionSelect) Aggregate(fns ...AggregateFunc) *PromoRedemptionSelect {
-	prs.fns = append(prs.fns, fns...)
-	return prs
+func (_s *PromoRedemptionSelect) Aggregate(fns ...AggregateFunc) *PromoRedemptionSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (prs *PromoRedemptionSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, prs.ctx, "Select")
-	if err := prs.prepareQuery(ctx); err != nil {
+func (_s *PromoRedemptionSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*PromoRedemptionQuery, *PromoRedemptionSelect](ctx, prs.PromoRedemptionQuery, prs, prs.inters, v)
+	return scanWithInterceptors[*PromoRedemptionQuery, *PromoRedemptionSelect](ctx, _s.PromoRedemptionQuery, _s, _s.inters, v)
 }
 
-func (prs *PromoRedemptionSelect) sqlScan(ctx context.Context, root *PromoRedemptionQuery, v any) error {
+func (_s *PromoRedemptionSelect) sqlScan(ctx context.Context, root *PromoRedemptionQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(prs.fns))
-	for _, fn := range prs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*prs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -598,7 +599,7 @@ func (prs *PromoRedemptionSelect) sqlScan(ctx context.Context, root *PromoRedemp
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := prs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

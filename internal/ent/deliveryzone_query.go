@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -28,40 +29,40 @@ type DeliveryZoneQuery struct {
 }
 
 // Where adds a new predicate for the DeliveryZoneQuery builder.
-func (dzq *DeliveryZoneQuery) Where(ps ...predicate.DeliveryZone) *DeliveryZoneQuery {
-	dzq.predicates = append(dzq.predicates, ps...)
-	return dzq
+func (_q *DeliveryZoneQuery) Where(ps ...predicate.DeliveryZone) *DeliveryZoneQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (dzq *DeliveryZoneQuery) Limit(limit int) *DeliveryZoneQuery {
-	dzq.ctx.Limit = &limit
-	return dzq
+func (_q *DeliveryZoneQuery) Limit(limit int) *DeliveryZoneQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (dzq *DeliveryZoneQuery) Offset(offset int) *DeliveryZoneQuery {
-	dzq.ctx.Offset = &offset
-	return dzq
+func (_q *DeliveryZoneQuery) Offset(offset int) *DeliveryZoneQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (dzq *DeliveryZoneQuery) Unique(unique bool) *DeliveryZoneQuery {
-	dzq.ctx.Unique = &unique
-	return dzq
+func (_q *DeliveryZoneQuery) Unique(unique bool) *DeliveryZoneQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (dzq *DeliveryZoneQuery) Order(o ...deliveryzone.OrderOption) *DeliveryZoneQuery {
-	dzq.order = append(dzq.order, o...)
-	return dzq
+func (_q *DeliveryZoneQuery) Order(o ...deliveryzone.OrderOption) *DeliveryZoneQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // First returns the first DeliveryZone entity from the query.
 // Returns a *NotFoundError when no DeliveryZone was found.
-func (dzq *DeliveryZoneQuery) First(ctx context.Context) (*DeliveryZone, error) {
-	nodes, err := dzq.Limit(1).All(setContextOp(ctx, dzq.ctx, "First"))
+func (_q *DeliveryZoneQuery) First(ctx context.Context) (*DeliveryZone, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +73,8 @@ func (dzq *DeliveryZoneQuery) First(ctx context.Context) (*DeliveryZone, error) 
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) FirstX(ctx context.Context) *DeliveryZone {
-	node, err := dzq.First(ctx)
+func (_q *DeliveryZoneQuery) FirstX(ctx context.Context) *DeliveryZone {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -82,9 +83,9 @@ func (dzq *DeliveryZoneQuery) FirstX(ctx context.Context) *DeliveryZone {
 
 // FirstID returns the first DeliveryZone ID from the query.
 // Returns a *NotFoundError when no DeliveryZone ID was found.
-func (dzq *DeliveryZoneQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *DeliveryZoneQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = dzq.Limit(1).IDs(setContextOp(ctx, dzq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -95,8 +96,8 @@ func (dzq *DeliveryZoneQuery) FirstID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := dzq.FirstID(ctx)
+func (_q *DeliveryZoneQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -106,8 +107,8 @@ func (dzq *DeliveryZoneQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single DeliveryZone entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one DeliveryZone entity is found.
 // Returns a *NotFoundError when no DeliveryZone entities are found.
-func (dzq *DeliveryZoneQuery) Only(ctx context.Context) (*DeliveryZone, error) {
-	nodes, err := dzq.Limit(2).All(setContextOp(ctx, dzq.ctx, "Only"))
+func (_q *DeliveryZoneQuery) Only(ctx context.Context) (*DeliveryZone, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +123,8 @@ func (dzq *DeliveryZoneQuery) Only(ctx context.Context) (*DeliveryZone, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) OnlyX(ctx context.Context) *DeliveryZone {
-	node, err := dzq.Only(ctx)
+func (_q *DeliveryZoneQuery) OnlyX(ctx context.Context) *DeliveryZone {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -133,9 +134,9 @@ func (dzq *DeliveryZoneQuery) OnlyX(ctx context.Context) *DeliveryZone {
 // OnlyID is like Only, but returns the only DeliveryZone ID in the query.
 // Returns a *NotSingularError when more than one DeliveryZone ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (dzq *DeliveryZoneQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *DeliveryZoneQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = dzq.Limit(2).IDs(setContextOp(ctx, dzq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -150,8 +151,8 @@ func (dzq *DeliveryZoneQuery) OnlyID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := dzq.OnlyID(ctx)
+func (_q *DeliveryZoneQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -159,18 +160,18 @@ func (dzq *DeliveryZoneQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of DeliveryZones.
-func (dzq *DeliveryZoneQuery) All(ctx context.Context) ([]*DeliveryZone, error) {
-	ctx = setContextOp(ctx, dzq.ctx, "All")
-	if err := dzq.prepareQuery(ctx); err != nil {
+func (_q *DeliveryZoneQuery) All(ctx context.Context) ([]*DeliveryZone, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*DeliveryZone, *DeliveryZoneQuery]()
-	return withInterceptors[[]*DeliveryZone](ctx, dzq, qr, dzq.inters)
+	return withInterceptors[[]*DeliveryZone](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) AllX(ctx context.Context) []*DeliveryZone {
-	nodes, err := dzq.All(ctx)
+func (_q *DeliveryZoneQuery) AllX(ctx context.Context) []*DeliveryZone {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -178,20 +179,20 @@ func (dzq *DeliveryZoneQuery) AllX(ctx context.Context) []*DeliveryZone {
 }
 
 // IDs executes the query and returns a list of DeliveryZone IDs.
-func (dzq *DeliveryZoneQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if dzq.ctx.Unique == nil && dzq.path != nil {
-		dzq.Unique(true)
+func (_q *DeliveryZoneQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, dzq.ctx, "IDs")
-	if err = dzq.Select(deliveryzone.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(deliveryzone.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := dzq.IDs(ctx)
+func (_q *DeliveryZoneQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -199,17 +200,17 @@ func (dzq *DeliveryZoneQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (dzq *DeliveryZoneQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, dzq.ctx, "Count")
-	if err := dzq.prepareQuery(ctx); err != nil {
+func (_q *DeliveryZoneQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, dzq, querierCount[*DeliveryZoneQuery](), dzq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*DeliveryZoneQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) CountX(ctx context.Context) int {
-	count, err := dzq.Count(ctx)
+func (_q *DeliveryZoneQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -217,9 +218,9 @@ func (dzq *DeliveryZoneQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (dzq *DeliveryZoneQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, dzq.ctx, "Exist")
-	switch _, err := dzq.FirstID(ctx); {
+func (_q *DeliveryZoneQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -230,8 +231,8 @@ func (dzq *DeliveryZoneQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (dzq *DeliveryZoneQuery) ExistX(ctx context.Context) bool {
-	exist, err := dzq.Exist(ctx)
+func (_q *DeliveryZoneQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -240,19 +241,19 @@ func (dzq *DeliveryZoneQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the DeliveryZoneQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (dzq *DeliveryZoneQuery) Clone() *DeliveryZoneQuery {
-	if dzq == nil {
+func (_q *DeliveryZoneQuery) Clone() *DeliveryZoneQuery {
+	if _q == nil {
 		return nil
 	}
 	return &DeliveryZoneQuery{
-		config:     dzq.config,
-		ctx:        dzq.ctx.Clone(),
-		order:      append([]deliveryzone.OrderOption{}, dzq.order...),
-		inters:     append([]Interceptor{}, dzq.inters...),
-		predicates: append([]predicate.DeliveryZone{}, dzq.predicates...),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]deliveryzone.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.DeliveryZone{}, _q.predicates...),
 		// clone intermediate query.
-		sql:  dzq.sql.Clone(),
-		path: dzq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
@@ -270,10 +271,10 @@ func (dzq *DeliveryZoneQuery) Clone() *DeliveryZoneQuery {
 //		GroupBy(deliveryzone.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (dzq *DeliveryZoneQuery) GroupBy(field string, fields ...string) *DeliveryZoneGroupBy {
-	dzq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &DeliveryZoneGroupBy{build: dzq}
-	grbuild.flds = &dzq.ctx.Fields
+func (_q *DeliveryZoneQuery) GroupBy(field string, fields ...string) *DeliveryZoneGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &DeliveryZoneGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = deliveryzone.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -291,62 +292,62 @@ func (dzq *DeliveryZoneQuery) GroupBy(field string, fields ...string) *DeliveryZ
 //	client.DeliveryZone.Query().
 //		Select(deliveryzone.FieldTenantID).
 //		Scan(ctx, &v)
-func (dzq *DeliveryZoneQuery) Select(fields ...string) *DeliveryZoneSelect {
-	dzq.ctx.Fields = append(dzq.ctx.Fields, fields...)
-	sbuild := &DeliveryZoneSelect{DeliveryZoneQuery: dzq}
+func (_q *DeliveryZoneQuery) Select(fields ...string) *DeliveryZoneSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &DeliveryZoneSelect{DeliveryZoneQuery: _q}
 	sbuild.label = deliveryzone.Label
-	sbuild.flds, sbuild.scan = &dzq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a DeliveryZoneSelect configured with the given aggregations.
-func (dzq *DeliveryZoneQuery) Aggregate(fns ...AggregateFunc) *DeliveryZoneSelect {
-	return dzq.Select().Aggregate(fns...)
+func (_q *DeliveryZoneQuery) Aggregate(fns ...AggregateFunc) *DeliveryZoneSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (dzq *DeliveryZoneQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range dzq.inters {
+func (_q *DeliveryZoneQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, dzq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range dzq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !deliveryzone.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if dzq.path != nil {
-		prev, err := dzq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		dzq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (dzq *DeliveryZoneQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DeliveryZone, error) {
+func (_q *DeliveryZoneQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DeliveryZone, error) {
 	var (
 		nodes = []*DeliveryZone{}
-		_spec = dzq.querySpec()
+		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DeliveryZone).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &DeliveryZone{config: dzq.config}
+		node := &DeliveryZone{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, dzq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
@@ -355,24 +356,24 @@ func (dzq *DeliveryZoneQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	return nodes, nil
 }
 
-func (dzq *DeliveryZoneQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := dzq.querySpec()
-	_spec.Node.Columns = dzq.ctx.Fields
-	if len(dzq.ctx.Fields) > 0 {
-		_spec.Unique = dzq.ctx.Unique != nil && *dzq.ctx.Unique
+func (_q *DeliveryZoneQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, dzq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (dzq *DeliveryZoneQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *DeliveryZoneQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(deliveryzone.Table, deliveryzone.Columns, sqlgraph.NewFieldSpec(deliveryzone.FieldID, field.TypeUUID))
-	_spec.From = dzq.sql
-	if unique := dzq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if dzq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := dzq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, deliveryzone.FieldID)
 		for i := range fields {
@@ -381,20 +382,20 @@ func (dzq *DeliveryZoneQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := dzq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := dzq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := dzq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := dzq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -404,33 +405,33 @@ func (dzq *DeliveryZoneQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (dzq *DeliveryZoneQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(dzq.driver.Dialect())
+func (_q *DeliveryZoneQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(deliveryzone.Table)
-	columns := dzq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = deliveryzone.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if dzq.sql != nil {
-		selector = dzq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if dzq.ctx.Unique != nil && *dzq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range dzq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range dzq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := dzq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := dzq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,41 +444,41 @@ type DeliveryZoneGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (dzgb *DeliveryZoneGroupBy) Aggregate(fns ...AggregateFunc) *DeliveryZoneGroupBy {
-	dzgb.fns = append(dzgb.fns, fns...)
-	return dzgb
+func (_g *DeliveryZoneGroupBy) Aggregate(fns ...AggregateFunc) *DeliveryZoneGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (dzgb *DeliveryZoneGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, dzgb.build.ctx, "GroupBy")
-	if err := dzgb.build.prepareQuery(ctx); err != nil {
+func (_g *DeliveryZoneGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DeliveryZoneQuery, *DeliveryZoneGroupBy](ctx, dzgb.build, dzgb, dzgb.build.inters, v)
+	return scanWithInterceptors[*DeliveryZoneQuery, *DeliveryZoneGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (dzgb *DeliveryZoneGroupBy) sqlScan(ctx context.Context, root *DeliveryZoneQuery, v any) error {
+func (_g *DeliveryZoneGroupBy) sqlScan(ctx context.Context, root *DeliveryZoneQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(dzgb.fns))
-	for _, fn := range dzgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*dzgb.flds)+len(dzgb.fns))
-		for _, f := range *dzgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*dzgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := dzgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -491,27 +492,27 @@ type DeliveryZoneSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (dzs *DeliveryZoneSelect) Aggregate(fns ...AggregateFunc) *DeliveryZoneSelect {
-	dzs.fns = append(dzs.fns, fns...)
-	return dzs
+func (_s *DeliveryZoneSelect) Aggregate(fns ...AggregateFunc) *DeliveryZoneSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (dzs *DeliveryZoneSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, dzs.ctx, "Select")
-	if err := dzs.prepareQuery(ctx); err != nil {
+func (_s *DeliveryZoneSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DeliveryZoneQuery, *DeliveryZoneSelect](ctx, dzs.DeliveryZoneQuery, dzs, dzs.inters, v)
+	return scanWithInterceptors[*DeliveryZoneQuery, *DeliveryZoneSelect](ctx, _s.DeliveryZoneQuery, _s, _s.inters, v)
 }
 
-func (dzs *DeliveryZoneSelect) sqlScan(ctx context.Context, root *DeliveryZoneQuery, v any) error {
+func (_s *DeliveryZoneSelect) sqlScan(ctx context.Context, root *DeliveryZoneQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(dzs.fns))
-	for _, fn := range dzs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*dzs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -519,7 +520,7 @@ func (dzs *DeliveryZoneSelect) sqlScan(ctx context.Context, root *DeliveryZoneQu
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := dzs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

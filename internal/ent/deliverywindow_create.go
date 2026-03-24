@@ -26,186 +26,186 @@ type DeliveryWindowCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dwc *DeliveryWindowCreate) SetTenantID(u uuid.UUID) *DeliveryWindowCreate {
-	dwc.mutation.SetTenantID(u)
-	return dwc
+func (_c *DeliveryWindowCreate) SetTenantID(v uuid.UUID) *DeliveryWindowCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetOrderID sets the "order_id" field.
-func (dwc *DeliveryWindowCreate) SetOrderID(u uuid.UUID) *DeliveryWindowCreate {
-	dwc.mutation.SetOrderID(u)
-	return dwc
+func (_c *DeliveryWindowCreate) SetOrderID(v uuid.UUID) *DeliveryWindowCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetAssignmentID sets the "assignment_id" field.
-func (dwc *DeliveryWindowCreate) SetAssignmentID(u uuid.UUID) *DeliveryWindowCreate {
-	dwc.mutation.SetAssignmentID(u)
-	return dwc
+func (_c *DeliveryWindowCreate) SetAssignmentID(v uuid.UUID) *DeliveryWindowCreate {
+	_c.mutation.SetAssignmentID(v)
+	return _c
 }
 
 // SetEtaStart sets the "eta_start" field.
-func (dwc *DeliveryWindowCreate) SetEtaStart(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetEtaStart(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetEtaStart(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetEtaStart(v)
+	return _c
 }
 
 // SetEtaEnd sets the "eta_end" field.
-func (dwc *DeliveryWindowCreate) SetEtaEnd(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetEtaEnd(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetEtaEnd(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetEtaEnd(v)
+	return _c
 }
 
 // SetEtaMinutes sets the "eta_minutes" field.
-func (dwc *DeliveryWindowCreate) SetEtaMinutes(i int) *DeliveryWindowCreate {
-	dwc.mutation.SetEtaMinutes(i)
-	return dwc
+func (_c *DeliveryWindowCreate) SetEtaMinutes(v int) *DeliveryWindowCreate {
+	_c.mutation.SetEtaMinutes(v)
+	return _c
 }
 
 // SetNillableEtaMinutes sets the "eta_minutes" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableEtaMinutes(i *int) *DeliveryWindowCreate {
-	if i != nil {
-		dwc.SetEtaMinutes(*i)
+func (_c *DeliveryWindowCreate) SetNillableEtaMinutes(v *int) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetEtaMinutes(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetDistanceKm sets the "distance_km" field.
-func (dwc *DeliveryWindowCreate) SetDistanceKm(f float64) *DeliveryWindowCreate {
-	dwc.mutation.SetDistanceKm(f)
-	return dwc
+func (_c *DeliveryWindowCreate) SetDistanceKm(v float64) *DeliveryWindowCreate {
+	_c.mutation.SetDistanceKm(v)
+	return _c
 }
 
 // SetNillableDistanceKm sets the "distance_km" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableDistanceKm(f *float64) *DeliveryWindowCreate {
-	if f != nil {
-		dwc.SetDistanceKm(*f)
+func (_c *DeliveryWindowCreate) SetNillableDistanceKm(v *float64) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetDistanceKm(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetActualArrival sets the "actual_arrival" field.
-func (dwc *DeliveryWindowCreate) SetActualArrival(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetActualArrival(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetActualArrival(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetActualArrival(v)
+	return _c
 }
 
 // SetNillableActualArrival sets the "actual_arrival" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableActualArrival(t *time.Time) *DeliveryWindowCreate {
-	if t != nil {
-		dwc.SetActualArrival(*t)
+func (_c *DeliveryWindowCreate) SetNillableActualArrival(v *time.Time) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetActualArrival(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetActualDropoff sets the "actual_dropoff" field.
-func (dwc *DeliveryWindowCreate) SetActualDropoff(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetActualDropoff(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetActualDropoff(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetActualDropoff(v)
+	return _c
 }
 
 // SetNillableActualDropoff sets the "actual_dropoff" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableActualDropoff(t *time.Time) *DeliveryWindowCreate {
-	if t != nil {
-		dwc.SetActualDropoff(*t)
+func (_c *DeliveryWindowCreate) SetNillableActualDropoff(v *time.Time) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetActualDropoff(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetSource sets the "source" field.
-func (dwc *DeliveryWindowCreate) SetSource(s string) *DeliveryWindowCreate {
-	dwc.mutation.SetSource(s)
-	return dwc
+func (_c *DeliveryWindowCreate) SetSource(v string) *DeliveryWindowCreate {
+	_c.mutation.SetSource(v)
+	return _c
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableSource(s *string) *DeliveryWindowCreate {
-	if s != nil {
-		dwc.SetSource(*s)
+func (_c *DeliveryWindowCreate) SetNillableSource(v *string) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetSource(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetIsCurrent sets the "is_current" field.
-func (dwc *DeliveryWindowCreate) SetIsCurrent(b bool) *DeliveryWindowCreate {
-	dwc.mutation.SetIsCurrent(b)
-	return dwc
+func (_c *DeliveryWindowCreate) SetIsCurrent(v bool) *DeliveryWindowCreate {
+	_c.mutation.SetIsCurrent(v)
+	return _c
 }
 
 // SetNillableIsCurrent sets the "is_current" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableIsCurrent(b *bool) *DeliveryWindowCreate {
-	if b != nil {
-		dwc.SetIsCurrent(*b)
+func (_c *DeliveryWindowCreate) SetNillableIsCurrent(v *bool) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetIsCurrent(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetRouteInfo sets the "route_info" field.
-func (dwc *DeliveryWindowCreate) SetRouteInfo(m map[string]interface{}) *DeliveryWindowCreate {
-	dwc.mutation.SetRouteInfo(m)
-	return dwc
+func (_c *DeliveryWindowCreate) SetRouteInfo(v map[string]interface{}) *DeliveryWindowCreate {
+	_c.mutation.SetRouteInfo(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (dwc *DeliveryWindowCreate) SetCreatedAt(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetCreatedAt(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetCreatedAt(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableCreatedAt(t *time.Time) *DeliveryWindowCreate {
-	if t != nil {
-		dwc.SetCreatedAt(*t)
+func (_c *DeliveryWindowCreate) SetNillableCreatedAt(v *time.Time) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dwc *DeliveryWindowCreate) SetUpdatedAt(t time.Time) *DeliveryWindowCreate {
-	dwc.mutation.SetUpdatedAt(t)
-	return dwc
+func (_c *DeliveryWindowCreate) SetUpdatedAt(v time.Time) *DeliveryWindowCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableUpdatedAt(t *time.Time) *DeliveryWindowCreate {
-	if t != nil {
-		dwc.SetUpdatedAt(*t)
+func (_c *DeliveryWindowCreate) SetNillableUpdatedAt(v *time.Time) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dwc *DeliveryWindowCreate) SetID(u uuid.UUID) *DeliveryWindowCreate {
-	dwc.mutation.SetID(u)
-	return dwc
+func (_c *DeliveryWindowCreate) SetID(v uuid.UUID) *DeliveryWindowCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dwc *DeliveryWindowCreate) SetNillableID(u *uuid.UUID) *DeliveryWindowCreate {
-	if u != nil {
-		dwc.SetID(*u)
+func (_c *DeliveryWindowCreate) SetNillableID(v *uuid.UUID) *DeliveryWindowCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dwc
+	return _c
 }
 
 // SetAssignment sets the "assignment" edge to the OrderAssignment entity.
-func (dwc *DeliveryWindowCreate) SetAssignment(o *OrderAssignment) *DeliveryWindowCreate {
-	return dwc.SetAssignmentID(o.ID)
+func (_c *DeliveryWindowCreate) SetAssignment(v *OrderAssignment) *DeliveryWindowCreate {
+	return _c.SetAssignmentID(v.ID)
 }
 
 // Mutation returns the DeliveryWindowMutation object of the builder.
-func (dwc *DeliveryWindowCreate) Mutation() *DeliveryWindowMutation {
-	return dwc.mutation
+func (_c *DeliveryWindowCreate) Mutation() *DeliveryWindowMutation {
+	return _c.mutation
 }
 
 // Save creates the DeliveryWindow in the database.
-func (dwc *DeliveryWindowCreate) Save(ctx context.Context) (*DeliveryWindow, error) {
-	dwc.defaults()
-	return withHooks(ctx, dwc.sqlSave, dwc.mutation, dwc.hooks)
+func (_c *DeliveryWindowCreate) Save(ctx context.Context) (*DeliveryWindow, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dwc *DeliveryWindowCreate) SaveX(ctx context.Context) *DeliveryWindow {
-	v, err := dwc.Save(ctx)
+func (_c *DeliveryWindowCreate) SaveX(ctx context.Context) *DeliveryWindow {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -213,88 +213,88 @@ func (dwc *DeliveryWindowCreate) SaveX(ctx context.Context) *DeliveryWindow {
 }
 
 // Exec executes the query.
-func (dwc *DeliveryWindowCreate) Exec(ctx context.Context) error {
-	_, err := dwc.Save(ctx)
+func (_c *DeliveryWindowCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwc *DeliveryWindowCreate) ExecX(ctx context.Context) {
-	if err := dwc.Exec(ctx); err != nil {
+func (_c *DeliveryWindowCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dwc *DeliveryWindowCreate) defaults() {
-	if _, ok := dwc.mutation.Source(); !ok {
+func (_c *DeliveryWindowCreate) defaults() {
+	if _, ok := _c.mutation.Source(); !ok {
 		v := deliverywindow.DefaultSource
-		dwc.mutation.SetSource(v)
+		_c.mutation.SetSource(v)
 	}
-	if _, ok := dwc.mutation.IsCurrent(); !ok {
+	if _, ok := _c.mutation.IsCurrent(); !ok {
 		v := deliverywindow.DefaultIsCurrent
-		dwc.mutation.SetIsCurrent(v)
+		_c.mutation.SetIsCurrent(v)
 	}
-	if _, ok := dwc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := deliverywindow.DefaultCreatedAt()
-		dwc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := dwc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := deliverywindow.DefaultUpdatedAt()
-		dwc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := dwc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := deliverywindow.DefaultID()
-		dwc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dwc *DeliveryWindowCreate) check() error {
-	if _, ok := dwc.mutation.TenantID(); !ok {
+func (_c *DeliveryWindowCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "DeliveryWindow.tenant_id"`)}
 	}
-	if _, ok := dwc.mutation.OrderID(); !ok {
+	if _, ok := _c.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "DeliveryWindow.order_id"`)}
 	}
-	if _, ok := dwc.mutation.AssignmentID(); !ok {
+	if _, ok := _c.mutation.AssignmentID(); !ok {
 		return &ValidationError{Name: "assignment_id", err: errors.New(`ent: missing required field "DeliveryWindow.assignment_id"`)}
 	}
-	if _, ok := dwc.mutation.EtaStart(); !ok {
+	if _, ok := _c.mutation.EtaStart(); !ok {
 		return &ValidationError{Name: "eta_start", err: errors.New(`ent: missing required field "DeliveryWindow.eta_start"`)}
 	}
-	if _, ok := dwc.mutation.EtaEnd(); !ok {
+	if _, ok := _c.mutation.EtaEnd(); !ok {
 		return &ValidationError{Name: "eta_end", err: errors.New(`ent: missing required field "DeliveryWindow.eta_end"`)}
 	}
-	if _, ok := dwc.mutation.Source(); !ok {
+	if _, ok := _c.mutation.Source(); !ok {
 		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "DeliveryWindow.source"`)}
 	}
-	if v, ok := dwc.mutation.Source(); ok {
+	if v, ok := _c.mutation.Source(); ok {
 		if err := deliverywindow.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "DeliveryWindow.source": %w`, err)}
 		}
 	}
-	if _, ok := dwc.mutation.IsCurrent(); !ok {
+	if _, ok := _c.mutation.IsCurrent(); !ok {
 		return &ValidationError{Name: "is_current", err: errors.New(`ent: missing required field "DeliveryWindow.is_current"`)}
 	}
-	if _, ok := dwc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DeliveryWindow.created_at"`)}
 	}
-	if _, ok := dwc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DeliveryWindow.updated_at"`)}
 	}
-	if _, ok := dwc.mutation.AssignmentID(); !ok {
+	if len(_c.mutation.AssignmentIDs()) == 0 {
 		return &ValidationError{Name: "assignment", err: errors.New(`ent: missing required edge "DeliveryWindow.assignment"`)}
 	}
 	return nil
 }
 
-func (dwc *DeliveryWindowCreate) sqlSave(ctx context.Context) (*DeliveryWindow, error) {
-	if err := dwc.check(); err != nil {
+func (_c *DeliveryWindowCreate) sqlSave(ctx context.Context) (*DeliveryWindow, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dwc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dwc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -307,74 +307,74 @@ func (dwc *DeliveryWindowCreate) sqlSave(ctx context.Context) (*DeliveryWindow, 
 			return nil, err
 		}
 	}
-	dwc.mutation.id = &_node.ID
-	dwc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dwc *DeliveryWindowCreate) createSpec() (*DeliveryWindow, *sqlgraph.CreateSpec) {
+func (_c *DeliveryWindowCreate) createSpec() (*DeliveryWindow, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DeliveryWindow{config: dwc.config}
+		_node = &DeliveryWindow{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(deliverywindow.Table, sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dwc.conflict
-	if id, ok := dwc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dwc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(deliverywindow.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := dwc.mutation.OrderID(); ok {
+	if value, ok := _c.mutation.OrderID(); ok {
 		_spec.SetField(deliverywindow.FieldOrderID, field.TypeUUID, value)
 		_node.OrderID = value
 	}
-	if value, ok := dwc.mutation.EtaStart(); ok {
+	if value, ok := _c.mutation.EtaStart(); ok {
 		_spec.SetField(deliverywindow.FieldEtaStart, field.TypeTime, value)
 		_node.EtaStart = value
 	}
-	if value, ok := dwc.mutation.EtaEnd(); ok {
+	if value, ok := _c.mutation.EtaEnd(); ok {
 		_spec.SetField(deliverywindow.FieldEtaEnd, field.TypeTime, value)
 		_node.EtaEnd = value
 	}
-	if value, ok := dwc.mutation.EtaMinutes(); ok {
+	if value, ok := _c.mutation.EtaMinutes(); ok {
 		_spec.SetField(deliverywindow.FieldEtaMinutes, field.TypeInt, value)
 		_node.EtaMinutes = &value
 	}
-	if value, ok := dwc.mutation.DistanceKm(); ok {
+	if value, ok := _c.mutation.DistanceKm(); ok {
 		_spec.SetField(deliverywindow.FieldDistanceKm, field.TypeFloat64, value)
 		_node.DistanceKm = &value
 	}
-	if value, ok := dwc.mutation.ActualArrival(); ok {
+	if value, ok := _c.mutation.ActualArrival(); ok {
 		_spec.SetField(deliverywindow.FieldActualArrival, field.TypeTime, value)
 		_node.ActualArrival = &value
 	}
-	if value, ok := dwc.mutation.ActualDropoff(); ok {
+	if value, ok := _c.mutation.ActualDropoff(); ok {
 		_spec.SetField(deliverywindow.FieldActualDropoff, field.TypeTime, value)
 		_node.ActualDropoff = &value
 	}
-	if value, ok := dwc.mutation.Source(); ok {
+	if value, ok := _c.mutation.Source(); ok {
 		_spec.SetField(deliverywindow.FieldSource, field.TypeString, value)
 		_node.Source = value
 	}
-	if value, ok := dwc.mutation.IsCurrent(); ok {
+	if value, ok := _c.mutation.IsCurrent(); ok {
 		_spec.SetField(deliverywindow.FieldIsCurrent, field.TypeBool, value)
 		_node.IsCurrent = value
 	}
-	if value, ok := dwc.mutation.RouteInfo(); ok {
+	if value, ok := _c.mutation.RouteInfo(); ok {
 		_spec.SetField(deliverywindow.FieldRouteInfo, field.TypeJSON, value)
 		_node.RouteInfo = value
 	}
-	if value, ok := dwc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(deliverywindow.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := dwc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliverywindow.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := dwc.mutation.AssignmentIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.AssignmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -410,10 +410,10 @@ func (dwc *DeliveryWindowCreate) createSpec() (*DeliveryWindow, *sqlgraph.Create
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dwc *DeliveryWindowCreate) OnConflict(opts ...sql.ConflictOption) *DeliveryWindowUpsertOne {
-	dwc.conflict = opts
+func (_c *DeliveryWindowCreate) OnConflict(opts ...sql.ConflictOption) *DeliveryWindowUpsertOne {
+	_c.conflict = opts
 	return &DeliveryWindowUpsertOne{
-		create: dwc,
+		create: _c,
 	}
 }
 
@@ -423,10 +423,10 @@ func (dwc *DeliveryWindowCreate) OnConflict(opts ...sql.ConflictOption) *Deliver
 //	client.DeliveryWindow.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dwc *DeliveryWindowCreate) OnConflictColumns(columns ...string) *DeliveryWindowUpsertOne {
-	dwc.conflict = append(dwc.conflict, sql.ConflictColumns(columns...))
+func (_c *DeliveryWindowCreate) OnConflictColumns(columns ...string) *DeliveryWindowUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeliveryWindowUpsertOne{
-		create: dwc,
+		create: _c,
 	}
 }
 
@@ -970,16 +970,16 @@ type DeliveryWindowCreateBulk struct {
 }
 
 // Save creates the DeliveryWindow entities in the database.
-func (dwcb *DeliveryWindowCreateBulk) Save(ctx context.Context) ([]*DeliveryWindow, error) {
-	if dwcb.err != nil {
-		return nil, dwcb.err
+func (_c *DeliveryWindowCreateBulk) Save(ctx context.Context) ([]*DeliveryWindow, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dwcb.builders))
-	nodes := make([]*DeliveryWindow, len(dwcb.builders))
-	mutators := make([]Mutator, len(dwcb.builders))
-	for i := range dwcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DeliveryWindow, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dwcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DeliveryWindowMutation)
@@ -993,12 +993,12 @@ func (dwcb *DeliveryWindowCreateBulk) Save(ctx context.Context) ([]*DeliveryWind
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dwcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dwcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dwcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1018,7 +1018,7 @@ func (dwcb *DeliveryWindowCreateBulk) Save(ctx context.Context) ([]*DeliveryWind
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dwcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1026,8 +1026,8 @@ func (dwcb *DeliveryWindowCreateBulk) Save(ctx context.Context) ([]*DeliveryWind
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dwcb *DeliveryWindowCreateBulk) SaveX(ctx context.Context) []*DeliveryWindow {
-	v, err := dwcb.Save(ctx)
+func (_c *DeliveryWindowCreateBulk) SaveX(ctx context.Context) []*DeliveryWindow {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1035,14 +1035,14 @@ func (dwcb *DeliveryWindowCreateBulk) SaveX(ctx context.Context) []*DeliveryWind
 }
 
 // Exec executes the query.
-func (dwcb *DeliveryWindowCreateBulk) Exec(ctx context.Context) error {
-	_, err := dwcb.Save(ctx)
+func (_c *DeliveryWindowCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwcb *DeliveryWindowCreateBulk) ExecX(ctx context.Context) {
-	if err := dwcb.Exec(ctx); err != nil {
+func (_c *DeliveryWindowCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1062,10 +1062,10 @@ func (dwcb *DeliveryWindowCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dwcb *DeliveryWindowCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeliveryWindowUpsertBulk {
-	dwcb.conflict = opts
+func (_c *DeliveryWindowCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeliveryWindowUpsertBulk {
+	_c.conflict = opts
 	return &DeliveryWindowUpsertBulk{
-		create: dwcb,
+		create: _c,
 	}
 }
 
@@ -1075,10 +1075,10 @@ func (dwcb *DeliveryWindowCreateBulk) OnConflict(opts ...sql.ConflictOption) *De
 //	client.DeliveryWindow.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dwcb *DeliveryWindowCreateBulk) OnConflictColumns(columns ...string) *DeliveryWindowUpsertBulk {
-	dwcb.conflict = append(dwcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DeliveryWindowCreateBulk) OnConflictColumns(columns ...string) *DeliveryWindowUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeliveryWindowUpsertBulk{
-		create: dwcb,
+		create: _c,
 	}
 }
 

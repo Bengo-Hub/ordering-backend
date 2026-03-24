@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -33,44 +34,44 @@ type OrderingPermissionQuery struct {
 }
 
 // Where adds a new predicate for the OrderingPermissionQuery builder.
-func (opq *OrderingPermissionQuery) Where(ps ...predicate.OrderingPermission) *OrderingPermissionQuery {
-	opq.predicates = append(opq.predicates, ps...)
-	return opq
+func (_q *OrderingPermissionQuery) Where(ps ...predicate.OrderingPermission) *OrderingPermissionQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (opq *OrderingPermissionQuery) Limit(limit int) *OrderingPermissionQuery {
-	opq.ctx.Limit = &limit
-	return opq
+func (_q *OrderingPermissionQuery) Limit(limit int) *OrderingPermissionQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (opq *OrderingPermissionQuery) Offset(offset int) *OrderingPermissionQuery {
-	opq.ctx.Offset = &offset
-	return opq
+func (_q *OrderingPermissionQuery) Offset(offset int) *OrderingPermissionQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (opq *OrderingPermissionQuery) Unique(unique bool) *OrderingPermissionQuery {
-	opq.ctx.Unique = &unique
-	return opq
+func (_q *OrderingPermissionQuery) Unique(unique bool) *OrderingPermissionQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (opq *OrderingPermissionQuery) Order(o ...orderingpermission.OrderOption) *OrderingPermissionQuery {
-	opq.order = append(opq.order, o...)
-	return opq
+func (_q *OrderingPermissionQuery) Order(o ...orderingpermission.OrderOption) *OrderingPermissionQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryRoles chains the current query on the "roles" edge.
-func (opq *OrderingPermissionQuery) QueryRoles() *OrderingRoleQuery {
-	query := (&OrderingRoleClient{config: opq.config}).Query()
+func (_q *OrderingPermissionQuery) QueryRoles() *OrderingRoleQuery {
+	query := (&OrderingRoleClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := opq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := opq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -79,20 +80,20 @@ func (opq *OrderingPermissionQuery) QueryRoles() *OrderingRoleQuery {
 			sqlgraph.To(orderingrole.Table, orderingrole.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, orderingpermission.RolesTable, orderingpermission.RolesPrimaryKey...),
 		)
-		fromU = sqlgraph.SetNeighbors(opq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryRolePermissions chains the current query on the "role_permissions" edge.
-func (opq *OrderingPermissionQuery) QueryRolePermissions() *RolePermissionQuery {
-	query := (&RolePermissionClient{config: opq.config}).Query()
+func (_q *OrderingPermissionQuery) QueryRolePermissions() *RolePermissionQuery {
+	query := (&RolePermissionClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := opq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := opq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -101,7 +102,7 @@ func (opq *OrderingPermissionQuery) QueryRolePermissions() *RolePermissionQuery 
 			sqlgraph.To(rolepermission.Table, rolepermission.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, orderingpermission.RolePermissionsTable, orderingpermission.RolePermissionsColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(opq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -109,8 +110,8 @@ func (opq *OrderingPermissionQuery) QueryRolePermissions() *RolePermissionQuery 
 
 // First returns the first OrderingPermission entity from the query.
 // Returns a *NotFoundError when no OrderingPermission was found.
-func (opq *OrderingPermissionQuery) First(ctx context.Context) (*OrderingPermission, error) {
-	nodes, err := opq.Limit(1).All(setContextOp(ctx, opq.ctx, "First"))
+func (_q *OrderingPermissionQuery) First(ctx context.Context) (*OrderingPermission, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +122,8 @@ func (opq *OrderingPermissionQuery) First(ctx context.Context) (*OrderingPermiss
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) FirstX(ctx context.Context) *OrderingPermission {
-	node, err := opq.First(ctx)
+func (_q *OrderingPermissionQuery) FirstX(ctx context.Context) *OrderingPermission {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -131,9 +132,9 @@ func (opq *OrderingPermissionQuery) FirstX(ctx context.Context) *OrderingPermiss
 
 // FirstID returns the first OrderingPermission ID from the query.
 // Returns a *NotFoundError when no OrderingPermission ID was found.
-func (opq *OrderingPermissionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderingPermissionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = opq.Limit(1).IDs(setContextOp(ctx, opq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -144,8 +145,8 @@ func (opq *OrderingPermissionQuery) FirstID(ctx context.Context) (id uuid.UUID, 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := opq.FirstID(ctx)
+func (_q *OrderingPermissionQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -155,8 +156,8 @@ func (opq *OrderingPermissionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single OrderingPermission entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one OrderingPermission entity is found.
 // Returns a *NotFoundError when no OrderingPermission entities are found.
-func (opq *OrderingPermissionQuery) Only(ctx context.Context) (*OrderingPermission, error) {
-	nodes, err := opq.Limit(2).All(setContextOp(ctx, opq.ctx, "Only"))
+func (_q *OrderingPermissionQuery) Only(ctx context.Context) (*OrderingPermission, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -171,8 +172,8 @@ func (opq *OrderingPermissionQuery) Only(ctx context.Context) (*OrderingPermissi
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) OnlyX(ctx context.Context) *OrderingPermission {
-	node, err := opq.Only(ctx)
+func (_q *OrderingPermissionQuery) OnlyX(ctx context.Context) *OrderingPermission {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -182,9 +183,9 @@ func (opq *OrderingPermissionQuery) OnlyX(ctx context.Context) *OrderingPermissi
 // OnlyID is like Only, but returns the only OrderingPermission ID in the query.
 // Returns a *NotSingularError when more than one OrderingPermission ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (opq *OrderingPermissionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OrderingPermissionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = opq.Limit(2).IDs(setContextOp(ctx, opq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -199,8 +200,8 @@ func (opq *OrderingPermissionQuery) OnlyID(ctx context.Context) (id uuid.UUID, e
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := opq.OnlyID(ctx)
+func (_q *OrderingPermissionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -208,18 +209,18 @@ func (opq *OrderingPermissionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of OrderingPermissions.
-func (opq *OrderingPermissionQuery) All(ctx context.Context) ([]*OrderingPermission, error) {
-	ctx = setContextOp(ctx, opq.ctx, "All")
-	if err := opq.prepareQuery(ctx); err != nil {
+func (_q *OrderingPermissionQuery) All(ctx context.Context) ([]*OrderingPermission, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*OrderingPermission, *OrderingPermissionQuery]()
-	return withInterceptors[[]*OrderingPermission](ctx, opq, qr, opq.inters)
+	return withInterceptors[[]*OrderingPermission](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) AllX(ctx context.Context) []*OrderingPermission {
-	nodes, err := opq.All(ctx)
+func (_q *OrderingPermissionQuery) AllX(ctx context.Context) []*OrderingPermission {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -227,20 +228,20 @@ func (opq *OrderingPermissionQuery) AllX(ctx context.Context) []*OrderingPermiss
 }
 
 // IDs executes the query and returns a list of OrderingPermission IDs.
-func (opq *OrderingPermissionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if opq.ctx.Unique == nil && opq.path != nil {
-		opq.Unique(true)
+func (_q *OrderingPermissionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, opq.ctx, "IDs")
-	if err = opq.Select(orderingpermission.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(orderingpermission.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := opq.IDs(ctx)
+func (_q *OrderingPermissionQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -248,17 +249,17 @@ func (opq *OrderingPermissionQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (opq *OrderingPermissionQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, opq.ctx, "Count")
-	if err := opq.prepareQuery(ctx); err != nil {
+func (_q *OrderingPermissionQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, opq, querierCount[*OrderingPermissionQuery](), opq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*OrderingPermissionQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) CountX(ctx context.Context) int {
-	count, err := opq.Count(ctx)
+func (_q *OrderingPermissionQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -266,9 +267,9 @@ func (opq *OrderingPermissionQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (opq *OrderingPermissionQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, opq.ctx, "Exist")
-	switch _, err := opq.FirstID(ctx); {
+func (_q *OrderingPermissionQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -279,8 +280,8 @@ func (opq *OrderingPermissionQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (opq *OrderingPermissionQuery) ExistX(ctx context.Context) bool {
-	exist, err := opq.Exist(ctx)
+func (_q *OrderingPermissionQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -289,44 +290,44 @@ func (opq *OrderingPermissionQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the OrderingPermissionQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (opq *OrderingPermissionQuery) Clone() *OrderingPermissionQuery {
-	if opq == nil {
+func (_q *OrderingPermissionQuery) Clone() *OrderingPermissionQuery {
+	if _q == nil {
 		return nil
 	}
 	return &OrderingPermissionQuery{
-		config:              opq.config,
-		ctx:                 opq.ctx.Clone(),
-		order:               append([]orderingpermission.OrderOption{}, opq.order...),
-		inters:              append([]Interceptor{}, opq.inters...),
-		predicates:          append([]predicate.OrderingPermission{}, opq.predicates...),
-		withRoles:           opq.withRoles.Clone(),
-		withRolePermissions: opq.withRolePermissions.Clone(),
+		config:              _q.config,
+		ctx:                 _q.ctx.Clone(),
+		order:               append([]orderingpermission.OrderOption{}, _q.order...),
+		inters:              append([]Interceptor{}, _q.inters...),
+		predicates:          append([]predicate.OrderingPermission{}, _q.predicates...),
+		withRoles:           _q.withRoles.Clone(),
+		withRolePermissions: _q.withRolePermissions.Clone(),
 		// clone intermediate query.
-		sql:  opq.sql.Clone(),
-		path: opq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithRoles tells the query-builder to eager-load the nodes that are connected to
 // the "roles" edge. The optional arguments are used to configure the query builder of the edge.
-func (opq *OrderingPermissionQuery) WithRoles(opts ...func(*OrderingRoleQuery)) *OrderingPermissionQuery {
-	query := (&OrderingRoleClient{config: opq.config}).Query()
+func (_q *OrderingPermissionQuery) WithRoles(opts ...func(*OrderingRoleQuery)) *OrderingPermissionQuery {
+	query := (&OrderingRoleClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	opq.withRoles = query
-	return opq
+	_q.withRoles = query
+	return _q
 }
 
 // WithRolePermissions tells the query-builder to eager-load the nodes that are connected to
 // the "role_permissions" edge. The optional arguments are used to configure the query builder of the edge.
-func (opq *OrderingPermissionQuery) WithRolePermissions(opts ...func(*RolePermissionQuery)) *OrderingPermissionQuery {
-	query := (&RolePermissionClient{config: opq.config}).Query()
+func (_q *OrderingPermissionQuery) WithRolePermissions(opts ...func(*RolePermissionQuery)) *OrderingPermissionQuery {
+	query := (&RolePermissionClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	opq.withRolePermissions = query
-	return opq
+	_q.withRolePermissions = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -343,10 +344,10 @@ func (opq *OrderingPermissionQuery) WithRolePermissions(opts ...func(*RolePermis
 //		GroupBy(orderingpermission.FieldPermissionCode).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (opq *OrderingPermissionQuery) GroupBy(field string, fields ...string) *OrderingPermissionGroupBy {
-	opq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &OrderingPermissionGroupBy{build: opq}
-	grbuild.flds = &opq.ctx.Fields
+func (_q *OrderingPermissionQuery) GroupBy(field string, fields ...string) *OrderingPermissionGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &OrderingPermissionGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = orderingpermission.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -364,59 +365,59 @@ func (opq *OrderingPermissionQuery) GroupBy(field string, fields ...string) *Ord
 //	client.OrderingPermission.Query().
 //		Select(orderingpermission.FieldPermissionCode).
 //		Scan(ctx, &v)
-func (opq *OrderingPermissionQuery) Select(fields ...string) *OrderingPermissionSelect {
-	opq.ctx.Fields = append(opq.ctx.Fields, fields...)
-	sbuild := &OrderingPermissionSelect{OrderingPermissionQuery: opq}
+func (_q *OrderingPermissionQuery) Select(fields ...string) *OrderingPermissionSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &OrderingPermissionSelect{OrderingPermissionQuery: _q}
 	sbuild.label = orderingpermission.Label
-	sbuild.flds, sbuild.scan = &opq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a OrderingPermissionSelect configured with the given aggregations.
-func (opq *OrderingPermissionQuery) Aggregate(fns ...AggregateFunc) *OrderingPermissionSelect {
-	return opq.Select().Aggregate(fns...)
+func (_q *OrderingPermissionQuery) Aggregate(fns ...AggregateFunc) *OrderingPermissionSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (opq *OrderingPermissionQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range opq.inters {
+func (_q *OrderingPermissionQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, opq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range opq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !orderingpermission.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if opq.path != nil {
-		prev, err := opq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		opq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (opq *OrderingPermissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderingPermission, error) {
+func (_q *OrderingPermissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrderingPermission, error) {
 	var (
 		nodes       = []*OrderingPermission{}
-		_spec       = opq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			opq.withRoles != nil,
-			opq.withRolePermissions != nil,
+			_q.withRoles != nil,
+			_q.withRolePermissions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*OrderingPermission).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &OrderingPermission{config: opq.config}
+		node := &OrderingPermission{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -424,21 +425,21 @@ func (opq *OrderingPermissionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, opq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := opq.withRoles; query != nil {
-		if err := opq.loadRoles(ctx, query, nodes,
+	if query := _q.withRoles; query != nil {
+		if err := _q.loadRoles(ctx, query, nodes,
 			func(n *OrderingPermission) { n.Edges.Roles = []*OrderingRole{} },
 			func(n *OrderingPermission, e *OrderingRole) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := opq.withRolePermissions; query != nil {
-		if err := opq.loadRolePermissions(ctx, query, nodes,
+	if query := _q.withRolePermissions; query != nil {
+		if err := _q.loadRolePermissions(ctx, query, nodes,
 			func(n *OrderingPermission) { n.Edges.RolePermissions = []*RolePermission{} },
 			func(n *OrderingPermission, e *RolePermission) {
 				n.Edges.RolePermissions = append(n.Edges.RolePermissions, e)
@@ -449,7 +450,7 @@ func (opq *OrderingPermissionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	return nodes, nil
 }
 
-func (opq *OrderingPermissionQuery) loadRoles(ctx context.Context, query *OrderingRoleQuery, nodes []*OrderingPermission, init func(*OrderingPermission), assign func(*OrderingPermission, *OrderingRole)) error {
+func (_q *OrderingPermissionQuery) loadRoles(ctx context.Context, query *OrderingRoleQuery, nodes []*OrderingPermission, init func(*OrderingPermission), assign func(*OrderingPermission, *OrderingRole)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[uuid.UUID]*OrderingPermission)
 	nids := make(map[uuid.UUID]map[*OrderingPermission]struct{})
@@ -510,7 +511,7 @@ func (opq *OrderingPermissionQuery) loadRoles(ctx context.Context, query *Orderi
 	}
 	return nil
 }
-func (opq *OrderingPermissionQuery) loadRolePermissions(ctx context.Context, query *RolePermissionQuery, nodes []*OrderingPermission, init func(*OrderingPermission), assign func(*OrderingPermission, *RolePermission)) error {
+func (_q *OrderingPermissionQuery) loadRolePermissions(ctx context.Context, query *RolePermissionQuery, nodes []*OrderingPermission, init func(*OrderingPermission), assign func(*OrderingPermission, *RolePermission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*OrderingPermission)
 	for i := range nodes {
@@ -541,24 +542,24 @@ func (opq *OrderingPermissionQuery) loadRolePermissions(ctx context.Context, que
 	return nil
 }
 
-func (opq *OrderingPermissionQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := opq.querySpec()
-	_spec.Node.Columns = opq.ctx.Fields
-	if len(opq.ctx.Fields) > 0 {
-		_spec.Unique = opq.ctx.Unique != nil && *opq.ctx.Unique
+func (_q *OrderingPermissionQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, opq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (opq *OrderingPermissionQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *OrderingPermissionQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(orderingpermission.Table, orderingpermission.Columns, sqlgraph.NewFieldSpec(orderingpermission.FieldID, field.TypeUUID))
-	_spec.From = opq.sql
-	if unique := opq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if opq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := opq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, orderingpermission.FieldID)
 		for i := range fields {
@@ -567,20 +568,20 @@ func (opq *OrderingPermissionQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := opq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := opq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := opq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := opq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -590,33 +591,33 @@ func (opq *OrderingPermissionQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (opq *OrderingPermissionQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(opq.driver.Dialect())
+func (_q *OrderingPermissionQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(orderingpermission.Table)
-	columns := opq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = orderingpermission.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if opq.sql != nil {
-		selector = opq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if opq.ctx.Unique != nil && *opq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range opq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range opq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := opq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := opq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -629,41 +630,41 @@ type OrderingPermissionGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (opgb *OrderingPermissionGroupBy) Aggregate(fns ...AggregateFunc) *OrderingPermissionGroupBy {
-	opgb.fns = append(opgb.fns, fns...)
-	return opgb
+func (_g *OrderingPermissionGroupBy) Aggregate(fns ...AggregateFunc) *OrderingPermissionGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (opgb *OrderingPermissionGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, opgb.build.ctx, "GroupBy")
-	if err := opgb.build.prepareQuery(ctx); err != nil {
+func (_g *OrderingPermissionGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderingPermissionQuery, *OrderingPermissionGroupBy](ctx, opgb.build, opgb, opgb.build.inters, v)
+	return scanWithInterceptors[*OrderingPermissionQuery, *OrderingPermissionGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (opgb *OrderingPermissionGroupBy) sqlScan(ctx context.Context, root *OrderingPermissionQuery, v any) error {
+func (_g *OrderingPermissionGroupBy) sqlScan(ctx context.Context, root *OrderingPermissionQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(opgb.fns))
-	for _, fn := range opgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*opgb.flds)+len(opgb.fns))
-		for _, f := range *opgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*opgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := opgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -677,27 +678,27 @@ type OrderingPermissionSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (ops *OrderingPermissionSelect) Aggregate(fns ...AggregateFunc) *OrderingPermissionSelect {
-	ops.fns = append(ops.fns, fns...)
-	return ops
+func (_s *OrderingPermissionSelect) Aggregate(fns ...AggregateFunc) *OrderingPermissionSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ops *OrderingPermissionSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ops.ctx, "Select")
-	if err := ops.prepareQuery(ctx); err != nil {
+func (_s *OrderingPermissionSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OrderingPermissionQuery, *OrderingPermissionSelect](ctx, ops.OrderingPermissionQuery, ops, ops.inters, v)
+	return scanWithInterceptors[*OrderingPermissionQuery, *OrderingPermissionSelect](ctx, _s.OrderingPermissionQuery, _s, _s.inters, v)
 }
 
-func (ops *OrderingPermissionSelect) sqlScan(ctx context.Context, root *OrderingPermissionQuery, v any) error {
+func (_s *OrderingPermissionSelect) sqlScan(ctx context.Context, root *OrderingPermissionQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(ops.fns))
-	for _, fn := range ops.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*ops.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -705,7 +706,7 @@ func (ops *OrderingPermissionSelect) sqlScan(ctx context.Context, root *Ordering
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := ops.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

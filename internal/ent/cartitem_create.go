@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/google/uuid"
 )
 
@@ -27,169 +26,164 @@ type CartItemCreate struct {
 }
 
 // SetCartID sets the "cart_id" field.
-func (cic *CartItemCreate) SetCartID(u uuid.UUID) *CartItemCreate {
-	cic.mutation.SetCartID(u)
-	return cic
+func (_c *CartItemCreate) SetCartID(v uuid.UUID) *CartItemCreate {
+	_c.mutation.SetCartID(v)
+	return _c
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (cic *CartItemCreate) SetCatalogItemID(u uuid.UUID) *CartItemCreate {
-	cic.mutation.SetCatalogItemID(u)
-	return cic
+// SetInventorySku sets the "inventory_sku" field.
+func (_c *CartItemCreate) SetInventorySku(v string) *CartItemCreate {
+	_c.mutation.SetInventorySku(v)
+	return _c
 }
 
 // SetVariantID sets the "variant_id" field.
-func (cic *CartItemCreate) SetVariantID(u uuid.UUID) *CartItemCreate {
-	cic.mutation.SetVariantID(u)
-	return cic
+func (_c *CartItemCreate) SetVariantID(v uuid.UUID) *CartItemCreate {
+	_c.mutation.SetVariantID(v)
+	return _c
 }
 
 // SetNillableVariantID sets the "variant_id" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableVariantID(u *uuid.UUID) *CartItemCreate {
-	if u != nil {
-		cic.SetVariantID(*u)
+func (_c *CartItemCreate) SetNillableVariantID(v *uuid.UUID) *CartItemCreate {
+	if v != nil {
+		_c.SetVariantID(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetNameSnapshot sets the "name_snapshot" field.
-func (cic *CartItemCreate) SetNameSnapshot(s string) *CartItemCreate {
-	cic.mutation.SetNameSnapshot(s)
-	return cic
+func (_c *CartItemCreate) SetNameSnapshot(v string) *CartItemCreate {
+	_c.mutation.SetNameSnapshot(v)
+	return _c
 }
 
 // SetVariantNameSnapshot sets the "variant_name_snapshot" field.
-func (cic *CartItemCreate) SetVariantNameSnapshot(s string) *CartItemCreate {
-	cic.mutation.SetVariantNameSnapshot(s)
-	return cic
+func (_c *CartItemCreate) SetVariantNameSnapshot(v string) *CartItemCreate {
+	_c.mutation.SetVariantNameSnapshot(v)
+	return _c
 }
 
 // SetNillableVariantNameSnapshot sets the "variant_name_snapshot" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableVariantNameSnapshot(s *string) *CartItemCreate {
-	if s != nil {
-		cic.SetVariantNameSnapshot(*s)
+func (_c *CartItemCreate) SetNillableVariantNameSnapshot(v *string) *CartItemCreate {
+	if v != nil {
+		_c.SetVariantNameSnapshot(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetQuantity sets the "quantity" field.
-func (cic *CartItemCreate) SetQuantity(i int) *CartItemCreate {
-	cic.mutation.SetQuantity(i)
-	return cic
+func (_c *CartItemCreate) SetQuantity(v int) *CartItemCreate {
+	_c.mutation.SetQuantity(v)
+	return _c
 }
 
 // SetNillableQuantity sets the "quantity" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableQuantity(i *int) *CartItemCreate {
-	if i != nil {
-		cic.SetQuantity(*i)
+func (_c *CartItemCreate) SetNillableQuantity(v *int) *CartItemCreate {
+	if v != nil {
+		_c.SetQuantity(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetUnitPrice sets the "unit_price" field.
-func (cic *CartItemCreate) SetUnitPrice(f float64) *CartItemCreate {
-	cic.mutation.SetUnitPrice(f)
-	return cic
+func (_c *CartItemCreate) SetUnitPrice(v float64) *CartItemCreate {
+	_c.mutation.SetUnitPrice(v)
+	return _c
 }
 
 // SetTotalPrice sets the "total_price" field.
-func (cic *CartItemCreate) SetTotalPrice(f float64) *CartItemCreate {
-	cic.mutation.SetTotalPrice(f)
-	return cic
+func (_c *CartItemCreate) SetTotalPrice(v float64) *CartItemCreate {
+	_c.mutation.SetTotalPrice(v)
+	return _c
 }
 
 // SetNotes sets the "notes" field.
-func (cic *CartItemCreate) SetNotes(s string) *CartItemCreate {
-	cic.mutation.SetNotes(s)
-	return cic
+func (_c *CartItemCreate) SetNotes(v string) *CartItemCreate {
+	_c.mutation.SetNotes(v)
+	return _c
 }
 
 // SetNillableNotes sets the "notes" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableNotes(s *string) *CartItemCreate {
-	if s != nil {
-		cic.SetNotes(*s)
+func (_c *CartItemCreate) SetNillableNotes(v *string) *CartItemCreate {
+	if v != nil {
+		_c.SetNotes(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetModifiers sets the "modifiers" field.
-func (cic *CartItemCreate) SetModifiers(m []map[string]interface{}) *CartItemCreate {
-	cic.mutation.SetModifiers(m)
-	return cic
+func (_c *CartItemCreate) SetModifiers(v []map[string]interface{}) *CartItemCreate {
+	_c.mutation.SetModifiers(v)
+	return _c
 }
 
 // SetMetadata sets the "metadata" field.
-func (cic *CartItemCreate) SetMetadata(m map[string]interface{}) *CartItemCreate {
-	cic.mutation.SetMetadata(m)
-	return cic
+func (_c *CartItemCreate) SetMetadata(v map[string]interface{}) *CartItemCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (cic *CartItemCreate) SetCreatedAt(t time.Time) *CartItemCreate {
-	cic.mutation.SetCreatedAt(t)
-	return cic
+func (_c *CartItemCreate) SetCreatedAt(v time.Time) *CartItemCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableCreatedAt(t *time.Time) *CartItemCreate {
-	if t != nil {
-		cic.SetCreatedAt(*t)
+func (_c *CartItemCreate) SetNillableCreatedAt(v *time.Time) *CartItemCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cic *CartItemCreate) SetUpdatedAt(t time.Time) *CartItemCreate {
-	cic.mutation.SetUpdatedAt(t)
-	return cic
+func (_c *CartItemCreate) SetUpdatedAt(v time.Time) *CartItemCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableUpdatedAt(t *time.Time) *CartItemCreate {
-	if t != nil {
-		cic.SetUpdatedAt(*t)
+func (_c *CartItemCreate) SetNillableUpdatedAt(v *time.Time) *CartItemCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetID sets the "id" field.
-func (cic *CartItemCreate) SetID(u uuid.UUID) *CartItemCreate {
-	cic.mutation.SetID(u)
-	return cic
+func (_c *CartItemCreate) SetID(v uuid.UUID) *CartItemCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (cic *CartItemCreate) SetNillableID(u *uuid.UUID) *CartItemCreate {
-	if u != nil {
-		cic.SetID(*u)
+func (_c *CartItemCreate) SetNillableID(v *uuid.UUID) *CartItemCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return cic
+	return _c
 }
 
 // SetCart sets the "cart" edge to the Cart entity.
-func (cic *CartItemCreate) SetCart(c *Cart) *CartItemCreate {
-	return cic.SetCartID(c.ID)
-}
-
-// SetCatalogItem sets the "catalog_item" edge to the CatalogItem entity.
-func (cic *CartItemCreate) SetCatalogItem(c *CatalogItem) *CartItemCreate {
-	return cic.SetCatalogItemID(c.ID)
+func (_c *CartItemCreate) SetCart(v *Cart) *CartItemCreate {
+	return _c.SetCartID(v.ID)
 }
 
 // Mutation returns the CartItemMutation object of the builder.
-func (cic *CartItemCreate) Mutation() *CartItemMutation {
-	return cic.mutation
+func (_c *CartItemCreate) Mutation() *CartItemMutation {
+	return _c.mutation
 }
 
 // Save creates the CartItem in the database.
-func (cic *CartItemCreate) Save(ctx context.Context) (*CartItem, error) {
-	cic.defaults()
-	return withHooks(ctx, cic.sqlSave, cic.mutation, cic.hooks)
+func (_c *CartItemCreate) Save(ctx context.Context) (*CartItem, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (cic *CartItemCreate) SaveX(ctx context.Context) *CartItem {
-	v, err := cic.Save(ctx)
+func (_c *CartItemCreate) SaveX(ctx context.Context) *CartItem {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -197,99 +191,101 @@ func (cic *CartItemCreate) SaveX(ctx context.Context) *CartItem {
 }
 
 // Exec executes the query.
-func (cic *CartItemCreate) Exec(ctx context.Context) error {
-	_, err := cic.Save(ctx)
+func (_c *CartItemCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cic *CartItemCreate) ExecX(ctx context.Context) {
-	if err := cic.Exec(ctx); err != nil {
+func (_c *CartItemCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cic *CartItemCreate) defaults() {
-	if _, ok := cic.mutation.Quantity(); !ok {
+func (_c *CartItemCreate) defaults() {
+	if _, ok := _c.mutation.Quantity(); !ok {
 		v := cartitem.DefaultQuantity
-		cic.mutation.SetQuantity(v)
+		_c.mutation.SetQuantity(v)
 	}
-	if _, ok := cic.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := cartitem.DefaultCreatedAt()
-		cic.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := cic.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := cartitem.DefaultUpdatedAt()
-		cic.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := cic.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := cartitem.DefaultID()
-		cic.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cic *CartItemCreate) check() error {
-	if _, ok := cic.mutation.CartID(); !ok {
+func (_c *CartItemCreate) check() error {
+	if _, ok := _c.mutation.CartID(); !ok {
 		return &ValidationError{Name: "cart_id", err: errors.New(`ent: missing required field "CartItem.cart_id"`)}
 	}
-	if _, ok := cic.mutation.CatalogItemID(); !ok {
-		return &ValidationError{Name: "catalog_item_id", err: errors.New(`ent: missing required field "CartItem.catalog_item_id"`)}
+	if _, ok := _c.mutation.InventorySku(); !ok {
+		return &ValidationError{Name: "inventory_sku", err: errors.New(`ent: missing required field "CartItem.inventory_sku"`)}
 	}
-	if _, ok := cic.mutation.NameSnapshot(); !ok {
+	if v, ok := _c.mutation.InventorySku(); ok {
+		if err := cartitem.InventorySkuValidator(v); err != nil {
+			return &ValidationError{Name: "inventory_sku", err: fmt.Errorf(`ent: validator failed for field "CartItem.inventory_sku": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.NameSnapshot(); !ok {
 		return &ValidationError{Name: "name_snapshot", err: errors.New(`ent: missing required field "CartItem.name_snapshot"`)}
 	}
-	if v, ok := cic.mutation.NameSnapshot(); ok {
+	if v, ok := _c.mutation.NameSnapshot(); ok {
 		if err := cartitem.NameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.name_snapshot": %w`, err)}
 		}
 	}
-	if v, ok := cic.mutation.VariantNameSnapshot(); ok {
+	if v, ok := _c.mutation.VariantNameSnapshot(); ok {
 		if err := cartitem.VariantNameSnapshotValidator(v); err != nil {
 			return &ValidationError{Name: "variant_name_snapshot", err: fmt.Errorf(`ent: validator failed for field "CartItem.variant_name_snapshot": %w`, err)}
 		}
 	}
-	if _, ok := cic.mutation.Quantity(); !ok {
+	if _, ok := _c.mutation.Quantity(); !ok {
 		return &ValidationError{Name: "quantity", err: errors.New(`ent: missing required field "CartItem.quantity"`)}
 	}
-	if v, ok := cic.mutation.Quantity(); ok {
+	if v, ok := _c.mutation.Quantity(); ok {
 		if err := cartitem.QuantityValidator(v); err != nil {
 			return &ValidationError{Name: "quantity", err: fmt.Errorf(`ent: validator failed for field "CartItem.quantity": %w`, err)}
 		}
 	}
-	if _, ok := cic.mutation.UnitPrice(); !ok {
+	if _, ok := _c.mutation.UnitPrice(); !ok {
 		return &ValidationError{Name: "unit_price", err: errors.New(`ent: missing required field "CartItem.unit_price"`)}
 	}
-	if v, ok := cic.mutation.UnitPrice(); ok {
+	if v, ok := _c.mutation.UnitPrice(); ok {
 		if err := cartitem.UnitPriceValidator(v); err != nil {
 			return &ValidationError{Name: "unit_price", err: fmt.Errorf(`ent: validator failed for field "CartItem.unit_price": %w`, err)}
 		}
 	}
-	if _, ok := cic.mutation.TotalPrice(); !ok {
+	if _, ok := _c.mutation.TotalPrice(); !ok {
 		return &ValidationError{Name: "total_price", err: errors.New(`ent: missing required field "CartItem.total_price"`)}
 	}
-	if _, ok := cic.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "CartItem.created_at"`)}
 	}
-	if _, ok := cic.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "CartItem.updated_at"`)}
 	}
-	if _, ok := cic.mutation.CartID(); !ok {
+	if len(_c.mutation.CartIDs()) == 0 {
 		return &ValidationError{Name: "cart", err: errors.New(`ent: missing required edge "CartItem.cart"`)}
-	}
-	if _, ok := cic.mutation.CatalogItemID(); !ok {
-		return &ValidationError{Name: "catalog_item", err: errors.New(`ent: missing required edge "CartItem.catalog_item"`)}
 	}
 	return nil
 }
 
-func (cic *CartItemCreate) sqlSave(ctx context.Context) (*CartItem, error) {
-	if err := cic.check(); err != nil {
+func (_c *CartItemCreate) sqlSave(ctx context.Context) (*CartItem, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := cic.createSpec()
-	if err := sqlgraph.CreateNode(ctx, cic.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -302,66 +298,70 @@ func (cic *CartItemCreate) sqlSave(ctx context.Context) (*CartItem, error) {
 			return nil, err
 		}
 	}
-	cic.mutation.id = &_node.ID
-	cic.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (cic *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
+func (_c *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
 	var (
-		_node = &CartItem{config: cic.config}
+		_node = &CartItem{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(cartitem.Table, sqlgraph.NewFieldSpec(cartitem.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = cic.conflict
-	if id, ok := cic.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := cic.mutation.VariantID(); ok {
+	if value, ok := _c.mutation.InventorySku(); ok {
+		_spec.SetField(cartitem.FieldInventorySku, field.TypeString, value)
+		_node.InventorySku = value
+	}
+	if value, ok := _c.mutation.VariantID(); ok {
 		_spec.SetField(cartitem.FieldVariantID, field.TypeUUID, value)
 		_node.VariantID = &value
 	}
-	if value, ok := cic.mutation.NameSnapshot(); ok {
+	if value, ok := _c.mutation.NameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldNameSnapshot, field.TypeString, value)
 		_node.NameSnapshot = value
 	}
-	if value, ok := cic.mutation.VariantNameSnapshot(); ok {
+	if value, ok := _c.mutation.VariantNameSnapshot(); ok {
 		_spec.SetField(cartitem.FieldVariantNameSnapshot, field.TypeString, value)
 		_node.VariantNameSnapshot = value
 	}
-	if value, ok := cic.mutation.Quantity(); ok {
+	if value, ok := _c.mutation.Quantity(); ok {
 		_spec.SetField(cartitem.FieldQuantity, field.TypeInt, value)
 		_node.Quantity = value
 	}
-	if value, ok := cic.mutation.UnitPrice(); ok {
+	if value, ok := _c.mutation.UnitPrice(); ok {
 		_spec.SetField(cartitem.FieldUnitPrice, field.TypeFloat64, value)
 		_node.UnitPrice = value
 	}
-	if value, ok := cic.mutation.TotalPrice(); ok {
+	if value, ok := _c.mutation.TotalPrice(); ok {
 		_spec.SetField(cartitem.FieldTotalPrice, field.TypeFloat64, value)
 		_node.TotalPrice = value
 	}
-	if value, ok := cic.mutation.Notes(); ok {
+	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(cartitem.FieldNotes, field.TypeString, value)
 		_node.Notes = value
 	}
-	if value, ok := cic.mutation.Modifiers(); ok {
+	if value, ok := _c.mutation.Modifiers(); ok {
 		_spec.SetField(cartitem.FieldModifiers, field.TypeJSON, value)
 		_node.Modifiers = value
 	}
-	if value, ok := cic.mutation.Metadata(); ok {
+	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(cartitem.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if value, ok := cic.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(cartitem.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := cic.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(cartitem.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := cic.mutation.CartIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.CartIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -376,23 +376,6 @@ func (cic *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.CartID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := cic.mutation.CatalogItemIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   cartitem.CatalogItemTable,
-			Columns: []string{cartitem.CatalogItemColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CatalogItemID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -414,10 +397,10 @@ func (cic *CartItemCreate) createSpec() (*CartItem, *sqlgraph.CreateSpec) {
 //			SetCartID(v+v).
 //		}).
 //		Exec(ctx)
-func (cic *CartItemCreate) OnConflict(opts ...sql.ConflictOption) *CartItemUpsertOne {
-	cic.conflict = opts
+func (_c *CartItemCreate) OnConflict(opts ...sql.ConflictOption) *CartItemUpsertOne {
+	_c.conflict = opts
 	return &CartItemUpsertOne{
-		create: cic,
+		create: _c,
 	}
 }
 
@@ -427,10 +410,10 @@ func (cic *CartItemCreate) OnConflict(opts ...sql.ConflictOption) *CartItemUpser
 //	client.CartItem.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (cic *CartItemCreate) OnConflictColumns(columns ...string) *CartItemUpsertOne {
-	cic.conflict = append(cic.conflict, sql.ConflictColumns(columns...))
+func (_c *CartItemCreate) OnConflictColumns(columns ...string) *CartItemUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CartItemUpsertOne{
-		create: cic,
+		create: _c,
 	}
 }
 
@@ -459,15 +442,15 @@ func (u *CartItemUpsert) UpdateCartID() *CartItemUpsert {
 	return u
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (u *CartItemUpsert) SetCatalogItemID(v uuid.UUID) *CartItemUpsert {
-	u.Set(cartitem.FieldCatalogItemID, v)
+// SetInventorySku sets the "inventory_sku" field.
+func (u *CartItemUpsert) SetInventorySku(v string) *CartItemUpsert {
+	u.Set(cartitem.FieldInventorySku, v)
 	return u
 }
 
-// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
-func (u *CartItemUpsert) UpdateCatalogItemID() *CartItemUpsert {
-	u.SetExcluded(cartitem.FieldCatalogItemID)
+// UpdateInventorySku sets the "inventory_sku" field to the value that was provided on create.
+func (u *CartItemUpsert) UpdateInventorySku() *CartItemUpsert {
+	u.SetExcluded(cartitem.FieldInventorySku)
 	return u
 }
 
@@ -704,17 +687,17 @@ func (u *CartItemUpsertOne) UpdateCartID() *CartItemUpsertOne {
 	})
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (u *CartItemUpsertOne) SetCatalogItemID(v uuid.UUID) *CartItemUpsertOne {
+// SetInventorySku sets the "inventory_sku" field.
+func (u *CartItemUpsertOne) SetInventorySku(v string) *CartItemUpsertOne {
 	return u.Update(func(s *CartItemUpsert) {
-		s.SetCatalogItemID(v)
+		s.SetInventorySku(v)
 	})
 }
 
-// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
-func (u *CartItemUpsertOne) UpdateCatalogItemID() *CartItemUpsertOne {
+// UpdateInventorySku sets the "inventory_sku" field to the value that was provided on create.
+func (u *CartItemUpsertOne) UpdateInventorySku() *CartItemUpsertOne {
 	return u.Update(func(s *CartItemUpsert) {
-		s.UpdateCatalogItemID()
+		s.UpdateInventorySku()
 	})
 }
 
@@ -961,16 +944,16 @@ type CartItemCreateBulk struct {
 }
 
 // Save creates the CartItem entities in the database.
-func (cicb *CartItemCreateBulk) Save(ctx context.Context) ([]*CartItem, error) {
-	if cicb.err != nil {
-		return nil, cicb.err
+func (_c *CartItemCreateBulk) Save(ctx context.Context) ([]*CartItem, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(cicb.builders))
-	nodes := make([]*CartItem, len(cicb.builders))
-	mutators := make([]Mutator, len(cicb.builders))
-	for i := range cicb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*CartItem, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := cicb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CartItemMutation)
@@ -984,12 +967,12 @@ func (cicb *CartItemCreateBulk) Save(ctx context.Context) ([]*CartItem, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, cicb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = cicb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, cicb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1009,7 +992,7 @@ func (cicb *CartItemCreateBulk) Save(ctx context.Context) ([]*CartItem, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, cicb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1017,8 +1000,8 @@ func (cicb *CartItemCreateBulk) Save(ctx context.Context) ([]*CartItem, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cicb *CartItemCreateBulk) SaveX(ctx context.Context) []*CartItem {
-	v, err := cicb.Save(ctx)
+func (_c *CartItemCreateBulk) SaveX(ctx context.Context) []*CartItem {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1026,14 +1009,14 @@ func (cicb *CartItemCreateBulk) SaveX(ctx context.Context) []*CartItem {
 }
 
 // Exec executes the query.
-func (cicb *CartItemCreateBulk) Exec(ctx context.Context) error {
-	_, err := cicb.Save(ctx)
+func (_c *CartItemCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cicb *CartItemCreateBulk) ExecX(ctx context.Context) {
-	if err := cicb.Exec(ctx); err != nil {
+func (_c *CartItemCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1053,10 +1036,10 @@ func (cicb *CartItemCreateBulk) ExecX(ctx context.Context) {
 //			SetCartID(v+v).
 //		}).
 //		Exec(ctx)
-func (cicb *CartItemCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartItemUpsertBulk {
-	cicb.conflict = opts
+func (_c *CartItemCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartItemUpsertBulk {
+	_c.conflict = opts
 	return &CartItemUpsertBulk{
-		create: cicb,
+		create: _c,
 	}
 }
 
@@ -1066,10 +1049,10 @@ func (cicb *CartItemCreateBulk) OnConflict(opts ...sql.ConflictOption) *CartItem
 //	client.CartItem.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (cicb *CartItemCreateBulk) OnConflictColumns(columns ...string) *CartItemUpsertBulk {
-	cicb.conflict = append(cicb.conflict, sql.ConflictColumns(columns...))
+func (_c *CartItemCreateBulk) OnConflictColumns(columns ...string) *CartItemUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CartItemUpsertBulk{
-		create: cicb,
+		create: _c,
 	}
 }
 
@@ -1146,17 +1129,17 @@ func (u *CartItemUpsertBulk) UpdateCartID() *CartItemUpsertBulk {
 	})
 }
 
-// SetCatalogItemID sets the "catalog_item_id" field.
-func (u *CartItemUpsertBulk) SetCatalogItemID(v uuid.UUID) *CartItemUpsertBulk {
+// SetInventorySku sets the "inventory_sku" field.
+func (u *CartItemUpsertBulk) SetInventorySku(v string) *CartItemUpsertBulk {
 	return u.Update(func(s *CartItemUpsert) {
-		s.SetCatalogItemID(v)
+		s.SetInventorySku(v)
 	})
 }
 
-// UpdateCatalogItemID sets the "catalog_item_id" field to the value that was provided on create.
-func (u *CartItemUpsertBulk) UpdateCatalogItemID() *CartItemUpsertBulk {
+// UpdateInventorySku sets the "inventory_sku" field to the value that was provided on create.
+func (u *CartItemUpsertBulk) UpdateInventorySku() *CartItemUpsertBulk {
 	return u.Update(func(s *CartItemUpsert) {
-		s.UpdateCatalogItemID()
+		s.UpdateInventorySku()
 	})
 }
 

@@ -119,7 +119,7 @@ func (*OrderAssignment) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OrderAssignment fields.
-func (oa *OrderAssignment) assignValues(columns []string, values []any) error {
+func (_m *OrderAssignment) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -129,79 +129,79 @@ func (oa *OrderAssignment) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				oa.ID = *value
+				_m.ID = *value
 			}
 		case orderassignment.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				oa.TenantID = *value
+				_m.TenantID = *value
 			}
 		case orderassignment.FieldOrderID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field order_id", values[i])
 			} else if value != nil {
-				oa.OrderID = *value
+				_m.OrderID = *value
 			}
 		case orderassignment.FieldLogisticsTaskID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field logistics_task_id", values[i])
 			} else if value.Valid {
-				oa.LogisticsTaskID = value.String
+				_m.LogisticsTaskID = value.String
 			}
 		case orderassignment.FieldRiderID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field rider_id", values[i])
 			} else if value.Valid {
-				oa.RiderID = value.String
+				_m.RiderID = value.String
 			}
 		case orderassignment.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				oa.Status = orderassignment.Status(value.String)
+				_m.Status = orderassignment.Status(value.String)
 			}
 		case orderassignment.FieldPriority:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field priority", values[i])
 			} else if value.Valid {
-				oa.Priority = orderassignment.Priority(value.String)
+				_m.Priority = orderassignment.Priority(value.String)
 			}
 		case orderassignment.FieldSpecialInstructions:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field special_instructions", values[i])
 			} else if value.Valid {
-				oa.SpecialInstructions = value.String
+				_m.SpecialInstructions = value.String
 			}
 		case orderassignment.FieldRejectionReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field rejection_reason", values[i])
 			} else if value.Valid {
-				oa.RejectionReason = value.String
+				_m.RejectionReason = value.String
 			}
 		case orderassignment.FieldCancellationReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cancellation_reason", values[i])
 			} else if value.Valid {
-				oa.CancellationReason = value.String
+				_m.CancellationReason = value.String
 			}
 		case orderassignment.FieldFailureReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field failure_reason", values[i])
 			} else if value.Valid {
-				oa.FailureReason = value.String
+				_m.FailureReason = value.String
 			}
 		case orderassignment.FieldAttemptCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field attempt_count", values[i])
 			} else if value.Valid {
-				oa.AttemptCount = int(value.Int64)
+				_m.AttemptCount = int(value.Int64)
 			}
 		case orderassignment.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &oa.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -209,51 +209,51 @@ func (oa *OrderAssignment) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field assigned_at", values[i])
 			} else if value.Valid {
-				oa.AssignedAt = new(time.Time)
-				*oa.AssignedAt = value.Time
+				_m.AssignedAt = new(time.Time)
+				*_m.AssignedAt = value.Time
 			}
 		case orderassignment.FieldAcceptedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field accepted_at", values[i])
 			} else if value.Valid {
-				oa.AcceptedAt = new(time.Time)
-				*oa.AcceptedAt = value.Time
+				_m.AcceptedAt = new(time.Time)
+				*_m.AcceptedAt = value.Time
 			}
 		case orderassignment.FieldPickedUpAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field picked_up_at", values[i])
 			} else if value.Valid {
-				oa.PickedUpAt = new(time.Time)
-				*oa.PickedUpAt = value.Time
+				_m.PickedUpAt = new(time.Time)
+				*_m.PickedUpAt = value.Time
 			}
 		case orderassignment.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				oa.CompletedAt = new(time.Time)
-				*oa.CompletedAt = value.Time
+				_m.CompletedAt = new(time.Time)
+				*_m.CompletedAt = value.Time
 			}
 		case orderassignment.FieldCancelledAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field cancelled_at", values[i])
 			} else if value.Valid {
-				oa.CancelledAt = new(time.Time)
-				*oa.CancelledAt = value.Time
+				_m.CancelledAt = new(time.Time)
+				*_m.CancelledAt = value.Time
 			}
 		case orderassignment.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				oa.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case orderassignment.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				oa.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			oa.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -261,109 +261,109 @@ func (oa *OrderAssignment) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the OrderAssignment.
 // This includes values selected through modifiers, order, etc.
-func (oa *OrderAssignment) Value(name string) (ent.Value, error) {
-	return oa.selectValues.Get(name)
+func (_m *OrderAssignment) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryOrder queries the "order" edge of the OrderAssignment entity.
-func (oa *OrderAssignment) QueryOrder() *OrderQuery {
-	return NewOrderAssignmentClient(oa.config).QueryOrder(oa)
+func (_m *OrderAssignment) QueryOrder() *OrderQuery {
+	return NewOrderAssignmentClient(_m.config).QueryOrder(_m)
 }
 
 // QueryDeliveryWindows queries the "delivery_windows" edge of the OrderAssignment entity.
-func (oa *OrderAssignment) QueryDeliveryWindows() *DeliveryWindowQuery {
-	return NewOrderAssignmentClient(oa.config).QueryDeliveryWindows(oa)
+func (_m *OrderAssignment) QueryDeliveryWindows() *DeliveryWindowQuery {
+	return NewOrderAssignmentClient(_m.config).QueryDeliveryWindows(_m)
 }
 
 // Update returns a builder for updating this OrderAssignment.
 // Note that you need to call OrderAssignment.Unwrap() before calling this method if this OrderAssignment
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (oa *OrderAssignment) Update() *OrderAssignmentUpdateOne {
-	return NewOrderAssignmentClient(oa.config).UpdateOne(oa)
+func (_m *OrderAssignment) Update() *OrderAssignmentUpdateOne {
+	return NewOrderAssignmentClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OrderAssignment entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (oa *OrderAssignment) Unwrap() *OrderAssignment {
-	_tx, ok := oa.config.driver.(*txDriver)
+func (_m *OrderAssignment) Unwrap() *OrderAssignment {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OrderAssignment is not a transactional entity")
 	}
-	oa.config.driver = _tx.drv
-	return oa
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (oa *OrderAssignment) String() string {
+func (_m *OrderAssignment) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderAssignment(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", oa.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", oa.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", oa.OrderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
 	builder.WriteString(", ")
 	builder.WriteString("logistics_task_id=")
-	builder.WriteString(oa.LogisticsTaskID)
+	builder.WriteString(_m.LogisticsTaskID)
 	builder.WriteString(", ")
 	builder.WriteString("rider_id=")
-	builder.WriteString(oa.RiderID)
+	builder.WriteString(_m.RiderID)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", oa.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("priority=")
-	builder.WriteString(fmt.Sprintf("%v", oa.Priority))
+	builder.WriteString(fmt.Sprintf("%v", _m.Priority))
 	builder.WriteString(", ")
 	builder.WriteString("special_instructions=")
-	builder.WriteString(oa.SpecialInstructions)
+	builder.WriteString(_m.SpecialInstructions)
 	builder.WriteString(", ")
 	builder.WriteString("rejection_reason=")
-	builder.WriteString(oa.RejectionReason)
+	builder.WriteString(_m.RejectionReason)
 	builder.WriteString(", ")
 	builder.WriteString("cancellation_reason=")
-	builder.WriteString(oa.CancellationReason)
+	builder.WriteString(_m.CancellationReason)
 	builder.WriteString(", ")
 	builder.WriteString("failure_reason=")
-	builder.WriteString(oa.FailureReason)
+	builder.WriteString(_m.FailureReason)
 	builder.WriteString(", ")
 	builder.WriteString("attempt_count=")
-	builder.WriteString(fmt.Sprintf("%v", oa.AttemptCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.AttemptCount))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", oa.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
-	if v := oa.AssignedAt; v != nil {
+	if v := _m.AssignedAt; v != nil {
 		builder.WriteString("assigned_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := oa.AcceptedAt; v != nil {
+	if v := _m.AcceptedAt; v != nil {
 		builder.WriteString("accepted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := oa.PickedUpAt; v != nil {
+	if v := _m.PickedUpAt; v != nil {
 		builder.WriteString("picked_up_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := oa.CompletedAt; v != nil {
+	if v := _m.CompletedAt; v != nil {
 		builder.WriteString("completed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := oa.CancelledAt; v != nil {
+	if v := _m.CancelledAt; v != nil {
 		builder.WriteString("cancelled_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(oa.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(oa.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

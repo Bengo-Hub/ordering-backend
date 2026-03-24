@@ -20,56 +20,56 @@ type OutletDelete struct {
 }
 
 // Where appends a list predicates to the OutletDelete builder.
-func (od *OutletDelete) Where(ps ...predicate.Outlet) *OutletDelete {
-	od.mutation.Where(ps...)
-	return od
+func (_d *OutletDelete) Where(ps ...predicate.Outlet) *OutletDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (od *OutletDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, od.sqlExec, od.mutation, od.hooks)
+func (_d *OutletDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (od *OutletDelete) ExecX(ctx context.Context) int {
-	n, err := od.Exec(ctx)
+func (_d *OutletDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (od *OutletDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *OutletDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(outlet.Table, sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID))
-	if ps := od.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, od.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	od.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // OutletDeleteOne is the builder for deleting a single Outlet entity.
 type OutletDeleteOne struct {
-	od *OutletDelete
+	_d *OutletDelete
 }
 
 // Where appends a list predicates to the OutletDelete builder.
-func (odo *OutletDeleteOne) Where(ps ...predicate.Outlet) *OutletDeleteOne {
-	odo.od.mutation.Where(ps...)
-	return odo
+func (_d *OutletDeleteOne) Where(ps ...predicate.Outlet) *OutletDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (odo *OutletDeleteOne) Exec(ctx context.Context) error {
-	n, err := odo.od.Exec(ctx)
+func (_d *OutletDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (odo *OutletDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (odo *OutletDeleteOne) ExecX(ctx context.Context) {
-	if err := odo.Exec(ctx); err != nil {
+func (_d *OutletDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

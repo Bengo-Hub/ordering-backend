@@ -25,246 +25,246 @@ type DeliveryWindowUpdate struct {
 }
 
 // Where appends a list predicates to the DeliveryWindowUpdate builder.
-func (dwu *DeliveryWindowUpdate) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowUpdate {
-	dwu.mutation.Where(ps...)
-	return dwu
+func (_u *DeliveryWindowUpdate) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dwu *DeliveryWindowUpdate) SetTenantID(u uuid.UUID) *DeliveryWindowUpdate {
-	dwu.mutation.SetTenantID(u)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetTenantID(v uuid.UUID) *DeliveryWindowUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableTenantID(u *uuid.UUID) *DeliveryWindowUpdate {
-	if u != nil {
-		dwu.SetTenantID(*u)
+func (_u *DeliveryWindowUpdate) SetNillableTenantID(v *uuid.UUID) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (dwu *DeliveryWindowUpdate) SetOrderID(u uuid.UUID) *DeliveryWindowUpdate {
-	dwu.mutation.SetOrderID(u)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetOrderID(v uuid.UUID) *DeliveryWindowUpdate {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableOrderID(u *uuid.UUID) *DeliveryWindowUpdate {
-	if u != nil {
-		dwu.SetOrderID(*u)
+func (_u *DeliveryWindowUpdate) SetNillableOrderID(v *uuid.UUID) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetAssignmentID sets the "assignment_id" field.
-func (dwu *DeliveryWindowUpdate) SetAssignmentID(u uuid.UUID) *DeliveryWindowUpdate {
-	dwu.mutation.SetAssignmentID(u)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetAssignmentID(v uuid.UUID) *DeliveryWindowUpdate {
+	_u.mutation.SetAssignmentID(v)
+	return _u
 }
 
 // SetNillableAssignmentID sets the "assignment_id" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableAssignmentID(u *uuid.UUID) *DeliveryWindowUpdate {
-	if u != nil {
-		dwu.SetAssignmentID(*u)
+func (_u *DeliveryWindowUpdate) SetNillableAssignmentID(v *uuid.UUID) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetAssignmentID(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetEtaStart sets the "eta_start" field.
-func (dwu *DeliveryWindowUpdate) SetEtaStart(t time.Time) *DeliveryWindowUpdate {
-	dwu.mutation.SetEtaStart(t)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetEtaStart(v time.Time) *DeliveryWindowUpdate {
+	_u.mutation.SetEtaStart(v)
+	return _u
 }
 
 // SetNillableEtaStart sets the "eta_start" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableEtaStart(t *time.Time) *DeliveryWindowUpdate {
-	if t != nil {
-		dwu.SetEtaStart(*t)
+func (_u *DeliveryWindowUpdate) SetNillableEtaStart(v *time.Time) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetEtaStart(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetEtaEnd sets the "eta_end" field.
-func (dwu *DeliveryWindowUpdate) SetEtaEnd(t time.Time) *DeliveryWindowUpdate {
-	dwu.mutation.SetEtaEnd(t)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetEtaEnd(v time.Time) *DeliveryWindowUpdate {
+	_u.mutation.SetEtaEnd(v)
+	return _u
 }
 
 // SetNillableEtaEnd sets the "eta_end" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableEtaEnd(t *time.Time) *DeliveryWindowUpdate {
-	if t != nil {
-		dwu.SetEtaEnd(*t)
+func (_u *DeliveryWindowUpdate) SetNillableEtaEnd(v *time.Time) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetEtaEnd(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetEtaMinutes sets the "eta_minutes" field.
-func (dwu *DeliveryWindowUpdate) SetEtaMinutes(i int) *DeliveryWindowUpdate {
-	dwu.mutation.ResetEtaMinutes()
-	dwu.mutation.SetEtaMinutes(i)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetEtaMinutes(v int) *DeliveryWindowUpdate {
+	_u.mutation.ResetEtaMinutes()
+	_u.mutation.SetEtaMinutes(v)
+	return _u
 }
 
 // SetNillableEtaMinutes sets the "eta_minutes" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableEtaMinutes(i *int) *DeliveryWindowUpdate {
-	if i != nil {
-		dwu.SetEtaMinutes(*i)
+func (_u *DeliveryWindowUpdate) SetNillableEtaMinutes(v *int) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetEtaMinutes(*v)
 	}
-	return dwu
+	return _u
 }
 
-// AddEtaMinutes adds i to the "eta_minutes" field.
-func (dwu *DeliveryWindowUpdate) AddEtaMinutes(i int) *DeliveryWindowUpdate {
-	dwu.mutation.AddEtaMinutes(i)
-	return dwu
+// AddEtaMinutes adds value to the "eta_minutes" field.
+func (_u *DeliveryWindowUpdate) AddEtaMinutes(v int) *DeliveryWindowUpdate {
+	_u.mutation.AddEtaMinutes(v)
+	return _u
 }
 
 // ClearEtaMinutes clears the value of the "eta_minutes" field.
-func (dwu *DeliveryWindowUpdate) ClearEtaMinutes() *DeliveryWindowUpdate {
-	dwu.mutation.ClearEtaMinutes()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearEtaMinutes() *DeliveryWindowUpdate {
+	_u.mutation.ClearEtaMinutes()
+	return _u
 }
 
 // SetDistanceKm sets the "distance_km" field.
-func (dwu *DeliveryWindowUpdate) SetDistanceKm(f float64) *DeliveryWindowUpdate {
-	dwu.mutation.ResetDistanceKm()
-	dwu.mutation.SetDistanceKm(f)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetDistanceKm(v float64) *DeliveryWindowUpdate {
+	_u.mutation.ResetDistanceKm()
+	_u.mutation.SetDistanceKm(v)
+	return _u
 }
 
 // SetNillableDistanceKm sets the "distance_km" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableDistanceKm(f *float64) *DeliveryWindowUpdate {
-	if f != nil {
-		dwu.SetDistanceKm(*f)
+func (_u *DeliveryWindowUpdate) SetNillableDistanceKm(v *float64) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetDistanceKm(*v)
 	}
-	return dwu
+	return _u
 }
 
-// AddDistanceKm adds f to the "distance_km" field.
-func (dwu *DeliveryWindowUpdate) AddDistanceKm(f float64) *DeliveryWindowUpdate {
-	dwu.mutation.AddDistanceKm(f)
-	return dwu
+// AddDistanceKm adds value to the "distance_km" field.
+func (_u *DeliveryWindowUpdate) AddDistanceKm(v float64) *DeliveryWindowUpdate {
+	_u.mutation.AddDistanceKm(v)
+	return _u
 }
 
 // ClearDistanceKm clears the value of the "distance_km" field.
-func (dwu *DeliveryWindowUpdate) ClearDistanceKm() *DeliveryWindowUpdate {
-	dwu.mutation.ClearDistanceKm()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearDistanceKm() *DeliveryWindowUpdate {
+	_u.mutation.ClearDistanceKm()
+	return _u
 }
 
 // SetActualArrival sets the "actual_arrival" field.
-func (dwu *DeliveryWindowUpdate) SetActualArrival(t time.Time) *DeliveryWindowUpdate {
-	dwu.mutation.SetActualArrival(t)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetActualArrival(v time.Time) *DeliveryWindowUpdate {
+	_u.mutation.SetActualArrival(v)
+	return _u
 }
 
 // SetNillableActualArrival sets the "actual_arrival" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableActualArrival(t *time.Time) *DeliveryWindowUpdate {
-	if t != nil {
-		dwu.SetActualArrival(*t)
+func (_u *DeliveryWindowUpdate) SetNillableActualArrival(v *time.Time) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetActualArrival(*v)
 	}
-	return dwu
+	return _u
 }
 
 // ClearActualArrival clears the value of the "actual_arrival" field.
-func (dwu *DeliveryWindowUpdate) ClearActualArrival() *DeliveryWindowUpdate {
-	dwu.mutation.ClearActualArrival()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearActualArrival() *DeliveryWindowUpdate {
+	_u.mutation.ClearActualArrival()
+	return _u
 }
 
 // SetActualDropoff sets the "actual_dropoff" field.
-func (dwu *DeliveryWindowUpdate) SetActualDropoff(t time.Time) *DeliveryWindowUpdate {
-	dwu.mutation.SetActualDropoff(t)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetActualDropoff(v time.Time) *DeliveryWindowUpdate {
+	_u.mutation.SetActualDropoff(v)
+	return _u
 }
 
 // SetNillableActualDropoff sets the "actual_dropoff" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableActualDropoff(t *time.Time) *DeliveryWindowUpdate {
-	if t != nil {
-		dwu.SetActualDropoff(*t)
+func (_u *DeliveryWindowUpdate) SetNillableActualDropoff(v *time.Time) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetActualDropoff(*v)
 	}
-	return dwu
+	return _u
 }
 
 // ClearActualDropoff clears the value of the "actual_dropoff" field.
-func (dwu *DeliveryWindowUpdate) ClearActualDropoff() *DeliveryWindowUpdate {
-	dwu.mutation.ClearActualDropoff()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearActualDropoff() *DeliveryWindowUpdate {
+	_u.mutation.ClearActualDropoff()
+	return _u
 }
 
 // SetSource sets the "source" field.
-func (dwu *DeliveryWindowUpdate) SetSource(s string) *DeliveryWindowUpdate {
-	dwu.mutation.SetSource(s)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetSource(v string) *DeliveryWindowUpdate {
+	_u.mutation.SetSource(v)
+	return _u
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableSource(s *string) *DeliveryWindowUpdate {
-	if s != nil {
-		dwu.SetSource(*s)
+func (_u *DeliveryWindowUpdate) SetNillableSource(v *string) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetSource(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetIsCurrent sets the "is_current" field.
-func (dwu *DeliveryWindowUpdate) SetIsCurrent(b bool) *DeliveryWindowUpdate {
-	dwu.mutation.SetIsCurrent(b)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetIsCurrent(v bool) *DeliveryWindowUpdate {
+	_u.mutation.SetIsCurrent(v)
+	return _u
 }
 
 // SetNillableIsCurrent sets the "is_current" field if the given value is not nil.
-func (dwu *DeliveryWindowUpdate) SetNillableIsCurrent(b *bool) *DeliveryWindowUpdate {
-	if b != nil {
-		dwu.SetIsCurrent(*b)
+func (_u *DeliveryWindowUpdate) SetNillableIsCurrent(v *bool) *DeliveryWindowUpdate {
+	if v != nil {
+		_u.SetIsCurrent(*v)
 	}
-	return dwu
+	return _u
 }
 
 // SetRouteInfo sets the "route_info" field.
-func (dwu *DeliveryWindowUpdate) SetRouteInfo(m map[string]interface{}) *DeliveryWindowUpdate {
-	dwu.mutation.SetRouteInfo(m)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetRouteInfo(v map[string]interface{}) *DeliveryWindowUpdate {
+	_u.mutation.SetRouteInfo(v)
+	return _u
 }
 
 // ClearRouteInfo clears the value of the "route_info" field.
-func (dwu *DeliveryWindowUpdate) ClearRouteInfo() *DeliveryWindowUpdate {
-	dwu.mutation.ClearRouteInfo()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearRouteInfo() *DeliveryWindowUpdate {
+	_u.mutation.ClearRouteInfo()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dwu *DeliveryWindowUpdate) SetUpdatedAt(t time.Time) *DeliveryWindowUpdate {
-	dwu.mutation.SetUpdatedAt(t)
-	return dwu
+func (_u *DeliveryWindowUpdate) SetUpdatedAt(v time.Time) *DeliveryWindowUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetAssignment sets the "assignment" edge to the OrderAssignment entity.
-func (dwu *DeliveryWindowUpdate) SetAssignment(o *OrderAssignment) *DeliveryWindowUpdate {
-	return dwu.SetAssignmentID(o.ID)
+func (_u *DeliveryWindowUpdate) SetAssignment(v *OrderAssignment) *DeliveryWindowUpdate {
+	return _u.SetAssignmentID(v.ID)
 }
 
 // Mutation returns the DeliveryWindowMutation object of the builder.
-func (dwu *DeliveryWindowUpdate) Mutation() *DeliveryWindowMutation {
-	return dwu.mutation
+func (_u *DeliveryWindowUpdate) Mutation() *DeliveryWindowMutation {
+	return _u.mutation
 }
 
 // ClearAssignment clears the "assignment" edge to the OrderAssignment entity.
-func (dwu *DeliveryWindowUpdate) ClearAssignment() *DeliveryWindowUpdate {
-	dwu.mutation.ClearAssignment()
-	return dwu
+func (_u *DeliveryWindowUpdate) ClearAssignment() *DeliveryWindowUpdate {
+	_u.mutation.ClearAssignment()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dwu *DeliveryWindowUpdate) Save(ctx context.Context) (int, error) {
-	dwu.defaults()
-	return withHooks(ctx, dwu.sqlSave, dwu.mutation, dwu.hooks)
+func (_u *DeliveryWindowUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dwu *DeliveryWindowUpdate) SaveX(ctx context.Context) int {
-	affected, err := dwu.Save(ctx)
+func (_u *DeliveryWindowUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -272,109 +272,109 @@ func (dwu *DeliveryWindowUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dwu *DeliveryWindowUpdate) Exec(ctx context.Context) error {
-	_, err := dwu.Save(ctx)
+func (_u *DeliveryWindowUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwu *DeliveryWindowUpdate) ExecX(ctx context.Context) {
-	if err := dwu.Exec(ctx); err != nil {
+func (_u *DeliveryWindowUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dwu *DeliveryWindowUpdate) defaults() {
-	if _, ok := dwu.mutation.UpdatedAt(); !ok {
+func (_u *DeliveryWindowUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := deliverywindow.UpdateDefaultUpdatedAt()
-		dwu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dwu *DeliveryWindowUpdate) check() error {
-	if v, ok := dwu.mutation.Source(); ok {
+func (_u *DeliveryWindowUpdate) check() error {
+	if v, ok := _u.mutation.Source(); ok {
 		if err := deliverywindow.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "DeliveryWindow.source": %w`, err)}
 		}
 	}
-	if _, ok := dwu.mutation.AssignmentID(); dwu.mutation.AssignmentCleared() && !ok {
+	if _u.mutation.AssignmentCleared() && len(_u.mutation.AssignmentIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DeliveryWindow.assignment"`)
 	}
 	return nil
 }
 
-func (dwu *DeliveryWindowUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := dwu.check(); err != nil {
-		return n, err
+func (_u *DeliveryWindowUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deliverywindow.Table, deliverywindow.Columns, sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID))
-	if ps := dwu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dwu.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(deliverywindow.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dwu.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(deliverywindow.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := dwu.mutation.EtaStart(); ok {
+	if value, ok := _u.mutation.EtaStart(); ok {
 		_spec.SetField(deliverywindow.FieldEtaStart, field.TypeTime, value)
 	}
-	if value, ok := dwu.mutation.EtaEnd(); ok {
+	if value, ok := _u.mutation.EtaEnd(); ok {
 		_spec.SetField(deliverywindow.FieldEtaEnd, field.TypeTime, value)
 	}
-	if value, ok := dwu.mutation.EtaMinutes(); ok {
+	if value, ok := _u.mutation.EtaMinutes(); ok {
 		_spec.SetField(deliverywindow.FieldEtaMinutes, field.TypeInt, value)
 	}
-	if value, ok := dwu.mutation.AddedEtaMinutes(); ok {
+	if value, ok := _u.mutation.AddedEtaMinutes(); ok {
 		_spec.AddField(deliverywindow.FieldEtaMinutes, field.TypeInt, value)
 	}
-	if dwu.mutation.EtaMinutesCleared() {
+	if _u.mutation.EtaMinutesCleared() {
 		_spec.ClearField(deliverywindow.FieldEtaMinutes, field.TypeInt)
 	}
-	if value, ok := dwu.mutation.DistanceKm(); ok {
+	if value, ok := _u.mutation.DistanceKm(); ok {
 		_spec.SetField(deliverywindow.FieldDistanceKm, field.TypeFloat64, value)
 	}
-	if value, ok := dwu.mutation.AddedDistanceKm(); ok {
+	if value, ok := _u.mutation.AddedDistanceKm(); ok {
 		_spec.AddField(deliverywindow.FieldDistanceKm, field.TypeFloat64, value)
 	}
-	if dwu.mutation.DistanceKmCleared() {
+	if _u.mutation.DistanceKmCleared() {
 		_spec.ClearField(deliverywindow.FieldDistanceKm, field.TypeFloat64)
 	}
-	if value, ok := dwu.mutation.ActualArrival(); ok {
+	if value, ok := _u.mutation.ActualArrival(); ok {
 		_spec.SetField(deliverywindow.FieldActualArrival, field.TypeTime, value)
 	}
-	if dwu.mutation.ActualArrivalCleared() {
+	if _u.mutation.ActualArrivalCleared() {
 		_spec.ClearField(deliverywindow.FieldActualArrival, field.TypeTime)
 	}
-	if value, ok := dwu.mutation.ActualDropoff(); ok {
+	if value, ok := _u.mutation.ActualDropoff(); ok {
 		_spec.SetField(deliverywindow.FieldActualDropoff, field.TypeTime, value)
 	}
-	if dwu.mutation.ActualDropoffCleared() {
+	if _u.mutation.ActualDropoffCleared() {
 		_spec.ClearField(deliverywindow.FieldActualDropoff, field.TypeTime)
 	}
-	if value, ok := dwu.mutation.Source(); ok {
+	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(deliverywindow.FieldSource, field.TypeString, value)
 	}
-	if value, ok := dwu.mutation.IsCurrent(); ok {
+	if value, ok := _u.mutation.IsCurrent(); ok {
 		_spec.SetField(deliverywindow.FieldIsCurrent, field.TypeBool, value)
 	}
-	if value, ok := dwu.mutation.RouteInfo(); ok {
+	if value, ok := _u.mutation.RouteInfo(); ok {
 		_spec.SetField(deliverywindow.FieldRouteInfo, field.TypeJSON, value)
 	}
-	if dwu.mutation.RouteInfoCleared() {
+	if _u.mutation.RouteInfoCleared() {
 		_spec.ClearField(deliverywindow.FieldRouteInfo, field.TypeJSON)
 	}
-	if value, ok := dwu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliverywindow.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if dwu.mutation.AssignmentCleared() {
+	if _u.mutation.AssignmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -387,7 +387,7 @@ func (dwu *DeliveryWindowUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dwu.mutation.AssignmentIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AssignmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -403,7 +403,7 @@ func (dwu *DeliveryWindowUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dwu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deliverywindow.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -411,8 +411,8 @@ func (dwu *DeliveryWindowUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		return 0, err
 	}
-	dwu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DeliveryWindowUpdateOne is the builder for updating a single DeliveryWindow entity.
@@ -424,253 +424,253 @@ type DeliveryWindowUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dwuo *DeliveryWindowUpdateOne) SetTenantID(u uuid.UUID) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetTenantID(u)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetTenantID(v uuid.UUID) *DeliveryWindowUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableTenantID(u *uuid.UUID) *DeliveryWindowUpdateOne {
-	if u != nil {
-		dwuo.SetTenantID(*u)
+func (_u *DeliveryWindowUpdateOne) SetNillableTenantID(v *uuid.UUID) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetOrderID sets the "order_id" field.
-func (dwuo *DeliveryWindowUpdateOne) SetOrderID(u uuid.UUID) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetOrderID(u)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetOrderID(v uuid.UUID) *DeliveryWindowUpdateOne {
+	_u.mutation.SetOrderID(v)
+	return _u
 }
 
 // SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableOrderID(u *uuid.UUID) *DeliveryWindowUpdateOne {
-	if u != nil {
-		dwuo.SetOrderID(*u)
+func (_u *DeliveryWindowUpdateOne) SetNillableOrderID(v *uuid.UUID) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetOrderID(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetAssignmentID sets the "assignment_id" field.
-func (dwuo *DeliveryWindowUpdateOne) SetAssignmentID(u uuid.UUID) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetAssignmentID(u)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetAssignmentID(v uuid.UUID) *DeliveryWindowUpdateOne {
+	_u.mutation.SetAssignmentID(v)
+	return _u
 }
 
 // SetNillableAssignmentID sets the "assignment_id" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableAssignmentID(u *uuid.UUID) *DeliveryWindowUpdateOne {
-	if u != nil {
-		dwuo.SetAssignmentID(*u)
+func (_u *DeliveryWindowUpdateOne) SetNillableAssignmentID(v *uuid.UUID) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetAssignmentID(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetEtaStart sets the "eta_start" field.
-func (dwuo *DeliveryWindowUpdateOne) SetEtaStart(t time.Time) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetEtaStart(t)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetEtaStart(v time.Time) *DeliveryWindowUpdateOne {
+	_u.mutation.SetEtaStart(v)
+	return _u
 }
 
 // SetNillableEtaStart sets the "eta_start" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableEtaStart(t *time.Time) *DeliveryWindowUpdateOne {
-	if t != nil {
-		dwuo.SetEtaStart(*t)
+func (_u *DeliveryWindowUpdateOne) SetNillableEtaStart(v *time.Time) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetEtaStart(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetEtaEnd sets the "eta_end" field.
-func (dwuo *DeliveryWindowUpdateOne) SetEtaEnd(t time.Time) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetEtaEnd(t)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetEtaEnd(v time.Time) *DeliveryWindowUpdateOne {
+	_u.mutation.SetEtaEnd(v)
+	return _u
 }
 
 // SetNillableEtaEnd sets the "eta_end" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableEtaEnd(t *time.Time) *DeliveryWindowUpdateOne {
-	if t != nil {
-		dwuo.SetEtaEnd(*t)
+func (_u *DeliveryWindowUpdateOne) SetNillableEtaEnd(v *time.Time) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetEtaEnd(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetEtaMinutes sets the "eta_minutes" field.
-func (dwuo *DeliveryWindowUpdateOne) SetEtaMinutes(i int) *DeliveryWindowUpdateOne {
-	dwuo.mutation.ResetEtaMinutes()
-	dwuo.mutation.SetEtaMinutes(i)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetEtaMinutes(v int) *DeliveryWindowUpdateOne {
+	_u.mutation.ResetEtaMinutes()
+	_u.mutation.SetEtaMinutes(v)
+	return _u
 }
 
 // SetNillableEtaMinutes sets the "eta_minutes" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableEtaMinutes(i *int) *DeliveryWindowUpdateOne {
-	if i != nil {
-		dwuo.SetEtaMinutes(*i)
+func (_u *DeliveryWindowUpdateOne) SetNillableEtaMinutes(v *int) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetEtaMinutes(*v)
 	}
-	return dwuo
+	return _u
 }
 
-// AddEtaMinutes adds i to the "eta_minutes" field.
-func (dwuo *DeliveryWindowUpdateOne) AddEtaMinutes(i int) *DeliveryWindowUpdateOne {
-	dwuo.mutation.AddEtaMinutes(i)
-	return dwuo
+// AddEtaMinutes adds value to the "eta_minutes" field.
+func (_u *DeliveryWindowUpdateOne) AddEtaMinutes(v int) *DeliveryWindowUpdateOne {
+	_u.mutation.AddEtaMinutes(v)
+	return _u
 }
 
 // ClearEtaMinutes clears the value of the "eta_minutes" field.
-func (dwuo *DeliveryWindowUpdateOne) ClearEtaMinutes() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearEtaMinutes()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearEtaMinutes() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearEtaMinutes()
+	return _u
 }
 
 // SetDistanceKm sets the "distance_km" field.
-func (dwuo *DeliveryWindowUpdateOne) SetDistanceKm(f float64) *DeliveryWindowUpdateOne {
-	dwuo.mutation.ResetDistanceKm()
-	dwuo.mutation.SetDistanceKm(f)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetDistanceKm(v float64) *DeliveryWindowUpdateOne {
+	_u.mutation.ResetDistanceKm()
+	_u.mutation.SetDistanceKm(v)
+	return _u
 }
 
 // SetNillableDistanceKm sets the "distance_km" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableDistanceKm(f *float64) *DeliveryWindowUpdateOne {
-	if f != nil {
-		dwuo.SetDistanceKm(*f)
+func (_u *DeliveryWindowUpdateOne) SetNillableDistanceKm(v *float64) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetDistanceKm(*v)
 	}
-	return dwuo
+	return _u
 }
 
-// AddDistanceKm adds f to the "distance_km" field.
-func (dwuo *DeliveryWindowUpdateOne) AddDistanceKm(f float64) *DeliveryWindowUpdateOne {
-	dwuo.mutation.AddDistanceKm(f)
-	return dwuo
+// AddDistanceKm adds value to the "distance_km" field.
+func (_u *DeliveryWindowUpdateOne) AddDistanceKm(v float64) *DeliveryWindowUpdateOne {
+	_u.mutation.AddDistanceKm(v)
+	return _u
 }
 
 // ClearDistanceKm clears the value of the "distance_km" field.
-func (dwuo *DeliveryWindowUpdateOne) ClearDistanceKm() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearDistanceKm()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearDistanceKm() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearDistanceKm()
+	return _u
 }
 
 // SetActualArrival sets the "actual_arrival" field.
-func (dwuo *DeliveryWindowUpdateOne) SetActualArrival(t time.Time) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetActualArrival(t)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetActualArrival(v time.Time) *DeliveryWindowUpdateOne {
+	_u.mutation.SetActualArrival(v)
+	return _u
 }
 
 // SetNillableActualArrival sets the "actual_arrival" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableActualArrival(t *time.Time) *DeliveryWindowUpdateOne {
-	if t != nil {
-		dwuo.SetActualArrival(*t)
+func (_u *DeliveryWindowUpdateOne) SetNillableActualArrival(v *time.Time) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetActualArrival(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // ClearActualArrival clears the value of the "actual_arrival" field.
-func (dwuo *DeliveryWindowUpdateOne) ClearActualArrival() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearActualArrival()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearActualArrival() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearActualArrival()
+	return _u
 }
 
 // SetActualDropoff sets the "actual_dropoff" field.
-func (dwuo *DeliveryWindowUpdateOne) SetActualDropoff(t time.Time) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetActualDropoff(t)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetActualDropoff(v time.Time) *DeliveryWindowUpdateOne {
+	_u.mutation.SetActualDropoff(v)
+	return _u
 }
 
 // SetNillableActualDropoff sets the "actual_dropoff" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableActualDropoff(t *time.Time) *DeliveryWindowUpdateOne {
-	if t != nil {
-		dwuo.SetActualDropoff(*t)
+func (_u *DeliveryWindowUpdateOne) SetNillableActualDropoff(v *time.Time) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetActualDropoff(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // ClearActualDropoff clears the value of the "actual_dropoff" field.
-func (dwuo *DeliveryWindowUpdateOne) ClearActualDropoff() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearActualDropoff()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearActualDropoff() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearActualDropoff()
+	return _u
 }
 
 // SetSource sets the "source" field.
-func (dwuo *DeliveryWindowUpdateOne) SetSource(s string) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetSource(s)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetSource(v string) *DeliveryWindowUpdateOne {
+	_u.mutation.SetSource(v)
+	return _u
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableSource(s *string) *DeliveryWindowUpdateOne {
-	if s != nil {
-		dwuo.SetSource(*s)
+func (_u *DeliveryWindowUpdateOne) SetNillableSource(v *string) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetSource(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetIsCurrent sets the "is_current" field.
-func (dwuo *DeliveryWindowUpdateOne) SetIsCurrent(b bool) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetIsCurrent(b)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetIsCurrent(v bool) *DeliveryWindowUpdateOne {
+	_u.mutation.SetIsCurrent(v)
+	return _u
 }
 
 // SetNillableIsCurrent sets the "is_current" field if the given value is not nil.
-func (dwuo *DeliveryWindowUpdateOne) SetNillableIsCurrent(b *bool) *DeliveryWindowUpdateOne {
-	if b != nil {
-		dwuo.SetIsCurrent(*b)
+func (_u *DeliveryWindowUpdateOne) SetNillableIsCurrent(v *bool) *DeliveryWindowUpdateOne {
+	if v != nil {
+		_u.SetIsCurrent(*v)
 	}
-	return dwuo
+	return _u
 }
 
 // SetRouteInfo sets the "route_info" field.
-func (dwuo *DeliveryWindowUpdateOne) SetRouteInfo(m map[string]interface{}) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetRouteInfo(m)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetRouteInfo(v map[string]interface{}) *DeliveryWindowUpdateOne {
+	_u.mutation.SetRouteInfo(v)
+	return _u
 }
 
 // ClearRouteInfo clears the value of the "route_info" field.
-func (dwuo *DeliveryWindowUpdateOne) ClearRouteInfo() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearRouteInfo()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearRouteInfo() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearRouteInfo()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dwuo *DeliveryWindowUpdateOne) SetUpdatedAt(t time.Time) *DeliveryWindowUpdateOne {
-	dwuo.mutation.SetUpdatedAt(t)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) SetUpdatedAt(v time.Time) *DeliveryWindowUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetAssignment sets the "assignment" edge to the OrderAssignment entity.
-func (dwuo *DeliveryWindowUpdateOne) SetAssignment(o *OrderAssignment) *DeliveryWindowUpdateOne {
-	return dwuo.SetAssignmentID(o.ID)
+func (_u *DeliveryWindowUpdateOne) SetAssignment(v *OrderAssignment) *DeliveryWindowUpdateOne {
+	return _u.SetAssignmentID(v.ID)
 }
 
 // Mutation returns the DeliveryWindowMutation object of the builder.
-func (dwuo *DeliveryWindowUpdateOne) Mutation() *DeliveryWindowMutation {
-	return dwuo.mutation
+func (_u *DeliveryWindowUpdateOne) Mutation() *DeliveryWindowMutation {
+	return _u.mutation
 }
 
 // ClearAssignment clears the "assignment" edge to the OrderAssignment entity.
-func (dwuo *DeliveryWindowUpdateOne) ClearAssignment() *DeliveryWindowUpdateOne {
-	dwuo.mutation.ClearAssignment()
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) ClearAssignment() *DeliveryWindowUpdateOne {
+	_u.mutation.ClearAssignment()
+	return _u
 }
 
 // Where appends a list predicates to the DeliveryWindowUpdate builder.
-func (dwuo *DeliveryWindowUpdateOne) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowUpdateOne {
-	dwuo.mutation.Where(ps...)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) Where(ps ...predicate.DeliveryWindow) *DeliveryWindowUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dwuo *DeliveryWindowUpdateOne) Select(field string, fields ...string) *DeliveryWindowUpdateOne {
-	dwuo.fields = append([]string{field}, fields...)
-	return dwuo
+func (_u *DeliveryWindowUpdateOne) Select(field string, fields ...string) *DeliveryWindowUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DeliveryWindow entity.
-func (dwuo *DeliveryWindowUpdateOne) Save(ctx context.Context) (*DeliveryWindow, error) {
-	dwuo.defaults()
-	return withHooks(ctx, dwuo.sqlSave, dwuo.mutation, dwuo.hooks)
+func (_u *DeliveryWindowUpdateOne) Save(ctx context.Context) (*DeliveryWindow, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dwuo *DeliveryWindowUpdateOne) SaveX(ctx context.Context) *DeliveryWindow {
-	node, err := dwuo.Save(ctx)
+func (_u *DeliveryWindowUpdateOne) SaveX(ctx context.Context) *DeliveryWindow {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -678,50 +678,50 @@ func (dwuo *DeliveryWindowUpdateOne) SaveX(ctx context.Context) *DeliveryWindow 
 }
 
 // Exec executes the query on the entity.
-func (dwuo *DeliveryWindowUpdateOne) Exec(ctx context.Context) error {
-	_, err := dwuo.Save(ctx)
+func (_u *DeliveryWindowUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dwuo *DeliveryWindowUpdateOne) ExecX(ctx context.Context) {
-	if err := dwuo.Exec(ctx); err != nil {
+func (_u *DeliveryWindowUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dwuo *DeliveryWindowUpdateOne) defaults() {
-	if _, ok := dwuo.mutation.UpdatedAt(); !ok {
+func (_u *DeliveryWindowUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := deliverywindow.UpdateDefaultUpdatedAt()
-		dwuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dwuo *DeliveryWindowUpdateOne) check() error {
-	if v, ok := dwuo.mutation.Source(); ok {
+func (_u *DeliveryWindowUpdateOne) check() error {
+	if v, ok := _u.mutation.Source(); ok {
 		if err := deliverywindow.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "DeliveryWindow.source": %w`, err)}
 		}
 	}
-	if _, ok := dwuo.mutation.AssignmentID(); dwuo.mutation.AssignmentCleared() && !ok {
+	if _u.mutation.AssignmentCleared() && len(_u.mutation.AssignmentIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DeliveryWindow.assignment"`)
 	}
 	return nil
 }
 
-func (dwuo *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *DeliveryWindow, err error) {
-	if err := dwuo.check(); err != nil {
+func (_u *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *DeliveryWindow, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deliverywindow.Table, deliverywindow.Columns, sqlgraph.NewFieldSpec(deliverywindow.FieldID, field.TypeUUID))
-	id, ok := dwuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DeliveryWindow.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dwuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, deliverywindow.FieldID)
 		for _, f := range fields {
@@ -733,71 +733,71 @@ func (dwuo *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *Delive
 			}
 		}
 	}
-	if ps := dwuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dwuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(deliverywindow.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := dwuo.mutation.OrderID(); ok {
+	if value, ok := _u.mutation.OrderID(); ok {
 		_spec.SetField(deliverywindow.FieldOrderID, field.TypeUUID, value)
 	}
-	if value, ok := dwuo.mutation.EtaStart(); ok {
+	if value, ok := _u.mutation.EtaStart(); ok {
 		_spec.SetField(deliverywindow.FieldEtaStart, field.TypeTime, value)
 	}
-	if value, ok := dwuo.mutation.EtaEnd(); ok {
+	if value, ok := _u.mutation.EtaEnd(); ok {
 		_spec.SetField(deliverywindow.FieldEtaEnd, field.TypeTime, value)
 	}
-	if value, ok := dwuo.mutation.EtaMinutes(); ok {
+	if value, ok := _u.mutation.EtaMinutes(); ok {
 		_spec.SetField(deliverywindow.FieldEtaMinutes, field.TypeInt, value)
 	}
-	if value, ok := dwuo.mutation.AddedEtaMinutes(); ok {
+	if value, ok := _u.mutation.AddedEtaMinutes(); ok {
 		_spec.AddField(deliverywindow.FieldEtaMinutes, field.TypeInt, value)
 	}
-	if dwuo.mutation.EtaMinutesCleared() {
+	if _u.mutation.EtaMinutesCleared() {
 		_spec.ClearField(deliverywindow.FieldEtaMinutes, field.TypeInt)
 	}
-	if value, ok := dwuo.mutation.DistanceKm(); ok {
+	if value, ok := _u.mutation.DistanceKm(); ok {
 		_spec.SetField(deliverywindow.FieldDistanceKm, field.TypeFloat64, value)
 	}
-	if value, ok := dwuo.mutation.AddedDistanceKm(); ok {
+	if value, ok := _u.mutation.AddedDistanceKm(); ok {
 		_spec.AddField(deliverywindow.FieldDistanceKm, field.TypeFloat64, value)
 	}
-	if dwuo.mutation.DistanceKmCleared() {
+	if _u.mutation.DistanceKmCleared() {
 		_spec.ClearField(deliverywindow.FieldDistanceKm, field.TypeFloat64)
 	}
-	if value, ok := dwuo.mutation.ActualArrival(); ok {
+	if value, ok := _u.mutation.ActualArrival(); ok {
 		_spec.SetField(deliverywindow.FieldActualArrival, field.TypeTime, value)
 	}
-	if dwuo.mutation.ActualArrivalCleared() {
+	if _u.mutation.ActualArrivalCleared() {
 		_spec.ClearField(deliverywindow.FieldActualArrival, field.TypeTime)
 	}
-	if value, ok := dwuo.mutation.ActualDropoff(); ok {
+	if value, ok := _u.mutation.ActualDropoff(); ok {
 		_spec.SetField(deliverywindow.FieldActualDropoff, field.TypeTime, value)
 	}
-	if dwuo.mutation.ActualDropoffCleared() {
+	if _u.mutation.ActualDropoffCleared() {
 		_spec.ClearField(deliverywindow.FieldActualDropoff, field.TypeTime)
 	}
-	if value, ok := dwuo.mutation.Source(); ok {
+	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(deliverywindow.FieldSource, field.TypeString, value)
 	}
-	if value, ok := dwuo.mutation.IsCurrent(); ok {
+	if value, ok := _u.mutation.IsCurrent(); ok {
 		_spec.SetField(deliverywindow.FieldIsCurrent, field.TypeBool, value)
 	}
-	if value, ok := dwuo.mutation.RouteInfo(); ok {
+	if value, ok := _u.mutation.RouteInfo(); ok {
 		_spec.SetField(deliverywindow.FieldRouteInfo, field.TypeJSON, value)
 	}
-	if dwuo.mutation.RouteInfoCleared() {
+	if _u.mutation.RouteInfoCleared() {
 		_spec.ClearField(deliverywindow.FieldRouteInfo, field.TypeJSON)
 	}
-	if value, ok := dwuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(deliverywindow.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if dwuo.mutation.AssignmentCleared() {
+	if _u.mutation.AssignmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -810,7 +810,7 @@ func (dwuo *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *Delive
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dwuo.mutation.AssignmentIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AssignmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -826,10 +826,10 @@ func (dwuo *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *Delive
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &DeliveryWindow{config: dwuo.config}
+	_node = &DeliveryWindow{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dwuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deliverywindow.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -837,6 +837,6 @@ func (dwuo *DeliveryWindowUpdateOne) sqlSave(ctx context.Context) (_node *Delive
 		}
 		return nil, err
 	}
-	dwuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

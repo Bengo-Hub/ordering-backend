@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -33,44 +34,44 @@ type LoyaltyAccountQuery struct {
 }
 
 // Where adds a new predicate for the LoyaltyAccountQuery builder.
-func (laq *LoyaltyAccountQuery) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountQuery {
-	laq.predicates = append(laq.predicates, ps...)
-	return laq
+func (_q *LoyaltyAccountQuery) Where(ps ...predicate.LoyaltyAccount) *LoyaltyAccountQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (laq *LoyaltyAccountQuery) Limit(limit int) *LoyaltyAccountQuery {
-	laq.ctx.Limit = &limit
-	return laq
+func (_q *LoyaltyAccountQuery) Limit(limit int) *LoyaltyAccountQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (laq *LoyaltyAccountQuery) Offset(offset int) *LoyaltyAccountQuery {
-	laq.ctx.Offset = &offset
-	return laq
+func (_q *LoyaltyAccountQuery) Offset(offset int) *LoyaltyAccountQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (laq *LoyaltyAccountQuery) Unique(unique bool) *LoyaltyAccountQuery {
-	laq.ctx.Unique = &unique
-	return laq
+func (_q *LoyaltyAccountQuery) Unique(unique bool) *LoyaltyAccountQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (laq *LoyaltyAccountQuery) Order(o ...loyaltyaccount.OrderOption) *LoyaltyAccountQuery {
-	laq.order = append(laq.order, o...)
-	return laq
+func (_q *LoyaltyAccountQuery) Order(o ...loyaltyaccount.OrderOption) *LoyaltyAccountQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryUser chains the current query on the "user" edge.
-func (laq *LoyaltyAccountQuery) QueryUser() *UserQuery {
-	query := (&UserClient{config: laq.config}).Query()
+func (_q *LoyaltyAccountQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := laq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := laq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -79,20 +80,20 @@ func (laq *LoyaltyAccountQuery) QueryUser() *UserQuery {
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, loyaltyaccount.UserTable, loyaltyaccount.UserColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(laq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryTransactions chains the current query on the "transactions" edge.
-func (laq *LoyaltyAccountQuery) QueryTransactions() *LoyaltyTransactionQuery {
-	query := (&LoyaltyTransactionClient{config: laq.config}).Query()
+func (_q *LoyaltyAccountQuery) QueryTransactions() *LoyaltyTransactionQuery {
+	query := (&LoyaltyTransactionClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := laq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := laq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -101,7 +102,7 @@ func (laq *LoyaltyAccountQuery) QueryTransactions() *LoyaltyTransactionQuery {
 			sqlgraph.To(loyaltytransaction.Table, loyaltytransaction.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, loyaltyaccount.TransactionsTable, loyaltyaccount.TransactionsColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(laq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -109,8 +110,8 @@ func (laq *LoyaltyAccountQuery) QueryTransactions() *LoyaltyTransactionQuery {
 
 // First returns the first LoyaltyAccount entity from the query.
 // Returns a *NotFoundError when no LoyaltyAccount was found.
-func (laq *LoyaltyAccountQuery) First(ctx context.Context) (*LoyaltyAccount, error) {
-	nodes, err := laq.Limit(1).All(setContextOp(ctx, laq.ctx, "First"))
+func (_q *LoyaltyAccountQuery) First(ctx context.Context) (*LoyaltyAccount, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +122,8 @@ func (laq *LoyaltyAccountQuery) First(ctx context.Context) (*LoyaltyAccount, err
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) FirstX(ctx context.Context) *LoyaltyAccount {
-	node, err := laq.First(ctx)
+func (_q *LoyaltyAccountQuery) FirstX(ctx context.Context) *LoyaltyAccount {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -131,9 +132,9 @@ func (laq *LoyaltyAccountQuery) FirstX(ctx context.Context) *LoyaltyAccount {
 
 // FirstID returns the first LoyaltyAccount ID from the query.
 // Returns a *NotFoundError when no LoyaltyAccount ID was found.
-func (laq *LoyaltyAccountQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *LoyaltyAccountQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = laq.Limit(1).IDs(setContextOp(ctx, laq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -144,8 +145,8 @@ func (laq *LoyaltyAccountQuery) FirstID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := laq.FirstID(ctx)
+func (_q *LoyaltyAccountQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -155,8 +156,8 @@ func (laq *LoyaltyAccountQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single LoyaltyAccount entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one LoyaltyAccount entity is found.
 // Returns a *NotFoundError when no LoyaltyAccount entities are found.
-func (laq *LoyaltyAccountQuery) Only(ctx context.Context) (*LoyaltyAccount, error) {
-	nodes, err := laq.Limit(2).All(setContextOp(ctx, laq.ctx, "Only"))
+func (_q *LoyaltyAccountQuery) Only(ctx context.Context) (*LoyaltyAccount, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -171,8 +172,8 @@ func (laq *LoyaltyAccountQuery) Only(ctx context.Context) (*LoyaltyAccount, erro
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) OnlyX(ctx context.Context) *LoyaltyAccount {
-	node, err := laq.Only(ctx)
+func (_q *LoyaltyAccountQuery) OnlyX(ctx context.Context) *LoyaltyAccount {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -182,9 +183,9 @@ func (laq *LoyaltyAccountQuery) OnlyX(ctx context.Context) *LoyaltyAccount {
 // OnlyID is like Only, but returns the only LoyaltyAccount ID in the query.
 // Returns a *NotSingularError when more than one LoyaltyAccount ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (laq *LoyaltyAccountQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *LoyaltyAccountQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = laq.Limit(2).IDs(setContextOp(ctx, laq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -199,8 +200,8 @@ func (laq *LoyaltyAccountQuery) OnlyID(ctx context.Context) (id uuid.UUID, err e
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := laq.OnlyID(ctx)
+func (_q *LoyaltyAccountQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -208,18 +209,18 @@ func (laq *LoyaltyAccountQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of LoyaltyAccounts.
-func (laq *LoyaltyAccountQuery) All(ctx context.Context) ([]*LoyaltyAccount, error) {
-	ctx = setContextOp(ctx, laq.ctx, "All")
-	if err := laq.prepareQuery(ctx); err != nil {
+func (_q *LoyaltyAccountQuery) All(ctx context.Context) ([]*LoyaltyAccount, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*LoyaltyAccount, *LoyaltyAccountQuery]()
-	return withInterceptors[[]*LoyaltyAccount](ctx, laq, qr, laq.inters)
+	return withInterceptors[[]*LoyaltyAccount](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) AllX(ctx context.Context) []*LoyaltyAccount {
-	nodes, err := laq.All(ctx)
+func (_q *LoyaltyAccountQuery) AllX(ctx context.Context) []*LoyaltyAccount {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -227,20 +228,20 @@ func (laq *LoyaltyAccountQuery) AllX(ctx context.Context) []*LoyaltyAccount {
 }
 
 // IDs executes the query and returns a list of LoyaltyAccount IDs.
-func (laq *LoyaltyAccountQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if laq.ctx.Unique == nil && laq.path != nil {
-		laq.Unique(true)
+func (_q *LoyaltyAccountQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, laq.ctx, "IDs")
-	if err = laq.Select(loyaltyaccount.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(loyaltyaccount.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := laq.IDs(ctx)
+func (_q *LoyaltyAccountQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -248,17 +249,17 @@ func (laq *LoyaltyAccountQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (laq *LoyaltyAccountQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, laq.ctx, "Count")
-	if err := laq.prepareQuery(ctx); err != nil {
+func (_q *LoyaltyAccountQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, laq, querierCount[*LoyaltyAccountQuery](), laq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*LoyaltyAccountQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) CountX(ctx context.Context) int {
-	count, err := laq.Count(ctx)
+func (_q *LoyaltyAccountQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -266,9 +267,9 @@ func (laq *LoyaltyAccountQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (laq *LoyaltyAccountQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, laq.ctx, "Exist")
-	switch _, err := laq.FirstID(ctx); {
+func (_q *LoyaltyAccountQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -279,8 +280,8 @@ func (laq *LoyaltyAccountQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (laq *LoyaltyAccountQuery) ExistX(ctx context.Context) bool {
-	exist, err := laq.Exist(ctx)
+func (_q *LoyaltyAccountQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -289,44 +290,44 @@ func (laq *LoyaltyAccountQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the LoyaltyAccountQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (laq *LoyaltyAccountQuery) Clone() *LoyaltyAccountQuery {
-	if laq == nil {
+func (_q *LoyaltyAccountQuery) Clone() *LoyaltyAccountQuery {
+	if _q == nil {
 		return nil
 	}
 	return &LoyaltyAccountQuery{
-		config:           laq.config,
-		ctx:              laq.ctx.Clone(),
-		order:            append([]loyaltyaccount.OrderOption{}, laq.order...),
-		inters:           append([]Interceptor{}, laq.inters...),
-		predicates:       append([]predicate.LoyaltyAccount{}, laq.predicates...),
-		withUser:         laq.withUser.Clone(),
-		withTransactions: laq.withTransactions.Clone(),
+		config:           _q.config,
+		ctx:              _q.ctx.Clone(),
+		order:            append([]loyaltyaccount.OrderOption{}, _q.order...),
+		inters:           append([]Interceptor{}, _q.inters...),
+		predicates:       append([]predicate.LoyaltyAccount{}, _q.predicates...),
+		withUser:         _q.withUser.Clone(),
+		withTransactions: _q.withTransactions.Clone(),
 		// clone intermediate query.
-		sql:  laq.sql.Clone(),
-		path: laq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithUser tells the query-builder to eager-load the nodes that are connected to
 // the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (laq *LoyaltyAccountQuery) WithUser(opts ...func(*UserQuery)) *LoyaltyAccountQuery {
-	query := (&UserClient{config: laq.config}).Query()
+func (_q *LoyaltyAccountQuery) WithUser(opts ...func(*UserQuery)) *LoyaltyAccountQuery {
+	query := (&UserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	laq.withUser = query
-	return laq
+	_q.withUser = query
+	return _q
 }
 
 // WithTransactions tells the query-builder to eager-load the nodes that are connected to
 // the "transactions" edge. The optional arguments are used to configure the query builder of the edge.
-func (laq *LoyaltyAccountQuery) WithTransactions(opts ...func(*LoyaltyTransactionQuery)) *LoyaltyAccountQuery {
-	query := (&LoyaltyTransactionClient{config: laq.config}).Query()
+func (_q *LoyaltyAccountQuery) WithTransactions(opts ...func(*LoyaltyTransactionQuery)) *LoyaltyAccountQuery {
+	query := (&LoyaltyTransactionClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	laq.withTransactions = query
-	return laq
+	_q.withTransactions = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -343,10 +344,10 @@ func (laq *LoyaltyAccountQuery) WithTransactions(opts ...func(*LoyaltyTransactio
 //		GroupBy(loyaltyaccount.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (laq *LoyaltyAccountQuery) GroupBy(field string, fields ...string) *LoyaltyAccountGroupBy {
-	laq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &LoyaltyAccountGroupBy{build: laq}
-	grbuild.flds = &laq.ctx.Fields
+func (_q *LoyaltyAccountQuery) GroupBy(field string, fields ...string) *LoyaltyAccountGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &LoyaltyAccountGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = loyaltyaccount.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -364,59 +365,59 @@ func (laq *LoyaltyAccountQuery) GroupBy(field string, fields ...string) *Loyalty
 //	client.LoyaltyAccount.Query().
 //		Select(loyaltyaccount.FieldTenantID).
 //		Scan(ctx, &v)
-func (laq *LoyaltyAccountQuery) Select(fields ...string) *LoyaltyAccountSelect {
-	laq.ctx.Fields = append(laq.ctx.Fields, fields...)
-	sbuild := &LoyaltyAccountSelect{LoyaltyAccountQuery: laq}
+func (_q *LoyaltyAccountQuery) Select(fields ...string) *LoyaltyAccountSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &LoyaltyAccountSelect{LoyaltyAccountQuery: _q}
 	sbuild.label = loyaltyaccount.Label
-	sbuild.flds, sbuild.scan = &laq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a LoyaltyAccountSelect configured with the given aggregations.
-func (laq *LoyaltyAccountQuery) Aggregate(fns ...AggregateFunc) *LoyaltyAccountSelect {
-	return laq.Select().Aggregate(fns...)
+func (_q *LoyaltyAccountQuery) Aggregate(fns ...AggregateFunc) *LoyaltyAccountSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (laq *LoyaltyAccountQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range laq.inters {
+func (_q *LoyaltyAccountQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, laq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range laq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !loyaltyaccount.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if laq.path != nil {
-		prev, err := laq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		laq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (laq *LoyaltyAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*LoyaltyAccount, error) {
+func (_q *LoyaltyAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*LoyaltyAccount, error) {
 	var (
 		nodes       = []*LoyaltyAccount{}
-		_spec       = laq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			laq.withUser != nil,
-			laq.withTransactions != nil,
+			_q.withUser != nil,
+			_q.withTransactions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*LoyaltyAccount).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &LoyaltyAccount{config: laq.config}
+		node := &LoyaltyAccount{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -424,20 +425,20 @@ func (laq *LoyaltyAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, laq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := laq.withUser; query != nil {
-		if err := laq.loadUser(ctx, query, nodes, nil,
+	if query := _q.withUser; query != nil {
+		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *LoyaltyAccount, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := laq.withTransactions; query != nil {
-		if err := laq.loadTransactions(ctx, query, nodes,
+	if query := _q.withTransactions; query != nil {
+		if err := _q.loadTransactions(ctx, query, nodes,
 			func(n *LoyaltyAccount) { n.Edges.Transactions = []*LoyaltyTransaction{} },
 			func(n *LoyaltyAccount, e *LoyaltyTransaction) { n.Edges.Transactions = append(n.Edges.Transactions, e) }); err != nil {
 			return nil, err
@@ -446,7 +447,7 @@ func (laq *LoyaltyAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	return nodes, nil
 }
 
-func (laq *LoyaltyAccountQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*LoyaltyAccount, init func(*LoyaltyAccount), assign func(*LoyaltyAccount, *User)) error {
+func (_q *LoyaltyAccountQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*LoyaltyAccount, init func(*LoyaltyAccount), assign func(*LoyaltyAccount, *User)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*LoyaltyAccount)
 	for i := range nodes {
@@ -475,7 +476,7 @@ func (laq *LoyaltyAccountQuery) loadUser(ctx context.Context, query *UserQuery, 
 	}
 	return nil
 }
-func (laq *LoyaltyAccountQuery) loadTransactions(ctx context.Context, query *LoyaltyTransactionQuery, nodes []*LoyaltyAccount, init func(*LoyaltyAccount), assign func(*LoyaltyAccount, *LoyaltyTransaction)) error {
+func (_q *LoyaltyAccountQuery) loadTransactions(ctx context.Context, query *LoyaltyTransactionQuery, nodes []*LoyaltyAccount, init func(*LoyaltyAccount), assign func(*LoyaltyAccount, *LoyaltyTransaction)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*LoyaltyAccount)
 	for i := range nodes {
@@ -506,24 +507,24 @@ func (laq *LoyaltyAccountQuery) loadTransactions(ctx context.Context, query *Loy
 	return nil
 }
 
-func (laq *LoyaltyAccountQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := laq.querySpec()
-	_spec.Node.Columns = laq.ctx.Fields
-	if len(laq.ctx.Fields) > 0 {
-		_spec.Unique = laq.ctx.Unique != nil && *laq.ctx.Unique
+func (_q *LoyaltyAccountQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, laq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (laq *LoyaltyAccountQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *LoyaltyAccountQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(loyaltyaccount.Table, loyaltyaccount.Columns, sqlgraph.NewFieldSpec(loyaltyaccount.FieldID, field.TypeUUID))
-	_spec.From = laq.sql
-	if unique := laq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if laq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := laq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, loyaltyaccount.FieldID)
 		for i := range fields {
@@ -531,24 +532,24 @@ func (laq *LoyaltyAccountQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if laq.withUser != nil {
+		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(loyaltyaccount.FieldUserID)
 		}
 	}
-	if ps := laq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := laq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := laq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := laq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -558,33 +559,33 @@ func (laq *LoyaltyAccountQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (laq *LoyaltyAccountQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(laq.driver.Dialect())
+func (_q *LoyaltyAccountQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(loyaltyaccount.Table)
-	columns := laq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = loyaltyaccount.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if laq.sql != nil {
-		selector = laq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if laq.ctx.Unique != nil && *laq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range laq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range laq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := laq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := laq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -597,41 +598,41 @@ type LoyaltyAccountGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (lagb *LoyaltyAccountGroupBy) Aggregate(fns ...AggregateFunc) *LoyaltyAccountGroupBy {
-	lagb.fns = append(lagb.fns, fns...)
-	return lagb
+func (_g *LoyaltyAccountGroupBy) Aggregate(fns ...AggregateFunc) *LoyaltyAccountGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (lagb *LoyaltyAccountGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, lagb.build.ctx, "GroupBy")
-	if err := lagb.build.prepareQuery(ctx); err != nil {
+func (_g *LoyaltyAccountGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*LoyaltyAccountQuery, *LoyaltyAccountGroupBy](ctx, lagb.build, lagb, lagb.build.inters, v)
+	return scanWithInterceptors[*LoyaltyAccountQuery, *LoyaltyAccountGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (lagb *LoyaltyAccountGroupBy) sqlScan(ctx context.Context, root *LoyaltyAccountQuery, v any) error {
+func (_g *LoyaltyAccountGroupBy) sqlScan(ctx context.Context, root *LoyaltyAccountQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(lagb.fns))
-	for _, fn := range lagb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*lagb.flds)+len(lagb.fns))
-		for _, f := range *lagb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*lagb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := lagb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -645,27 +646,27 @@ type LoyaltyAccountSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (las *LoyaltyAccountSelect) Aggregate(fns ...AggregateFunc) *LoyaltyAccountSelect {
-	las.fns = append(las.fns, fns...)
-	return las
+func (_s *LoyaltyAccountSelect) Aggregate(fns ...AggregateFunc) *LoyaltyAccountSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (las *LoyaltyAccountSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, las.ctx, "Select")
-	if err := las.prepareQuery(ctx); err != nil {
+func (_s *LoyaltyAccountSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*LoyaltyAccountQuery, *LoyaltyAccountSelect](ctx, las.LoyaltyAccountQuery, las, las.inters, v)
+	return scanWithInterceptors[*LoyaltyAccountQuery, *LoyaltyAccountSelect](ctx, _s.LoyaltyAccountQuery, _s, _s.inters, v)
 }
 
-func (las *LoyaltyAccountSelect) sqlScan(ctx context.Context, root *LoyaltyAccountQuery, v any) error {
+func (_s *LoyaltyAccountSelect) sqlScan(ctx context.Context, root *LoyaltyAccountQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(las.fns))
-	for _, fn := range las.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*las.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -673,7 +674,7 @@ func (las *LoyaltyAccountSelect) sqlScan(ctx context.Context, root *LoyaltyAccou
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := las.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

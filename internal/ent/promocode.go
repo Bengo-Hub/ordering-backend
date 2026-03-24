@@ -115,7 +115,7 @@ func (*PromoCode) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the PromoCode fields.
-func (pc *PromoCode) assignValues(columns []string, values []any) error {
+func (_m *PromoCode) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -125,115 +125,115 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				pc.ID = *value
+				_m.ID = *value
 			}
 		case promocode.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				pc.TenantID = *value
+				_m.TenantID = *value
 			}
 		case promocode.FieldOutletID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value.Valid {
-				pc.OutletID = new(uuid.UUID)
-				*pc.OutletID = *value.S.(*uuid.UUID)
+				_m.OutletID = new(uuid.UUID)
+				*_m.OutletID = *value.S.(*uuid.UUID)
 			}
 		case promocode.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
-				pc.Code = value.String
+				_m.Code = value.String
 			}
 		case promocode.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				pc.Name = value.String
+				_m.Name = value.String
 			}
 		case promocode.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				pc.Description = value.String
+				_m.Description = value.String
 			}
 		case promocode.FieldDiscountType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field discount_type", values[i])
 			} else if value.Valid {
-				pc.DiscountType = promocode.DiscountType(value.String)
+				_m.DiscountType = promocode.DiscountType(value.String)
 			}
 		case promocode.FieldDiscountValue:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field discount_value", values[i])
 			} else if value.Valid {
-				pc.DiscountValue = value.Float64
+				_m.DiscountValue = value.Float64
 			}
 		case promocode.FieldMaxDiscountAmount:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_discount_amount", values[i])
 			} else if value.Valid {
-				pc.MaxDiscountAmount = new(float64)
-				*pc.MaxDiscountAmount = value.Float64
+				_m.MaxDiscountAmount = new(float64)
+				*_m.MaxDiscountAmount = value.Float64
 			}
 		case promocode.FieldMinSubtotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field min_subtotal", values[i])
 			} else if value.Valid {
-				pc.MinSubtotal = value.Float64
+				_m.MinSubtotal = value.Float64
 			}
 		case promocode.FieldMaxUses:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_uses", values[i])
 			} else if value.Valid {
-				pc.MaxUses = new(int)
-				*pc.MaxUses = int(value.Int64)
+				_m.MaxUses = new(int)
+				*_m.MaxUses = int(value.Int64)
 			}
 		case promocode.FieldMaxUsesPerUser:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_uses_per_user", values[i])
 			} else if value.Valid {
-				pc.MaxUsesPerUser = new(int)
-				*pc.MaxUsesPerUser = int(value.Int64)
+				_m.MaxUsesPerUser = new(int)
+				*_m.MaxUsesPerUser = int(value.Int64)
 			}
 		case promocode.FieldUsageCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field usage_count", values[i])
 			} else if value.Valid {
-				pc.UsageCount = int(value.Int64)
+				_m.UsageCount = int(value.Int64)
 			}
 		case promocode.FieldIsActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_active", values[i])
 			} else if value.Valid {
-				pc.IsActive = value.Bool
+				_m.IsActive = value.Bool
 			}
 		case promocode.FieldFirstOrderOnly:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field first_order_only", values[i])
 			} else if value.Valid {
-				pc.FirstOrderOnly = value.Bool
+				_m.FirstOrderOnly = value.Bool
 			}
 		case promocode.FieldStartsAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field starts_at", values[i])
 			} else if value.Valid {
-				pc.StartsAt = new(time.Time)
-				*pc.StartsAt = value.Time
+				_m.StartsAt = new(time.Time)
+				*_m.StartsAt = value.Time
 			}
 		case promocode.FieldEndsAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field ends_at", values[i])
 			} else if value.Valid {
-				pc.EndsAt = new(time.Time)
-				*pc.EndsAt = value.Time
+				_m.EndsAt = new(time.Time)
+				*_m.EndsAt = value.Time
 			}
 		case promocode.FieldEligibleCategories:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field eligible_categories", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pc.EligibleCategories); err != nil {
+				if err := json.Unmarshal(*value, &_m.EligibleCategories); err != nil {
 					return fmt.Errorf("unmarshal field eligible_categories: %w", err)
 				}
 			}
@@ -241,7 +241,7 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field eligible_items", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pc.EligibleItems); err != nil {
+				if err := json.Unmarshal(*value, &_m.EligibleItems); err != nil {
 					return fmt.Errorf("unmarshal field eligible_items: %w", err)
 				}
 			}
@@ -249,7 +249,7 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pc.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -257,16 +257,16 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				pc.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case promocode.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				pc.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			pc.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -274,112 +274,112 @@ func (pc *PromoCode) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the PromoCode.
 // This includes values selected through modifiers, order, etc.
-func (pc *PromoCode) Value(name string) (ent.Value, error) {
-	return pc.selectValues.Get(name)
+func (_m *PromoCode) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryRedemptions queries the "redemptions" edge of the PromoCode entity.
-func (pc *PromoCode) QueryRedemptions() *PromoRedemptionQuery {
-	return NewPromoCodeClient(pc.config).QueryRedemptions(pc)
+func (_m *PromoCode) QueryRedemptions() *PromoRedemptionQuery {
+	return NewPromoCodeClient(_m.config).QueryRedemptions(_m)
 }
 
 // Update returns a builder for updating this PromoCode.
 // Note that you need to call PromoCode.Unwrap() before calling this method if this PromoCode
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (pc *PromoCode) Update() *PromoCodeUpdateOne {
-	return NewPromoCodeClient(pc.config).UpdateOne(pc)
+func (_m *PromoCode) Update() *PromoCodeUpdateOne {
+	return NewPromoCodeClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the PromoCode entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (pc *PromoCode) Unwrap() *PromoCode {
-	_tx, ok := pc.config.driver.(*txDriver)
+func (_m *PromoCode) Unwrap() *PromoCode {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: PromoCode is not a transactional entity")
 	}
-	pc.config.driver = _tx.drv
-	return pc
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (pc *PromoCode) String() string {
+func (_m *PromoCode) String() string {
 	var builder strings.Builder
 	builder.WriteString("PromoCode(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", pc.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", pc.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
-	if v := pc.OutletID; v != nil {
+	if v := _m.OutletID; v != nil {
 		builder.WriteString("outlet_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("code=")
-	builder.WriteString(pc.Code)
+	builder.WriteString(_m.Code)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(pc.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(pc.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("discount_type=")
-	builder.WriteString(fmt.Sprintf("%v", pc.DiscountType))
+	builder.WriteString(fmt.Sprintf("%v", _m.DiscountType))
 	builder.WriteString(", ")
 	builder.WriteString("discount_value=")
-	builder.WriteString(fmt.Sprintf("%v", pc.DiscountValue))
+	builder.WriteString(fmt.Sprintf("%v", _m.DiscountValue))
 	builder.WriteString(", ")
-	if v := pc.MaxDiscountAmount; v != nil {
+	if v := _m.MaxDiscountAmount; v != nil {
 		builder.WriteString("max_discount_amount=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("min_subtotal=")
-	builder.WriteString(fmt.Sprintf("%v", pc.MinSubtotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.MinSubtotal))
 	builder.WriteString(", ")
-	if v := pc.MaxUses; v != nil {
+	if v := _m.MaxUses; v != nil {
 		builder.WriteString("max_uses=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := pc.MaxUsesPerUser; v != nil {
+	if v := _m.MaxUsesPerUser; v != nil {
 		builder.WriteString("max_uses_per_user=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("usage_count=")
-	builder.WriteString(fmt.Sprintf("%v", pc.UsageCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.UsageCount))
 	builder.WriteString(", ")
 	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", pc.IsActive))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsActive))
 	builder.WriteString(", ")
 	builder.WriteString("first_order_only=")
-	builder.WriteString(fmt.Sprintf("%v", pc.FirstOrderOnly))
+	builder.WriteString(fmt.Sprintf("%v", _m.FirstOrderOnly))
 	builder.WriteString(", ")
-	if v := pc.StartsAt; v != nil {
+	if v := _m.StartsAt; v != nil {
 		builder.WriteString("starts_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := pc.EndsAt; v != nil {
+	if v := _m.EndsAt; v != nil {
 		builder.WriteString("ends_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("eligible_categories=")
-	builder.WriteString(fmt.Sprintf("%v", pc.EligibleCategories))
+	builder.WriteString(fmt.Sprintf("%v", _m.EligibleCategories))
 	builder.WriteString(", ")
 	builder.WriteString("eligible_items=")
-	builder.WriteString(fmt.Sprintf("%v", pc.EligibleItems))
+	builder.WriteString(fmt.Sprintf("%v", _m.EligibleItems))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", pc.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(pc.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(pc.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

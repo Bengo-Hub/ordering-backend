@@ -128,11 +128,11 @@ type CreateOrderRequestDTO struct {
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
 type OrderItemDTO struct {
-	CatalogItemID string  `json:"catalogItemId"`
-	Name          string  `json:"name"`
-	Quantity      int     `json:"quantity"`
-	UnitPrice     float64 `json:"unitPrice"`
-	TotalPrice    float64 `json:"totalPrice"`
+	InventorySKU string  `json:"inventorySku"`
+	Name         string  `json:"name"`
+	Quantity     int     `json:"quantity"`
+	UnitPrice    float64 `json:"unitPrice"`
+	TotalPrice   float64 `json:"totalPrice"`
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -440,17 +440,16 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
 	for _, it := range req.Items {
-		catalogItemID, err := uuid.Parse(it.CatalogItemID)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid catalogItemId in items")
+		if it.InventorySKU == "" {
+			handlers.RespondError(w, http.StatusBadRequest, "inventorySku is required for each item")
 			return
 		}
 		items = append(items, ordering.CreateOrderItemInput{
-			CatalogItemID: catalogItemID,
-			Name:          it.Name,
-			Quantity:      it.Quantity,
-			UnitPrice:     it.UnitPrice,
-			TotalPrice:    it.TotalPrice,
+			InventorySKU: it.InventorySKU,
+			Name:         it.Name,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
 		})
 	}
 

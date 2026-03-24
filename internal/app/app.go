@@ -193,21 +193,19 @@ func New(ctx context.Context) (*App, error) {
 	// Initialize cache service for catalog read caching
 	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
 
-	// Initialize catalog module
-	catalogRepo := catalog.NewEntRepository(ormClient)
-	catalogSvc := catalog.NewService(catalogRepo, log)
-	catalogSvc.SetCache(cacheSvc)
-	catalogHandler := cataloghandler.New(log, catalogSvc, ormClient)
-
-	// Initialize inventory client (for stock availability and reservations)
+	// Initialize inventory client (for stock availability, reservations, and catalog proxy)
 	inventoryClient := inventory.NewClient(cfg.Inventory, log)
+
+	// Initialize catalog module (proxy model: inventory-api + local overrides)
+	catalogProxySvc := catalog.NewProxyService(ormClient, inventoryClient, cacheSvc, log)
+	catalogHandler := cataloghandler.New(log, catalogProxySvc, ormClient)
 
 	// Initialize subscriptions client (for subscription enforcement on order creation)
 	subscriptionsClient := subscriptions.NewClient(cfg.Subscriptions, log)
 
 	// Initialize ordering module
 	orderingRepo := ordering.NewEntRepository(ormClient)
-	cartSvc := ordering.NewCartService(orderingRepo, catalogSvc, log)
+	cartSvc := ordering.NewCartService(orderingRepo, catalogProxySvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
@@ -263,7 +261,7 @@ func New(ctx context.Context) (*App, error) {
 		}
 
 		// Subscribe to inventory events for catalog projection sync
-		inventoryEventHandler := catalog.NewInventoryEventHandler(catalogSvc, log)
+		inventoryEventHandler := catalog.NewInventoryEventHandler(ormClient, log)
 		if err := inventoryEventHandler.SubscribeToInventoryEvents(natsConn); err != nil {
 			log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
 		}

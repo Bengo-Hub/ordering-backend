@@ -26,76 +26,76 @@ type PromoRedemptionCreate struct {
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (prc *PromoRedemptionCreate) SetPromoCodeID(u uuid.UUID) *PromoRedemptionCreate {
-	prc.mutation.SetPromoCodeID(u)
-	return prc
+func (_c *PromoRedemptionCreate) SetPromoCodeID(v uuid.UUID) *PromoRedemptionCreate {
+	_c.mutation.SetPromoCodeID(v)
+	return _c
 }
 
 // SetOrderID sets the "order_id" field.
-func (prc *PromoRedemptionCreate) SetOrderID(u uuid.UUID) *PromoRedemptionCreate {
-	prc.mutation.SetOrderID(u)
-	return prc
+func (_c *PromoRedemptionCreate) SetOrderID(v uuid.UUID) *PromoRedemptionCreate {
+	_c.mutation.SetOrderID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (prc *PromoRedemptionCreate) SetUserID(u uuid.UUID) *PromoRedemptionCreate {
-	prc.mutation.SetUserID(u)
-	return prc
+func (_c *PromoRedemptionCreate) SetUserID(v uuid.UUID) *PromoRedemptionCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetDiscountAmount sets the "discount_amount" field.
-func (prc *PromoRedemptionCreate) SetDiscountAmount(f float64) *PromoRedemptionCreate {
-	prc.mutation.SetDiscountAmount(f)
-	return prc
+func (_c *PromoRedemptionCreate) SetDiscountAmount(v float64) *PromoRedemptionCreate {
+	_c.mutation.SetDiscountAmount(v)
+	return _c
 }
 
 // SetRedeemedAt sets the "redeemed_at" field.
-func (prc *PromoRedemptionCreate) SetRedeemedAt(t time.Time) *PromoRedemptionCreate {
-	prc.mutation.SetRedeemedAt(t)
-	return prc
+func (_c *PromoRedemptionCreate) SetRedeemedAt(v time.Time) *PromoRedemptionCreate {
+	_c.mutation.SetRedeemedAt(v)
+	return _c
 }
 
 // SetNillableRedeemedAt sets the "redeemed_at" field if the given value is not nil.
-func (prc *PromoRedemptionCreate) SetNillableRedeemedAt(t *time.Time) *PromoRedemptionCreate {
-	if t != nil {
-		prc.SetRedeemedAt(*t)
+func (_c *PromoRedemptionCreate) SetNillableRedeemedAt(v *time.Time) *PromoRedemptionCreate {
+	if v != nil {
+		_c.SetRedeemedAt(*v)
 	}
-	return prc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (prc *PromoRedemptionCreate) SetID(u uuid.UUID) *PromoRedemptionCreate {
-	prc.mutation.SetID(u)
-	return prc
+func (_c *PromoRedemptionCreate) SetID(v uuid.UUID) *PromoRedemptionCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (prc *PromoRedemptionCreate) SetNillableID(u *uuid.UUID) *PromoRedemptionCreate {
-	if u != nil {
-		prc.SetID(*u)
+func (_c *PromoRedemptionCreate) SetNillableID(v *uuid.UUID) *PromoRedemptionCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return prc
+	return _c
 }
 
 // SetPromoCode sets the "promo_code" edge to the PromoCode entity.
-func (prc *PromoRedemptionCreate) SetPromoCode(p *PromoCode) *PromoRedemptionCreate {
-	return prc.SetPromoCodeID(p.ID)
+func (_c *PromoRedemptionCreate) SetPromoCode(v *PromoCode) *PromoRedemptionCreate {
+	return _c.SetPromoCodeID(v.ID)
 }
 
 // Mutation returns the PromoRedemptionMutation object of the builder.
-func (prc *PromoRedemptionCreate) Mutation() *PromoRedemptionMutation {
-	return prc.mutation
+func (_c *PromoRedemptionCreate) Mutation() *PromoRedemptionMutation {
+	return _c.mutation
 }
 
 // Save creates the PromoRedemption in the database.
-func (prc *PromoRedemptionCreate) Save(ctx context.Context) (*PromoRedemption, error) {
-	prc.defaults()
-	return withHooks(ctx, prc.sqlSave, prc.mutation, prc.hooks)
+func (_c *PromoRedemptionCreate) Save(ctx context.Context) (*PromoRedemption, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (prc *PromoRedemptionCreate) SaveX(ctx context.Context) *PromoRedemption {
-	v, err := prc.Save(ctx)
+func (_c *PromoRedemptionCreate) SaveX(ctx context.Context) *PromoRedemption {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -103,59 +103,59 @@ func (prc *PromoRedemptionCreate) SaveX(ctx context.Context) *PromoRedemption {
 }
 
 // Exec executes the query.
-func (prc *PromoRedemptionCreate) Exec(ctx context.Context) error {
-	_, err := prc.Save(ctx)
+func (_c *PromoRedemptionCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (prc *PromoRedemptionCreate) ExecX(ctx context.Context) {
-	if err := prc.Exec(ctx); err != nil {
+func (_c *PromoRedemptionCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (prc *PromoRedemptionCreate) defaults() {
-	if _, ok := prc.mutation.RedeemedAt(); !ok {
+func (_c *PromoRedemptionCreate) defaults() {
+	if _, ok := _c.mutation.RedeemedAt(); !ok {
 		v := promoredemption.DefaultRedeemedAt()
-		prc.mutation.SetRedeemedAt(v)
+		_c.mutation.SetRedeemedAt(v)
 	}
-	if _, ok := prc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := promoredemption.DefaultID()
-		prc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (prc *PromoRedemptionCreate) check() error {
-	if _, ok := prc.mutation.PromoCodeID(); !ok {
+func (_c *PromoRedemptionCreate) check() error {
+	if _, ok := _c.mutation.PromoCodeID(); !ok {
 		return &ValidationError{Name: "promo_code_id", err: errors.New(`ent: missing required field "PromoRedemption.promo_code_id"`)}
 	}
-	if _, ok := prc.mutation.OrderID(); !ok {
+	if _, ok := _c.mutation.OrderID(); !ok {
 		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "PromoRedemption.order_id"`)}
 	}
-	if _, ok := prc.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "PromoRedemption.user_id"`)}
 	}
-	if _, ok := prc.mutation.DiscountAmount(); !ok {
+	if _, ok := _c.mutation.DiscountAmount(); !ok {
 		return &ValidationError{Name: "discount_amount", err: errors.New(`ent: missing required field "PromoRedemption.discount_amount"`)}
 	}
-	if _, ok := prc.mutation.RedeemedAt(); !ok {
+	if _, ok := _c.mutation.RedeemedAt(); !ok {
 		return &ValidationError{Name: "redeemed_at", err: errors.New(`ent: missing required field "PromoRedemption.redeemed_at"`)}
 	}
-	if _, ok := prc.mutation.PromoCodeID(); !ok {
+	if len(_c.mutation.PromoCodeIDs()) == 0 {
 		return &ValidationError{Name: "promo_code", err: errors.New(`ent: missing required edge "PromoRedemption.promo_code"`)}
 	}
 	return nil
 }
 
-func (prc *PromoRedemptionCreate) sqlSave(ctx context.Context) (*PromoRedemption, error) {
-	if err := prc.check(); err != nil {
+func (_c *PromoRedemptionCreate) sqlSave(ctx context.Context) (*PromoRedemption, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := prc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, prc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -168,38 +168,38 @@ func (prc *PromoRedemptionCreate) sqlSave(ctx context.Context) (*PromoRedemption
 			return nil, err
 		}
 	}
-	prc.mutation.id = &_node.ID
-	prc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (prc *PromoRedemptionCreate) createSpec() (*PromoRedemption, *sqlgraph.CreateSpec) {
+func (_c *PromoRedemptionCreate) createSpec() (*PromoRedemption, *sqlgraph.CreateSpec) {
 	var (
-		_node = &PromoRedemption{config: prc.config}
+		_node = &PromoRedemption{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(promoredemption.Table, sqlgraph.NewFieldSpec(promoredemption.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = prc.conflict
-	if id, ok := prc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := prc.mutation.OrderID(); ok {
+	if value, ok := _c.mutation.OrderID(); ok {
 		_spec.SetField(promoredemption.FieldOrderID, field.TypeUUID, value)
 		_node.OrderID = value
 	}
-	if value, ok := prc.mutation.UserID(); ok {
+	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(promoredemption.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
-	if value, ok := prc.mutation.DiscountAmount(); ok {
+	if value, ok := _c.mutation.DiscountAmount(); ok {
 		_spec.SetField(promoredemption.FieldDiscountAmount, field.TypeFloat64, value)
 		_node.DiscountAmount = value
 	}
-	if value, ok := prc.mutation.RedeemedAt(); ok {
+	if value, ok := _c.mutation.RedeemedAt(); ok {
 		_spec.SetField(promoredemption.FieldRedeemedAt, field.TypeTime, value)
 		_node.RedeemedAt = value
 	}
-	if nodes := prc.mutation.PromoCodeIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.PromoCodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -235,10 +235,10 @@ func (prc *PromoRedemptionCreate) createSpec() (*PromoRedemption, *sqlgraph.Crea
 //			SetPromoCodeID(v+v).
 //		}).
 //		Exec(ctx)
-func (prc *PromoRedemptionCreate) OnConflict(opts ...sql.ConflictOption) *PromoRedemptionUpsertOne {
-	prc.conflict = opts
+func (_c *PromoRedemptionCreate) OnConflict(opts ...sql.ConflictOption) *PromoRedemptionUpsertOne {
+	_c.conflict = opts
 	return &PromoRedemptionUpsertOne{
-		create: prc,
+		create: _c,
 	}
 }
 
@@ -248,10 +248,10 @@ func (prc *PromoRedemptionCreate) OnConflict(opts ...sql.ConflictOption) *PromoR
 //	client.PromoRedemption.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (prc *PromoRedemptionCreate) OnConflictColumns(columns ...string) *PromoRedemptionUpsertOne {
-	prc.conflict = append(prc.conflict, sql.ConflictColumns(columns...))
+func (_c *PromoRedemptionCreate) OnConflictColumns(columns ...string) *PromoRedemptionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PromoRedemptionUpsertOne{
-		create: prc,
+		create: _c,
 	}
 }
 
@@ -483,16 +483,16 @@ type PromoRedemptionCreateBulk struct {
 }
 
 // Save creates the PromoRedemption entities in the database.
-func (prcb *PromoRedemptionCreateBulk) Save(ctx context.Context) ([]*PromoRedemption, error) {
-	if prcb.err != nil {
-		return nil, prcb.err
+func (_c *PromoRedemptionCreateBulk) Save(ctx context.Context) ([]*PromoRedemption, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(prcb.builders))
-	nodes := make([]*PromoRedemption, len(prcb.builders))
-	mutators := make([]Mutator, len(prcb.builders))
-	for i := range prcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*PromoRedemption, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := prcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PromoRedemptionMutation)
@@ -506,12 +506,12 @@ func (prcb *PromoRedemptionCreateBulk) Save(ctx context.Context) ([]*PromoRedemp
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, prcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = prcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, prcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -531,7 +531,7 @@ func (prcb *PromoRedemptionCreateBulk) Save(ctx context.Context) ([]*PromoRedemp
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, prcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -539,8 +539,8 @@ func (prcb *PromoRedemptionCreateBulk) Save(ctx context.Context) ([]*PromoRedemp
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (prcb *PromoRedemptionCreateBulk) SaveX(ctx context.Context) []*PromoRedemption {
-	v, err := prcb.Save(ctx)
+func (_c *PromoRedemptionCreateBulk) SaveX(ctx context.Context) []*PromoRedemption {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -548,14 +548,14 @@ func (prcb *PromoRedemptionCreateBulk) SaveX(ctx context.Context) []*PromoRedemp
 }
 
 // Exec executes the query.
-func (prcb *PromoRedemptionCreateBulk) Exec(ctx context.Context) error {
-	_, err := prcb.Save(ctx)
+func (_c *PromoRedemptionCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (prcb *PromoRedemptionCreateBulk) ExecX(ctx context.Context) {
-	if err := prcb.Exec(ctx); err != nil {
+func (_c *PromoRedemptionCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -575,10 +575,10 @@ func (prcb *PromoRedemptionCreateBulk) ExecX(ctx context.Context) {
 //			SetPromoCodeID(v+v).
 //		}).
 //		Exec(ctx)
-func (prcb *PromoRedemptionCreateBulk) OnConflict(opts ...sql.ConflictOption) *PromoRedemptionUpsertBulk {
-	prcb.conflict = opts
+func (_c *PromoRedemptionCreateBulk) OnConflict(opts ...sql.ConflictOption) *PromoRedemptionUpsertBulk {
+	_c.conflict = opts
 	return &PromoRedemptionUpsertBulk{
-		create: prcb,
+		create: _c,
 	}
 }
 
@@ -588,10 +588,10 @@ func (prcb *PromoRedemptionCreateBulk) OnConflict(opts ...sql.ConflictOption) *P
 //	client.PromoRedemption.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (prcb *PromoRedemptionCreateBulk) OnConflictColumns(columns ...string) *PromoRedemptionUpsertBulk {
-	prcb.conflict = append(prcb.conflict, sql.ConflictColumns(columns...))
+func (_c *PromoRedemptionCreateBulk) OnConflictColumns(columns ...string) *PromoRedemptionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PromoRedemptionUpsertBulk{
-		create: prcb,
+		create: _c,
 	}
 }
 

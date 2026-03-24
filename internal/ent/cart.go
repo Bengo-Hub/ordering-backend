@@ -112,7 +112,7 @@ func (*Cart) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Cart fields.
-func (c *Cart) assignValues(columns []string, values []any) error {
+func (_m *Cart) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -122,103 +122,103 @@ func (c *Cart) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				c.ID = *value
+				_m.ID = *value
 			}
 		case cart.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				c.TenantID = *value
+				_m.TenantID = *value
 			}
 		case cart.FieldOutletID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field outlet_id", values[i])
 			} else if value != nil {
-				c.OutletID = *value
+				_m.OutletID = *value
 			}
 		case cart.FieldUserID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				c.UserID = new(uuid.UUID)
-				*c.UserID = *value.S.(*uuid.UUID)
+				_m.UserID = new(uuid.UUID)
+				*_m.UserID = *value.S.(*uuid.UUID)
 			}
 		case cart.FieldSessionID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field session_id", values[i])
 			} else if value.Valid {
-				c.SessionID = value.String
+				_m.SessionID = value.String
 			}
 		case cart.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				c.Status = cart.Status(value.String)
+				_m.Status = cart.Status(value.String)
 			}
 		case cart.FieldCurrency:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field currency", values[i])
 			} else if value.Valid {
-				c.Currency = value.String
+				_m.Currency = value.String
 			}
 		case cart.FieldSubtotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field subtotal", values[i])
 			} else if value.Valid {
-				c.Subtotal = value.Float64
+				_m.Subtotal = value.Float64
 			}
 		case cart.FieldDiscountTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field discount_total", values[i])
 			} else if value.Valid {
-				c.DiscountTotal = value.Float64
+				_m.DiscountTotal = value.Float64
 			}
 		case cart.FieldTaxTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field tax_total", values[i])
 			} else if value.Valid {
-				c.TaxTotal = value.Float64
+				_m.TaxTotal = value.Float64
 			}
 		case cart.FieldDeliveryFee:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field delivery_fee", values[i])
 			} else if value.Valid {
-				c.DeliveryFee = value.Float64
+				_m.DeliveryFee = value.Float64
 			}
 		case cart.FieldLoyaltyPointsRedeemed:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field loyalty_points_redeemed", values[i])
 			} else if value.Valid {
-				c.LoyaltyPointsRedeemed = int(value.Int64)
+				_m.LoyaltyPointsRedeemed = int(value.Int64)
 			}
 		case cart.FieldPromoCodeID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field promo_code_id", values[i])
 			} else if value.Valid {
-				c.PromoCodeID = new(uuid.UUID)
-				*c.PromoCodeID = *value.S.(*uuid.UUID)
+				_m.PromoCodeID = new(uuid.UUID)
+				*_m.PromoCodeID = *value.S.(*uuid.UUID)
 			}
 		case cart.FieldExpiresAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expires_at", values[i])
 			} else if value.Valid {
-				c.ExpiresAt = new(time.Time)
-				*c.ExpiresAt = value.Time
+				_m.ExpiresAt = new(time.Time)
+				*_m.ExpiresAt = value.Time
 			}
 		case cart.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				c.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case cart.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				c.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			c.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -226,93 +226,93 @@ func (c *Cart) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Cart.
 // This includes values selected through modifiers, order, etc.
-func (c *Cart) Value(name string) (ent.Value, error) {
-	return c.selectValues.Get(name)
+func (_m *Cart) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryItems queries the "items" edge of the Cart entity.
-func (c *Cart) QueryItems() *CartItemQuery {
-	return NewCartClient(c.config).QueryItems(c)
+func (_m *Cart) QueryItems() *CartItemQuery {
+	return NewCartClient(_m.config).QueryItems(_m)
 }
 
 // QueryUser queries the "user" edge of the Cart entity.
-func (c *Cart) QueryUser() *UserQuery {
-	return NewCartClient(c.config).QueryUser(c)
+func (_m *Cart) QueryUser() *UserQuery {
+	return NewCartClient(_m.config).QueryUser(_m)
 }
 
 // Update returns a builder for updating this Cart.
 // Note that you need to call Cart.Unwrap() before calling this method if this Cart
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (c *Cart) Update() *CartUpdateOne {
-	return NewCartClient(c.config).UpdateOne(c)
+func (_m *Cart) Update() *CartUpdateOne {
+	return NewCartClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Cart entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (c *Cart) Unwrap() *Cart {
-	_tx, ok := c.config.driver.(*txDriver)
+func (_m *Cart) Unwrap() *Cart {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Cart is not a transactional entity")
 	}
-	c.config.driver = _tx.drv
-	return c
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (c *Cart) String() string {
+func (_m *Cart) String() string {
 	var builder strings.Builder
 	builder.WriteString("Cart(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", c.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("outlet_id=")
-	builder.WriteString(fmt.Sprintf("%v", c.OutletID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OutletID))
 	builder.WriteString(", ")
-	if v := c.UserID; v != nil {
+	if v := _m.UserID; v != nil {
 		builder.WriteString("user_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("session_id=")
-	builder.WriteString(c.SessionID)
+	builder.WriteString(_m.SessionID)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", c.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("currency=")
-	builder.WriteString(c.Currency)
+	builder.WriteString(_m.Currency)
 	builder.WriteString(", ")
 	builder.WriteString("subtotal=")
-	builder.WriteString(fmt.Sprintf("%v", c.Subtotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.Subtotal))
 	builder.WriteString(", ")
 	builder.WriteString("discount_total=")
-	builder.WriteString(fmt.Sprintf("%v", c.DiscountTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.DiscountTotal))
 	builder.WriteString(", ")
 	builder.WriteString("tax_total=")
-	builder.WriteString(fmt.Sprintf("%v", c.TaxTotal))
+	builder.WriteString(fmt.Sprintf("%v", _m.TaxTotal))
 	builder.WriteString(", ")
 	builder.WriteString("delivery_fee=")
-	builder.WriteString(fmt.Sprintf("%v", c.DeliveryFee))
+	builder.WriteString(fmt.Sprintf("%v", _m.DeliveryFee))
 	builder.WriteString(", ")
 	builder.WriteString("loyalty_points_redeemed=")
-	builder.WriteString(fmt.Sprintf("%v", c.LoyaltyPointsRedeemed))
+	builder.WriteString(fmt.Sprintf("%v", _m.LoyaltyPointsRedeemed))
 	builder.WriteString(", ")
-	if v := c.PromoCodeID; v != nil {
+	if v := _m.PromoCodeID; v != nil {
 		builder.WriteString("promo_code_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := c.ExpiresAt; v != nil {
+	if v := _m.ExpiresAt; v != nil {
 		builder.WriteString("expires_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(c.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(c.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -227,13 +227,10 @@ func (h *EventHandler) HandleAuthTenantCreated(ctx context.Context, event *AuthT
 	}
 
 	tenant := &Tenant{
-		ID:           tenantID,
-		Slug:         event.Slug,
-		Name:         event.Name,
-		Status:       event.Status,
-		ContactEmail: event.ContactEmail,
-		ContactPhone: event.ContactPhone,
-		Metadata:     event.Metadata,
+		ID:     tenantID,
+		Slug:   event.Slug,
+		Name:   event.Name,
+		Status: event.Status,
 	}
 
 	if tenant.Status == "" {
@@ -276,13 +273,10 @@ func (h *EventHandler) HandleAuthTenantUpdated(ctx context.Context, event *AuthT
 		}
 
 		tenant = &Tenant{
-			ID:           tenantID,
-			Slug:         event.Slug,
-			Name:         event.Name,
-			Status:       event.Status,
-			ContactEmail: event.ContactEmail,
-			ContactPhone: event.ContactPhone,
-			Metadata:     event.Metadata,
+			ID:     tenantID,
+			Slug:   event.Slug,
+			Name:   event.Name,
+			Status: event.Status,
 		}
 		if tenant.Status == "" {
 			tenant.Status = "active"
@@ -297,15 +291,6 @@ func (h *EventHandler) HandleAuthTenantUpdated(ctx context.Context, event *AuthT
 		}
 		if event.Status != "" {
 			tenant.Status = event.Status
-		}
-		if event.ContactEmail != "" {
-			tenant.ContactEmail = event.ContactEmail
-		}
-		if event.ContactPhone != "" {
-			tenant.ContactPhone = event.ContactPhone
-		}
-		if event.Metadata != nil {
-			tenant.Metadata = event.Metadata
 		}
 	}
 

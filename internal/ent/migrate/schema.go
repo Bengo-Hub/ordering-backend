@@ -119,6 +119,7 @@ var (
 	// CartItemsColumns holds the columns for the "cart_items" table.
 	CartItemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "inventory_sku", Type: field.TypeString, Size: 100},
 		{Name: "variant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name_snapshot", Type: field.TypeString, Size: 255},
 		{Name: "variant_name_snapshot", Type: field.TypeString, Nullable: true, Size: 255},
@@ -131,7 +132,6 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "cart_id", Type: field.TypeUUID},
-		{Name: "catalog_item_id", Type: field.TypeUUID},
 	}
 	// CartItemsTable holds the schema information for the "cart_items" table.
 	CartItemsTable = &schema.Table{
@@ -141,14 +141,8 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "cart_items_carts_items",
-				Columns:    []*schema.Column{CartItemsColumns[12]},
-				RefColumns: []*schema.Column{CartsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "cart_items_catalog_items_cart_items",
 				Columns:    []*schema.Column{CartItemsColumns[13]},
-				RefColumns: []*schema.Column{CatalogItemsColumns[0]},
+				RefColumns: []*schema.Column{CartsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -156,203 +150,64 @@ var (
 			{
 				Name:    "cartitem_cart_id",
 				Unique:  false,
-				Columns: []*schema.Column{CartItemsColumns[12]},
-			},
-			{
-				Name:    "cartitem_catalog_item_id",
-				Unique:  false,
 				Columns: []*schema.Column{CartItemsColumns[13]},
 			},
-		},
-	}
-	// CatalogCategoriesColumns holds the columns for the "catalog_categories" table.
-	CatalogCategoriesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "slug", Type: field.TypeString, Nullable: true},
-		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "image_url", Type: field.TypeString, Nullable: true, Size: 500},
-		{Name: "display_order", Type: field.TypeInt, Default: 0},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "outlet_id", Type: field.TypeUUID, Nullable: true},
-	}
-	// CatalogCategoriesTable holds the schema information for the "catalog_categories" table.
-	CatalogCategoriesTable = &schema.Table{
-		Name:       "catalog_categories",
-		Columns:    CatalogCategoriesColumns,
-		PrimaryKey: []*schema.Column{CatalogCategoriesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "catalog_categories_catalog_categories_children",
-				Columns:    []*schema.Column{CatalogCategoriesColumns[10]},
-				RefColumns: []*schema.Column{CatalogCategoriesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "catalog_categories_outlets_catalog_categories",
-				Columns:    []*schema.Column{CatalogCategoriesColumns[11]},
-				RefColumns: []*schema.Column{OutletsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "catalogcategory_tenant_id_outlet_id",
+				Name:    "cartitem_inventory_sku",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[11]},
-			},
-			{
-				Name:    "catalogcategory_tenant_id_is_active",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[1], CatalogCategoriesColumns[7]},
-			},
-			{
-				Name:    "catalogcategory_display_order",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogCategoriesColumns[6]},
+				Columns: []*schema.Column{CartItemsColumns[1]},
 			},
 		},
 	}
-	// CatalogItemsColumns holds the columns for the "catalog_items" table.
-	CatalogItemsColumns = []*schema.Column{
+	// CatalogOverridesColumns holds the columns for the "catalog_overrides" table.
+	CatalogOverridesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "tenant_id", Type: field.TypeUUID},
-		{Name: "inventory_item_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "outlet_id", Type: field.TypeUUID},
+		{Name: "inventory_sku", Type: field.TypeString, Size: 100},
 		{Name: "base_price", Type: field.TypeFloat64, Default: 0},
 		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
 		{Name: "is_available", Type: field.TypeBool, Default: true},
 		{Name: "is_featured", Type: field.TypeBool, Default: false},
 		{Name: "lead_time_minutes", Type: field.TypeInt, Nullable: true},
-		{Name: "image_url", Type: field.TypeString, Nullable: true, Size: 500},
-		{Name: "sku", Type: field.TypeString, Nullable: true, Size: 100},
-		{Name: "recipe_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "display_section", Type: field.TypeString, Size: 50, Default: "default"},
+		{Name: "packaging_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "service_fee_percent", Type: field.TypeFloat64, Default: 0},
+		{Name: "image_url_override", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "category_id", Type: field.TypeUUID},
-		{Name: "outlet_id", Type: field.TypeUUID},
 	}
-	// CatalogItemsTable holds the schema information for the "catalog_items" table.
-	CatalogItemsTable = &schema.Table{
-		Name:       "catalog_items",
-		Columns:    CatalogItemsColumns,
-		PrimaryKey: []*schema.Column{CatalogItemsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "catalog_items_catalog_categories_items",
-				Columns:    []*schema.Column{CatalogItemsColumns[16]},
-				RefColumns: []*schema.Column{CatalogCategoriesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "catalog_items_outlets_catalog_items",
-				Columns:    []*schema.Column{CatalogItemsColumns[17]},
-				RefColumns: []*schema.Column{OutletsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
+	// CatalogOverridesTable holds the schema information for the "catalog_overrides" table.
+	CatalogOverridesTable = &schema.Table{
+		Name:       "catalog_overrides",
+		Columns:    CatalogOverridesColumns,
+		PrimaryKey: []*schema.Column{CatalogOverridesColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "catalogitem_tenant_id_outlet_id",
+				Name:    "catalogoverride_tenant_id_outlet_id_inventory_sku",
+				Unique:  true,
+				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[2], CatalogOverridesColumns[3]},
+			},
+			{
+				Name:    "catalogoverride_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogItemsColumns[1], CatalogItemsColumns[17]},
+				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[2]},
 			},
 			{
-				Name:    "catalogitem_tenant_id_category_id",
+				Name:    "catalogoverride_tenant_id_is_available",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogItemsColumns[1], CatalogItemsColumns[16]},
+				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[6]},
 			},
 			{
-				Name:    "catalogitem_tenant_id_is_available",
+				Name:    "catalogoverride_tenant_id_display_section",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogItemsColumns[1], CatalogItemsColumns[7]},
+				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[10]},
 			},
 			{
-				Name:    "catalogitem_sku",
+				Name:    "catalogoverride_inventory_sku",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogItemsColumns[11]},
-			},
-			{
-				Name:    "catalogitem_display_order",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogItemsColumns[13]},
-			},
-		},
-	}
-	// CatalogItemAssetsColumns holds the columns for the "catalog_item_assets" table.
-	CatalogItemAssetsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "asset_type", Type: field.TypeString, Size: 50},
-		{Name: "url", Type: field.TypeString, Size: 500},
-		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "display_order", Type: field.TypeInt, Default: 0},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "catalog_item_id", Type: field.TypeUUID},
-	}
-	// CatalogItemAssetsTable holds the schema information for the "catalog_item_assets" table.
-	CatalogItemAssetsTable = &schema.Table{
-		Name:       "catalog_item_assets",
-		Columns:    CatalogItemAssetsColumns,
-		PrimaryKey: []*schema.Column{CatalogItemAssetsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "catalog_item_assets_catalog_items_assets",
-				Columns:    []*schema.Column{CatalogItemAssetsColumns[6]},
-				RefColumns: []*schema.Column{CatalogItemsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "catalogitemasset_catalog_item_id",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogItemAssetsColumns[6]},
-			},
-			{
-				Name:    "catalogitemasset_asset_type",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogItemAssetsColumns[1]},
-			},
-		},
-	}
-	// CatalogItemSchedulesColumns holds the columns for the "catalog_item_schedules" table.
-	CatalogItemSchedulesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "day_of_week", Type: field.TypeInt},
-		{Name: "time_start", Type: field.TypeString, Size: 5},
-		{Name: "time_end", Type: field.TypeString, Size: 5},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "catalog_item_id", Type: field.TypeUUID},
-	}
-	// CatalogItemSchedulesTable holds the schema information for the "catalog_item_schedules" table.
-	CatalogItemSchedulesTable = &schema.Table{
-		Name:       "catalog_item_schedules",
-		Columns:    CatalogItemSchedulesColumns,
-		PrimaryKey: []*schema.Column{CatalogItemSchedulesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "catalog_item_schedules_catalog_items_schedules",
-				Columns:    []*schema.Column{CatalogItemSchedulesColumns[5]},
-				RefColumns: []*schema.Column{CatalogItemsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "catalogitemschedule_catalog_item_id",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogItemSchedulesColumns[5]},
-			},
-			{
-				Name:    "catalogitemschedule_day_of_week",
-				Unique:  false,
-				Columns: []*schema.Column{CatalogItemSchedulesColumns[1]},
+				Columns: []*schema.Column{CatalogOverridesColumns[3]},
 			},
 		},
 	}
@@ -675,21 +530,6 @@ var (
 				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[4]},
 			},
 		},
-	}
-	// DietaryTagsColumns holds the columns for the "dietary_tags" table.
-	DietaryTagsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "code", Type: field.TypeString, Unique: true, Size: 50},
-		{Name: "label", Type: field.TypeString, Size: 100},
-		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "icon_url", Type: field.TypeString, Nullable: true, Size: 500},
-		{Name: "created_at", Type: field.TypeTime},
-	}
-	// DietaryTagsTable holds the schema information for the "dietary_tags" table.
-	DietaryTagsTable = &schema.Table{
-		Name:       "dietary_tags",
-		Columns:    DietaryTagsColumns,
-		PrimaryKey: []*schema.Column{DietaryTagsColumns[0]},
 	}
 	// LoyaltyAccountsColumns holds the columns for the "loyalty_accounts" table.
 	LoyaltyAccountsColumns = []*schema.Column{
@@ -1037,7 +877,7 @@ var (
 	// OrderItemsColumns holds the columns for the "order_items" table.
 	OrderItemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "catalog_item_id", Type: field.TypeUUID},
+		{Name: "inventory_sku", Type: field.TypeString, Size: 100},
 		{Name: "variant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name_snapshot", Type: field.TypeString, Size: 255},
 		{Name: "variant_name_snapshot", Type: field.TypeString, Nullable: true, Size: 255},
@@ -1070,7 +910,7 @@ var (
 				Columns: []*schema.Column{OrderItemsColumns[12]},
 			},
 			{
-				Name:    "orderitem_catalog_item_id",
+				Name:    "orderitem_inventory_sku",
 				Unique:  false,
 				Columns: []*schema.Column{OrderItemsColumns[1]},
 			},
@@ -1528,21 +1368,9 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "slug", Type: field.TypeString, Unique: true},
 		{Name: "status", Type: field.TypeString, Default: "active"},
-		{Name: "contact_email", Type: field.TypeString, Nullable: true},
-		{Name: "contact_phone", Type: field.TypeString, Nullable: true},
-		{Name: "logo_url", Type: field.TypeString, Nullable: true},
-		{Name: "website", Type: field.TypeString, Nullable: true},
-		{Name: "country", Type: field.TypeString, Nullable: true, Default: "KE"},
-		{Name: "timezone", Type: field.TypeString, Nullable: true, Default: "Africa/Nairobi"},
-		{Name: "brand_colors", Type: field.TypeJSON, Nullable: true},
-		{Name: "org_size", Type: field.TypeString, Nullable: true},
 		{Name: "use_case", Type: field.TypeString, Nullable: true},
-		{Name: "subscription_plan", Type: field.TypeString, Nullable: true},
-		{Name: "subscription_status", Type: field.TypeString, Nullable: true},
-		{Name: "subscription_expires_at", Type: field.TypeTime, Nullable: true},
-		{Name: "subscription_id", Type: field.TypeString, Nullable: true},
-		{Name: "tier_limits", Type: field.TypeJSON, Nullable: true},
-		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "sync_status", Type: field.TypeString, Default: "synced"},
+		{Name: "last_sync_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
@@ -1561,11 +1389,6 @@ var (
 				Name:    "tenant_status",
 				Unique:  false,
 				Columns: []*schema.Column{TenantsColumns[3]},
-			},
-			{
-				Name:    "tenant_subscription_plan",
-				Unique:  false,
-				Columns: []*schema.Column{TenantsColumns[13]},
 			},
 		},
 	}
@@ -1708,6 +1531,37 @@ var (
 			},
 		},
 	}
+	// UserFavoritesColumns holds the columns for the "user_favorites" table.
+	UserFavoritesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "inventory_sku", Type: field.TypeString, Size: 100},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// UserFavoritesTable holds the schema information for the "user_favorites" table.
+	UserFavoritesTable = &schema.Table{
+		Name:       "user_favorites",
+		Columns:    UserFavoritesColumns,
+		PrimaryKey: []*schema.Column{UserFavoritesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userfavorite_tenant_id_user_id_inventory_sku",
+				Unique:  true,
+				Columns: []*schema.Column{UserFavoritesColumns[1], UserFavoritesColumns[2], UserFavoritesColumns[3]},
+			},
+			{
+				Name:    "userfavorite_tenant_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserFavoritesColumns[1], UserFavoritesColumns[2]},
+			},
+			{
+				Name:    "userfavorite_inventory_sku",
+				Unique:  false,
+				Columns: []*schema.Column{UserFavoritesColumns[3]},
+			},
+		},
+	}
 	// UserPreferencesColumns holds the columns for the "user_preferences" table.
 	UserPreferencesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -1816,31 +1670,6 @@ var (
 			},
 		},
 	}
-	// CatalogItemDietaryTagsColumns holds the columns for the "catalog_item_dietary_tags" table.
-	CatalogItemDietaryTagsColumns = []*schema.Column{
-		{Name: "catalog_item_id", Type: field.TypeUUID},
-		{Name: "dietary_tag_id", Type: field.TypeInt},
-	}
-	// CatalogItemDietaryTagsTable holds the schema information for the "catalog_item_dietary_tags" table.
-	CatalogItemDietaryTagsTable = &schema.Table{
-		Name:       "catalog_item_dietary_tags",
-		Columns:    CatalogItemDietaryTagsColumns,
-		PrimaryKey: []*schema.Column{CatalogItemDietaryTagsColumns[0], CatalogItemDietaryTagsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "catalog_item_dietary_tags_catalog_item_id",
-				Columns:    []*schema.Column{CatalogItemDietaryTagsColumns[0]},
-				RefColumns: []*schema.Column{CatalogItemsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "catalog_item_dietary_tags_dietary_tag_id",
-				Columns:    []*schema.Column{CatalogItemDietaryTagsColumns[1]},
-				RefColumns: []*schema.Column{DietaryTagsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// RoleLegacyPermissionsColumns holds the columns for the "role_legacy_permissions" table.
 	RoleLegacyPermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeString},
@@ -1891,47 +1720,18 @@ var (
 			},
 		},
 	}
-	// UserFavoriteItemsColumns holds the columns for the "user_favorite_items" table.
-	UserFavoriteItemsColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "catalog_item_id", Type: field.TypeUUID},
-	}
-	// UserFavoriteItemsTable holds the schema information for the "user_favorite_items" table.
-	UserFavoriteItemsTable = &schema.Table{
-		Name:       "user_favorite_items",
-		Columns:    UserFavoriteItemsColumns,
-		PrimaryKey: []*schema.Column{UserFavoriteItemsColumns[0], UserFavoriteItemsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_favorite_items_user_id",
-				Columns:    []*schema.Column{UserFavoriteItemsColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_favorite_items_catalog_item_id",
-				Columns:    []*schema.Column{UserFavoriteItemsColumns[1]},
-				RefColumns: []*schema.Column{CatalogItemsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AuditLogsTable,
 		CartsTable,
 		CartItemsTable,
-		CatalogCategoriesTable,
-		CatalogItemsTable,
-		CatalogItemAssetsTable,
-		CatalogItemSchedulesTable,
+		CatalogOverridesTable,
 		CustomerAddressesTable,
 		DataDeletionJobsTable,
 		DataExportJobsTable,
 		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
 		DeliveryZonesTable,
-		DietaryTagsTable,
 		LoyaltyAccountsTable,
 		LoyaltyTransactionsTable,
 		OrdersTable,
@@ -1954,13 +1754,12 @@ var (
 		TenantSettingsTable,
 		TenantSyncEventsTable,
 		UsersTable,
+		UserFavoritesTable,
 		UserPreferencesTable,
 		UserProfilesTable,
 		UserRoleAssignmentsTable,
-		CatalogItemDietaryTagsTable,
 		RoleLegacyPermissionsTable,
 		UserRolesTable,
-		UserFavoriteItemsTable,
 	}
 )
 
@@ -1970,13 +1769,6 @@ func init() {
 		Table: "carts",
 	}
 	CartItemsTable.ForeignKeys[0].RefTable = CartsTable
-	CartItemsTable.ForeignKeys[1].RefTable = CatalogItemsTable
-	CatalogCategoriesTable.ForeignKeys[0].RefTable = CatalogCategoriesTable
-	CatalogCategoriesTable.ForeignKeys[1].RefTable = OutletsTable
-	CatalogItemsTable.ForeignKeys[0].RefTable = CatalogCategoriesTable
-	CatalogItemsTable.ForeignKeys[1].RefTable = OutletsTable
-	CatalogItemAssetsTable.ForeignKeys[0].RefTable = CatalogItemsTable
-	CatalogItemSchedulesTable.ForeignKeys[0].RefTable = CatalogItemsTable
 	CustomerAddressesTable.ForeignKeys[0].RefTable = UsersTable
 	DataDeletionJobsTable.Annotation = &entsql.Annotation{
 		Table: "data_deletion_jobs",
@@ -2019,12 +1811,8 @@ func init() {
 	UserProfilesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRoleAssignmentsTable.ForeignKeys[0].RefTable = UsersTable
 	UserRoleAssignmentsTable.ForeignKeys[1].RefTable = OrderingRolesTable
-	CatalogItemDietaryTagsTable.ForeignKeys[0].RefTable = CatalogItemsTable
-	CatalogItemDietaryTagsTable.ForeignKeys[1].RefTable = DietaryTagsTable
 	RoleLegacyPermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RoleLegacyPermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
-	UserFavoriteItemsTable.ForeignKeys[0].RefTable = UsersTable
-	UserFavoriteItemsTable.ForeignKeys[1].RefTable = CatalogItemsTable
 }

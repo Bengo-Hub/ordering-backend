@@ -23,8 +23,10 @@ func (CartItem) Fields() []ent.Field {
 			Immutable(),
 		field.UUID("cart_id", uuid.UUID{}).
 			Comment("Reference to cart"),
-		field.UUID("catalog_item_id", uuid.UUID{}).
-			Comment("Reference to catalog item"),
+		field.String("inventory_sku").
+			NotEmpty().
+			MaxLen(100).
+			Comment("SKU from inventory-api master data"),
 		field.UUID("variant_id", uuid.UUID{}).
 			Optional().
 			Nillable().
@@ -70,11 +72,6 @@ func (CartItem) Edges() []ent.Edge {
 			Field("cart_id").
 			Unique().
 			Required(),
-		edge.From("catalog_item", CatalogItem.Type).
-			Ref("cart_items").
-			Field("catalog_item_id").
-			Unique().
-			Required(),
 	}
 }
 
@@ -82,6 +79,6 @@ func (CartItem) Edges() []ent.Edge {
 func (CartItem) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("cart_id"),
-		index.Fields("catalog_item_id"),
+		index.Fields("inventory_sku"),
 	}
 }

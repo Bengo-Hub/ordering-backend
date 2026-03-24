@@ -25,102 +25,102 @@ type UserProfileUpdate struct {
 }
 
 // Where appends a list predicates to the UserProfileUpdate builder.
-func (upu *UserProfileUpdate) Where(ps ...predicate.UserProfile) *UserProfileUpdate {
-	upu.mutation.Where(ps...)
-	return upu
+func (_u *UserProfileUpdate) Where(ps ...predicate.UserProfile) *UserProfileUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetAvatarURL sets the "avatar_url" field.
-func (upu *UserProfileUpdate) SetAvatarURL(s string) *UserProfileUpdate {
-	upu.mutation.SetAvatarURL(s)
-	return upu
+func (_u *UserProfileUpdate) SetAvatarURL(v string) *UserProfileUpdate {
+	_u.mutation.SetAvatarURL(v)
+	return _u
 }
 
 // SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
-func (upu *UserProfileUpdate) SetNillableAvatarURL(s *string) *UserProfileUpdate {
-	if s != nil {
-		upu.SetAvatarURL(*s)
+func (_u *UserProfileUpdate) SetNillableAvatarURL(v *string) *UserProfileUpdate {
+	if v != nil {
+		_u.SetAvatarURL(*v)
 	}
-	return upu
+	return _u
 }
 
 // ClearAvatarURL clears the value of the "avatar_url" field.
-func (upu *UserProfileUpdate) ClearAvatarURL() *UserProfileUpdate {
-	upu.mutation.ClearAvatarURL()
-	return upu
+func (_u *UserProfileUpdate) ClearAvatarURL() *UserProfileUpdate {
+	_u.mutation.ClearAvatarURL()
+	return _u
 }
 
 // SetBio sets the "bio" field.
-func (upu *UserProfileUpdate) SetBio(s string) *UserProfileUpdate {
-	upu.mutation.SetBio(s)
-	return upu
+func (_u *UserProfileUpdate) SetBio(v string) *UserProfileUpdate {
+	_u.mutation.SetBio(v)
+	return _u
 }
 
 // SetNillableBio sets the "bio" field if the given value is not nil.
-func (upu *UserProfileUpdate) SetNillableBio(s *string) *UserProfileUpdate {
-	if s != nil {
-		upu.SetBio(*s)
+func (_u *UserProfileUpdate) SetNillableBio(v *string) *UserProfileUpdate {
+	if v != nil {
+		_u.SetBio(*v)
 	}
-	return upu
+	return _u
 }
 
 // ClearBio clears the value of the "bio" field.
-func (upu *UserProfileUpdate) ClearBio() *UserProfileUpdate {
-	upu.mutation.ClearBio()
-	return upu
+func (_u *UserProfileUpdate) ClearBio() *UserProfileUpdate {
+	_u.mutation.ClearBio()
+	return _u
 }
 
 // SetPreferencesJSON sets the "preferences_json" field.
-func (upu *UserProfileUpdate) SetPreferencesJSON(m map[string]interface{}) *UserProfileUpdate {
-	upu.mutation.SetPreferencesJSON(m)
-	return upu
+func (_u *UserProfileUpdate) SetPreferencesJSON(v map[string]interface{}) *UserProfileUpdate {
+	_u.mutation.SetPreferencesJSON(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (upu *UserProfileUpdate) SetUpdatedAt(t time.Time) *UserProfileUpdate {
-	upu.mutation.SetUpdatedAt(t)
-	return upu
+func (_u *UserProfileUpdate) SetUpdatedAt(v time.Time) *UserProfileUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (upu *UserProfileUpdate) SetUserID(id uuid.UUID) *UserProfileUpdate {
-	upu.mutation.SetUserID(id)
-	return upu
+func (_u *UserProfileUpdate) SetUserID(id uuid.UUID) *UserProfileUpdate {
+	_u.mutation.SetUserID(id)
+	return _u
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (upu *UserProfileUpdate) SetNillableUserID(id *uuid.UUID) *UserProfileUpdate {
+func (_u *UserProfileUpdate) SetNillableUserID(id *uuid.UUID) *UserProfileUpdate {
 	if id != nil {
-		upu = upu.SetUserID(*id)
+		_u = _u.SetUserID(*id)
 	}
-	return upu
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (upu *UserProfileUpdate) SetUser(u *User) *UserProfileUpdate {
-	return upu.SetUserID(u.ID)
+func (_u *UserProfileUpdate) SetUser(v *User) *UserProfileUpdate {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the UserProfileMutation object of the builder.
-func (upu *UserProfileUpdate) Mutation() *UserProfileMutation {
-	return upu.mutation
+func (_u *UserProfileUpdate) Mutation() *UserProfileMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (upu *UserProfileUpdate) ClearUser() *UserProfileUpdate {
-	upu.mutation.ClearUser()
-	return upu
+func (_u *UserProfileUpdate) ClearUser() *UserProfileUpdate {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (upu *UserProfileUpdate) Save(ctx context.Context) (int, error) {
-	upu.defaults()
-	return withHooks(ctx, upu.sqlSave, upu.mutation, upu.hooks)
+func (_u *UserProfileUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (upu *UserProfileUpdate) SaveX(ctx context.Context) int {
-	affected, err := upu.Save(ctx)
+func (_u *UserProfileUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -128,54 +128,54 @@ func (upu *UserProfileUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (upu *UserProfileUpdate) Exec(ctx context.Context) error {
-	_, err := upu.Save(ctx)
+func (_u *UserProfileUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upu *UserProfileUpdate) ExecX(ctx context.Context) {
-	if err := upu.Exec(ctx); err != nil {
+func (_u *UserProfileUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (upu *UserProfileUpdate) defaults() {
-	if _, ok := upu.mutation.UpdatedAt(); !ok {
+func (_u *UserProfileUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := userprofile.UpdateDefaultUpdatedAt()
-		upu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (upu *UserProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *UserProfileUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(userprofile.Table, userprofile.Columns, sqlgraph.NewFieldSpec(userprofile.FieldID, field.TypeInt))
-	if ps := upu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := upu.mutation.AvatarURL(); ok {
+	if value, ok := _u.mutation.AvatarURL(); ok {
 		_spec.SetField(userprofile.FieldAvatarURL, field.TypeString, value)
 	}
-	if upu.mutation.AvatarURLCleared() {
+	if _u.mutation.AvatarURLCleared() {
 		_spec.ClearField(userprofile.FieldAvatarURL, field.TypeString)
 	}
-	if value, ok := upu.mutation.Bio(); ok {
+	if value, ok := _u.mutation.Bio(); ok {
 		_spec.SetField(userprofile.FieldBio, field.TypeString, value)
 	}
-	if upu.mutation.BioCleared() {
+	if _u.mutation.BioCleared() {
 		_spec.ClearField(userprofile.FieldBio, field.TypeString)
 	}
-	if value, ok := upu.mutation.PreferencesJSON(); ok {
+	if value, ok := _u.mutation.PreferencesJSON(); ok {
 		_spec.SetField(userprofile.FieldPreferencesJSON, field.TypeJSON, value)
 	}
-	if value, ok := upu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userprofile.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if upu.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -188,7 +188,7 @@ func (upu *UserProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := upu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -204,7 +204,7 @@ func (upu *UserProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, upu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{userprofile.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -212,8 +212,8 @@ func (upu *UserProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	upu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // UserProfileUpdateOne is the builder for updating a single UserProfile entity.
@@ -225,109 +225,109 @@ type UserProfileUpdateOne struct {
 }
 
 // SetAvatarURL sets the "avatar_url" field.
-func (upuo *UserProfileUpdateOne) SetAvatarURL(s string) *UserProfileUpdateOne {
-	upuo.mutation.SetAvatarURL(s)
-	return upuo
+func (_u *UserProfileUpdateOne) SetAvatarURL(v string) *UserProfileUpdateOne {
+	_u.mutation.SetAvatarURL(v)
+	return _u
 }
 
 // SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
-func (upuo *UserProfileUpdateOne) SetNillableAvatarURL(s *string) *UserProfileUpdateOne {
-	if s != nil {
-		upuo.SetAvatarURL(*s)
+func (_u *UserProfileUpdateOne) SetNillableAvatarURL(v *string) *UserProfileUpdateOne {
+	if v != nil {
+		_u.SetAvatarURL(*v)
 	}
-	return upuo
+	return _u
 }
 
 // ClearAvatarURL clears the value of the "avatar_url" field.
-func (upuo *UserProfileUpdateOne) ClearAvatarURL() *UserProfileUpdateOne {
-	upuo.mutation.ClearAvatarURL()
-	return upuo
+func (_u *UserProfileUpdateOne) ClearAvatarURL() *UserProfileUpdateOne {
+	_u.mutation.ClearAvatarURL()
+	return _u
 }
 
 // SetBio sets the "bio" field.
-func (upuo *UserProfileUpdateOne) SetBio(s string) *UserProfileUpdateOne {
-	upuo.mutation.SetBio(s)
-	return upuo
+func (_u *UserProfileUpdateOne) SetBio(v string) *UserProfileUpdateOne {
+	_u.mutation.SetBio(v)
+	return _u
 }
 
 // SetNillableBio sets the "bio" field if the given value is not nil.
-func (upuo *UserProfileUpdateOne) SetNillableBio(s *string) *UserProfileUpdateOne {
-	if s != nil {
-		upuo.SetBio(*s)
+func (_u *UserProfileUpdateOne) SetNillableBio(v *string) *UserProfileUpdateOne {
+	if v != nil {
+		_u.SetBio(*v)
 	}
-	return upuo
+	return _u
 }
 
 // ClearBio clears the value of the "bio" field.
-func (upuo *UserProfileUpdateOne) ClearBio() *UserProfileUpdateOne {
-	upuo.mutation.ClearBio()
-	return upuo
+func (_u *UserProfileUpdateOne) ClearBio() *UserProfileUpdateOne {
+	_u.mutation.ClearBio()
+	return _u
 }
 
 // SetPreferencesJSON sets the "preferences_json" field.
-func (upuo *UserProfileUpdateOne) SetPreferencesJSON(m map[string]interface{}) *UserProfileUpdateOne {
-	upuo.mutation.SetPreferencesJSON(m)
-	return upuo
+func (_u *UserProfileUpdateOne) SetPreferencesJSON(v map[string]interface{}) *UserProfileUpdateOne {
+	_u.mutation.SetPreferencesJSON(v)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (upuo *UserProfileUpdateOne) SetUpdatedAt(t time.Time) *UserProfileUpdateOne {
-	upuo.mutation.SetUpdatedAt(t)
-	return upuo
+func (_u *UserProfileUpdateOne) SetUpdatedAt(v time.Time) *UserProfileUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (upuo *UserProfileUpdateOne) SetUserID(id uuid.UUID) *UserProfileUpdateOne {
-	upuo.mutation.SetUserID(id)
-	return upuo
+func (_u *UserProfileUpdateOne) SetUserID(id uuid.UUID) *UserProfileUpdateOne {
+	_u.mutation.SetUserID(id)
+	return _u
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (upuo *UserProfileUpdateOne) SetNillableUserID(id *uuid.UUID) *UserProfileUpdateOne {
+func (_u *UserProfileUpdateOne) SetNillableUserID(id *uuid.UUID) *UserProfileUpdateOne {
 	if id != nil {
-		upuo = upuo.SetUserID(*id)
+		_u = _u.SetUserID(*id)
 	}
-	return upuo
+	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (upuo *UserProfileUpdateOne) SetUser(u *User) *UserProfileUpdateOne {
-	return upuo.SetUserID(u.ID)
+func (_u *UserProfileUpdateOne) SetUser(v *User) *UserProfileUpdateOne {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the UserProfileMutation object of the builder.
-func (upuo *UserProfileUpdateOne) Mutation() *UserProfileMutation {
-	return upuo.mutation
+func (_u *UserProfileUpdateOne) Mutation() *UserProfileMutation {
+	return _u.mutation
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (upuo *UserProfileUpdateOne) ClearUser() *UserProfileUpdateOne {
-	upuo.mutation.ClearUser()
-	return upuo
+func (_u *UserProfileUpdateOne) ClearUser() *UserProfileUpdateOne {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Where appends a list predicates to the UserProfileUpdate builder.
-func (upuo *UserProfileUpdateOne) Where(ps ...predicate.UserProfile) *UserProfileUpdateOne {
-	upuo.mutation.Where(ps...)
-	return upuo
+func (_u *UserProfileUpdateOne) Where(ps ...predicate.UserProfile) *UserProfileUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (upuo *UserProfileUpdateOne) Select(field string, fields ...string) *UserProfileUpdateOne {
-	upuo.fields = append([]string{field}, fields...)
-	return upuo
+func (_u *UserProfileUpdateOne) Select(field string, fields ...string) *UserProfileUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated UserProfile entity.
-func (upuo *UserProfileUpdateOne) Save(ctx context.Context) (*UserProfile, error) {
-	upuo.defaults()
-	return withHooks(ctx, upuo.sqlSave, upuo.mutation, upuo.hooks)
+func (_u *UserProfileUpdateOne) Save(ctx context.Context) (*UserProfile, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (upuo *UserProfileUpdateOne) SaveX(ctx context.Context) *UserProfile {
-	node, err := upuo.Save(ctx)
+func (_u *UserProfileUpdateOne) SaveX(ctx context.Context) *UserProfile {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -335,34 +335,34 @@ func (upuo *UserProfileUpdateOne) SaveX(ctx context.Context) *UserProfile {
 }
 
 // Exec executes the query on the entity.
-func (upuo *UserProfileUpdateOne) Exec(ctx context.Context) error {
-	_, err := upuo.Save(ctx)
+func (_u *UserProfileUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (upuo *UserProfileUpdateOne) ExecX(ctx context.Context) {
-	if err := upuo.Exec(ctx); err != nil {
+func (_u *UserProfileUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (upuo *UserProfileUpdateOne) defaults() {
-	if _, ok := upuo.mutation.UpdatedAt(); !ok {
+func (_u *UserProfileUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := userprofile.UpdateDefaultUpdatedAt()
-		upuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (upuo *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfile, err error) {
+func (_u *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfile, err error) {
 	_spec := sqlgraph.NewUpdateSpec(userprofile.Table, userprofile.Columns, sqlgraph.NewFieldSpec(userprofile.FieldID, field.TypeInt))
-	id, ok := upuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "UserProfile.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := upuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, userprofile.FieldID)
 		for _, f := range fields {
@@ -374,32 +374,32 @@ func (upuo *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfi
 			}
 		}
 	}
-	if ps := upuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := upuo.mutation.AvatarURL(); ok {
+	if value, ok := _u.mutation.AvatarURL(); ok {
 		_spec.SetField(userprofile.FieldAvatarURL, field.TypeString, value)
 	}
-	if upuo.mutation.AvatarURLCleared() {
+	if _u.mutation.AvatarURLCleared() {
 		_spec.ClearField(userprofile.FieldAvatarURL, field.TypeString)
 	}
-	if value, ok := upuo.mutation.Bio(); ok {
+	if value, ok := _u.mutation.Bio(); ok {
 		_spec.SetField(userprofile.FieldBio, field.TypeString, value)
 	}
-	if upuo.mutation.BioCleared() {
+	if _u.mutation.BioCleared() {
 		_spec.ClearField(userprofile.FieldBio, field.TypeString)
 	}
-	if value, ok := upuo.mutation.PreferencesJSON(); ok {
+	if value, ok := _u.mutation.PreferencesJSON(); ok {
 		_spec.SetField(userprofile.FieldPreferencesJSON, field.TypeJSON, value)
 	}
-	if value, ok := upuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userprofile.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if upuo.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -412,7 +412,7 @@ func (upuo *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfi
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := upuo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -428,10 +428,10 @@ func (upuo *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfi
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &UserProfile{config: upuo.config}
+	_node = &UserProfile{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, upuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{userprofile.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -439,6 +439,6 @@ func (upuo *UserProfileUpdateOne) sqlSave(ctx context.Context) (_node *UserProfi
 		}
 		return nil, err
 	}
-	upuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

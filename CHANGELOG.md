@@ -33,5 +33,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Changed
 - Migration workflow supports full schema resets via `FOOD_DELIVERY_RESET_DB=true`; seed command now enqueues tenant discovery events after inserting bootstrap data.
-- Updated all module references from `github.com/bengobox/food-delivery-backend` to `github.com/bengobox/cafe-backend` for consistency.
+- Updated all module references from `github.com/bengobox/food-delivery-backend` to `github.com/bengobox/ordering-backend` for consistency.
 - Replaced local `replace` directive with Go workspace (`go.work`) for local development; production deployments use private Go module approach.

@@ -49,10 +49,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
 	EdgeTenant = "tenant"
-	// EdgeCatalogCategories holds the string denoting the catalog_categories edge name in mutations.
-	EdgeCatalogCategories = "catalog_categories"
-	// EdgeCatalogItems holds the string denoting the catalog_items edge name in mutations.
-	EdgeCatalogItems = "catalog_items"
 	// EdgeOrders holds the string denoting the orders edge name in mutations.
 	EdgeOrders = "orders"
 	// Table holds the table name of the outlet in the database.
@@ -64,20 +60,6 @@ const (
 	TenantInverseTable = "tenants"
 	// TenantColumn is the table column denoting the tenant relation/edge.
 	TenantColumn = "tenant_id"
-	// CatalogCategoriesTable is the table that holds the catalog_categories relation/edge.
-	CatalogCategoriesTable = "catalog_categories"
-	// CatalogCategoriesInverseTable is the table name for the CatalogCategory entity.
-	// It exists in this package in order to avoid circular dependency with the "catalogcategory" package.
-	CatalogCategoriesInverseTable = "catalog_categories"
-	// CatalogCategoriesColumn is the table column denoting the catalog_categories relation/edge.
-	CatalogCategoriesColumn = "outlet_id"
-	// CatalogItemsTable is the table that holds the catalog_items relation/edge.
-	CatalogItemsTable = "catalog_items"
-	// CatalogItemsInverseTable is the table name for the CatalogItem entity.
-	// It exists in this package in order to avoid circular dependency with the "catalogitem" package.
-	CatalogItemsInverseTable = "catalog_items"
-	// CatalogItemsColumn is the table column denoting the catalog_items relation/edge.
-	CatalogItemsColumn = "outlet_id"
 	// OrdersTable is the table that holds the orders relation/edge.
 	OrdersTable = "orders"
 	// OrdersInverseTable is the table name for the Order entity.
@@ -227,34 +209,6 @@ func ByTenantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByCatalogCategoriesCount orders the results by catalog_categories count.
-func ByCatalogCategoriesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCatalogCategoriesStep(), opts...)
-	}
-}
-
-// ByCatalogCategories orders the results by catalog_categories terms.
-func ByCatalogCategories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCatalogCategoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByCatalogItemsCount orders the results by catalog_items count.
-func ByCatalogItemsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCatalogItemsStep(), opts...)
-	}
-}
-
-// ByCatalogItems orders the results by catalog_items terms.
-func ByCatalogItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCatalogItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByOrdersCount orders the results by orders count.
 func ByOrdersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -273,20 +227,6 @@ func newTenantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TenantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, TenantTable, TenantColumn),
-	)
-}
-func newCatalogCategoriesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CatalogCategoriesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CatalogCategoriesTable, CatalogCategoriesColumn),
-	)
-}
-func newCatalogItemsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CatalogItemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CatalogItemsTable, CatalogItemsColumn),
 	)
 }
 func newOrdersStep() *sqlgraph.Step {

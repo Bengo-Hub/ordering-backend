@@ -26,319 +26,319 @@ type CartUpdate struct {
 }
 
 // Where appends a list predicates to the CartUpdate builder.
-func (cu *CartUpdate) Where(ps ...predicate.Cart) *CartUpdate {
-	cu.mutation.Where(ps...)
-	return cu
+func (_u *CartUpdate) Where(ps ...predicate.Cart) *CartUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cu *CartUpdate) SetTenantID(u uuid.UUID) *CartUpdate {
-	cu.mutation.SetTenantID(u)
-	return cu
+func (_u *CartUpdate) SetTenantID(v uuid.UUID) *CartUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableTenantID(u *uuid.UUID) *CartUpdate {
-	if u != nil {
-		cu.SetTenantID(*u)
+func (_u *CartUpdate) SetNillableTenantID(v *uuid.UUID) *CartUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return cu
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (cu *CartUpdate) SetOutletID(u uuid.UUID) *CartUpdate {
-	cu.mutation.SetOutletID(u)
-	return cu
+func (_u *CartUpdate) SetOutletID(v uuid.UUID) *CartUpdate {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableOutletID(u *uuid.UUID) *CartUpdate {
-	if u != nil {
-		cu.SetOutletID(*u)
+func (_u *CartUpdate) SetNillableOutletID(v *uuid.UUID) *CartUpdate {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return cu
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (cu *CartUpdate) SetUserID(u uuid.UUID) *CartUpdate {
-	cu.mutation.SetUserID(u)
-	return cu
+func (_u *CartUpdate) SetUserID(v uuid.UUID) *CartUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableUserID(u *uuid.UUID) *CartUpdate {
-	if u != nil {
-		cu.SetUserID(*u)
+func (_u *CartUpdate) SetNillableUserID(v *uuid.UUID) *CartUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return cu
+	return _u
 }
 
 // ClearUserID clears the value of the "user_id" field.
-func (cu *CartUpdate) ClearUserID() *CartUpdate {
-	cu.mutation.ClearUserID()
-	return cu
+func (_u *CartUpdate) ClearUserID() *CartUpdate {
+	_u.mutation.ClearUserID()
+	return _u
 }
 
 // SetSessionID sets the "session_id" field.
-func (cu *CartUpdate) SetSessionID(s string) *CartUpdate {
-	cu.mutation.SetSessionID(s)
-	return cu
+func (_u *CartUpdate) SetSessionID(v string) *CartUpdate {
+	_u.mutation.SetSessionID(v)
+	return _u
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableSessionID(s *string) *CartUpdate {
-	if s != nil {
-		cu.SetSessionID(*s)
+func (_u *CartUpdate) SetNillableSessionID(v *string) *CartUpdate {
+	if v != nil {
+		_u.SetSessionID(*v)
 	}
-	return cu
+	return _u
 }
 
 // ClearSessionID clears the value of the "session_id" field.
-func (cu *CartUpdate) ClearSessionID() *CartUpdate {
-	cu.mutation.ClearSessionID()
-	return cu
+func (_u *CartUpdate) ClearSessionID() *CartUpdate {
+	_u.mutation.ClearSessionID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (cu *CartUpdate) SetStatus(c cart.Status) *CartUpdate {
-	cu.mutation.SetStatus(c)
-	return cu
+func (_u *CartUpdate) SetStatus(v cart.Status) *CartUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableStatus(c *cart.Status) *CartUpdate {
-	if c != nil {
-		cu.SetStatus(*c)
+func (_u *CartUpdate) SetNillableStatus(v *cart.Status) *CartUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return cu
+	return _u
 }
 
 // SetCurrency sets the "currency" field.
-func (cu *CartUpdate) SetCurrency(s string) *CartUpdate {
-	cu.mutation.SetCurrency(s)
-	return cu
+func (_u *CartUpdate) SetCurrency(v string) *CartUpdate {
+	_u.mutation.SetCurrency(v)
+	return _u
 }
 
 // SetNillableCurrency sets the "currency" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableCurrency(s *string) *CartUpdate {
-	if s != nil {
-		cu.SetCurrency(*s)
+func (_u *CartUpdate) SetNillableCurrency(v *string) *CartUpdate {
+	if v != nil {
+		_u.SetCurrency(*v)
 	}
-	return cu
+	return _u
 }
 
 // SetSubtotal sets the "subtotal" field.
-func (cu *CartUpdate) SetSubtotal(f float64) *CartUpdate {
-	cu.mutation.ResetSubtotal()
-	cu.mutation.SetSubtotal(f)
-	return cu
+func (_u *CartUpdate) SetSubtotal(v float64) *CartUpdate {
+	_u.mutation.ResetSubtotal()
+	_u.mutation.SetSubtotal(v)
+	return _u
 }
 
 // SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableSubtotal(f *float64) *CartUpdate {
-	if f != nil {
-		cu.SetSubtotal(*f)
+func (_u *CartUpdate) SetNillableSubtotal(v *float64) *CartUpdate {
+	if v != nil {
+		_u.SetSubtotal(*v)
 	}
-	return cu
+	return _u
 }
 
-// AddSubtotal adds f to the "subtotal" field.
-func (cu *CartUpdate) AddSubtotal(f float64) *CartUpdate {
-	cu.mutation.AddSubtotal(f)
-	return cu
+// AddSubtotal adds value to the "subtotal" field.
+func (_u *CartUpdate) AddSubtotal(v float64) *CartUpdate {
+	_u.mutation.AddSubtotal(v)
+	return _u
 }
 
 // SetDiscountTotal sets the "discount_total" field.
-func (cu *CartUpdate) SetDiscountTotal(f float64) *CartUpdate {
-	cu.mutation.ResetDiscountTotal()
-	cu.mutation.SetDiscountTotal(f)
-	return cu
+func (_u *CartUpdate) SetDiscountTotal(v float64) *CartUpdate {
+	_u.mutation.ResetDiscountTotal()
+	_u.mutation.SetDiscountTotal(v)
+	return _u
 }
 
 // SetNillableDiscountTotal sets the "discount_total" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableDiscountTotal(f *float64) *CartUpdate {
-	if f != nil {
-		cu.SetDiscountTotal(*f)
+func (_u *CartUpdate) SetNillableDiscountTotal(v *float64) *CartUpdate {
+	if v != nil {
+		_u.SetDiscountTotal(*v)
 	}
-	return cu
+	return _u
 }
 
-// AddDiscountTotal adds f to the "discount_total" field.
-func (cu *CartUpdate) AddDiscountTotal(f float64) *CartUpdate {
-	cu.mutation.AddDiscountTotal(f)
-	return cu
+// AddDiscountTotal adds value to the "discount_total" field.
+func (_u *CartUpdate) AddDiscountTotal(v float64) *CartUpdate {
+	_u.mutation.AddDiscountTotal(v)
+	return _u
 }
 
 // SetTaxTotal sets the "tax_total" field.
-func (cu *CartUpdate) SetTaxTotal(f float64) *CartUpdate {
-	cu.mutation.ResetTaxTotal()
-	cu.mutation.SetTaxTotal(f)
-	return cu
+func (_u *CartUpdate) SetTaxTotal(v float64) *CartUpdate {
+	_u.mutation.ResetTaxTotal()
+	_u.mutation.SetTaxTotal(v)
+	return _u
 }
 
 // SetNillableTaxTotal sets the "tax_total" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableTaxTotal(f *float64) *CartUpdate {
-	if f != nil {
-		cu.SetTaxTotal(*f)
+func (_u *CartUpdate) SetNillableTaxTotal(v *float64) *CartUpdate {
+	if v != nil {
+		_u.SetTaxTotal(*v)
 	}
-	return cu
+	return _u
 }
 
-// AddTaxTotal adds f to the "tax_total" field.
-func (cu *CartUpdate) AddTaxTotal(f float64) *CartUpdate {
-	cu.mutation.AddTaxTotal(f)
-	return cu
+// AddTaxTotal adds value to the "tax_total" field.
+func (_u *CartUpdate) AddTaxTotal(v float64) *CartUpdate {
+	_u.mutation.AddTaxTotal(v)
+	return _u
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (cu *CartUpdate) SetDeliveryFee(f float64) *CartUpdate {
-	cu.mutation.ResetDeliveryFee()
-	cu.mutation.SetDeliveryFee(f)
-	return cu
+func (_u *CartUpdate) SetDeliveryFee(v float64) *CartUpdate {
+	_u.mutation.ResetDeliveryFee()
+	_u.mutation.SetDeliveryFee(v)
+	return _u
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableDeliveryFee(f *float64) *CartUpdate {
-	if f != nil {
-		cu.SetDeliveryFee(*f)
+func (_u *CartUpdate) SetNillableDeliveryFee(v *float64) *CartUpdate {
+	if v != nil {
+		_u.SetDeliveryFee(*v)
 	}
-	return cu
+	return _u
 }
 
-// AddDeliveryFee adds f to the "delivery_fee" field.
-func (cu *CartUpdate) AddDeliveryFee(f float64) *CartUpdate {
-	cu.mutation.AddDeliveryFee(f)
-	return cu
+// AddDeliveryFee adds value to the "delivery_fee" field.
+func (_u *CartUpdate) AddDeliveryFee(v float64) *CartUpdate {
+	_u.mutation.AddDeliveryFee(v)
+	return _u
 }
 
 // SetLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field.
-func (cu *CartUpdate) SetLoyaltyPointsRedeemed(i int) *CartUpdate {
-	cu.mutation.ResetLoyaltyPointsRedeemed()
-	cu.mutation.SetLoyaltyPointsRedeemed(i)
-	return cu
+func (_u *CartUpdate) SetLoyaltyPointsRedeemed(v int) *CartUpdate {
+	_u.mutation.ResetLoyaltyPointsRedeemed()
+	_u.mutation.SetLoyaltyPointsRedeemed(v)
+	return _u
 }
 
 // SetNillableLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableLoyaltyPointsRedeemed(i *int) *CartUpdate {
-	if i != nil {
-		cu.SetLoyaltyPointsRedeemed(*i)
+func (_u *CartUpdate) SetNillableLoyaltyPointsRedeemed(v *int) *CartUpdate {
+	if v != nil {
+		_u.SetLoyaltyPointsRedeemed(*v)
 	}
-	return cu
+	return _u
 }
 
-// AddLoyaltyPointsRedeemed adds i to the "loyalty_points_redeemed" field.
-func (cu *CartUpdate) AddLoyaltyPointsRedeemed(i int) *CartUpdate {
-	cu.mutation.AddLoyaltyPointsRedeemed(i)
-	return cu
+// AddLoyaltyPointsRedeemed adds value to the "loyalty_points_redeemed" field.
+func (_u *CartUpdate) AddLoyaltyPointsRedeemed(v int) *CartUpdate {
+	_u.mutation.AddLoyaltyPointsRedeemed(v)
+	return _u
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (cu *CartUpdate) SetPromoCodeID(u uuid.UUID) *CartUpdate {
-	cu.mutation.SetPromoCodeID(u)
-	return cu
+func (_u *CartUpdate) SetPromoCodeID(v uuid.UUID) *CartUpdate {
+	_u.mutation.SetPromoCodeID(v)
+	return _u
 }
 
 // SetNillablePromoCodeID sets the "promo_code_id" field if the given value is not nil.
-func (cu *CartUpdate) SetNillablePromoCodeID(u *uuid.UUID) *CartUpdate {
-	if u != nil {
-		cu.SetPromoCodeID(*u)
+func (_u *CartUpdate) SetNillablePromoCodeID(v *uuid.UUID) *CartUpdate {
+	if v != nil {
+		_u.SetPromoCodeID(*v)
 	}
-	return cu
+	return _u
 }
 
 // ClearPromoCodeID clears the value of the "promo_code_id" field.
-func (cu *CartUpdate) ClearPromoCodeID() *CartUpdate {
-	cu.mutation.ClearPromoCodeID()
-	return cu
+func (_u *CartUpdate) ClearPromoCodeID() *CartUpdate {
+	_u.mutation.ClearPromoCodeID()
+	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (cu *CartUpdate) SetExpiresAt(t time.Time) *CartUpdate {
-	cu.mutation.SetExpiresAt(t)
-	return cu
+func (_u *CartUpdate) SetExpiresAt(v time.Time) *CartUpdate {
+	_u.mutation.SetExpiresAt(v)
+	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (cu *CartUpdate) SetNillableExpiresAt(t *time.Time) *CartUpdate {
-	if t != nil {
-		cu.SetExpiresAt(*t)
+func (_u *CartUpdate) SetNillableExpiresAt(v *time.Time) *CartUpdate {
+	if v != nil {
+		_u.SetExpiresAt(*v)
 	}
-	return cu
+	return _u
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (cu *CartUpdate) ClearExpiresAt() *CartUpdate {
-	cu.mutation.ClearExpiresAt()
-	return cu
+func (_u *CartUpdate) ClearExpiresAt() *CartUpdate {
+	_u.mutation.ClearExpiresAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cu *CartUpdate) SetUpdatedAt(t time.Time) *CartUpdate {
-	cu.mutation.SetUpdatedAt(t)
-	return cu
+func (_u *CartUpdate) SetUpdatedAt(v time.Time) *CartUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddItemIDs adds the "items" edge to the CartItem entity by IDs.
-func (cu *CartUpdate) AddItemIDs(ids ...uuid.UUID) *CartUpdate {
-	cu.mutation.AddItemIDs(ids...)
-	return cu
+func (_u *CartUpdate) AddItemIDs(ids ...uuid.UUID) *CartUpdate {
+	_u.mutation.AddItemIDs(ids...)
+	return _u
 }
 
 // AddItems adds the "items" edges to the CartItem entity.
-func (cu *CartUpdate) AddItems(c ...*CartItem) *CartUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *CartUpdate) AddItems(v ...*CartItem) *CartUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cu.AddItemIDs(ids...)
+	return _u.AddItemIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cu *CartUpdate) SetUser(u *User) *CartUpdate {
-	return cu.SetUserID(u.ID)
+func (_u *CartUpdate) SetUser(v *User) *CartUpdate {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the CartMutation object of the builder.
-func (cu *CartUpdate) Mutation() *CartMutation {
-	return cu.mutation
+func (_u *CartUpdate) Mutation() *CartMutation {
+	return _u.mutation
 }
 
 // ClearItems clears all "items" edges to the CartItem entity.
-func (cu *CartUpdate) ClearItems() *CartUpdate {
-	cu.mutation.ClearItems()
-	return cu
+func (_u *CartUpdate) ClearItems() *CartUpdate {
+	_u.mutation.ClearItems()
+	return _u
 }
 
 // RemoveItemIDs removes the "items" edge to CartItem entities by IDs.
-func (cu *CartUpdate) RemoveItemIDs(ids ...uuid.UUID) *CartUpdate {
-	cu.mutation.RemoveItemIDs(ids...)
-	return cu
+func (_u *CartUpdate) RemoveItemIDs(ids ...uuid.UUID) *CartUpdate {
+	_u.mutation.RemoveItemIDs(ids...)
+	return _u
 }
 
 // RemoveItems removes "items" edges to CartItem entities.
-func (cu *CartUpdate) RemoveItems(c ...*CartItem) *CartUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *CartUpdate) RemoveItems(v ...*CartItem) *CartUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cu.RemoveItemIDs(ids...)
+	return _u.RemoveItemIDs(ids...)
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (cu *CartUpdate) ClearUser() *CartUpdate {
-	cu.mutation.ClearUser()
-	return cu
+func (_u *CartUpdate) ClearUser() *CartUpdate {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (cu *CartUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
-	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
+func (_u *CartUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cu *CartUpdate) SaveX(ctx context.Context) int {
-	affected, err := cu.Save(ctx)
+func (_u *CartUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -346,39 +346,39 @@ func (cu *CartUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (cu *CartUpdate) Exec(ctx context.Context) error {
-	_, err := cu.Save(ctx)
+func (_u *CartUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cu *CartUpdate) ExecX(ctx context.Context) {
-	if err := cu.Exec(ctx); err != nil {
+func (_u *CartUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cu *CartUpdate) defaults() {
-	if _, ok := cu.mutation.UpdatedAt(); !ok {
+func (_u *CartUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := cart.UpdateDefaultUpdatedAt()
-		cu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cu *CartUpdate) check() error {
-	if v, ok := cu.mutation.SessionID(); ok {
+func (_u *CartUpdate) check() error {
+	if v, ok := _u.mutation.SessionID(); ok {
 		if err := cart.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "Cart.session_id": %w`, err)}
 		}
 	}
-	if v, ok := cu.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := cart.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Cart.status": %w`, err)}
 		}
 	}
-	if v, ok := cu.mutation.Currency(); ok {
+	if v, ok := _u.mutation.Currency(); ok {
 		if err := cart.CurrencyValidator(v); err != nil {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Cart.currency": %w`, err)}
 		}
@@ -386,82 +386,82 @@ func (cu *CartUpdate) check() error {
 	return nil
 }
 
-func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := cu.check(); err != nil {
-		return n, err
+func (_u *CartUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(cart.Table, cart.Columns, sqlgraph.NewFieldSpec(cart.FieldID, field.TypeUUID))
-	if ps := cu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := cu.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cu.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
 	}
-	if value, ok := cu.mutation.SessionID(); ok {
+	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)
 	}
-	if cu.mutation.SessionIDCleared() {
+	if _u.mutation.SessionIDCleared() {
 		_spec.ClearField(cart.FieldSessionID, field.TypeString)
 	}
-	if value, ok := cu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(cart.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := cu.mutation.Currency(); ok {
+	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(cart.FieldCurrency, field.TypeString, value)
 	}
-	if value, ok := cu.mutation.Subtotal(); ok {
+	if value, ok := _u.mutation.Subtotal(); ok {
 		_spec.SetField(cart.FieldSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.AddedSubtotal(); ok {
+	if value, ok := _u.mutation.AddedSubtotal(); ok {
 		_spec.AddField(cart.FieldSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.DiscountTotal(); ok {
+	if value, ok := _u.mutation.DiscountTotal(); ok {
 		_spec.SetField(cart.FieldDiscountTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.AddedDiscountTotal(); ok {
+	if value, ok := _u.mutation.AddedDiscountTotal(); ok {
 		_spec.AddField(cart.FieldDiscountTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.TaxTotal(); ok {
+	if value, ok := _u.mutation.TaxTotal(); ok {
 		_spec.SetField(cart.FieldTaxTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.AddedTaxTotal(); ok {
+	if value, ok := _u.mutation.AddedTaxTotal(); ok {
 		_spec.AddField(cart.FieldTaxTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.DeliveryFee(); ok {
+	if value, ok := _u.mutation.DeliveryFee(); ok {
 		_spec.SetField(cart.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.AddedDeliveryFee(); ok {
+	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(cart.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := cu.mutation.LoyaltyPointsRedeemed(); ok {
+	if value, ok := _u.mutation.LoyaltyPointsRedeemed(); ok {
 		_spec.SetField(cart.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 	}
-	if value, ok := cu.mutation.AddedLoyaltyPointsRedeemed(); ok {
+	if value, ok := _u.mutation.AddedLoyaltyPointsRedeemed(); ok {
 		_spec.AddField(cart.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 	}
-	if value, ok := cu.mutation.PromoCodeID(); ok {
+	if value, ok := _u.mutation.PromoCodeID(); ok {
 		_spec.SetField(cart.FieldPromoCodeID, field.TypeUUID, value)
 	}
-	if cu.mutation.PromoCodeIDCleared() {
+	if _u.mutation.PromoCodeIDCleared() {
 		_spec.ClearField(cart.FieldPromoCodeID, field.TypeUUID)
 	}
-	if value, ok := cu.mutation.ExpiresAt(); ok {
+	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(cart.FieldExpiresAt, field.TypeTime, value)
 	}
-	if cu.mutation.ExpiresAtCleared() {
+	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(cart.FieldExpiresAt, field.TypeTime)
 	}
-	if value, ok := cu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(cart.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if cu.mutation.ItemsCleared() {
+	if _u.mutation.ItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -474,7 +474,7 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.RemovedItemsIDs(); len(nodes) > 0 && !cu.mutation.ItemsCleared() {
+	if nodes := _u.mutation.RemovedItemsIDs(); len(nodes) > 0 && !_u.mutation.ItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -490,7 +490,7 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.ItemsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -506,7 +506,7 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cu.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -519,7 +519,7 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -535,7 +535,7 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{cart.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -543,8 +543,8 @@ func (cu *CartUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	cu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // CartUpdateOne is the builder for updating a single Cart entity.
@@ -556,326 +556,326 @@ type CartUpdateOne struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cuo *CartUpdateOne) SetTenantID(u uuid.UUID) *CartUpdateOne {
-	cuo.mutation.SetTenantID(u)
-	return cuo
+func (_u *CartUpdateOne) SetTenantID(v uuid.UUID) *CartUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
 }
 
 // SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableTenantID(u *uuid.UUID) *CartUpdateOne {
-	if u != nil {
-		cuo.SetTenantID(*u)
+func (_u *CartUpdateOne) SetNillableTenantID(v *uuid.UUID) *CartUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
 	}
-	return cuo
+	return _u
 }
 
 // SetOutletID sets the "outlet_id" field.
-func (cuo *CartUpdateOne) SetOutletID(u uuid.UUID) *CartUpdateOne {
-	cuo.mutation.SetOutletID(u)
-	return cuo
+func (_u *CartUpdateOne) SetOutletID(v uuid.UUID) *CartUpdateOne {
+	_u.mutation.SetOutletID(v)
+	return _u
 }
 
 // SetNillableOutletID sets the "outlet_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableOutletID(u *uuid.UUID) *CartUpdateOne {
-	if u != nil {
-		cuo.SetOutletID(*u)
+func (_u *CartUpdateOne) SetNillableOutletID(v *uuid.UUID) *CartUpdateOne {
+	if v != nil {
+		_u.SetOutletID(*v)
 	}
-	return cuo
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
-func (cuo *CartUpdateOne) SetUserID(u uuid.UUID) *CartUpdateOne {
-	cuo.mutation.SetUserID(u)
-	return cuo
+func (_u *CartUpdateOne) SetUserID(v uuid.UUID) *CartUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableUserID(u *uuid.UUID) *CartUpdateOne {
-	if u != nil {
-		cuo.SetUserID(*u)
+func (_u *CartUpdateOne) SetNillableUserID(v *uuid.UUID) *CartUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
 	}
-	return cuo
+	return _u
 }
 
 // ClearUserID clears the value of the "user_id" field.
-func (cuo *CartUpdateOne) ClearUserID() *CartUpdateOne {
-	cuo.mutation.ClearUserID()
-	return cuo
+func (_u *CartUpdateOne) ClearUserID() *CartUpdateOne {
+	_u.mutation.ClearUserID()
+	return _u
 }
 
 // SetSessionID sets the "session_id" field.
-func (cuo *CartUpdateOne) SetSessionID(s string) *CartUpdateOne {
-	cuo.mutation.SetSessionID(s)
-	return cuo
+func (_u *CartUpdateOne) SetSessionID(v string) *CartUpdateOne {
+	_u.mutation.SetSessionID(v)
+	return _u
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableSessionID(s *string) *CartUpdateOne {
-	if s != nil {
-		cuo.SetSessionID(*s)
+func (_u *CartUpdateOne) SetNillableSessionID(v *string) *CartUpdateOne {
+	if v != nil {
+		_u.SetSessionID(*v)
 	}
-	return cuo
+	return _u
 }
 
 // ClearSessionID clears the value of the "session_id" field.
-func (cuo *CartUpdateOne) ClearSessionID() *CartUpdateOne {
-	cuo.mutation.ClearSessionID()
-	return cuo
+func (_u *CartUpdateOne) ClearSessionID() *CartUpdateOne {
+	_u.mutation.ClearSessionID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (cuo *CartUpdateOne) SetStatus(c cart.Status) *CartUpdateOne {
-	cuo.mutation.SetStatus(c)
-	return cuo
+func (_u *CartUpdateOne) SetStatus(v cart.Status) *CartUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableStatus(c *cart.Status) *CartUpdateOne {
-	if c != nil {
-		cuo.SetStatus(*c)
+func (_u *CartUpdateOne) SetNillableStatus(v *cart.Status) *CartUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return cuo
+	return _u
 }
 
 // SetCurrency sets the "currency" field.
-func (cuo *CartUpdateOne) SetCurrency(s string) *CartUpdateOne {
-	cuo.mutation.SetCurrency(s)
-	return cuo
+func (_u *CartUpdateOne) SetCurrency(v string) *CartUpdateOne {
+	_u.mutation.SetCurrency(v)
+	return _u
 }
 
 // SetNillableCurrency sets the "currency" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableCurrency(s *string) *CartUpdateOne {
-	if s != nil {
-		cuo.SetCurrency(*s)
+func (_u *CartUpdateOne) SetNillableCurrency(v *string) *CartUpdateOne {
+	if v != nil {
+		_u.SetCurrency(*v)
 	}
-	return cuo
+	return _u
 }
 
 // SetSubtotal sets the "subtotal" field.
-func (cuo *CartUpdateOne) SetSubtotal(f float64) *CartUpdateOne {
-	cuo.mutation.ResetSubtotal()
-	cuo.mutation.SetSubtotal(f)
-	return cuo
+func (_u *CartUpdateOne) SetSubtotal(v float64) *CartUpdateOne {
+	_u.mutation.ResetSubtotal()
+	_u.mutation.SetSubtotal(v)
+	return _u
 }
 
 // SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableSubtotal(f *float64) *CartUpdateOne {
-	if f != nil {
-		cuo.SetSubtotal(*f)
+func (_u *CartUpdateOne) SetNillableSubtotal(v *float64) *CartUpdateOne {
+	if v != nil {
+		_u.SetSubtotal(*v)
 	}
-	return cuo
+	return _u
 }
 
-// AddSubtotal adds f to the "subtotal" field.
-func (cuo *CartUpdateOne) AddSubtotal(f float64) *CartUpdateOne {
-	cuo.mutation.AddSubtotal(f)
-	return cuo
+// AddSubtotal adds value to the "subtotal" field.
+func (_u *CartUpdateOne) AddSubtotal(v float64) *CartUpdateOne {
+	_u.mutation.AddSubtotal(v)
+	return _u
 }
 
 // SetDiscountTotal sets the "discount_total" field.
-func (cuo *CartUpdateOne) SetDiscountTotal(f float64) *CartUpdateOne {
-	cuo.mutation.ResetDiscountTotal()
-	cuo.mutation.SetDiscountTotal(f)
-	return cuo
+func (_u *CartUpdateOne) SetDiscountTotal(v float64) *CartUpdateOne {
+	_u.mutation.ResetDiscountTotal()
+	_u.mutation.SetDiscountTotal(v)
+	return _u
 }
 
 // SetNillableDiscountTotal sets the "discount_total" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableDiscountTotal(f *float64) *CartUpdateOne {
-	if f != nil {
-		cuo.SetDiscountTotal(*f)
+func (_u *CartUpdateOne) SetNillableDiscountTotal(v *float64) *CartUpdateOne {
+	if v != nil {
+		_u.SetDiscountTotal(*v)
 	}
-	return cuo
+	return _u
 }
 
-// AddDiscountTotal adds f to the "discount_total" field.
-func (cuo *CartUpdateOne) AddDiscountTotal(f float64) *CartUpdateOne {
-	cuo.mutation.AddDiscountTotal(f)
-	return cuo
+// AddDiscountTotal adds value to the "discount_total" field.
+func (_u *CartUpdateOne) AddDiscountTotal(v float64) *CartUpdateOne {
+	_u.mutation.AddDiscountTotal(v)
+	return _u
 }
 
 // SetTaxTotal sets the "tax_total" field.
-func (cuo *CartUpdateOne) SetTaxTotal(f float64) *CartUpdateOne {
-	cuo.mutation.ResetTaxTotal()
-	cuo.mutation.SetTaxTotal(f)
-	return cuo
+func (_u *CartUpdateOne) SetTaxTotal(v float64) *CartUpdateOne {
+	_u.mutation.ResetTaxTotal()
+	_u.mutation.SetTaxTotal(v)
+	return _u
 }
 
 // SetNillableTaxTotal sets the "tax_total" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableTaxTotal(f *float64) *CartUpdateOne {
-	if f != nil {
-		cuo.SetTaxTotal(*f)
+func (_u *CartUpdateOne) SetNillableTaxTotal(v *float64) *CartUpdateOne {
+	if v != nil {
+		_u.SetTaxTotal(*v)
 	}
-	return cuo
+	return _u
 }
 
-// AddTaxTotal adds f to the "tax_total" field.
-func (cuo *CartUpdateOne) AddTaxTotal(f float64) *CartUpdateOne {
-	cuo.mutation.AddTaxTotal(f)
-	return cuo
+// AddTaxTotal adds value to the "tax_total" field.
+func (_u *CartUpdateOne) AddTaxTotal(v float64) *CartUpdateOne {
+	_u.mutation.AddTaxTotal(v)
+	return _u
 }
 
 // SetDeliveryFee sets the "delivery_fee" field.
-func (cuo *CartUpdateOne) SetDeliveryFee(f float64) *CartUpdateOne {
-	cuo.mutation.ResetDeliveryFee()
-	cuo.mutation.SetDeliveryFee(f)
-	return cuo
+func (_u *CartUpdateOne) SetDeliveryFee(v float64) *CartUpdateOne {
+	_u.mutation.ResetDeliveryFee()
+	_u.mutation.SetDeliveryFee(v)
+	return _u
 }
 
 // SetNillableDeliveryFee sets the "delivery_fee" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableDeliveryFee(f *float64) *CartUpdateOne {
-	if f != nil {
-		cuo.SetDeliveryFee(*f)
+func (_u *CartUpdateOne) SetNillableDeliveryFee(v *float64) *CartUpdateOne {
+	if v != nil {
+		_u.SetDeliveryFee(*v)
 	}
-	return cuo
+	return _u
 }
 
-// AddDeliveryFee adds f to the "delivery_fee" field.
-func (cuo *CartUpdateOne) AddDeliveryFee(f float64) *CartUpdateOne {
-	cuo.mutation.AddDeliveryFee(f)
-	return cuo
+// AddDeliveryFee adds value to the "delivery_fee" field.
+func (_u *CartUpdateOne) AddDeliveryFee(v float64) *CartUpdateOne {
+	_u.mutation.AddDeliveryFee(v)
+	return _u
 }
 
 // SetLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field.
-func (cuo *CartUpdateOne) SetLoyaltyPointsRedeemed(i int) *CartUpdateOne {
-	cuo.mutation.ResetLoyaltyPointsRedeemed()
-	cuo.mutation.SetLoyaltyPointsRedeemed(i)
-	return cuo
+func (_u *CartUpdateOne) SetLoyaltyPointsRedeemed(v int) *CartUpdateOne {
+	_u.mutation.ResetLoyaltyPointsRedeemed()
+	_u.mutation.SetLoyaltyPointsRedeemed(v)
+	return _u
 }
 
 // SetNillableLoyaltyPointsRedeemed sets the "loyalty_points_redeemed" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableLoyaltyPointsRedeemed(i *int) *CartUpdateOne {
-	if i != nil {
-		cuo.SetLoyaltyPointsRedeemed(*i)
+func (_u *CartUpdateOne) SetNillableLoyaltyPointsRedeemed(v *int) *CartUpdateOne {
+	if v != nil {
+		_u.SetLoyaltyPointsRedeemed(*v)
 	}
-	return cuo
+	return _u
 }
 
-// AddLoyaltyPointsRedeemed adds i to the "loyalty_points_redeemed" field.
-func (cuo *CartUpdateOne) AddLoyaltyPointsRedeemed(i int) *CartUpdateOne {
-	cuo.mutation.AddLoyaltyPointsRedeemed(i)
-	return cuo
+// AddLoyaltyPointsRedeemed adds value to the "loyalty_points_redeemed" field.
+func (_u *CartUpdateOne) AddLoyaltyPointsRedeemed(v int) *CartUpdateOne {
+	_u.mutation.AddLoyaltyPointsRedeemed(v)
+	return _u
 }
 
 // SetPromoCodeID sets the "promo_code_id" field.
-func (cuo *CartUpdateOne) SetPromoCodeID(u uuid.UUID) *CartUpdateOne {
-	cuo.mutation.SetPromoCodeID(u)
-	return cuo
+func (_u *CartUpdateOne) SetPromoCodeID(v uuid.UUID) *CartUpdateOne {
+	_u.mutation.SetPromoCodeID(v)
+	return _u
 }
 
 // SetNillablePromoCodeID sets the "promo_code_id" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillablePromoCodeID(u *uuid.UUID) *CartUpdateOne {
-	if u != nil {
-		cuo.SetPromoCodeID(*u)
+func (_u *CartUpdateOne) SetNillablePromoCodeID(v *uuid.UUID) *CartUpdateOne {
+	if v != nil {
+		_u.SetPromoCodeID(*v)
 	}
-	return cuo
+	return _u
 }
 
 // ClearPromoCodeID clears the value of the "promo_code_id" field.
-func (cuo *CartUpdateOne) ClearPromoCodeID() *CartUpdateOne {
-	cuo.mutation.ClearPromoCodeID()
-	return cuo
+func (_u *CartUpdateOne) ClearPromoCodeID() *CartUpdateOne {
+	_u.mutation.ClearPromoCodeID()
+	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (cuo *CartUpdateOne) SetExpiresAt(t time.Time) *CartUpdateOne {
-	cuo.mutation.SetExpiresAt(t)
-	return cuo
+func (_u *CartUpdateOne) SetExpiresAt(v time.Time) *CartUpdateOne {
+	_u.mutation.SetExpiresAt(v)
+	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (cuo *CartUpdateOne) SetNillableExpiresAt(t *time.Time) *CartUpdateOne {
-	if t != nil {
-		cuo.SetExpiresAt(*t)
+func (_u *CartUpdateOne) SetNillableExpiresAt(v *time.Time) *CartUpdateOne {
+	if v != nil {
+		_u.SetExpiresAt(*v)
 	}
-	return cuo
+	return _u
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (cuo *CartUpdateOne) ClearExpiresAt() *CartUpdateOne {
-	cuo.mutation.ClearExpiresAt()
-	return cuo
+func (_u *CartUpdateOne) ClearExpiresAt() *CartUpdateOne {
+	_u.mutation.ClearExpiresAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cuo *CartUpdateOne) SetUpdatedAt(t time.Time) *CartUpdateOne {
-	cuo.mutation.SetUpdatedAt(t)
-	return cuo
+func (_u *CartUpdateOne) SetUpdatedAt(v time.Time) *CartUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddItemIDs adds the "items" edge to the CartItem entity by IDs.
-func (cuo *CartUpdateOne) AddItemIDs(ids ...uuid.UUID) *CartUpdateOne {
-	cuo.mutation.AddItemIDs(ids...)
-	return cuo
+func (_u *CartUpdateOne) AddItemIDs(ids ...uuid.UUID) *CartUpdateOne {
+	_u.mutation.AddItemIDs(ids...)
+	return _u
 }
 
 // AddItems adds the "items" edges to the CartItem entity.
-func (cuo *CartUpdateOne) AddItems(c ...*CartItem) *CartUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *CartUpdateOne) AddItems(v ...*CartItem) *CartUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cuo.AddItemIDs(ids...)
+	return _u.AddItemIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cuo *CartUpdateOne) SetUser(u *User) *CartUpdateOne {
-	return cuo.SetUserID(u.ID)
+func (_u *CartUpdateOne) SetUser(v *User) *CartUpdateOne {
+	return _u.SetUserID(v.ID)
 }
 
 // Mutation returns the CartMutation object of the builder.
-func (cuo *CartUpdateOne) Mutation() *CartMutation {
-	return cuo.mutation
+func (_u *CartUpdateOne) Mutation() *CartMutation {
+	return _u.mutation
 }
 
 // ClearItems clears all "items" edges to the CartItem entity.
-func (cuo *CartUpdateOne) ClearItems() *CartUpdateOne {
-	cuo.mutation.ClearItems()
-	return cuo
+func (_u *CartUpdateOne) ClearItems() *CartUpdateOne {
+	_u.mutation.ClearItems()
+	return _u
 }
 
 // RemoveItemIDs removes the "items" edge to CartItem entities by IDs.
-func (cuo *CartUpdateOne) RemoveItemIDs(ids ...uuid.UUID) *CartUpdateOne {
-	cuo.mutation.RemoveItemIDs(ids...)
-	return cuo
+func (_u *CartUpdateOne) RemoveItemIDs(ids ...uuid.UUID) *CartUpdateOne {
+	_u.mutation.RemoveItemIDs(ids...)
+	return _u
 }
 
 // RemoveItems removes "items" edges to CartItem entities.
-func (cuo *CartUpdateOne) RemoveItems(c ...*CartItem) *CartUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *CartUpdateOne) RemoveItems(v ...*CartItem) *CartUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cuo.RemoveItemIDs(ids...)
+	return _u.RemoveItemIDs(ids...)
 }
 
 // ClearUser clears the "user" edge to the User entity.
-func (cuo *CartUpdateOne) ClearUser() *CartUpdateOne {
-	cuo.mutation.ClearUser()
-	return cuo
+func (_u *CartUpdateOne) ClearUser() *CartUpdateOne {
+	_u.mutation.ClearUser()
+	return _u
 }
 
 // Where appends a list predicates to the CartUpdate builder.
-func (cuo *CartUpdateOne) Where(ps ...predicate.Cart) *CartUpdateOne {
-	cuo.mutation.Where(ps...)
-	return cuo
+func (_u *CartUpdateOne) Where(ps ...predicate.Cart) *CartUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (cuo *CartUpdateOne) Select(field string, fields ...string) *CartUpdateOne {
-	cuo.fields = append([]string{field}, fields...)
-	return cuo
+func (_u *CartUpdateOne) Select(field string, fields ...string) *CartUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Cart entity.
-func (cuo *CartUpdateOne) Save(ctx context.Context) (*Cart, error) {
-	cuo.defaults()
-	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
+func (_u *CartUpdateOne) Save(ctx context.Context) (*Cart, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cuo *CartUpdateOne) SaveX(ctx context.Context) *Cart {
-	node, err := cuo.Save(ctx)
+func (_u *CartUpdateOne) SaveX(ctx context.Context) *Cart {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -883,39 +883,39 @@ func (cuo *CartUpdateOne) SaveX(ctx context.Context) *Cart {
 }
 
 // Exec executes the query on the entity.
-func (cuo *CartUpdateOne) Exec(ctx context.Context) error {
-	_, err := cuo.Save(ctx)
+func (_u *CartUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cuo *CartUpdateOne) ExecX(ctx context.Context) {
-	if err := cuo.Exec(ctx); err != nil {
+func (_u *CartUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cuo *CartUpdateOne) defaults() {
-	if _, ok := cuo.mutation.UpdatedAt(); !ok {
+func (_u *CartUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := cart.UpdateDefaultUpdatedAt()
-		cuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cuo *CartUpdateOne) check() error {
-	if v, ok := cuo.mutation.SessionID(); ok {
+func (_u *CartUpdateOne) check() error {
+	if v, ok := _u.mutation.SessionID(); ok {
 		if err := cart.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "Cart.session_id": %w`, err)}
 		}
 	}
-	if v, ok := cuo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := cart.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Cart.status": %w`, err)}
 		}
 	}
-	if v, ok := cuo.mutation.Currency(); ok {
+	if v, ok := _u.mutation.Currency(); ok {
 		if err := cart.CurrencyValidator(v); err != nil {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Cart.currency": %w`, err)}
 		}
@@ -923,17 +923,17 @@ func (cuo *CartUpdateOne) check() error {
 	return nil
 }
 
-func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) {
-	if err := cuo.check(); err != nil {
+func (_u *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(cart.Table, cart.Columns, sqlgraph.NewFieldSpec(cart.FieldID, field.TypeUUID))
-	id, ok := cuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Cart.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := cuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, cart.FieldID)
 		for _, f := range fields {
@@ -945,77 +945,77 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 			}
 		}
 	}
-	if ps := cuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := cuo.mutation.TenantID(); ok {
+	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(cart.FieldTenantID, field.TypeUUID, value)
 	}
-	if value, ok := cuo.mutation.OutletID(); ok {
+	if value, ok := _u.mutation.OutletID(); ok {
 		_spec.SetField(cart.FieldOutletID, field.TypeUUID, value)
 	}
-	if value, ok := cuo.mutation.SessionID(); ok {
+	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(cart.FieldSessionID, field.TypeString, value)
 	}
-	if cuo.mutation.SessionIDCleared() {
+	if _u.mutation.SessionIDCleared() {
 		_spec.ClearField(cart.FieldSessionID, field.TypeString)
 	}
-	if value, ok := cuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(cart.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := cuo.mutation.Currency(); ok {
+	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(cart.FieldCurrency, field.TypeString, value)
 	}
-	if value, ok := cuo.mutation.Subtotal(); ok {
+	if value, ok := _u.mutation.Subtotal(); ok {
 		_spec.SetField(cart.FieldSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.AddedSubtotal(); ok {
+	if value, ok := _u.mutation.AddedSubtotal(); ok {
 		_spec.AddField(cart.FieldSubtotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.DiscountTotal(); ok {
+	if value, ok := _u.mutation.DiscountTotal(); ok {
 		_spec.SetField(cart.FieldDiscountTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.AddedDiscountTotal(); ok {
+	if value, ok := _u.mutation.AddedDiscountTotal(); ok {
 		_spec.AddField(cart.FieldDiscountTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.TaxTotal(); ok {
+	if value, ok := _u.mutation.TaxTotal(); ok {
 		_spec.SetField(cart.FieldTaxTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.AddedTaxTotal(); ok {
+	if value, ok := _u.mutation.AddedTaxTotal(); ok {
 		_spec.AddField(cart.FieldTaxTotal, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.DeliveryFee(); ok {
+	if value, ok := _u.mutation.DeliveryFee(); ok {
 		_spec.SetField(cart.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.AddedDeliveryFee(); ok {
+	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(cart.FieldDeliveryFee, field.TypeFloat64, value)
 	}
-	if value, ok := cuo.mutation.LoyaltyPointsRedeemed(); ok {
+	if value, ok := _u.mutation.LoyaltyPointsRedeemed(); ok {
 		_spec.SetField(cart.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 	}
-	if value, ok := cuo.mutation.AddedLoyaltyPointsRedeemed(); ok {
+	if value, ok := _u.mutation.AddedLoyaltyPointsRedeemed(); ok {
 		_spec.AddField(cart.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 	}
-	if value, ok := cuo.mutation.PromoCodeID(); ok {
+	if value, ok := _u.mutation.PromoCodeID(); ok {
 		_spec.SetField(cart.FieldPromoCodeID, field.TypeUUID, value)
 	}
-	if cuo.mutation.PromoCodeIDCleared() {
+	if _u.mutation.PromoCodeIDCleared() {
 		_spec.ClearField(cart.FieldPromoCodeID, field.TypeUUID)
 	}
-	if value, ok := cuo.mutation.ExpiresAt(); ok {
+	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(cart.FieldExpiresAt, field.TypeTime, value)
 	}
-	if cuo.mutation.ExpiresAtCleared() {
+	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(cart.FieldExpiresAt, field.TypeTime)
 	}
-	if value, ok := cuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(cart.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if cuo.mutation.ItemsCleared() {
+	if _u.mutation.ItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1028,7 +1028,7 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.RemovedItemsIDs(); len(nodes) > 0 && !cuo.mutation.ItemsCleared() {
+	if nodes := _u.mutation.RemovedItemsIDs(); len(nodes) > 0 && !_u.mutation.ItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1044,7 +1044,7 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.ItemsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1060,7 +1060,7 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cuo.mutation.UserCleared() {
+	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1073,7 +1073,7 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1089,10 +1089,10 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Cart{config: cuo.config}
+	_node = &Cart{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, cuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{cart.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1100,6 +1100,6 @@ func (cuo *CartUpdateOne) sqlSave(ctx context.Context) (_node *Cart, err error) 
 		}
 		return nil, err
 	}
-	cuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

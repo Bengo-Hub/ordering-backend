@@ -12,8 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
@@ -29,275 +27,245 @@ type OutletCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (oc *OutletCreate) SetTenantID(u uuid.UUID) *OutletCreate {
-	oc.mutation.SetTenantID(u)
-	return oc
+func (_c *OutletCreate) SetTenantID(v uuid.UUID) *OutletCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (oc *OutletCreate) SetName(s string) *OutletCreate {
-	oc.mutation.SetName(s)
-	return oc
+func (_c *OutletCreate) SetName(v string) *OutletCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetSlug sets the "slug" field.
-func (oc *OutletCreate) SetSlug(s string) *OutletCreate {
-	oc.mutation.SetSlug(s)
-	return oc
+func (_c *OutletCreate) SetSlug(v string) *OutletCreate {
+	_c.mutation.SetSlug(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (oc *OutletCreate) SetDescription(s string) *OutletCreate {
-	oc.mutation.SetDescription(s)
-	return oc
+func (_c *OutletCreate) SetDescription(v string) *OutletCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableDescription(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetDescription(*s)
+func (_c *OutletCreate) SetNillableDescription(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetAddress sets the "address" field.
-func (oc *OutletCreate) SetAddress(s string) *OutletCreate {
-	oc.mutation.SetAddress(s)
-	return oc
+func (_c *OutletCreate) SetAddress(v string) *OutletCreate {
+	_c.mutation.SetAddress(v)
+	return _c
 }
 
 // SetNillableAddress sets the "address" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableAddress(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetAddress(*s)
+func (_c *OutletCreate) SetNillableAddress(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetAddress(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetPhone sets the "phone" field.
-func (oc *OutletCreate) SetPhone(s string) *OutletCreate {
-	oc.mutation.SetPhone(s)
-	return oc
+func (_c *OutletCreate) SetPhone(v string) *OutletCreate {
+	_c.mutation.SetPhone(v)
+	return _c
 }
 
 // SetNillablePhone sets the "phone" field if the given value is not nil.
-func (oc *OutletCreate) SetNillablePhone(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetPhone(*s)
+func (_c *OutletCreate) SetNillablePhone(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetPhone(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetEmail sets the "email" field.
-func (oc *OutletCreate) SetEmail(s string) *OutletCreate {
-	oc.mutation.SetEmail(s)
-	return oc
+func (_c *OutletCreate) SetEmail(v string) *OutletCreate {
+	_c.mutation.SetEmail(v)
+	return _c
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableEmail(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetEmail(*s)
+func (_c *OutletCreate) SetNillableEmail(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetEmail(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetLocation sets the "location" field.
-func (oc *OutletCreate) SetLocation(s string) *OutletCreate {
-	oc.mutation.SetLocation(s)
-	return oc
+func (_c *OutletCreate) SetLocation(v string) *OutletCreate {
+	_c.mutation.SetLocation(v)
+	return _c
 }
 
 // SetNillableLocation sets the "location" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableLocation(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetLocation(*s)
+func (_c *OutletCreate) SetNillableLocation(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetLocation(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetLatitude sets the "latitude" field.
-func (oc *OutletCreate) SetLatitude(f float64) *OutletCreate {
-	oc.mutation.SetLatitude(f)
-	return oc
+func (_c *OutletCreate) SetLatitude(v float64) *OutletCreate {
+	_c.mutation.SetLatitude(v)
+	return _c
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableLatitude(f *float64) *OutletCreate {
-	if f != nil {
-		oc.SetLatitude(*f)
+func (_c *OutletCreate) SetNillableLatitude(v *float64) *OutletCreate {
+	if v != nil {
+		_c.SetLatitude(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetLongitude sets the "longitude" field.
-func (oc *OutletCreate) SetLongitude(f float64) *OutletCreate {
-	oc.mutation.SetLongitude(f)
-	return oc
+func (_c *OutletCreate) SetLongitude(v float64) *OutletCreate {
+	_c.mutation.SetLongitude(v)
+	return _c
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableLongitude(f *float64) *OutletCreate {
-	if f != nil {
-		oc.SetLongitude(*f)
+func (_c *OutletCreate) SetNillableLongitude(v *float64) *OutletCreate {
+	if v != nil {
+		_c.SetLongitude(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetOpeningHours sets the "opening_hours" field.
-func (oc *OutletCreate) SetOpeningHours(m map[string]interface{}) *OutletCreate {
-	oc.mutation.SetOpeningHours(m)
-	return oc
+func (_c *OutletCreate) SetOpeningHours(v map[string]interface{}) *OutletCreate {
+	_c.mutation.SetOpeningHours(v)
+	return _c
 }
 
 // SetImageURL sets the "image_url" field.
-func (oc *OutletCreate) SetImageURL(s string) *OutletCreate {
-	oc.mutation.SetImageURL(s)
-	return oc
+func (_c *OutletCreate) SetImageURL(v string) *OutletCreate {
+	_c.mutation.SetImageURL(v)
+	return _c
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableImageURL(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetImageURL(*s)
+func (_c *OutletCreate) SetNillableImageURL(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetImageURL(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetUseCase sets the "use_case" field.
-func (oc *OutletCreate) SetUseCase(s string) *OutletCreate {
-	oc.mutation.SetUseCase(s)
-	return oc
+func (_c *OutletCreate) SetUseCase(v string) *OutletCreate {
+	_c.mutation.SetUseCase(v)
+	return _c
 }
 
 // SetNillableUseCase sets the "use_case" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableUseCase(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetUseCase(*s)
+func (_c *OutletCreate) SetNillableUseCase(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetUseCase(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (oc *OutletCreate) SetStatus(s string) *OutletCreate {
-	oc.mutation.SetStatus(s)
-	return oc
+func (_c *OutletCreate) SetStatus(v string) *OutletCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableStatus(s *string) *OutletCreate {
-	if s != nil {
-		oc.SetStatus(*s)
+func (_c *OutletCreate) SetNillableStatus(v *string) *OutletCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (oc *OutletCreate) SetCreatedAt(t time.Time) *OutletCreate {
-	oc.mutation.SetCreatedAt(t)
-	return oc
+func (_c *OutletCreate) SetCreatedAt(v time.Time) *OutletCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableCreatedAt(t *time.Time) *OutletCreate {
-	if t != nil {
-		oc.SetCreatedAt(*t)
+func (_c *OutletCreate) SetNillableCreatedAt(v *time.Time) *OutletCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (oc *OutletCreate) SetUpdatedAt(t time.Time) *OutletCreate {
-	oc.mutation.SetUpdatedAt(t)
-	return oc
+func (_c *OutletCreate) SetUpdatedAt(v time.Time) *OutletCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableUpdatedAt(t *time.Time) *OutletCreate {
-	if t != nil {
-		oc.SetUpdatedAt(*t)
+func (_c *OutletCreate) SetNillableUpdatedAt(v *time.Time) *OutletCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (oc *OutletCreate) SetID(u uuid.UUID) *OutletCreate {
-	oc.mutation.SetID(u)
-	return oc
+func (_c *OutletCreate) SetID(v uuid.UUID) *OutletCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (oc *OutletCreate) SetNillableID(u *uuid.UUID) *OutletCreate {
-	if u != nil {
-		oc.SetID(*u)
+func (_c *OutletCreate) SetNillableID(v *uuid.UUID) *OutletCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return oc
+	return _c
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (oc *OutletCreate) SetTenant(t *Tenant) *OutletCreate {
-	return oc.SetTenantID(t.ID)
-}
-
-// AddCatalogCategoryIDs adds the "catalog_categories" edge to the CatalogCategory entity by IDs.
-func (oc *OutletCreate) AddCatalogCategoryIDs(ids ...uuid.UUID) *OutletCreate {
-	oc.mutation.AddCatalogCategoryIDs(ids...)
-	return oc
-}
-
-// AddCatalogCategories adds the "catalog_categories" edges to the CatalogCategory entity.
-func (oc *OutletCreate) AddCatalogCategories(c ...*CatalogCategory) *OutletCreate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return oc.AddCatalogCategoryIDs(ids...)
-}
-
-// AddCatalogItemIDs adds the "catalog_items" edge to the CatalogItem entity by IDs.
-func (oc *OutletCreate) AddCatalogItemIDs(ids ...uuid.UUID) *OutletCreate {
-	oc.mutation.AddCatalogItemIDs(ids...)
-	return oc
-}
-
-// AddCatalogItems adds the "catalog_items" edges to the CatalogItem entity.
-func (oc *OutletCreate) AddCatalogItems(c ...*CatalogItem) *OutletCreate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return oc.AddCatalogItemIDs(ids...)
+func (_c *OutletCreate) SetTenant(v *Tenant) *OutletCreate {
+	return _c.SetTenantID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (oc *OutletCreate) AddOrderIDs(ids ...uuid.UUID) *OutletCreate {
-	oc.mutation.AddOrderIDs(ids...)
-	return oc
+func (_c *OutletCreate) AddOrderIDs(ids ...uuid.UUID) *OutletCreate {
+	_c.mutation.AddOrderIDs(ids...)
+	return _c
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (oc *OutletCreate) AddOrders(o ...*Order) *OutletCreate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_c *OutletCreate) AddOrders(v ...*Order) *OutletCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return oc.AddOrderIDs(ids...)
+	return _c.AddOrderIDs(ids...)
 }
 
 // Mutation returns the OutletMutation object of the builder.
-func (oc *OutletCreate) Mutation() *OutletMutation {
-	return oc.mutation
+func (_c *OutletCreate) Mutation() *OutletMutation {
+	return _c.mutation
 }
 
 // Save creates the Outlet in the database.
-func (oc *OutletCreate) Save(ctx context.Context) (*Outlet, error) {
-	oc.defaults()
-	return withHooks(ctx, oc.sqlSave, oc.mutation, oc.hooks)
+func (_c *OutletCreate) Save(ctx context.Context) (*Outlet, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (oc *OutletCreate) SaveX(ctx context.Context) *Outlet {
-	v, err := oc.Save(ctx)
+func (_c *OutletCreate) SaveX(ctx context.Context) *Outlet {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -305,84 +273,84 @@ func (oc *OutletCreate) SaveX(ctx context.Context) *Outlet {
 }
 
 // Exec executes the query.
-func (oc *OutletCreate) Exec(ctx context.Context) error {
-	_, err := oc.Save(ctx)
+func (_c *OutletCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (oc *OutletCreate) ExecX(ctx context.Context) {
-	if err := oc.Exec(ctx); err != nil {
+func (_c *OutletCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (oc *OutletCreate) defaults() {
-	if _, ok := oc.mutation.ImageURL(); !ok {
+func (_c *OutletCreate) defaults() {
+	if _, ok := _c.mutation.ImageURL(); !ok {
 		v := outlet.DefaultImageURL
-		oc.mutation.SetImageURL(v)
+		_c.mutation.SetImageURL(v)
 	}
-	if _, ok := oc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := outlet.DefaultStatus
-		oc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := oc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := outlet.DefaultCreatedAt()
-		oc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := oc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := outlet.DefaultUpdatedAt()
-		oc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := oc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := outlet.DefaultID()
-		oc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (oc *OutletCreate) check() error {
-	if _, ok := oc.mutation.TenantID(); !ok {
+func (_c *OutletCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Outlet.tenant_id"`)}
 	}
-	if _, ok := oc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Outlet.name"`)}
 	}
-	if v, ok := oc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := outlet.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Outlet.name": %w`, err)}
 		}
 	}
-	if _, ok := oc.mutation.Slug(); !ok {
+	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Outlet.slug"`)}
 	}
-	if v, ok := oc.mutation.Slug(); ok {
+	if v, ok := _c.mutation.Slug(); ok {
 		if err := outlet.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
 	}
-	if _, ok := oc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Outlet.status"`)}
 	}
-	if _, ok := oc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Outlet.created_at"`)}
 	}
-	if _, ok := oc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Outlet.updated_at"`)}
 	}
-	if _, ok := oc.mutation.TenantID(); !ok {
+	if len(_c.mutation.TenantIDs()) == 0 {
 		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "Outlet.tenant"`)}
 	}
 	return nil
 }
 
-func (oc *OutletCreate) sqlSave(ctx context.Context) (*Outlet, error) {
-	if err := oc.check(); err != nil {
+func (_c *OutletCreate) sqlSave(ctx context.Context) (*Outlet, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := oc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, oc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -395,82 +363,82 @@ func (oc *OutletCreate) sqlSave(ctx context.Context) (*Outlet, error) {
 			return nil, err
 		}
 	}
-	oc.mutation.id = &_node.ID
-	oc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (oc *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
+func (_c *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Outlet{config: oc.config}
+		_node = &Outlet{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(outlet.Table, sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = oc.conflict
-	if id, ok := oc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := oc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(outlet.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := oc.mutation.Slug(); ok {
+	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(outlet.FieldSlug, field.TypeString, value)
 		_node.Slug = value
 	}
-	if value, ok := oc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(outlet.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := oc.mutation.Address(); ok {
+	if value, ok := _c.mutation.Address(); ok {
 		_spec.SetField(outlet.FieldAddress, field.TypeString, value)
 		_node.Address = value
 	}
-	if value, ok := oc.mutation.Phone(); ok {
+	if value, ok := _c.mutation.Phone(); ok {
 		_spec.SetField(outlet.FieldPhone, field.TypeString, value)
 		_node.Phone = value
 	}
-	if value, ok := oc.mutation.Email(); ok {
+	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(outlet.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
-	if value, ok := oc.mutation.Location(); ok {
+	if value, ok := _c.mutation.Location(); ok {
 		_spec.SetField(outlet.FieldLocation, field.TypeString, value)
 		_node.Location = value
 	}
-	if value, ok := oc.mutation.Latitude(); ok {
+	if value, ok := _c.mutation.Latitude(); ok {
 		_spec.SetField(outlet.FieldLatitude, field.TypeFloat64, value)
 		_node.Latitude = &value
 	}
-	if value, ok := oc.mutation.Longitude(); ok {
+	if value, ok := _c.mutation.Longitude(); ok {
 		_spec.SetField(outlet.FieldLongitude, field.TypeFloat64, value)
 		_node.Longitude = &value
 	}
-	if value, ok := oc.mutation.OpeningHours(); ok {
+	if value, ok := _c.mutation.OpeningHours(); ok {
 		_spec.SetField(outlet.FieldOpeningHours, field.TypeJSON, value)
 		_node.OpeningHours = value
 	}
-	if value, ok := oc.mutation.ImageURL(); ok {
+	if value, ok := _c.mutation.ImageURL(); ok {
 		_spec.SetField(outlet.FieldImageURL, field.TypeString, value)
 		_node.ImageURL = value
 	}
-	if value, ok := oc.mutation.UseCase(); ok {
+	if value, ok := _c.mutation.UseCase(); ok {
 		_spec.SetField(outlet.FieldUseCase, field.TypeString, value)
 		_node.UseCase = value
 	}
-	if value, ok := oc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := oc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(outlet.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := oc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(outlet.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := oc.mutation.TenantIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.TenantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -487,39 +455,7 @@ func (oc *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 		_node.TenantID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := oc.mutation.CatalogCategoriesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogCategoriesTable,
-			Columns: []string{outlet.CatalogCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.CatalogItemsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   outlet.CatalogItemsTable,
-			Columns: []string{outlet.CatalogItemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(catalogitem.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -554,10 +490,10 @@ func (oc *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (oc *OutletCreate) OnConflict(opts ...sql.ConflictOption) *OutletUpsertOne {
-	oc.conflict = opts
+func (_c *OutletCreate) OnConflict(opts ...sql.ConflictOption) *OutletUpsertOne {
+	_c.conflict = opts
 	return &OutletUpsertOne{
-		create: oc,
+		create: _c,
 	}
 }
 
@@ -567,10 +503,10 @@ func (oc *OutletCreate) OnConflict(opts ...sql.ConflictOption) *OutletUpsertOne 
 //	client.Outlet.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (oc *OutletCreate) OnConflictColumns(columns ...string) *OutletUpsertOne {
-	oc.conflict = append(oc.conflict, sql.ConflictColumns(columns...))
+func (_c *OutletCreate) OnConflictColumns(columns ...string) *OutletUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OutletUpsertOne{
-		create: oc,
+		create: _c,
 	}
 }
 
@@ -1231,16 +1167,16 @@ type OutletCreateBulk struct {
 }
 
 // Save creates the Outlet entities in the database.
-func (ocb *OutletCreateBulk) Save(ctx context.Context) ([]*Outlet, error) {
-	if ocb.err != nil {
-		return nil, ocb.err
+func (_c *OutletCreateBulk) Save(ctx context.Context) ([]*Outlet, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ocb.builders))
-	nodes := make([]*Outlet, len(ocb.builders))
-	mutators := make([]Mutator, len(ocb.builders))
-	for i := range ocb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Outlet, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ocb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*OutletMutation)
@@ -1254,12 +1190,12 @@ func (ocb *OutletCreateBulk) Save(ctx context.Context) ([]*Outlet, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ocb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ocb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ocb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1279,7 +1215,7 @@ func (ocb *OutletCreateBulk) Save(ctx context.Context) ([]*Outlet, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ocb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1287,8 +1223,8 @@ func (ocb *OutletCreateBulk) Save(ctx context.Context) ([]*Outlet, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ocb *OutletCreateBulk) SaveX(ctx context.Context) []*Outlet {
-	v, err := ocb.Save(ctx)
+func (_c *OutletCreateBulk) SaveX(ctx context.Context) []*Outlet {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1296,14 +1232,14 @@ func (ocb *OutletCreateBulk) SaveX(ctx context.Context) []*Outlet {
 }
 
 // Exec executes the query.
-func (ocb *OutletCreateBulk) Exec(ctx context.Context) error {
-	_, err := ocb.Save(ctx)
+func (_c *OutletCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ocb *OutletCreateBulk) ExecX(ctx context.Context) {
-	if err := ocb.Exec(ctx); err != nil {
+func (_c *OutletCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1323,10 +1259,10 @@ func (ocb *OutletCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (ocb *OutletCreateBulk) OnConflict(opts ...sql.ConflictOption) *OutletUpsertBulk {
-	ocb.conflict = opts
+func (_c *OutletCreateBulk) OnConflict(opts ...sql.ConflictOption) *OutletUpsertBulk {
+	_c.conflict = opts
 	return &OutletUpsertBulk{
-		create: ocb,
+		create: _c,
 	}
 }
 
@@ -1336,10 +1272,10 @@ func (ocb *OutletCreateBulk) OnConflict(opts ...sql.ConflictOption) *OutletUpser
 //	client.Outlet.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ocb *OutletCreateBulk) OnConflictColumns(columns ...string) *OutletUpsertBulk {
-	ocb.conflict = append(ocb.conflict, sql.ConflictColumns(columns...))
+func (_c *OutletCreateBulk) OnConflictColumns(columns ...string) *OutletUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &OutletUpsertBulk{
-		create: ocb,
+		create: _c,
 	}
 }
 

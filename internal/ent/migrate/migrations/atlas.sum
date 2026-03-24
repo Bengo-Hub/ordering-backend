@@ -1,5 +1,3 @@
-h1:aKWzpseLja5hA8o9W7Dxf3duoldHQ8WZuTUMwncke8Y=
-20260315205002_initial_schema.sql h1:E6xc0WFdJngqQBjSKQFfKrTBKyakbMwrcNUH9Mym8hk=
-20260320023309_add_category_name_description_slug_imageurl.sql h1:F+eaSbQS1Cc9zEwqiu2epZb4aAgombAzQNEg22Y6FM0=
-20260320140654_add_delivery_zones.sql h1:87hEDsdxnwwR0icJX4/O//QIWeKbl/7cHYgvxN5dDb0=
-20260322093655_add_rbac_rate_limit_service_config.sql h1:ziS0Oi2bPDW2oaAwTdaZT9NgkI3FG+vBs/D3yfh+3fw=
+h1:B57B/yDyBmZA7RnK8LRehbyOqf4o5BGigx26E3r+2pk=
+00000000000000_placeholder.sql h1:oia+ChfxOyxpl1vbRRukPAru4za0t0C0S27t47F/Ur8=
+20260324063527_initial_schema.sql h1:HPAzsUokgUF/tnMNhcY3EHkO1bnMwTjm2rjAFdJACjg=

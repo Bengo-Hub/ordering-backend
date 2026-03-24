@@ -27,279 +27,279 @@ type CustomerAddressCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (cac *CustomerAddressCreate) SetTenantID(u uuid.UUID) *CustomerAddressCreate {
-	cac.mutation.SetTenantID(u)
-	return cac
+func (_c *CustomerAddressCreate) SetTenantID(v uuid.UUID) *CustomerAddressCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (cac *CustomerAddressCreate) SetUserID(u uuid.UUID) *CustomerAddressCreate {
-	cac.mutation.SetUserID(u)
-	return cac
+func (_c *CustomerAddressCreate) SetUserID(v uuid.UUID) *CustomerAddressCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetLabel sets the "label" field.
-func (cac *CustomerAddressCreate) SetLabel(s string) *CustomerAddressCreate {
-	cac.mutation.SetLabel(s)
-	return cac
+func (_c *CustomerAddressCreate) SetLabel(v string) *CustomerAddressCreate {
+	_c.mutation.SetLabel(v)
+	return _c
 }
 
 // SetAddressLine1 sets the "address_line1" field.
-func (cac *CustomerAddressCreate) SetAddressLine1(s string) *CustomerAddressCreate {
-	cac.mutation.SetAddressLine1(s)
-	return cac
+func (_c *CustomerAddressCreate) SetAddressLine1(v string) *CustomerAddressCreate {
+	_c.mutation.SetAddressLine1(v)
+	return _c
 }
 
 // SetAddressLine2 sets the "address_line2" field.
-func (cac *CustomerAddressCreate) SetAddressLine2(s string) *CustomerAddressCreate {
-	cac.mutation.SetAddressLine2(s)
-	return cac
+func (_c *CustomerAddressCreate) SetAddressLine2(v string) *CustomerAddressCreate {
+	_c.mutation.SetAddressLine2(v)
+	return _c
 }
 
 // SetNillableAddressLine2 sets the "address_line2" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableAddressLine2(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetAddressLine2(*s)
+func (_c *CustomerAddressCreate) SetNillableAddressLine2(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetAddressLine2(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetCity sets the "city" field.
-func (cac *CustomerAddressCreate) SetCity(s string) *CustomerAddressCreate {
-	cac.mutation.SetCity(s)
-	return cac
+func (_c *CustomerAddressCreate) SetCity(v string) *CustomerAddressCreate {
+	_c.mutation.SetCity(v)
+	return _c
 }
 
 // SetCounty sets the "county" field.
-func (cac *CustomerAddressCreate) SetCounty(s string) *CustomerAddressCreate {
-	cac.mutation.SetCounty(s)
-	return cac
+func (_c *CustomerAddressCreate) SetCounty(v string) *CustomerAddressCreate {
+	_c.mutation.SetCounty(v)
+	return _c
 }
 
 // SetNillableCounty sets the "county" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableCounty(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetCounty(*s)
+func (_c *CustomerAddressCreate) SetNillableCounty(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetCounty(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetPostalCode sets the "postal_code" field.
-func (cac *CustomerAddressCreate) SetPostalCode(s string) *CustomerAddressCreate {
-	cac.mutation.SetPostalCode(s)
-	return cac
+func (_c *CustomerAddressCreate) SetPostalCode(v string) *CustomerAddressCreate {
+	_c.mutation.SetPostalCode(v)
+	return _c
 }
 
 // SetNillablePostalCode sets the "postal_code" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillablePostalCode(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetPostalCode(*s)
+func (_c *CustomerAddressCreate) SetNillablePostalCode(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetPostalCode(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetCountry sets the "country" field.
-func (cac *CustomerAddressCreate) SetCountry(s string) *CustomerAddressCreate {
-	cac.mutation.SetCountry(s)
-	return cac
+func (_c *CustomerAddressCreate) SetCountry(v string) *CustomerAddressCreate {
+	_c.mutation.SetCountry(v)
+	return _c
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableCountry(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetCountry(*s)
+func (_c *CustomerAddressCreate) SetNillableCountry(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetCountry(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetLatitude sets the "latitude" field.
-func (cac *CustomerAddressCreate) SetLatitude(f float64) *CustomerAddressCreate {
-	cac.mutation.SetLatitude(f)
-	return cac
+func (_c *CustomerAddressCreate) SetLatitude(v float64) *CustomerAddressCreate {
+	_c.mutation.SetLatitude(v)
+	return _c
 }
 
 // SetNillableLatitude sets the "latitude" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableLatitude(f *float64) *CustomerAddressCreate {
-	if f != nil {
-		cac.SetLatitude(*f)
+func (_c *CustomerAddressCreate) SetNillableLatitude(v *float64) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetLatitude(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetLongitude sets the "longitude" field.
-func (cac *CustomerAddressCreate) SetLongitude(f float64) *CustomerAddressCreate {
-	cac.mutation.SetLongitude(f)
-	return cac
+func (_c *CustomerAddressCreate) SetLongitude(v float64) *CustomerAddressCreate {
+	_c.mutation.SetLongitude(v)
+	return _c
 }
 
 // SetNillableLongitude sets the "longitude" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableLongitude(f *float64) *CustomerAddressCreate {
-	if f != nil {
-		cac.SetLongitude(*f)
+func (_c *CustomerAddressCreate) SetNillableLongitude(v *float64) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetLongitude(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetPlusCode sets the "plus_code" field.
-func (cac *CustomerAddressCreate) SetPlusCode(s string) *CustomerAddressCreate {
-	cac.mutation.SetPlusCode(s)
-	return cac
+func (_c *CustomerAddressCreate) SetPlusCode(v string) *CustomerAddressCreate {
+	_c.mutation.SetPlusCode(v)
+	return _c
 }
 
 // SetNillablePlusCode sets the "plus_code" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillablePlusCode(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetPlusCode(*s)
+func (_c *CustomerAddressCreate) SetNillablePlusCode(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetPlusCode(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetInstructions sets the "instructions" field.
-func (cac *CustomerAddressCreate) SetInstructions(s string) *CustomerAddressCreate {
-	cac.mutation.SetInstructions(s)
-	return cac
+func (_c *CustomerAddressCreate) SetInstructions(v string) *CustomerAddressCreate {
+	_c.mutation.SetInstructions(v)
+	return _c
 }
 
 // SetNillableInstructions sets the "instructions" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableInstructions(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetInstructions(*s)
+func (_c *CustomerAddressCreate) SetNillableInstructions(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetInstructions(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetContactName sets the "contact_name" field.
-func (cac *CustomerAddressCreate) SetContactName(s string) *CustomerAddressCreate {
-	cac.mutation.SetContactName(s)
-	return cac
+func (_c *CustomerAddressCreate) SetContactName(v string) *CustomerAddressCreate {
+	_c.mutation.SetContactName(v)
+	return _c
 }
 
 // SetNillableContactName sets the "contact_name" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableContactName(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetContactName(*s)
+func (_c *CustomerAddressCreate) SetNillableContactName(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetContactName(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetContactPhone sets the "contact_phone" field.
-func (cac *CustomerAddressCreate) SetContactPhone(s string) *CustomerAddressCreate {
-	cac.mutation.SetContactPhone(s)
-	return cac
+func (_c *CustomerAddressCreate) SetContactPhone(v string) *CustomerAddressCreate {
+	_c.mutation.SetContactPhone(v)
+	return _c
 }
 
 // SetNillableContactPhone sets the "contact_phone" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableContactPhone(s *string) *CustomerAddressCreate {
-	if s != nil {
-		cac.SetContactPhone(*s)
+func (_c *CustomerAddressCreate) SetNillableContactPhone(v *string) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetContactPhone(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetIsDefault sets the "is_default" field.
-func (cac *CustomerAddressCreate) SetIsDefault(b bool) *CustomerAddressCreate {
-	cac.mutation.SetIsDefault(b)
-	return cac
+func (_c *CustomerAddressCreate) SetIsDefault(v bool) *CustomerAddressCreate {
+	_c.mutation.SetIsDefault(v)
+	return _c
 }
 
 // SetNillableIsDefault sets the "is_default" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableIsDefault(b *bool) *CustomerAddressCreate {
-	if b != nil {
-		cac.SetIsDefault(*b)
+func (_c *CustomerAddressCreate) SetNillableIsDefault(v *bool) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetIsDefault(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetIsVerified sets the "is_verified" field.
-func (cac *CustomerAddressCreate) SetIsVerified(b bool) *CustomerAddressCreate {
-	cac.mutation.SetIsVerified(b)
-	return cac
+func (_c *CustomerAddressCreate) SetIsVerified(v bool) *CustomerAddressCreate {
+	_c.mutation.SetIsVerified(v)
+	return _c
 }
 
 // SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableIsVerified(b *bool) *CustomerAddressCreate {
-	if b != nil {
-		cac.SetIsVerified(*b)
+func (_c *CustomerAddressCreate) SetNillableIsVerified(v *bool) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetIsVerified(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (cac *CustomerAddressCreate) SetCreatedAt(t time.Time) *CustomerAddressCreate {
-	cac.mutation.SetCreatedAt(t)
-	return cac
+func (_c *CustomerAddressCreate) SetCreatedAt(v time.Time) *CustomerAddressCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableCreatedAt(t *time.Time) *CustomerAddressCreate {
-	if t != nil {
-		cac.SetCreatedAt(*t)
+func (_c *CustomerAddressCreate) SetNillableCreatedAt(v *time.Time) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (cac *CustomerAddressCreate) SetUpdatedAt(t time.Time) *CustomerAddressCreate {
-	cac.mutation.SetUpdatedAt(t)
-	return cac
+func (_c *CustomerAddressCreate) SetUpdatedAt(v time.Time) *CustomerAddressCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableUpdatedAt(t *time.Time) *CustomerAddressCreate {
-	if t != nil {
-		cac.SetUpdatedAt(*t)
+func (_c *CustomerAddressCreate) SetNillableUpdatedAt(v *time.Time) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (cac *CustomerAddressCreate) SetID(u uuid.UUID) *CustomerAddressCreate {
-	cac.mutation.SetID(u)
-	return cac
+func (_c *CustomerAddressCreate) SetID(v uuid.UUID) *CustomerAddressCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (cac *CustomerAddressCreate) SetNillableID(u *uuid.UUID) *CustomerAddressCreate {
-	if u != nil {
-		cac.SetID(*u)
+func (_c *CustomerAddressCreate) SetNillableID(v *uuid.UUID) *CustomerAddressCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return cac
+	return _c
 }
 
 // SetUser sets the "user" edge to the User entity.
-func (cac *CustomerAddressCreate) SetUser(u *User) *CustomerAddressCreate {
-	return cac.SetUserID(u.ID)
+func (_c *CustomerAddressCreate) SetUser(v *User) *CustomerAddressCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // AddOrderIDs adds the "orders" edge to the Order entity by IDs.
-func (cac *CustomerAddressCreate) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressCreate {
-	cac.mutation.AddOrderIDs(ids...)
-	return cac
+func (_c *CustomerAddressCreate) AddOrderIDs(ids ...uuid.UUID) *CustomerAddressCreate {
+	_c.mutation.AddOrderIDs(ids...)
+	return _c
 }
 
 // AddOrders adds the "orders" edges to the Order entity.
-func (cac *CustomerAddressCreate) AddOrders(o ...*Order) *CustomerAddressCreate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
+func (_c *CustomerAddressCreate) AddOrders(v ...*Order) *CustomerAddressCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return cac.AddOrderIDs(ids...)
+	return _c.AddOrderIDs(ids...)
 }
 
 // Mutation returns the CustomerAddressMutation object of the builder.
-func (cac *CustomerAddressCreate) Mutation() *CustomerAddressMutation {
-	return cac.mutation
+func (_c *CustomerAddressCreate) Mutation() *CustomerAddressMutation {
+	return _c.mutation
 }
 
 // Save creates the CustomerAddress in the database.
-func (cac *CustomerAddressCreate) Save(ctx context.Context) (*CustomerAddress, error) {
-	cac.defaults()
-	return withHooks(ctx, cac.sqlSave, cac.mutation, cac.hooks)
+func (_c *CustomerAddressCreate) Save(ctx context.Context) (*CustomerAddress, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (cac *CustomerAddressCreate) SaveX(ctx context.Context) *CustomerAddress {
-	v, err := cac.Save(ctx)
+func (_c *CustomerAddressCreate) SaveX(ctx context.Context) *CustomerAddress {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -307,140 +307,140 @@ func (cac *CustomerAddressCreate) SaveX(ctx context.Context) *CustomerAddress {
 }
 
 // Exec executes the query.
-func (cac *CustomerAddressCreate) Exec(ctx context.Context) error {
-	_, err := cac.Save(ctx)
+func (_c *CustomerAddressCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cac *CustomerAddressCreate) ExecX(ctx context.Context) {
-	if err := cac.Exec(ctx); err != nil {
+func (_c *CustomerAddressCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (cac *CustomerAddressCreate) defaults() {
-	if _, ok := cac.mutation.Country(); !ok {
+func (_c *CustomerAddressCreate) defaults() {
+	if _, ok := _c.mutation.Country(); !ok {
 		v := customeraddress.DefaultCountry
-		cac.mutation.SetCountry(v)
+		_c.mutation.SetCountry(v)
 	}
-	if _, ok := cac.mutation.IsDefault(); !ok {
+	if _, ok := _c.mutation.IsDefault(); !ok {
 		v := customeraddress.DefaultIsDefault
-		cac.mutation.SetIsDefault(v)
+		_c.mutation.SetIsDefault(v)
 	}
-	if _, ok := cac.mutation.IsVerified(); !ok {
+	if _, ok := _c.mutation.IsVerified(); !ok {
 		v := customeraddress.DefaultIsVerified
-		cac.mutation.SetIsVerified(v)
+		_c.mutation.SetIsVerified(v)
 	}
-	if _, ok := cac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := customeraddress.DefaultCreatedAt()
-		cac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := cac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := customeraddress.DefaultUpdatedAt()
-		cac.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := cac.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := customeraddress.DefaultID()
-		cac.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (cac *CustomerAddressCreate) check() error {
-	if _, ok := cac.mutation.TenantID(); !ok {
+func (_c *CustomerAddressCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "CustomerAddress.tenant_id"`)}
 	}
-	if _, ok := cac.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "CustomerAddress.user_id"`)}
 	}
-	if _, ok := cac.mutation.Label(); !ok {
+	if _, ok := _c.mutation.Label(); !ok {
 		return &ValidationError{Name: "label", err: errors.New(`ent: missing required field "CustomerAddress.label"`)}
 	}
-	if v, ok := cac.mutation.Label(); ok {
+	if v, ok := _c.mutation.Label(); ok {
 		if err := customeraddress.LabelValidator(v); err != nil {
 			return &ValidationError{Name: "label", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.label": %w`, err)}
 		}
 	}
-	if _, ok := cac.mutation.AddressLine1(); !ok {
+	if _, ok := _c.mutation.AddressLine1(); !ok {
 		return &ValidationError{Name: "address_line1", err: errors.New(`ent: missing required field "CustomerAddress.address_line1"`)}
 	}
-	if v, ok := cac.mutation.AddressLine1(); ok {
+	if v, ok := _c.mutation.AddressLine1(); ok {
 		if err := customeraddress.AddressLine1Validator(v); err != nil {
 			return &ValidationError{Name: "address_line1", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line1": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.AddressLine2(); ok {
+	if v, ok := _c.mutation.AddressLine2(); ok {
 		if err := customeraddress.AddressLine2Validator(v); err != nil {
 			return &ValidationError{Name: "address_line2", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.address_line2": %w`, err)}
 		}
 	}
-	if _, ok := cac.mutation.City(); !ok {
+	if _, ok := _c.mutation.City(); !ok {
 		return &ValidationError{Name: "city", err: errors.New(`ent: missing required field "CustomerAddress.city"`)}
 	}
-	if v, ok := cac.mutation.City(); ok {
+	if v, ok := _c.mutation.City(); ok {
 		if err := customeraddress.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.city": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.County(); ok {
+	if v, ok := _c.mutation.County(); ok {
 		if err := customeraddress.CountyValidator(v); err != nil {
 			return &ValidationError{Name: "county", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.county": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.PostalCode(); ok {
+	if v, ok := _c.mutation.PostalCode(); ok {
 		if err := customeraddress.PostalCodeValidator(v); err != nil {
 			return &ValidationError{Name: "postal_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.postal_code": %w`, err)}
 		}
 	}
-	if _, ok := cac.mutation.Country(); !ok {
+	if _, ok := _c.mutation.Country(); !ok {
 		return &ValidationError{Name: "country", err: errors.New(`ent: missing required field "CustomerAddress.country"`)}
 	}
-	if v, ok := cac.mutation.Country(); ok {
+	if v, ok := _c.mutation.Country(); ok {
 		if err := customeraddress.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.country": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.PlusCode(); ok {
+	if v, ok := _c.mutation.PlusCode(); ok {
 		if err := customeraddress.PlusCodeValidator(v); err != nil {
 			return &ValidationError{Name: "plus_code", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.plus_code": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.ContactName(); ok {
+	if v, ok := _c.mutation.ContactName(); ok {
 		if err := customeraddress.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_name": %w`, err)}
 		}
 	}
-	if v, ok := cac.mutation.ContactPhone(); ok {
+	if v, ok := _c.mutation.ContactPhone(); ok {
 		if err := customeraddress.ContactPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "contact_phone", err: fmt.Errorf(`ent: validator failed for field "CustomerAddress.contact_phone": %w`, err)}
 		}
 	}
-	if _, ok := cac.mutation.IsDefault(); !ok {
+	if _, ok := _c.mutation.IsDefault(); !ok {
 		return &ValidationError{Name: "is_default", err: errors.New(`ent: missing required field "CustomerAddress.is_default"`)}
 	}
-	if _, ok := cac.mutation.IsVerified(); !ok {
+	if _, ok := _c.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "CustomerAddress.is_verified"`)}
 	}
-	if _, ok := cac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "CustomerAddress.created_at"`)}
 	}
-	if _, ok := cac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "CustomerAddress.updated_at"`)}
 	}
-	if _, ok := cac.mutation.UserID(); !ok {
+	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "CustomerAddress.user"`)}
 	}
 	return nil
 }
 
-func (cac *CustomerAddressCreate) sqlSave(ctx context.Context) (*CustomerAddress, error) {
-	if err := cac.check(); err != nil {
+func (_c *CustomerAddressCreate) sqlSave(ctx context.Context) (*CustomerAddress, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := cac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, cac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -453,94 +453,94 @@ func (cac *CustomerAddressCreate) sqlSave(ctx context.Context) (*CustomerAddress
 			return nil, err
 		}
 	}
-	cac.mutation.id = &_node.ID
-	cac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (cac *CustomerAddressCreate) createSpec() (*CustomerAddress, *sqlgraph.CreateSpec) {
+func (_c *CustomerAddressCreate) createSpec() (*CustomerAddress, *sqlgraph.CreateSpec) {
 	var (
-		_node = &CustomerAddress{config: cac.config}
+		_node = &CustomerAddress{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(customeraddress.Table, sqlgraph.NewFieldSpec(customeraddress.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = cac.conflict
-	if id, ok := cac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := cac.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(customeraddress.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := cac.mutation.Label(); ok {
+	if value, ok := _c.mutation.Label(); ok {
 		_spec.SetField(customeraddress.FieldLabel, field.TypeString, value)
 		_node.Label = value
 	}
-	if value, ok := cac.mutation.AddressLine1(); ok {
+	if value, ok := _c.mutation.AddressLine1(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine1, field.TypeString, value)
 		_node.AddressLine1 = value
 	}
-	if value, ok := cac.mutation.AddressLine2(); ok {
+	if value, ok := _c.mutation.AddressLine2(); ok {
 		_spec.SetField(customeraddress.FieldAddressLine2, field.TypeString, value)
 		_node.AddressLine2 = value
 	}
-	if value, ok := cac.mutation.City(); ok {
+	if value, ok := _c.mutation.City(); ok {
 		_spec.SetField(customeraddress.FieldCity, field.TypeString, value)
 		_node.City = value
 	}
-	if value, ok := cac.mutation.County(); ok {
+	if value, ok := _c.mutation.County(); ok {
 		_spec.SetField(customeraddress.FieldCounty, field.TypeString, value)
 		_node.County = value
 	}
-	if value, ok := cac.mutation.PostalCode(); ok {
+	if value, ok := _c.mutation.PostalCode(); ok {
 		_spec.SetField(customeraddress.FieldPostalCode, field.TypeString, value)
 		_node.PostalCode = value
 	}
-	if value, ok := cac.mutation.Country(); ok {
+	if value, ok := _c.mutation.Country(); ok {
 		_spec.SetField(customeraddress.FieldCountry, field.TypeString, value)
 		_node.Country = value
 	}
-	if value, ok := cac.mutation.Latitude(); ok {
+	if value, ok := _c.mutation.Latitude(); ok {
 		_spec.SetField(customeraddress.FieldLatitude, field.TypeFloat64, value)
 		_node.Latitude = &value
 	}
-	if value, ok := cac.mutation.Longitude(); ok {
+	if value, ok := _c.mutation.Longitude(); ok {
 		_spec.SetField(customeraddress.FieldLongitude, field.TypeFloat64, value)
 		_node.Longitude = &value
 	}
-	if value, ok := cac.mutation.PlusCode(); ok {
+	if value, ok := _c.mutation.PlusCode(); ok {
 		_spec.SetField(customeraddress.FieldPlusCode, field.TypeString, value)
 		_node.PlusCode = value
 	}
-	if value, ok := cac.mutation.Instructions(); ok {
+	if value, ok := _c.mutation.Instructions(); ok {
 		_spec.SetField(customeraddress.FieldInstructions, field.TypeString, value)
 		_node.Instructions = value
 	}
-	if value, ok := cac.mutation.ContactName(); ok {
+	if value, ok := _c.mutation.ContactName(); ok {
 		_spec.SetField(customeraddress.FieldContactName, field.TypeString, value)
 		_node.ContactName = value
 	}
-	if value, ok := cac.mutation.ContactPhone(); ok {
+	if value, ok := _c.mutation.ContactPhone(); ok {
 		_spec.SetField(customeraddress.FieldContactPhone, field.TypeString, value)
 		_node.ContactPhone = value
 	}
-	if value, ok := cac.mutation.IsDefault(); ok {
+	if value, ok := _c.mutation.IsDefault(); ok {
 		_spec.SetField(customeraddress.FieldIsDefault, field.TypeBool, value)
 		_node.IsDefault = value
 	}
-	if value, ok := cac.mutation.IsVerified(); ok {
+	if value, ok := _c.mutation.IsVerified(); ok {
 		_spec.SetField(customeraddress.FieldIsVerified, field.TypeBool, value)
 		_node.IsVerified = value
 	}
-	if value, ok := cac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(customeraddress.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := cac.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(customeraddress.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := cac.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -557,7 +557,7 @@ func (cac *CustomerAddressCreate) createSpec() (*CustomerAddress, *sqlgraph.Crea
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cac.mutation.OrdersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -592,10 +592,10 @@ func (cac *CustomerAddressCreate) createSpec() (*CustomerAddress, *sqlgraph.Crea
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (cac *CustomerAddressCreate) OnConflict(opts ...sql.ConflictOption) *CustomerAddressUpsertOne {
-	cac.conflict = opts
+func (_c *CustomerAddressCreate) OnConflict(opts ...sql.ConflictOption) *CustomerAddressUpsertOne {
+	_c.conflict = opts
 	return &CustomerAddressUpsertOne{
-		create: cac,
+		create: _c,
 	}
 }
 
@@ -605,10 +605,10 @@ func (cac *CustomerAddressCreate) OnConflict(opts ...sql.ConflictOption) *Custom
 //	client.CustomerAddress.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (cac *CustomerAddressCreate) OnConflictColumns(columns ...string) *CustomerAddressUpsertOne {
-	cac.conflict = append(cac.conflict, sql.ConflictColumns(columns...))
+func (_c *CustomerAddressCreate) OnConflictColumns(columns ...string) *CustomerAddressUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CustomerAddressUpsertOne{
-		create: cac,
+		create: _c,
 	}
 }
 
@@ -1334,16 +1334,16 @@ type CustomerAddressCreateBulk struct {
 }
 
 // Save creates the CustomerAddress entities in the database.
-func (cacb *CustomerAddressCreateBulk) Save(ctx context.Context) ([]*CustomerAddress, error) {
-	if cacb.err != nil {
-		return nil, cacb.err
+func (_c *CustomerAddressCreateBulk) Save(ctx context.Context) ([]*CustomerAddress, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(cacb.builders))
-	nodes := make([]*CustomerAddress, len(cacb.builders))
-	mutators := make([]Mutator, len(cacb.builders))
-	for i := range cacb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*CustomerAddress, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := cacb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CustomerAddressMutation)
@@ -1357,12 +1357,12 @@ func (cacb *CustomerAddressCreateBulk) Save(ctx context.Context) ([]*CustomerAdd
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, cacb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = cacb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, cacb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1382,7 +1382,7 @@ func (cacb *CustomerAddressCreateBulk) Save(ctx context.Context) ([]*CustomerAdd
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, cacb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1390,8 +1390,8 @@ func (cacb *CustomerAddressCreateBulk) Save(ctx context.Context) ([]*CustomerAdd
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (cacb *CustomerAddressCreateBulk) SaveX(ctx context.Context) []*CustomerAddress {
-	v, err := cacb.Save(ctx)
+func (_c *CustomerAddressCreateBulk) SaveX(ctx context.Context) []*CustomerAddress {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1399,14 +1399,14 @@ func (cacb *CustomerAddressCreateBulk) SaveX(ctx context.Context) []*CustomerAdd
 }
 
 // Exec executes the query.
-func (cacb *CustomerAddressCreateBulk) Exec(ctx context.Context) error {
-	_, err := cacb.Save(ctx)
+func (_c *CustomerAddressCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (cacb *CustomerAddressCreateBulk) ExecX(ctx context.Context) {
-	if err := cacb.Exec(ctx); err != nil {
+func (_c *CustomerAddressCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1426,10 +1426,10 @@ func (cacb *CustomerAddressCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (cacb *CustomerAddressCreateBulk) OnConflict(opts ...sql.ConflictOption) *CustomerAddressUpsertBulk {
-	cacb.conflict = opts
+func (_c *CustomerAddressCreateBulk) OnConflict(opts ...sql.ConflictOption) *CustomerAddressUpsertBulk {
+	_c.conflict = opts
 	return &CustomerAddressUpsertBulk{
-		create: cacb,
+		create: _c,
 	}
 }
 
@@ -1439,10 +1439,10 @@ func (cacb *CustomerAddressCreateBulk) OnConflict(opts ...sql.ConflictOption) *C
 //	client.CustomerAddress.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (cacb *CustomerAddressCreateBulk) OnConflictColumns(columns ...string) *CustomerAddressUpsertBulk {
-	cacb.conflict = append(cacb.conflict, sql.ConflictColumns(columns...))
+func (_c *CustomerAddressCreateBulk) OnConflictColumns(columns ...string) *CustomerAddressUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &CustomerAddressUpsertBulk{
-		create: cacb,
+		create: _c,
 	}
 }
 

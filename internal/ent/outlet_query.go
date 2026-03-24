@@ -8,11 +8,10 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogcategory"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogitem"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
@@ -23,58 +22,56 @@ import (
 // OutletQuery is the builder for querying Outlet entities.
 type OutletQuery struct {
 	config
-	ctx                   *QueryContext
-	order                 []outlet.OrderOption
-	inters                []Interceptor
-	predicates            []predicate.Outlet
-	withTenant            *TenantQuery
-	withCatalogCategories *CatalogCategoryQuery
-	withCatalogItems      *CatalogItemQuery
-	withOrders            *OrderQuery
+	ctx        *QueryContext
+	order      []outlet.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Outlet
+	withTenant *TenantQuery
+	withOrders *OrderQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
 // Where adds a new predicate for the OutletQuery builder.
-func (oq *OutletQuery) Where(ps ...predicate.Outlet) *OutletQuery {
-	oq.predicates = append(oq.predicates, ps...)
-	return oq
+func (_q *OutletQuery) Where(ps ...predicate.Outlet) *OutletQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (oq *OutletQuery) Limit(limit int) *OutletQuery {
-	oq.ctx.Limit = &limit
-	return oq
+func (_q *OutletQuery) Limit(limit int) *OutletQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (oq *OutletQuery) Offset(offset int) *OutletQuery {
-	oq.ctx.Offset = &offset
-	return oq
+func (_q *OutletQuery) Offset(offset int) *OutletQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (oq *OutletQuery) Unique(unique bool) *OutletQuery {
-	oq.ctx.Unique = &unique
-	return oq
+func (_q *OutletQuery) Unique(unique bool) *OutletQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (oq *OutletQuery) Order(o ...outlet.OrderOption) *OutletQuery {
-	oq.order = append(oq.order, o...)
-	return oq
+func (_q *OutletQuery) Order(o ...outlet.OrderOption) *OutletQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryTenant chains the current query on the "tenant" edge.
-func (oq *OutletQuery) QueryTenant() *TenantQuery {
-	query := (&TenantClient{config: oq.config}).Query()
+func (_q *OutletQuery) QueryTenant() *TenantQuery {
+	query := (&TenantClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := oq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -83,64 +80,20 @@ func (oq *OutletQuery) QueryTenant() *TenantQuery {
 			sqlgraph.To(tenant.Table, tenant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, outlet.TenantTable, outlet.TenantColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryCatalogCategories chains the current query on the "catalog_categories" edge.
-func (oq *OutletQuery) QueryCatalogCategories() *CatalogCategoryQuery {
-	query := (&CatalogCategoryClient{config: oq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := oq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(outlet.Table, outlet.FieldID, selector),
-			sqlgraph.To(catalogcategory.Table, catalogcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, outlet.CatalogCategoriesTable, outlet.CatalogCategoriesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryCatalogItems chains the current query on the "catalog_items" edge.
-func (oq *OutletQuery) QueryCatalogItems() *CatalogItemQuery {
-	query := (&CatalogItemClient{config: oq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := oq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(outlet.Table, outlet.FieldID, selector),
-			sqlgraph.To(catalogitem.Table, catalogitem.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, outlet.CatalogItemsTable, outlet.CatalogItemsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryOrders chains the current query on the "orders" edge.
-func (oq *OutletQuery) QueryOrders() *OrderQuery {
-	query := (&OrderClient{config: oq.config}).Query()
+func (_q *OutletQuery) QueryOrders() *OrderQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := oq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -149,7 +102,7 @@ func (oq *OutletQuery) QueryOrders() *OrderQuery {
 			sqlgraph.To(order.Table, order.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, outlet.OrdersTable, outlet.OrdersColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -157,8 +110,8 @@ func (oq *OutletQuery) QueryOrders() *OrderQuery {
 
 // First returns the first Outlet entity from the query.
 // Returns a *NotFoundError when no Outlet was found.
-func (oq *OutletQuery) First(ctx context.Context) (*Outlet, error) {
-	nodes, err := oq.Limit(1).All(setContextOp(ctx, oq.ctx, "First"))
+func (_q *OutletQuery) First(ctx context.Context) (*Outlet, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -169,8 +122,8 @@ func (oq *OutletQuery) First(ctx context.Context) (*Outlet, error) {
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (oq *OutletQuery) FirstX(ctx context.Context) *Outlet {
-	node, err := oq.First(ctx)
+func (_q *OutletQuery) FirstX(ctx context.Context) *Outlet {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -179,9 +132,9 @@ func (oq *OutletQuery) FirstX(ctx context.Context) *Outlet {
 
 // FirstID returns the first Outlet ID from the query.
 // Returns a *NotFoundError when no Outlet ID was found.
-func (oq *OutletQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OutletQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oq.Limit(1).IDs(setContextOp(ctx, oq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -192,8 +145,8 @@ func (oq *OutletQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (oq *OutletQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := oq.FirstID(ctx)
+func (_q *OutletQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -203,8 +156,8 @@ func (oq *OutletQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single Outlet entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one Outlet entity is found.
 // Returns a *NotFoundError when no Outlet entities are found.
-func (oq *OutletQuery) Only(ctx context.Context) (*Outlet, error) {
-	nodes, err := oq.Limit(2).All(setContextOp(ctx, oq.ctx, "Only"))
+func (_q *OutletQuery) Only(ctx context.Context) (*Outlet, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -219,8 +172,8 @@ func (oq *OutletQuery) Only(ctx context.Context) (*Outlet, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (oq *OutletQuery) OnlyX(ctx context.Context) *Outlet {
-	node, err := oq.Only(ctx)
+func (_q *OutletQuery) OnlyX(ctx context.Context) *Outlet {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -230,9 +183,9 @@ func (oq *OutletQuery) OnlyX(ctx context.Context) *Outlet {
 // OnlyID is like Only, but returns the only Outlet ID in the query.
 // Returns a *NotSingularError when more than one Outlet ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (oq *OutletQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *OutletQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = oq.Limit(2).IDs(setContextOp(ctx, oq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -247,8 +200,8 @@ func (oq *OutletQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (oq *OutletQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := oq.OnlyID(ctx)
+func (_q *OutletQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -256,18 +209,18 @@ func (oq *OutletQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of Outlets.
-func (oq *OutletQuery) All(ctx context.Context) ([]*Outlet, error) {
-	ctx = setContextOp(ctx, oq.ctx, "All")
-	if err := oq.prepareQuery(ctx); err != nil {
+func (_q *OutletQuery) All(ctx context.Context) ([]*Outlet, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*Outlet, *OutletQuery]()
-	return withInterceptors[[]*Outlet](ctx, oq, qr, oq.inters)
+	return withInterceptors[[]*Outlet](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (oq *OutletQuery) AllX(ctx context.Context) []*Outlet {
-	nodes, err := oq.All(ctx)
+func (_q *OutletQuery) AllX(ctx context.Context) []*Outlet {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -275,20 +228,20 @@ func (oq *OutletQuery) AllX(ctx context.Context) []*Outlet {
 }
 
 // IDs executes the query and returns a list of Outlet IDs.
-func (oq *OutletQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if oq.ctx.Unique == nil && oq.path != nil {
-		oq.Unique(true)
+func (_q *OutletQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, oq.ctx, "IDs")
-	if err = oq.Select(outlet.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(outlet.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (oq *OutletQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := oq.IDs(ctx)
+func (_q *OutletQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -296,17 +249,17 @@ func (oq *OutletQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (oq *OutletQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, oq.ctx, "Count")
-	if err := oq.prepareQuery(ctx); err != nil {
+func (_q *OutletQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, oq, querierCount[*OutletQuery](), oq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*OutletQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (oq *OutletQuery) CountX(ctx context.Context) int {
-	count, err := oq.Count(ctx)
+func (_q *OutletQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -314,9 +267,9 @@ func (oq *OutletQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (oq *OutletQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, oq.ctx, "Exist")
-	switch _, err := oq.FirstID(ctx); {
+func (_q *OutletQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -327,8 +280,8 @@ func (oq *OutletQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (oq *OutletQuery) ExistX(ctx context.Context) bool {
-	exist, err := oq.Exist(ctx)
+func (_q *OutletQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -337,68 +290,44 @@ func (oq *OutletQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the OutletQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (oq *OutletQuery) Clone() *OutletQuery {
-	if oq == nil {
+func (_q *OutletQuery) Clone() *OutletQuery {
+	if _q == nil {
 		return nil
 	}
 	return &OutletQuery{
-		config:                oq.config,
-		ctx:                   oq.ctx.Clone(),
-		order:                 append([]outlet.OrderOption{}, oq.order...),
-		inters:                append([]Interceptor{}, oq.inters...),
-		predicates:            append([]predicate.Outlet{}, oq.predicates...),
-		withTenant:            oq.withTenant.Clone(),
-		withCatalogCategories: oq.withCatalogCategories.Clone(),
-		withCatalogItems:      oq.withCatalogItems.Clone(),
-		withOrders:            oq.withOrders.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]outlet.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.Outlet{}, _q.predicates...),
+		withTenant: _q.withTenant.Clone(),
+		withOrders: _q.withOrders.Clone(),
 		// clone intermediate query.
-		sql:  oq.sql.Clone(),
-		path: oq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithTenant tells the query-builder to eager-load the nodes that are connected to
 // the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OutletQuery) WithTenant(opts ...func(*TenantQuery)) *OutletQuery {
-	query := (&TenantClient{config: oq.config}).Query()
+func (_q *OutletQuery) WithTenant(opts ...func(*TenantQuery)) *OutletQuery {
+	query := (&TenantClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oq.withTenant = query
-	return oq
-}
-
-// WithCatalogCategories tells the query-builder to eager-load the nodes that are connected to
-// the "catalog_categories" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OutletQuery) WithCatalogCategories(opts ...func(*CatalogCategoryQuery)) *OutletQuery {
-	query := (&CatalogCategoryClient{config: oq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	oq.withCatalogCategories = query
-	return oq
-}
-
-// WithCatalogItems tells the query-builder to eager-load the nodes that are connected to
-// the "catalog_items" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OutletQuery) WithCatalogItems(opts ...func(*CatalogItemQuery)) *OutletQuery {
-	query := (&CatalogItemClient{config: oq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	oq.withCatalogItems = query
-	return oq
+	_q.withTenant = query
+	return _q
 }
 
 // WithOrders tells the query-builder to eager-load the nodes that are connected to
 // the "orders" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OutletQuery) WithOrders(opts ...func(*OrderQuery)) *OutletQuery {
-	query := (&OrderClient{config: oq.config}).Query()
+func (_q *OutletQuery) WithOrders(opts ...func(*OrderQuery)) *OutletQuery {
+	query := (&OrderClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oq.withOrders = query
-	return oq
+	_q.withOrders = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -415,10 +344,10 @@ func (oq *OutletQuery) WithOrders(opts ...func(*OrderQuery)) *OutletQuery {
 //		GroupBy(outlet.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (oq *OutletQuery) GroupBy(field string, fields ...string) *OutletGroupBy {
-	oq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &OutletGroupBy{build: oq}
-	grbuild.flds = &oq.ctx.Fields
+func (_q *OutletQuery) GroupBy(field string, fields ...string) *OutletGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &OutletGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = outlet.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -436,61 +365,59 @@ func (oq *OutletQuery) GroupBy(field string, fields ...string) *OutletGroupBy {
 //	client.Outlet.Query().
 //		Select(outlet.FieldTenantID).
 //		Scan(ctx, &v)
-func (oq *OutletQuery) Select(fields ...string) *OutletSelect {
-	oq.ctx.Fields = append(oq.ctx.Fields, fields...)
-	sbuild := &OutletSelect{OutletQuery: oq}
+func (_q *OutletQuery) Select(fields ...string) *OutletSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &OutletSelect{OutletQuery: _q}
 	sbuild.label = outlet.Label
-	sbuild.flds, sbuild.scan = &oq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a OutletSelect configured with the given aggregations.
-func (oq *OutletQuery) Aggregate(fns ...AggregateFunc) *OutletSelect {
-	return oq.Select().Aggregate(fns...)
+func (_q *OutletQuery) Aggregate(fns ...AggregateFunc) *OutletSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (oq *OutletQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range oq.inters {
+func (_q *OutletQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, oq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range oq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !outlet.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if oq.path != nil {
-		prev, err := oq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		oq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (oq *OutletQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Outlet, error) {
+func (_q *OutletQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Outlet, error) {
 	var (
 		nodes       = []*Outlet{}
-		_spec       = oq.querySpec()
-		loadedTypes = [4]bool{
-			oq.withTenant != nil,
-			oq.withCatalogCategories != nil,
-			oq.withCatalogItems != nil,
-			oq.withOrders != nil,
+		_spec       = _q.querySpec()
+		loadedTypes = [2]bool{
+			_q.withTenant != nil,
+			_q.withOrders != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Outlet).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Outlet{config: oq.config}
+		node := &Outlet{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -498,34 +425,20 @@ func (oq *OutletQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Outle
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, oq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := oq.withTenant; query != nil {
-		if err := oq.loadTenant(ctx, query, nodes, nil,
+	if query := _q.withTenant; query != nil {
+		if err := _q.loadTenant(ctx, query, nodes, nil,
 			func(n *Outlet, e *Tenant) { n.Edges.Tenant = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := oq.withCatalogCategories; query != nil {
-		if err := oq.loadCatalogCategories(ctx, query, nodes,
-			func(n *Outlet) { n.Edges.CatalogCategories = []*CatalogCategory{} },
-			func(n *Outlet, e *CatalogCategory) { n.Edges.CatalogCategories = append(n.Edges.CatalogCategories, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := oq.withCatalogItems; query != nil {
-		if err := oq.loadCatalogItems(ctx, query, nodes,
-			func(n *Outlet) { n.Edges.CatalogItems = []*CatalogItem{} },
-			func(n *Outlet, e *CatalogItem) { n.Edges.CatalogItems = append(n.Edges.CatalogItems, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := oq.withOrders; query != nil {
-		if err := oq.loadOrders(ctx, query, nodes,
+	if query := _q.withOrders; query != nil {
+		if err := _q.loadOrders(ctx, query, nodes,
 			func(n *Outlet) { n.Edges.Orders = []*Order{} },
 			func(n *Outlet, e *Order) { n.Edges.Orders = append(n.Edges.Orders, e) }); err != nil {
 			return nil, err
@@ -534,7 +447,7 @@ func (oq *OutletQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Outle
 	return nodes, nil
 }
 
-func (oq *OutletQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *Tenant)) error {
+func (_q *OutletQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *Tenant)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Outlet)
 	for i := range nodes {
@@ -563,70 +476,7 @@ func (oq *OutletQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes
 	}
 	return nil
 }
-func (oq *OutletQuery) loadCatalogCategories(ctx context.Context, query *CatalogCategoryQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *CatalogCategory)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Outlet)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(catalogcategory.FieldOutletID)
-	}
-	query.Where(predicate.CatalogCategory(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(outlet.CatalogCategoriesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.OutletID
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "outlet_id" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "outlet_id" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (oq *OutletQuery) loadCatalogItems(ctx context.Context, query *CatalogItemQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *CatalogItem)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Outlet)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(catalogitem.FieldOutletID)
-	}
-	query.Where(predicate.CatalogItem(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(outlet.CatalogItemsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.OutletID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "outlet_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (oq *OutletQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *Order)) error {
+func (_q *OutletQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes []*Outlet, init func(*Outlet), assign func(*Outlet, *Order)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Outlet)
 	for i := range nodes {
@@ -657,24 +507,24 @@ func (oq *OutletQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes 
 	return nil
 }
 
-func (oq *OutletQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := oq.querySpec()
-	_spec.Node.Columns = oq.ctx.Fields
-	if len(oq.ctx.Fields) > 0 {
-		_spec.Unique = oq.ctx.Unique != nil && *oq.ctx.Unique
+func (_q *OutletQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, oq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (oq *OutletQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *OutletQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(outlet.Table, outlet.Columns, sqlgraph.NewFieldSpec(outlet.FieldID, field.TypeUUID))
-	_spec.From = oq.sql
-	if unique := oq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if oq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := oq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, outlet.FieldID)
 		for i := range fields {
@@ -682,24 +532,24 @@ func (oq *OutletQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if oq.withTenant != nil {
+		if _q.withTenant != nil {
 			_spec.Node.AddColumnOnce(outlet.FieldTenantID)
 		}
 	}
-	if ps := oq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := oq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := oq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := oq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -709,33 +559,33 @@ func (oq *OutletQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (oq *OutletQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(oq.driver.Dialect())
+func (_q *OutletQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(outlet.Table)
-	columns := oq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = outlet.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if oq.sql != nil {
-		selector = oq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if oq.ctx.Unique != nil && *oq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range oq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range oq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := oq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := oq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -748,41 +598,41 @@ type OutletGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (ogb *OutletGroupBy) Aggregate(fns ...AggregateFunc) *OutletGroupBy {
-	ogb.fns = append(ogb.fns, fns...)
-	return ogb
+func (_g *OutletGroupBy) Aggregate(fns ...AggregateFunc) *OutletGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ogb *OutletGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ogb.build.ctx, "GroupBy")
-	if err := ogb.build.prepareQuery(ctx); err != nil {
+func (_g *OutletGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OutletQuery, *OutletGroupBy](ctx, ogb.build, ogb, ogb.build.inters, v)
+	return scanWithInterceptors[*OutletQuery, *OutletGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (ogb *OutletGroupBy) sqlScan(ctx context.Context, root *OutletQuery, v any) error {
+func (_g *OutletGroupBy) sqlScan(ctx context.Context, root *OutletQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(ogb.fns))
-	for _, fn := range ogb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*ogb.flds)+len(ogb.fns))
-		for _, f := range *ogb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*ogb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := ogb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -796,27 +646,27 @@ type OutletSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (os *OutletSelect) Aggregate(fns ...AggregateFunc) *OutletSelect {
-	os.fns = append(os.fns, fns...)
-	return os
+func (_s *OutletSelect) Aggregate(fns ...AggregateFunc) *OutletSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (os *OutletSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, os.ctx, "Select")
-	if err := os.prepareQuery(ctx); err != nil {
+func (_s *OutletSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*OutletQuery, *OutletSelect](ctx, os.OutletQuery, os, os.inters, v)
+	return scanWithInterceptors[*OutletQuery, *OutletSelect](ctx, _s.OutletQuery, _s, _s.inters, v)
 }
 
-func (os *OutletSelect) sqlScan(ctx context.Context, root *OutletQuery, v any) error {
+func (_s *OutletSelect) sqlScan(ctx context.Context, root *OutletQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(os.fns))
-	for _, fn := range os.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*os.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -824,7 +674,7 @@ func (os *OutletSelect) sqlScan(ctx context.Context, root *OutletQuery, v any) e
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := os.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

@@ -25,219 +25,219 @@ type DataExportJobCreate struct {
 }
 
 // SetTenantID sets the "tenant_id" field.
-func (dejc *DataExportJobCreate) SetTenantID(u uuid.UUID) *DataExportJobCreate {
-	dejc.mutation.SetTenantID(u)
-	return dejc
+func (_c *DataExportJobCreate) SetTenantID(v uuid.UUID) *DataExportJobCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (dejc *DataExportJobCreate) SetUserID(u uuid.UUID) *DataExportJobCreate {
-	dejc.mutation.SetUserID(u)
-	return dejc
+func (_c *DataExportJobCreate) SetUserID(v uuid.UUID) *DataExportJobCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetFormat sets the "format" field.
-func (dejc *DataExportJobCreate) SetFormat(d dataexportjob.Format) *DataExportJobCreate {
-	dejc.mutation.SetFormat(d)
-	return dejc
+func (_c *DataExportJobCreate) SetFormat(v dataexportjob.Format) *DataExportJobCreate {
+	_c.mutation.SetFormat(v)
+	return _c
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableFormat(d *dataexportjob.Format) *DataExportJobCreate {
-	if d != nil {
-		dejc.SetFormat(*d)
+func (_c *DataExportJobCreate) SetNillableFormat(v *dataexportjob.Format) *DataExportJobCreate {
+	if v != nil {
+		_c.SetFormat(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (dejc *DataExportJobCreate) SetStatus(d dataexportjob.Status) *DataExportJobCreate {
-	dejc.mutation.SetStatus(d)
-	return dejc
+func (_c *DataExportJobCreate) SetStatus(v dataexportjob.Status) *DataExportJobCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableStatus(d *dataexportjob.Status) *DataExportJobCreate {
-	if d != nil {
-		dejc.SetStatus(*d)
+func (_c *DataExportJobCreate) SetNillableStatus(v *dataexportjob.Status) *DataExportJobCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetIncludedData sets the "included_data" field.
-func (dejc *DataExportJobCreate) SetIncludedData(s []string) *DataExportJobCreate {
-	dejc.mutation.SetIncludedData(s)
-	return dejc
+func (_c *DataExportJobCreate) SetIncludedData(v []string) *DataExportJobCreate {
+	_c.mutation.SetIncludedData(v)
+	return _c
 }
 
 // SetStorageURL sets the "storage_url" field.
-func (dejc *DataExportJobCreate) SetStorageURL(s string) *DataExportJobCreate {
-	dejc.mutation.SetStorageURL(s)
-	return dejc
+func (_c *DataExportJobCreate) SetStorageURL(v string) *DataExportJobCreate {
+	_c.mutation.SetStorageURL(v)
+	return _c
 }
 
 // SetNillableStorageURL sets the "storage_url" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableStorageURL(s *string) *DataExportJobCreate {
-	if s != nil {
-		dejc.SetStorageURL(*s)
+func (_c *DataExportJobCreate) SetNillableStorageURL(v *string) *DataExportJobCreate {
+	if v != nil {
+		_c.SetStorageURL(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (dejc *DataExportJobCreate) SetErrorMessage(s string) *DataExportJobCreate {
-	dejc.mutation.SetErrorMessage(s)
-	return dejc
+func (_c *DataExportJobCreate) SetErrorMessage(v string) *DataExportJobCreate {
+	_c.mutation.SetErrorMessage(v)
+	return _c
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableErrorMessage(s *string) *DataExportJobCreate {
-	if s != nil {
-		dejc.SetErrorMessage(*s)
+func (_c *DataExportJobCreate) SetNillableErrorMessage(v *string) *DataExportJobCreate {
+	if v != nil {
+		_c.SetErrorMessage(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetFileSizeBytes sets the "file_size_bytes" field.
-func (dejc *DataExportJobCreate) SetFileSizeBytes(i int) *DataExportJobCreate {
-	dejc.mutation.SetFileSizeBytes(i)
-	return dejc
+func (_c *DataExportJobCreate) SetFileSizeBytes(v int) *DataExportJobCreate {
+	_c.mutation.SetFileSizeBytes(v)
+	return _c
 }
 
 // SetNillableFileSizeBytes sets the "file_size_bytes" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableFileSizeBytes(i *int) *DataExportJobCreate {
-	if i != nil {
-		dejc.SetFileSizeBytes(*i)
+func (_c *DataExportJobCreate) SetNillableFileSizeBytes(v *int) *DataExportJobCreate {
+	if v != nil {
+		_c.SetFileSizeBytes(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetRecordsExported sets the "records_exported" field.
-func (dejc *DataExportJobCreate) SetRecordsExported(i int) *DataExportJobCreate {
-	dejc.mutation.SetRecordsExported(i)
-	return dejc
+func (_c *DataExportJobCreate) SetRecordsExported(v int) *DataExportJobCreate {
+	_c.mutation.SetRecordsExported(v)
+	return _c
 }
 
 // SetNillableRecordsExported sets the "records_exported" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableRecordsExported(i *int) *DataExportJobCreate {
-	if i != nil {
-		dejc.SetRecordsExported(*i)
+func (_c *DataExportJobCreate) SetNillableRecordsExported(v *int) *DataExportJobCreate {
+	if v != nil {
+		_c.SetRecordsExported(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetRequestedAt sets the "requested_at" field.
-func (dejc *DataExportJobCreate) SetRequestedAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetRequestedAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetRequestedAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetRequestedAt(v)
+	return _c
 }
 
 // SetNillableRequestedAt sets the "requested_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableRequestedAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetRequestedAt(*t)
+func (_c *DataExportJobCreate) SetNillableRequestedAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetRequestedAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetStartedAt sets the "started_at" field.
-func (dejc *DataExportJobCreate) SetStartedAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetStartedAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetStartedAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableStartedAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetStartedAt(*t)
+func (_c *DataExportJobCreate) SetNillableStartedAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (dejc *DataExportJobCreate) SetCompletedAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetCompletedAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetCompletedAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetCompletedAt(v)
+	return _c
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableCompletedAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetCompletedAt(*t)
+func (_c *DataExportJobCreate) SetNillableCompletedAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetCompletedAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (dejc *DataExportJobCreate) SetExpiresAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetExpiresAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetExpiresAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetExpiresAt(v)
+	return _c
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableExpiresAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetExpiresAt(*t)
+func (_c *DataExportJobCreate) SetNillableExpiresAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetExpiresAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (dejc *DataExportJobCreate) SetCreatedAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetCreatedAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetCreatedAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableCreatedAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetCreatedAt(*t)
+func (_c *DataExportJobCreate) SetNillableCreatedAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dejc *DataExportJobCreate) SetUpdatedAt(t time.Time) *DataExportJobCreate {
-	dejc.mutation.SetUpdatedAt(t)
-	return dejc
+func (_c *DataExportJobCreate) SetUpdatedAt(v time.Time) *DataExportJobCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableUpdatedAt(t *time.Time) *DataExportJobCreate {
-	if t != nil {
-		dejc.SetUpdatedAt(*t)
+func (_c *DataExportJobCreate) SetNillableUpdatedAt(v *time.Time) *DataExportJobCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return dejc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dejc *DataExportJobCreate) SetID(u uuid.UUID) *DataExportJobCreate {
-	dejc.mutation.SetID(u)
-	return dejc
+func (_c *DataExportJobCreate) SetID(v uuid.UUID) *DataExportJobCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dejc *DataExportJobCreate) SetNillableID(u *uuid.UUID) *DataExportJobCreate {
-	if u != nil {
-		dejc.SetID(*u)
+func (_c *DataExportJobCreate) SetNillableID(v *uuid.UUID) *DataExportJobCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dejc
+	return _c
 }
 
 // Mutation returns the DataExportJobMutation object of the builder.
-func (dejc *DataExportJobCreate) Mutation() *DataExportJobMutation {
-	return dejc.mutation
+func (_c *DataExportJobCreate) Mutation() *DataExportJobMutation {
+	return _c.mutation
 }
 
 // Save creates the DataExportJob in the database.
-func (dejc *DataExportJobCreate) Save(ctx context.Context) (*DataExportJob, error) {
-	dejc.defaults()
-	return withHooks(ctx, dejc.sqlSave, dejc.mutation, dejc.hooks)
+func (_c *DataExportJobCreate) Save(ctx context.Context) (*DataExportJob, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dejc *DataExportJobCreate) SaveX(ctx context.Context) *DataExportJob {
-	v, err := dejc.Save(ctx)
+func (_c *DataExportJobCreate) SaveX(ctx context.Context) *DataExportJob {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -245,88 +245,88 @@ func (dejc *DataExportJobCreate) SaveX(ctx context.Context) *DataExportJob {
 }
 
 // Exec executes the query.
-func (dejc *DataExportJobCreate) Exec(ctx context.Context) error {
-	_, err := dejc.Save(ctx)
+func (_c *DataExportJobCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dejc *DataExportJobCreate) ExecX(ctx context.Context) {
-	if err := dejc.Exec(ctx); err != nil {
+func (_c *DataExportJobCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dejc *DataExportJobCreate) defaults() {
-	if _, ok := dejc.mutation.Format(); !ok {
+func (_c *DataExportJobCreate) defaults() {
+	if _, ok := _c.mutation.Format(); !ok {
 		v := dataexportjob.DefaultFormat
-		dejc.mutation.SetFormat(v)
+		_c.mutation.SetFormat(v)
 	}
-	if _, ok := dejc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := dataexportjob.DefaultStatus
-		dejc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := dejc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		v := dataexportjob.DefaultRequestedAt()
-		dejc.mutation.SetRequestedAt(v)
+		_c.mutation.SetRequestedAt(v)
 	}
-	if _, ok := dejc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := dataexportjob.DefaultCreatedAt()
-		dejc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := dejc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := dataexportjob.DefaultUpdatedAt()
-		dejc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := dejc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := dataexportjob.DefaultID()
-		dejc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dejc *DataExportJobCreate) check() error {
-	if _, ok := dejc.mutation.TenantID(); !ok {
+func (_c *DataExportJobCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "DataExportJob.tenant_id"`)}
 	}
-	if _, ok := dejc.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "DataExportJob.user_id"`)}
 	}
-	if _, ok := dejc.mutation.Format(); !ok {
+	if _, ok := _c.mutation.Format(); !ok {
 		return &ValidationError{Name: "format", err: errors.New(`ent: missing required field "DataExportJob.format"`)}
 	}
-	if v, ok := dejc.mutation.Format(); ok {
+	if v, ok := _c.mutation.Format(); ok {
 		if err := dataexportjob.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.format": %w`, err)}
 		}
 	}
-	if _, ok := dejc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DataExportJob.status"`)}
 	}
-	if v, ok := dejc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := dataexportjob.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DataExportJob.status": %w`, err)}
 		}
 	}
-	if _, ok := dejc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		return &ValidationError{Name: "requested_at", err: errors.New(`ent: missing required field "DataExportJob.requested_at"`)}
 	}
-	if _, ok := dejc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "DataExportJob.created_at"`)}
 	}
-	if _, ok := dejc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DataExportJob.updated_at"`)}
 	}
 	return nil
 }
 
-func (dejc *DataExportJobCreate) sqlSave(ctx context.Context) (*DataExportJob, error) {
-	if err := dejc.check(); err != nil {
+func (_c *DataExportJobCreate) sqlSave(ctx context.Context) (*DataExportJob, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dejc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dejc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -339,78 +339,78 @@ func (dejc *DataExportJobCreate) sqlSave(ctx context.Context) (*DataExportJob, e
 			return nil, err
 		}
 	}
-	dejc.mutation.id = &_node.ID
-	dejc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dejc *DataExportJobCreate) createSpec() (*DataExportJob, *sqlgraph.CreateSpec) {
+func (_c *DataExportJobCreate) createSpec() (*DataExportJob, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DataExportJob{config: dejc.config}
+		_node = &DataExportJob{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(dataexportjob.Table, sqlgraph.NewFieldSpec(dataexportjob.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dejc.conflict
-	if id, ok := dejc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dejc.mutation.TenantID(); ok {
+	if value, ok := _c.mutation.TenantID(); ok {
 		_spec.SetField(dataexportjob.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
-	if value, ok := dejc.mutation.UserID(); ok {
+	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(dataexportjob.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
-	if value, ok := dejc.mutation.Format(); ok {
+	if value, ok := _c.mutation.Format(); ok {
 		_spec.SetField(dataexportjob.FieldFormat, field.TypeEnum, value)
 		_node.Format = value
 	}
-	if value, ok := dejc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(dataexportjob.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := dejc.mutation.IncludedData(); ok {
+	if value, ok := _c.mutation.IncludedData(); ok {
 		_spec.SetField(dataexportjob.FieldIncludedData, field.TypeJSON, value)
 		_node.IncludedData = value
 	}
-	if value, ok := dejc.mutation.StorageURL(); ok {
+	if value, ok := _c.mutation.StorageURL(); ok {
 		_spec.SetField(dataexportjob.FieldStorageURL, field.TypeString, value)
 		_node.StorageURL = value
 	}
-	if value, ok := dejc.mutation.ErrorMessage(); ok {
+	if value, ok := _c.mutation.ErrorMessage(); ok {
 		_spec.SetField(dataexportjob.FieldErrorMessage, field.TypeString, value)
 		_node.ErrorMessage = value
 	}
-	if value, ok := dejc.mutation.FileSizeBytes(); ok {
+	if value, ok := _c.mutation.FileSizeBytes(); ok {
 		_spec.SetField(dataexportjob.FieldFileSizeBytes, field.TypeInt, value)
 		_node.FileSizeBytes = &value
 	}
-	if value, ok := dejc.mutation.RecordsExported(); ok {
+	if value, ok := _c.mutation.RecordsExported(); ok {
 		_spec.SetField(dataexportjob.FieldRecordsExported, field.TypeInt, value)
 		_node.RecordsExported = &value
 	}
-	if value, ok := dejc.mutation.RequestedAt(); ok {
+	if value, ok := _c.mutation.RequestedAt(); ok {
 		_spec.SetField(dataexportjob.FieldRequestedAt, field.TypeTime, value)
 		_node.RequestedAt = value
 	}
-	if value, ok := dejc.mutation.StartedAt(); ok {
+	if value, ok := _c.mutation.StartedAt(); ok {
 		_spec.SetField(dataexportjob.FieldStartedAt, field.TypeTime, value)
 		_node.StartedAt = &value
 	}
-	if value, ok := dejc.mutation.CompletedAt(); ok {
+	if value, ok := _c.mutation.CompletedAt(); ok {
 		_spec.SetField(dataexportjob.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = &value
 	}
-	if value, ok := dejc.mutation.ExpiresAt(); ok {
+	if value, ok := _c.mutation.ExpiresAt(); ok {
 		_spec.SetField(dataexportjob.FieldExpiresAt, field.TypeTime, value)
 		_node.ExpiresAt = &value
 	}
-	if value, ok := dejc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(dataexportjob.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := dejc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(dataexportjob.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -433,10 +433,10 @@ func (dejc *DataExportJobCreate) createSpec() (*DataExportJob, *sqlgraph.CreateS
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dejc *DataExportJobCreate) OnConflict(opts ...sql.ConflictOption) *DataExportJobUpsertOne {
-	dejc.conflict = opts
+func (_c *DataExportJobCreate) OnConflict(opts ...sql.ConflictOption) *DataExportJobUpsertOne {
+	_c.conflict = opts
 	return &DataExportJobUpsertOne{
-		create: dejc,
+		create: _c,
 	}
 }
 
@@ -446,10 +446,10 @@ func (dejc *DataExportJobCreate) OnConflict(opts ...sql.ConflictOption) *DataExp
 //	client.DataExportJob.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dejc *DataExportJobCreate) OnConflictColumns(columns ...string) *DataExportJobUpsertOne {
-	dejc.conflict = append(dejc.conflict, sql.ConflictColumns(columns...))
+func (_c *DataExportJobCreate) OnConflictColumns(columns ...string) *DataExportJobUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataExportJobUpsertOne{
-		create: dejc,
+		create: _c,
 	}
 }
 
@@ -1058,16 +1058,16 @@ type DataExportJobCreateBulk struct {
 }
 
 // Save creates the DataExportJob entities in the database.
-func (dejcb *DataExportJobCreateBulk) Save(ctx context.Context) ([]*DataExportJob, error) {
-	if dejcb.err != nil {
-		return nil, dejcb.err
+func (_c *DataExportJobCreateBulk) Save(ctx context.Context) ([]*DataExportJob, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dejcb.builders))
-	nodes := make([]*DataExportJob, len(dejcb.builders))
-	mutators := make([]Mutator, len(dejcb.builders))
-	for i := range dejcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DataExportJob, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dejcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DataExportJobMutation)
@@ -1081,12 +1081,12 @@ func (dejcb *DataExportJobCreateBulk) Save(ctx context.Context) ([]*DataExportJo
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dejcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dejcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dejcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1106,7 +1106,7 @@ func (dejcb *DataExportJobCreateBulk) Save(ctx context.Context) ([]*DataExportJo
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dejcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1114,8 +1114,8 @@ func (dejcb *DataExportJobCreateBulk) Save(ctx context.Context) ([]*DataExportJo
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dejcb *DataExportJobCreateBulk) SaveX(ctx context.Context) []*DataExportJob {
-	v, err := dejcb.Save(ctx)
+func (_c *DataExportJobCreateBulk) SaveX(ctx context.Context) []*DataExportJob {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1123,14 +1123,14 @@ func (dejcb *DataExportJobCreateBulk) SaveX(ctx context.Context) []*DataExportJo
 }
 
 // Exec executes the query.
-func (dejcb *DataExportJobCreateBulk) Exec(ctx context.Context) error {
-	_, err := dejcb.Save(ctx)
+func (_c *DataExportJobCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dejcb *DataExportJobCreateBulk) ExecX(ctx context.Context) {
-	if err := dejcb.Exec(ctx); err != nil {
+func (_c *DataExportJobCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1150,10 +1150,10 @@ func (dejcb *DataExportJobCreateBulk) ExecX(ctx context.Context) {
 //			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
-func (dejcb *DataExportJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataExportJobUpsertBulk {
-	dejcb.conflict = opts
+func (_c *DataExportJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *DataExportJobUpsertBulk {
+	_c.conflict = opts
 	return &DataExportJobUpsertBulk{
-		create: dejcb,
+		create: _c,
 	}
 }
 
@@ -1163,10 +1163,10 @@ func (dejcb *DataExportJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *Da
 //	client.DataExportJob.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dejcb *DataExportJobCreateBulk) OnConflictColumns(columns ...string) *DataExportJobUpsertBulk {
-	dejcb.conflict = append(dejcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DataExportJobCreateBulk) OnConflictColumns(columns ...string) *DataExportJobUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DataExportJobUpsertBulk{
-		create: dejcb,
+		create: _c,
 	}
 }
 

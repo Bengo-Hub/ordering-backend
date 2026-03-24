@@ -79,11 +79,9 @@ type UserEdges struct {
 	Addresses []*CustomerAddress `json:"addresses,omitempty"`
 	// LoyaltyAccount holds the value of the loyalty_account edge.
 	LoyaltyAccount *LoyaltyAccount `json:"loyalty_account,omitempty"`
-	// FavoriteItems holds the value of the favorite_items edge.
-	FavoriteItems []*CatalogItem `json:"favorite_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [8]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -166,15 +164,6 @@ func (e UserEdges) LoyaltyAccountOrErr() (*LoyaltyAccount, error) {
 	return nil, &NotLoadedError{edge: "loyalty_account"}
 }
 
-// FavoriteItemsOrErr returns the FavoriteItems value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) FavoriteItemsOrErr() ([]*CatalogItem, error) {
-	if e.loadedTypes[8] {
-		return e.FavoriteItems, nil
-	}
-	return nil, &NotLoadedError{edge: "favorite_items"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -197,7 +186,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the User fields.
-func (u *User) assignValues(columns []string, values []any) error {
+func (_m *User) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -207,91 +196,91 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				u.ID = *value
+				_m.ID = *value
 			}
 		case user.FieldTenantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
-				u.TenantID = *value
+				_m.TenantID = *value
 			}
 		case user.FieldAuthServiceUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field auth_service_user_id", values[i])
 			} else if value != nil {
-				u.AuthServiceUserID = *value
+				_m.AuthServiceUserID = *value
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				u.Email = value.String
+				_m.Email = value.String
 			}
 		case user.FieldPasswordHash:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
 			} else if value.Valid {
-				u.PasswordHash = value.String
+				_m.PasswordHash = value.String
 			}
 		case user.FieldSyncStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field sync_status", values[i])
 			} else if value.Valid {
-				u.SyncStatus = value.String
+				_m.SyncStatus = value.String
 			}
 		case user.FieldSyncAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field sync_at", values[i])
 			} else if value.Valid {
-				u.SyncAt = value.Time
+				_m.SyncAt = value.Time
 			}
 		case user.FieldFullName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field full_name", values[i])
 			} else if value.Valid {
-				u.FullName = value.String
+				_m.FullName = value.String
 			}
 		case user.FieldPhone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field phone", values[i])
 			} else if value.Valid {
-				u.Phone = value.String
+				_m.Phone = value.String
 			}
 		case user.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				u.Status = value.String
+				_m.Status = value.String
 			}
 		case user.FieldPrimaryRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field primary_role", values[i])
 			} else if value.Valid {
-				u.PrimaryRole = value.String
+				_m.PrimaryRole = value.String
 			}
 		case user.FieldLocale:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field locale", values[i])
 			} else if value.Valid {
-				u.Locale = value.String
+				_m.Locale = value.String
 			}
 		case user.FieldTimezone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field timezone", values[i])
 			} else if value.Valid {
-				u.Timezone = value.String
+				_m.Timezone = value.String
 			}
 		case user.FieldLastLoginAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field last_login_at", values[i])
 			} else if value.Valid {
-				u.LastLoginAt = value.Time
+				_m.LastLoginAt = value.Time
 			}
 		case user.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &u.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
@@ -299,16 +288,16 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				u.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case user.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				u.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			u.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -316,125 +305,120 @@ func (u *User) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the User.
 // This includes values selected through modifiers, order, etc.
-func (u *User) Value(name string) (ent.Value, error) {
-	return u.selectValues.Get(name)
+func (_m *User) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryTenant queries the "tenant" edge of the User entity.
-func (u *User) QueryTenant() *TenantQuery {
-	return NewUserClient(u.config).QueryTenant(u)
+func (_m *User) QueryTenant() *TenantQuery {
+	return NewUserClient(_m.config).QueryTenant(_m)
 }
 
 // QueryRoles queries the "roles" edge of the User entity.
-func (u *User) QueryRoles() *RoleQuery {
-	return NewUserClient(u.config).QueryRoles(u)
+func (_m *User) QueryRoles() *RoleQuery {
+	return NewUserClient(_m.config).QueryRoles(_m)
 }
 
 // QueryPreferences queries the "preferences" edge of the User entity.
-func (u *User) QueryPreferences() *UserPreferenceQuery {
-	return NewUserClient(u.config).QueryPreferences(u)
+func (_m *User) QueryPreferences() *UserPreferenceQuery {
+	return NewUserClient(_m.config).QueryPreferences(_m)
 }
 
 // QueryProfile queries the "profile" edge of the User entity.
-func (u *User) QueryProfile() *UserProfileQuery {
-	return NewUserClient(u.config).QueryProfile(u)
+func (_m *User) QueryProfile() *UserProfileQuery {
+	return NewUserClient(_m.config).QueryProfile(_m)
 }
 
 // QueryCarts queries the "carts" edge of the User entity.
-func (u *User) QueryCarts() *CartQuery {
-	return NewUserClient(u.config).QueryCarts(u)
+func (_m *User) QueryCarts() *CartQuery {
+	return NewUserClient(_m.config).QueryCarts(_m)
 }
 
 // QueryOrders queries the "orders" edge of the User entity.
-func (u *User) QueryOrders() *OrderQuery {
-	return NewUserClient(u.config).QueryOrders(u)
+func (_m *User) QueryOrders() *OrderQuery {
+	return NewUserClient(_m.config).QueryOrders(_m)
 }
 
 // QueryAddresses queries the "addresses" edge of the User entity.
-func (u *User) QueryAddresses() *CustomerAddressQuery {
-	return NewUserClient(u.config).QueryAddresses(u)
+func (_m *User) QueryAddresses() *CustomerAddressQuery {
+	return NewUserClient(_m.config).QueryAddresses(_m)
 }
 
 // QueryLoyaltyAccount queries the "loyalty_account" edge of the User entity.
-func (u *User) QueryLoyaltyAccount() *LoyaltyAccountQuery {
-	return NewUserClient(u.config).QueryLoyaltyAccount(u)
-}
-
-// QueryFavoriteItems queries the "favorite_items" edge of the User entity.
-func (u *User) QueryFavoriteItems() *CatalogItemQuery {
-	return NewUserClient(u.config).QueryFavoriteItems(u)
+func (_m *User) QueryLoyaltyAccount() *LoyaltyAccountQuery {
+	return NewUserClient(_m.config).QueryLoyaltyAccount(_m)
 }
 
 // Update returns a builder for updating this User.
 // Note that you need to call User.Unwrap() before calling this method if this User
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (u *User) Update() *UserUpdateOne {
-	return NewUserClient(u.config).UpdateOne(u)
+func (_m *User) Update() *UserUpdateOne {
+	return NewUserClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the User entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (u *User) Unwrap() *User {
-	_tx, ok := u.config.driver.(*txDriver)
+func (_m *User) Unwrap() *User {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: User is not a transactional entity")
 	}
-	u.config.driver = _tx.drv
-	return u
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (u *User) String() string {
+func (_m *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", u.TenantID))
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("auth_service_user_id=")
-	builder.WriteString(fmt.Sprintf("%v", u.AuthServiceUserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.AuthServiceUserID))
 	builder.WriteString(", ")
 	builder.WriteString("email=")
-	builder.WriteString(u.Email)
+	builder.WriteString(_m.Email)
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=")
-	builder.WriteString(u.PasswordHash)
+	builder.WriteString(_m.PasswordHash)
 	builder.WriteString(", ")
 	builder.WriteString("sync_status=")
-	builder.WriteString(u.SyncStatus)
+	builder.WriteString(_m.SyncStatus)
 	builder.WriteString(", ")
 	builder.WriteString("sync_at=")
-	builder.WriteString(u.SyncAt.Format(time.ANSIC))
+	builder.WriteString(_m.SyncAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("full_name=")
-	builder.WriteString(u.FullName)
+	builder.WriteString(_m.FullName)
 	builder.WriteString(", ")
 	builder.WriteString("phone=")
-	builder.WriteString(u.Phone)
+	builder.WriteString(_m.Phone)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(u.Status)
+	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
 	builder.WriteString("primary_role=")
-	builder.WriteString(u.PrimaryRole)
+	builder.WriteString(_m.PrimaryRole)
 	builder.WriteString(", ")
 	builder.WriteString("locale=")
-	builder.WriteString(u.Locale)
+	builder.WriteString(_m.Locale)
 	builder.WriteString(", ")
 	builder.WriteString("timezone=")
-	builder.WriteString(u.Timezone)
+	builder.WriteString(_m.Timezone)
 	builder.WriteString(", ")
 	builder.WriteString("last_login_at=")
-	builder.WriteString(u.LastLoginAt.Format(time.ANSIC))
+	builder.WriteString(_m.LastLoginAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", u.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

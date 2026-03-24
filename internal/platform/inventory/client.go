@@ -475,3 +475,34 @@ func (c *Client) HealthCheck(ctx context.Context) error {
 
 	return nil
 }
+
+// CategoryResponse represents a category from inventory-api.
+type CategoryResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+}
+
+// ListCategories returns categories from inventory-api.
+func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]CategoryResponse, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/categories", tenantSlug)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var categories []CategoryResponse
+	if err := resp.DecodeJSON(&categories); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return categories, nil
+}
+
+// ServiceClient returns the underlying service client for direct API calls.
+func (c *Client) ServiceClient() *serviceclient.Client {
+	return c.serviceClient
+}

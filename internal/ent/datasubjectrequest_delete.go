@@ -20,56 +20,56 @@ type DataSubjectRequestDelete struct {
 }
 
 // Where appends a list predicates to the DataSubjectRequestDelete builder.
-func (dsrd *DataSubjectRequestDelete) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestDelete {
-	dsrd.mutation.Where(ps...)
-	return dsrd
+func (_d *DataSubjectRequestDelete) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dsrd *DataSubjectRequestDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dsrd.sqlExec, dsrd.mutation, dsrd.hooks)
+func (_d *DataSubjectRequestDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsrd *DataSubjectRequestDelete) ExecX(ctx context.Context) int {
-	n, err := dsrd.Exec(ctx)
+func (_d *DataSubjectRequestDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dsrd *DataSubjectRequestDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DataSubjectRequestDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(datasubjectrequest.Table, sqlgraph.NewFieldSpec(datasubjectrequest.FieldID, field.TypeUUID))
-	if ps := dsrd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dsrd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dsrd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DataSubjectRequestDeleteOne is the builder for deleting a single DataSubjectRequest entity.
 type DataSubjectRequestDeleteOne struct {
-	dsrd *DataSubjectRequestDelete
+	_d *DataSubjectRequestDelete
 }
 
 // Where appends a list predicates to the DataSubjectRequestDelete builder.
-func (dsrdo *DataSubjectRequestDeleteOne) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestDeleteOne {
-	dsrdo.dsrd.mutation.Where(ps...)
-	return dsrdo
+func (_d *DataSubjectRequestDeleteOne) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dsrdo *DataSubjectRequestDeleteOne) Exec(ctx context.Context) error {
-	n, err := dsrdo.dsrd.Exec(ctx)
+func (_d *DataSubjectRequestDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dsrdo *DataSubjectRequestDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dsrdo *DataSubjectRequestDeleteOne) ExecX(ctx context.Context) {
-	if err := dsrdo.Exec(ctx); err != nil {
+func (_d *DataSubjectRequestDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -15,17 +15,8 @@ type Cart func(*sql.Selector)
 // CartItem is the predicate function for cartitem builders.
 type CartItem func(*sql.Selector)
 
-// CatalogCategory is the predicate function for catalogcategory builders.
-type CatalogCategory func(*sql.Selector)
-
-// CatalogItem is the predicate function for catalogitem builders.
-type CatalogItem func(*sql.Selector)
-
-// CatalogItemAsset is the predicate function for catalogitemasset builders.
-type CatalogItemAsset func(*sql.Selector)
-
-// CatalogItemSchedule is the predicate function for catalogitemschedule builders.
-type CatalogItemSchedule func(*sql.Selector)
+// CatalogOverride is the predicate function for catalogoverride builders.
+type CatalogOverride func(*sql.Selector)
 
 // CustomerAddress is the predicate function for customeraddress builders.
 type CustomerAddress func(*sql.Selector)
@@ -44,9 +35,6 @@ type DeliveryWindow func(*sql.Selector)
 
 // DeliveryZone is the predicate function for deliveryzone builders.
 type DeliveryZone func(*sql.Selector)
-
-// DietaryTag is the predicate function for dietarytag builders.
-type DietaryTag func(*sql.Selector)
 
 // LoyaltyAccount is the predicate function for loyaltyaccount builders.
 type LoyaltyAccount func(*sql.Selector)
@@ -113,6 +101,9 @@ type TenantSyncEvent func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UserFavorite is the predicate function for userfavorite builders.
+type UserFavorite func(*sql.Selector)
 
 // UserPreference is the predicate function for userpreference builders.
 type UserPreference func(*sql.Selector)

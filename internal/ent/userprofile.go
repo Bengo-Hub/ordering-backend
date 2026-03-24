@@ -81,7 +81,7 @@ func (*UserProfile) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the UserProfile fields.
-func (up *UserProfile) assignValues(columns []string, values []any) error {
+func (_m *UserProfile) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -92,24 +92,24 @@ func (up *UserProfile) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			up.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case userprofile.FieldAvatarURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field avatar_url", values[i])
 			} else if value.Valid {
-				up.AvatarURL = value.String
+				_m.AvatarURL = value.String
 			}
 		case userprofile.FieldBio:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field bio", values[i])
 			} else if value.Valid {
-				up.Bio = value.String
+				_m.Bio = value.String
 			}
 		case userprofile.FieldPreferencesJSON:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field preferences_json", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &up.PreferencesJSON); err != nil {
+				if err := json.Unmarshal(*value, &_m.PreferencesJSON); err != nil {
 					return fmt.Errorf("unmarshal field preferences_json: %w", err)
 				}
 			}
@@ -117,23 +117,23 @@ func (up *UserProfile) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				up.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case userprofile.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				up.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case userprofile.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_profile", values[i])
 			} else if value.Valid {
-				up.user_profile = new(uuid.UUID)
-				*up.user_profile = *value.S.(*uuid.UUID)
+				_m.user_profile = new(uuid.UUID)
+				*_m.user_profile = *value.S.(*uuid.UUID)
 			}
 		default:
-			up.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -141,52 +141,52 @@ func (up *UserProfile) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the UserProfile.
 // This includes values selected through modifiers, order, etc.
-func (up *UserProfile) Value(name string) (ent.Value, error) {
-	return up.selectValues.Get(name)
+func (_m *UserProfile) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryUser queries the "user" edge of the UserProfile entity.
-func (up *UserProfile) QueryUser() *UserQuery {
-	return NewUserProfileClient(up.config).QueryUser(up)
+func (_m *UserProfile) QueryUser() *UserQuery {
+	return NewUserProfileClient(_m.config).QueryUser(_m)
 }
 
 // Update returns a builder for updating this UserProfile.
 // Note that you need to call UserProfile.Unwrap() before calling this method if this UserProfile
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (up *UserProfile) Update() *UserProfileUpdateOne {
-	return NewUserProfileClient(up.config).UpdateOne(up)
+func (_m *UserProfile) Update() *UserProfileUpdateOne {
+	return NewUserProfileClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the UserProfile entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (up *UserProfile) Unwrap() *UserProfile {
-	_tx, ok := up.config.driver.(*txDriver)
+func (_m *UserProfile) Unwrap() *UserProfile {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: UserProfile is not a transactional entity")
 	}
-	up.config.driver = _tx.drv
-	return up
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (up *UserProfile) String() string {
+func (_m *UserProfile) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserProfile(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", up.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("avatar_url=")
-	builder.WriteString(up.AvatarURL)
+	builder.WriteString(_m.AvatarURL)
 	builder.WriteString(", ")
 	builder.WriteString("bio=")
-	builder.WriteString(up.Bio)
+	builder.WriteString(_m.Bio)
 	builder.WriteString(", ")
 	builder.WriteString("preferences_json=")
-	builder.WriteString(fmt.Sprintf("%v", up.PreferencesJSON))
+	builder.WriteString(fmt.Sprintf("%v", _m.PreferencesJSON))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(up.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(up.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -28,40 +29,40 @@ type DataSubjectRequestQuery struct {
 }
 
 // Where adds a new predicate for the DataSubjectRequestQuery builder.
-func (dsrq *DataSubjectRequestQuery) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestQuery {
-	dsrq.predicates = append(dsrq.predicates, ps...)
-	return dsrq
+func (_q *DataSubjectRequestQuery) Where(ps ...predicate.DataSubjectRequest) *DataSubjectRequestQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (dsrq *DataSubjectRequestQuery) Limit(limit int) *DataSubjectRequestQuery {
-	dsrq.ctx.Limit = &limit
-	return dsrq
+func (_q *DataSubjectRequestQuery) Limit(limit int) *DataSubjectRequestQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (dsrq *DataSubjectRequestQuery) Offset(offset int) *DataSubjectRequestQuery {
-	dsrq.ctx.Offset = &offset
-	return dsrq
+func (_q *DataSubjectRequestQuery) Offset(offset int) *DataSubjectRequestQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (dsrq *DataSubjectRequestQuery) Unique(unique bool) *DataSubjectRequestQuery {
-	dsrq.ctx.Unique = &unique
-	return dsrq
+func (_q *DataSubjectRequestQuery) Unique(unique bool) *DataSubjectRequestQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (dsrq *DataSubjectRequestQuery) Order(o ...datasubjectrequest.OrderOption) *DataSubjectRequestQuery {
-	dsrq.order = append(dsrq.order, o...)
-	return dsrq
+func (_q *DataSubjectRequestQuery) Order(o ...datasubjectrequest.OrderOption) *DataSubjectRequestQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // First returns the first DataSubjectRequest entity from the query.
 // Returns a *NotFoundError when no DataSubjectRequest was found.
-func (dsrq *DataSubjectRequestQuery) First(ctx context.Context) (*DataSubjectRequest, error) {
-	nodes, err := dsrq.Limit(1).All(setContextOp(ctx, dsrq.ctx, "First"))
+func (_q *DataSubjectRequestQuery) First(ctx context.Context) (*DataSubjectRequest, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +73,8 @@ func (dsrq *DataSubjectRequestQuery) First(ctx context.Context) (*DataSubjectReq
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) FirstX(ctx context.Context) *DataSubjectRequest {
-	node, err := dsrq.First(ctx)
+func (_q *DataSubjectRequestQuery) FirstX(ctx context.Context) *DataSubjectRequest {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -82,9 +83,9 @@ func (dsrq *DataSubjectRequestQuery) FirstX(ctx context.Context) *DataSubjectReq
 
 // FirstID returns the first DataSubjectRequest ID from the query.
 // Returns a *NotFoundError when no DataSubjectRequest ID was found.
-func (dsrq *DataSubjectRequestQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *DataSubjectRequestQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = dsrq.Limit(1).IDs(setContextOp(ctx, dsrq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -95,8 +96,8 @@ func (dsrq *DataSubjectRequestQuery) FirstID(ctx context.Context) (id uuid.UUID,
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := dsrq.FirstID(ctx)
+func (_q *DataSubjectRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -106,8 +107,8 @@ func (dsrq *DataSubjectRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single DataSubjectRequest entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one DataSubjectRequest entity is found.
 // Returns a *NotFoundError when no DataSubjectRequest entities are found.
-func (dsrq *DataSubjectRequestQuery) Only(ctx context.Context) (*DataSubjectRequest, error) {
-	nodes, err := dsrq.Limit(2).All(setContextOp(ctx, dsrq.ctx, "Only"))
+func (_q *DataSubjectRequestQuery) Only(ctx context.Context) (*DataSubjectRequest, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +123,8 @@ func (dsrq *DataSubjectRequestQuery) Only(ctx context.Context) (*DataSubjectRequ
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) OnlyX(ctx context.Context) *DataSubjectRequest {
-	node, err := dsrq.Only(ctx)
+func (_q *DataSubjectRequestQuery) OnlyX(ctx context.Context) *DataSubjectRequest {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -133,9 +134,9 @@ func (dsrq *DataSubjectRequestQuery) OnlyX(ctx context.Context) *DataSubjectRequ
 // OnlyID is like Only, but returns the only DataSubjectRequest ID in the query.
 // Returns a *NotSingularError when more than one DataSubjectRequest ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (dsrq *DataSubjectRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *DataSubjectRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = dsrq.Limit(2).IDs(setContextOp(ctx, dsrq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -150,8 +151,8 @@ func (dsrq *DataSubjectRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := dsrq.OnlyID(ctx)
+func (_q *DataSubjectRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -159,18 +160,18 @@ func (dsrq *DataSubjectRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of DataSubjectRequests.
-func (dsrq *DataSubjectRequestQuery) All(ctx context.Context) ([]*DataSubjectRequest, error) {
-	ctx = setContextOp(ctx, dsrq.ctx, "All")
-	if err := dsrq.prepareQuery(ctx); err != nil {
+func (_q *DataSubjectRequestQuery) All(ctx context.Context) ([]*DataSubjectRequest, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*DataSubjectRequest, *DataSubjectRequestQuery]()
-	return withInterceptors[[]*DataSubjectRequest](ctx, dsrq, qr, dsrq.inters)
+	return withInterceptors[[]*DataSubjectRequest](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) AllX(ctx context.Context) []*DataSubjectRequest {
-	nodes, err := dsrq.All(ctx)
+func (_q *DataSubjectRequestQuery) AllX(ctx context.Context) []*DataSubjectRequest {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -178,20 +179,20 @@ func (dsrq *DataSubjectRequestQuery) AllX(ctx context.Context) []*DataSubjectReq
 }
 
 // IDs executes the query and returns a list of DataSubjectRequest IDs.
-func (dsrq *DataSubjectRequestQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if dsrq.ctx.Unique == nil && dsrq.path != nil {
-		dsrq.Unique(true)
+func (_q *DataSubjectRequestQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, dsrq.ctx, "IDs")
-	if err = dsrq.Select(datasubjectrequest.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(datasubjectrequest.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := dsrq.IDs(ctx)
+func (_q *DataSubjectRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -199,17 +200,17 @@ func (dsrq *DataSubjectRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (dsrq *DataSubjectRequestQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, dsrq.ctx, "Count")
-	if err := dsrq.prepareQuery(ctx); err != nil {
+func (_q *DataSubjectRequestQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, dsrq, querierCount[*DataSubjectRequestQuery](), dsrq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*DataSubjectRequestQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) CountX(ctx context.Context) int {
-	count, err := dsrq.Count(ctx)
+func (_q *DataSubjectRequestQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -217,9 +218,9 @@ func (dsrq *DataSubjectRequestQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (dsrq *DataSubjectRequestQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, dsrq.ctx, "Exist")
-	switch _, err := dsrq.FirstID(ctx); {
+func (_q *DataSubjectRequestQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -230,8 +231,8 @@ func (dsrq *DataSubjectRequestQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (dsrq *DataSubjectRequestQuery) ExistX(ctx context.Context) bool {
-	exist, err := dsrq.Exist(ctx)
+func (_q *DataSubjectRequestQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -240,19 +241,19 @@ func (dsrq *DataSubjectRequestQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the DataSubjectRequestQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (dsrq *DataSubjectRequestQuery) Clone() *DataSubjectRequestQuery {
-	if dsrq == nil {
+func (_q *DataSubjectRequestQuery) Clone() *DataSubjectRequestQuery {
+	if _q == nil {
 		return nil
 	}
 	return &DataSubjectRequestQuery{
-		config:     dsrq.config,
-		ctx:        dsrq.ctx.Clone(),
-		order:      append([]datasubjectrequest.OrderOption{}, dsrq.order...),
-		inters:     append([]Interceptor{}, dsrq.inters...),
-		predicates: append([]predicate.DataSubjectRequest{}, dsrq.predicates...),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]datasubjectrequest.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.DataSubjectRequest{}, _q.predicates...),
 		// clone intermediate query.
-		sql:  dsrq.sql.Clone(),
-		path: dsrq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
@@ -270,10 +271,10 @@ func (dsrq *DataSubjectRequestQuery) Clone() *DataSubjectRequestQuery {
 //		GroupBy(datasubjectrequest.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (dsrq *DataSubjectRequestQuery) GroupBy(field string, fields ...string) *DataSubjectRequestGroupBy {
-	dsrq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &DataSubjectRequestGroupBy{build: dsrq}
-	grbuild.flds = &dsrq.ctx.Fields
+func (_q *DataSubjectRequestQuery) GroupBy(field string, fields ...string) *DataSubjectRequestGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &DataSubjectRequestGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = datasubjectrequest.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -291,62 +292,62 @@ func (dsrq *DataSubjectRequestQuery) GroupBy(field string, fields ...string) *Da
 //	client.DataSubjectRequest.Query().
 //		Select(datasubjectrequest.FieldTenantID).
 //		Scan(ctx, &v)
-func (dsrq *DataSubjectRequestQuery) Select(fields ...string) *DataSubjectRequestSelect {
-	dsrq.ctx.Fields = append(dsrq.ctx.Fields, fields...)
-	sbuild := &DataSubjectRequestSelect{DataSubjectRequestQuery: dsrq}
+func (_q *DataSubjectRequestQuery) Select(fields ...string) *DataSubjectRequestSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &DataSubjectRequestSelect{DataSubjectRequestQuery: _q}
 	sbuild.label = datasubjectrequest.Label
-	sbuild.flds, sbuild.scan = &dsrq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a DataSubjectRequestSelect configured with the given aggregations.
-func (dsrq *DataSubjectRequestQuery) Aggregate(fns ...AggregateFunc) *DataSubjectRequestSelect {
-	return dsrq.Select().Aggregate(fns...)
+func (_q *DataSubjectRequestQuery) Aggregate(fns ...AggregateFunc) *DataSubjectRequestSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (dsrq *DataSubjectRequestQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range dsrq.inters {
+func (_q *DataSubjectRequestQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, dsrq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range dsrq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !datasubjectrequest.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if dsrq.path != nil {
-		prev, err := dsrq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		dsrq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (dsrq *DataSubjectRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DataSubjectRequest, error) {
+func (_q *DataSubjectRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DataSubjectRequest, error) {
 	var (
 		nodes = []*DataSubjectRequest{}
-		_spec = dsrq.querySpec()
+		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DataSubjectRequest).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &DataSubjectRequest{config: dsrq.config}
+		node := &DataSubjectRequest{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, dsrq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
@@ -355,24 +356,24 @@ func (dsrq *DataSubjectRequestQuery) sqlAll(ctx context.Context, hooks ...queryH
 	return nodes, nil
 }
 
-func (dsrq *DataSubjectRequestQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := dsrq.querySpec()
-	_spec.Node.Columns = dsrq.ctx.Fields
-	if len(dsrq.ctx.Fields) > 0 {
-		_spec.Unique = dsrq.ctx.Unique != nil && *dsrq.ctx.Unique
+func (_q *DataSubjectRequestQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, dsrq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (dsrq *DataSubjectRequestQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *DataSubjectRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(datasubjectrequest.Table, datasubjectrequest.Columns, sqlgraph.NewFieldSpec(datasubjectrequest.FieldID, field.TypeUUID))
-	_spec.From = dsrq.sql
-	if unique := dsrq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if dsrq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := dsrq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, datasubjectrequest.FieldID)
 		for i := range fields {
@@ -381,20 +382,20 @@ func (dsrq *DataSubjectRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := dsrq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := dsrq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := dsrq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := dsrq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -404,33 +405,33 @@ func (dsrq *DataSubjectRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (dsrq *DataSubjectRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(dsrq.driver.Dialect())
+func (_q *DataSubjectRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(datasubjectrequest.Table)
-	columns := dsrq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = datasubjectrequest.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if dsrq.sql != nil {
-		selector = dsrq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if dsrq.ctx.Unique != nil && *dsrq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range dsrq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range dsrq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := dsrq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := dsrq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,41 +444,41 @@ type DataSubjectRequestGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (dsrgb *DataSubjectRequestGroupBy) Aggregate(fns ...AggregateFunc) *DataSubjectRequestGroupBy {
-	dsrgb.fns = append(dsrgb.fns, fns...)
-	return dsrgb
+func (_g *DataSubjectRequestGroupBy) Aggregate(fns ...AggregateFunc) *DataSubjectRequestGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (dsrgb *DataSubjectRequestGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, dsrgb.build.ctx, "GroupBy")
-	if err := dsrgb.build.prepareQuery(ctx); err != nil {
+func (_g *DataSubjectRequestGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DataSubjectRequestQuery, *DataSubjectRequestGroupBy](ctx, dsrgb.build, dsrgb, dsrgb.build.inters, v)
+	return scanWithInterceptors[*DataSubjectRequestQuery, *DataSubjectRequestGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (dsrgb *DataSubjectRequestGroupBy) sqlScan(ctx context.Context, root *DataSubjectRequestQuery, v any) error {
+func (_g *DataSubjectRequestGroupBy) sqlScan(ctx context.Context, root *DataSubjectRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(dsrgb.fns))
-	for _, fn := range dsrgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*dsrgb.flds)+len(dsrgb.fns))
-		for _, f := range *dsrgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*dsrgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := dsrgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -491,27 +492,27 @@ type DataSubjectRequestSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (dsrs *DataSubjectRequestSelect) Aggregate(fns ...AggregateFunc) *DataSubjectRequestSelect {
-	dsrs.fns = append(dsrs.fns, fns...)
-	return dsrs
+func (_s *DataSubjectRequestSelect) Aggregate(fns ...AggregateFunc) *DataSubjectRequestSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (dsrs *DataSubjectRequestSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, dsrs.ctx, "Select")
-	if err := dsrs.prepareQuery(ctx); err != nil {
+func (_s *DataSubjectRequestSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DataSubjectRequestQuery, *DataSubjectRequestSelect](ctx, dsrs.DataSubjectRequestQuery, dsrs, dsrs.inters, v)
+	return scanWithInterceptors[*DataSubjectRequestQuery, *DataSubjectRequestSelect](ctx, _s.DataSubjectRequestQuery, _s, _s.inters, v)
 }
 
-func (dsrs *DataSubjectRequestSelect) sqlScan(ctx context.Context, root *DataSubjectRequestQuery, v any) error {
+func (_s *DataSubjectRequestSelect) sqlScan(ctx context.Context, root *DataSubjectRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(dsrs.fns))
-	for _, fn := range dsrs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*dsrs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -519,7 +520,7 @@ func (dsrs *DataSubjectRequestSelect) sqlScan(ctx context.Context, root *DataSub
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := dsrs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

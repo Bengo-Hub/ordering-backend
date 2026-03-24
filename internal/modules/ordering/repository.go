@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
 // Repository defines the interface for ordering data persistence.
@@ -23,7 +22,7 @@ type Repository interface {
 	// CartItem operations
 	CreateCartItem(ctx context.Context, item *CartItem) error
 	GetCartItem(ctx context.Context, cartID, itemID uuid.UUID) (*CartItem, error)
-	GetCartItemByCatalogItem(ctx context.Context, cartID, catalogItemID uuid.UUID, variantID *uuid.UUID) (*CartItem, error)
+	GetCartItemBySKU(ctx context.Context, cartID uuid.UUID, sku string, variantID *uuid.UUID) (*CartItem, error)
 	UpdateCartItem(ctx context.Context, item *CartItem) error
 	DeleteCartItem(ctx context.Context, cartID, itemID uuid.UUID) error
 	ListCartItems(ctx context.Context, cartID uuid.UUID) ([]CartItem, error)
@@ -90,5 +89,4 @@ type Repository interface {
 
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
-	GetCatalogItemByID(ctx context.Context, tenantID, id uuid.UUID) (*catalog.CatalogItem, error)
 }
