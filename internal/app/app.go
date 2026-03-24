@@ -14,6 +14,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
+	sharedcache "github.com/Bengo-Hub/cache"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	eventslib "github.com/Bengo-Hub/shared-events"
 	"github.com/bengobox/ordering-backend/internal/config"
@@ -187,8 +188,10 @@ func New(ctx context.Context) (*App, error) {
 	identityHandler := identityhandler.New(log, identitySvc)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
-	// Public tenant/brand config handler (no auth)
-	configHandler := confighandler.New(log, ormClient)
+	// Public tenant/brand config handler (no auth).
+	// Uses shared cache (cache-aside via auth-api) for tenant branding.
+	tenantCache := sharedcache.New(redisClient, log)
+	configHandler := confighandler.New(log, ormClient, tenantCache, cfg.Auth.ServiceURL)
 
 	// Initialize cache service for catalog read caching
 	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
