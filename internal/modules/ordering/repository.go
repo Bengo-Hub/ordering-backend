@@ -38,6 +38,9 @@ type Repository interface {
 	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
 	GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error)
 
+	// Scheduled order operations
+	ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error)
+
 	// OrderItem operations
 	CreateOrderItem(ctx context.Context, item *OrderItem) error
 	GetOrderItem(ctx context.Context, orderID, itemID uuid.UUID) (*OrderItem, error)

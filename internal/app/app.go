@@ -214,6 +214,11 @@ func New(ctx context.Context) (*App, error) {
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
 	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, inventoryClient, subscriptionsClient, log)
 
+	// Start order scheduler for scheduled delivery flow
+	orderScheduler := ordering.NewOrderScheduler(log, orderSvc)
+	go orderScheduler.Start(ctx)
+	log.Info("app: order scheduler started (scheduled delivery flow)")
+
 	// Create ordering handlers
 	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
 	orderHandler := orderinghandler.NewOrderHandler(log, orderSvc)

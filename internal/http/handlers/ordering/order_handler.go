@@ -42,6 +42,9 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Get("/{orderId}", h.GetOrder)
 		orderRouter.Post("/{orderId}/cancel", h.CancelOrder)
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
+
+		// Live order tracking (SSE)
+		orderRouter.Get("/{orderId}/track", h.TrackOrder)
 	})
 
 	// Outlet rating (public, no auth required)
@@ -84,6 +87,8 @@ type CheckoutRequestDTO struct {
 	Instructions          string  `json:"instructions,omitempty"`
 	Channel               string  `json:"channel,omitempty"`
 	IdempotencyKey        string  `json:"idempotencyKey,omitempty"`
+	FulfillmentType       string  `json:"fulfillmentType,omitempty"`
+	ScheduledAt           string  `json:"scheduledAt,omitempty"`
 }
 
 // UpdateStatusRequest represents a request to update order status.
@@ -118,15 +123,16 @@ type GuestCheckoutRequestDTO struct {
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
 type CreateOrderRequestDTO struct {
-	OutletID         string   `json:"outletId"`
+	OutletID         string         `json:"outletId"`
 	Items            []OrderItemDTO `json:"items"`
-	DeliveryAddress  string   `json:"deliveryAddress"`
-	DeliveryLat      *float64 `json:"deliveryLat,omitempty"`
-	DeliveryLng      *float64 `json:"deliveryLng,omitempty"`
-	DeliveryNotes    string   `json:"deliveryNotes,omitempty"`
-	PaymentMethod    string   `json:"paymentMethod"` // "mpesa" | "cod"
-	PromoCode        string   `json:"promoCode,omitempty"`
-	ScheduledAt      string   `json:"scheduledAt,omitempty"`
+	DeliveryAddress  string         `json:"deliveryAddress"`
+	DeliveryLat      *float64       `json:"deliveryLat,omitempty"`
+	DeliveryLng      *float64       `json:"deliveryLng,omitempty"`
+	DeliveryNotes    string         `json:"deliveryNotes,omitempty"`
+	PaymentMethod    string         `json:"paymentMethod"` // "mpesa" | "cod"
+	PromoCode        string         `json:"promoCode,omitempty"`
+	FulfillmentType  string         `json:"fulfillmentType,omitempty"`
+	ScheduledAt      string         `json:"scheduledAt,omitempty"`
 }
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
@@ -175,7 +181,9 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrPromoCodeNotFound),
 		errors.Is(err, ordering.ErrPromoCodeExpired),
 		errors.Is(err, ordering.ErrPromoCodeMaxUses),
-		errors.Is(err, ordering.ErrInsufficientLoyaltyPoints):
+		errors.Is(err, ordering.ErrInsufficientLoyaltyPoints),
+		errors.Is(err, ordering.ErrScheduledForRequired),
+		errors.Is(err, ordering.ErrScheduledForTooSoon):
 		handlers.RespondError(w, http.StatusBadRequest, err.Error())
 
 	case errors.Is(err, ordering.ErrUnauthorized):
@@ -307,6 +315,18 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		deliveryAddressID = &id
 	}
 
+	// Parse fulfillment type and scheduled time
+	fulfillmentType := ordering.FulfillmentType(req.FulfillmentType)
+	var scheduledFor *time.Time
+	if req.ScheduledAt != "" {
+		t, err := time.Parse(time.RFC3339, req.ScheduledAt)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid scheduledAt format, expected RFC3339")
+			return
+		}
+		scheduledFor = &t
+	}
+
 	order, err := h.orderService.Checkout(r.Context(), ordering.CheckoutRequest{
 		TenantID:              tenantID,
 		CartID:                cartID,
@@ -317,6 +337,8 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		Instructions:          req.Instructions,
 		Channel:               parseOrderChannel(req.Channel),
 		IdempotencyKey:        req.IdempotencyKey,
+		FulfillmentType:       fulfillmentType,
+		ScheduledFor:          scheduledFor,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -430,8 +452,14 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.OutletID == "" || len(req.Items) == 0 || req.DeliveryAddress == "" {
-		handlers.RespondError(w, http.StatusBadRequest, "outletId, items, and deliveryAddress are required")
+	// Pickup orders don't require a delivery address
+	isPickup := req.FulfillmentType == "pickup"
+	if req.OutletID == "" || len(req.Items) == 0 {
+		handlers.RespondError(w, http.StatusBadRequest, "outletId and items are required")
+		return
+	}
+	if !isPickup && req.DeliveryAddress == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "deliveryAddress is required for delivery orders")
 		return
 	}
 
@@ -461,6 +489,18 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		channel = ordering.OrderChannel(r.Header.Get("X-Order-Channel"))
 	}
 
+	// Parse fulfillment type and scheduled time
+	fulfillmentType := ordering.FulfillmentType(req.FulfillmentType)
+	var scheduledFor *time.Time
+	if req.ScheduledAt != "" {
+		t, err := time.Parse(time.RFC3339, req.ScheduledAt)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid scheduledAt format, expected RFC3339")
+			return
+		}
+		scheduledFor = &t
+	}
+
 	order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
 		TenantID:        tenantID,
 		OutletID:        outletID,
@@ -473,6 +513,8 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		PaymentMethod:   req.PaymentMethod,
 		PromoCode:       req.PromoCode,
 		Channel:         channel,
+		FulfillmentType: fulfillmentType,
+		ScheduledFor:    scheduledFor,
 	})
 	if err != nil {
 		h.handleError(w, err)
