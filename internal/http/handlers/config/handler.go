@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
+	cache "github.com/Bengo-Hub/cache"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
@@ -13,13 +14,17 @@ import (
 
 // Handler serves public tenant/brand config (no auth required).
 type Handler struct {
-	log *zap.Logger
-	db  *ent.Client
+	log     *zap.Logger
+	db      *ent.Client
+	cache   *cache.Aside
+	authURL string
 }
 
 // New constructs a config handler.
-func New(log *zap.Logger, db *ent.Client) *Handler {
-	return &Handler{log: log.Named("config.Handler"), db: db}
+// cache and authURL enable loading tenant branding from the shared Redis cache
+// (populated by auth-api). Pass nil cache to disable branding enrichment.
+func New(log *zap.Logger, db *ent.Client, c *cache.Aside, authURL string) *Handler {
+	return &Handler{log: log.Named("config.Handler"), db: db, cache: c, authURL: authURL}
 }
 
 // PublicConfigResponse is the public tenant/brand config returned by GET /config.
@@ -68,11 +73,6 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tenant branding (logo, colors, contact info) is owned by auth-api.
-	// This endpoint returns only locally-available fields (name, slug) plus
-	// ordering-specific settings (features). Branding data should be fetched
-	// from auth-api GET /api/v1/tenants/by-slug/{slug} by the frontend and
-	// cached in TanStack Query with JWT TTL.
 	resp := PublicConfigResponse{
 		Name:      t.Name,
 		ShortName: t.Slug,
@@ -82,6 +82,33 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	if resp.ShortName == "" {
 		resp.ShortName = resp.Name
+	}
+
+	// Enrich with branding from Redis-cached auth-api tenant data.
+	if h.cache != nil && h.authURL != "" {
+		details, err := cache.GetTenantDetails(ctx, h.cache, h.authURL, slug, cache.DefaultTenantTTL)
+		if err != nil {
+			h.log.Debug("tenant branding cache miss", zap.String("slug", slug), zap.Error(err))
+		} else {
+			branding := cache.GetTenantBranding(details)
+			resp.LogoURL = branding.LogoURL
+			resp.PrimaryColor = branding.PrimaryColor
+			resp.SecondaryColor = branding.SecondaryColor
+			resp.SupportEmail = branding.Email
+			resp.SupportPhone = branding.Phone
+			if branding.Name != "" {
+				resp.Name = branding.Name
+			}
+			// Populate brand_palette from all brand colors
+			if details.BrandColors != nil {
+				resp.BrandPalette = make(map[string]string)
+				for k, v := range details.BrandColors {
+					if s, ok := v.(string); ok {
+						resp.BrandPalette[k] = s
+					}
+				}
+			}
+		}
 	}
 
 	// Ordering-specific features from settings (service-owned data)
