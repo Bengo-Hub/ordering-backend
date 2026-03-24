@@ -35,6 +35,12 @@ const (
 	FieldNotes = "notes"
 	// FieldModifiers holds the string denoting the modifiers field in the database.
 	FieldModifiers = "modifiers"
+	// FieldItemType holds the string denoting the item_type field in the database.
+	FieldItemType = "item_type"
+	// FieldServiceStartTime holds the string denoting the service_start_time field in the database.
+	FieldServiceStartTime = "service_start_time"
+	// FieldDurationMinutes holds the string denoting the duration_minutes field in the database.
+	FieldDurationMinutes = "duration_minutes"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -65,6 +71,9 @@ var Columns = []string{
 	FieldTotalPrice,
 	FieldNotes,
 	FieldModifiers,
+	FieldItemType,
+	FieldServiceStartTime,
+	FieldDurationMinutes,
 	FieldMetadata,
 	FieldCreatedAt,
 }
@@ -147,6 +156,21 @@ func ByTotalPrice(opts ...sql.OrderTermOption) OrderOption {
 // ByNotes orders the results by the notes field.
 func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotes, opts...).ToFunc()
+}
+
+// ByItemType orders the results by the item_type field.
+func ByItemType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldItemType, opts...).ToFunc()
+}
+
+// ByServiceStartTime orders the results by the service_start_time field.
+func ByServiceStartTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldServiceStartTime, opts...).ToFunc()
+}
+
+// ByDurationMinutes orders the results by the duration_minutes field.
+func ByDurationMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDurationMinutes, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

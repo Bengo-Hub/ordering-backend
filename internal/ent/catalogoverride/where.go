@@ -115,6 +115,16 @@ func ServiceFeePercent(v float64) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldEQ(FieldServiceFeePercent, v))
 }
 
+// RequiresAgeVerification applies equality check predicate on the "requires_age_verification" field. It's identical to RequiresAgeVerificationEQ.
+func RequiresAgeVerification(v bool) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldRequiresAgeVerification, v))
+}
+
+// ItemType applies equality check predicate on the "item_type" field. It's identical to ItemTypeEQ.
+func ItemType(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldItemType, v))
+}
+
 // ImageURLOverride applies equality check predicate on the "image_url_override" field. It's identical to ImageURLOverrideEQ.
 func ImageURLOverride(v string) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldEQ(FieldImageURLOverride, v))
@@ -633,6 +643,101 @@ func ServiceFeePercentLT(v float64) predicate.CatalogOverride {
 // ServiceFeePercentLTE applies the LTE predicate on the "service_fee_percent" field.
 func ServiceFeePercentLTE(v float64) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldLTE(FieldServiceFeePercent, v))
+}
+
+// RequiresAgeVerificationEQ applies the EQ predicate on the "requires_age_verification" field.
+func RequiresAgeVerificationEQ(v bool) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldRequiresAgeVerification, v))
+}
+
+// RequiresAgeVerificationNEQ applies the NEQ predicate on the "requires_age_verification" field.
+func RequiresAgeVerificationNEQ(v bool) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNEQ(FieldRequiresAgeVerification, v))
+}
+
+// ItemTypeEQ applies the EQ predicate on the "item_type" field.
+func ItemTypeEQ(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldItemType, v))
+}
+
+// ItemTypeNEQ applies the NEQ predicate on the "item_type" field.
+func ItemTypeNEQ(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNEQ(FieldItemType, v))
+}
+
+// ItemTypeIn applies the In predicate on the "item_type" field.
+func ItemTypeIn(vs ...string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldIn(FieldItemType, vs...))
+}
+
+// ItemTypeNotIn applies the NotIn predicate on the "item_type" field.
+func ItemTypeNotIn(vs ...string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNotIn(FieldItemType, vs...))
+}
+
+// ItemTypeGT applies the GT predicate on the "item_type" field.
+func ItemTypeGT(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldGT(FieldItemType, v))
+}
+
+// ItemTypeGTE applies the GTE predicate on the "item_type" field.
+func ItemTypeGTE(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldGTE(FieldItemType, v))
+}
+
+// ItemTypeLT applies the LT predicate on the "item_type" field.
+func ItemTypeLT(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldLT(FieldItemType, v))
+}
+
+// ItemTypeLTE applies the LTE predicate on the "item_type" field.
+func ItemTypeLTE(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldLTE(FieldItemType, v))
+}
+
+// ItemTypeContains applies the Contains predicate on the "item_type" field.
+func ItemTypeContains(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldContains(FieldItemType, v))
+}
+
+// ItemTypeHasPrefix applies the HasPrefix predicate on the "item_type" field.
+func ItemTypeHasPrefix(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldHasPrefix(FieldItemType, v))
+}
+
+// ItemTypeHasSuffix applies the HasSuffix predicate on the "item_type" field.
+func ItemTypeHasSuffix(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldHasSuffix(FieldItemType, v))
+}
+
+// ItemTypeIsNil applies the IsNil predicate on the "item_type" field.
+func ItemTypeIsNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldIsNull(FieldItemType))
+}
+
+// ItemTypeNotNil applies the NotNil predicate on the "item_type" field.
+func ItemTypeNotNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNotNull(FieldItemType))
+}
+
+// ItemTypeEqualFold applies the EqualFold predicate on the "item_type" field.
+func ItemTypeEqualFold(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEqualFold(FieldItemType, v))
+}
+
+// ItemTypeContainsFold applies the ContainsFold predicate on the "item_type" field.
+func ItemTypeContainsFold(v string) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldContainsFold(FieldItemType, v))
+}
+
+// VariantOptionsIsNil applies the IsNil predicate on the "variant_options" field.
+func VariantOptionsIsNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldIsNull(FieldVariantOptions))
+}
+
+// VariantOptionsNotNil applies the NotNil predicate on the "variant_options" field.
+func VariantOptionsNotNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNotNull(FieldVariantOptions))
 }
 
 // ImageURLOverrideEQ applies the EQ predicate on the "image_url_override" field.

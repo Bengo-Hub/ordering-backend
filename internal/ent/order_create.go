@@ -256,6 +256,48 @@ func (_c *OrderCreate) SetNillableReservationID(v *uuid.UUID) *OrderCreate {
 	return _c
 }
 
+// SetAppointmentID sets the "appointment_id" field.
+func (_c *OrderCreate) SetAppointmentID(v uuid.UUID) *OrderCreate {
+	_c.mutation.SetAppointmentID(v)
+	return _c
+}
+
+// SetNillableAppointmentID sets the "appointment_id" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableAppointmentID(v *uuid.UUID) *OrderCreate {
+	if v != nil {
+		_c.SetAppointmentID(*v)
+	}
+	return _c
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (_c *OrderCreate) SetStaffPreferenceID(v uuid.UUID) *OrderCreate {
+	_c.mutation.SetStaffPreferenceID(v)
+	return _c
+}
+
+// SetNillableStaffPreferenceID sets the "staff_preference_id" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableStaffPreferenceID(v *uuid.UUID) *OrderCreate {
+	if v != nil {
+		_c.SetStaffPreferenceID(*v)
+	}
+	return _c
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (_c *OrderCreate) SetPreferredCarrier(v string) *OrderCreate {
+	_c.mutation.SetPreferredCarrier(v)
+	return _c
+}
+
+// SetNillablePreferredCarrier sets the "preferred_carrier" field if the given value is not nil.
+func (_c *OrderCreate) SetNillablePreferredCarrier(v *string) *OrderCreate {
+	if v != nil {
+		_c.SetPreferredCarrier(*v)
+	}
+	return _c
+}
+
 // SetTipTotal sets the "tip_total" field.
 func (_c *OrderCreate) SetTipTotal(v float64) *OrderCreate {
 	_c.mutation.SetTipTotal(v)
@@ -964,6 +1006,18 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldReservationID, field.TypeUUID, value)
 		_node.ReservationID = &value
 	}
+	if value, ok := _c.mutation.AppointmentID(); ok {
+		_spec.SetField(order.FieldAppointmentID, field.TypeUUID, value)
+		_node.AppointmentID = &value
+	}
+	if value, ok := _c.mutation.StaffPreferenceID(); ok {
+		_spec.SetField(order.FieldStaffPreferenceID, field.TypeUUID, value)
+		_node.StaffPreferenceID = &value
+	}
+	if value, ok := _c.mutation.PreferredCarrier(); ok {
+		_spec.SetField(order.FieldPreferredCarrier, field.TypeString, value)
+		_node.PreferredCarrier = value
+	}
 	if value, ok := _c.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)
 		_node.TipTotal = value
@@ -1494,6 +1548,60 @@ func (u *OrderUpsert) UpdateReservationID() *OrderUpsert {
 // ClearReservationID clears the value of the "reservation_id" field.
 func (u *OrderUpsert) ClearReservationID() *OrderUpsert {
 	u.SetNull(order.FieldReservationID)
+	return u
+}
+
+// SetAppointmentID sets the "appointment_id" field.
+func (u *OrderUpsert) SetAppointmentID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldAppointmentID, v)
+	return u
+}
+
+// UpdateAppointmentID sets the "appointment_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateAppointmentID() *OrderUpsert {
+	u.SetExcluded(order.FieldAppointmentID)
+	return u
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (u *OrderUpsert) ClearAppointmentID() *OrderUpsert {
+	u.SetNull(order.FieldAppointmentID)
+	return u
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (u *OrderUpsert) SetStaffPreferenceID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldStaffPreferenceID, v)
+	return u
+}
+
+// UpdateStaffPreferenceID sets the "staff_preference_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateStaffPreferenceID() *OrderUpsert {
+	u.SetExcluded(order.FieldStaffPreferenceID)
+	return u
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (u *OrderUpsert) ClearStaffPreferenceID() *OrderUpsert {
+	u.SetNull(order.FieldStaffPreferenceID)
+	return u
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (u *OrderUpsert) SetPreferredCarrier(v string) *OrderUpsert {
+	u.Set(order.FieldPreferredCarrier, v)
+	return u
+}
+
+// UpdatePreferredCarrier sets the "preferred_carrier" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePreferredCarrier() *OrderUpsert {
+	u.SetExcluded(order.FieldPreferredCarrier)
+	return u
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (u *OrderUpsert) ClearPreferredCarrier() *OrderUpsert {
+	u.SetNull(order.FieldPreferredCarrier)
 	return u
 }
 
@@ -2278,6 +2386,69 @@ func (u *OrderUpsertOne) UpdateReservationID() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearReservationID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearReservationID()
+	})
+}
+
+// SetAppointmentID sets the "appointment_id" field.
+func (u *OrderUpsertOne) SetAppointmentID(v uuid.UUID) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetAppointmentID(v)
+	})
+}
+
+// UpdateAppointmentID sets the "appointment_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateAppointmentID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateAppointmentID()
+	})
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (u *OrderUpsertOne) ClearAppointmentID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearAppointmentID()
+	})
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (u *OrderUpsertOne) SetStaffPreferenceID(v uuid.UUID) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetStaffPreferenceID(v)
+	})
+}
+
+// UpdateStaffPreferenceID sets the "staff_preference_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateStaffPreferenceID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateStaffPreferenceID()
+	})
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (u *OrderUpsertOne) ClearStaffPreferenceID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearStaffPreferenceID()
+	})
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (u *OrderUpsertOne) SetPreferredCarrier(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPreferredCarrier(v)
+	})
+}
+
+// UpdatePreferredCarrier sets the "preferred_carrier" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePreferredCarrier() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePreferredCarrier()
+	})
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (u *OrderUpsertOne) ClearPreferredCarrier() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPreferredCarrier()
 	})
 }
 
@@ -3294,6 +3465,69 @@ func (u *OrderUpsertBulk) UpdateReservationID() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearReservationID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearReservationID()
+	})
+}
+
+// SetAppointmentID sets the "appointment_id" field.
+func (u *OrderUpsertBulk) SetAppointmentID(v uuid.UUID) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetAppointmentID(v)
+	})
+}
+
+// UpdateAppointmentID sets the "appointment_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateAppointmentID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateAppointmentID()
+	})
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (u *OrderUpsertBulk) ClearAppointmentID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearAppointmentID()
+	})
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (u *OrderUpsertBulk) SetStaffPreferenceID(v uuid.UUID) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetStaffPreferenceID(v)
+	})
+}
+
+// UpdateStaffPreferenceID sets the "staff_preference_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateStaffPreferenceID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateStaffPreferenceID()
+	})
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (u *OrderUpsertBulk) ClearStaffPreferenceID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearStaffPreferenceID()
+	})
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (u *OrderUpsertBulk) SetPreferredCarrier(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPreferredCarrier(v)
+	})
+}
+
+// UpdatePreferredCarrier sets the "preferred_carrier" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePreferredCarrier() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePreferredCarrier()
+	})
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (u *OrderUpsertBulk) ClearPreferredCarrier() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPreferredCarrier()
 	})
 }
 

@@ -1,41 +1,9 @@
--- Create "outbox_events" table
-CREATE TABLE "outbox_events" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "aggregate_type" character varying NOT NULL, "aggregate_id" uuid NOT NULL, "event_type" character varying NOT NULL, "payload" bytea NOT NULL, "status" character varying NOT NULL DEFAULT 'PENDING', "attempts" bigint NOT NULL DEFAULT 0, "last_attempt_at" timestamptz NULL, "published_at" timestamptz NULL, "error_message" character varying NULL, "created_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
--- Create index "outboxevent_aggregate_type_aggregate_id" to table: "outbox_events"
-CREATE INDEX "outboxevent_aggregate_type_aggregate_id" ON "outbox_events" ("aggregate_type", "aggregate_id");
--- Create index "outboxevent_status_created_at" to table: "outbox_events"
-CREATE INDEX "outboxevent_status_created_at" ON "outbox_events" ("status", "created_at");
--- Create index "outboxevent_tenant_id_status" to table: "outbox_events"
-CREATE INDEX "outboxevent_tenant_id_status" ON "outbox_events" ("tenant_id", "status");
--- Create "tenants" table
-CREATE TABLE "tenants" ("id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'active', "use_case" character varying NULL, "sync_status" character varying NOT NULL DEFAULT 'synced', "last_sync_at" timestamptz NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
--- Create index "tenant_slug" to table: "tenants"
-CREATE UNIQUE INDEX "tenant_slug" ON "tenants" ("slug");
--- Create index "tenant_status" to table: "tenants"
-CREATE INDEX "tenant_status" ON "tenants" ("status");
--- Create index "tenants_slug_key" to table: "tenants"
-CREATE UNIQUE INDEX "tenants_slug_key" ON "tenants" ("slug");
--- Create "audit_logs" table
-CREATE TABLE "audit_logs" ("id" uuid NOT NULL, "tenant_id" uuid NULL, "user_id" uuid NULL, "action" character varying NOT NULL, "resource_type" character varying NULL, "resource_id" character varying NULL, "http_method" character varying NULL, "path" character varying NULL, "status_code" bigint NULL, "ip_address" character varying NULL, "user_agent" character varying NULL, "request_body" jsonb NULL, "context" jsonb NULL, "duration_ms" bigint NULL, "occurred_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
--- Create index "auditlog_action_occurred_at" to table: "audit_logs"
-CREATE INDEX "auditlog_action_occurred_at" ON "audit_logs" ("action", "occurred_at");
--- Create index "auditlog_resource_type_resource_id" to table: "audit_logs"
-CREATE INDEX "auditlog_resource_type_resource_id" ON "audit_logs" ("resource_type", "resource_id");
--- Create index "auditlog_tenant_id_occurred_at" to table: "audit_logs"
-CREATE INDEX "auditlog_tenant_id_occurred_at" ON "audit_logs" ("tenant_id", "occurred_at");
--- Create index "auditlog_user_id_occurred_at" to table: "audit_logs"
-CREATE INDEX "auditlog_user_id_occurred_at" ON "audit_logs" ("user_id", "occurred_at");
--- Create "catalog_overrides" table
-CREATE TABLE "catalog_overrides" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "outlet_id" uuid NOT NULL, "inventory_sku" character varying NOT NULL, "base_price" double precision NOT NULL DEFAULT 0, "currency" character varying NOT NULL DEFAULT 'KES', "is_available" boolean NOT NULL DEFAULT true, "is_featured" boolean NOT NULL DEFAULT false, "lead_time_minutes" bigint NULL, "display_order" bigint NOT NULL DEFAULT 0, "display_section" character varying NOT NULL DEFAULT 'default', "packaging_fee" double precision NOT NULL DEFAULT 0, "service_fee_percent" double precision NOT NULL DEFAULT 0, "image_url_override" character varying NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
--- Create index "catalogoverride_inventory_sku" to table: "catalog_overrides"
-CREATE INDEX "catalogoverride_inventory_sku" ON "catalog_overrides" ("inventory_sku");
--- Create index "catalogoverride_tenant_id_display_section" to table: "catalog_overrides"
-CREATE INDEX "catalogoverride_tenant_id_display_section" ON "catalog_overrides" ("tenant_id", "display_section");
--- Create index "catalogoverride_tenant_id_is_available" to table: "catalog_overrides"
-CREATE INDEX "catalogoverride_tenant_id_is_available" ON "catalog_overrides" ("tenant_id", "is_available");
--- Create index "catalogoverride_tenant_id_outlet_id" to table: "catalog_overrides"
-CREATE INDEX "catalogoverride_tenant_id_outlet_id" ON "catalog_overrides" ("tenant_id", "outlet_id");
--- Create index "catalogoverride_tenant_id_outlet_id_inventory_sku" to table: "catalog_overrides"
-CREATE UNIQUE INDEX "catalogoverride_tenant_id_outlet_id_inventory_sku" ON "catalog_overrides" ("tenant_id", "outlet_id", "inventory_sku");
+-- Create "service_configs" table
+CREATE TABLE "service_configs" ("id" uuid NOT NULL, "tenant_id" uuid NULL, "config_key" character varying NOT NULL, "config_value" text NOT NULL, "config_type" character varying NOT NULL DEFAULT 'string', "description" character varying NULL, "is_secret" boolean NOT NULL DEFAULT false, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "serviceconfig_config_key" to table: "service_configs"
+CREATE INDEX "serviceconfig_config_key" ON "service_configs" ("config_key");
+-- Create index "serviceconfig_tenant_id_config_key" to table: "service_configs"
+CREATE UNIQUE INDEX "serviceconfig_tenant_id_config_key" ON "service_configs" ("tenant_id", "config_key");
 -- Create "delivery_zones" table
 CREATE TABLE "delivery_zones" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "outlet_id" uuid NULL, "name" character varying NOT NULL, "slug" character varying NULL, "zone_polygon" jsonb NULL, "delivery_fee" double precision NOT NULL DEFAULT 0, "minimum_order" double precision NOT NULL DEFAULT 0, "estimated_time_minutes" bigint NOT NULL DEFAULT 30, "is_active" boolean NOT NULL DEFAULT true, "sort_order" bigint NOT NULL DEFAULT 0, "metadata" jsonb NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
 -- Create index "deliveryzone_tenant_id" to table: "delivery_zones"
@@ -46,6 +14,34 @@ CREATE INDEX "deliveryzone_tenant_id_is_active" ON "delivery_zones" ("tenant_id"
 CREATE INDEX "deliveryzone_tenant_id_outlet_id" ON "delivery_zones" ("tenant_id", "outlet_id");
 -- Create index "deliveryzone_tenant_id_slug" to table: "delivery_zones"
 CREATE UNIQUE INDEX "deliveryzone_tenant_id_slug" ON "delivery_zones" ("tenant_id", "slug");
+-- Create "outlet_ratings" table
+CREATE TABLE "outlet_ratings" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "outlet_id" uuid NOT NULL, "average_rating" double precision NOT NULL DEFAULT 0, "total_ratings" bigint NOT NULL DEFAULT 0, "total_reviews" bigint NOT NULL DEFAULT 0, "five_star" bigint NOT NULL DEFAULT 0, "four_star" bigint NOT NULL DEFAULT 0, "three_star" bigint NOT NULL DEFAULT 0, "two_star" bigint NOT NULL DEFAULT 0, "one_star" bigint NOT NULL DEFAULT 0, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "outlet_ratings_outlet_id_key" to table: "outlet_ratings"
+CREATE UNIQUE INDEX "outlet_ratings_outlet_id_key" ON "outlet_ratings" ("outlet_id");
+-- Create index "outletrating_average_rating" to table: "outlet_ratings"
+CREATE INDEX "outletrating_average_rating" ON "outlet_ratings" ("average_rating");
+-- Create index "outletrating_tenant_id_outlet_id" to table: "outlet_ratings"
+CREATE UNIQUE INDEX "outletrating_tenant_id_outlet_id" ON "outlet_ratings" ("tenant_id", "outlet_id");
+-- Create "catalog_overrides" table
+CREATE TABLE "catalog_overrides" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "outlet_id" uuid NOT NULL, "inventory_sku" character varying NOT NULL, "base_price" double precision NOT NULL DEFAULT 0, "currency" character varying NOT NULL DEFAULT 'KES', "is_available" boolean NOT NULL DEFAULT true, "is_featured" boolean NOT NULL DEFAULT false, "lead_time_minutes" bigint NULL, "display_order" bigint NOT NULL DEFAULT 0, "display_section" character varying NOT NULL DEFAULT 'default', "packaging_fee" double precision NOT NULL DEFAULT 0, "service_fee_percent" double precision NOT NULL DEFAULT 0, "requires_age_verification" boolean NOT NULL DEFAULT false, "item_type" character varying NULL, "variant_options" jsonb NULL, "image_url_override" character varying NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "catalogoverride_inventory_sku" to table: "catalog_overrides"
+CREATE INDEX "catalogoverride_inventory_sku" ON "catalog_overrides" ("inventory_sku");
+-- Create index "catalogoverride_tenant_id_display_section" to table: "catalog_overrides"
+CREATE INDEX "catalogoverride_tenant_id_display_section" ON "catalog_overrides" ("tenant_id", "display_section");
+-- Create index "catalogoverride_tenant_id_is_available" to table: "catalog_overrides"
+CREATE INDEX "catalogoverride_tenant_id_is_available" ON "catalog_overrides" ("tenant_id", "is_available");
+-- Create index "catalogoverride_tenant_id_outlet_id" to table: "catalog_overrides"
+CREATE INDEX "catalogoverride_tenant_id_outlet_id" ON "catalog_overrides" ("tenant_id", "outlet_id");
+-- Create index "catalogoverride_tenant_id_outlet_id_inventory_sku" to table: "catalog_overrides"
+CREATE UNIQUE INDEX "catalogoverride_tenant_id_outlet_id_inventory_sku" ON "catalog_overrides" ("tenant_id", "outlet_id", "inventory_sku");
+-- Create "outbox_events" table
+CREATE TABLE "outbox_events" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "aggregate_type" character varying NOT NULL, "aggregate_id" uuid NOT NULL, "event_type" character varying NOT NULL, "payload" bytea NOT NULL, "status" character varying NOT NULL DEFAULT 'PENDING', "attempts" bigint NOT NULL DEFAULT 0, "last_attempt_at" timestamptz NULL, "published_at" timestamptz NULL, "error_message" character varying NULL, "created_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "outboxevent_aggregate_type_aggregate_id" to table: "outbox_events"
+CREATE INDEX "outboxevent_aggregate_type_aggregate_id" ON "outbox_events" ("aggregate_type", "aggregate_id");
+-- Create index "outboxevent_status_created_at" to table: "outbox_events"
+CREATE INDEX "outboxevent_status_created_at" ON "outbox_events" ("status", "created_at");
+-- Create index "outboxevent_tenant_id_status" to table: "outbox_events"
+CREATE INDEX "outboxevent_tenant_id_status" ON "outbox_events" ("tenant_id", "status");
 -- Create "data_deletion_jobs" table
 CREATE TABLE "data_deletion_jobs" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "user_id" uuid NOT NULL, "deletion_type" character varying NOT NULL DEFAULT 'soft', "status" character varying NOT NULL DEFAULT 'pending', "reason" text NULL, "confirmed" boolean NOT NULL DEFAULT false, "retention_days" bigint NOT NULL DEFAULT 30, "error_message" text NULL, "deletion_summary" jsonb NULL, "requested_at" timestamptz NOT NULL, "scheduled_for" timestamptz NULL, "started_at" timestamptz NULL, "completed_at" timestamptz NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
 -- Create index "datadeletionjob_requested_at" to table: "data_deletion_jobs"
@@ -118,12 +114,24 @@ CREATE INDEX "slametric_tenant_id_measured_at" ON "sla_metrics" ("tenant_id", "m
 CREATE INDEX "slametric_tenant_id_metric_type" ON "sla_metrics" ("tenant_id", "metric_type");
 -- Create index "slametric_tenant_id_status" to table: "sla_metrics"
 CREATE INDEX "slametric_tenant_id_status" ON "sla_metrics" ("tenant_id", "status");
--- Create "service_configs" table
-CREATE TABLE "service_configs" ("id" uuid NOT NULL, "tenant_id" uuid NULL, "config_key" character varying NOT NULL, "config_value" text NOT NULL, "config_type" character varying NOT NULL DEFAULT 'string', "description" character varying NULL, "is_secret" boolean NOT NULL DEFAULT false, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
--- Create index "serviceconfig_config_key" to table: "service_configs"
-CREATE INDEX "serviceconfig_config_key" ON "service_configs" ("config_key");
--- Create index "serviceconfig_tenant_id_config_key" to table: "service_configs"
-CREATE UNIQUE INDEX "serviceconfig_tenant_id_config_key" ON "service_configs" ("tenant_id", "config_key");
+-- Create "tenants" table
+CREATE TABLE "tenants" ("id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'active', "use_case" character varying NULL, "sync_status" character varying NOT NULL DEFAULT 'synced', "last_sync_at" timestamptz NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "tenant_slug" to table: "tenants"
+CREATE UNIQUE INDEX "tenant_slug" ON "tenants" ("slug");
+-- Create index "tenant_status" to table: "tenants"
+CREATE INDEX "tenant_status" ON "tenants" ("status");
+-- Create index "tenants_slug_key" to table: "tenants"
+CREATE UNIQUE INDEX "tenants_slug_key" ON "tenants" ("slug");
+-- Create "audit_logs" table
+CREATE TABLE "audit_logs" ("id" uuid NOT NULL, "tenant_id" uuid NULL, "user_id" uuid NULL, "action" character varying NOT NULL, "resource_type" character varying NULL, "resource_id" character varying NULL, "http_method" character varying NULL, "path" character varying NULL, "status_code" bigint NULL, "ip_address" character varying NULL, "user_agent" character varying NULL, "request_body" jsonb NULL, "context" jsonb NULL, "duration_ms" bigint NULL, "occurred_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "auditlog_action_occurred_at" to table: "audit_logs"
+CREATE INDEX "auditlog_action_occurred_at" ON "audit_logs" ("action", "occurred_at");
+-- Create index "auditlog_resource_type_resource_id" to table: "audit_logs"
+CREATE INDEX "auditlog_resource_type_resource_id" ON "audit_logs" ("resource_type", "resource_id");
+-- Create index "auditlog_tenant_id_occurred_at" to table: "audit_logs"
+CREATE INDEX "auditlog_tenant_id_occurred_at" ON "audit_logs" ("tenant_id", "occurred_at");
+-- Create index "auditlog_user_id_occurred_at" to table: "audit_logs"
+CREATE INDEX "auditlog_user_id_occurred_at" ON "audit_logs" ("user_id", "occurred_at");
 -- Create "users" table
 CREATE TABLE "users" ("id" uuid NOT NULL, "auth_service_user_id" uuid NULL, "email" character varying NOT NULL, "password_hash" character varying NULL, "sync_status" character varying NOT NULL DEFAULT 'pending', "sync_at" timestamptz NULL, "full_name" character varying NOT NULL, "phone" character varying NULL, "status" character varying NOT NULL DEFAULT 'active', "primary_role" character varying NULL, "locale" character varying NOT NULL DEFAULT 'en', "timezone" character varying NOT NULL DEFAULT 'Africa/Nairobi', "last_login_at" timestamptz NULL, "metadata" jsonb NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "tenant_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "users_tenants_users" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
 -- Create index "user_created_at" to table: "users"
@@ -171,13 +179,13 @@ CREATE INDEX "customeraddress_tenant_id_user_id" ON "customer_addresses" ("tenan
 -- Create index "customeraddress_user_id_is_default" to table: "customer_addresses"
 CREATE INDEX "customeraddress_user_id_is_default" ON "customer_addresses" ("user_id", "is_default");
 -- Create "outlets" table
-CREATE TABLE "outlets" ("id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "description" text NULL, "address" character varying NULL, "phone" character varying NULL, "email" character varying NULL, "location" character varying NULL, "latitude" double precision NULL, "longitude" double precision NULL, "opening_hours" jsonb NULL, "image_url" character varying NULL DEFAULT '', "use_case" character varying NULL, "status" character varying NOT NULL DEFAULT 'active', "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "tenant_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "outlets_tenants_outlets" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
+CREATE TABLE "outlets" ("id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "description" text NULL, "address" character varying NULL, "phone" character varying NULL, "email" character varying NULL, "location" character varying NULL, "latitude" double precision NULL, "longitude" double precision NULL, "opening_hours" jsonb NULL, "image_url" character varying NULL DEFAULT '', "use_case" character varying NULL, "supports_pickup" boolean NOT NULL DEFAULT false, "status" character varying NOT NULL DEFAULT 'active', "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "tenant_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "outlets_tenants_outlets" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
 -- Create index "outlet_status" to table: "outlets"
 CREATE INDEX "outlet_status" ON "outlets" ("status");
 -- Create index "outlet_tenant_id_slug" to table: "outlets"
 CREATE UNIQUE INDEX "outlet_tenant_id_slug" ON "outlets" ("tenant_id", "slug");
 -- Create "orders" table
-CREATE TABLE "orders" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "cart_id" uuid NULL, "order_number" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'pending', "payment_status" character varying NOT NULL DEFAULT 'pending', "payment_intent_id" uuid NULL, "currency" character varying NOT NULL DEFAULT 'KES', "subtotal" double precision NOT NULL, "discount_total" double precision NOT NULL DEFAULT 0, "tax_total" double precision NOT NULL DEFAULT 0, "delivery_fee" double precision NOT NULL DEFAULT 0, "tip_total" double precision NOT NULL DEFAULT 0, "grand_total" double precision NOT NULL, "loyalty_points_earned" bigint NOT NULL DEFAULT 0, "loyalty_points_redeemed" bigint NOT NULL DEFAULT 0, "promo_code_id" uuid NULL, "instructions" text NULL, "channel" character varying NOT NULL DEFAULT 'web', "source" character varying NULL, "idempotency_key" character varying NULL, "placed_at" timestamptz NULL, "confirmed_at" timestamptz NULL, "ready_at" timestamptz NULL, "delivered_at" timestamptz NULL, "completed_at" timestamptz NULL, "cancelled_at" timestamptz NULL, "cancellation_reason" text NULL, "rating" bigint NULL, "rating_comment" text NULL, "rated_at" timestamptz NULL, "metadata" jsonb NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "delivery_address_id" uuid NULL, "outlet_id" uuid NOT NULL, "customer_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "orders_customer_addresses_orders" FOREIGN KEY ("delivery_address_id") REFERENCES "customer_addresses" ("id") ON UPDATE NO ACTION ON DELETE SET NULL, CONSTRAINT "orders_outlets_orders" FOREIGN KEY ("outlet_id") REFERENCES "outlets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION, CONSTRAINT "orders_users_orders" FOREIGN KEY ("customer_id") REFERENCES "users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
+CREATE TABLE "orders" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "cart_id" uuid NULL, "order_number" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'pending', "payment_status" character varying NOT NULL DEFAULT 'pending', "payment_intent_id" uuid NULL, "currency" character varying NOT NULL DEFAULT 'KES', "subtotal" double precision NOT NULL, "discount_total" double precision NOT NULL DEFAULT 0, "tax_total" double precision NOT NULL DEFAULT 0, "delivery_fee" double precision NOT NULL DEFAULT 0, "fulfillment_type" character varying NOT NULL DEFAULT 'delivery', "scheduled_for" timestamptz NULL, "packaging_fee" double precision NOT NULL DEFAULT 0, "service_fee" double precision NOT NULL DEFAULT 0, "small_order_fee" double precision NOT NULL DEFAULT 0, "reservation_id" uuid NULL, "appointment_id" uuid NULL, "staff_preference_id" uuid NULL, "preferred_carrier" character varying NULL, "tip_total" double precision NOT NULL DEFAULT 0, "grand_total" double precision NOT NULL, "loyalty_points_earned" bigint NOT NULL DEFAULT 0, "loyalty_points_redeemed" bigint NOT NULL DEFAULT 0, "promo_code_id" uuid NULL, "instructions" text NULL, "channel" character varying NOT NULL DEFAULT 'web', "source" character varying NULL, "idempotency_key" character varying NULL, "placed_at" timestamptz NULL, "confirmed_at" timestamptz NULL, "ready_at" timestamptz NULL, "delivered_at" timestamptz NULL, "completed_at" timestamptz NULL, "cancelled_at" timestamptz NULL, "cancellation_reason" text NULL, "rating" bigint NULL, "rating_comment" text NULL, "rated_at" timestamptz NULL, "metadata" jsonb NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "delivery_address_id" uuid NULL, "outlet_id" uuid NOT NULL, "customer_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "orders_customer_addresses_orders" FOREIGN KEY ("delivery_address_id") REFERENCES "customer_addresses" ("id") ON UPDATE NO ACTION ON DELETE SET NULL, CONSTRAINT "orders_outlets_orders" FOREIGN KEY ("outlet_id") REFERENCES "outlets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION, CONSTRAINT "orders_users_orders" FOREIGN KEY ("customer_id") REFERENCES "users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
 -- Create index "order_channel" to table: "orders"
 CREATE INDEX "order_channel" ON "orders" ("channel");
 -- Create index "order_completed_at" to table: "orders"
@@ -188,12 +196,16 @@ CREATE INDEX "order_created_at" ON "orders" ("created_at");
 CREATE INDEX "order_delivered_at" ON "orders" ("delivered_at");
 -- Create index "order_delivery_address_id" to table: "orders"
 CREATE INDEX "order_delivery_address_id" ON "orders" ("delivery_address_id");
+-- Create index "order_fulfillment_type" to table: "orders"
+CREATE INDEX "order_fulfillment_type" ON "orders" ("fulfillment_type");
 -- Create index "order_idempotency_key" to table: "orders"
 CREATE UNIQUE INDEX "order_idempotency_key" ON "orders" ("idempotency_key") WHERE (idempotency_key IS NOT NULL);
 -- Create index "order_order_number" to table: "orders"
 CREATE UNIQUE INDEX "order_order_number" ON "orders" ("order_number");
 -- Create index "order_placed_at" to table: "orders"
 CREATE INDEX "order_placed_at" ON "orders" ("placed_at");
+-- Create index "order_scheduled_for" to table: "orders"
+CREATE INDEX "order_scheduled_for" ON "orders" ("scheduled_for");
 -- Create index "order_tenant_id_customer_id" to table: "orders"
 CREATE INDEX "order_tenant_id_customer_id" ON "orders" ("tenant_id", "customer_id");
 -- Create index "order_tenant_id_customer_id_status" to table: "orders"
@@ -230,6 +242,20 @@ CREATE INDEX "deliverywindow_created_at" ON "delivery_windows" ("created_at");
 CREATE INDEX "deliverywindow_is_current" ON "delivery_windows" ("is_current");
 -- Create index "deliverywindow_tenant_id_order_id" to table: "delivery_windows"
 CREATE INDEX "deliverywindow_tenant_id_order_id" ON "delivery_windows" ("tenant_id", "order_id");
+-- Create "group_orders" table
+CREATE TABLE "group_orders" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "host_user_id" uuid NOT NULL, "cart_id" uuid NOT NULL, "invite_code" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'open', "max_participants" bigint NOT NULL DEFAULT 10, "expires_at" timestamptz NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, PRIMARY KEY ("id"));
+-- Create index "grouporder_expires_at" to table: "group_orders"
+CREATE INDEX "grouporder_expires_at" ON "group_orders" ("expires_at");
+-- Create index "grouporder_invite_code" to table: "group_orders"
+CREATE UNIQUE INDEX "grouporder_invite_code" ON "group_orders" ("invite_code");
+-- Create index "grouporder_status" to table: "group_orders"
+CREATE INDEX "grouporder_status" ON "group_orders" ("status");
+-- Create index "grouporder_tenant_id_host_user_id" to table: "group_orders"
+CREATE INDEX "grouporder_tenant_id_host_user_id" ON "group_orders" ("tenant_id", "host_user_id");
+-- Create "group_participants" table
+CREATE TABLE "group_participants" ("id" uuid NOT NULL, "user_id" uuid NOT NULL, "user_name" character varying NOT NULL, "joined_at" timestamptz NOT NULL, "group_order_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "group_participants_group_orders_participants" FOREIGN KEY ("group_order_id") REFERENCES "group_orders" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
+-- Create index "groupparticipant_group_order_id_user_id" to table: "group_participants"
+CREATE UNIQUE INDEX "groupparticipant_group_order_id_user_id" ON "group_participants" ("group_order_id", "user_id");
 -- Create "loyalty_accounts" table
 CREATE TABLE "loyalty_accounts" ("id" uuid NOT NULL, "tenant_id" uuid NOT NULL, "balance_points" bigint NOT NULL DEFAULT 0, "lifetime_points" bigint NOT NULL DEFAULT 0, "redeemed_points" bigint NOT NULL DEFAULT 0, "tier" character varying NOT NULL DEFAULT 'bronze', "tier_progress" bigint NOT NULL DEFAULT 0, "tier_expires_at" timestamptz NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "user_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "loyalty_accounts_users_loyalty_account" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
 -- Create index "loyalty_accounts_user_id_key" to table: "loyalty_accounts"
@@ -257,7 +283,7 @@ CREATE INDEX "orderevent_occurred_at" ON "order_events" ("occurred_at");
 -- Create index "orderevent_order_id" to table: "order_events"
 CREATE INDEX "orderevent_order_id" ON "order_events" ("order_id");
 -- Create "order_items" table
-CREATE TABLE "order_items" ("id" uuid NOT NULL, "inventory_sku" character varying NOT NULL, "variant_id" uuid NULL, "name_snapshot" character varying NOT NULL, "variant_name_snapshot" character varying NULL, "quantity" bigint NOT NULL, "unit_price" double precision NOT NULL, "total_price" double precision NOT NULL, "notes" text NULL, "modifiers" jsonb NULL, "metadata" jsonb NULL, "created_at" timestamptz NOT NULL, "order_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "order_items_orders_items" FOREIGN KEY ("order_id") REFERENCES "orders" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
+CREATE TABLE "order_items" ("id" uuid NOT NULL, "inventory_sku" character varying NOT NULL, "variant_id" uuid NULL, "name_snapshot" character varying NOT NULL, "variant_name_snapshot" character varying NULL, "quantity" bigint NOT NULL, "unit_price" double precision NOT NULL, "total_price" double precision NOT NULL, "notes" text NULL, "modifiers" jsonb NULL, "item_type" character varying NULL, "service_start_time" timestamptz NULL, "duration_minutes" bigint NULL, "metadata" jsonb NULL, "created_at" timestamptz NOT NULL, "order_id" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "order_items_orders_items" FOREIGN KEY ("order_id") REFERENCES "orders" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION);
 -- Create index "orderitem_inventory_sku" to table: "order_items"
 CREATE INDEX "orderitem_inventory_sku" ON "order_items" ("inventory_sku");
 -- Create index "orderitem_order_id" to table: "order_items"

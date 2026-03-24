@@ -227,16 +227,20 @@ func init() {
 	catalogoverrideDescServiceFeePercent := catalogoverrideFields[12].Descriptor()
 	// catalogoverride.DefaultServiceFeePercent holds the default value on creation for the service_fee_percent field.
 	catalogoverride.DefaultServiceFeePercent = catalogoverrideDescServiceFeePercent.Default.(float64)
+	// catalogoverrideDescRequiresAgeVerification is the schema descriptor for requires_age_verification field.
+	catalogoverrideDescRequiresAgeVerification := catalogoverrideFields[13].Descriptor()
+	// catalogoverride.DefaultRequiresAgeVerification holds the default value on creation for the requires_age_verification field.
+	catalogoverride.DefaultRequiresAgeVerification = catalogoverrideDescRequiresAgeVerification.Default.(bool)
 	// catalogoverrideDescImageURLOverride is the schema descriptor for image_url_override field.
-	catalogoverrideDescImageURLOverride := catalogoverrideFields[13].Descriptor()
+	catalogoverrideDescImageURLOverride := catalogoverrideFields[16].Descriptor()
 	// catalogoverride.ImageURLOverrideValidator is a validator for the "image_url_override" field. It is called by the builders before save.
 	catalogoverride.ImageURLOverrideValidator = catalogoverrideDescImageURLOverride.Validators[0].(func(string) error)
 	// catalogoverrideDescCreatedAt is the schema descriptor for created_at field.
-	catalogoverrideDescCreatedAt := catalogoverrideFields[14].Descriptor()
+	catalogoverrideDescCreatedAt := catalogoverrideFields[17].Descriptor()
 	// catalogoverride.DefaultCreatedAt holds the default value on creation for the created_at field.
 	catalogoverride.DefaultCreatedAt = catalogoverrideDescCreatedAt.Default.(func() time.Time)
 	// catalogoverrideDescUpdatedAt is the schema descriptor for updated_at field.
-	catalogoverrideDescUpdatedAt := catalogoverrideFields[15].Descriptor()
+	catalogoverrideDescUpdatedAt := catalogoverrideFields[18].Descriptor()
 	// catalogoverride.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	catalogoverride.DefaultUpdatedAt = catalogoverrideDescUpdatedAt.Default.(func() time.Time)
 	// catalogoverride.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -570,27 +574,27 @@ func init() {
 	// order.DefaultSmallOrderFee holds the default value on creation for the small_order_fee field.
 	order.DefaultSmallOrderFee = orderDescSmallOrderFee.Default.(float64)
 	// orderDescTipTotal is the schema descriptor for tip_total field.
-	orderDescTipTotal := orderFields[20].Descriptor()
+	orderDescTipTotal := orderFields[23].Descriptor()
 	// order.DefaultTipTotal holds the default value on creation for the tip_total field.
 	order.DefaultTipTotal = orderDescTipTotal.Default.(float64)
 	// orderDescLoyaltyPointsEarned is the schema descriptor for loyalty_points_earned field.
-	orderDescLoyaltyPointsEarned := orderFields[22].Descriptor()
+	orderDescLoyaltyPointsEarned := orderFields[25].Descriptor()
 	// order.DefaultLoyaltyPointsEarned holds the default value on creation for the loyalty_points_earned field.
 	order.DefaultLoyaltyPointsEarned = orderDescLoyaltyPointsEarned.Default.(int)
 	// orderDescLoyaltyPointsRedeemed is the schema descriptor for loyalty_points_redeemed field.
-	orderDescLoyaltyPointsRedeemed := orderFields[23].Descriptor()
+	orderDescLoyaltyPointsRedeemed := orderFields[26].Descriptor()
 	// order.DefaultLoyaltyPointsRedeemed holds the default value on creation for the loyalty_points_redeemed field.
 	order.DefaultLoyaltyPointsRedeemed = orderDescLoyaltyPointsRedeemed.Default.(int)
 	// orderDescSource is the schema descriptor for source field.
-	orderDescSource := orderFields[28].Descriptor()
+	orderDescSource := orderFields[31].Descriptor()
 	// order.SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	order.SourceValidator = orderDescSource.Validators[0].(func(string) error)
 	// orderDescIdempotencyKey is the schema descriptor for idempotency_key field.
-	orderDescIdempotencyKey := orderFields[29].Descriptor()
+	orderDescIdempotencyKey := orderFields[32].Descriptor()
 	// order.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	order.IdempotencyKeyValidator = orderDescIdempotencyKey.Validators[0].(func(string) error)
 	// orderDescRating is the schema descriptor for rating field.
-	orderDescRating := orderFields[37].Descriptor()
+	orderDescRating := orderFields[40].Descriptor()
 	// order.RatingValidator is a validator for the "rating" field. It is called by the builders before save.
 	order.RatingValidator = func() func(int) error {
 		validators := orderDescRating.Validators
@@ -608,11 +612,11 @@ func init() {
 		}
 	}()
 	// orderDescCreatedAt is the schema descriptor for created_at field.
-	orderDescCreatedAt := orderFields[41].Descriptor()
+	orderDescCreatedAt := orderFields[44].Descriptor()
 	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
 	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
 	// orderDescUpdatedAt is the schema descriptor for updated_at field.
-	orderDescUpdatedAt := orderFields[42].Descriptor()
+	orderDescUpdatedAt := orderFields[45].Descriptor()
 	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
 	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -728,7 +732,7 @@ func init() {
 	// orderitem.UnitPriceValidator is a validator for the "unit_price" field. It is called by the builders before save.
 	orderitem.UnitPriceValidator = orderitemDescUnitPrice.Validators[0].(func(float64) error)
 	// orderitemDescCreatedAt is the schema descriptor for created_at field.
-	orderitemDescCreatedAt := orderitemFields[12].Descriptor()
+	orderitemDescCreatedAt := orderitemFields[15].Descriptor()
 	// orderitem.DefaultCreatedAt holds the default value on creation for the created_at field.
 	orderitem.DefaultCreatedAt = orderitemDescCreatedAt.Default.(func() time.Time)
 	// orderitemDescID is the schema descriptor for id field.

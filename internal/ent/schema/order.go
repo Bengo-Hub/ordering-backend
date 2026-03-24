@@ -81,6 +81,17 @@ func (Order) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("Inventory reservation ID for stock tracking"),
+		field.UUID("appointment_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Comment("POS appointment reference for service bookings"),
+		field.UUID("staff_preference_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Comment("Preferred staff member for service booking"),
+		field.String("preferred_carrier").
+			Optional().
+			Comment("Customer carrier preference: internal_fleet or specific carrier ID"),
 		field.Float("tip_total").
 			Default(0).
 			Comment("Tip amount"),

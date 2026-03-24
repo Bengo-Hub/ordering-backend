@@ -136,6 +136,21 @@ func ReservationID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldReservationID, v))
 }
 
+// AppointmentID applies equality check predicate on the "appointment_id" field. It's identical to AppointmentIDEQ.
+func AppointmentID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldAppointmentID, v))
+}
+
+// StaffPreferenceID applies equality check predicate on the "staff_preference_id" field. It's identical to StaffPreferenceIDEQ.
+func StaffPreferenceID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldStaffPreferenceID, v))
+}
+
+// PreferredCarrier applies equality check predicate on the "preferred_carrier" field. It's identical to PreferredCarrierEQ.
+func PreferredCarrier(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPreferredCarrier, v))
+}
+
 // TipTotal applies equality check predicate on the "tip_total" field. It's identical to TipTotalEQ.
 func TipTotal(v float64) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldTipTotal, v))
@@ -989,6 +1004,181 @@ func ReservationIDIsNil() predicate.Order {
 // ReservationIDNotNil applies the NotNil predicate on the "reservation_id" field.
 func ReservationIDNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldReservationID))
+}
+
+// AppointmentIDEQ applies the EQ predicate on the "appointment_id" field.
+func AppointmentIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldAppointmentID, v))
+}
+
+// AppointmentIDNEQ applies the NEQ predicate on the "appointment_id" field.
+func AppointmentIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldAppointmentID, v))
+}
+
+// AppointmentIDIn applies the In predicate on the "appointment_id" field.
+func AppointmentIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldAppointmentID, vs...))
+}
+
+// AppointmentIDNotIn applies the NotIn predicate on the "appointment_id" field.
+func AppointmentIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldAppointmentID, vs...))
+}
+
+// AppointmentIDGT applies the GT predicate on the "appointment_id" field.
+func AppointmentIDGT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldAppointmentID, v))
+}
+
+// AppointmentIDGTE applies the GTE predicate on the "appointment_id" field.
+func AppointmentIDGTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldAppointmentID, v))
+}
+
+// AppointmentIDLT applies the LT predicate on the "appointment_id" field.
+func AppointmentIDLT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldAppointmentID, v))
+}
+
+// AppointmentIDLTE applies the LTE predicate on the "appointment_id" field.
+func AppointmentIDLTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldAppointmentID, v))
+}
+
+// AppointmentIDIsNil applies the IsNil predicate on the "appointment_id" field.
+func AppointmentIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldAppointmentID))
+}
+
+// AppointmentIDNotNil applies the NotNil predicate on the "appointment_id" field.
+func AppointmentIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldAppointmentID))
+}
+
+// StaffPreferenceIDEQ applies the EQ predicate on the "staff_preference_id" field.
+func StaffPreferenceIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDNEQ applies the NEQ predicate on the "staff_preference_id" field.
+func StaffPreferenceIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDIn applies the In predicate on the "staff_preference_id" field.
+func StaffPreferenceIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldStaffPreferenceID, vs...))
+}
+
+// StaffPreferenceIDNotIn applies the NotIn predicate on the "staff_preference_id" field.
+func StaffPreferenceIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldStaffPreferenceID, vs...))
+}
+
+// StaffPreferenceIDGT applies the GT predicate on the "staff_preference_id" field.
+func StaffPreferenceIDGT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDGTE applies the GTE predicate on the "staff_preference_id" field.
+func StaffPreferenceIDGTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDLT applies the LT predicate on the "staff_preference_id" field.
+func StaffPreferenceIDLT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDLTE applies the LTE predicate on the "staff_preference_id" field.
+func StaffPreferenceIDLTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldStaffPreferenceID, v))
+}
+
+// StaffPreferenceIDIsNil applies the IsNil predicate on the "staff_preference_id" field.
+func StaffPreferenceIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldStaffPreferenceID))
+}
+
+// StaffPreferenceIDNotNil applies the NotNil predicate on the "staff_preference_id" field.
+func StaffPreferenceIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldStaffPreferenceID))
+}
+
+// PreferredCarrierEQ applies the EQ predicate on the "preferred_carrier" field.
+func PreferredCarrierEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierNEQ applies the NEQ predicate on the "preferred_carrier" field.
+func PreferredCarrierNEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierIn applies the In predicate on the "preferred_carrier" field.
+func PreferredCarrierIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldPreferredCarrier, vs...))
+}
+
+// PreferredCarrierNotIn applies the NotIn predicate on the "preferred_carrier" field.
+func PreferredCarrierNotIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldPreferredCarrier, vs...))
+}
+
+// PreferredCarrierGT applies the GT predicate on the "preferred_carrier" field.
+func PreferredCarrierGT(v string) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierGTE applies the GTE predicate on the "preferred_carrier" field.
+func PreferredCarrierGTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierLT applies the LT predicate on the "preferred_carrier" field.
+func PreferredCarrierLT(v string) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierLTE applies the LTE predicate on the "preferred_carrier" field.
+func PreferredCarrierLTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierContains applies the Contains predicate on the "preferred_carrier" field.
+func PreferredCarrierContains(v string) predicate.Order {
+	return predicate.Order(sql.FieldContains(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierHasPrefix applies the HasPrefix predicate on the "preferred_carrier" field.
+func PreferredCarrierHasPrefix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasPrefix(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierHasSuffix applies the HasSuffix predicate on the "preferred_carrier" field.
+func PreferredCarrierHasSuffix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasSuffix(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierIsNil applies the IsNil predicate on the "preferred_carrier" field.
+func PreferredCarrierIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldPreferredCarrier))
+}
+
+// PreferredCarrierNotNil applies the NotNil predicate on the "preferred_carrier" field.
+func PreferredCarrierNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldPreferredCarrier))
+}
+
+// PreferredCarrierEqualFold applies the EqualFold predicate on the "preferred_carrier" field.
+func PreferredCarrierEqualFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldEqualFold(FieldPreferredCarrier, v))
+}
+
+// PreferredCarrierContainsFold applies the ContainsFold predicate on the "preferred_carrier" field.
+func PreferredCarrierContainsFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldContainsFold(FieldPreferredCarrier, v))
 }
 
 // TipTotalEQ applies the EQ predicate on the "tip_total" field.

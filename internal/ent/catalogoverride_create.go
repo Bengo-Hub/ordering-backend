@@ -168,6 +168,40 @@ func (_c *CatalogOverrideCreate) SetNillableServiceFeePercent(v *float64) *Catal
 	return _c
 }
 
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (_c *CatalogOverrideCreate) SetRequiresAgeVerification(v bool) *CatalogOverrideCreate {
+	_c.mutation.SetRequiresAgeVerification(v)
+	return _c
+}
+
+// SetNillableRequiresAgeVerification sets the "requires_age_verification" field if the given value is not nil.
+func (_c *CatalogOverrideCreate) SetNillableRequiresAgeVerification(v *bool) *CatalogOverrideCreate {
+	if v != nil {
+		_c.SetRequiresAgeVerification(*v)
+	}
+	return _c
+}
+
+// SetItemType sets the "item_type" field.
+func (_c *CatalogOverrideCreate) SetItemType(v string) *CatalogOverrideCreate {
+	_c.mutation.SetItemType(v)
+	return _c
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_c *CatalogOverrideCreate) SetNillableItemType(v *string) *CatalogOverrideCreate {
+	if v != nil {
+		_c.SetItemType(*v)
+	}
+	return _c
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (_c *CatalogOverrideCreate) SetVariantOptions(v map[string]string) *CatalogOverrideCreate {
+	_c.mutation.SetVariantOptions(v)
+	return _c
+}
+
 // SetImageURLOverride sets the "image_url_override" field.
 func (_c *CatalogOverrideCreate) SetImageURLOverride(v string) *CatalogOverrideCreate {
 	_c.mutation.SetImageURLOverride(v)
@@ -291,6 +325,10 @@ func (_c *CatalogOverrideCreate) defaults() {
 		v := catalogoverride.DefaultServiceFeePercent
 		_c.mutation.SetServiceFeePercent(v)
 	}
+	if _, ok := _c.mutation.RequiresAgeVerification(); !ok {
+		v := catalogoverride.DefaultRequiresAgeVerification
+		_c.mutation.SetRequiresAgeVerification(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := catalogoverride.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -354,6 +392,9 @@ func (_c *CatalogOverrideCreate) check() error {
 	}
 	if _, ok := _c.mutation.ServiceFeePercent(); !ok {
 		return &ValidationError{Name: "service_fee_percent", err: errors.New(`ent: missing required field "CatalogOverride.service_fee_percent"`)}
+	}
+	if _, ok := _c.mutation.RequiresAgeVerification(); !ok {
+		return &ValidationError{Name: "requires_age_verification", err: errors.New(`ent: missing required field "CatalogOverride.requires_age_verification"`)}
 	}
 	if v, ok := _c.mutation.ImageURLOverride(); ok {
 		if err := catalogoverride.ImageURLOverrideValidator(v); err != nil {
@@ -449,6 +490,18 @@ func (_c *CatalogOverrideCreate) createSpec() (*CatalogOverride, *sqlgraph.Creat
 	if value, ok := _c.mutation.ServiceFeePercent(); ok {
 		_spec.SetField(catalogoverride.FieldServiceFeePercent, field.TypeFloat64, value)
 		_node.ServiceFeePercent = value
+	}
+	if value, ok := _c.mutation.RequiresAgeVerification(); ok {
+		_spec.SetField(catalogoverride.FieldRequiresAgeVerification, field.TypeBool, value)
+		_node.RequiresAgeVerification = value
+	}
+	if value, ok := _c.mutation.ItemType(); ok {
+		_spec.SetField(catalogoverride.FieldItemType, field.TypeString, value)
+		_node.ItemType = value
+	}
+	if value, ok := _c.mutation.VariantOptions(); ok {
+		_spec.SetField(catalogoverride.FieldVariantOptions, field.TypeJSON, value)
+		_node.VariantOptions = value
 	}
 	if value, ok := _c.mutation.ImageURLOverride(); ok {
 		_spec.SetField(catalogoverride.FieldImageURLOverride, field.TypeString, value)
@@ -691,6 +744,54 @@ func (u *CatalogOverrideUpsert) UpdateServiceFeePercent() *CatalogOverrideUpsert
 // AddServiceFeePercent adds v to the "service_fee_percent" field.
 func (u *CatalogOverrideUpsert) AddServiceFeePercent(v float64) *CatalogOverrideUpsert {
 	u.Add(catalogoverride.FieldServiceFeePercent, v)
+	return u
+}
+
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (u *CatalogOverrideUpsert) SetRequiresAgeVerification(v bool) *CatalogOverrideUpsert {
+	u.Set(catalogoverride.FieldRequiresAgeVerification, v)
+	return u
+}
+
+// UpdateRequiresAgeVerification sets the "requires_age_verification" field to the value that was provided on create.
+func (u *CatalogOverrideUpsert) UpdateRequiresAgeVerification() *CatalogOverrideUpsert {
+	u.SetExcluded(catalogoverride.FieldRequiresAgeVerification)
+	return u
+}
+
+// SetItemType sets the "item_type" field.
+func (u *CatalogOverrideUpsert) SetItemType(v string) *CatalogOverrideUpsert {
+	u.Set(catalogoverride.FieldItemType, v)
+	return u
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *CatalogOverrideUpsert) UpdateItemType() *CatalogOverrideUpsert {
+	u.SetExcluded(catalogoverride.FieldItemType)
+	return u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *CatalogOverrideUpsert) ClearItemType() *CatalogOverrideUpsert {
+	u.SetNull(catalogoverride.FieldItemType)
+	return u
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (u *CatalogOverrideUpsert) SetVariantOptions(v map[string]string) *CatalogOverrideUpsert {
+	u.Set(catalogoverride.FieldVariantOptions, v)
+	return u
+}
+
+// UpdateVariantOptions sets the "variant_options" field to the value that was provided on create.
+func (u *CatalogOverrideUpsert) UpdateVariantOptions() *CatalogOverrideUpsert {
+	u.SetExcluded(catalogoverride.FieldVariantOptions)
+	return u
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (u *CatalogOverrideUpsert) ClearVariantOptions() *CatalogOverrideUpsert {
+	u.SetNull(catalogoverride.FieldVariantOptions)
 	return u
 }
 
@@ -982,6 +1083,62 @@ func (u *CatalogOverrideUpsertOne) AddServiceFeePercent(v float64) *CatalogOverr
 func (u *CatalogOverrideUpsertOne) UpdateServiceFeePercent() *CatalogOverrideUpsertOne {
 	return u.Update(func(s *CatalogOverrideUpsert) {
 		s.UpdateServiceFeePercent()
+	})
+}
+
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (u *CatalogOverrideUpsertOne) SetRequiresAgeVerification(v bool) *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetRequiresAgeVerification(v)
+	})
+}
+
+// UpdateRequiresAgeVerification sets the "requires_age_verification" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertOne) UpdateRequiresAgeVerification() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateRequiresAgeVerification()
+	})
+}
+
+// SetItemType sets the "item_type" field.
+func (u *CatalogOverrideUpsertOne) SetItemType(v string) *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetItemType(v)
+	})
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertOne) UpdateItemType() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateItemType()
+	})
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *CatalogOverrideUpsertOne) ClearItemType() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearItemType()
+	})
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (u *CatalogOverrideUpsertOne) SetVariantOptions(v map[string]string) *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetVariantOptions(v)
+	})
+}
+
+// UpdateVariantOptions sets the "variant_options" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertOne) UpdateVariantOptions() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateVariantOptions()
+	})
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (u *CatalogOverrideUpsertOne) ClearVariantOptions() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearVariantOptions()
 	})
 }
 
@@ -1445,6 +1602,62 @@ func (u *CatalogOverrideUpsertBulk) AddServiceFeePercent(v float64) *CatalogOver
 func (u *CatalogOverrideUpsertBulk) UpdateServiceFeePercent() *CatalogOverrideUpsertBulk {
 	return u.Update(func(s *CatalogOverrideUpsert) {
 		s.UpdateServiceFeePercent()
+	})
+}
+
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (u *CatalogOverrideUpsertBulk) SetRequiresAgeVerification(v bool) *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetRequiresAgeVerification(v)
+	})
+}
+
+// UpdateRequiresAgeVerification sets the "requires_age_verification" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertBulk) UpdateRequiresAgeVerification() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateRequiresAgeVerification()
+	})
+}
+
+// SetItemType sets the "item_type" field.
+func (u *CatalogOverrideUpsertBulk) SetItemType(v string) *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetItemType(v)
+	})
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertBulk) UpdateItemType() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateItemType()
+	})
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *CatalogOverrideUpsertBulk) ClearItemType() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearItemType()
+	})
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (u *CatalogOverrideUpsertBulk) SetVariantOptions(v map[string]string) *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetVariantOptions(v)
+	})
+}
+
+// UpdateVariantOptions sets the "variant_options" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertBulk) UpdateVariantOptions() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateVariantOptions()
+	})
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (u *CatalogOverrideUpsertBulk) ClearVariantOptions() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearVariantOptions()
 	})
 }
 

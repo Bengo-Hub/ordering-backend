@@ -38,6 +38,12 @@ const (
 	FieldPackagingFee = "packaging_fee"
 	// FieldServiceFeePercent holds the string denoting the service_fee_percent field in the database.
 	FieldServiceFeePercent = "service_fee_percent"
+	// FieldRequiresAgeVerification holds the string denoting the requires_age_verification field in the database.
+	FieldRequiresAgeVerification = "requires_age_verification"
+	// FieldItemType holds the string denoting the item_type field in the database.
+	FieldItemType = "item_type"
+	// FieldVariantOptions holds the string denoting the variant_options field in the database.
+	FieldVariantOptions = "variant_options"
 	// FieldImageURLOverride holds the string denoting the image_url_override field in the database.
 	FieldImageURLOverride = "image_url_override"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -63,6 +69,9 @@ var Columns = []string{
 	FieldDisplaySection,
 	FieldPackagingFee,
 	FieldServiceFeePercent,
+	FieldRequiresAgeVerification,
+	FieldItemType,
+	FieldVariantOptions,
 	FieldImageURLOverride,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -101,6 +110,8 @@ var (
 	DefaultPackagingFee float64
 	// DefaultServiceFeePercent holds the default value on creation for the "service_fee_percent" field.
 	DefaultServiceFeePercent float64
+	// DefaultRequiresAgeVerification holds the default value on creation for the "requires_age_verification" field.
+	DefaultRequiresAgeVerification bool
 	// ImageURLOverrideValidator is a validator for the "image_url_override" field. It is called by the builders before save.
 	ImageURLOverrideValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -179,6 +190,16 @@ func ByPackagingFee(opts ...sql.OrderTermOption) OrderOption {
 // ByServiceFeePercent orders the results by the service_fee_percent field.
 func ByServiceFeePercent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldServiceFeePercent, opts...).ToFunc()
+}
+
+// ByRequiresAgeVerification orders the results by the requires_age_verification field.
+func ByRequiresAgeVerification(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequiresAgeVerification, opts...).ToFunc()
+}
+
+// ByItemType orders the results by the item_type field.
+func ByItemType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldItemType, opts...).ToFunc()
 }
 
 // ByImageURLOverride orders the results by the image_url_override field.

@@ -58,6 +58,15 @@ func (CatalogOverride) Fields() []ent.Field {
 		field.Float("service_fee_percent").
 			Default(0).
 			Comment("Service fee percentage for this item"),
+		field.Bool("requires_age_verification").
+			Default(false).
+			Comment("Synced from inventory — liquor, tobacco, 18+"),
+		field.String("item_type").
+			Optional().
+			Comment("Synced from inventory — GOODS, SERVICE, RECIPE, etc."),
+		field.JSON("variant_options", map[string]string{}).
+			Optional().
+			Comment("Available variant attributes for customer selection"),
 		field.String("image_url_override").
 			Optional().
 			MaxLen(500).

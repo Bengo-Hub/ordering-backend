@@ -60,6 +60,12 @@ type Order struct {
 	SmallOrderFee float64 `json:"small_order_fee,omitempty"`
 	// Inventory reservation ID for stock tracking
 	ReservationID *uuid.UUID `json:"reservation_id,omitempty"`
+	// POS appointment reference for service bookings
+	AppointmentID *uuid.UUID `json:"appointment_id,omitempty"`
+	// Preferred staff member for service booking
+	StaffPreferenceID *uuid.UUID `json:"staff_preference_id,omitempty"`
+	// Customer carrier preference: internal_fleet or specific carrier ID
+	PreferredCarrier string `json:"preferred_carrier,omitempty"`
 	// Tip amount
 	TipTotal float64 `json:"tip_total,omitempty"`
 	// Final total amount
@@ -196,7 +202,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
+		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldAppointmentID, order.FieldStaffPreferenceID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
@@ -204,7 +210,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
-		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldFulfillmentType, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
+		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldFulfillmentType, order.FieldPreferredCarrier, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
 			values[i] = new(sql.NullString)
 		case order.FieldScheduledFor, order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -348,6 +354,26 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ReservationID = new(uuid.UUID)
 				*_m.ReservationID = *value.S.(*uuid.UUID)
+			}
+		case order.FieldAppointmentID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field appointment_id", values[i])
+			} else if value.Valid {
+				_m.AppointmentID = new(uuid.UUID)
+				*_m.AppointmentID = *value.S.(*uuid.UUID)
+			}
+		case order.FieldStaffPreferenceID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field staff_preference_id", values[i])
+			} else if value.Valid {
+				_m.StaffPreferenceID = new(uuid.UUID)
+				*_m.StaffPreferenceID = *value.S.(*uuid.UUID)
+			}
+		case order.FieldPreferredCarrier:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field preferred_carrier", values[i])
+			} else if value.Valid {
+				_m.PreferredCarrier = value.String
 			}
 		case order.FieldTipTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -629,6 +655,19 @@ func (_m *Order) String() string {
 		builder.WriteString("reservation_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	if v := _m.AppointmentID; v != nil {
+		builder.WriteString("appointment_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.StaffPreferenceID; v != nil {
+		builder.WriteString("staff_preference_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("preferred_carrier=")
+	builder.WriteString(_m.PreferredCarrier)
 	builder.WriteString(", ")
 	builder.WriteString("tip_total=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TipTotal))

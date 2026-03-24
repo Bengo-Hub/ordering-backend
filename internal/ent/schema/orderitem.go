@@ -51,6 +51,17 @@ func (OrderItem) Fields() []ent.Field {
 		field.JSON("modifiers", []map[string]any{}).
 			Optional().
 			Comment("Selected modifiers/add-ons"),
+		field.String("item_type").
+			Optional().
+			Comment("GOODS, SERVICE, RECIPE — synced from inventory"),
+		field.Time("service_start_time").
+			Optional().
+			Nillable().
+			Comment("For service bookings — appointment start"),
+		field.Int("duration_minutes").
+			Optional().
+			Nillable().
+			Comment("Service duration in minutes"),
 		field.JSON("metadata", map[string]any{}).
 			Optional().
 			Comment("Additional metadata"),

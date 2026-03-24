@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -213,6 +214,73 @@ func (_u *OrderItemUpdate) ClearModifiers() *OrderItemUpdate {
 	return _u
 }
 
+// SetItemType sets the "item_type" field.
+func (_u *OrderItemUpdate) SetItemType(v string) *OrderItemUpdate {
+	_u.mutation.SetItemType(v)
+	return _u
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_u *OrderItemUpdate) SetNillableItemType(v *string) *OrderItemUpdate {
+	if v != nil {
+		_u.SetItemType(*v)
+	}
+	return _u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (_u *OrderItemUpdate) ClearItemType() *OrderItemUpdate {
+	_u.mutation.ClearItemType()
+	return _u
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (_u *OrderItemUpdate) SetServiceStartTime(v time.Time) *OrderItemUpdate {
+	_u.mutation.SetServiceStartTime(v)
+	return _u
+}
+
+// SetNillableServiceStartTime sets the "service_start_time" field if the given value is not nil.
+func (_u *OrderItemUpdate) SetNillableServiceStartTime(v *time.Time) *OrderItemUpdate {
+	if v != nil {
+		_u.SetServiceStartTime(*v)
+	}
+	return _u
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (_u *OrderItemUpdate) ClearServiceStartTime() *OrderItemUpdate {
+	_u.mutation.ClearServiceStartTime()
+	return _u
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (_u *OrderItemUpdate) SetDurationMinutes(v int) *OrderItemUpdate {
+	_u.mutation.ResetDurationMinutes()
+	_u.mutation.SetDurationMinutes(v)
+	return _u
+}
+
+// SetNillableDurationMinutes sets the "duration_minutes" field if the given value is not nil.
+func (_u *OrderItemUpdate) SetNillableDurationMinutes(v *int) *OrderItemUpdate {
+	if v != nil {
+		_u.SetDurationMinutes(*v)
+	}
+	return _u
+}
+
+// AddDurationMinutes adds value to the "duration_minutes" field.
+func (_u *OrderItemUpdate) AddDurationMinutes(v int) *OrderItemUpdate {
+	_u.mutation.AddDurationMinutes(v)
+	return _u
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (_u *OrderItemUpdate) ClearDurationMinutes() *OrderItemUpdate {
+	_u.mutation.ClearDurationMinutes()
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *OrderItemUpdate) SetMetadata(v map[string]interface{}) *OrderItemUpdate {
 	_u.mutation.SetMetadata(v)
@@ -365,6 +433,27 @@ func (_u *OrderItemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ModifiersCleared() {
 		_spec.ClearField(orderitem.FieldModifiers, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ItemType(); ok {
+		_spec.SetField(orderitem.FieldItemType, field.TypeString, value)
+	}
+	if _u.mutation.ItemTypeCleared() {
+		_spec.ClearField(orderitem.FieldItemType, field.TypeString)
+	}
+	if value, ok := _u.mutation.ServiceStartTime(); ok {
+		_spec.SetField(orderitem.FieldServiceStartTime, field.TypeTime, value)
+	}
+	if _u.mutation.ServiceStartTimeCleared() {
+		_spec.ClearField(orderitem.FieldServiceStartTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DurationMinutes(); ok {
+		_spec.SetField(orderitem.FieldDurationMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDurationMinutes(); ok {
+		_spec.AddField(orderitem.FieldDurationMinutes, field.TypeInt, value)
+	}
+	if _u.mutation.DurationMinutesCleared() {
+		_spec.ClearField(orderitem.FieldDurationMinutes, field.TypeInt)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(orderitem.FieldMetadata, field.TypeJSON, value)
@@ -604,6 +693,73 @@ func (_u *OrderItemUpdateOne) ClearModifiers() *OrderItemUpdateOne {
 	return _u
 }
 
+// SetItemType sets the "item_type" field.
+func (_u *OrderItemUpdateOne) SetItemType(v string) *OrderItemUpdateOne {
+	_u.mutation.SetItemType(v)
+	return _u
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_u *OrderItemUpdateOne) SetNillableItemType(v *string) *OrderItemUpdateOne {
+	if v != nil {
+		_u.SetItemType(*v)
+	}
+	return _u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (_u *OrderItemUpdateOne) ClearItemType() *OrderItemUpdateOne {
+	_u.mutation.ClearItemType()
+	return _u
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (_u *OrderItemUpdateOne) SetServiceStartTime(v time.Time) *OrderItemUpdateOne {
+	_u.mutation.SetServiceStartTime(v)
+	return _u
+}
+
+// SetNillableServiceStartTime sets the "service_start_time" field if the given value is not nil.
+func (_u *OrderItemUpdateOne) SetNillableServiceStartTime(v *time.Time) *OrderItemUpdateOne {
+	if v != nil {
+		_u.SetServiceStartTime(*v)
+	}
+	return _u
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (_u *OrderItemUpdateOne) ClearServiceStartTime() *OrderItemUpdateOne {
+	_u.mutation.ClearServiceStartTime()
+	return _u
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (_u *OrderItemUpdateOne) SetDurationMinutes(v int) *OrderItemUpdateOne {
+	_u.mutation.ResetDurationMinutes()
+	_u.mutation.SetDurationMinutes(v)
+	return _u
+}
+
+// SetNillableDurationMinutes sets the "duration_minutes" field if the given value is not nil.
+func (_u *OrderItemUpdateOne) SetNillableDurationMinutes(v *int) *OrderItemUpdateOne {
+	if v != nil {
+		_u.SetDurationMinutes(*v)
+	}
+	return _u
+}
+
+// AddDurationMinutes adds value to the "duration_minutes" field.
+func (_u *OrderItemUpdateOne) AddDurationMinutes(v int) *OrderItemUpdateOne {
+	_u.mutation.AddDurationMinutes(v)
+	return _u
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (_u *OrderItemUpdateOne) ClearDurationMinutes() *OrderItemUpdateOne {
+	_u.mutation.ClearDurationMinutes()
+	return _u
+}
+
 // SetMetadata sets the "metadata" field.
 func (_u *OrderItemUpdateOne) SetMetadata(v map[string]interface{}) *OrderItemUpdateOne {
 	_u.mutation.SetMetadata(v)
@@ -786,6 +942,27 @@ func (_u *OrderItemUpdateOne) sqlSave(ctx context.Context) (_node *OrderItem, er
 	}
 	if _u.mutation.ModifiersCleared() {
 		_spec.ClearField(orderitem.FieldModifiers, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ItemType(); ok {
+		_spec.SetField(orderitem.FieldItemType, field.TypeString, value)
+	}
+	if _u.mutation.ItemTypeCleared() {
+		_spec.ClearField(orderitem.FieldItemType, field.TypeString)
+	}
+	if value, ok := _u.mutation.ServiceStartTime(); ok {
+		_spec.SetField(orderitem.FieldServiceStartTime, field.TypeTime, value)
+	}
+	if _u.mutation.ServiceStartTimeCleared() {
+		_spec.ClearField(orderitem.FieldServiceStartTime, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DurationMinutes(); ok {
+		_spec.SetField(orderitem.FieldDurationMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDurationMinutes(); ok {
+		_spec.AddField(orderitem.FieldDurationMinutes, field.TypeInt, value)
+	}
+	if _u.mutation.DurationMinutesCleared() {
+		_spec.ClearField(orderitem.FieldDurationMinutes, field.TypeInt)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(orderitem.FieldMetadata, field.TypeJSON, value)

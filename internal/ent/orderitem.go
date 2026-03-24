@@ -40,6 +40,12 @@ type OrderItem struct {
 	Notes string `json:"notes,omitempty"`
 	// Selected modifiers/add-ons
 	Modifiers []map[string]interface{} `json:"modifiers,omitempty"`
+	// GOODS, SERVICE, RECIPE — synced from inventory
+	ItemType string `json:"item_type,omitempty"`
+	// For service bookings — appointment start
+	ServiceStartTime *time.Time `json:"service_start_time,omitempty"`
+	// Service duration in minutes
+	DurationMinutes *int `json:"duration_minutes,omitempty"`
 	// Additional metadata
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -81,11 +87,11 @@ func (*OrderItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case orderitem.FieldUnitPrice, orderitem.FieldTotalPrice:
 			values[i] = new(sql.NullFloat64)
-		case orderitem.FieldQuantity:
+		case orderitem.FieldQuantity, orderitem.FieldDurationMinutes:
 			values[i] = new(sql.NullInt64)
-		case orderitem.FieldInventorySku, orderitem.FieldNameSnapshot, orderitem.FieldVariantNameSnapshot, orderitem.FieldNotes:
+		case orderitem.FieldInventorySku, orderitem.FieldNameSnapshot, orderitem.FieldVariantNameSnapshot, orderitem.FieldNotes, orderitem.FieldItemType:
 			values[i] = new(sql.NullString)
-		case orderitem.FieldCreatedAt:
+		case orderitem.FieldServiceStartTime, orderitem.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
 		case orderitem.FieldID, orderitem.FieldOrderID:
 			values[i] = new(uuid.UUID)
@@ -173,6 +179,26 @@ func (_m *OrderItem) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field modifiers: %w", err)
 				}
 			}
+		case orderitem.FieldItemType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field item_type", values[i])
+			} else if value.Valid {
+				_m.ItemType = value.String
+			}
+		case orderitem.FieldServiceStartTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field service_start_time", values[i])
+			} else if value.Valid {
+				_m.ServiceStartTime = new(time.Time)
+				*_m.ServiceStartTime = value.Time
+			}
+		case orderitem.FieldDurationMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field duration_minutes", values[i])
+			} else if value.Valid {
+				_m.DurationMinutes = new(int)
+				*_m.DurationMinutes = int(value.Int64)
+			}
 		case orderitem.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
@@ -259,6 +285,19 @@ func (_m *OrderItem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("modifiers=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Modifiers))
+	builder.WriteString(", ")
+	builder.WriteString("item_type=")
+	builder.WriteString(_m.ItemType)
+	builder.WriteString(", ")
+	if v := _m.ServiceStartTime; v != nil {
+		builder.WriteString("service_start_time=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.DurationMinutes; v != nil {
+		builder.WriteString("duration_minutes=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
