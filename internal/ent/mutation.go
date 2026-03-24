@@ -31,6 +31,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
@@ -80,6 +81,7 @@ const (
 	TypeOrderingRole       = "OrderingRole"
 	TypeOutboxEvent        = "OutboxEvent"
 	TypeOutlet             = "Outlet"
+	TypeOutletRating       = "OutletRating"
 	TypePermission         = "Permission"
 	TypePromoCode          = "PromoCode"
 	TypePromoRedemption    = "PromoRedemption"
@@ -15201,6 +15203,15 @@ type OrderMutation struct {
 	addtax_total               *float64
 	delivery_fee               *float64
 	adddelivery_fee            *float64
+	fulfillment_type           *order.FulfillmentType
+	scheduled_for              *time.Time
+	packaging_fee              *float64
+	addpackaging_fee           *float64
+	service_fee                *float64
+	addservice_fee             *float64
+	small_order_fee            *float64
+	addsmall_order_fee         *float64
+	reservation_id             *uuid.UUID
 	tip_total                  *float64
 	addtip_total               *float64
 	grand_total                *float64
@@ -15925,6 +15936,308 @@ func (m *OrderMutation) AddedDeliveryFee() (r float64, exists bool) {
 func (m *OrderMutation) ResetDeliveryFee() {
 	m.delivery_fee = nil
 	m.adddelivery_fee = nil
+}
+
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (m *OrderMutation) SetFulfillmentType(ot order.FulfillmentType) {
+	m.fulfillment_type = &ot
+}
+
+// FulfillmentType returns the value of the "fulfillment_type" field in the mutation.
+func (m *OrderMutation) FulfillmentType() (r order.FulfillmentType, exists bool) {
+	v := m.fulfillment_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFulfillmentType returns the old "fulfillment_type" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldFulfillmentType(ctx context.Context) (v order.FulfillmentType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFulfillmentType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFulfillmentType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFulfillmentType: %w", err)
+	}
+	return oldValue.FulfillmentType, nil
+}
+
+// ResetFulfillmentType resets all changes to the "fulfillment_type" field.
+func (m *OrderMutation) ResetFulfillmentType() {
+	m.fulfillment_type = nil
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (m *OrderMutation) SetScheduledFor(t time.Time) {
+	m.scheduled_for = &t
+}
+
+// ScheduledFor returns the value of the "scheduled_for" field in the mutation.
+func (m *OrderMutation) ScheduledFor() (r time.Time, exists bool) {
+	v := m.scheduled_for
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScheduledFor returns the old "scheduled_for" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldScheduledFor(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldScheduledFor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldScheduledFor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScheduledFor: %w", err)
+	}
+	return oldValue.ScheduledFor, nil
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (m *OrderMutation) ClearScheduledFor() {
+	m.scheduled_for = nil
+	m.clearedFields[order.FieldScheduledFor] = struct{}{}
+}
+
+// ScheduledForCleared returns if the "scheduled_for" field was cleared in this mutation.
+func (m *OrderMutation) ScheduledForCleared() bool {
+	_, ok := m.clearedFields[order.FieldScheduledFor]
+	return ok
+}
+
+// ResetScheduledFor resets all changes to the "scheduled_for" field.
+func (m *OrderMutation) ResetScheduledFor() {
+	m.scheduled_for = nil
+	delete(m.clearedFields, order.FieldScheduledFor)
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (m *OrderMutation) SetPackagingFee(f float64) {
+	m.packaging_fee = &f
+	m.addpackaging_fee = nil
+}
+
+// PackagingFee returns the value of the "packaging_fee" field in the mutation.
+func (m *OrderMutation) PackagingFee() (r float64, exists bool) {
+	v := m.packaging_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPackagingFee returns the old "packaging_fee" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldPackagingFee(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPackagingFee is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPackagingFee requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPackagingFee: %w", err)
+	}
+	return oldValue.PackagingFee, nil
+}
+
+// AddPackagingFee adds f to the "packaging_fee" field.
+func (m *OrderMutation) AddPackagingFee(f float64) {
+	if m.addpackaging_fee != nil {
+		*m.addpackaging_fee += f
+	} else {
+		m.addpackaging_fee = &f
+	}
+}
+
+// AddedPackagingFee returns the value that was added to the "packaging_fee" field in this mutation.
+func (m *OrderMutation) AddedPackagingFee() (r float64, exists bool) {
+	v := m.addpackaging_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPackagingFee resets all changes to the "packaging_fee" field.
+func (m *OrderMutation) ResetPackagingFee() {
+	m.packaging_fee = nil
+	m.addpackaging_fee = nil
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (m *OrderMutation) SetServiceFee(f float64) {
+	m.service_fee = &f
+	m.addservice_fee = nil
+}
+
+// ServiceFee returns the value of the "service_fee" field in the mutation.
+func (m *OrderMutation) ServiceFee() (r float64, exists bool) {
+	v := m.service_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldServiceFee returns the old "service_fee" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldServiceFee(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldServiceFee is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldServiceFee requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldServiceFee: %w", err)
+	}
+	return oldValue.ServiceFee, nil
+}
+
+// AddServiceFee adds f to the "service_fee" field.
+func (m *OrderMutation) AddServiceFee(f float64) {
+	if m.addservice_fee != nil {
+		*m.addservice_fee += f
+	} else {
+		m.addservice_fee = &f
+	}
+}
+
+// AddedServiceFee returns the value that was added to the "service_fee" field in this mutation.
+func (m *OrderMutation) AddedServiceFee() (r float64, exists bool) {
+	v := m.addservice_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetServiceFee resets all changes to the "service_fee" field.
+func (m *OrderMutation) ResetServiceFee() {
+	m.service_fee = nil
+	m.addservice_fee = nil
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (m *OrderMutation) SetSmallOrderFee(f float64) {
+	m.small_order_fee = &f
+	m.addsmall_order_fee = nil
+}
+
+// SmallOrderFee returns the value of the "small_order_fee" field in the mutation.
+func (m *OrderMutation) SmallOrderFee() (r float64, exists bool) {
+	v := m.small_order_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSmallOrderFee returns the old "small_order_fee" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldSmallOrderFee(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSmallOrderFee is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSmallOrderFee requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSmallOrderFee: %w", err)
+	}
+	return oldValue.SmallOrderFee, nil
+}
+
+// AddSmallOrderFee adds f to the "small_order_fee" field.
+func (m *OrderMutation) AddSmallOrderFee(f float64) {
+	if m.addsmall_order_fee != nil {
+		*m.addsmall_order_fee += f
+	} else {
+		m.addsmall_order_fee = &f
+	}
+}
+
+// AddedSmallOrderFee returns the value that was added to the "small_order_fee" field in this mutation.
+func (m *OrderMutation) AddedSmallOrderFee() (r float64, exists bool) {
+	v := m.addsmall_order_fee
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSmallOrderFee resets all changes to the "small_order_fee" field.
+func (m *OrderMutation) ResetSmallOrderFee() {
+	m.small_order_fee = nil
+	m.addsmall_order_fee = nil
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (m *OrderMutation) SetReservationID(u uuid.UUID) {
+	m.reservation_id = &u
+}
+
+// ReservationID returns the value of the "reservation_id" field in the mutation.
+func (m *OrderMutation) ReservationID() (r uuid.UUID, exists bool) {
+	v := m.reservation_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReservationID returns the old "reservation_id" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldReservationID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReservationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReservationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReservationID: %w", err)
+	}
+	return oldValue.ReservationID, nil
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (m *OrderMutation) ClearReservationID() {
+	m.reservation_id = nil
+	m.clearedFields[order.FieldReservationID] = struct{}{}
+}
+
+// ReservationIDCleared returns if the "reservation_id" field was cleared in this mutation.
+func (m *OrderMutation) ReservationIDCleared() bool {
+	_, ok := m.clearedFields[order.FieldReservationID]
+	return ok
+}
+
+// ResetReservationID resets all changes to the "reservation_id" field.
+func (m *OrderMutation) ResetReservationID() {
+	m.reservation_id = nil
+	delete(m.clearedFields, order.FieldReservationID)
 }
 
 // SetTipTotal sets the "tip_total" field.
@@ -17341,7 +17654,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 36)
+	fields := make([]string, 0, 42)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -17380,6 +17693,24 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.delivery_fee != nil {
 		fields = append(fields, order.FieldDeliveryFee)
+	}
+	if m.fulfillment_type != nil {
+		fields = append(fields, order.FieldFulfillmentType)
+	}
+	if m.scheduled_for != nil {
+		fields = append(fields, order.FieldScheduledFor)
+	}
+	if m.packaging_fee != nil {
+		fields = append(fields, order.FieldPackagingFee)
+	}
+	if m.service_fee != nil {
+		fields = append(fields, order.FieldServiceFee)
+	}
+	if m.small_order_fee != nil {
+		fields = append(fields, order.FieldSmallOrderFee)
+	}
+	if m.reservation_id != nil {
+		fields = append(fields, order.FieldReservationID)
 	}
 	if m.tip_total != nil {
 		fields = append(fields, order.FieldTipTotal)
@@ -17484,6 +17815,18 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.TaxTotal()
 	case order.FieldDeliveryFee:
 		return m.DeliveryFee()
+	case order.FieldFulfillmentType:
+		return m.FulfillmentType()
+	case order.FieldScheduledFor:
+		return m.ScheduledFor()
+	case order.FieldPackagingFee:
+		return m.PackagingFee()
+	case order.FieldServiceFee:
+		return m.ServiceFee()
+	case order.FieldSmallOrderFee:
+		return m.SmallOrderFee()
+	case order.FieldReservationID:
+		return m.ReservationID()
 	case order.FieldTipTotal:
 		return m.TipTotal()
 	case order.FieldGrandTotal:
@@ -17565,6 +17908,18 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldTaxTotal(ctx)
 	case order.FieldDeliveryFee:
 		return m.OldDeliveryFee(ctx)
+	case order.FieldFulfillmentType:
+		return m.OldFulfillmentType(ctx)
+	case order.FieldScheduledFor:
+		return m.OldScheduledFor(ctx)
+	case order.FieldPackagingFee:
+		return m.OldPackagingFee(ctx)
+	case order.FieldServiceFee:
+		return m.OldServiceFee(ctx)
+	case order.FieldSmallOrderFee:
+		return m.OldSmallOrderFee(ctx)
+	case order.FieldReservationID:
+		return m.OldReservationID(ctx)
 	case order.FieldTipTotal:
 		return m.OldTipTotal(ctx)
 	case order.FieldGrandTotal:
@@ -17710,6 +18065,48 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeliveryFee(v)
+		return nil
+	case order.FieldFulfillmentType:
+		v, ok := value.(order.FulfillmentType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFulfillmentType(v)
+		return nil
+	case order.FieldScheduledFor:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScheduledFor(v)
+		return nil
+	case order.FieldPackagingFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPackagingFee(v)
+		return nil
+	case order.FieldServiceFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetServiceFee(v)
+		return nil
+	case order.FieldSmallOrderFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSmallOrderFee(v)
+		return nil
+	case order.FieldReservationID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReservationID(v)
 		return nil
 	case order.FieldTipTotal:
 		v, ok := value.(float64)
@@ -17892,6 +18289,15 @@ func (m *OrderMutation) AddedFields() []string {
 	if m.adddelivery_fee != nil {
 		fields = append(fields, order.FieldDeliveryFee)
 	}
+	if m.addpackaging_fee != nil {
+		fields = append(fields, order.FieldPackagingFee)
+	}
+	if m.addservice_fee != nil {
+		fields = append(fields, order.FieldServiceFee)
+	}
+	if m.addsmall_order_fee != nil {
+		fields = append(fields, order.FieldSmallOrderFee)
+	}
 	if m.addtip_total != nil {
 		fields = append(fields, order.FieldTipTotal)
 	}
@@ -17923,6 +18329,12 @@ func (m *OrderMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedTaxTotal()
 	case order.FieldDeliveryFee:
 		return m.AddedDeliveryFee()
+	case order.FieldPackagingFee:
+		return m.AddedPackagingFee()
+	case order.FieldServiceFee:
+		return m.AddedServiceFee()
+	case order.FieldSmallOrderFee:
+		return m.AddedSmallOrderFee()
 	case order.FieldTipTotal:
 		return m.AddedTipTotal()
 	case order.FieldGrandTotal:
@@ -17969,6 +18381,27 @@ func (m *OrderMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeliveryFee(v)
+		return nil
+	case order.FieldPackagingFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPackagingFee(v)
+		return nil
+	case order.FieldServiceFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddServiceFee(v)
+		return nil
+	case order.FieldSmallOrderFee:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSmallOrderFee(v)
 		return nil
 	case order.FieldTipTotal:
 		v, ok := value.(float64)
@@ -18018,6 +18451,12 @@ func (m *OrderMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(order.FieldPaymentIntentID) {
 		fields = append(fields, order.FieldPaymentIntentID)
+	}
+	if m.FieldCleared(order.FieldScheduledFor) {
+		fields = append(fields, order.FieldScheduledFor)
+	}
+	if m.FieldCleared(order.FieldReservationID) {
+		fields = append(fields, order.FieldReservationID)
 	}
 	if m.FieldCleared(order.FieldDeliveryAddressID) {
 		fields = append(fields, order.FieldDeliveryAddressID)
@@ -18086,6 +18525,12 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldPaymentIntentID:
 		m.ClearPaymentIntentID()
+		return nil
+	case order.FieldScheduledFor:
+		m.ClearScheduledFor()
+		return nil
+	case order.FieldReservationID:
+		m.ClearReservationID()
 		return nil
 	case order.FieldDeliveryAddressID:
 		m.ClearDeliveryAddressID()
@@ -18181,6 +18626,24 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldDeliveryFee:
 		m.ResetDeliveryFee()
+		return nil
+	case order.FieldFulfillmentType:
+		m.ResetFulfillmentType()
+		return nil
+	case order.FieldScheduledFor:
+		m.ResetScheduledFor()
+		return nil
+	case order.FieldPackagingFee:
+		m.ResetPackagingFee()
+		return nil
+	case order.FieldServiceFee:
+		m.ResetServiceFee()
+		return nil
+	case order.FieldSmallOrderFee:
+		m.ResetSmallOrderFee()
+		return nil
+	case order.FieldReservationID:
+		m.ResetReservationID()
 		return nil
 	case order.FieldTipTotal:
 		m.ResetTipTotal()
@@ -26589,6 +27052,1199 @@ func (m *OutletMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Outlet edge %s", name)
+}
+
+// OutletRatingMutation represents an operation that mutates the OutletRating nodes in the graph.
+type OutletRatingMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	tenant_id         *uuid.UUID
+	outlet_id         *uuid.UUID
+	average_rating    *float64
+	addaverage_rating *float64
+	total_ratings     *int
+	addtotal_ratings  *int
+	total_reviews     *int
+	addtotal_reviews  *int
+	five_star         *int
+	addfive_star      *int
+	four_star         *int
+	addfour_star      *int
+	three_star        *int
+	addthree_star     *int
+	two_star          *int
+	addtwo_star       *int
+	one_star          *int
+	addone_star       *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*OutletRating, error)
+	predicates        []predicate.OutletRating
+}
+
+var _ ent.Mutation = (*OutletRatingMutation)(nil)
+
+// outletratingOption allows management of the mutation configuration using functional options.
+type outletratingOption func(*OutletRatingMutation)
+
+// newOutletRatingMutation creates new mutation for the OutletRating entity.
+func newOutletRatingMutation(c config, op Op, opts ...outletratingOption) *OutletRatingMutation {
+	m := &OutletRatingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeOutletRating,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withOutletRatingID sets the ID field of the mutation.
+func withOutletRatingID(id uuid.UUID) outletratingOption {
+	return func(m *OutletRatingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *OutletRating
+		)
+		m.oldValue = func(ctx context.Context) (*OutletRating, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().OutletRating.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withOutletRating sets the old OutletRating of the mutation.
+func withOutletRating(node *OutletRating) outletratingOption {
+	return func(m *OutletRatingMutation) {
+		m.oldValue = func(context.Context) (*OutletRating, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m OutletRatingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m OutletRatingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of OutletRating entities.
+func (m *OutletRatingMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *OutletRatingMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *OutletRatingMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().OutletRating.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *OutletRatingMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *OutletRatingMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *OutletRatingMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetOutletID sets the "outlet_id" field.
+func (m *OutletRatingMutation) SetOutletID(u uuid.UUID) {
+	m.outlet_id = &u
+}
+
+// OutletID returns the value of the "outlet_id" field in the mutation.
+func (m *OutletRatingMutation) OutletID() (r uuid.UUID, exists bool) {
+	v := m.outlet_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutletID returns the old "outlet_id" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldOutletID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutletID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutletID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutletID: %w", err)
+	}
+	return oldValue.OutletID, nil
+}
+
+// ResetOutletID resets all changes to the "outlet_id" field.
+func (m *OutletRatingMutation) ResetOutletID() {
+	m.outlet_id = nil
+}
+
+// SetAverageRating sets the "average_rating" field.
+func (m *OutletRatingMutation) SetAverageRating(f float64) {
+	m.average_rating = &f
+	m.addaverage_rating = nil
+}
+
+// AverageRating returns the value of the "average_rating" field in the mutation.
+func (m *OutletRatingMutation) AverageRating() (r float64, exists bool) {
+	v := m.average_rating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAverageRating returns the old "average_rating" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldAverageRating(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAverageRating is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAverageRating requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAverageRating: %w", err)
+	}
+	return oldValue.AverageRating, nil
+}
+
+// AddAverageRating adds f to the "average_rating" field.
+func (m *OutletRatingMutation) AddAverageRating(f float64) {
+	if m.addaverage_rating != nil {
+		*m.addaverage_rating += f
+	} else {
+		m.addaverage_rating = &f
+	}
+}
+
+// AddedAverageRating returns the value that was added to the "average_rating" field in this mutation.
+func (m *OutletRatingMutation) AddedAverageRating() (r float64, exists bool) {
+	v := m.addaverage_rating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAverageRating resets all changes to the "average_rating" field.
+func (m *OutletRatingMutation) ResetAverageRating() {
+	m.average_rating = nil
+	m.addaverage_rating = nil
+}
+
+// SetTotalRatings sets the "total_ratings" field.
+func (m *OutletRatingMutation) SetTotalRatings(i int) {
+	m.total_ratings = &i
+	m.addtotal_ratings = nil
+}
+
+// TotalRatings returns the value of the "total_ratings" field in the mutation.
+func (m *OutletRatingMutation) TotalRatings() (r int, exists bool) {
+	v := m.total_ratings
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotalRatings returns the old "total_ratings" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldTotalRatings(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTotalRatings is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTotalRatings requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTotalRatings: %w", err)
+	}
+	return oldValue.TotalRatings, nil
+}
+
+// AddTotalRatings adds i to the "total_ratings" field.
+func (m *OutletRatingMutation) AddTotalRatings(i int) {
+	if m.addtotal_ratings != nil {
+		*m.addtotal_ratings += i
+	} else {
+		m.addtotal_ratings = &i
+	}
+}
+
+// AddedTotalRatings returns the value that was added to the "total_ratings" field in this mutation.
+func (m *OutletRatingMutation) AddedTotalRatings() (r int, exists bool) {
+	v := m.addtotal_ratings
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTotalRatings resets all changes to the "total_ratings" field.
+func (m *OutletRatingMutation) ResetTotalRatings() {
+	m.total_ratings = nil
+	m.addtotal_ratings = nil
+}
+
+// SetTotalReviews sets the "total_reviews" field.
+func (m *OutletRatingMutation) SetTotalReviews(i int) {
+	m.total_reviews = &i
+	m.addtotal_reviews = nil
+}
+
+// TotalReviews returns the value of the "total_reviews" field in the mutation.
+func (m *OutletRatingMutation) TotalReviews() (r int, exists bool) {
+	v := m.total_reviews
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotalReviews returns the old "total_reviews" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldTotalReviews(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTotalReviews is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTotalReviews requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTotalReviews: %w", err)
+	}
+	return oldValue.TotalReviews, nil
+}
+
+// AddTotalReviews adds i to the "total_reviews" field.
+func (m *OutletRatingMutation) AddTotalReviews(i int) {
+	if m.addtotal_reviews != nil {
+		*m.addtotal_reviews += i
+	} else {
+		m.addtotal_reviews = &i
+	}
+}
+
+// AddedTotalReviews returns the value that was added to the "total_reviews" field in this mutation.
+func (m *OutletRatingMutation) AddedTotalReviews() (r int, exists bool) {
+	v := m.addtotal_reviews
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTotalReviews resets all changes to the "total_reviews" field.
+func (m *OutletRatingMutation) ResetTotalReviews() {
+	m.total_reviews = nil
+	m.addtotal_reviews = nil
+}
+
+// SetFiveStar sets the "five_star" field.
+func (m *OutletRatingMutation) SetFiveStar(i int) {
+	m.five_star = &i
+	m.addfive_star = nil
+}
+
+// FiveStar returns the value of the "five_star" field in the mutation.
+func (m *OutletRatingMutation) FiveStar() (r int, exists bool) {
+	v := m.five_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFiveStar returns the old "five_star" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldFiveStar(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFiveStar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFiveStar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFiveStar: %w", err)
+	}
+	return oldValue.FiveStar, nil
+}
+
+// AddFiveStar adds i to the "five_star" field.
+func (m *OutletRatingMutation) AddFiveStar(i int) {
+	if m.addfive_star != nil {
+		*m.addfive_star += i
+	} else {
+		m.addfive_star = &i
+	}
+}
+
+// AddedFiveStar returns the value that was added to the "five_star" field in this mutation.
+func (m *OutletRatingMutation) AddedFiveStar() (r int, exists bool) {
+	v := m.addfive_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFiveStar resets all changes to the "five_star" field.
+func (m *OutletRatingMutation) ResetFiveStar() {
+	m.five_star = nil
+	m.addfive_star = nil
+}
+
+// SetFourStar sets the "four_star" field.
+func (m *OutletRatingMutation) SetFourStar(i int) {
+	m.four_star = &i
+	m.addfour_star = nil
+}
+
+// FourStar returns the value of the "four_star" field in the mutation.
+func (m *OutletRatingMutation) FourStar() (r int, exists bool) {
+	v := m.four_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFourStar returns the old "four_star" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldFourStar(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFourStar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFourStar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFourStar: %w", err)
+	}
+	return oldValue.FourStar, nil
+}
+
+// AddFourStar adds i to the "four_star" field.
+func (m *OutletRatingMutation) AddFourStar(i int) {
+	if m.addfour_star != nil {
+		*m.addfour_star += i
+	} else {
+		m.addfour_star = &i
+	}
+}
+
+// AddedFourStar returns the value that was added to the "four_star" field in this mutation.
+func (m *OutletRatingMutation) AddedFourStar() (r int, exists bool) {
+	v := m.addfour_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFourStar resets all changes to the "four_star" field.
+func (m *OutletRatingMutation) ResetFourStar() {
+	m.four_star = nil
+	m.addfour_star = nil
+}
+
+// SetThreeStar sets the "three_star" field.
+func (m *OutletRatingMutation) SetThreeStar(i int) {
+	m.three_star = &i
+	m.addthree_star = nil
+}
+
+// ThreeStar returns the value of the "three_star" field in the mutation.
+func (m *OutletRatingMutation) ThreeStar() (r int, exists bool) {
+	v := m.three_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldThreeStar returns the old "three_star" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldThreeStar(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldThreeStar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldThreeStar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldThreeStar: %w", err)
+	}
+	return oldValue.ThreeStar, nil
+}
+
+// AddThreeStar adds i to the "three_star" field.
+func (m *OutletRatingMutation) AddThreeStar(i int) {
+	if m.addthree_star != nil {
+		*m.addthree_star += i
+	} else {
+		m.addthree_star = &i
+	}
+}
+
+// AddedThreeStar returns the value that was added to the "three_star" field in this mutation.
+func (m *OutletRatingMutation) AddedThreeStar() (r int, exists bool) {
+	v := m.addthree_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetThreeStar resets all changes to the "three_star" field.
+func (m *OutletRatingMutation) ResetThreeStar() {
+	m.three_star = nil
+	m.addthree_star = nil
+}
+
+// SetTwoStar sets the "two_star" field.
+func (m *OutletRatingMutation) SetTwoStar(i int) {
+	m.two_star = &i
+	m.addtwo_star = nil
+}
+
+// TwoStar returns the value of the "two_star" field in the mutation.
+func (m *OutletRatingMutation) TwoStar() (r int, exists bool) {
+	v := m.two_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTwoStar returns the old "two_star" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldTwoStar(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTwoStar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTwoStar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTwoStar: %w", err)
+	}
+	return oldValue.TwoStar, nil
+}
+
+// AddTwoStar adds i to the "two_star" field.
+func (m *OutletRatingMutation) AddTwoStar(i int) {
+	if m.addtwo_star != nil {
+		*m.addtwo_star += i
+	} else {
+		m.addtwo_star = &i
+	}
+}
+
+// AddedTwoStar returns the value that was added to the "two_star" field in this mutation.
+func (m *OutletRatingMutation) AddedTwoStar() (r int, exists bool) {
+	v := m.addtwo_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTwoStar resets all changes to the "two_star" field.
+func (m *OutletRatingMutation) ResetTwoStar() {
+	m.two_star = nil
+	m.addtwo_star = nil
+}
+
+// SetOneStar sets the "one_star" field.
+func (m *OutletRatingMutation) SetOneStar(i int) {
+	m.one_star = &i
+	m.addone_star = nil
+}
+
+// OneStar returns the value of the "one_star" field in the mutation.
+func (m *OutletRatingMutation) OneStar() (r int, exists bool) {
+	v := m.one_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOneStar returns the old "one_star" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldOneStar(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOneStar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOneStar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOneStar: %w", err)
+	}
+	return oldValue.OneStar, nil
+}
+
+// AddOneStar adds i to the "one_star" field.
+func (m *OutletRatingMutation) AddOneStar(i int) {
+	if m.addone_star != nil {
+		*m.addone_star += i
+	} else {
+		m.addone_star = &i
+	}
+}
+
+// AddedOneStar returns the value that was added to the "one_star" field in this mutation.
+func (m *OutletRatingMutation) AddedOneStar() (r int, exists bool) {
+	v := m.addone_star
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOneStar resets all changes to the "one_star" field.
+func (m *OutletRatingMutation) ResetOneStar() {
+	m.one_star = nil
+	m.addone_star = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *OutletRatingMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *OutletRatingMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *OutletRatingMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *OutletRatingMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *OutletRatingMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the OutletRating entity.
+// If the OutletRating object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletRatingMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *OutletRatingMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the OutletRatingMutation builder.
+func (m *OutletRatingMutation) Where(ps ...predicate.OutletRating) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the OutletRatingMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *OutletRatingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.OutletRating, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *OutletRatingMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *OutletRatingMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (OutletRating).
+func (m *OutletRatingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *OutletRatingMutation) Fields() []string {
+	fields := make([]string, 0, 12)
+	if m.tenant_id != nil {
+		fields = append(fields, outletrating.FieldTenantID)
+	}
+	if m.outlet_id != nil {
+		fields = append(fields, outletrating.FieldOutletID)
+	}
+	if m.average_rating != nil {
+		fields = append(fields, outletrating.FieldAverageRating)
+	}
+	if m.total_ratings != nil {
+		fields = append(fields, outletrating.FieldTotalRatings)
+	}
+	if m.total_reviews != nil {
+		fields = append(fields, outletrating.FieldTotalReviews)
+	}
+	if m.five_star != nil {
+		fields = append(fields, outletrating.FieldFiveStar)
+	}
+	if m.four_star != nil {
+		fields = append(fields, outletrating.FieldFourStar)
+	}
+	if m.three_star != nil {
+		fields = append(fields, outletrating.FieldThreeStar)
+	}
+	if m.two_star != nil {
+		fields = append(fields, outletrating.FieldTwoStar)
+	}
+	if m.one_star != nil {
+		fields = append(fields, outletrating.FieldOneStar)
+	}
+	if m.created_at != nil {
+		fields = append(fields, outletrating.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, outletrating.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *OutletRatingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case outletrating.FieldTenantID:
+		return m.TenantID()
+	case outletrating.FieldOutletID:
+		return m.OutletID()
+	case outletrating.FieldAverageRating:
+		return m.AverageRating()
+	case outletrating.FieldTotalRatings:
+		return m.TotalRatings()
+	case outletrating.FieldTotalReviews:
+		return m.TotalReviews()
+	case outletrating.FieldFiveStar:
+		return m.FiveStar()
+	case outletrating.FieldFourStar:
+		return m.FourStar()
+	case outletrating.FieldThreeStar:
+		return m.ThreeStar()
+	case outletrating.FieldTwoStar:
+		return m.TwoStar()
+	case outletrating.FieldOneStar:
+		return m.OneStar()
+	case outletrating.FieldCreatedAt:
+		return m.CreatedAt()
+	case outletrating.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *OutletRatingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case outletrating.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case outletrating.FieldOutletID:
+		return m.OldOutletID(ctx)
+	case outletrating.FieldAverageRating:
+		return m.OldAverageRating(ctx)
+	case outletrating.FieldTotalRatings:
+		return m.OldTotalRatings(ctx)
+	case outletrating.FieldTotalReviews:
+		return m.OldTotalReviews(ctx)
+	case outletrating.FieldFiveStar:
+		return m.OldFiveStar(ctx)
+	case outletrating.FieldFourStar:
+		return m.OldFourStar(ctx)
+	case outletrating.FieldThreeStar:
+		return m.OldThreeStar(ctx)
+	case outletrating.FieldTwoStar:
+		return m.OldTwoStar(ctx)
+	case outletrating.FieldOneStar:
+		return m.OldOneStar(ctx)
+	case outletrating.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case outletrating.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown OutletRating field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *OutletRatingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case outletrating.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case outletrating.FieldOutletID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutletID(v)
+		return nil
+	case outletrating.FieldAverageRating:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAverageRating(v)
+		return nil
+	case outletrating.FieldTotalRatings:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTotalRatings(v)
+		return nil
+	case outletrating.FieldTotalReviews:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTotalReviews(v)
+		return nil
+	case outletrating.FieldFiveStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFiveStar(v)
+		return nil
+	case outletrating.FieldFourStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFourStar(v)
+		return nil
+	case outletrating.FieldThreeStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetThreeStar(v)
+		return nil
+	case outletrating.FieldTwoStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTwoStar(v)
+		return nil
+	case outletrating.FieldOneStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOneStar(v)
+		return nil
+	case outletrating.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case outletrating.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown OutletRating field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *OutletRatingMutation) AddedFields() []string {
+	var fields []string
+	if m.addaverage_rating != nil {
+		fields = append(fields, outletrating.FieldAverageRating)
+	}
+	if m.addtotal_ratings != nil {
+		fields = append(fields, outletrating.FieldTotalRatings)
+	}
+	if m.addtotal_reviews != nil {
+		fields = append(fields, outletrating.FieldTotalReviews)
+	}
+	if m.addfive_star != nil {
+		fields = append(fields, outletrating.FieldFiveStar)
+	}
+	if m.addfour_star != nil {
+		fields = append(fields, outletrating.FieldFourStar)
+	}
+	if m.addthree_star != nil {
+		fields = append(fields, outletrating.FieldThreeStar)
+	}
+	if m.addtwo_star != nil {
+		fields = append(fields, outletrating.FieldTwoStar)
+	}
+	if m.addone_star != nil {
+		fields = append(fields, outletrating.FieldOneStar)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *OutletRatingMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case outletrating.FieldAverageRating:
+		return m.AddedAverageRating()
+	case outletrating.FieldTotalRatings:
+		return m.AddedTotalRatings()
+	case outletrating.FieldTotalReviews:
+		return m.AddedTotalReviews()
+	case outletrating.FieldFiveStar:
+		return m.AddedFiveStar()
+	case outletrating.FieldFourStar:
+		return m.AddedFourStar()
+	case outletrating.FieldThreeStar:
+		return m.AddedThreeStar()
+	case outletrating.FieldTwoStar:
+		return m.AddedTwoStar()
+	case outletrating.FieldOneStar:
+		return m.AddedOneStar()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *OutletRatingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case outletrating.FieldAverageRating:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAverageRating(v)
+		return nil
+	case outletrating.FieldTotalRatings:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalRatings(v)
+		return nil
+	case outletrating.FieldTotalReviews:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalReviews(v)
+		return nil
+	case outletrating.FieldFiveStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFiveStar(v)
+		return nil
+	case outletrating.FieldFourStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFourStar(v)
+		return nil
+	case outletrating.FieldThreeStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddThreeStar(v)
+		return nil
+	case outletrating.FieldTwoStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTwoStar(v)
+		return nil
+	case outletrating.FieldOneStar:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOneStar(v)
+		return nil
+	}
+	return fmt.Errorf("unknown OutletRating numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *OutletRatingMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *OutletRatingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *OutletRatingMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown OutletRating nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *OutletRatingMutation) ResetField(name string) error {
+	switch name {
+	case outletrating.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case outletrating.FieldOutletID:
+		m.ResetOutletID()
+		return nil
+	case outletrating.FieldAverageRating:
+		m.ResetAverageRating()
+		return nil
+	case outletrating.FieldTotalRatings:
+		m.ResetTotalRatings()
+		return nil
+	case outletrating.FieldTotalReviews:
+		m.ResetTotalReviews()
+		return nil
+	case outletrating.FieldFiveStar:
+		m.ResetFiveStar()
+		return nil
+	case outletrating.FieldFourStar:
+		m.ResetFourStar()
+		return nil
+	case outletrating.FieldThreeStar:
+		m.ResetThreeStar()
+		return nil
+	case outletrating.FieldTwoStar:
+		m.ResetTwoStar()
+		return nil
+	case outletrating.FieldOneStar:
+		m.ResetOneStar()
+		return nil
+	case outletrating.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case outletrating.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown OutletRating field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *OutletRatingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *OutletRatingMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *OutletRatingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *OutletRatingMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *OutletRatingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *OutletRatingMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *OutletRatingMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown OutletRating unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *OutletRatingMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown OutletRating edge %s", name)
 }
 
 // PermissionMutation represents an operation that mutates the Permission nodes in the graph.

@@ -91,6 +91,16 @@ const (
 	OrderChannelAPI       OrderChannel = "api"
 )
 
+// FulfillmentType represents how the order is fulfilled.
+type FulfillmentType string
+
+const (
+	FulfillmentTypeDelivery  FulfillmentType = "delivery"
+	FulfillmentTypePickup    FulfillmentType = "pickup"
+	FulfillmentTypeDineIn    FulfillmentType = "dine_in"
+	FulfillmentTypeScheduled FulfillmentType = "scheduled"
+)
+
 // Order represents a customer order.
 type Order struct {
 	ID                    uuid.UUID              `json:"id"`
@@ -101,13 +111,19 @@ type Order struct {
 	OrderNumber           string                 `json:"orderNumber"`
 	Status                OrderStatus            `json:"status"`
 	PaymentStatus         PaymentStatus          `json:"paymentStatus"`
+	FulfillmentType       FulfillmentType        `json:"fulfillmentType"`
+	ScheduledFor          *time.Time             `json:"scheduledFor,omitempty"`
 	Currency              string                 `json:"currency"`
 	Subtotal              float64                `json:"subtotal"`
 	DiscountTotal         float64                `json:"discountTotal"`
 	TaxTotal              float64                `json:"taxTotal"`
 	DeliveryFee           float64                `json:"deliveryFee"`
+	PackagingFee          float64                `json:"packagingFee"`
+	ServiceFee            float64                `json:"serviceFee"`
+	SmallOrderFee         float64                `json:"smallOrderFee"`
 	TipTotal              float64                `json:"tipTotal"`
 	GrandTotal            float64                `json:"grandTotal"`
+	ReservationID         *uuid.UUID             `json:"reservationId,omitempty"`
 	LoyaltyPointsEarned   int                    `json:"loyaltyPointsEarned"`
 	LoyaltyPointsRedeemed int                    `json:"loyaltyPointsRedeemed"`
 	DeliveryAddressID     *uuid.UUID             `json:"deliveryAddressId,omitempty"`
@@ -297,6 +313,29 @@ type DeliveryZone struct {
 	EstimatedTimeMinutes int                    `json:"estimatedTimeMinutes"`
 	IsActive             bool                   `json:"isActive"`
 	SortOrder            int                    `json:"sortOrder"`
+}
+
+// OutletRatingData represents the materialized rating aggregate for an outlet.
+type OutletRatingData struct {
+	ID            uuid.UUID `json:"id"`
+	TenantID      uuid.UUID `json:"tenantId"`
+	OutletID      uuid.UUID `json:"outletId"`
+	AverageRating float64   `json:"averageRating"`
+	TotalRatings  int       `json:"totalRatings"`
+	TotalReviews  int       `json:"totalReviews"`
+	FiveStar      int       `json:"fiveStar"`
+	FourStar      int       `json:"fourStar"`
+	ThreeStar     int       `json:"threeStar"`
+	TwoStar       int       `json:"twoStar"`
+	OneStar       int       `json:"oneStar"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+}
+
+// RateOrderRequest represents a request to rate an order.
+type RateOrderRequest struct {
+	Rating  int    `json:"rating" validate:"required,min=1,max=5"`
+	Comment string `json:"comment,omitempty"`
 }
 
 // DefaultCurrency is the default currency for orders.

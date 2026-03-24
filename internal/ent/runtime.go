@@ -25,6 +25,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
@@ -516,28 +517,40 @@ func init() {
 	orderDescDeliveryFee := orderFields[13].Descriptor()
 	// order.DefaultDeliveryFee holds the default value on creation for the delivery_fee field.
 	order.DefaultDeliveryFee = orderDescDeliveryFee.Default.(float64)
+	// orderDescPackagingFee is the schema descriptor for packaging_fee field.
+	orderDescPackagingFee := orderFields[16].Descriptor()
+	// order.DefaultPackagingFee holds the default value on creation for the packaging_fee field.
+	order.DefaultPackagingFee = orderDescPackagingFee.Default.(float64)
+	// orderDescServiceFee is the schema descriptor for service_fee field.
+	orderDescServiceFee := orderFields[17].Descriptor()
+	// order.DefaultServiceFee holds the default value on creation for the service_fee field.
+	order.DefaultServiceFee = orderDescServiceFee.Default.(float64)
+	// orderDescSmallOrderFee is the schema descriptor for small_order_fee field.
+	orderDescSmallOrderFee := orderFields[18].Descriptor()
+	// order.DefaultSmallOrderFee holds the default value on creation for the small_order_fee field.
+	order.DefaultSmallOrderFee = orderDescSmallOrderFee.Default.(float64)
 	// orderDescTipTotal is the schema descriptor for tip_total field.
-	orderDescTipTotal := orderFields[14].Descriptor()
+	orderDescTipTotal := orderFields[20].Descriptor()
 	// order.DefaultTipTotal holds the default value on creation for the tip_total field.
 	order.DefaultTipTotal = orderDescTipTotal.Default.(float64)
 	// orderDescLoyaltyPointsEarned is the schema descriptor for loyalty_points_earned field.
-	orderDescLoyaltyPointsEarned := orderFields[16].Descriptor()
+	orderDescLoyaltyPointsEarned := orderFields[22].Descriptor()
 	// order.DefaultLoyaltyPointsEarned holds the default value on creation for the loyalty_points_earned field.
 	order.DefaultLoyaltyPointsEarned = orderDescLoyaltyPointsEarned.Default.(int)
 	// orderDescLoyaltyPointsRedeemed is the schema descriptor for loyalty_points_redeemed field.
-	orderDescLoyaltyPointsRedeemed := orderFields[17].Descriptor()
+	orderDescLoyaltyPointsRedeemed := orderFields[23].Descriptor()
 	// order.DefaultLoyaltyPointsRedeemed holds the default value on creation for the loyalty_points_redeemed field.
 	order.DefaultLoyaltyPointsRedeemed = orderDescLoyaltyPointsRedeemed.Default.(int)
 	// orderDescSource is the schema descriptor for source field.
-	orderDescSource := orderFields[22].Descriptor()
+	orderDescSource := orderFields[28].Descriptor()
 	// order.SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	order.SourceValidator = orderDescSource.Validators[0].(func(string) error)
 	// orderDescIdempotencyKey is the schema descriptor for idempotency_key field.
-	orderDescIdempotencyKey := orderFields[23].Descriptor()
+	orderDescIdempotencyKey := orderFields[29].Descriptor()
 	// order.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	order.IdempotencyKeyValidator = orderDescIdempotencyKey.Validators[0].(func(string) error)
 	// orderDescRating is the schema descriptor for rating field.
-	orderDescRating := orderFields[31].Descriptor()
+	orderDescRating := orderFields[37].Descriptor()
 	// order.RatingValidator is a validator for the "rating" field. It is called by the builders before save.
 	order.RatingValidator = func() func(int) error {
 		validators := orderDescRating.Validators
@@ -555,11 +568,11 @@ func init() {
 		}
 	}()
 	// orderDescCreatedAt is the schema descriptor for created_at field.
-	orderDescCreatedAt := orderFields[35].Descriptor()
+	orderDescCreatedAt := orderFields[41].Descriptor()
 	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
 	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
 	// orderDescUpdatedAt is the schema descriptor for updated_at field.
-	orderDescUpdatedAt := orderFields[36].Descriptor()
+	orderDescUpdatedAt := orderFields[42].Descriptor()
 	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
 	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -790,6 +803,54 @@ func init() {
 	outletDescID := outletFields[0].Descriptor()
 	// outlet.DefaultID holds the default value on creation for the id field.
 	outlet.DefaultID = outletDescID.Default.(func() uuid.UUID)
+	outletratingFields := schema.OutletRating{}.Fields()
+	_ = outletratingFields
+	// outletratingDescAverageRating is the schema descriptor for average_rating field.
+	outletratingDescAverageRating := outletratingFields[3].Descriptor()
+	// outletrating.DefaultAverageRating holds the default value on creation for the average_rating field.
+	outletrating.DefaultAverageRating = outletratingDescAverageRating.Default.(float64)
+	// outletratingDescTotalRatings is the schema descriptor for total_ratings field.
+	outletratingDescTotalRatings := outletratingFields[4].Descriptor()
+	// outletrating.DefaultTotalRatings holds the default value on creation for the total_ratings field.
+	outletrating.DefaultTotalRatings = outletratingDescTotalRatings.Default.(int)
+	// outletratingDescTotalReviews is the schema descriptor for total_reviews field.
+	outletratingDescTotalReviews := outletratingFields[5].Descriptor()
+	// outletrating.DefaultTotalReviews holds the default value on creation for the total_reviews field.
+	outletrating.DefaultTotalReviews = outletratingDescTotalReviews.Default.(int)
+	// outletratingDescFiveStar is the schema descriptor for five_star field.
+	outletratingDescFiveStar := outletratingFields[6].Descriptor()
+	// outletrating.DefaultFiveStar holds the default value on creation for the five_star field.
+	outletrating.DefaultFiveStar = outletratingDescFiveStar.Default.(int)
+	// outletratingDescFourStar is the schema descriptor for four_star field.
+	outletratingDescFourStar := outletratingFields[7].Descriptor()
+	// outletrating.DefaultFourStar holds the default value on creation for the four_star field.
+	outletrating.DefaultFourStar = outletratingDescFourStar.Default.(int)
+	// outletratingDescThreeStar is the schema descriptor for three_star field.
+	outletratingDescThreeStar := outletratingFields[8].Descriptor()
+	// outletrating.DefaultThreeStar holds the default value on creation for the three_star field.
+	outletrating.DefaultThreeStar = outletratingDescThreeStar.Default.(int)
+	// outletratingDescTwoStar is the schema descriptor for two_star field.
+	outletratingDescTwoStar := outletratingFields[9].Descriptor()
+	// outletrating.DefaultTwoStar holds the default value on creation for the two_star field.
+	outletrating.DefaultTwoStar = outletratingDescTwoStar.Default.(int)
+	// outletratingDescOneStar is the schema descriptor for one_star field.
+	outletratingDescOneStar := outletratingFields[10].Descriptor()
+	// outletrating.DefaultOneStar holds the default value on creation for the one_star field.
+	outletrating.DefaultOneStar = outletratingDescOneStar.Default.(int)
+	// outletratingDescCreatedAt is the schema descriptor for created_at field.
+	outletratingDescCreatedAt := outletratingFields[11].Descriptor()
+	// outletrating.DefaultCreatedAt holds the default value on creation for the created_at field.
+	outletrating.DefaultCreatedAt = outletratingDescCreatedAt.Default.(func() time.Time)
+	// outletratingDescUpdatedAt is the schema descriptor for updated_at field.
+	outletratingDescUpdatedAt := outletratingFields[12].Descriptor()
+	// outletrating.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	outletrating.DefaultUpdatedAt = outletratingDescUpdatedAt.Default.(func() time.Time)
+	// outletrating.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	outletrating.UpdateDefaultUpdatedAt = outletratingDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// outletratingDescID is the schema descriptor for id field.
+	outletratingDescID := outletratingFields[0].Descriptor()
+	// outletrating.DefaultID holds the default value on creation for the id field.
+	outletrating.DefaultID = outletratingDescID.Default.(func() uuid.UUID)
 	permissionFields := schema.Permission{}.Fields()
 	_ = permissionFields
 	// permissionDescName is the schema descriptor for name field.

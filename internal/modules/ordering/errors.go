@@ -62,6 +62,11 @@ var (
 	ErrAlreadyRated     = errors.New("order has already been rated")
 	ErrInvalidRating    = errors.New("rating must be between 1 and 5")
 
+	// OutletRating errors
+	ErrOutletRatingNotFound = errors.New("outlet rating not found")
+	ErrStockNotAvailable    = errors.New("stock not available for one or more items")
+	ErrDeliveryNotServiceable = errors.New("delivery location is outside serviceable zones")
+
 	// Subscription errors
 	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
 

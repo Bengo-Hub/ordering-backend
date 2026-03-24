@@ -87,6 +87,10 @@ type Repository interface {
 	// DeliveryZone operations
 	ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error)
 
+	// OutletRating operations
+	GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error)
+	UpsertOutletRating(ctx context.Context, rating *OutletRatingData) error
+
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 }

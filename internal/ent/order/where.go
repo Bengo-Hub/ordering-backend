@@ -111,6 +111,31 @@ func DeliveryFee(v float64) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldDeliveryFee, v))
 }
 
+// ScheduledFor applies equality check predicate on the "scheduled_for" field. It's identical to ScheduledForEQ.
+func ScheduledFor(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldScheduledFor, v))
+}
+
+// PackagingFee applies equality check predicate on the "packaging_fee" field. It's identical to PackagingFeeEQ.
+func PackagingFee(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPackagingFee, v))
+}
+
+// ServiceFee applies equality check predicate on the "service_fee" field. It's identical to ServiceFeeEQ.
+func ServiceFee(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldServiceFee, v))
+}
+
+// SmallOrderFee applies equality check predicate on the "small_order_fee" field. It's identical to SmallOrderFeeEQ.
+func SmallOrderFee(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldSmallOrderFee, v))
+}
+
+// ReservationID applies equality check predicate on the "reservation_id" field. It's identical to ReservationIDEQ.
+func ReservationID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldReservationID, v))
+}
+
 // TipTotal applies equality check predicate on the "tip_total" field. It's identical to TipTotalEQ.
 func TipTotal(v float64) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldTipTotal, v))
@@ -724,6 +749,246 @@ func DeliveryFeeLT(v float64) predicate.Order {
 // DeliveryFeeLTE applies the LTE predicate on the "delivery_fee" field.
 func DeliveryFeeLTE(v float64) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldDeliveryFee, v))
+}
+
+// FulfillmentTypeEQ applies the EQ predicate on the "fulfillment_type" field.
+func FulfillmentTypeEQ(v FulfillmentType) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldFulfillmentType, v))
+}
+
+// FulfillmentTypeNEQ applies the NEQ predicate on the "fulfillment_type" field.
+func FulfillmentTypeNEQ(v FulfillmentType) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldFulfillmentType, v))
+}
+
+// FulfillmentTypeIn applies the In predicate on the "fulfillment_type" field.
+func FulfillmentTypeIn(vs ...FulfillmentType) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldFulfillmentType, vs...))
+}
+
+// FulfillmentTypeNotIn applies the NotIn predicate on the "fulfillment_type" field.
+func FulfillmentTypeNotIn(vs ...FulfillmentType) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldFulfillmentType, vs...))
+}
+
+// ScheduledForEQ applies the EQ predicate on the "scheduled_for" field.
+func ScheduledForEQ(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldScheduledFor, v))
+}
+
+// ScheduledForNEQ applies the NEQ predicate on the "scheduled_for" field.
+func ScheduledForNEQ(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldScheduledFor, v))
+}
+
+// ScheduledForIn applies the In predicate on the "scheduled_for" field.
+func ScheduledForIn(vs ...time.Time) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldScheduledFor, vs...))
+}
+
+// ScheduledForNotIn applies the NotIn predicate on the "scheduled_for" field.
+func ScheduledForNotIn(vs ...time.Time) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldScheduledFor, vs...))
+}
+
+// ScheduledForGT applies the GT predicate on the "scheduled_for" field.
+func ScheduledForGT(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldScheduledFor, v))
+}
+
+// ScheduledForGTE applies the GTE predicate on the "scheduled_for" field.
+func ScheduledForGTE(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldScheduledFor, v))
+}
+
+// ScheduledForLT applies the LT predicate on the "scheduled_for" field.
+func ScheduledForLT(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldScheduledFor, v))
+}
+
+// ScheduledForLTE applies the LTE predicate on the "scheduled_for" field.
+func ScheduledForLTE(v time.Time) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldScheduledFor, v))
+}
+
+// ScheduledForIsNil applies the IsNil predicate on the "scheduled_for" field.
+func ScheduledForIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldScheduledFor))
+}
+
+// ScheduledForNotNil applies the NotNil predicate on the "scheduled_for" field.
+func ScheduledForNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldScheduledFor))
+}
+
+// PackagingFeeEQ applies the EQ predicate on the "packaging_fee" field.
+func PackagingFeeEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPackagingFee, v))
+}
+
+// PackagingFeeNEQ applies the NEQ predicate on the "packaging_fee" field.
+func PackagingFeeNEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldPackagingFee, v))
+}
+
+// PackagingFeeIn applies the In predicate on the "packaging_fee" field.
+func PackagingFeeIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldPackagingFee, vs...))
+}
+
+// PackagingFeeNotIn applies the NotIn predicate on the "packaging_fee" field.
+func PackagingFeeNotIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldPackagingFee, vs...))
+}
+
+// PackagingFeeGT applies the GT predicate on the "packaging_fee" field.
+func PackagingFeeGT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldPackagingFee, v))
+}
+
+// PackagingFeeGTE applies the GTE predicate on the "packaging_fee" field.
+func PackagingFeeGTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldPackagingFee, v))
+}
+
+// PackagingFeeLT applies the LT predicate on the "packaging_fee" field.
+func PackagingFeeLT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldPackagingFee, v))
+}
+
+// PackagingFeeLTE applies the LTE predicate on the "packaging_fee" field.
+func PackagingFeeLTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldPackagingFee, v))
+}
+
+// ServiceFeeEQ applies the EQ predicate on the "service_fee" field.
+func ServiceFeeEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldServiceFee, v))
+}
+
+// ServiceFeeNEQ applies the NEQ predicate on the "service_fee" field.
+func ServiceFeeNEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldServiceFee, v))
+}
+
+// ServiceFeeIn applies the In predicate on the "service_fee" field.
+func ServiceFeeIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldServiceFee, vs...))
+}
+
+// ServiceFeeNotIn applies the NotIn predicate on the "service_fee" field.
+func ServiceFeeNotIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldServiceFee, vs...))
+}
+
+// ServiceFeeGT applies the GT predicate on the "service_fee" field.
+func ServiceFeeGT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldServiceFee, v))
+}
+
+// ServiceFeeGTE applies the GTE predicate on the "service_fee" field.
+func ServiceFeeGTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldServiceFee, v))
+}
+
+// ServiceFeeLT applies the LT predicate on the "service_fee" field.
+func ServiceFeeLT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldServiceFee, v))
+}
+
+// ServiceFeeLTE applies the LTE predicate on the "service_fee" field.
+func ServiceFeeLTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldServiceFee, v))
+}
+
+// SmallOrderFeeEQ applies the EQ predicate on the "small_order_fee" field.
+func SmallOrderFeeEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldSmallOrderFee, v))
+}
+
+// SmallOrderFeeNEQ applies the NEQ predicate on the "small_order_fee" field.
+func SmallOrderFeeNEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldSmallOrderFee, v))
+}
+
+// SmallOrderFeeIn applies the In predicate on the "small_order_fee" field.
+func SmallOrderFeeIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldSmallOrderFee, vs...))
+}
+
+// SmallOrderFeeNotIn applies the NotIn predicate on the "small_order_fee" field.
+func SmallOrderFeeNotIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldSmallOrderFee, vs...))
+}
+
+// SmallOrderFeeGT applies the GT predicate on the "small_order_fee" field.
+func SmallOrderFeeGT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldSmallOrderFee, v))
+}
+
+// SmallOrderFeeGTE applies the GTE predicate on the "small_order_fee" field.
+func SmallOrderFeeGTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldSmallOrderFee, v))
+}
+
+// SmallOrderFeeLT applies the LT predicate on the "small_order_fee" field.
+func SmallOrderFeeLT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldSmallOrderFee, v))
+}
+
+// SmallOrderFeeLTE applies the LTE predicate on the "small_order_fee" field.
+func SmallOrderFeeLTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldSmallOrderFee, v))
+}
+
+// ReservationIDEQ applies the EQ predicate on the "reservation_id" field.
+func ReservationIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldReservationID, v))
+}
+
+// ReservationIDNEQ applies the NEQ predicate on the "reservation_id" field.
+func ReservationIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldReservationID, v))
+}
+
+// ReservationIDIn applies the In predicate on the "reservation_id" field.
+func ReservationIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldReservationID, vs...))
+}
+
+// ReservationIDNotIn applies the NotIn predicate on the "reservation_id" field.
+func ReservationIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldReservationID, vs...))
+}
+
+// ReservationIDGT applies the GT predicate on the "reservation_id" field.
+func ReservationIDGT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldReservationID, v))
+}
+
+// ReservationIDGTE applies the GTE predicate on the "reservation_id" field.
+func ReservationIDGTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldReservationID, v))
+}
+
+// ReservationIDLT applies the LT predicate on the "reservation_id" field.
+func ReservationIDLT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldReservationID, v))
+}
+
+// ReservationIDLTE applies the LTE predicate on the "reservation_id" field.
+func ReservationIDLTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldReservationID, v))
+}
+
+// ReservationIDIsNil applies the IsNil predicate on the "reservation_id" field.
+func ReservationIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldReservationID))
+}
+
+// ReservationIDNotNil applies the NotNil predicate on the "reservation_id" field.
+func ReservationIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldReservationID))
 }
 
 // TipTotalEQ applies the EQ predicate on the "tip_total" field.

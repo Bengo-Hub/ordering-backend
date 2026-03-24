@@ -44,6 +44,9 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
 	})
 
+	// Outlet rating (public, no auth required)
+	r.Get("/outlets/{outletId}/rating", h.GetOutletRating)
+
 	// Checkout endpoint
 	r.Route("/checkout", func(checkoutRouter chi.Router) {
 		// Guest checkout (no auth required)
@@ -719,6 +722,46 @@ func (h *OrderHandler) RateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// GetOutletRating returns the materialized rating aggregate for an outlet.
+// @Summary Get outlet rating
+// @Description Returns average rating, star breakdown, and review count for an outlet
+// @Tags Outlets
+// @Produce json
+// @Param outletId path string true "Outlet ID"
+// @Success 200 {object} ordering.OutletRatingData
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /outlets/{outletId}/rating [get]
+func (h *OrderHandler) GetOutletRating(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	outletID, err := uuid.Parse(chi.URLParam(r, "outletId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
+		return
+	}
+
+	rating, err := h.orderService.GetOutletRating(r.Context(), tenantID, outletID)
+	if err != nil {
+		if errors.Is(err, ordering.ErrOutletRatingNotFound) {
+			// Return a zero-value rating instead of 404 for outlets with no ratings yet
+			handlers.RespondJSON(w, http.StatusOK, ordering.OutletRatingData{
+				TenantID: tenantID,
+				OutletID: outletID,
+			})
+			return
+		}
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, rating)
 }
 
 // --- Admin Handlers ---

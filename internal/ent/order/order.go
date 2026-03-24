@@ -42,6 +42,18 @@ const (
 	FieldTaxTotal = "tax_total"
 	// FieldDeliveryFee holds the string denoting the delivery_fee field in the database.
 	FieldDeliveryFee = "delivery_fee"
+	// FieldFulfillmentType holds the string denoting the fulfillment_type field in the database.
+	FieldFulfillmentType = "fulfillment_type"
+	// FieldScheduledFor holds the string denoting the scheduled_for field in the database.
+	FieldScheduledFor = "scheduled_for"
+	// FieldPackagingFee holds the string denoting the packaging_fee field in the database.
+	FieldPackagingFee = "packaging_fee"
+	// FieldServiceFee holds the string denoting the service_fee field in the database.
+	FieldServiceFee = "service_fee"
+	// FieldSmallOrderFee holds the string denoting the small_order_fee field in the database.
+	FieldSmallOrderFee = "small_order_fee"
+	// FieldReservationID holds the string denoting the reservation_id field in the database.
+	FieldReservationID = "reservation_id"
 	// FieldTipTotal holds the string denoting the tip_total field in the database.
 	FieldTipTotal = "tip_total"
 	// FieldGrandTotal holds the string denoting the grand_total field in the database.
@@ -162,6 +174,12 @@ var Columns = []string{
 	FieldDiscountTotal,
 	FieldTaxTotal,
 	FieldDeliveryFee,
+	FieldFulfillmentType,
+	FieldScheduledFor,
+	FieldPackagingFee,
+	FieldServiceFee,
+	FieldSmallOrderFee,
+	FieldReservationID,
 	FieldTipTotal,
 	FieldGrandTotal,
 	FieldLoyaltyPointsEarned,
@@ -210,6 +228,12 @@ var (
 	DefaultTaxTotal float64
 	// DefaultDeliveryFee holds the default value on creation for the "delivery_fee" field.
 	DefaultDeliveryFee float64
+	// DefaultPackagingFee holds the default value on creation for the "packaging_fee" field.
+	DefaultPackagingFee float64
+	// DefaultServiceFee holds the default value on creation for the "service_fee" field.
+	DefaultServiceFee float64
+	// DefaultSmallOrderFee holds the default value on creation for the "small_order_fee" field.
+	DefaultSmallOrderFee float64
 	// DefaultTipTotal holds the default value on creation for the "tip_total" field.
 	DefaultTipTotal float64
 	// DefaultLoyaltyPointsEarned holds the default value on creation for the "loyalty_points_earned" field.
@@ -292,6 +316,34 @@ func PaymentStatusValidator(ps PaymentStatus) error {
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for payment_status field: %q", ps)
+	}
+}
+
+// FulfillmentType defines the type for the "fulfillment_type" enum field.
+type FulfillmentType string
+
+// FulfillmentTypeDelivery is the default value of the FulfillmentType enum.
+const DefaultFulfillmentType = FulfillmentTypeDelivery
+
+// FulfillmentType values.
+const (
+	FulfillmentTypeDelivery  FulfillmentType = "delivery"
+	FulfillmentTypePickup    FulfillmentType = "pickup"
+	FulfillmentTypeDineIn    FulfillmentType = "dine_in"
+	FulfillmentTypeScheduled FulfillmentType = "scheduled"
+)
+
+func (ft FulfillmentType) String() string {
+	return string(ft)
+}
+
+// FulfillmentTypeValidator is a validator for the "fulfillment_type" field enum values. It is called by the builders before save.
+func FulfillmentTypeValidator(ft FulfillmentType) error {
+	switch ft {
+	case FulfillmentTypeDelivery, FulfillmentTypePickup, FulfillmentTypeDineIn, FulfillmentTypeScheduled:
+		return nil
+	default:
+		return fmt.Errorf("order: invalid enum value for fulfillment_type field: %q", ft)
 	}
 }
 
@@ -395,6 +447,36 @@ func ByTaxTotal(opts ...sql.OrderTermOption) OrderOption {
 // ByDeliveryFee orders the results by the delivery_fee field.
 func ByDeliveryFee(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeliveryFee, opts...).ToFunc()
+}
+
+// ByFulfillmentType orders the results by the fulfillment_type field.
+func ByFulfillmentType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFulfillmentType, opts...).ToFunc()
+}
+
+// ByScheduledFor orders the results by the scheduled_for field.
+func ByScheduledFor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScheduledFor, opts...).ToFunc()
+}
+
+// ByPackagingFee orders the results by the packaging_fee field.
+func ByPackagingFee(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPackagingFee, opts...).ToFunc()
+}
+
+// ByServiceFee orders the results by the service_fee field.
+func ByServiceFee(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldServiceFee, opts...).ToFunc()
+}
+
+// BySmallOrderFee orders the results by the small_order_fee field.
+func BySmallOrderFee(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSmallOrderFee, opts...).ToFunc()
+}
+
+// ByReservationID orders the results by the reservation_id field.
+func ByReservationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReservationID, opts...).ToFunc()
 }
 
 // ByTipTotal orders the results by the tip_total field.

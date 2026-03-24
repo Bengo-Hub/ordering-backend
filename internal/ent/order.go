@@ -48,6 +48,18 @@ type Order struct {
 	TaxTotal float64 `json:"tax_total,omitempty"`
 	// Delivery fee
 	DeliveryFee float64 `json:"delivery_fee,omitempty"`
+	// Fulfillment method: delivery (rider), pickup (customer collects), dine_in (eat in), scheduled (future delivery)
+	FulfillmentType order.FulfillmentType `json:"fulfillment_type,omitempty"`
+	// Requested delivery/pickup time for scheduled orders
+	ScheduledFor *time.Time `json:"scheduled_for,omitempty"`
+	// Packaging/container fee
+	PackagingFee float64 `json:"packaging_fee,omitempty"`
+	// Platform service fee
+	ServiceFee float64 `json:"service_fee,omitempty"`
+	// Fee for orders below minimum order amount
+	SmallOrderFee float64 `json:"small_order_fee,omitempty"`
+	// Inventory reservation ID for stock tracking
+	ReservationID *uuid.UUID `json:"reservation_id,omitempty"`
 	// Tip amount
 	TipTotal float64 `json:"tip_total,omitempty"`
 	// Final total amount
@@ -184,17 +196,17 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
+		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
-		case order.FieldSubtotal, order.FieldDiscountTotal, order.FieldTaxTotal, order.FieldDeliveryFee, order.FieldTipTotal, order.FieldGrandTotal:
+		case order.FieldSubtotal, order.FieldDiscountTotal, order.FieldTaxTotal, order.FieldDeliveryFee, order.FieldPackagingFee, order.FieldServiceFee, order.FieldSmallOrderFee, order.FieldTipTotal, order.FieldGrandTotal:
 			values[i] = new(sql.NullFloat64)
 		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
-		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
+		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldFulfillmentType, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
 			values[i] = new(sql.NullString)
-		case order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
+		case order.FieldScheduledFor, order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case order.FieldID, order.FieldTenantID, order.FieldOutletID, order.FieldCustomerID:
 			values[i] = new(uuid.UUID)
@@ -298,6 +310,44 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field delivery_fee", values[i])
 			} else if value.Valid {
 				_m.DeliveryFee = value.Float64
+			}
+		case order.FieldFulfillmentType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field fulfillment_type", values[i])
+			} else if value.Valid {
+				_m.FulfillmentType = order.FulfillmentType(value.String)
+			}
+		case order.FieldScheduledFor:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field scheduled_for", values[i])
+			} else if value.Valid {
+				_m.ScheduledFor = new(time.Time)
+				*_m.ScheduledFor = value.Time
+			}
+		case order.FieldPackagingFee:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field packaging_fee", values[i])
+			} else if value.Valid {
+				_m.PackagingFee = value.Float64
+			}
+		case order.FieldServiceFee:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field service_fee", values[i])
+			} else if value.Valid {
+				_m.ServiceFee = value.Float64
+			}
+		case order.FieldSmallOrderFee:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field small_order_fee", values[i])
+			} else if value.Valid {
+				_m.SmallOrderFee = value.Float64
+			}
+		case order.FieldReservationID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field reservation_id", values[i])
+			} else if value.Valid {
+				_m.ReservationID = new(uuid.UUID)
+				*_m.ReservationID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldTipTotal:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -557,6 +607,28 @@ func (_m *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("delivery_fee=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DeliveryFee))
+	builder.WriteString(", ")
+	builder.WriteString("fulfillment_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FulfillmentType))
+	builder.WriteString(", ")
+	if v := _m.ScheduledFor; v != nil {
+		builder.WriteString("scheduled_for=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("packaging_fee=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PackagingFee))
+	builder.WriteString(", ")
+	builder.WriteString("service_fee=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ServiceFee))
+	builder.WriteString(", ")
+	builder.WriteString("small_order_fee=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SmallOrderFee))
+	builder.WriteString(", ")
+	if v := _m.ReservationID; v != nil {
+		builder.WriteString("reservation_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("tip_total=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TipTotal))

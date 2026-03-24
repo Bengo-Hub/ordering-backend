@@ -60,6 +60,27 @@ func (Order) Fields() []ent.Field {
 		field.Float("delivery_fee").
 			Default(0).
 			Comment("Delivery fee"),
+		field.Enum("fulfillment_type").
+			Values("delivery", "pickup", "dine_in", "scheduled").
+			Default("delivery").
+			Comment("Fulfillment method: delivery (rider), pickup (customer collects), dine_in (eat in), scheduled (future delivery)"),
+		field.Time("scheduled_for").
+			Optional().
+			Nillable().
+			Comment("Requested delivery/pickup time for scheduled orders"),
+		field.Float("packaging_fee").
+			Default(0).
+			Comment("Packaging/container fee"),
+		field.Float("service_fee").
+			Default(0).
+			Comment("Platform service fee"),
+		field.Float("small_order_fee").
+			Default(0).
+			Comment("Fee for orders below minimum order amount"),
+		field.UUID("reservation_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Comment("Inventory reservation ID for stock tracking"),
 		field.Float("tip_total").
 			Default(0).
 			Comment("Tip amount"),
@@ -199,5 +220,9 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("delivery_address_id"),
 		// Channel and source for analytics
 		index.Fields("channel"),
+		// Fulfillment type for filtering
+		index.Fields("fulfillment_type"),
+		// Scheduled orders
+		index.Fields("scheduled_for"),
 	}
 }

@@ -152,6 +152,37 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		return nil, err
 	}
 
+	// Reserve stock via inventory service (fail fast if stock unavailable)
+	var reservationID *uuid.UUID
+	if s.inventoryClient != nil {
+		tenant, tenantErr := s.repo.GetTenantByID(ctx, req.TenantID)
+		if tenantErr == nil {
+			reservationItems := make([]inventory.ReservationItem, 0, len(cart.Items))
+			for _, ci := range cart.Items {
+				if ci.InventorySKU != "" {
+					reservationItems = append(reservationItems, inventory.ReservationItem{
+						SKU:      ci.InventorySKU,
+						Quantity: ci.Quantity,
+					})
+				}
+			}
+			if len(reservationItems) > 0 {
+				reserveReq := inventory.ReservationRequest{
+					TenantID:       req.TenantID,
+					OrderID:        uuid.New(), // temporary; will update after order creation
+					Items:          reservationItems,
+					IdempotencyKey: req.IdempotencyKey,
+				}
+				reservation, reserveErr := s.inventoryClient.CreateReservation(ctx, tenant.Slug, reserveReq)
+				if reserveErr != nil {
+					s.logger.Warn("stock reservation failed", zap.Error(reserveErr))
+					return nil, fmt.Errorf("stock not available: %w", reserveErr)
+				}
+				reservationID = &reservation.ID
+			}
+		}
+	}
+
 	// Calculate loyalty points earned
 	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
 
@@ -180,6 +211,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		IdempotencyKey:        req.IdempotencyKey,
 		PlacedAt:              &now,
 		DeliveryAddress:       deliveryAddress,
+		ReservationID:         reservationID,
 	}
 
 	if err := s.repo.CreateOrder(ctx, order); err != nil {
@@ -256,6 +288,17 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	}
 
 	deliveryFee := 0.0
+	if req.DeliveryLat != nil && req.DeliveryLng != nil {
+		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
+		if zoneErr == nil {
+			deliveryFee = fee
+		} else if zoneErr != ErrDeliveryNotServiceable {
+			s.logger.Warn("delivery fee calculation failed, using default", zap.Error(zoneErr))
+			deliveryFee = DeliveryFeeBase
+		}
+		// If ErrDeliveryNotServiceable, we let the order proceed with 0 fee
+		// since this is the convenience endpoint and the address might be text-based
+	}
 	discountTotal := 0.0
 	grandTotal := subtotal - discountTotal + deliveryFee
 
@@ -698,12 +741,16 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 		return nil, err
 	}
 
+	// Recalculate outlet rating aggregate
+	go s.updateOutletRating(context.Background(), order.TenantID, order.OutletID, rating, comment)
+
 	// Publish order.rated event
 	if s.eventPublisher != nil {
 		evt := events.NewEvent("ordering.order.rated", tenantID, map[string]interface{}{
 			"order_id":    order.ID.String(),
 			"order_number": order.OrderNumber,
 			"customer_id": customerID.String(),
+			"outlet_id":   order.OutletID.String(),
 			"rating":      rating,
 			"comment":     comment,
 		})
@@ -715,6 +762,148 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 		zap.Int("rating", rating))
 
 	return order, nil
+}
+
+// updateOutletRating recalculates and upserts the materialized outlet rating aggregate.
+func (s *OrderService) updateOutletRating(ctx context.Context, tenantID, outletID uuid.UUID, newRating int, comment string) {
+	existing, err := s.repo.GetOutletRating(ctx, tenantID, outletID)
+	if err != nil {
+		// Not found — initialize
+		existing = &OutletRatingData{
+			TenantID: tenantID,
+			OutletID: outletID,
+		}
+	}
+
+	// Increment star bucket
+	switch newRating {
+	case 5:
+		existing.FiveStar++
+	case 4:
+		existing.FourStar++
+	case 3:
+		existing.ThreeStar++
+	case 2:
+		existing.TwoStar++
+	case 1:
+		existing.OneStar++
+	}
+
+	existing.TotalRatings++
+	if comment != "" {
+		existing.TotalReviews++
+	}
+
+	// Recalculate weighted average
+	totalStars := float64(existing.FiveStar*5 + existing.FourStar*4 + existing.ThreeStar*3 + existing.TwoStar*2 + existing.OneStar*1)
+	existing.AverageRating = totalStars / float64(existing.TotalRatings)
+
+	if err := s.repo.UpsertOutletRating(ctx, existing); err != nil {
+		s.logger.Error("failed to upsert outlet rating", zap.Error(err),
+			zap.String("outletID", outletID.String()))
+	}
+}
+
+// GetOutletRating retrieves the materialized rating aggregate for an outlet.
+func (s *OrderService) GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error) {
+	return s.repo.GetOutletRating(ctx, tenantID, outletID)
+}
+
+// CalculateDeliveryFee determines the delivery fee by matching a coordinate against
+// active DeliveryZone polygons. Returns the fee and estimated time, or an error if
+// the location is not serviceable.
+func (s *OrderService) CalculateDeliveryFee(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, lat, lng float64) (float64, int, error) {
+	zones, err := s.repo.ListActiveDeliveryZones(ctx, tenantID, outletID)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	for _, zone := range zones {
+		if zone.ZonePolygon == nil {
+			continue
+		}
+		if pointInZonePolygon(lat, lng, zone.ZonePolygon) {
+			return zone.DeliveryFee, zone.EstimatedTimeMinutes, nil
+		}
+	}
+
+	// No zone matched — fall back to constants if no zones are configured
+	if len(zones) == 0 {
+		return DeliveryFeeBase, 30, nil
+	}
+
+	return 0, 0, ErrDeliveryNotServiceable
+}
+
+// pointInZonePolygon checks if a lat/lng point falls within a GeoJSON polygon.
+// The polygon is expected to be in GeoJSON format with "coordinates" as [][][]float64
+// (the first ring is the outer boundary). Uses the ray-casting algorithm.
+func pointInZonePolygon(lat, lng float64, polygon map[string]interface{}) bool {
+	coords, ok := polygon["coordinates"]
+	if !ok {
+		return false
+	}
+
+	// GeoJSON Polygon: coordinates is [][][]float64 (array of rings, each ring is array of [lng, lat])
+	rings, ok := coords.([]interface{})
+	if !ok || len(rings) == 0 {
+		return false
+	}
+
+	// Use the outer ring (first ring)
+	outerRing, ok := rings[0].([]interface{})
+	if !ok || len(outerRing) < 3 {
+		return false
+	}
+
+	// Extract points
+	type point struct{ x, y float64 }
+	points := make([]point, 0, len(outerRing))
+	for _, p := range outerRing {
+		pair, ok := p.([]interface{})
+		if !ok || len(pair) < 2 {
+			continue
+		}
+		pLng, ok1 := toFloat64(pair[0])
+		pLat, ok2 := toFloat64(pair[1])
+		if !ok1 || !ok2 {
+			continue
+		}
+		points = append(points, point{pLng, pLat})
+	}
+
+	if len(points) < 3 {
+		return false
+	}
+
+	// Ray-casting algorithm
+	inside := false
+	n := len(points)
+	for i, j := 0, n-1; i < n; j, i = i, i+1 {
+		yi, xi := points[i].y, points[i].x
+		yj, xj := points[j].y, points[j].x
+
+		if ((yi > lat) != (yj > lat)) &&
+			(lng < (xj-xi)*(lat-yi)/(yj-yi)+xi) {
+			inside = !inside
+		}
+	}
+
+	return inside
+}
+
+// toFloat64 converts a JSON number to float64.
+func toFloat64(v interface{}) (float64, bool) {
+	switch n := v.(type) {
+	case float64:
+		return n, true
+	case int:
+		return float64(n), true
+	case int64:
+		return float64(n), true
+	default:
+		return 0, false
+	}
 }
 
 // UpdatePaymentStatus updates the payment status of an order.

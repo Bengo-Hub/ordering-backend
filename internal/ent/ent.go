@@ -32,6 +32,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outboxevent"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
@@ -128,6 +129,7 @@ func checkColumn(t, c string) error {
 			orderingrole.Table:       orderingrole.ValidColumn,
 			outboxevent.Table:        outboxevent.ValidColumn,
 			outlet.Table:             outlet.ValidColumn,
+			outletrating.Table:       outletrating.ValidColumn,
 			permission.Table:         permission.ValidColumn,
 			promocode.Table:          promocode.ValidColumn,
 			promoredemption.Table:    promoredemption.ValidColumn,

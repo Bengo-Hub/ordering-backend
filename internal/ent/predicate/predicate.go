@@ -66,6 +66,9 @@ type OutboxEvent func(*sql.Selector)
 // Outlet is the predicate function for outlet builders.
 type Outlet func(*sql.Selector)
 
+// OutletRating is the predicate function for outletrating builders.
+type OutletRating func(*sql.Selector)
+
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
 

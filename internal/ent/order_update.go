@@ -257,6 +257,123 @@ func (_u *OrderUpdate) AddDeliveryFee(v float64) *OrderUpdate {
 	return _u
 }
 
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (_u *OrderUpdate) SetFulfillmentType(v order.FulfillmentType) *OrderUpdate {
+	_u.mutation.SetFulfillmentType(v)
+	return _u
+}
+
+// SetNillableFulfillmentType sets the "fulfillment_type" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableFulfillmentType(v *order.FulfillmentType) *OrderUpdate {
+	if v != nil {
+		_u.SetFulfillmentType(*v)
+	}
+	return _u
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (_u *OrderUpdate) SetScheduledFor(v time.Time) *OrderUpdate {
+	_u.mutation.SetScheduledFor(v)
+	return _u
+}
+
+// SetNillableScheduledFor sets the "scheduled_for" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableScheduledFor(v *time.Time) *OrderUpdate {
+	if v != nil {
+		_u.SetScheduledFor(*v)
+	}
+	return _u
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (_u *OrderUpdate) ClearScheduledFor() *OrderUpdate {
+	_u.mutation.ClearScheduledFor()
+	return _u
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (_u *OrderUpdate) SetPackagingFee(v float64) *OrderUpdate {
+	_u.mutation.ResetPackagingFee()
+	_u.mutation.SetPackagingFee(v)
+	return _u
+}
+
+// SetNillablePackagingFee sets the "packaging_fee" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillablePackagingFee(v *float64) *OrderUpdate {
+	if v != nil {
+		_u.SetPackagingFee(*v)
+	}
+	return _u
+}
+
+// AddPackagingFee adds value to the "packaging_fee" field.
+func (_u *OrderUpdate) AddPackagingFee(v float64) *OrderUpdate {
+	_u.mutation.AddPackagingFee(v)
+	return _u
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (_u *OrderUpdate) SetServiceFee(v float64) *OrderUpdate {
+	_u.mutation.ResetServiceFee()
+	_u.mutation.SetServiceFee(v)
+	return _u
+}
+
+// SetNillableServiceFee sets the "service_fee" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableServiceFee(v *float64) *OrderUpdate {
+	if v != nil {
+		_u.SetServiceFee(*v)
+	}
+	return _u
+}
+
+// AddServiceFee adds value to the "service_fee" field.
+func (_u *OrderUpdate) AddServiceFee(v float64) *OrderUpdate {
+	_u.mutation.AddServiceFee(v)
+	return _u
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (_u *OrderUpdate) SetSmallOrderFee(v float64) *OrderUpdate {
+	_u.mutation.ResetSmallOrderFee()
+	_u.mutation.SetSmallOrderFee(v)
+	return _u
+}
+
+// SetNillableSmallOrderFee sets the "small_order_fee" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableSmallOrderFee(v *float64) *OrderUpdate {
+	if v != nil {
+		_u.SetSmallOrderFee(*v)
+	}
+	return _u
+}
+
+// AddSmallOrderFee adds value to the "small_order_fee" field.
+func (_u *OrderUpdate) AddSmallOrderFee(v float64) *OrderUpdate {
+	_u.mutation.AddSmallOrderFee(v)
+	return _u
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (_u *OrderUpdate) SetReservationID(v uuid.UUID) *OrderUpdate {
+	_u.mutation.SetReservationID(v)
+	return _u
+}
+
+// SetNillableReservationID sets the "reservation_id" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableReservationID(v *uuid.UUID) *OrderUpdate {
+	if v != nil {
+		_u.SetReservationID(*v)
+	}
+	return _u
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (_u *OrderUpdate) ClearReservationID() *OrderUpdate {
+	_u.mutation.ClearReservationID()
+	return _u
+}
+
 // SetTipTotal sets the "tip_total" field.
 func (_u *OrderUpdate) SetTipTotal(v float64) *OrderUpdate {
 	_u.mutation.ResetTipTotal()
@@ -884,6 +1001,11 @@ func (_u *OrderUpdate) check() error {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Order.currency": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.FulfillmentType(); ok {
+		if err := order.FulfillmentTypeValidator(v); err != nil {
+			return &ValidationError{Name: "fulfillment_type", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
@@ -975,6 +1097,39 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(order.FieldDeliveryFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.FulfillmentType(); ok {
+		_spec.SetField(order.FieldFulfillmentType, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ScheduledFor(); ok {
+		_spec.SetField(order.FieldScheduledFor, field.TypeTime, value)
+	}
+	if _u.mutation.ScheduledForCleared() {
+		_spec.ClearField(order.FieldScheduledFor, field.TypeTime)
+	}
+	if value, ok := _u.mutation.PackagingFee(); ok {
+		_spec.SetField(order.FieldPackagingFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedPackagingFee(); ok {
+		_spec.AddField(order.FieldPackagingFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ServiceFee(); ok {
+		_spec.SetField(order.FieldServiceFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedServiceFee(); ok {
+		_spec.AddField(order.FieldServiceFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.SmallOrderFee(); ok {
+		_spec.SetField(order.FieldSmallOrderFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSmallOrderFee(); ok {
+		_spec.AddField(order.FieldSmallOrderFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ReservationID(); ok {
+		_spec.SetField(order.FieldReservationID, field.TypeUUID, value)
+	}
+	if _u.mutation.ReservationIDCleared() {
+		_spec.ClearField(order.FieldReservationID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)
@@ -1560,6 +1715,123 @@ func (_u *OrderUpdateOne) SetNillableDeliveryFee(v *float64) *OrderUpdateOne {
 // AddDeliveryFee adds value to the "delivery_fee" field.
 func (_u *OrderUpdateOne) AddDeliveryFee(v float64) *OrderUpdateOne {
 	_u.mutation.AddDeliveryFee(v)
+	return _u
+}
+
+// SetFulfillmentType sets the "fulfillment_type" field.
+func (_u *OrderUpdateOne) SetFulfillmentType(v order.FulfillmentType) *OrderUpdateOne {
+	_u.mutation.SetFulfillmentType(v)
+	return _u
+}
+
+// SetNillableFulfillmentType sets the "fulfillment_type" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableFulfillmentType(v *order.FulfillmentType) *OrderUpdateOne {
+	if v != nil {
+		_u.SetFulfillmentType(*v)
+	}
+	return _u
+}
+
+// SetScheduledFor sets the "scheduled_for" field.
+func (_u *OrderUpdateOne) SetScheduledFor(v time.Time) *OrderUpdateOne {
+	_u.mutation.SetScheduledFor(v)
+	return _u
+}
+
+// SetNillableScheduledFor sets the "scheduled_for" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableScheduledFor(v *time.Time) *OrderUpdateOne {
+	if v != nil {
+		_u.SetScheduledFor(*v)
+	}
+	return _u
+}
+
+// ClearScheduledFor clears the value of the "scheduled_for" field.
+func (_u *OrderUpdateOne) ClearScheduledFor() *OrderUpdateOne {
+	_u.mutation.ClearScheduledFor()
+	return _u
+}
+
+// SetPackagingFee sets the "packaging_fee" field.
+func (_u *OrderUpdateOne) SetPackagingFee(v float64) *OrderUpdateOne {
+	_u.mutation.ResetPackagingFee()
+	_u.mutation.SetPackagingFee(v)
+	return _u
+}
+
+// SetNillablePackagingFee sets the "packaging_fee" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillablePackagingFee(v *float64) *OrderUpdateOne {
+	if v != nil {
+		_u.SetPackagingFee(*v)
+	}
+	return _u
+}
+
+// AddPackagingFee adds value to the "packaging_fee" field.
+func (_u *OrderUpdateOne) AddPackagingFee(v float64) *OrderUpdateOne {
+	_u.mutation.AddPackagingFee(v)
+	return _u
+}
+
+// SetServiceFee sets the "service_fee" field.
+func (_u *OrderUpdateOne) SetServiceFee(v float64) *OrderUpdateOne {
+	_u.mutation.ResetServiceFee()
+	_u.mutation.SetServiceFee(v)
+	return _u
+}
+
+// SetNillableServiceFee sets the "service_fee" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableServiceFee(v *float64) *OrderUpdateOne {
+	if v != nil {
+		_u.SetServiceFee(*v)
+	}
+	return _u
+}
+
+// AddServiceFee adds value to the "service_fee" field.
+func (_u *OrderUpdateOne) AddServiceFee(v float64) *OrderUpdateOne {
+	_u.mutation.AddServiceFee(v)
+	return _u
+}
+
+// SetSmallOrderFee sets the "small_order_fee" field.
+func (_u *OrderUpdateOne) SetSmallOrderFee(v float64) *OrderUpdateOne {
+	_u.mutation.ResetSmallOrderFee()
+	_u.mutation.SetSmallOrderFee(v)
+	return _u
+}
+
+// SetNillableSmallOrderFee sets the "small_order_fee" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableSmallOrderFee(v *float64) *OrderUpdateOne {
+	if v != nil {
+		_u.SetSmallOrderFee(*v)
+	}
+	return _u
+}
+
+// AddSmallOrderFee adds value to the "small_order_fee" field.
+func (_u *OrderUpdateOne) AddSmallOrderFee(v float64) *OrderUpdateOne {
+	_u.mutation.AddSmallOrderFee(v)
+	return _u
+}
+
+// SetReservationID sets the "reservation_id" field.
+func (_u *OrderUpdateOne) SetReservationID(v uuid.UUID) *OrderUpdateOne {
+	_u.mutation.SetReservationID(v)
+	return _u
+}
+
+// SetNillableReservationID sets the "reservation_id" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableReservationID(v *uuid.UUID) *OrderUpdateOne {
+	if v != nil {
+		_u.SetReservationID(*v)
+	}
+	return _u
+}
+
+// ClearReservationID clears the value of the "reservation_id" field.
+func (_u *OrderUpdateOne) ClearReservationID() *OrderUpdateOne {
+	_u.mutation.ClearReservationID()
 	return _u
 }
 
@@ -2203,6 +2475,11 @@ func (_u *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Order.currency": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.FulfillmentType(); ok {
+		if err := order.FulfillmentTypeValidator(v); err != nil {
+			return &ValidationError{Name: "fulfillment_type", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
@@ -2311,6 +2588,39 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if value, ok := _u.mutation.AddedDeliveryFee(); ok {
 		_spec.AddField(order.FieldDeliveryFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.FulfillmentType(); ok {
+		_spec.SetField(order.FieldFulfillmentType, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ScheduledFor(); ok {
+		_spec.SetField(order.FieldScheduledFor, field.TypeTime, value)
+	}
+	if _u.mutation.ScheduledForCleared() {
+		_spec.ClearField(order.FieldScheduledFor, field.TypeTime)
+	}
+	if value, ok := _u.mutation.PackagingFee(); ok {
+		_spec.SetField(order.FieldPackagingFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedPackagingFee(); ok {
+		_spec.AddField(order.FieldPackagingFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ServiceFee(); ok {
+		_spec.SetField(order.FieldServiceFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedServiceFee(); ok {
+		_spec.AddField(order.FieldServiceFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.SmallOrderFee(); ok {
+		_spec.SetField(order.FieldSmallOrderFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSmallOrderFee(); ok {
+		_spec.AddField(order.FieldSmallOrderFee, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ReservationID(); ok {
+		_spec.SetField(order.FieldReservationID, field.TypeUUID, value)
+	}
+	if _u.mutation.ReservationIDCleared() {
+		_spec.ClearField(order.FieldReservationID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)

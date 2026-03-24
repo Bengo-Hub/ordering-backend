@@ -634,6 +634,12 @@ var (
 		{Name: "discount_total", Type: field.TypeFloat64, Default: 0},
 		{Name: "tax_total", Type: field.TypeFloat64, Default: 0},
 		{Name: "delivery_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "fulfillment_type", Type: field.TypeEnum, Enums: []string{"delivery", "pickup", "dine_in", "scheduled"}, Default: "delivery"},
+		{Name: "scheduled_for", Type: field.TypeTime, Nullable: true},
+		{Name: "packaging_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "service_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "small_order_fee", Type: field.TypeFloat64, Default: 0},
+		{Name: "reservation_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "tip_total", Type: field.TypeFloat64, Default: 0},
 		{Name: "grand_total", Type: field.TypeFloat64},
 		{Name: "loyalty_points_earned", Type: field.TypeInt, Default: 0},
@@ -668,19 +674,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_customer_addresses_orders",
-				Columns:    []*schema.Column{OrdersColumns[34]},
+				Columns:    []*schema.Column{OrdersColumns[40]},
 				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "orders_outlets_orders",
-				Columns:    []*schema.Column{OrdersColumns[35]},
+				Columns:    []*schema.Column{OrdersColumns[41]},
 				RefColumns: []*schema.Column{OutletsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[36]},
+				Columns:    []*schema.Column{OrdersColumns[42]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -689,12 +695,12 @@ var (
 			{
 				Name:    "order_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[35]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[41]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[36]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[42]},
 			},
 			{
 				Name:    "order_tenant_id_status",
@@ -709,17 +715,17 @@ var (
 			{
 				Name:    "order_tenant_id_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4], OrdersColumns[32]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4], OrdersColumns[38]},
 			},
 			{
 				Name:    "order_tenant_id_outlet_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[35], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[41], OrdersColumns[4]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[36], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[42], OrdersColumns[4]},
 			},
 			{
 				Name:    "order_order_number",
@@ -729,7 +735,7 @@ var (
 			{
 				Name:    "order_idempotency_key",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[20]},
+				Columns: []*schema.Column{OrdersColumns[26]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "idempotency_key IS NOT NULL",
 				},
@@ -737,32 +743,42 @@ var (
 			{
 				Name:    "order_placed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[21]},
+				Columns: []*schema.Column{OrdersColumns[27]},
 			},
 			{
 				Name:    "order_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[32]},
+				Columns: []*schema.Column{OrdersColumns[38]},
 			},
 			{
 				Name:    "order_completed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[25]},
+				Columns: []*schema.Column{OrdersColumns[31]},
 			},
 			{
 				Name:    "order_delivered_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[24]},
+				Columns: []*schema.Column{OrdersColumns[30]},
 			},
 			{
 				Name:    "order_delivery_address_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[34]},
+				Columns: []*schema.Column{OrdersColumns[40]},
 			},
 			{
 				Name:    "order_channel",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[18]},
+				Columns: []*schema.Column{OrdersColumns[24]},
+			},
+			{
+				Name:    "order_fulfillment_type",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[12]},
+			},
+			{
+				Name:    "order_scheduled_for",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[13]},
 			},
 		},
 	}
@@ -1070,6 +1086,40 @@ var (
 				Name:    "outlet_status",
 				Unique:  false,
 				Columns: []*schema.Column{OutletsColumns[13]},
+			},
+		},
+	}
+	// OutletRatingsColumns holds the columns for the "outlet_ratings" table.
+	OutletRatingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "outlet_id", Type: field.TypeUUID, Unique: true},
+		{Name: "average_rating", Type: field.TypeFloat64, Default: 0},
+		{Name: "total_ratings", Type: field.TypeInt, Default: 0},
+		{Name: "total_reviews", Type: field.TypeInt, Default: 0},
+		{Name: "five_star", Type: field.TypeInt, Default: 0},
+		{Name: "four_star", Type: field.TypeInt, Default: 0},
+		{Name: "three_star", Type: field.TypeInt, Default: 0},
+		{Name: "two_star", Type: field.TypeInt, Default: 0},
+		{Name: "one_star", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// OutletRatingsTable holds the schema information for the "outlet_ratings" table.
+	OutletRatingsTable = &schema.Table{
+		Name:       "outlet_ratings",
+		Columns:    OutletRatingsColumns,
+		PrimaryKey: []*schema.Column{OutletRatingsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "outletrating_tenant_id_outlet_id",
+				Unique:  true,
+				Columns: []*schema.Column{OutletRatingsColumns[1], OutletRatingsColumns[2]},
+			},
+			{
+				Name:    "outletrating_average_rating",
+				Unique:  false,
+				Columns: []*schema.Column{OutletRatingsColumns[3]},
 			},
 		},
 	}
@@ -1742,6 +1792,7 @@ var (
 		OrderingRolesTable,
 		OutboxEventsTable,
 		OutletsTable,
+		OutletRatingsTable,
 		PermissionsTable,
 		PromoCodesTable,
 		PromoRedemptionsTable,

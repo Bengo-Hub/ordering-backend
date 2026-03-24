@@ -10,6 +10,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/google/uuid"
@@ -377,6 +378,18 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	}
 	if o.Metadata != nil {
 		builder.SetMetadata(o.Metadata)
+	}
+	if o.FulfillmentType != "" {
+		builder.SetFulfillmentType(order.FulfillmentType(o.FulfillmentType))
+	}
+	if o.ScheduledFor != nil {
+		builder.SetScheduledFor(*o.ScheduledFor)
+	}
+	builder.SetPackagingFee(o.PackagingFee)
+	builder.SetServiceFee(o.ServiceFee)
+	builder.SetSmallOrderFee(o.SmallOrderFee)
+	if o.ReservationID != nil {
+		builder.SetReservationID(*o.ReservationID)
 	}
 
 	created, err := builder.Save(ctx)
@@ -823,6 +836,10 @@ func entOrderToDomain(o *ent.Order) *Order {
 		DiscountTotal:         o.DiscountTotal,
 		TaxTotal:              o.TaxTotal,
 		DeliveryFee:           o.DeliveryFee,
+		FulfillmentType:       FulfillmentType(o.FulfillmentType),
+		PackagingFee:          o.PackagingFee,
+		ServiceFee:            o.ServiceFee,
+		SmallOrderFee:         o.SmallOrderFee,
 		TipTotal:              o.TipTotal,
 		GrandTotal:            o.GrandTotal,
 		LoyaltyPointsEarned:   o.LoyaltyPointsEarned,
@@ -872,6 +889,12 @@ func entOrderToDomain(o *ent.Order) *Order {
 	}
 	if o.RatedAt != nil {
 		ord.RatedAt = o.RatedAt
+	}
+	if o.ScheduledFor != nil {
+		ord.ScheduledFor = o.ScheduledFor
+	}
+	if o.ReservationID != nil {
+		ord.ReservationID = o.ReservationID
 	}
 
 	return ord
@@ -965,4 +988,66 @@ func (r *EntRepository) ListActiveDeliveryZones(ctx context.Context, tenantID uu
 	}
 
 	return result, nil
+}
+
+// --- OutletRating Methods ---
+
+func (r *EntRepository) GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error) {
+	rating, err := r.client.OutletRating.Query().
+		Where(
+			outletrating.TenantID(tenantID),
+			outletrating.OutletID(outletID),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrOutletRatingNotFound
+		}
+		return nil, err
+	}
+	return entOutletRatingToDomain(rating), nil
+}
+
+func (r *EntRepository) UpsertOutletRating(ctx context.Context, rating *OutletRatingData) error {
+	err := r.client.OutletRating.Create().
+		SetTenantID(rating.TenantID).
+		SetOutletID(rating.OutletID).
+		SetAverageRating(rating.AverageRating).
+		SetTotalRatings(rating.TotalRatings).
+		SetTotalReviews(rating.TotalReviews).
+		SetFiveStar(rating.FiveStar).
+		SetFourStar(rating.FourStar).
+		SetThreeStar(rating.ThreeStar).
+		SetTwoStar(rating.TwoStar).
+		SetOneStar(rating.OneStar).
+		OnConflictColumns("outlet_id").
+		UpdateAverageRating().
+		UpdateTotalRatings().
+		UpdateTotalReviews().
+		UpdateFiveStar().
+		UpdateFourStar().
+		UpdateThreeStar().
+		UpdateTwoStar().
+		UpdateOneStar().
+		UpdateUpdatedAt().
+		Exec(ctx)
+	return err
+}
+
+func entOutletRatingToDomain(r *ent.OutletRating) *OutletRatingData {
+	return &OutletRatingData{
+		ID:            r.ID,
+		TenantID:      r.TenantID,
+		OutletID:      r.OutletID,
+		AverageRating: r.AverageRating,
+		TotalRatings:  r.TotalRatings,
+		TotalReviews:  r.TotalReviews,
+		FiveStar:      r.FiveStar,
+		FourStar:      r.FourStar,
+		ThreeStar:     r.ThreeStar,
+		TwoStar:       r.TwoStar,
+		OneStar:       r.OneStar,
+		CreatedAt:     r.CreatedAt,
+		UpdatedAt:     r.UpdatedAt,
+	}
 }
