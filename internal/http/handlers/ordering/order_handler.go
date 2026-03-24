@@ -42,6 +42,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Get("/{orderId}", h.GetOrder)
 		orderRouter.Post("/{orderId}/cancel", h.CancelOrder)
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
+		orderRouter.Post("/{orderId}/reorder", h.Reorder)
 
 		// Live order tracking (SSE)
 		orderRouter.Get("/{orderId}/track", h.TrackOrder)
@@ -1218,4 +1219,33 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusCreated, order)
+}
+
+// Reorder creates a new cart populated with items from a past order.
+func (h *OrderHandler) Reorder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	cart, err := h.orderService.ReorderFromPastOrder(r.Context(), tenantID, user.ID, orderID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusCreated, cart)
 }

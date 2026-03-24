@@ -21,6 +21,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
+	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
@@ -71,6 +73,8 @@ const (
 	TypeDataSubjectRequest = "DataSubjectRequest"
 	TypeDeliveryWindow     = "DeliveryWindow"
 	TypeDeliveryZone       = "DeliveryZone"
+	TypeGroupOrder         = "GroupOrder"
+	TypeGroupParticipant   = "GroupParticipant"
 	TypeLoyaltyAccount     = "LoyaltyAccount"
 	TypeLoyaltyTransaction = "LoyaltyTransaction"
 	TypeOrder              = "Order"
@@ -13100,6 +13104,1447 @@ func (m *DeliveryZoneMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DeliveryZoneMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown DeliveryZone edge %s", name)
+}
+
+// GroupOrderMutation represents an operation that mutates the GroupOrder nodes in the graph.
+type GroupOrderMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *uuid.UUID
+	tenant_id           *uuid.UUID
+	host_user_id        *uuid.UUID
+	cart_id             *uuid.UUID
+	invite_code         *string
+	status              *grouporder.Status
+	max_participants    *int
+	addmax_participants *int
+	expires_at          *time.Time
+	created_at          *time.Time
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	participants        map[uuid.UUID]struct{}
+	removedparticipants map[uuid.UUID]struct{}
+	clearedparticipants bool
+	done                bool
+	oldValue            func(context.Context) (*GroupOrder, error)
+	predicates          []predicate.GroupOrder
+}
+
+var _ ent.Mutation = (*GroupOrderMutation)(nil)
+
+// grouporderOption allows management of the mutation configuration using functional options.
+type grouporderOption func(*GroupOrderMutation)
+
+// newGroupOrderMutation creates new mutation for the GroupOrder entity.
+func newGroupOrderMutation(c config, op Op, opts ...grouporderOption) *GroupOrderMutation {
+	m := &GroupOrderMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeGroupOrder,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withGroupOrderID sets the ID field of the mutation.
+func withGroupOrderID(id uuid.UUID) grouporderOption {
+	return func(m *GroupOrderMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *GroupOrder
+		)
+		m.oldValue = func(ctx context.Context) (*GroupOrder, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().GroupOrder.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withGroupOrder sets the old GroupOrder of the mutation.
+func withGroupOrder(node *GroupOrder) grouporderOption {
+	return func(m *GroupOrderMutation) {
+		m.oldValue = func(context.Context) (*GroupOrder, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m GroupOrderMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m GroupOrderMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of GroupOrder entities.
+func (m *GroupOrderMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *GroupOrderMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *GroupOrderMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().GroupOrder.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *GroupOrderMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *GroupOrderMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *GroupOrderMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetHostUserID sets the "host_user_id" field.
+func (m *GroupOrderMutation) SetHostUserID(u uuid.UUID) {
+	m.host_user_id = &u
+}
+
+// HostUserID returns the value of the "host_user_id" field in the mutation.
+func (m *GroupOrderMutation) HostUserID() (r uuid.UUID, exists bool) {
+	v := m.host_user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHostUserID returns the old "host_user_id" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldHostUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHostUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHostUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHostUserID: %w", err)
+	}
+	return oldValue.HostUserID, nil
+}
+
+// ResetHostUserID resets all changes to the "host_user_id" field.
+func (m *GroupOrderMutation) ResetHostUserID() {
+	m.host_user_id = nil
+}
+
+// SetCartID sets the "cart_id" field.
+func (m *GroupOrderMutation) SetCartID(u uuid.UUID) {
+	m.cart_id = &u
+}
+
+// CartID returns the value of the "cart_id" field in the mutation.
+func (m *GroupOrderMutation) CartID() (r uuid.UUID, exists bool) {
+	v := m.cart_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCartID returns the old "cart_id" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldCartID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCartID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCartID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCartID: %w", err)
+	}
+	return oldValue.CartID, nil
+}
+
+// ResetCartID resets all changes to the "cart_id" field.
+func (m *GroupOrderMutation) ResetCartID() {
+	m.cart_id = nil
+}
+
+// SetInviteCode sets the "invite_code" field.
+func (m *GroupOrderMutation) SetInviteCode(s string) {
+	m.invite_code = &s
+}
+
+// InviteCode returns the value of the "invite_code" field in the mutation.
+func (m *GroupOrderMutation) InviteCode() (r string, exists bool) {
+	v := m.invite_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInviteCode returns the old "invite_code" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldInviteCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInviteCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInviteCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInviteCode: %w", err)
+	}
+	return oldValue.InviteCode, nil
+}
+
+// ResetInviteCode resets all changes to the "invite_code" field.
+func (m *GroupOrderMutation) ResetInviteCode() {
+	m.invite_code = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *GroupOrderMutation) SetStatus(gr grouporder.Status) {
+	m.status = &gr
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *GroupOrderMutation) Status() (r grouporder.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldStatus(ctx context.Context) (v grouporder.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *GroupOrderMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetMaxParticipants sets the "max_participants" field.
+func (m *GroupOrderMutation) SetMaxParticipants(i int) {
+	m.max_participants = &i
+	m.addmax_participants = nil
+}
+
+// MaxParticipants returns the value of the "max_participants" field in the mutation.
+func (m *GroupOrderMutation) MaxParticipants() (r int, exists bool) {
+	v := m.max_participants
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMaxParticipants returns the old "max_participants" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldMaxParticipants(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMaxParticipants is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMaxParticipants requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMaxParticipants: %w", err)
+	}
+	return oldValue.MaxParticipants, nil
+}
+
+// AddMaxParticipants adds i to the "max_participants" field.
+func (m *GroupOrderMutation) AddMaxParticipants(i int) {
+	if m.addmax_participants != nil {
+		*m.addmax_participants += i
+	} else {
+		m.addmax_participants = &i
+	}
+}
+
+// AddedMaxParticipants returns the value that was added to the "max_participants" field in this mutation.
+func (m *GroupOrderMutation) AddedMaxParticipants() (r int, exists bool) {
+	v := m.addmax_participants
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMaxParticipants resets all changes to the "max_participants" field.
+func (m *GroupOrderMutation) ResetMaxParticipants() {
+	m.max_participants = nil
+	m.addmax_participants = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *GroupOrderMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *GroupOrderMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *GroupOrderMutation) ResetExpiresAt() {
+	m.expires_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *GroupOrderMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GroupOrderMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GroupOrderMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *GroupOrderMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *GroupOrderMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the GroupOrder entity.
+// If the GroupOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupOrderMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *GroupOrderMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// AddParticipantIDs adds the "participants" edge to the GroupParticipant entity by ids.
+func (m *GroupOrderMutation) AddParticipantIDs(ids ...uuid.UUID) {
+	if m.participants == nil {
+		m.participants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.participants[ids[i]] = struct{}{}
+	}
+}
+
+// ClearParticipants clears the "participants" edge to the GroupParticipant entity.
+func (m *GroupOrderMutation) ClearParticipants() {
+	m.clearedparticipants = true
+}
+
+// ParticipantsCleared reports if the "participants" edge to the GroupParticipant entity was cleared.
+func (m *GroupOrderMutation) ParticipantsCleared() bool {
+	return m.clearedparticipants
+}
+
+// RemoveParticipantIDs removes the "participants" edge to the GroupParticipant entity by IDs.
+func (m *GroupOrderMutation) RemoveParticipantIDs(ids ...uuid.UUID) {
+	if m.removedparticipants == nil {
+		m.removedparticipants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.participants, ids[i])
+		m.removedparticipants[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedParticipants returns the removed IDs of the "participants" edge to the GroupParticipant entity.
+func (m *GroupOrderMutation) RemovedParticipantsIDs() (ids []uuid.UUID) {
+	for id := range m.removedparticipants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ParticipantsIDs returns the "participants" edge IDs in the mutation.
+func (m *GroupOrderMutation) ParticipantsIDs() (ids []uuid.UUID) {
+	for id := range m.participants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetParticipants resets all changes to the "participants" edge.
+func (m *GroupOrderMutation) ResetParticipants() {
+	m.participants = nil
+	m.clearedparticipants = false
+	m.removedparticipants = nil
+}
+
+// Where appends a list predicates to the GroupOrderMutation builder.
+func (m *GroupOrderMutation) Where(ps ...predicate.GroupOrder) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the GroupOrderMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *GroupOrderMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.GroupOrder, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *GroupOrderMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *GroupOrderMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (GroupOrder).
+func (m *GroupOrderMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *GroupOrderMutation) Fields() []string {
+	fields := make([]string, 0, 9)
+	if m.tenant_id != nil {
+		fields = append(fields, grouporder.FieldTenantID)
+	}
+	if m.host_user_id != nil {
+		fields = append(fields, grouporder.FieldHostUserID)
+	}
+	if m.cart_id != nil {
+		fields = append(fields, grouporder.FieldCartID)
+	}
+	if m.invite_code != nil {
+		fields = append(fields, grouporder.FieldInviteCode)
+	}
+	if m.status != nil {
+		fields = append(fields, grouporder.FieldStatus)
+	}
+	if m.max_participants != nil {
+		fields = append(fields, grouporder.FieldMaxParticipants)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, grouporder.FieldExpiresAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, grouporder.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, grouporder.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *GroupOrderMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case grouporder.FieldTenantID:
+		return m.TenantID()
+	case grouporder.FieldHostUserID:
+		return m.HostUserID()
+	case grouporder.FieldCartID:
+		return m.CartID()
+	case grouporder.FieldInviteCode:
+		return m.InviteCode()
+	case grouporder.FieldStatus:
+		return m.Status()
+	case grouporder.FieldMaxParticipants:
+		return m.MaxParticipants()
+	case grouporder.FieldExpiresAt:
+		return m.ExpiresAt()
+	case grouporder.FieldCreatedAt:
+		return m.CreatedAt()
+	case grouporder.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *GroupOrderMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case grouporder.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case grouporder.FieldHostUserID:
+		return m.OldHostUserID(ctx)
+	case grouporder.FieldCartID:
+		return m.OldCartID(ctx)
+	case grouporder.FieldInviteCode:
+		return m.OldInviteCode(ctx)
+	case grouporder.FieldStatus:
+		return m.OldStatus(ctx)
+	case grouporder.FieldMaxParticipants:
+		return m.OldMaxParticipants(ctx)
+	case grouporder.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	case grouporder.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case grouporder.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown GroupOrder field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GroupOrderMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case grouporder.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case grouporder.FieldHostUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHostUserID(v)
+		return nil
+	case grouporder.FieldCartID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCartID(v)
+		return nil
+	case grouporder.FieldInviteCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInviteCode(v)
+		return nil
+	case grouporder.FieldStatus:
+		v, ok := value.(grouporder.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case grouporder.FieldMaxParticipants:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMaxParticipants(v)
+		return nil
+	case grouporder.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	case grouporder.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case grouporder.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown GroupOrder field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *GroupOrderMutation) AddedFields() []string {
+	var fields []string
+	if m.addmax_participants != nil {
+		fields = append(fields, grouporder.FieldMaxParticipants)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *GroupOrderMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case grouporder.FieldMaxParticipants:
+		return m.AddedMaxParticipants()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GroupOrderMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case grouporder.FieldMaxParticipants:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMaxParticipants(v)
+		return nil
+	}
+	return fmt.Errorf("unknown GroupOrder numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *GroupOrderMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *GroupOrderMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *GroupOrderMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown GroupOrder nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *GroupOrderMutation) ResetField(name string) error {
+	switch name {
+	case grouporder.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case grouporder.FieldHostUserID:
+		m.ResetHostUserID()
+		return nil
+	case grouporder.FieldCartID:
+		m.ResetCartID()
+		return nil
+	case grouporder.FieldInviteCode:
+		m.ResetInviteCode()
+		return nil
+	case grouporder.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case grouporder.FieldMaxParticipants:
+		m.ResetMaxParticipants()
+		return nil
+	case grouporder.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	case grouporder.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case grouporder.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown GroupOrder field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *GroupOrderMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.participants != nil {
+		edges = append(edges, grouporder.EdgeParticipants)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *GroupOrderMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case grouporder.EdgeParticipants:
+		ids := make([]ent.Value, 0, len(m.participants))
+		for id := range m.participants {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *GroupOrderMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedparticipants != nil {
+		edges = append(edges, grouporder.EdgeParticipants)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *GroupOrderMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case grouporder.EdgeParticipants:
+		ids := make([]ent.Value, 0, len(m.removedparticipants))
+		for id := range m.removedparticipants {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *GroupOrderMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedparticipants {
+		edges = append(edges, grouporder.EdgeParticipants)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *GroupOrderMutation) EdgeCleared(name string) bool {
+	switch name {
+	case grouporder.EdgeParticipants:
+		return m.clearedparticipants
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *GroupOrderMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown GroupOrder unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *GroupOrderMutation) ResetEdge(name string) error {
+	switch name {
+	case grouporder.EdgeParticipants:
+		m.ResetParticipants()
+		return nil
+	}
+	return fmt.Errorf("unknown GroupOrder edge %s", name)
+}
+
+// GroupParticipantMutation represents an operation that mutates the GroupParticipant nodes in the graph.
+type GroupParticipantMutation struct {
+	config
+	op                 Op
+	typ                string
+	id                 *uuid.UUID
+	user_id            *uuid.UUID
+	user_name          *string
+	joined_at          *time.Time
+	clearedFields      map[string]struct{}
+	group_order        *uuid.UUID
+	clearedgroup_order bool
+	done               bool
+	oldValue           func(context.Context) (*GroupParticipant, error)
+	predicates         []predicate.GroupParticipant
+}
+
+var _ ent.Mutation = (*GroupParticipantMutation)(nil)
+
+// groupparticipantOption allows management of the mutation configuration using functional options.
+type groupparticipantOption func(*GroupParticipantMutation)
+
+// newGroupParticipantMutation creates new mutation for the GroupParticipant entity.
+func newGroupParticipantMutation(c config, op Op, opts ...groupparticipantOption) *GroupParticipantMutation {
+	m := &GroupParticipantMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeGroupParticipant,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withGroupParticipantID sets the ID field of the mutation.
+func withGroupParticipantID(id uuid.UUID) groupparticipantOption {
+	return func(m *GroupParticipantMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *GroupParticipant
+		)
+		m.oldValue = func(ctx context.Context) (*GroupParticipant, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().GroupParticipant.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withGroupParticipant sets the old GroupParticipant of the mutation.
+func withGroupParticipant(node *GroupParticipant) groupparticipantOption {
+	return func(m *GroupParticipantMutation) {
+		m.oldValue = func(context.Context) (*GroupParticipant, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m GroupParticipantMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m GroupParticipantMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of GroupParticipant entities.
+func (m *GroupParticipantMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *GroupParticipantMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *GroupParticipantMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().GroupParticipant.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetGroupOrderID sets the "group_order_id" field.
+func (m *GroupParticipantMutation) SetGroupOrderID(u uuid.UUID) {
+	m.group_order = &u
+}
+
+// GroupOrderID returns the value of the "group_order_id" field in the mutation.
+func (m *GroupParticipantMutation) GroupOrderID() (r uuid.UUID, exists bool) {
+	v := m.group_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupOrderID returns the old "group_order_id" field's value of the GroupParticipant entity.
+// If the GroupParticipant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupParticipantMutation) OldGroupOrderID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupOrderID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupOrderID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupOrderID: %w", err)
+	}
+	return oldValue.GroupOrderID, nil
+}
+
+// ResetGroupOrderID resets all changes to the "group_order_id" field.
+func (m *GroupParticipantMutation) ResetGroupOrderID() {
+	m.group_order = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *GroupParticipantMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *GroupParticipantMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the GroupParticipant entity.
+// If the GroupParticipant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupParticipantMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *GroupParticipantMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetUserName sets the "user_name" field.
+func (m *GroupParticipantMutation) SetUserName(s string) {
+	m.user_name = &s
+}
+
+// UserName returns the value of the "user_name" field in the mutation.
+func (m *GroupParticipantMutation) UserName() (r string, exists bool) {
+	v := m.user_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserName returns the old "user_name" field's value of the GroupParticipant entity.
+// If the GroupParticipant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupParticipantMutation) OldUserName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserName: %w", err)
+	}
+	return oldValue.UserName, nil
+}
+
+// ResetUserName resets all changes to the "user_name" field.
+func (m *GroupParticipantMutation) ResetUserName() {
+	m.user_name = nil
+}
+
+// SetJoinedAt sets the "joined_at" field.
+func (m *GroupParticipantMutation) SetJoinedAt(t time.Time) {
+	m.joined_at = &t
+}
+
+// JoinedAt returns the value of the "joined_at" field in the mutation.
+func (m *GroupParticipantMutation) JoinedAt() (r time.Time, exists bool) {
+	v := m.joined_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldJoinedAt returns the old "joined_at" field's value of the GroupParticipant entity.
+// If the GroupParticipant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupParticipantMutation) OldJoinedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldJoinedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldJoinedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldJoinedAt: %w", err)
+	}
+	return oldValue.JoinedAt, nil
+}
+
+// ResetJoinedAt resets all changes to the "joined_at" field.
+func (m *GroupParticipantMutation) ResetJoinedAt() {
+	m.joined_at = nil
+}
+
+// ClearGroupOrder clears the "group_order" edge to the GroupOrder entity.
+func (m *GroupParticipantMutation) ClearGroupOrder() {
+	m.clearedgroup_order = true
+	m.clearedFields[groupparticipant.FieldGroupOrderID] = struct{}{}
+}
+
+// GroupOrderCleared reports if the "group_order" edge to the GroupOrder entity was cleared.
+func (m *GroupParticipantMutation) GroupOrderCleared() bool {
+	return m.clearedgroup_order
+}
+
+// GroupOrderIDs returns the "group_order" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GroupOrderID instead. It exists only for internal usage by the builders.
+func (m *GroupParticipantMutation) GroupOrderIDs() (ids []uuid.UUID) {
+	if id := m.group_order; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGroupOrder resets all changes to the "group_order" edge.
+func (m *GroupParticipantMutation) ResetGroupOrder() {
+	m.group_order = nil
+	m.clearedgroup_order = false
+}
+
+// Where appends a list predicates to the GroupParticipantMutation builder.
+func (m *GroupParticipantMutation) Where(ps ...predicate.GroupParticipant) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the GroupParticipantMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *GroupParticipantMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.GroupParticipant, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *GroupParticipantMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *GroupParticipantMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (GroupParticipant).
+func (m *GroupParticipantMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *GroupParticipantMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.group_order != nil {
+		fields = append(fields, groupparticipant.FieldGroupOrderID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, groupparticipant.FieldUserID)
+	}
+	if m.user_name != nil {
+		fields = append(fields, groupparticipant.FieldUserName)
+	}
+	if m.joined_at != nil {
+		fields = append(fields, groupparticipant.FieldJoinedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *GroupParticipantMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case groupparticipant.FieldGroupOrderID:
+		return m.GroupOrderID()
+	case groupparticipant.FieldUserID:
+		return m.UserID()
+	case groupparticipant.FieldUserName:
+		return m.UserName()
+	case groupparticipant.FieldJoinedAt:
+		return m.JoinedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *GroupParticipantMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case groupparticipant.FieldGroupOrderID:
+		return m.OldGroupOrderID(ctx)
+	case groupparticipant.FieldUserID:
+		return m.OldUserID(ctx)
+	case groupparticipant.FieldUserName:
+		return m.OldUserName(ctx)
+	case groupparticipant.FieldJoinedAt:
+		return m.OldJoinedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown GroupParticipant field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GroupParticipantMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case groupparticipant.FieldGroupOrderID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupOrderID(v)
+		return nil
+	case groupparticipant.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case groupparticipant.FieldUserName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserName(v)
+		return nil
+	case groupparticipant.FieldJoinedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetJoinedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown GroupParticipant field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *GroupParticipantMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *GroupParticipantMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GroupParticipantMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown GroupParticipant numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *GroupParticipantMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *GroupParticipantMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *GroupParticipantMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown GroupParticipant nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *GroupParticipantMutation) ResetField(name string) error {
+	switch name {
+	case groupparticipant.FieldGroupOrderID:
+		m.ResetGroupOrderID()
+		return nil
+	case groupparticipant.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case groupparticipant.FieldUserName:
+		m.ResetUserName()
+		return nil
+	case groupparticipant.FieldJoinedAt:
+		m.ResetJoinedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown GroupParticipant field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *GroupParticipantMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.group_order != nil {
+		edges = append(edges, groupparticipant.EdgeGroupOrder)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *GroupParticipantMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case groupparticipant.EdgeGroupOrder:
+		if id := m.group_order; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *GroupParticipantMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *GroupParticipantMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *GroupParticipantMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedgroup_order {
+		edges = append(edges, groupparticipant.EdgeGroupOrder)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *GroupParticipantMutation) EdgeCleared(name string) bool {
+	switch name {
+	case groupparticipant.EdgeGroupOrder:
+		return m.clearedgroup_order
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *GroupParticipantMutation) ClearEdge(name string) error {
+	switch name {
+	case groupparticipant.EdgeGroupOrder:
+		m.ClearGroupOrder()
+		return nil
+	}
+	return fmt.Errorf("unknown GroupParticipant unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *GroupParticipantMutation) ResetEdge(name string) error {
+	switch name {
+	case groupparticipant.EdgeGroupOrder:
+		m.ResetGroupOrder()
+		return nil
+	}
+	return fmt.Errorf("unknown GroupParticipant edge %s", name)
 }
 
 // LoyaltyAccountMutation represents an operation that mutates the LoyaltyAccount nodes in the graph.

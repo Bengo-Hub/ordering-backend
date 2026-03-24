@@ -531,6 +531,76 @@ var (
 			},
 		},
 	}
+	// GroupOrdersColumns holds the columns for the "group_orders" table.
+	GroupOrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "host_user_id", Type: field.TypeUUID},
+		{Name: "cart_id", Type: field.TypeUUID},
+		{Name: "invite_code", Type: field.TypeString, Size: 6},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "locked", "checked_out", "expired"}, Default: "open"},
+		{Name: "max_participants", Type: field.TypeInt, Default: 10},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// GroupOrdersTable holds the schema information for the "group_orders" table.
+	GroupOrdersTable = &schema.Table{
+		Name:       "group_orders",
+		Columns:    GroupOrdersColumns,
+		PrimaryKey: []*schema.Column{GroupOrdersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "grouporder_invite_code",
+				Unique:  true,
+				Columns: []*schema.Column{GroupOrdersColumns[4]},
+			},
+			{
+				Name:    "grouporder_tenant_id_host_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{GroupOrdersColumns[1], GroupOrdersColumns[2]},
+			},
+			{
+				Name:    "grouporder_status",
+				Unique:  false,
+				Columns: []*schema.Column{GroupOrdersColumns[5]},
+			},
+			{
+				Name:    "grouporder_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{GroupOrdersColumns[7]},
+			},
+		},
+	}
+	// GroupParticipantsColumns holds the columns for the "group_participants" table.
+	GroupParticipantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "user_name", Type: field.TypeString, Size: 255},
+		{Name: "joined_at", Type: field.TypeTime},
+		{Name: "group_order_id", Type: field.TypeUUID},
+	}
+	// GroupParticipantsTable holds the schema information for the "group_participants" table.
+	GroupParticipantsTable = &schema.Table{
+		Name:       "group_participants",
+		Columns:    GroupParticipantsColumns,
+		PrimaryKey: []*schema.Column{GroupParticipantsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "group_participants_group_orders_participants",
+				Columns:    []*schema.Column{GroupParticipantsColumns[4]},
+				RefColumns: []*schema.Column{GroupOrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "groupparticipant_group_order_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{GroupParticipantsColumns[4], GroupParticipantsColumns[1]},
+			},
+		},
+	}
 	// LoyaltyAccountsColumns holds the columns for the "loyalty_accounts" table.
 	LoyaltyAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1783,6 +1853,8 @@ var (
 		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
 		DeliveryZonesTable,
+		GroupOrdersTable,
+		GroupParticipantsTable,
 		LoyaltyAccountsTable,
 		LoyaltyTransactionsTable,
 		OrdersTable,
@@ -1834,6 +1906,13 @@ func init() {
 	DeliveryWindowsTable.ForeignKeys[0].RefTable = OrderAssignmentsTable
 	DeliveryWindowsTable.Annotation = &entsql.Annotation{
 		Table: "delivery_windows",
+	}
+	GroupOrdersTable.Annotation = &entsql.Annotation{
+		Table: "group_orders",
+	}
+	GroupParticipantsTable.ForeignKeys[0].RefTable = GroupOrdersTable
+	GroupParticipantsTable.Annotation = &entsql.Annotation{
+		Table: "group_participants",
 	}
 	LoyaltyAccountsTable.ForeignKeys[0].RefTable = UsersTable
 	LoyaltyTransactionsTable.ForeignKeys[0].RefTable = LoyaltyAccountsTable

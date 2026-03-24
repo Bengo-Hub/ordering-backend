@@ -98,6 +98,14 @@ type OverrideUpsertRequest struct {
 	ImageURLOverride  string    `json:"imageUrlOverride,omitempty"`
 }
 
+// ItemImage represents an image in a multi-image gallery for a catalog item.
+type ItemImage struct {
+	URL          string `json:"url"`
+	Type         string `json:"type"`
+	IsPrimary    bool   `json:"is_primary"`
+	DisplayOrder int    `json:"display_order"`
+}
+
 // ListResponse is a generic paginated response.
 type ListResponse struct {
 	Data  interface{} `json:"data"`

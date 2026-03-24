@@ -129,6 +129,30 @@ func (f DeliveryZoneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryZoneMutation", m)
 }
 
+// The GroupOrderFunc type is an adapter to allow the use of ordinary
+// function as GroupOrder mutator.
+type GroupOrderFunc func(context.Context, *ent.GroupOrderMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GroupOrderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GroupOrderMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GroupOrderMutation", m)
+}
+
+// The GroupParticipantFunc type is an adapter to allow the use of ordinary
+// function as GroupParticipant mutator.
+type GroupParticipantFunc func(context.Context, *ent.GroupParticipantMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GroupParticipantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GroupParticipantMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GroupParticipantMutation", m)
+}
+
 // The LoyaltyAccountFunc type is an adapter to allow the use of ordinary
 // function as LoyaltyAccount mutator.
 type LoyaltyAccountFunc func(context.Context, *ent.LoyaltyAccountMutation) (ent.Value, error)

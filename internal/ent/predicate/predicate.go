@@ -36,6 +36,12 @@ type DeliveryWindow func(*sql.Selector)
 // DeliveryZone is the predicate function for deliveryzone builders.
 type DeliveryZone func(*sql.Selector)
 
+// GroupOrder is the predicate function for grouporder builders.
+type GroupOrder func(*sql.Selector)
+
+// GroupParticipant is the predicate function for groupparticipant builders.
+type GroupParticipant func(*sql.Selector)
+
 // LoyaltyAccount is the predicate function for loyaltyaccount builders.
 type LoyaltyAccount func(*sql.Selector)
 

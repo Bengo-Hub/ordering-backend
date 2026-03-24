@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"sort"
 	"strings"
@@ -55,6 +56,8 @@ type OutletWithMeta struct {
 	Distance      float64   `json:"distance_km,omitempty"`
 	HasOffers     bool      `json:"has_offers"`
 	UseCase       string    `json:"use_case,omitempty"`
+	PromoBadge    string    `json:"promo_badge,omitempty"`
+	PromoText     string    `json:"promo_text,omitempty"`
 }
 
 // ListOutletsDiscovery returns outlets enriched with rating, delivery, distance,
@@ -143,13 +146,36 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 		s.logger.Warn("failed to load promo codes", zap.Error(err))
 	}
 	// Build set of outlet IDs that have offers (nil outlet_id = all outlets)
+	// Also track best promo badge per outlet for storefront display
 	hasGlobalOffer := false
 	outletOfferSet := make(map[uuid.UUID]bool)
+	type promoBadgeInfo struct {
+		Badge string // e.g. "-15%"
+		Text  string // e.g. "Free delivery"
+	}
+	var globalPromoBadge *promoBadgeInfo
+	outletPromoBadgeMap := make(map[uuid.UUID]*promoBadgeInfo)
 	for _, p := range promos {
+		badge := &promoBadgeInfo{}
+		switch p.DiscountType {
+		case promocode.DiscountTypePercentage:
+			badge.Badge = fmt.Sprintf("-%.0f%%", p.DiscountValue)
+		case promocode.DiscountTypeFreeDelivery:
+			badge.Text = "Free delivery"
+		case promocode.DiscountTypeFixedAmount:
+			badge.Badge = fmt.Sprintf("-%.0f", p.DiscountValue)
+		}
+
 		if p.OutletID == nil {
 			hasGlobalOffer = true
+			if globalPromoBadge == nil {
+				globalPromoBadge = badge
+			}
 		} else {
 			outletOfferSet[*p.OutletID] = true
+			if existing, ok := outletPromoBadgeMap[*p.OutletID]; !ok || existing.Badge == "" {
+				outletPromoBadgeMap[*p.OutletID] = badge
+			}
 		}
 	}
 
@@ -197,6 +223,15 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 
 		// Offers
 		meta.HasOffers = hasGlobalOffer || outletOfferSet[o.ID]
+
+		// Promo badges
+		if badge, ok := outletPromoBadgeMap[o.ID]; ok {
+			meta.PromoBadge = badge.Badge
+			meta.PromoText = badge.Text
+		} else if globalPromoBadge != nil {
+			meta.PromoBadge = globalPromoBadge.Badge
+			meta.PromoText = globalPromoBadge.Text
+		}
 
 		results = append(results, meta)
 	}

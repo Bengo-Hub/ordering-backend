@@ -362,6 +362,45 @@ func (s *ProxyService) GetOutlet(ctx context.Context, tenantID, outletID uuid.UU
 	return &summary, nil
 }
 
+// ---------- Item Images ----------
+
+// GetItemImages proxies to inventory-api's item assets endpoint to return
+// a multi-image gallery for the given item SKU.
+func (s *ProxyService) GetItemImages(ctx context.Context, tenantSlug, sku string) ([]ItemImage, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/items/%s/assets", tenantSlug, sku)
+
+	resp, err := s.inventoryClient.ServiceClient().Get(ctx, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("catalog: get item images: %w", err)
+	}
+
+	if !resp.IsSuccess() {
+		// If no assets found, return empty list rather than error
+		return []ItemImage{}, nil
+	}
+
+	var assets []struct {
+		URL          string `json:"url"`
+		Type         string `json:"type"`
+		IsPrimary    bool   `json:"is_primary"`
+		DisplayOrder int    `json:"display_order"`
+	}
+	if err := resp.DecodeJSON(&assets); err != nil {
+		return nil, fmt.Errorf("catalog: decode item images: %w", err)
+	}
+
+	images := make([]ItemImage, len(assets))
+	for i, a := range assets {
+		images[i] = ItemImage{
+			URL:          a.URL,
+			Type:         a.Type,
+			IsPrimary:    a.IsPrimary,
+			DisplayOrder: a.DisplayOrder,
+		}
+	}
+	return images, nil
+}
+
 // ---------- Helpers ----------
 
 func entOutletToSummary(o *ent.Outlet) OutletSummary {

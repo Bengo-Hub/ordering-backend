@@ -46,6 +46,8 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 		catalogRouter.Get("/items", h.ListPublicItems)
 		catalogRouter.Get("/items/{sku}", h.GetPublicItem)
 
+		catalogRouter.Get("/items/{sku}/images", h.GetItemImages)
+
 		// Optional auth for toggling favorites
 		catalogRouter.Group(func(authRouter chi.Router) {
 			authRouter.Use(auth.OptionalAuth)
@@ -208,6 +210,30 @@ func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, categories)
+}
+
+// GetItemImages returns the multi-image gallery for a catalog item by SKU.
+func (h *Handler) GetItemImages(w http.ResponseWriter, r *http.Request) {
+	_, tenantSlug, err := h.resolveTenant(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	sku := chi.URLParam(r, "sku")
+	if sku == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "sku is required")
+		return
+	}
+
+	images, err := h.service.GetItemImages(r.Context(), tenantSlug, sku)
+	if err != nil {
+		h.log.Error("get item images failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, images)
 }
 
 // ToggleFavorite toggles favorite status for a catalog item by SKU.
