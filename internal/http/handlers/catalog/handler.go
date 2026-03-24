@@ -422,6 +422,8 @@ func (h *Handler) AdminListCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 // ListOutlets returns the list of outlets for the tenant (public, no auth).
+// Supports discovery query parameters: sort, lat, lng, category, offers,
+// min_rating, max_delivery_fee, max_delivery_time, pickup, q, page, limit.
 func (h *Handler) ListOutlets(w http.ResponseWriter, r *http.Request) {
 	tenantID, _, err := h.resolveTenant(r)
 	if err != nil {
@@ -429,18 +431,79 @@ func (h *Handler) ListOutlets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := h.service.ListOutlets(r.Context(), tenantID)
-	if err != nil {
-		h.log.Error("list outlets failed", zap.Error(err))
+	q := r.URL.Query()
+
+	// Check if any discovery params are present; if not, fall back to simple list
+	hasDiscovery := q.Get("sort") != "" || q.Get("lat") != "" || q.Get("category") != "" ||
+		q.Get("offers") != "" || q.Get("min_rating") != "" || q.Get("max_delivery_fee") != "" ||
+		q.Get("max_delivery_time") != "" || q.Get("pickup") != "" || q.Get("q") != ""
+
+	if !hasDiscovery {
+		// Simple listing (backward compatible)
+		list, listErr := h.service.ListOutlets(r.Context(), tenantID)
+		if listErr != nil {
+			h.log.Error("list outlets failed", zap.Error(listErr))
+			handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
+		handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
+			Data:  list,
+			Total: len(list),
+			Limit: len(list),
+			Page:  1,
+		})
+		return
+	}
+
+	// Discovery mode
+	params := catalog.OutletListParams{
+		Sort:     q.Get("sort"),
+		Category: q.Get("category"),
+		Offers:   q.Get("offers") == "true",
+		Pickup:   q.Get("pickup") == "true",
+		Query:    q.Get("q"),
+		Page:     handlers.ParseInt(q.Get("page"), 1),
+		Limit:    handlers.ParseInt(q.Get("limit"), 50),
+	}
+
+	if latStr := q.Get("lat"); latStr != "" {
+		if lat, parseErr := strconv.ParseFloat(latStr, 64); parseErr == nil {
+			params.Lat = &lat
+		}
+	}
+	if lngStr := q.Get("lng"); lngStr != "" {
+		if lng, parseErr := strconv.ParseFloat(lngStr, 64); parseErr == nil {
+			params.Lng = &lng
+		}
+	}
+	if v := q.Get("min_rating"); v != "" {
+		if f, parseErr := strconv.ParseFloat(v, 64); parseErr == nil {
+			params.MinRating = &f
+		}
+	}
+	if v := q.Get("max_delivery_fee"); v != "" {
+		if f, parseErr := strconv.ParseFloat(v, 64); parseErr == nil {
+			params.MaxDeliveryFee = &f
+		}
+	}
+	if v := q.Get("max_delivery_time"); v != "" {
+		if n, parseErr := strconv.Atoi(v); parseErr == nil {
+			params.MaxDeliveryTime = &n
+		}
+	}
+
+	results, total, discErr := h.service.ListOutletsDiscovery(r.Context(), tenantID, params)
+	if discErr != nil {
+		h.log.Error("list outlets discovery failed", zap.Error(discErr))
 		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
-		Data:  list,
-		Total: len(list),
-		Limit: len(list),
-		Page:  1,
+		Data:  results,
+		Total: total,
+		Limit: params.Limit,
+		Page:  params.Page,
 	})
 }
 

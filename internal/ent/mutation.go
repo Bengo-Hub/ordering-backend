@@ -25512,35 +25512,36 @@ func (m *OutboxEventMutation) ResetEdge(name string) error {
 // OutletMutation represents an operation that mutates the Outlet nodes in the graph.
 type OutletMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	name          *string
-	slug          *string
-	description   *string
-	address       *string
-	phone         *string
-	email         *string
-	location      *string
-	latitude      *float64
-	addlatitude   *float64
-	longitude     *float64
-	addlongitude  *float64
-	opening_hours *map[string]interface{}
-	image_url     *string
-	use_case      *string
-	status        *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	tenant        *uuid.UUID
-	clearedtenant bool
-	orders        map[uuid.UUID]struct{}
-	removedorders map[uuid.UUID]struct{}
-	clearedorders bool
-	done          bool
-	oldValue      func(context.Context) (*Outlet, error)
-	predicates    []predicate.Outlet
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	name            *string
+	slug            *string
+	description     *string
+	address         *string
+	phone           *string
+	email           *string
+	location        *string
+	latitude        *float64
+	addlatitude     *float64
+	longitude       *float64
+	addlongitude    *float64
+	opening_hours   *map[string]interface{}
+	image_url       *string
+	use_case        *string
+	supports_pickup *bool
+	status          *string
+	created_at      *time.Time
+	updated_at      *time.Time
+	clearedFields   map[string]struct{}
+	tenant          *uuid.UUID
+	clearedtenant   bool
+	orders          map[uuid.UUID]struct{}
+	removedorders   map[uuid.UUID]struct{}
+	clearedorders   bool
+	done            bool
+	oldValue        func(context.Context) (*Outlet, error)
+	predicates      []predicate.Outlet
 }
 
 var _ ent.Mutation = (*OutletMutation)(nil)
@@ -26287,6 +26288,42 @@ func (m *OutletMutation) ResetUseCase() {
 	delete(m.clearedFields, outlet.FieldUseCase)
 }
 
+// SetSupportsPickup sets the "supports_pickup" field.
+func (m *OutletMutation) SetSupportsPickup(b bool) {
+	m.supports_pickup = &b
+}
+
+// SupportsPickup returns the value of the "supports_pickup" field in the mutation.
+func (m *OutletMutation) SupportsPickup() (r bool, exists bool) {
+	v := m.supports_pickup
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSupportsPickup returns the old "supports_pickup" field's value of the Outlet entity.
+// If the Outlet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletMutation) OldSupportsPickup(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSupportsPickup is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSupportsPickup requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSupportsPickup: %w", err)
+	}
+	return oldValue.SupportsPickup, nil
+}
+
+// ResetSupportsPickup resets all changes to the "supports_pickup" field.
+func (m *OutletMutation) ResetSupportsPickup() {
+	m.supports_pickup = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *OutletMutation) SetStatus(s string) {
 	m.status = &s
@@ -26510,7 +26547,7 @@ func (m *OutletMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OutletMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 17)
 	if m.tenant != nil {
 		fields = append(fields, outlet.FieldTenantID)
 	}
@@ -26549,6 +26586,9 @@ func (m *OutletMutation) Fields() []string {
 	}
 	if m.use_case != nil {
 		fields = append(fields, outlet.FieldUseCase)
+	}
+	if m.supports_pickup != nil {
+		fields = append(fields, outlet.FieldSupportsPickup)
 	}
 	if m.status != nil {
 		fields = append(fields, outlet.FieldStatus)
@@ -26593,6 +26633,8 @@ func (m *OutletMutation) Field(name string) (ent.Value, bool) {
 		return m.ImageURL()
 	case outlet.FieldUseCase:
 		return m.UseCase()
+	case outlet.FieldSupportsPickup:
+		return m.SupportsPickup()
 	case outlet.FieldStatus:
 		return m.Status()
 	case outlet.FieldCreatedAt:
@@ -26634,6 +26676,8 @@ func (m *OutletMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldImageURL(ctx)
 	case outlet.FieldUseCase:
 		return m.OldUseCase(ctx)
+	case outlet.FieldSupportsPickup:
+		return m.OldSupportsPickup(ctx)
 	case outlet.FieldStatus:
 		return m.OldStatus(ctx)
 	case outlet.FieldCreatedAt:
@@ -26739,6 +26783,13 @@ func (m *OutletMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUseCase(v)
+		return nil
+	case outlet.FieldSupportsPickup:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSupportsPickup(v)
 		return nil
 	case outlet.FieldStatus:
 		v, ok := value.(string)
@@ -26938,6 +26989,9 @@ func (m *OutletMutation) ResetField(name string) error {
 		return nil
 	case outlet.FieldUseCase:
 		m.ResetUseCase()
+		return nil
+	case outlet.FieldSupportsPickup:
+		m.ResetSupportsPickup()
 		return nil
 	case outlet.FieldStatus:
 		m.ResetStatus()

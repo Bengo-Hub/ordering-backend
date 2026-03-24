@@ -46,6 +46,8 @@ type Outlet struct {
 	ImageURL string `json:"image_url,omitempty"`
 	// Specific use case for this outlet (hospitality, retail, etc.)
 	UseCase string `json:"use_case,omitempty"`
+	// Whether the outlet supports customer pickup
+	SupportsPickup bool `json:"supports_pickup,omitempty"`
 	// active | inactive | closed
 	Status string `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -96,6 +98,8 @@ func (*Outlet) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case outlet.FieldOpeningHours:
 			values[i] = new([]byte)
+		case outlet.FieldSupportsPickup:
+			values[i] = new(sql.NullBool)
 		case outlet.FieldLatitude, outlet.FieldLongitude:
 			values[i] = new(sql.NullFloat64)
 		case outlet.FieldName, outlet.FieldSlug, outlet.FieldDescription, outlet.FieldAddress, outlet.FieldPhone, outlet.FieldEmail, outlet.FieldLocation, outlet.FieldImageURL, outlet.FieldUseCase, outlet.FieldStatus:
@@ -207,6 +211,12 @@ func (_m *Outlet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UseCase = value.String
 			}
+		case outlet.FieldSupportsPickup:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field supports_pickup", values[i])
+			} else if value.Valid {
+				_m.SupportsPickup = value.Bool
+			}
 		case outlet.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -313,6 +323,9 @@ func (_m *Outlet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("use_case=")
 	builder.WriteString(_m.UseCase)
+	builder.WriteString(", ")
+	builder.WriteString("supports_pickup=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SupportsPickup))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

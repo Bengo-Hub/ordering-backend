@@ -269,6 +269,18 @@ func New(ctx context.Context) (*App, error) {
 			log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
 		}
 
+		// Subscribe to inventory stock-out and item-updated events
+		stockEventHandler := catalog.NewStockEventHandler(ormClient, log)
+		if err := stockEventHandler.SubscribeToStockEvents(natsConn); err != nil {
+			log.Warn("app: failed to subscribe to stock events", zap.Error(err))
+		}
+
+		// Subscribe to logistics task events for order auto-completion and assignment
+		logisticsEventHandler := fulfilment.NewLogisticsEventHandler(fulfilmentRepo, orderSvc, orderingRepo, eventPublisher, log)
+		if err := logisticsEventHandler.SubscribeToLogisticsEvents(natsConn); err != nil {
+			log.Warn("app: failed to subscribe to logistics events", zap.Error(err))
+		}
+
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
 		if cfg.Events.OutboxEnabled {
 			outboxRepo := eventslib.NewSQLOutboxRepository(sqlDB)

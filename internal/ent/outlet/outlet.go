@@ -41,6 +41,8 @@ const (
 	FieldImageURL = "image_url"
 	// FieldUseCase holds the string denoting the use_case field in the database.
 	FieldUseCase = "use_case"
+	// FieldSupportsPickup holds the string denoting the supports_pickup field in the database.
+	FieldSupportsPickup = "supports_pickup"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -85,6 +87,7 @@ var Columns = []string{
 	FieldOpeningHours,
 	FieldImageURL,
 	FieldUseCase,
+	FieldSupportsPickup,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -107,6 +110,8 @@ var (
 	SlugValidator func(string) error
 	// DefaultImageURL holds the default value on creation for the "image_url" field.
 	DefaultImageURL string
+	// DefaultSupportsPickup holds the default value on creation for the "supports_pickup" field.
+	DefaultSupportsPickup bool
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -185,6 +190,11 @@ func ByImageURL(opts ...sql.OrderTermOption) OrderOption {
 // ByUseCase orders the results by the use_case field.
 func ByUseCase(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUseCase, opts...).ToFunc()
+}
+
+// BySupportsPickup orders the results by the supports_pickup field.
+func BySupportsPickup(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSupportsPickup, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

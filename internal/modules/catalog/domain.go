@@ -65,6 +65,7 @@ type OutletSummary struct {
 	ImageURL     string         `json:"imageUrl,omitempty"`
 	Status       string         `json:"status,omitempty"`
 	UseCase      string         `json:"useCase,omitempty"`
+	IsOpen       bool           `json:"isOpen"`
 }
 
 // CatalogFilter defines filter options for listing merged catalog items.
