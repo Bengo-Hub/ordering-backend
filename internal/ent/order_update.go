@@ -374,6 +374,66 @@ func (_u *OrderUpdate) ClearReservationID() *OrderUpdate {
 	return _u
 }
 
+// SetAppointmentID sets the "appointment_id" field.
+func (_u *OrderUpdate) SetAppointmentID(v uuid.UUID) *OrderUpdate {
+	_u.mutation.SetAppointmentID(v)
+	return _u
+}
+
+// SetNillableAppointmentID sets the "appointment_id" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableAppointmentID(v *uuid.UUID) *OrderUpdate {
+	if v != nil {
+		_u.SetAppointmentID(*v)
+	}
+	return _u
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (_u *OrderUpdate) ClearAppointmentID() *OrderUpdate {
+	_u.mutation.ClearAppointmentID()
+	return _u
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (_u *OrderUpdate) SetStaffPreferenceID(v uuid.UUID) *OrderUpdate {
+	_u.mutation.SetStaffPreferenceID(v)
+	return _u
+}
+
+// SetNillableStaffPreferenceID sets the "staff_preference_id" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableStaffPreferenceID(v *uuid.UUID) *OrderUpdate {
+	if v != nil {
+		_u.SetStaffPreferenceID(*v)
+	}
+	return _u
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (_u *OrderUpdate) ClearStaffPreferenceID() *OrderUpdate {
+	_u.mutation.ClearStaffPreferenceID()
+	return _u
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (_u *OrderUpdate) SetPreferredCarrier(v string) *OrderUpdate {
+	_u.mutation.SetPreferredCarrier(v)
+	return _u
+}
+
+// SetNillablePreferredCarrier sets the "preferred_carrier" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillablePreferredCarrier(v *string) *OrderUpdate {
+	if v != nil {
+		_u.SetPreferredCarrier(*v)
+	}
+	return _u
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (_u *OrderUpdate) ClearPreferredCarrier() *OrderUpdate {
+	_u.mutation.ClearPreferredCarrier()
+	return _u
+}
+
 // SetTipTotal sets the "tip_total" field.
 func (_u *OrderUpdate) SetTipTotal(v float64) *OrderUpdate {
 	_u.mutation.ResetTipTotal()
@@ -1131,6 +1191,24 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ReservationIDCleared() {
 		_spec.ClearField(order.FieldReservationID, field.TypeUUID)
 	}
+	if value, ok := _u.mutation.AppointmentID(); ok {
+		_spec.SetField(order.FieldAppointmentID, field.TypeUUID, value)
+	}
+	if _u.mutation.AppointmentIDCleared() {
+		_spec.ClearField(order.FieldAppointmentID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.StaffPreferenceID(); ok {
+		_spec.SetField(order.FieldStaffPreferenceID, field.TypeUUID, value)
+	}
+	if _u.mutation.StaffPreferenceIDCleared() {
+		_spec.ClearField(order.FieldStaffPreferenceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PreferredCarrier(); ok {
+		_spec.SetField(order.FieldPreferredCarrier, field.TypeString, value)
+	}
+	if _u.mutation.PreferredCarrierCleared() {
+		_spec.ClearField(order.FieldPreferredCarrier, field.TypeString)
+	}
 	if value, ok := _u.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)
 	}
@@ -1832,6 +1910,66 @@ func (_u *OrderUpdateOne) SetNillableReservationID(v *uuid.UUID) *OrderUpdateOne
 // ClearReservationID clears the value of the "reservation_id" field.
 func (_u *OrderUpdateOne) ClearReservationID() *OrderUpdateOne {
 	_u.mutation.ClearReservationID()
+	return _u
+}
+
+// SetAppointmentID sets the "appointment_id" field.
+func (_u *OrderUpdateOne) SetAppointmentID(v uuid.UUID) *OrderUpdateOne {
+	_u.mutation.SetAppointmentID(v)
+	return _u
+}
+
+// SetNillableAppointmentID sets the "appointment_id" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableAppointmentID(v *uuid.UUID) *OrderUpdateOne {
+	if v != nil {
+		_u.SetAppointmentID(*v)
+	}
+	return _u
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (_u *OrderUpdateOne) ClearAppointmentID() *OrderUpdateOne {
+	_u.mutation.ClearAppointmentID()
+	return _u
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (_u *OrderUpdateOne) SetStaffPreferenceID(v uuid.UUID) *OrderUpdateOne {
+	_u.mutation.SetStaffPreferenceID(v)
+	return _u
+}
+
+// SetNillableStaffPreferenceID sets the "staff_preference_id" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableStaffPreferenceID(v *uuid.UUID) *OrderUpdateOne {
+	if v != nil {
+		_u.SetStaffPreferenceID(*v)
+	}
+	return _u
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (_u *OrderUpdateOne) ClearStaffPreferenceID() *OrderUpdateOne {
+	_u.mutation.ClearStaffPreferenceID()
+	return _u
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (_u *OrderUpdateOne) SetPreferredCarrier(v string) *OrderUpdateOne {
+	_u.mutation.SetPreferredCarrier(v)
+	return _u
+}
+
+// SetNillablePreferredCarrier sets the "preferred_carrier" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillablePreferredCarrier(v *string) *OrderUpdateOne {
+	if v != nil {
+		_u.SetPreferredCarrier(*v)
+	}
+	return _u
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (_u *OrderUpdateOne) ClearPreferredCarrier() *OrderUpdateOne {
+	_u.mutation.ClearPreferredCarrier()
 	return _u
 }
 
@@ -2621,6 +2759,24 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if _u.mutation.ReservationIDCleared() {
 		_spec.ClearField(order.FieldReservationID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.AppointmentID(); ok {
+		_spec.SetField(order.FieldAppointmentID, field.TypeUUID, value)
+	}
+	if _u.mutation.AppointmentIDCleared() {
+		_spec.ClearField(order.FieldAppointmentID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.StaffPreferenceID(); ok {
+		_spec.SetField(order.FieldStaffPreferenceID, field.TypeUUID, value)
+	}
+	if _u.mutation.StaffPreferenceIDCleared() {
+		_spec.ClearField(order.FieldStaffPreferenceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PreferredCarrier(); ok {
+		_spec.SetField(order.FieldPreferredCarrier, field.TypeString, value)
+	}
+	if _u.mutation.PreferredCarrierCleared() {
+		_spec.ClearField(order.FieldPreferredCarrier, field.TypeString)
 	}
 	if value, ok := _u.mutation.TipTotal(); ok {
 		_spec.SetField(order.FieldTipTotal, field.TypeFloat64, value)

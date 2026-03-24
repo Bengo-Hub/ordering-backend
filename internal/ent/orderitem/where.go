@@ -101,6 +101,21 @@ func Notes(v string) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldEQ(FieldNotes, v))
 }
 
+// ItemType applies equality check predicate on the "item_type" field. It's identical to ItemTypeEQ.
+func ItemType(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldItemType, v))
+}
+
+// ServiceStartTime applies equality check predicate on the "service_start_time" field. It's identical to ServiceStartTimeEQ.
+func ServiceStartTime(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldServiceStartTime, v))
+}
+
+// DurationMinutes applies equality check predicate on the "duration_minutes" field. It's identical to DurationMinutesEQ.
+func DurationMinutes(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldDurationMinutes, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldEQ(FieldCreatedAt, v))
@@ -584,6 +599,181 @@ func ModifiersIsNil() predicate.OrderItem {
 // ModifiersNotNil applies the NotNil predicate on the "modifiers" field.
 func ModifiersNotNil() predicate.OrderItem {
 	return predicate.OrderItem(sql.FieldNotNull(FieldModifiers))
+}
+
+// ItemTypeEQ applies the EQ predicate on the "item_type" field.
+func ItemTypeEQ(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldItemType, v))
+}
+
+// ItemTypeNEQ applies the NEQ predicate on the "item_type" field.
+func ItemTypeNEQ(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNEQ(FieldItemType, v))
+}
+
+// ItemTypeIn applies the In predicate on the "item_type" field.
+func ItemTypeIn(vs ...string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIn(FieldItemType, vs...))
+}
+
+// ItemTypeNotIn applies the NotIn predicate on the "item_type" field.
+func ItemTypeNotIn(vs ...string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotIn(FieldItemType, vs...))
+}
+
+// ItemTypeGT applies the GT predicate on the "item_type" field.
+func ItemTypeGT(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGT(FieldItemType, v))
+}
+
+// ItemTypeGTE applies the GTE predicate on the "item_type" field.
+func ItemTypeGTE(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGTE(FieldItemType, v))
+}
+
+// ItemTypeLT applies the LT predicate on the "item_type" field.
+func ItemTypeLT(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLT(FieldItemType, v))
+}
+
+// ItemTypeLTE applies the LTE predicate on the "item_type" field.
+func ItemTypeLTE(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLTE(FieldItemType, v))
+}
+
+// ItemTypeContains applies the Contains predicate on the "item_type" field.
+func ItemTypeContains(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldContains(FieldItemType, v))
+}
+
+// ItemTypeHasPrefix applies the HasPrefix predicate on the "item_type" field.
+func ItemTypeHasPrefix(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldHasPrefix(FieldItemType, v))
+}
+
+// ItemTypeHasSuffix applies the HasSuffix predicate on the "item_type" field.
+func ItemTypeHasSuffix(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldHasSuffix(FieldItemType, v))
+}
+
+// ItemTypeIsNil applies the IsNil predicate on the "item_type" field.
+func ItemTypeIsNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIsNull(FieldItemType))
+}
+
+// ItemTypeNotNil applies the NotNil predicate on the "item_type" field.
+func ItemTypeNotNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotNull(FieldItemType))
+}
+
+// ItemTypeEqualFold applies the EqualFold predicate on the "item_type" field.
+func ItemTypeEqualFold(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEqualFold(FieldItemType, v))
+}
+
+// ItemTypeContainsFold applies the ContainsFold predicate on the "item_type" field.
+func ItemTypeContainsFold(v string) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldContainsFold(FieldItemType, v))
+}
+
+// ServiceStartTimeEQ applies the EQ predicate on the "service_start_time" field.
+func ServiceStartTimeEQ(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeNEQ applies the NEQ predicate on the "service_start_time" field.
+func ServiceStartTimeNEQ(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNEQ(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeIn applies the In predicate on the "service_start_time" field.
+func ServiceStartTimeIn(vs ...time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIn(FieldServiceStartTime, vs...))
+}
+
+// ServiceStartTimeNotIn applies the NotIn predicate on the "service_start_time" field.
+func ServiceStartTimeNotIn(vs ...time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotIn(FieldServiceStartTime, vs...))
+}
+
+// ServiceStartTimeGT applies the GT predicate on the "service_start_time" field.
+func ServiceStartTimeGT(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGT(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeGTE applies the GTE predicate on the "service_start_time" field.
+func ServiceStartTimeGTE(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGTE(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeLT applies the LT predicate on the "service_start_time" field.
+func ServiceStartTimeLT(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLT(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeLTE applies the LTE predicate on the "service_start_time" field.
+func ServiceStartTimeLTE(v time.Time) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLTE(FieldServiceStartTime, v))
+}
+
+// ServiceStartTimeIsNil applies the IsNil predicate on the "service_start_time" field.
+func ServiceStartTimeIsNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIsNull(FieldServiceStartTime))
+}
+
+// ServiceStartTimeNotNil applies the NotNil predicate on the "service_start_time" field.
+func ServiceStartTimeNotNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotNull(FieldServiceStartTime))
+}
+
+// DurationMinutesEQ applies the EQ predicate on the "duration_minutes" field.
+func DurationMinutesEQ(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldEQ(FieldDurationMinutes, v))
+}
+
+// DurationMinutesNEQ applies the NEQ predicate on the "duration_minutes" field.
+func DurationMinutesNEQ(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNEQ(FieldDurationMinutes, v))
+}
+
+// DurationMinutesIn applies the In predicate on the "duration_minutes" field.
+func DurationMinutesIn(vs ...int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIn(FieldDurationMinutes, vs...))
+}
+
+// DurationMinutesNotIn applies the NotIn predicate on the "duration_minutes" field.
+func DurationMinutesNotIn(vs ...int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotIn(FieldDurationMinutes, vs...))
+}
+
+// DurationMinutesGT applies the GT predicate on the "duration_minutes" field.
+func DurationMinutesGT(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGT(FieldDurationMinutes, v))
+}
+
+// DurationMinutesGTE applies the GTE predicate on the "duration_minutes" field.
+func DurationMinutesGTE(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldGTE(FieldDurationMinutes, v))
+}
+
+// DurationMinutesLT applies the LT predicate on the "duration_minutes" field.
+func DurationMinutesLT(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLT(FieldDurationMinutes, v))
+}
+
+// DurationMinutesLTE applies the LTE predicate on the "duration_minutes" field.
+func DurationMinutesLTE(v int) predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldLTE(FieldDurationMinutes, v))
+}
+
+// DurationMinutesIsNil applies the IsNil predicate on the "duration_minutes" field.
+func DurationMinutesIsNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldIsNull(FieldDurationMinutes))
+}
+
+// DurationMinutesNotNil applies the NotNil predicate on the "duration_minutes" field.
+func DurationMinutesNotNil() predicate.OrderItem {
+	return predicate.OrderItem(sql.FieldNotNull(FieldDurationMinutes))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

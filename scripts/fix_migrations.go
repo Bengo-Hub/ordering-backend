@@ -76,7 +76,7 @@ func main() {
 	}
 	// Create a placeholder .sql file and atlas.sum so go:embed migrations/*.sql and atlas.sum doesn't fail
 	os.WriteFile(filepath.Join(migrationsDir, "00000000000000_placeholder.sql"), []byte("-- placeholder\n"), 0644)
-	os.WriteFile(filepath.Join(migrationsDir, "atlas.sum"), []byte("h1:dummy\n"), 0644)
+	writePlaceholderSum(migrationsDir)
 	log.Println("✓ Migrations directory cleaned and placeholders created")
 
 	// 3. Generate fresh initial migration

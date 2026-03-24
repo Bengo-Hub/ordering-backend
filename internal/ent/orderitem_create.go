@@ -109,6 +109,48 @@ func (_c *OrderItemCreate) SetModifiers(v []map[string]interface{}) *OrderItemCr
 	return _c
 }
 
+// SetItemType sets the "item_type" field.
+func (_c *OrderItemCreate) SetItemType(v string) *OrderItemCreate {
+	_c.mutation.SetItemType(v)
+	return _c
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_c *OrderItemCreate) SetNillableItemType(v *string) *OrderItemCreate {
+	if v != nil {
+		_c.SetItemType(*v)
+	}
+	return _c
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (_c *OrderItemCreate) SetServiceStartTime(v time.Time) *OrderItemCreate {
+	_c.mutation.SetServiceStartTime(v)
+	return _c
+}
+
+// SetNillableServiceStartTime sets the "service_start_time" field if the given value is not nil.
+func (_c *OrderItemCreate) SetNillableServiceStartTime(v *time.Time) *OrderItemCreate {
+	if v != nil {
+		_c.SetServiceStartTime(*v)
+	}
+	return _c
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (_c *OrderItemCreate) SetDurationMinutes(v int) *OrderItemCreate {
+	_c.mutation.SetDurationMinutes(v)
+	return _c
+}
+
+// SetNillableDurationMinutes sets the "duration_minutes" field if the given value is not nil.
+func (_c *OrderItemCreate) SetNillableDurationMinutes(v *int) *OrderItemCreate {
+	if v != nil {
+		_c.SetDurationMinutes(*v)
+	}
+	return _c
+}
+
 // SetMetadata sets the "metadata" field.
 func (_c *OrderItemCreate) SetMetadata(v map[string]interface{}) *OrderItemCreate {
 	_c.mutation.SetMetadata(v)
@@ -315,6 +357,18 @@ func (_c *OrderItemCreate) createSpec() (*OrderItem, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Modifiers(); ok {
 		_spec.SetField(orderitem.FieldModifiers, field.TypeJSON, value)
 		_node.Modifiers = value
+	}
+	if value, ok := _c.mutation.ItemType(); ok {
+		_spec.SetField(orderitem.FieldItemType, field.TypeString, value)
+		_node.ItemType = value
+	}
+	if value, ok := _c.mutation.ServiceStartTime(); ok {
+		_spec.SetField(orderitem.FieldServiceStartTime, field.TypeTime, value)
+		_node.ServiceStartTime = &value
+	}
+	if value, ok := _c.mutation.DurationMinutes(); ok {
+		_spec.SetField(orderitem.FieldDurationMinutes, field.TypeInt, value)
+		_node.DurationMinutes = &value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(orderitem.FieldMetadata, field.TypeJSON, value)
@@ -552,6 +606,66 @@ func (u *OrderItemUpsert) UpdateModifiers() *OrderItemUpsert {
 // ClearModifiers clears the value of the "modifiers" field.
 func (u *OrderItemUpsert) ClearModifiers() *OrderItemUpsert {
 	u.SetNull(orderitem.FieldModifiers)
+	return u
+}
+
+// SetItemType sets the "item_type" field.
+func (u *OrderItemUpsert) SetItemType(v string) *OrderItemUpsert {
+	u.Set(orderitem.FieldItemType, v)
+	return u
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *OrderItemUpsert) UpdateItemType() *OrderItemUpsert {
+	u.SetExcluded(orderitem.FieldItemType)
+	return u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *OrderItemUpsert) ClearItemType() *OrderItemUpsert {
+	u.SetNull(orderitem.FieldItemType)
+	return u
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (u *OrderItemUpsert) SetServiceStartTime(v time.Time) *OrderItemUpsert {
+	u.Set(orderitem.FieldServiceStartTime, v)
+	return u
+}
+
+// UpdateServiceStartTime sets the "service_start_time" field to the value that was provided on create.
+func (u *OrderItemUpsert) UpdateServiceStartTime() *OrderItemUpsert {
+	u.SetExcluded(orderitem.FieldServiceStartTime)
+	return u
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (u *OrderItemUpsert) ClearServiceStartTime() *OrderItemUpsert {
+	u.SetNull(orderitem.FieldServiceStartTime)
+	return u
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (u *OrderItemUpsert) SetDurationMinutes(v int) *OrderItemUpsert {
+	u.Set(orderitem.FieldDurationMinutes, v)
+	return u
+}
+
+// UpdateDurationMinutes sets the "duration_minutes" field to the value that was provided on create.
+func (u *OrderItemUpsert) UpdateDurationMinutes() *OrderItemUpsert {
+	u.SetExcluded(orderitem.FieldDurationMinutes)
+	return u
+}
+
+// AddDurationMinutes adds v to the "duration_minutes" field.
+func (u *OrderItemUpsert) AddDurationMinutes(v int) *OrderItemUpsert {
+	u.Add(orderitem.FieldDurationMinutes, v)
+	return u
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (u *OrderItemUpsert) ClearDurationMinutes() *OrderItemUpsert {
+	u.SetNull(orderitem.FieldDurationMinutes)
 	return u
 }
 
@@ -810,6 +924,76 @@ func (u *OrderItemUpsertOne) UpdateModifiers() *OrderItemUpsertOne {
 func (u *OrderItemUpsertOne) ClearModifiers() *OrderItemUpsertOne {
 	return u.Update(func(s *OrderItemUpsert) {
 		s.ClearModifiers()
+	})
+}
+
+// SetItemType sets the "item_type" field.
+func (u *OrderItemUpsertOne) SetItemType(v string) *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetItemType(v)
+	})
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *OrderItemUpsertOne) UpdateItemType() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateItemType()
+	})
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *OrderItemUpsertOne) ClearItemType() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearItemType()
+	})
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (u *OrderItemUpsertOne) SetServiceStartTime(v time.Time) *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetServiceStartTime(v)
+	})
+}
+
+// UpdateServiceStartTime sets the "service_start_time" field to the value that was provided on create.
+func (u *OrderItemUpsertOne) UpdateServiceStartTime() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateServiceStartTime()
+	})
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (u *OrderItemUpsertOne) ClearServiceStartTime() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearServiceStartTime()
+	})
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (u *OrderItemUpsertOne) SetDurationMinutes(v int) *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetDurationMinutes(v)
+	})
+}
+
+// AddDurationMinutes adds v to the "duration_minutes" field.
+func (u *OrderItemUpsertOne) AddDurationMinutes(v int) *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.AddDurationMinutes(v)
+	})
+}
+
+// UpdateDurationMinutes sets the "duration_minutes" field to the value that was provided on create.
+func (u *OrderItemUpsertOne) UpdateDurationMinutes() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateDurationMinutes()
+	})
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (u *OrderItemUpsertOne) ClearDurationMinutes() *OrderItemUpsertOne {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearDurationMinutes()
 	})
 }
 
@@ -1238,6 +1422,76 @@ func (u *OrderItemUpsertBulk) UpdateModifiers() *OrderItemUpsertBulk {
 func (u *OrderItemUpsertBulk) ClearModifiers() *OrderItemUpsertBulk {
 	return u.Update(func(s *OrderItemUpsert) {
 		s.ClearModifiers()
+	})
+}
+
+// SetItemType sets the "item_type" field.
+func (u *OrderItemUpsertBulk) SetItemType(v string) *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetItemType(v)
+	})
+}
+
+// UpdateItemType sets the "item_type" field to the value that was provided on create.
+func (u *OrderItemUpsertBulk) UpdateItemType() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateItemType()
+	})
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (u *OrderItemUpsertBulk) ClearItemType() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearItemType()
+	})
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (u *OrderItemUpsertBulk) SetServiceStartTime(v time.Time) *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetServiceStartTime(v)
+	})
+}
+
+// UpdateServiceStartTime sets the "service_start_time" field to the value that was provided on create.
+func (u *OrderItemUpsertBulk) UpdateServiceStartTime() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateServiceStartTime()
+	})
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (u *OrderItemUpsertBulk) ClearServiceStartTime() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearServiceStartTime()
+	})
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (u *OrderItemUpsertBulk) SetDurationMinutes(v int) *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.SetDurationMinutes(v)
+	})
+}
+
+// AddDurationMinutes adds v to the "duration_minutes" field.
+func (u *OrderItemUpsertBulk) AddDurationMinutes(v int) *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.AddDurationMinutes(v)
+	})
+}
+
+// UpdateDurationMinutes sets the "duration_minutes" field to the value that was provided on create.
+func (u *OrderItemUpsertBulk) UpdateDurationMinutes() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.UpdateDurationMinutes()
+	})
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (u *OrderItemUpsertBulk) ClearDurationMinutes() *OrderItemUpsertBulk {
+	return u.Update(func(s *OrderItemUpsert) {
+		s.ClearDurationMinutes()
 	})
 }
 

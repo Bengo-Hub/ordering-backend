@@ -54,6 +54,12 @@ const (
 	FieldSmallOrderFee = "small_order_fee"
 	// FieldReservationID holds the string denoting the reservation_id field in the database.
 	FieldReservationID = "reservation_id"
+	// FieldAppointmentID holds the string denoting the appointment_id field in the database.
+	FieldAppointmentID = "appointment_id"
+	// FieldStaffPreferenceID holds the string denoting the staff_preference_id field in the database.
+	FieldStaffPreferenceID = "staff_preference_id"
+	// FieldPreferredCarrier holds the string denoting the preferred_carrier field in the database.
+	FieldPreferredCarrier = "preferred_carrier"
 	// FieldTipTotal holds the string denoting the tip_total field in the database.
 	FieldTipTotal = "tip_total"
 	// FieldGrandTotal holds the string denoting the grand_total field in the database.
@@ -180,6 +186,9 @@ var Columns = []string{
 	FieldServiceFee,
 	FieldSmallOrderFee,
 	FieldReservationID,
+	FieldAppointmentID,
+	FieldStaffPreferenceID,
+	FieldPreferredCarrier,
 	FieldTipTotal,
 	FieldGrandTotal,
 	FieldLoyaltyPointsEarned,
@@ -477,6 +486,21 @@ func BySmallOrderFee(opts ...sql.OrderTermOption) OrderOption {
 // ByReservationID orders the results by the reservation_id field.
 func ByReservationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReservationID, opts...).ToFunc()
+}
+
+// ByAppointmentID orders the results by the appointment_id field.
+func ByAppointmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAppointmentID, opts...).ToFunc()
+}
+
+// ByStaffPreferenceID orders the results by the staff_preference_id field.
+func ByStaffPreferenceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStaffPreferenceID, opts...).ToFunc()
+}
+
+// ByPreferredCarrier orders the results by the preferred_carrier field.
+func ByPreferredCarrier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreferredCarrier, opts...).ToFunc()
 }
 
 // ByTipTotal orders the results by the tip_total field.

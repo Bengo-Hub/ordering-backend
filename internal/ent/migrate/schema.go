@@ -174,6 +174,9 @@ var (
 		{Name: "display_section", Type: field.TypeString, Size: 50, Default: "default"},
 		{Name: "packaging_fee", Type: field.TypeFloat64, Default: 0},
 		{Name: "service_fee_percent", Type: field.TypeFloat64, Default: 0},
+		{Name: "requires_age_verification", Type: field.TypeBool, Default: false},
+		{Name: "item_type", Type: field.TypeString, Nullable: true},
+		{Name: "variant_options", Type: field.TypeJSON, Nullable: true},
 		{Name: "image_url_override", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -710,6 +713,9 @@ var (
 		{Name: "service_fee", Type: field.TypeFloat64, Default: 0},
 		{Name: "small_order_fee", Type: field.TypeFloat64, Default: 0},
 		{Name: "reservation_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "appointment_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "staff_preference_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "preferred_carrier", Type: field.TypeString, Nullable: true},
 		{Name: "tip_total", Type: field.TypeFloat64, Default: 0},
 		{Name: "grand_total", Type: field.TypeFloat64},
 		{Name: "loyalty_points_earned", Type: field.TypeInt, Default: 0},
@@ -744,19 +750,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_customer_addresses_orders",
-				Columns:    []*schema.Column{OrdersColumns[40]},
+				Columns:    []*schema.Column{OrdersColumns[43]},
 				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "orders_outlets_orders",
-				Columns:    []*schema.Column{OrdersColumns[41]},
+				Columns:    []*schema.Column{OrdersColumns[44]},
 				RefColumns: []*schema.Column{OutletsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[42]},
+				Columns:    []*schema.Column{OrdersColumns[45]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -765,12 +771,12 @@ var (
 			{
 				Name:    "order_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[41]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[44]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[42]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[45]},
 			},
 			{
 				Name:    "order_tenant_id_status",
@@ -785,17 +791,17 @@ var (
 			{
 				Name:    "order_tenant_id_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4], OrdersColumns[38]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4], OrdersColumns[41]},
 			},
 			{
 				Name:    "order_tenant_id_outlet_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[41], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[44], OrdersColumns[4]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[42], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[45], OrdersColumns[4]},
 			},
 			{
 				Name:    "order_order_number",
@@ -805,7 +811,7 @@ var (
 			{
 				Name:    "order_idempotency_key",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[26]},
+				Columns: []*schema.Column{OrdersColumns[29]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "idempotency_key IS NOT NULL",
 				},
@@ -813,32 +819,32 @@ var (
 			{
 				Name:    "order_placed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[27]},
+				Columns: []*schema.Column{OrdersColumns[30]},
 			},
 			{
 				Name:    "order_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[38]},
+				Columns: []*schema.Column{OrdersColumns[41]},
 			},
 			{
 				Name:    "order_completed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[31]},
+				Columns: []*schema.Column{OrdersColumns[34]},
 			},
 			{
 				Name:    "order_delivered_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[30]},
+				Columns: []*schema.Column{OrdersColumns[33]},
 			},
 			{
 				Name:    "order_delivery_address_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[40]},
+				Columns: []*schema.Column{OrdersColumns[43]},
 			},
 			{
 				Name:    "order_channel",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[24]},
+				Columns: []*schema.Column{OrdersColumns[27]},
 			},
 			{
 				Name:    "order_fulfillment_type",
@@ -972,6 +978,9 @@ var (
 		{Name: "total_price", Type: field.TypeFloat64},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "modifiers", Type: field.TypeJSON, Nullable: true},
+		{Name: "item_type", Type: field.TypeString, Nullable: true},
+		{Name: "service_start_time", Type: field.TypeTime, Nullable: true},
+		{Name: "duration_minutes", Type: field.TypeInt, Nullable: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "order_id", Type: field.TypeUUID},
@@ -984,7 +993,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "order_items_orders_items",
-				Columns:    []*schema.Column{OrderItemsColumns[12]},
+				Columns:    []*schema.Column{OrderItemsColumns[15]},
 				RefColumns: []*schema.Column{OrdersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -993,7 +1002,7 @@ var (
 			{
 				Name:    "orderitem_order_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrderItemsColumns[12]},
+				Columns: []*schema.Column{OrderItemsColumns[15]},
 			},
 			{
 				Name:    "orderitem_inventory_sku",

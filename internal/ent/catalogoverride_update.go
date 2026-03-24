@@ -238,6 +238,52 @@ func (_u *CatalogOverrideUpdate) AddServiceFeePercent(v float64) *CatalogOverrid
 	return _u
 }
 
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (_u *CatalogOverrideUpdate) SetRequiresAgeVerification(v bool) *CatalogOverrideUpdate {
+	_u.mutation.SetRequiresAgeVerification(v)
+	return _u
+}
+
+// SetNillableRequiresAgeVerification sets the "requires_age_verification" field if the given value is not nil.
+func (_u *CatalogOverrideUpdate) SetNillableRequiresAgeVerification(v *bool) *CatalogOverrideUpdate {
+	if v != nil {
+		_u.SetRequiresAgeVerification(*v)
+	}
+	return _u
+}
+
+// SetItemType sets the "item_type" field.
+func (_u *CatalogOverrideUpdate) SetItemType(v string) *CatalogOverrideUpdate {
+	_u.mutation.SetItemType(v)
+	return _u
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_u *CatalogOverrideUpdate) SetNillableItemType(v *string) *CatalogOverrideUpdate {
+	if v != nil {
+		_u.SetItemType(*v)
+	}
+	return _u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (_u *CatalogOverrideUpdate) ClearItemType() *CatalogOverrideUpdate {
+	_u.mutation.ClearItemType()
+	return _u
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (_u *CatalogOverrideUpdate) SetVariantOptions(v map[string]string) *CatalogOverrideUpdate {
+	_u.mutation.SetVariantOptions(v)
+	return _u
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (_u *CatalogOverrideUpdate) ClearVariantOptions() *CatalogOverrideUpdate {
+	_u.mutation.ClearVariantOptions()
+	return _u
+}
+
 // SetImageURLOverride sets the "image_url_override" field.
 func (_u *CatalogOverrideUpdate) SetImageURLOverride(v string) *CatalogOverrideUpdate {
 	_u.mutation.SetImageURLOverride(v)
@@ -395,6 +441,21 @@ func (_u *CatalogOverrideUpdate) sqlSave(ctx context.Context) (_node int, err er
 	}
 	if value, ok := _u.mutation.AddedServiceFeePercent(); ok {
 		_spec.AddField(catalogoverride.FieldServiceFeePercent, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.RequiresAgeVerification(); ok {
+		_spec.SetField(catalogoverride.FieldRequiresAgeVerification, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ItemType(); ok {
+		_spec.SetField(catalogoverride.FieldItemType, field.TypeString, value)
+	}
+	if _u.mutation.ItemTypeCleared() {
+		_spec.ClearField(catalogoverride.FieldItemType, field.TypeString)
+	}
+	if value, ok := _u.mutation.VariantOptions(); ok {
+		_spec.SetField(catalogoverride.FieldVariantOptions, field.TypeJSON, value)
+	}
+	if _u.mutation.VariantOptionsCleared() {
+		_spec.ClearField(catalogoverride.FieldVariantOptions, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.ImageURLOverride(); ok {
 		_spec.SetField(catalogoverride.FieldImageURLOverride, field.TypeString, value)
@@ -634,6 +695,52 @@ func (_u *CatalogOverrideUpdateOne) AddServiceFeePercent(v float64) *CatalogOver
 	return _u
 }
 
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (_u *CatalogOverrideUpdateOne) SetRequiresAgeVerification(v bool) *CatalogOverrideUpdateOne {
+	_u.mutation.SetRequiresAgeVerification(v)
+	return _u
+}
+
+// SetNillableRequiresAgeVerification sets the "requires_age_verification" field if the given value is not nil.
+func (_u *CatalogOverrideUpdateOne) SetNillableRequiresAgeVerification(v *bool) *CatalogOverrideUpdateOne {
+	if v != nil {
+		_u.SetRequiresAgeVerification(*v)
+	}
+	return _u
+}
+
+// SetItemType sets the "item_type" field.
+func (_u *CatalogOverrideUpdateOne) SetItemType(v string) *CatalogOverrideUpdateOne {
+	_u.mutation.SetItemType(v)
+	return _u
+}
+
+// SetNillableItemType sets the "item_type" field if the given value is not nil.
+func (_u *CatalogOverrideUpdateOne) SetNillableItemType(v *string) *CatalogOverrideUpdateOne {
+	if v != nil {
+		_u.SetItemType(*v)
+	}
+	return _u
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (_u *CatalogOverrideUpdateOne) ClearItemType() *CatalogOverrideUpdateOne {
+	_u.mutation.ClearItemType()
+	return _u
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (_u *CatalogOverrideUpdateOne) SetVariantOptions(v map[string]string) *CatalogOverrideUpdateOne {
+	_u.mutation.SetVariantOptions(v)
+	return _u
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (_u *CatalogOverrideUpdateOne) ClearVariantOptions() *CatalogOverrideUpdateOne {
+	_u.mutation.ClearVariantOptions()
+	return _u
+}
+
 // SetImageURLOverride sets the "image_url_override" field.
 func (_u *CatalogOverrideUpdateOne) SetImageURLOverride(v string) *CatalogOverrideUpdateOne {
 	_u.mutation.SetImageURLOverride(v)
@@ -821,6 +928,21 @@ func (_u *CatalogOverrideUpdateOne) sqlSave(ctx context.Context) (_node *Catalog
 	}
 	if value, ok := _u.mutation.AddedServiceFeePercent(); ok {
 		_spec.AddField(catalogoverride.FieldServiceFeePercent, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.RequiresAgeVerification(); ok {
+		_spec.SetField(catalogoverride.FieldRequiresAgeVerification, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ItemType(); ok {
+		_spec.SetField(catalogoverride.FieldItemType, field.TypeString, value)
+	}
+	if _u.mutation.ItemTypeCleared() {
+		_spec.ClearField(catalogoverride.FieldItemType, field.TypeString)
+	}
+	if value, ok := _u.mutation.VariantOptions(); ok {
+		_spec.SetField(catalogoverride.FieldVariantOptions, field.TypeJSON, value)
+	}
+	if _u.mutation.VariantOptionsCleared() {
+		_spec.ClearField(catalogoverride.FieldVariantOptions, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.ImageURLOverride(); ok {
 		_spec.SetField(catalogoverride.FieldImageURLOverride, field.TypeString, value)

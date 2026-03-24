@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -42,6 +43,12 @@ type CatalogOverride struct {
 	PackagingFee float64 `json:"packaging_fee,omitempty"`
 	// Service fee percentage for this item
 	ServiceFeePercent float64 `json:"service_fee_percent,omitempty"`
+	// Synced from inventory — liquor, tobacco, 18+
+	RequiresAgeVerification bool `json:"requires_age_verification,omitempty"`
+	// Synced from inventory — GOODS, SERVICE, RECIPE, etc.
+	ItemType string `json:"item_type,omitempty"`
+	// Available variant attributes for customer selection
+	VariantOptions map[string]string `json:"variant_options,omitempty"`
 	// Override inventory image if needed
 	ImageURLOverride string `json:"image_url_override,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -56,13 +63,15 @@ func (*CatalogOverride) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case catalogoverride.FieldIsAvailable, catalogoverride.FieldIsFeatured:
+		case catalogoverride.FieldVariantOptions:
+			values[i] = new([]byte)
+		case catalogoverride.FieldIsAvailable, catalogoverride.FieldIsFeatured, catalogoverride.FieldRequiresAgeVerification:
 			values[i] = new(sql.NullBool)
 		case catalogoverride.FieldBasePrice, catalogoverride.FieldPackagingFee, catalogoverride.FieldServiceFeePercent:
 			values[i] = new(sql.NullFloat64)
 		case catalogoverride.FieldLeadTimeMinutes, catalogoverride.FieldDisplayOrder:
 			values[i] = new(sql.NullInt64)
-		case catalogoverride.FieldInventorySku, catalogoverride.FieldCurrency, catalogoverride.FieldDisplaySection, catalogoverride.FieldImageURLOverride:
+		case catalogoverride.FieldInventorySku, catalogoverride.FieldCurrency, catalogoverride.FieldDisplaySection, catalogoverride.FieldItemType, catalogoverride.FieldImageURLOverride:
 			values[i] = new(sql.NullString)
 		case catalogoverride.FieldCreatedAt, catalogoverride.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -162,6 +171,26 @@ func (_m *CatalogOverride) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ServiceFeePercent = value.Float64
 			}
+		case catalogoverride.FieldRequiresAgeVerification:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field requires_age_verification", values[i])
+			} else if value.Valid {
+				_m.RequiresAgeVerification = value.Bool
+			}
+		case catalogoverride.FieldItemType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field item_type", values[i])
+			} else if value.Valid {
+				_m.ItemType = value.String
+			}
+		case catalogoverride.FieldVariantOptions:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field variant_options", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.VariantOptions); err != nil {
+					return fmt.Errorf("unmarshal field variant_options: %w", err)
+				}
+			}
 		case catalogoverride.FieldImageURLOverride:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field image_url_override", values[i])
@@ -253,6 +282,15 @@ func (_m *CatalogOverride) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("service_fee_percent=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ServiceFeePercent))
+	builder.WriteString(", ")
+	builder.WriteString("requires_age_verification=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RequiresAgeVerification))
+	builder.WriteString(", ")
+	builder.WriteString("item_type=")
+	builder.WriteString(_m.ItemType)
+	builder.WriteString(", ")
+	builder.WriteString("variant_options=")
+	builder.WriteString(fmt.Sprintf("%v", _m.VariantOptions))
 	builder.WriteString(", ")
 	builder.WriteString("image_url_override=")
 	builder.WriteString(_m.ImageURLOverride)

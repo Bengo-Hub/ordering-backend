@@ -4168,33 +4168,36 @@ func (m *CartItemMutation) ResetEdge(name string) error {
 // CatalogOverrideMutation represents an operation that mutates the CatalogOverride nodes in the graph.
 type CatalogOverrideMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *uuid.UUID
-	tenant_id              *uuid.UUID
-	outlet_id              *uuid.UUID
-	inventory_sku          *string
-	base_price             *float64
-	addbase_price          *float64
-	currency               *string
-	is_available           *bool
-	is_featured            *bool
-	lead_time_minutes      *int
-	addlead_time_minutes   *int
-	display_order          *int
-	adddisplay_order       *int
-	display_section        *string
-	packaging_fee          *float64
-	addpackaging_fee       *float64
-	service_fee_percent    *float64
-	addservice_fee_percent *float64
-	image_url_override     *string
-	created_at             *time.Time
-	updated_at             *time.Time
-	clearedFields          map[string]struct{}
-	done                   bool
-	oldValue               func(context.Context) (*CatalogOverride, error)
-	predicates             []predicate.CatalogOverride
+	op                        Op
+	typ                       string
+	id                        *uuid.UUID
+	tenant_id                 *uuid.UUID
+	outlet_id                 *uuid.UUID
+	inventory_sku             *string
+	base_price                *float64
+	addbase_price             *float64
+	currency                  *string
+	is_available              *bool
+	is_featured               *bool
+	lead_time_minutes         *int
+	addlead_time_minutes      *int
+	display_order             *int
+	adddisplay_order          *int
+	display_section           *string
+	packaging_fee             *float64
+	addpackaging_fee          *float64
+	service_fee_percent       *float64
+	addservice_fee_percent    *float64
+	requires_age_verification *bool
+	item_type                 *string
+	variant_options           *map[string]string
+	image_url_override        *string
+	created_at                *time.Time
+	updated_at                *time.Time
+	clearedFields             map[string]struct{}
+	done                      bool
+	oldValue                  func(context.Context) (*CatalogOverride, error)
+	predicates                []predicate.CatalogOverride
 }
 
 var _ ent.Mutation = (*CatalogOverrideMutation)(nil)
@@ -4847,6 +4850,140 @@ func (m *CatalogOverrideMutation) ResetServiceFeePercent() {
 	m.addservice_fee_percent = nil
 }
 
+// SetRequiresAgeVerification sets the "requires_age_verification" field.
+func (m *CatalogOverrideMutation) SetRequiresAgeVerification(b bool) {
+	m.requires_age_verification = &b
+}
+
+// RequiresAgeVerification returns the value of the "requires_age_verification" field in the mutation.
+func (m *CatalogOverrideMutation) RequiresAgeVerification() (r bool, exists bool) {
+	v := m.requires_age_verification
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequiresAgeVerification returns the old "requires_age_verification" field's value of the CatalogOverride entity.
+// If the CatalogOverride object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CatalogOverrideMutation) OldRequiresAgeVerification(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequiresAgeVerification is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequiresAgeVerification requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequiresAgeVerification: %w", err)
+	}
+	return oldValue.RequiresAgeVerification, nil
+}
+
+// ResetRequiresAgeVerification resets all changes to the "requires_age_verification" field.
+func (m *CatalogOverrideMutation) ResetRequiresAgeVerification() {
+	m.requires_age_verification = nil
+}
+
+// SetItemType sets the "item_type" field.
+func (m *CatalogOverrideMutation) SetItemType(s string) {
+	m.item_type = &s
+}
+
+// ItemType returns the value of the "item_type" field in the mutation.
+func (m *CatalogOverrideMutation) ItemType() (r string, exists bool) {
+	v := m.item_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldItemType returns the old "item_type" field's value of the CatalogOverride entity.
+// If the CatalogOverride object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CatalogOverrideMutation) OldItemType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldItemType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldItemType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldItemType: %w", err)
+	}
+	return oldValue.ItemType, nil
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (m *CatalogOverrideMutation) ClearItemType() {
+	m.item_type = nil
+	m.clearedFields[catalogoverride.FieldItemType] = struct{}{}
+}
+
+// ItemTypeCleared returns if the "item_type" field was cleared in this mutation.
+func (m *CatalogOverrideMutation) ItemTypeCleared() bool {
+	_, ok := m.clearedFields[catalogoverride.FieldItemType]
+	return ok
+}
+
+// ResetItemType resets all changes to the "item_type" field.
+func (m *CatalogOverrideMutation) ResetItemType() {
+	m.item_type = nil
+	delete(m.clearedFields, catalogoverride.FieldItemType)
+}
+
+// SetVariantOptions sets the "variant_options" field.
+func (m *CatalogOverrideMutation) SetVariantOptions(value map[string]string) {
+	m.variant_options = &value
+}
+
+// VariantOptions returns the value of the "variant_options" field in the mutation.
+func (m *CatalogOverrideMutation) VariantOptions() (r map[string]string, exists bool) {
+	v := m.variant_options
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVariantOptions returns the old "variant_options" field's value of the CatalogOverride entity.
+// If the CatalogOverride object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CatalogOverrideMutation) OldVariantOptions(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVariantOptions is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVariantOptions requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVariantOptions: %w", err)
+	}
+	return oldValue.VariantOptions, nil
+}
+
+// ClearVariantOptions clears the value of the "variant_options" field.
+func (m *CatalogOverrideMutation) ClearVariantOptions() {
+	m.variant_options = nil
+	m.clearedFields[catalogoverride.FieldVariantOptions] = struct{}{}
+}
+
+// VariantOptionsCleared returns if the "variant_options" field was cleared in this mutation.
+func (m *CatalogOverrideMutation) VariantOptionsCleared() bool {
+	_, ok := m.clearedFields[catalogoverride.FieldVariantOptions]
+	return ok
+}
+
+// ResetVariantOptions resets all changes to the "variant_options" field.
+func (m *CatalogOverrideMutation) ResetVariantOptions() {
+	m.variant_options = nil
+	delete(m.clearedFields, catalogoverride.FieldVariantOptions)
+}
+
 // SetImageURLOverride sets the "image_url_override" field.
 func (m *CatalogOverrideMutation) SetImageURLOverride(s string) {
 	m.image_url_override = &s
@@ -5002,7 +5139,7 @@ func (m *CatalogOverrideMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CatalogOverrideMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 18)
 	if m.tenant_id != nil {
 		fields = append(fields, catalogoverride.FieldTenantID)
 	}
@@ -5038,6 +5175,15 @@ func (m *CatalogOverrideMutation) Fields() []string {
 	}
 	if m.service_fee_percent != nil {
 		fields = append(fields, catalogoverride.FieldServiceFeePercent)
+	}
+	if m.requires_age_verification != nil {
+		fields = append(fields, catalogoverride.FieldRequiresAgeVerification)
+	}
+	if m.item_type != nil {
+		fields = append(fields, catalogoverride.FieldItemType)
+	}
+	if m.variant_options != nil {
+		fields = append(fields, catalogoverride.FieldVariantOptions)
 	}
 	if m.image_url_override != nil {
 		fields = append(fields, catalogoverride.FieldImageURLOverride)
@@ -5080,6 +5226,12 @@ func (m *CatalogOverrideMutation) Field(name string) (ent.Value, bool) {
 		return m.PackagingFee()
 	case catalogoverride.FieldServiceFeePercent:
 		return m.ServiceFeePercent()
+	case catalogoverride.FieldRequiresAgeVerification:
+		return m.RequiresAgeVerification()
+	case catalogoverride.FieldItemType:
+		return m.ItemType()
+	case catalogoverride.FieldVariantOptions:
+		return m.VariantOptions()
 	case catalogoverride.FieldImageURLOverride:
 		return m.ImageURLOverride()
 	case catalogoverride.FieldCreatedAt:
@@ -5119,6 +5271,12 @@ func (m *CatalogOverrideMutation) OldField(ctx context.Context, name string) (en
 		return m.OldPackagingFee(ctx)
 	case catalogoverride.FieldServiceFeePercent:
 		return m.OldServiceFeePercent(ctx)
+	case catalogoverride.FieldRequiresAgeVerification:
+		return m.OldRequiresAgeVerification(ctx)
+	case catalogoverride.FieldItemType:
+		return m.OldItemType(ctx)
+	case catalogoverride.FieldVariantOptions:
+		return m.OldVariantOptions(ctx)
 	case catalogoverride.FieldImageURLOverride:
 		return m.OldImageURLOverride(ctx)
 	case catalogoverride.FieldCreatedAt:
@@ -5217,6 +5375,27 @@ func (m *CatalogOverrideMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetServiceFeePercent(v)
+		return nil
+	case catalogoverride.FieldRequiresAgeVerification:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequiresAgeVerification(v)
+		return nil
+	case catalogoverride.FieldItemType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetItemType(v)
+		return nil
+	case catalogoverride.FieldVariantOptions:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVariantOptions(v)
 		return nil
 	case catalogoverride.FieldImageURLOverride:
 		v, ok := value.(string)
@@ -5335,6 +5514,12 @@ func (m *CatalogOverrideMutation) ClearedFields() []string {
 	if m.FieldCleared(catalogoverride.FieldLeadTimeMinutes) {
 		fields = append(fields, catalogoverride.FieldLeadTimeMinutes)
 	}
+	if m.FieldCleared(catalogoverride.FieldItemType) {
+		fields = append(fields, catalogoverride.FieldItemType)
+	}
+	if m.FieldCleared(catalogoverride.FieldVariantOptions) {
+		fields = append(fields, catalogoverride.FieldVariantOptions)
+	}
 	if m.FieldCleared(catalogoverride.FieldImageURLOverride) {
 		fields = append(fields, catalogoverride.FieldImageURLOverride)
 	}
@@ -5354,6 +5539,12 @@ func (m *CatalogOverrideMutation) ClearField(name string) error {
 	switch name {
 	case catalogoverride.FieldLeadTimeMinutes:
 		m.ClearLeadTimeMinutes()
+		return nil
+	case catalogoverride.FieldItemType:
+		m.ClearItemType()
+		return nil
+	case catalogoverride.FieldVariantOptions:
+		m.ClearVariantOptions()
 		return nil
 	case catalogoverride.FieldImageURLOverride:
 		m.ClearImageURLOverride()
@@ -5401,6 +5592,15 @@ func (m *CatalogOverrideMutation) ResetField(name string) error {
 		return nil
 	case catalogoverride.FieldServiceFeePercent:
 		m.ResetServiceFeePercent()
+		return nil
+	case catalogoverride.FieldRequiresAgeVerification:
+		m.ResetRequiresAgeVerification()
+		return nil
+	case catalogoverride.FieldItemType:
+		m.ResetItemType()
+		return nil
+	case catalogoverride.FieldVariantOptions:
+		m.ResetVariantOptions()
 		return nil
 	case catalogoverride.FieldImageURLOverride:
 		m.ResetImageURLOverride()
@@ -16657,6 +16857,9 @@ type OrderMutation struct {
 	small_order_fee            *float64
 	addsmall_order_fee         *float64
 	reservation_id             *uuid.UUID
+	appointment_id             *uuid.UUID
+	staff_preference_id        *uuid.UUID
+	preferred_carrier          *string
 	tip_total                  *float64
 	addtip_total               *float64
 	grand_total                *float64
@@ -17683,6 +17886,153 @@ func (m *OrderMutation) ReservationIDCleared() bool {
 func (m *OrderMutation) ResetReservationID() {
 	m.reservation_id = nil
 	delete(m.clearedFields, order.FieldReservationID)
+}
+
+// SetAppointmentID sets the "appointment_id" field.
+func (m *OrderMutation) SetAppointmentID(u uuid.UUID) {
+	m.appointment_id = &u
+}
+
+// AppointmentID returns the value of the "appointment_id" field in the mutation.
+func (m *OrderMutation) AppointmentID() (r uuid.UUID, exists bool) {
+	v := m.appointment_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppointmentID returns the old "appointment_id" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldAppointmentID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppointmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppointmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppointmentID: %w", err)
+	}
+	return oldValue.AppointmentID, nil
+}
+
+// ClearAppointmentID clears the value of the "appointment_id" field.
+func (m *OrderMutation) ClearAppointmentID() {
+	m.appointment_id = nil
+	m.clearedFields[order.FieldAppointmentID] = struct{}{}
+}
+
+// AppointmentIDCleared returns if the "appointment_id" field was cleared in this mutation.
+func (m *OrderMutation) AppointmentIDCleared() bool {
+	_, ok := m.clearedFields[order.FieldAppointmentID]
+	return ok
+}
+
+// ResetAppointmentID resets all changes to the "appointment_id" field.
+func (m *OrderMutation) ResetAppointmentID() {
+	m.appointment_id = nil
+	delete(m.clearedFields, order.FieldAppointmentID)
+}
+
+// SetStaffPreferenceID sets the "staff_preference_id" field.
+func (m *OrderMutation) SetStaffPreferenceID(u uuid.UUID) {
+	m.staff_preference_id = &u
+}
+
+// StaffPreferenceID returns the value of the "staff_preference_id" field in the mutation.
+func (m *OrderMutation) StaffPreferenceID() (r uuid.UUID, exists bool) {
+	v := m.staff_preference_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStaffPreferenceID returns the old "staff_preference_id" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldStaffPreferenceID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStaffPreferenceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStaffPreferenceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStaffPreferenceID: %w", err)
+	}
+	return oldValue.StaffPreferenceID, nil
+}
+
+// ClearStaffPreferenceID clears the value of the "staff_preference_id" field.
+func (m *OrderMutation) ClearStaffPreferenceID() {
+	m.staff_preference_id = nil
+	m.clearedFields[order.FieldStaffPreferenceID] = struct{}{}
+}
+
+// StaffPreferenceIDCleared returns if the "staff_preference_id" field was cleared in this mutation.
+func (m *OrderMutation) StaffPreferenceIDCleared() bool {
+	_, ok := m.clearedFields[order.FieldStaffPreferenceID]
+	return ok
+}
+
+// ResetStaffPreferenceID resets all changes to the "staff_preference_id" field.
+func (m *OrderMutation) ResetStaffPreferenceID() {
+	m.staff_preference_id = nil
+	delete(m.clearedFields, order.FieldStaffPreferenceID)
+}
+
+// SetPreferredCarrier sets the "preferred_carrier" field.
+func (m *OrderMutation) SetPreferredCarrier(s string) {
+	m.preferred_carrier = &s
+}
+
+// PreferredCarrier returns the value of the "preferred_carrier" field in the mutation.
+func (m *OrderMutation) PreferredCarrier() (r string, exists bool) {
+	v := m.preferred_carrier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPreferredCarrier returns the old "preferred_carrier" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldPreferredCarrier(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPreferredCarrier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPreferredCarrier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPreferredCarrier: %w", err)
+	}
+	return oldValue.PreferredCarrier, nil
+}
+
+// ClearPreferredCarrier clears the value of the "preferred_carrier" field.
+func (m *OrderMutation) ClearPreferredCarrier() {
+	m.preferred_carrier = nil
+	m.clearedFields[order.FieldPreferredCarrier] = struct{}{}
+}
+
+// PreferredCarrierCleared returns if the "preferred_carrier" field was cleared in this mutation.
+func (m *OrderMutation) PreferredCarrierCleared() bool {
+	_, ok := m.clearedFields[order.FieldPreferredCarrier]
+	return ok
+}
+
+// ResetPreferredCarrier resets all changes to the "preferred_carrier" field.
+func (m *OrderMutation) ResetPreferredCarrier() {
+	m.preferred_carrier = nil
+	delete(m.clearedFields, order.FieldPreferredCarrier)
 }
 
 // SetTipTotal sets the "tip_total" field.
@@ -19099,7 +19449,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 42)
+	fields := make([]string, 0, 45)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -19156,6 +19506,15 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.reservation_id != nil {
 		fields = append(fields, order.FieldReservationID)
+	}
+	if m.appointment_id != nil {
+		fields = append(fields, order.FieldAppointmentID)
+	}
+	if m.staff_preference_id != nil {
+		fields = append(fields, order.FieldStaffPreferenceID)
+	}
+	if m.preferred_carrier != nil {
+		fields = append(fields, order.FieldPreferredCarrier)
 	}
 	if m.tip_total != nil {
 		fields = append(fields, order.FieldTipTotal)
@@ -19272,6 +19631,12 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.SmallOrderFee()
 	case order.FieldReservationID:
 		return m.ReservationID()
+	case order.FieldAppointmentID:
+		return m.AppointmentID()
+	case order.FieldStaffPreferenceID:
+		return m.StaffPreferenceID()
+	case order.FieldPreferredCarrier:
+		return m.PreferredCarrier()
 	case order.FieldTipTotal:
 		return m.TipTotal()
 	case order.FieldGrandTotal:
@@ -19365,6 +19730,12 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldSmallOrderFee(ctx)
 	case order.FieldReservationID:
 		return m.OldReservationID(ctx)
+	case order.FieldAppointmentID:
+		return m.OldAppointmentID(ctx)
+	case order.FieldStaffPreferenceID:
+		return m.OldStaffPreferenceID(ctx)
+	case order.FieldPreferredCarrier:
+		return m.OldPreferredCarrier(ctx)
 	case order.FieldTipTotal:
 		return m.OldTipTotal(ctx)
 	case order.FieldGrandTotal:
@@ -19552,6 +19923,27 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetReservationID(v)
+		return nil
+	case order.FieldAppointmentID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppointmentID(v)
+		return nil
+	case order.FieldStaffPreferenceID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStaffPreferenceID(v)
+		return nil
+	case order.FieldPreferredCarrier:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPreferredCarrier(v)
 		return nil
 	case order.FieldTipTotal:
 		v, ok := value.(float64)
@@ -19903,6 +20295,15 @@ func (m *OrderMutation) ClearedFields() []string {
 	if m.FieldCleared(order.FieldReservationID) {
 		fields = append(fields, order.FieldReservationID)
 	}
+	if m.FieldCleared(order.FieldAppointmentID) {
+		fields = append(fields, order.FieldAppointmentID)
+	}
+	if m.FieldCleared(order.FieldStaffPreferenceID) {
+		fields = append(fields, order.FieldStaffPreferenceID)
+	}
+	if m.FieldCleared(order.FieldPreferredCarrier) {
+		fields = append(fields, order.FieldPreferredCarrier)
+	}
 	if m.FieldCleared(order.FieldDeliveryAddressID) {
 		fields = append(fields, order.FieldDeliveryAddressID)
 	}
@@ -19976,6 +20377,15 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldReservationID:
 		m.ClearReservationID()
+		return nil
+	case order.FieldAppointmentID:
+		m.ClearAppointmentID()
+		return nil
+	case order.FieldStaffPreferenceID:
+		m.ClearStaffPreferenceID()
+		return nil
+	case order.FieldPreferredCarrier:
+		m.ClearPreferredCarrier()
 		return nil
 	case order.FieldDeliveryAddressID:
 		m.ClearDeliveryAddressID()
@@ -20089,6 +20499,15 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldReservationID:
 		m.ResetReservationID()
+		return nil
+	case order.FieldAppointmentID:
+		m.ResetAppointmentID()
+		return nil
+	case order.FieldStaffPreferenceID:
+		m.ResetStaffPreferenceID()
+		return nil
+	case order.FieldPreferredCarrier:
+		m.ResetPreferredCarrier()
 		return nil
 	case order.FieldTipTotal:
 		m.ResetTipTotal()
@@ -22998,6 +23417,10 @@ type OrderItemMutation struct {
 	notes                 *string
 	modifiers             *[]map[string]interface{}
 	appendmodifiers       []map[string]interface{}
+	item_type             *string
+	service_start_time    *time.Time
+	duration_minutes      *int
+	addduration_minutes   *int
 	metadata              *map[string]interface{}
 	created_at            *time.Time
 	clearedFields         map[string]struct{}
@@ -23600,6 +24023,174 @@ func (m *OrderItemMutation) ResetModifiers() {
 	delete(m.clearedFields, orderitem.FieldModifiers)
 }
 
+// SetItemType sets the "item_type" field.
+func (m *OrderItemMutation) SetItemType(s string) {
+	m.item_type = &s
+}
+
+// ItemType returns the value of the "item_type" field in the mutation.
+func (m *OrderItemMutation) ItemType() (r string, exists bool) {
+	v := m.item_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldItemType returns the old "item_type" field's value of the OrderItem entity.
+// If the OrderItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderItemMutation) OldItemType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldItemType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldItemType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldItemType: %w", err)
+	}
+	return oldValue.ItemType, nil
+}
+
+// ClearItemType clears the value of the "item_type" field.
+func (m *OrderItemMutation) ClearItemType() {
+	m.item_type = nil
+	m.clearedFields[orderitem.FieldItemType] = struct{}{}
+}
+
+// ItemTypeCleared returns if the "item_type" field was cleared in this mutation.
+func (m *OrderItemMutation) ItemTypeCleared() bool {
+	_, ok := m.clearedFields[orderitem.FieldItemType]
+	return ok
+}
+
+// ResetItemType resets all changes to the "item_type" field.
+func (m *OrderItemMutation) ResetItemType() {
+	m.item_type = nil
+	delete(m.clearedFields, orderitem.FieldItemType)
+}
+
+// SetServiceStartTime sets the "service_start_time" field.
+func (m *OrderItemMutation) SetServiceStartTime(t time.Time) {
+	m.service_start_time = &t
+}
+
+// ServiceStartTime returns the value of the "service_start_time" field in the mutation.
+func (m *OrderItemMutation) ServiceStartTime() (r time.Time, exists bool) {
+	v := m.service_start_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldServiceStartTime returns the old "service_start_time" field's value of the OrderItem entity.
+// If the OrderItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderItemMutation) OldServiceStartTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldServiceStartTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldServiceStartTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldServiceStartTime: %w", err)
+	}
+	return oldValue.ServiceStartTime, nil
+}
+
+// ClearServiceStartTime clears the value of the "service_start_time" field.
+func (m *OrderItemMutation) ClearServiceStartTime() {
+	m.service_start_time = nil
+	m.clearedFields[orderitem.FieldServiceStartTime] = struct{}{}
+}
+
+// ServiceStartTimeCleared returns if the "service_start_time" field was cleared in this mutation.
+func (m *OrderItemMutation) ServiceStartTimeCleared() bool {
+	_, ok := m.clearedFields[orderitem.FieldServiceStartTime]
+	return ok
+}
+
+// ResetServiceStartTime resets all changes to the "service_start_time" field.
+func (m *OrderItemMutation) ResetServiceStartTime() {
+	m.service_start_time = nil
+	delete(m.clearedFields, orderitem.FieldServiceStartTime)
+}
+
+// SetDurationMinutes sets the "duration_minutes" field.
+func (m *OrderItemMutation) SetDurationMinutes(i int) {
+	m.duration_minutes = &i
+	m.addduration_minutes = nil
+}
+
+// DurationMinutes returns the value of the "duration_minutes" field in the mutation.
+func (m *OrderItemMutation) DurationMinutes() (r int, exists bool) {
+	v := m.duration_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDurationMinutes returns the old "duration_minutes" field's value of the OrderItem entity.
+// If the OrderItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderItemMutation) OldDurationMinutes(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDurationMinutes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDurationMinutes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDurationMinutes: %w", err)
+	}
+	return oldValue.DurationMinutes, nil
+}
+
+// AddDurationMinutes adds i to the "duration_minutes" field.
+func (m *OrderItemMutation) AddDurationMinutes(i int) {
+	if m.addduration_minutes != nil {
+		*m.addduration_minutes += i
+	} else {
+		m.addduration_minutes = &i
+	}
+}
+
+// AddedDurationMinutes returns the value that was added to the "duration_minutes" field in this mutation.
+func (m *OrderItemMutation) AddedDurationMinutes() (r int, exists bool) {
+	v := m.addduration_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDurationMinutes clears the value of the "duration_minutes" field.
+func (m *OrderItemMutation) ClearDurationMinutes() {
+	m.duration_minutes = nil
+	m.addduration_minutes = nil
+	m.clearedFields[orderitem.FieldDurationMinutes] = struct{}{}
+}
+
+// DurationMinutesCleared returns if the "duration_minutes" field was cleared in this mutation.
+func (m *OrderItemMutation) DurationMinutesCleared() bool {
+	_, ok := m.clearedFields[orderitem.FieldDurationMinutes]
+	return ok
+}
+
+// ResetDurationMinutes resets all changes to the "duration_minutes" field.
+func (m *OrderItemMutation) ResetDurationMinutes() {
+	m.duration_minutes = nil
+	m.addduration_minutes = nil
+	delete(m.clearedFields, orderitem.FieldDurationMinutes)
+}
+
 // SetMetadata sets the "metadata" field.
 func (m *OrderItemMutation) SetMetadata(value map[string]interface{}) {
 	m.metadata = &value
@@ -23746,7 +24337,7 @@ func (m *OrderItemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderItemMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 15)
 	if m._order != nil {
 		fields = append(fields, orderitem.FieldOrderID)
 	}
@@ -23776,6 +24367,15 @@ func (m *OrderItemMutation) Fields() []string {
 	}
 	if m.modifiers != nil {
 		fields = append(fields, orderitem.FieldModifiers)
+	}
+	if m.item_type != nil {
+		fields = append(fields, orderitem.FieldItemType)
+	}
+	if m.service_start_time != nil {
+		fields = append(fields, orderitem.FieldServiceStartTime)
+	}
+	if m.duration_minutes != nil {
+		fields = append(fields, orderitem.FieldDurationMinutes)
 	}
 	if m.metadata != nil {
 		fields = append(fields, orderitem.FieldMetadata)
@@ -23811,6 +24411,12 @@ func (m *OrderItemMutation) Field(name string) (ent.Value, bool) {
 		return m.Notes()
 	case orderitem.FieldModifiers:
 		return m.Modifiers()
+	case orderitem.FieldItemType:
+		return m.ItemType()
+	case orderitem.FieldServiceStartTime:
+		return m.ServiceStartTime()
+	case orderitem.FieldDurationMinutes:
+		return m.DurationMinutes()
 	case orderitem.FieldMetadata:
 		return m.Metadata()
 	case orderitem.FieldCreatedAt:
@@ -23844,6 +24450,12 @@ func (m *OrderItemMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldNotes(ctx)
 	case orderitem.FieldModifiers:
 		return m.OldModifiers(ctx)
+	case orderitem.FieldItemType:
+		return m.OldItemType(ctx)
+	case orderitem.FieldServiceStartTime:
+		return m.OldServiceStartTime(ctx)
+	case orderitem.FieldDurationMinutes:
+		return m.OldDurationMinutes(ctx)
 	case orderitem.FieldMetadata:
 		return m.OldMetadata(ctx)
 	case orderitem.FieldCreatedAt:
@@ -23927,6 +24539,27 @@ func (m *OrderItemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetModifiers(v)
 		return nil
+	case orderitem.FieldItemType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetItemType(v)
+		return nil
+	case orderitem.FieldServiceStartTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetServiceStartTime(v)
+		return nil
+	case orderitem.FieldDurationMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDurationMinutes(v)
+		return nil
 	case orderitem.FieldMetadata:
 		v, ok := value.(map[string]interface{})
 		if !ok {
@@ -23958,6 +24591,9 @@ func (m *OrderItemMutation) AddedFields() []string {
 	if m.addtotal_price != nil {
 		fields = append(fields, orderitem.FieldTotalPrice)
 	}
+	if m.addduration_minutes != nil {
+		fields = append(fields, orderitem.FieldDurationMinutes)
+	}
 	return fields
 }
 
@@ -23972,6 +24608,8 @@ func (m *OrderItemMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedUnitPrice()
 	case orderitem.FieldTotalPrice:
 		return m.AddedTotalPrice()
+	case orderitem.FieldDurationMinutes:
+		return m.AddedDurationMinutes()
 	}
 	return nil, false
 }
@@ -24002,6 +24640,13 @@ func (m *OrderItemMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddTotalPrice(v)
 		return nil
+	case orderitem.FieldDurationMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDurationMinutes(v)
+		return nil
 	}
 	return fmt.Errorf("unknown OrderItem numeric field %s", name)
 }
@@ -24021,6 +24666,15 @@ func (m *OrderItemMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(orderitem.FieldModifiers) {
 		fields = append(fields, orderitem.FieldModifiers)
+	}
+	if m.FieldCleared(orderitem.FieldItemType) {
+		fields = append(fields, orderitem.FieldItemType)
+	}
+	if m.FieldCleared(orderitem.FieldServiceStartTime) {
+		fields = append(fields, orderitem.FieldServiceStartTime)
+	}
+	if m.FieldCleared(orderitem.FieldDurationMinutes) {
+		fields = append(fields, orderitem.FieldDurationMinutes)
 	}
 	if m.FieldCleared(orderitem.FieldMetadata) {
 		fields = append(fields, orderitem.FieldMetadata)
@@ -24050,6 +24704,15 @@ func (m *OrderItemMutation) ClearField(name string) error {
 		return nil
 	case orderitem.FieldModifiers:
 		m.ClearModifiers()
+		return nil
+	case orderitem.FieldItemType:
+		m.ClearItemType()
+		return nil
+	case orderitem.FieldServiceStartTime:
+		m.ClearServiceStartTime()
+		return nil
+	case orderitem.FieldDurationMinutes:
+		m.ClearDurationMinutes()
 		return nil
 	case orderitem.FieldMetadata:
 		m.ClearMetadata()
@@ -24091,6 +24754,15 @@ func (m *OrderItemMutation) ResetField(name string) error {
 		return nil
 	case orderitem.FieldModifiers:
 		m.ResetModifiers()
+		return nil
+	case orderitem.FieldItemType:
+		m.ResetItemType()
+		return nil
+	case orderitem.FieldServiceStartTime:
+		m.ResetServiceStartTime()
+		return nil
+	case orderitem.FieldDurationMinutes:
+		m.ResetDurationMinutes()
 		return nil
 	case orderitem.FieldMetadata:
 		m.ResetMetadata()
