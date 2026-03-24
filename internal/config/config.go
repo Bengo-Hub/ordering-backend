@@ -62,10 +62,12 @@ type HTTPConfig struct {
 }
 
 type PostgresConfig struct {
-	URL             string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/ordering?sslmode=disable"`
-	MaxOpenConns    int           `envconfig:"POSTGRES_MAX_OPEN_CONNS" default:"20"`
-	MaxIdleConns    int           `envconfig:"POSTGRES_MAX_IDLE_CONNS" default:"10"`
-	ConnMaxLifetime time.Duration `envconfig:"POSTGRES_CONN_MAX_LIFETIME" default:"30m"`
+	URL                      string        `envconfig:"POSTGRES_URL" default:"postgres://postgres:postgres@localhost:5432/ordering?sslmode=disable"`
+	MaxOpenConns             int           `envconfig:"POSTGRES_MAX_OPEN_CONNS" default:"30"`
+	MaxIdleConns             int           `envconfig:"POSTGRES_MAX_IDLE_CONNS" default:"10"`
+	ConnMaxLifetime          time.Duration `envconfig:"POSTGRES_CONN_MAX_LIFETIME" default:"30m"`
+	StatementTimeout         time.Duration `envconfig:"POSTGRES_STATEMENT_TIMEOUT" default:"30s"`
+	IdleInTransactionTimeout time.Duration `envconfig:"POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT" default:"60s"`
 }
 
 type RedisConfig struct {
@@ -82,7 +84,7 @@ type EventsConfig struct {
 
 	// Outbox publisher settings
 	OutboxEnabled    bool          `envconfig:"OUTBOX_ENABLED" default:"true"`
-	OutboxPollPeriod time.Duration `envconfig:"OUTBOX_POLL_PERIOD" default:"5s"`
+	OutboxPollPeriod time.Duration `envconfig:"OUTBOX_POLL_PERIOD" default:"2s"`
 	OutboxBatchSize  int           `envconfig:"OUTBOX_BATCH_SIZE" default:"100"`
 }
 
