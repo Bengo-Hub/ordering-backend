@@ -211,8 +211,9 @@ func New(ctx context.Context) (*App, error) {
 	cartSvc := ordering.NewCartService(orderingRepo, catalogProxySvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
+	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
-	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, inventoryClient, subscriptionsClient, log)
+	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, log)
 
 	// Start order scheduler for scheduled delivery flow
 	orderScheduler := ordering.NewOrderScheduler(log, orderSvc)
@@ -222,7 +223,7 @@ func New(ctx context.Context) (*App, error) {
 	groupOrderSvc := ordering.NewGroupOrderService(orderingRepo, log)
 
 	// Create ordering handlers
-	cartHandler := orderinghandler.NewCartHandler(log, cartSvc)
+	cartHandler := orderinghandler.NewCartHandler(log, cartSvc, feeSvc)
 	orderHandler := orderinghandler.NewOrderHandler(log, orderSvc)
 	promoHandler := orderinghandler.NewPromoHandler(log, promoSvc, cartSvc)
 	loyaltyHandler := orderinghandler.NewLoyaltyHandler(log, loyaltySvc)

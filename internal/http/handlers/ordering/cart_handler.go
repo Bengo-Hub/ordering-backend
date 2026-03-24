@@ -20,13 +20,15 @@ import (
 type CartHandler struct {
 	log         *zap.Logger
 	cartService *ordering.CartService
+	feeService  *ordering.FeeService
 }
 
 // NewCartHandler constructs a CartHandler instance.
-func NewCartHandler(log *zap.Logger, cartService *ordering.CartService) *CartHandler {
+func NewCartHandler(log *zap.Logger, cartService *ordering.CartService, feeService *ordering.FeeService) *CartHandler {
 	return &CartHandler{
 		log:         log.Named("ordering.CartHandler"),
 		cartService: cartService,
+		feeService:  feeService,
 	}
 }
 
@@ -50,6 +52,7 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 			authedCart.Delete("/items/{itemId}", h.RemoveItem)
 			authedCart.Delete("/", h.ClearCart)
 			authedCart.Get("/summary", h.GetCartSummary)
+			authedCart.Get("/fee-breakdown", h.GetFeeBreakdown)
 			authedCart.Post("/merge", h.MergeGuestCart)
 		})
 	})
@@ -513,6 +516,63 @@ func (h *CartHandler) GetCartSummary(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, summary)
+}
+
+// GetFeeBreakdown returns the detailed fee breakdown for the current user's cart.
+// @Summary Get fee breakdown
+// @Description Returns the full fee breakdown (packaging, service, small order, delivery fees) for the current cart
+// @Tags Cart
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param outlet_id query string true "Outlet ID"
+// @Param fulfillment_type query string false "Fulfillment type (delivery, pickup)" default(delivery)
+// @Success 200 {object} ordering.FeeBreakdown
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /cart/fee-breakdown [get]
+func (h *CartHandler) GetFeeBreakdown(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	outletID, err := getOutletID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
+		return
+	}
+
+	// Get user's cart
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	// Determine fulfillment type from query param (default to delivery)
+	fulfillmentType := ordering.FulfillmentType(r.URL.Query().Get("fulfillment_type"))
+	if fulfillmentType == "" {
+		fulfillmentType = ordering.FulfillmentTypeDelivery
+	}
+
+	// Use cart-level discount and zero loyalty discount for the preview breakdown
+	fees, err := h.feeService.CalculateFees(r.Context(), tenantID, existingCart, fulfillmentType, existingCart.DiscountTotal, 0)
+	if err != nil {
+		h.log.Error("failed to calculate fee breakdown", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "failed to calculate fees")
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, fees)
 }
 
 // MergeGuestCart merges a guest cart into the user's cart.
