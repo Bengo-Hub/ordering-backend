@@ -53,7 +53,7 @@ type AppConfig struct {
 
 type HTTPConfig struct {
 	Host         string        `envconfig:"HTTP_HOST" default:"0.0.0.0"`
-	Port         int           `envconfig:"HTTP_PORT" default:"4000"`
+	Port         int           `envconfig:"HTTP_PORT" default:"4005"`
 	ReadTimeout  time.Duration `envconfig:"HTTP_READ_TIMEOUT" default:"15s"`
 	WriteTimeout time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout  time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
@@ -116,7 +116,7 @@ type AuthConfig struct {
 
 type TreasuryConfig struct {
 	// Treasury service URL
-	ServiceURL     string        `envconfig:"TREASURY_SERVICE_URL" default:"http://localhost:4001"`
+	ServiceURL     string        `envconfig:"TREASURY_SERVICE_URL" default:"http://localhost:4010"`
 	APIKey         string        `envconfig:"TREASURY_API_KEY"`
 	WebhookSecret  string        `envconfig:"TREASURY_WEBHOOK_SECRET"`
 	RequestTimeout time.Duration `envconfig:"TREASURY_REQUEST_TIMEOUT" default:"30s"`
@@ -128,7 +128,7 @@ type TreasuryConfig struct {
 
 type LogisticsConfig struct {
 	// Logistics service URL
-	ServiceURL     string        `envconfig:"LOGISTICS_SERVICE_URL" default:"http://localhost:4005"`
+	ServiceURL     string        `envconfig:"LOGISTICS_SERVICE_URL" default:"http://localhost:4003"`
 	APIKey         string        `envconfig:"LOGISTICS_API_KEY"`
 	WebhookSecret  string        `envconfig:"LOGISTICS_WEBHOOK_SECRET"`
 	RequestTimeout time.Duration `envconfig:"LOGISTICS_REQUEST_TIMEOUT" default:"30s"`
@@ -139,21 +139,21 @@ type LogisticsConfig struct {
 
 type InventoryConfig struct {
 	// Inventory service URL
-	ServiceURL     string        `envconfig:"INVENTORY_SERVICE_URL" default:"http://localhost:4003"`
+	ServiceURL     string        `envconfig:"INVENTORY_SERVICE_URL" default:"http://localhost:4001"`
 	APIKey         string        `envconfig:"INVENTORY_API_KEY"`
 	RequestTimeout time.Duration `envconfig:"INVENTORY_REQUEST_TIMEOUT" default:"10s"`
 }
 
 type NotificationsConfig struct {
 	// Notifications service URL
-	ServiceURL     string        `envconfig:"NOTIFICATIONS_SERVICE_URL" default:"http://localhost:4002"`
+	ServiceURL     string        `envconfig:"NOTIFICATIONS_SERVICE_URL" default:"http://localhost:4004"`
 	APIKey         string        `envconfig:"NOTIFICATIONS_API_KEY"`
 	RequestTimeout time.Duration `envconfig:"NOTIFICATIONS_REQUEST_TIMEOUT" default:"10s"`
 }
 
 type SubscriptionsConfig struct {
 	// Subscriptions service URL
-	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4006"`
+	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4008"`
 	APIKey         string        `envconfig:"SUBSCRIPTIONS_API_KEY"`
 	RequestTimeout time.Duration `envconfig:"SUBSCRIPTIONS_REQUEST_TIMEOUT" default:"10s"`
 }
