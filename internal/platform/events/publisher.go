@@ -11,16 +11,16 @@ import (
 	"go.uber.org/zap"
 )
 
-// Publisher handles publishing events to NATS.
+// Publisher handles publishing events to NATS JetStream.
 type Publisher struct {
-	conn   *nats.Conn
+	js     nats.JetStreamContext
 	logger *zap.Logger
 }
 
-// NewPublisher creates a new event publisher.
-func NewPublisher(conn *nats.Conn, logger *zap.Logger) *Publisher {
+// NewPublisher creates a new event publisher using JetStream for durability.
+func NewPublisher(js nats.JetStreamContext, logger *zap.Logger) *Publisher {
 	return &Publisher{
-		conn:   conn,
+		js:     js,
 		logger: logger.Named("events.publisher"),
 	}
 }
@@ -64,10 +64,10 @@ func NewEventWithSlug(eventType string, tenantID uuid.UUID, tenantSlug string, d
 	return e
 }
 
-// Publish publishes an event to the specified subject.
+// Publish publishes an event to the specified subject via JetStream.
 func (p *Publisher) Publish(ctx context.Context, subject string, event Event) error {
-	if p.conn == nil {
-		p.logger.Warn("NATS connection not available, skipping event publish",
+	if p.js == nil {
+		p.logger.Warn("JetStream not available, skipping event publish",
 			zap.String("subject", subject),
 			zap.String("event_type", event.Type))
 		return nil
@@ -78,15 +78,27 @@ func (p *Publisher) Publish(ctx context.Context, subject string, event Event) er
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	if err := p.conn.Publish(subject, data); err != nil {
-		p.logger.Error("failed to publish event",
+	// Build message with headers for traceability
+	headers := make(nats.Header)
+	headers.Set("event-id", event.ID)
+	headers.Set("event-type", event.Type)
+	if event.TenantID != "" {
+		headers.Set("tenant-id", event.TenantID)
+	}
+
+	msg := nats.NewMsg(subject)
+	msg.Data = data
+	msg.Header = headers
+
+	if _, err := p.js.PublishMsg(msg); err != nil {
+		p.logger.Error("failed to publish event to JetStream",
 			zap.Error(err),
 			zap.String("subject", subject),
 			zap.String("event_id", event.ID))
 		return fmt.Errorf("publish event: %w", err)
 	}
 
-	p.logger.Debug("event published",
+	p.logger.Debug("event published to JetStream",
 		zap.String("subject", subject),
 		zap.String("event_type", event.Type),
 		zap.String("event_id", event.ID))

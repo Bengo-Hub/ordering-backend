@@ -257,12 +257,27 @@ func New(ctx context.Context) (*App, error) {
 	notificationsClient := extnotifications.NewClient(cfg.Notifications, log)
 	_ = notificationsClient // Available for use in services that need to send notifications
 
-	// Initialize event publisher for NATS events
+	// Initialize event publisher for NATS JetStream events
 	var eventPublisher *events.Publisher
 	var outboxPublisher *outbox.Publisher
 	if natsConn != nil {
-		eventPublisher = events.NewPublisher(natsConn, log)
-		log.Info("app: event publisher initialized")
+		// Ensure the "ordering" JetStream stream exists for durable event delivery
+		if err := events.EnsureStream(ctx, natsConn, cfg.Events); err != nil {
+			log.Warn("app: failed to ensure ordering JetStream stream (non-fatal)", zap.Error(err))
+		} else {
+			log.Info("app: ordering JetStream stream ensured", zap.String("stream", cfg.Events.StreamName))
+		}
+
+		// Initialize JetStream context for publishing
+		js, jsErr := natsConn.JetStream()
+		if jsErr != nil {
+			log.Warn("app: failed to init JetStream context", zap.Error(jsErr))
+		}
+
+		if js != nil {
+			eventPublisher = events.NewPublisher(js, log)
+			log.Info("app: JetStream event publisher initialized")
+		}
 
 		// Wire event publisher to order service for publishing order events
 		orderSvc.SetEventPublisher(eventPublisher)
@@ -292,16 +307,16 @@ func New(ctx context.Context) (*App, error) {
 		}
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
-		if cfg.Events.OutboxEnabled {
+		if cfg.Events.OutboxEnabled && js != nil {
 			outboxRepo := eventslib.NewSQLOutboxRepository(sqlDB)
-			outboxNatsPublisher := events.NewOutboxPublisher(natsConn, log)
+			outboxNatsPublisher := events.NewOutboxPublisher(js, log)
 			outboxConfig := outbox.PublisherConfig{
 				BatchSize:  cfg.Events.OutboxBatchSize,
 				PollPeriod: cfg.Events.OutboxPollPeriod,
 			}
 			outboxPublisher = outbox.NewPublisher(outboxRepo, outboxNatsPublisher, log, outboxConfig)
 			outboxPublisher.Start(ctx)
-			log.Info("app: outbox background publisher started",
+			log.Info("app: outbox background publisher started (JetStream)",
 				zap.Int("batch_size", cfg.Events.OutboxBatchSize),
 				zap.Duration("poll_period", cfg.Events.OutboxPollPeriod))
 		}
