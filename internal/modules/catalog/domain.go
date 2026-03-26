@@ -20,6 +20,7 @@ type MergedCatalogItem struct {
 	IsActive     bool       `json:"isActive"`
 	ImageURL     string     `json:"imageUrl,omitempty"`
 	CategoryID   *uuid.UUID `json:"categoryId,omitempty"`
+	CategoryName string     `json:"categoryName,omitempty"`
 
 	// Override fields (from CatalogOverride)
 	BasePrice         float64 `json:"basePrice"`
@@ -46,6 +47,7 @@ type InventoryCategory struct {
 	Name        string `json:"name"`
 	Code        string `json:"code"`
 	Description string `json:"description,omitempty"`
+	Icon        string `json:"icon,omitempty"`
 	IsActive    bool   `json:"isActive"`
 }
 

@@ -406,8 +406,9 @@ type ItemResponse struct {
 	Type        string         `json:"type"`
 	IsActive    bool           `json:"is_active"`
 	ImageURL    string         `json:"image_url,omitempty"`
-	CategoryID  *uuid.UUID     `json:"category_id,omitempty"`
-	UnitID      *uuid.UUID     `json:"unit_id,omitempty"`
+	CategoryID   *uuid.UUID     `json:"category_id,omitempty"`
+	CategoryName string         `json:"category_name,omitempty"`
+	UnitID       *uuid.UUID     `json:"unit_id,omitempty"`
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
@@ -482,10 +483,12 @@ type CategoryResponse struct {
 	Name        string `json:"name"`
 	Code        string `json:"code"`
 	Description string `json:"description"`
+	Icon        string `json:"icon"`
 	IsActive    bool   `json:"is_active"`
 }
 
 // ListCategories returns categories from inventory-api.
+// inventory-api returns paginated: {"data": [...], "total": N}
 func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]CategoryResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/categories", tenantSlug)
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
@@ -495,11 +498,20 @@ func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]Categ
 	if !resp.IsSuccess() {
 		return nil, c.parseError(resp)
 	}
-	var categories []CategoryResponse
-	if err := resp.DecodeJSON(&categories); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
+	// inventory-api wraps results in {"data": [...], "total": N}
+	var wrapper struct {
+		Data  []CategoryResponse `json:"data"`
+		Total int                `json:"total"`
 	}
-	return categories, nil
+	if err := resp.DecodeJSON(&wrapper); err != nil {
+		// Fallback: try direct array decode for backward compatibility
+		var categories []CategoryResponse
+		if err2 := resp.DecodeJSON(&categories); err2 != nil {
+			return nil, fmt.Errorf("decode response: %w", err)
+		}
+		return categories, nil
+	}
+	return wrapper.Data, nil
 }
 
 // ServiceClient returns the underlying service client for direct API calls.
