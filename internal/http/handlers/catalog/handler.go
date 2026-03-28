@@ -128,6 +128,13 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if catIDStr := r.URL.Query().Get("category_id"); catIDStr != "" {
+		catID, err := uuid.Parse(catIDStr)
+		if err == nil {
+			filter.CategoryID = &catID
+		}
+	}
+
 	if f := r.URL.Query().Get("featured"); f == "true" || f == "false" {
 		v := f == "true"
 		filter.IsFeatured = &v
@@ -591,10 +598,11 @@ func (h *Handler) GetOutletTimeSlots(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 
-	// Parse date (default: today)
+	// Parse date (default: today). Use local timezone so weekday/today checks
+	// in GenerateTimeSlots are correct (time.Parse returns UTC by default).
 	date := time.Now()
 	if dateStr := q.Get("date"); dateStr != "" {
-		if parsed, pErr := time.Parse("2006-01-02", dateStr); pErr == nil {
+		if parsed, pErr := time.ParseInLocation("2006-01-02", dateStr, time.Now().Location()); pErr == nil {
 			date = parsed
 		}
 	}
