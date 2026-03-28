@@ -1351,8 +1351,8 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 	if err == nil {
 		// Update existing outlet with coordinates and pickup support
 		_, updErr := tx.Outlet.UpdateOneID(existing.ID).
-			SetLatitude(0.4607).
-			SetLongitude(34.1115).
+			SetLatitude(0.4612).
+			SetLongitude(34.1109).
 			SetSupportsPickup(true).
 			Save(ctx)
 		if updErr != nil {
@@ -1376,8 +1376,8 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 		SetLocation("Busia, Kenya").
 		SetImageURL("/media/images/outlets/urban-loft-busia.jpeg").
 		SetUseCase("hospitality").
-		SetLatitude(0.4607).
-		SetLongitude(34.1115).
+		SetLatitude(0.4612).
+		SetLongitude(34.1109).
 		SetSupportsPickup(true).
 		SetStatus("active").
 		SetOpeningHours(map[string]any{
