@@ -370,6 +370,93 @@ func isWithinPeriod(period map[string]any, currentMinutes int) bool {
 	return currentMinutes >= openMin && currentMinutes < closeMin
 }
 
+// TimeSlot represents a deliverable time window.
+type TimeSlot struct {
+	Start     string `json:"start"`      // HH:MM
+	End       string `json:"end"`        // HH:MM
+	Available bool   `json:"available"`
+}
+
+// GenerateTimeSlots generates delivery time slots for a given outlet and date.
+// slotMinutes controls the slot duration (default 30). leadMinutes is the minimum
+// prep time from now (e.g. 45 min). Returns slots within the outlet's opening hours.
+func GenerateTimeSlots(openingHours map[string]any, date time.Time, slotMinutes, leadMinutes int) []TimeSlot {
+	if slotMinutes <= 0 {
+		slotMinutes = 30
+	}
+	if leadMinutes <= 0 {
+		leadMinutes = 45
+	}
+
+	dayName := strings.ToLower(date.Weekday().String())
+	now := time.Now()
+	isToday := date.Year() == now.Year() && date.YearDay() == now.YearDay()
+
+	// Earliest available minute for today (now + lead time)
+	earliestMinute := 0
+	if isToday {
+		earliestMinute = now.Hour()*60 + now.Minute() + leadMinutes
+		// Round up to next slot boundary
+		earliestMinute = ((earliestMinute + slotMinutes - 1) / slotMinutes) * slotMinutes
+	}
+
+	// Collect open periods for the day
+	type period struct{ open, close int }
+	var periods []period
+
+	if len(openingHours) == 0 {
+		// No hours defined = assume 8:00-22:00
+		periods = append(periods, period{8 * 60, 22 * 60})
+	} else {
+		dayData, ok := openingHours[dayName]
+		if !ok {
+			return nil // closed on this day
+		}
+
+		if m, ok := dayData.(map[string]any); ok {
+			o := parseTimeToMinutes(m["open"].(string))
+			c := parseTimeToMinutes(m["close"].(string))
+			if o >= 0 && c >= 0 {
+				periods = append(periods, period{o, c})
+			}
+		}
+
+		if arr, ok := dayData.([]any); ok {
+			for _, item := range arr {
+				if m, ok := item.(map[string]any); ok {
+					openStr, _ := m["open"].(string)
+					closeStr, _ := m["close"].(string)
+					o := parseTimeToMinutes(openStr)
+					c := parseTimeToMinutes(closeStr)
+					if o >= 0 && c >= 0 {
+						periods = append(periods, period{o, c})
+					}
+				}
+			}
+		}
+	}
+
+	var slots []TimeSlot
+	for _, p := range periods {
+		for start := p.open; start+slotMinutes <= p.close; start += slotMinutes {
+			end := start + slotMinutes
+			available := start >= earliestMinute
+			slots = append(slots, TimeSlot{
+				Start:     minutesToTime(start),
+				End:       minutesToTime(end),
+				Available: available,
+			})
+		}
+	}
+	return slots
+}
+
+func minutesToTime(m int) string {
+	h := m / 60
+	min := m % 60
+	return fmt.Sprintf("%02d:%02d", h, min)
+}
+
 func parseTimeToMinutes(t string) int {
 	parts := strings.Split(t, ":")
 	if len(parts) != 2 {

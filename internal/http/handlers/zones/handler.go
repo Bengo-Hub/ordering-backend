@@ -270,8 +270,6 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For MVP: return all active zones for the tenant/outlet.
-	// Full geo-fencing (point-in-polygon check) is a post-MVP enhancement.
 	query := h.client.DeliveryZone.Query().
 		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true))
 
@@ -285,11 +283,24 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceable := len(zones) > 0
+	// Point-in-polygon check: find the zone that contains the given coordinates
 	var bestZone *ent.DeliveryZone
-	if serviceable {
-		bestZone = zones[0]
+	for _, zone := range zones {
+		if zone.ZonePolygon == nil {
+			// Zone without polygon: treat as universal (fallback zone)
+			if bestZone == nil {
+				bestZone = zone
+			}
+			continue
+		}
+		if pointInGeoJSONPolygon(req.Latitude, req.Longitude, zone.ZonePolygon) {
+			// Prefer the zone with the lowest delivery fee if multiple match
+			if bestZone == nil || zone.DeliveryFee < bestZone.DeliveryFee {
+				bestZone = zone
+			}
+		}
 	}
+	serviceable := bestZone != nil
 
 	result := map[string]any{
 		"serviceable": serviceable,
@@ -307,6 +318,83 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, result)
+}
+
+// pointInGeoJSONPolygon checks if a lat/lng point is inside a GeoJSON polygon.
+// Uses the ray-casting algorithm for point-in-polygon containment.
+// Supports GeoJSON Polygon type with coordinates as [[[lng, lat], ...]] format.
+func pointInGeoJSONPolygon(lat, lng float64, polygon map[string]interface{}) bool {
+	coords, ok := polygon["coordinates"]
+	if !ok {
+		return false
+	}
+
+	// GeoJSON Polygon coordinates: [[[lng, lat], [lng, lat], ...]]
+	rings, ok := coords.([]interface{})
+	if !ok || len(rings) == 0 {
+		return false
+	}
+
+	// Use only the outer ring (first ring); holes not supported for simplicity
+	outerRing, ok := rings[0].([]interface{})
+	if !ok || len(outerRing) < 3 {
+		return false
+	}
+
+	// Parse coordinate pairs
+	points := make([][2]float64, 0, len(outerRing))
+	for _, pt := range outerRing {
+		pair, ok := pt.([]interface{})
+		if !ok || len(pair) < 2 {
+			continue
+		}
+		pLng, okLng := toFloat64(pair[0])
+		pLat, okLat := toFloat64(pair[1])
+		if !okLng || !okLat {
+			continue
+		}
+		points = append(points, [2]float64{pLng, pLat})
+	}
+
+	if len(points) < 3 {
+		return false
+	}
+
+	return raycast(lng, lat, points)
+}
+
+// raycast implements the ray-casting algorithm for point-in-polygon.
+// testX, testY is the point; polygon is a slice of [x, y] coordinate pairs.
+func raycast(testX, testY float64, polygon [][2]float64) bool {
+	n := len(polygon)
+	inside := false
+	j := n - 1
+	for i := 0; i < n; i++ {
+		xi, yi := polygon[i][0], polygon[i][1]
+		xj, yj := polygon[j][0], polygon[j][1]
+		if ((yi > testY) != (yj > testY)) &&
+			(testX < (xj-xi)*(testY-yi)/(yj-yi)+xi) {
+			inside = !inside
+		}
+		j = i
+	}
+	return inside
+}
+
+// toFloat64 safely converts an interface{} to float64.
+func toFloat64(v interface{}) (float64, bool) {
+	switch n := v.(type) {
+	case float64:
+		return n, true
+	case float32:
+		return float64(n), true
+	case int:
+		return float64(n), true
+	case int64:
+		return float64(n), true
+	default:
+		return 0, false
+	}
 }
 
 func (h *Handler) getTenantID(r *http.Request) (uuid.UUID, error) {

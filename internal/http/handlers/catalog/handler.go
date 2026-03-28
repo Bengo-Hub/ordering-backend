@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -80,6 +81,7 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/outlets", func(outletRouter chi.Router) {
 		outletRouter.Get("/", h.ListOutlets)
 		outletRouter.Get("/{id}", h.GetOutlet)
+		outletRouter.Get("/{id}/time-slots", h.GetOutletTimeSlots)
 	})
 }
 
@@ -559,6 +561,69 @@ func (h *Handler) GetOutlet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, out)
+}
+
+// GetOutletTimeSlots returns available delivery/pickup time slots for a given outlet and date.
+// Query params: date (YYYY-MM-DD, defaults to today), slot_minutes (default 30), lead_minutes (default 45).
+func (h *Handler) GetOutletTimeSlots(w http.ResponseWriter, r *http.Request) {
+	tenantID, _, err := h.resolveTenant(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "tenant required")
+		return
+	}
+
+	outletID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet id")
+		return
+	}
+
+	out, err := h.service.GetOutlet(r.Context(), tenantID, outletID)
+	if err != nil {
+		if errors.Is(err, catalog.ErrOutletNotFound) {
+			handlers.RespondError(w, http.StatusNotFound, "outlet not found")
+			return
+		}
+		h.log.Error("get outlet for time-slots failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	q := r.URL.Query()
+
+	// Parse date (default: today)
+	date := time.Now()
+	if dateStr := q.Get("date"); dateStr != "" {
+		if parsed, pErr := time.Parse("2006-01-02", dateStr); pErr == nil {
+			date = parsed
+		}
+	}
+
+	slotMinutes := 30
+	if v := q.Get("slot_minutes"); v != "" {
+		if n, pErr := strconv.Atoi(v); pErr == nil && n > 0 && n <= 120 {
+			slotMinutes = n
+		}
+	}
+
+	leadMinutes := 45
+	if v := q.Get("lead_minutes"); v != "" {
+		if n, pErr := strconv.Atoi(v); pErr == nil && n > 0 {
+			leadMinutes = n
+		}
+	}
+
+	slots := catalog.GenerateTimeSlots(out.OpeningHours, date, slotMinutes, leadMinutes)
+	if slots == nil {
+		slots = []catalog.TimeSlot{}
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{
+		"outlet_id":    outletID,
+		"date":         date.Format("2006-01-02"),
+		"slot_minutes": slotMinutes,
+		"slots":        slots,
+	})
 }
 
 // --- Helper Functions ---

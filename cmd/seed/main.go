@@ -181,7 +181,19 @@ func seedDemoUser(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, now time.
 		"timezone": timezone,
 	}
 
-	_, err := tx.User.Get(ctx, demoUserID)
+	// Resolve email conflicts: if another user has this email, delete them.
+	_, err := tx.User.Query().
+		Where(user.EmailEQ(demoEmail), user.TenantIDEQ(tenantID), user.IDNEQ(demoUserID)).
+		Only(ctx)
+	if err == nil {
+		if _, delErr := tx.User.Delete().
+			Where(user.EmailEQ(demoEmail), user.TenantIDEQ(tenantID), user.IDNEQ(demoUserID)).
+			Exec(ctx); delErr != nil {
+			return fmt.Errorf("resolve email conflict for demo user: %w", delErr)
+		}
+	}
+
+	_, err = tx.User.Get(ctx, demoUserID)
 	switch {
 	case ent.IsNotFound(err):
 		_, createErr := tx.User.Create().
@@ -609,7 +621,7 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 
 func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID, passwordHash string, now time.Time) error {
 	const (
-		email       = "info@theurbanloftcafe.com"
+		email       = "admin@theurbanloftcafe.com"
 		fullName    = "Super Admin"
 		status      = "active"
 		locale      = "en"
@@ -621,7 +633,20 @@ func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID,
 		"timezone": timezone,
 	}
 
-	_, err := tx.User.Get(ctx, userID)
+	// Resolve email conflicts: if another user has this email, delete them.
+	// This handles manual email swaps between runs.
+	_, err := tx.User.Query().
+		Where(user.EmailEQ(email), user.TenantIDEQ(tenantID), user.IDNEQ(userID)).
+		Only(ctx)
+	if err == nil {
+		if _, delErr := tx.User.Delete().
+			Where(user.EmailEQ(email), user.TenantIDEQ(tenantID), user.IDNEQ(userID)).
+			Exec(ctx); delErr != nil {
+			return fmt.Errorf("resolve email conflict for super admin: %w", delErr)
+		}
+	}
+
+	_, err = tx.User.Get(ctx, userID)
 	switch {
 	case ent.IsNotFound(err):
 		_, createErr := tx.User.Create().
@@ -1020,9 +1045,9 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 
 	roles := []roleSpec{
 		{
-			code: "ordering_admin",
-			name: "Ordering Admin",
-			desc: "Full tenant administrator with access to all ordering modules",
+			code:  "ordering_admin",
+			name:  "Ordering Admin",
+			desc:  "Full tenant administrator with access to all ordering modules",
 			perms: allPerms(allModules...),
 		},
 		{
@@ -1171,13 +1196,13 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 // seedRateLimitConfigs seeds rate limiting configurations.
 func seedRateLimitConfigs(ctx context.Context, tx *ent.Tx) error {
 	type rlConfig struct {
-		serviceName      string
-		keyType          string
-		endpointPattern  string
-		requestsPerWin   int
-		windowSecs       int
-		burstMultiplier  float64
-		desc             string
+		serviceName     string
+		keyType         string
+		endpointPattern string
+		requestsPerWin  int
+		windowSecs      int
+		burstMultiplier float64
+		desc            string
 	}
 
 	configs := []rlConfig{
@@ -1324,6 +1349,15 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 
 	existing, err := tx.Outlet.Query().Where(outlet.ID(outletID)).Only(ctx)
 	if err == nil {
+		// Update existing outlet with coordinates and pickup support
+		_, updErr := tx.Outlet.UpdateOneID(existing.ID).
+			SetLatitude(0.4607).
+			SetLongitude(34.1115).
+			SetSupportsPickup(true).
+			Save(ctx)
+		if updErr != nil {
+			return uuid.Nil, updErr
+		}
 		return existing.ID, nil
 	}
 	if !ent.IsNotFound(err) {
@@ -1342,6 +1376,9 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 		SetLocation("Busia, Kenya").
 		SetImageURL("/media/images/outlets/urban-loft-busia.jpeg").
 		SetUseCase("hospitality").
+		SetLatitude(0.4607).
+		SetLongitude(34.1115).
+		SetSupportsPickup(true).
 		SetStatus("active").
 		Save(ctx)
 	if err != nil {

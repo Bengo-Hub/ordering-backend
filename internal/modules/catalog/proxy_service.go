@@ -189,6 +189,7 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([
 			Name:        c.Name,
 			Code:        c.Code,
 			Description: c.Description,
+			Icon:        c.Icon,
 			IsActive:    c.IsActive,
 		}
 	}
@@ -433,6 +434,7 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		IsActive:     inv.IsActive,
 		ImageURL:     inv.ImageURL,
 		CategoryID:   inv.CategoryID,
+		CategoryName: inv.CategoryName,
 		Currency:     DefaultCurrency,
 		IsAvailable:  inv.IsActive,
 	}
