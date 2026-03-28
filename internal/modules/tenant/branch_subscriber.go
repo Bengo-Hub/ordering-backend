@@ -50,15 +50,37 @@ func (s *BranchSubscriber) handleBranchCreated(ctx context.Context, event events
 		return fmt.Errorf("branch name is missing in event data")
 	}
 
-	// Create Outlet for this branch
-	_, err = s.orm.Outlet.Create().
+	// Create Outlet for this branch, enriching with optional fields from event data
+	builder := s.orm.Outlet.Create().
 		SetTenantID(tenantID).
 		SetName(name).
-		SetSlug(fmt.Sprintf("%s-%s", tenantID.String()[:8], name)). // basic slug
+		SetSlug(fmt.Sprintf("%s-%s", tenantID.String()[:8], name)).
 		SetStatus("active").
-		SetUseCase(useCase).
-		// We could add more fields if we had a mapping or if they were in the event
-		Save(ctx)
+		SetUseCase(useCase)
+
+	if lat, ok := event.Data["latitude"].(float64); ok {
+		builder.SetLatitude(lat)
+	}
+	if lng, ok := event.Data["longitude"].(float64); ok {
+		builder.SetLongitude(lng)
+	}
+	if pickup, ok := event.Data["supports_pickup"].(bool); ok {
+		builder.SetSupportsPickup(pickup)
+	}
+	if addr, ok := event.Data["address"].(string); ok {
+		builder.SetAddress(addr)
+	}
+	if phone, ok := event.Data["phone"].(string); ok {
+		builder.SetPhone(phone)
+	}
+	if email, ok := event.Data["email"].(string); ok {
+		builder.SetEmail(email)
+	}
+	if hours, ok := event.Data["opening_hours"].(map[string]any); ok {
+		builder.SetOpeningHours(hours)
+	}
+
+	_, err = builder.Save(ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed to create outlet: %w", err)
