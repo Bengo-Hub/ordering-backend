@@ -507,7 +507,7 @@ func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]Categ
 		// Fallback: try direct array decode for backward compatibility
 		var categories []CategoryResponse
 		if err2 := resp.DecodeJSON(&categories); err2 != nil {
-			return nil, fmt.Errorf("decode response: %w", err)
+			return nil, fmt.Errorf("decode response: %w", err2)
 		}
 		return categories, nil
 	}

@@ -1380,6 +1380,15 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 		SetLongitude(34.1115).
 		SetSupportsPickup(true).
 		SetStatus("active").
+		SetOpeningHours(map[string]any{
+			"monday":    map[string]any{"open": "07:00", "close": "22:00"},
+			"tuesday":   map[string]any{"open": "07:00", "close": "22:00"},
+			"wednesday": map[string]any{"open": "07:00", "close": "22:00"},
+			"thursday":  map[string]any{"open": "07:00", "close": "22:00"},
+			"friday":    map[string]any{"open": "07:00", "close": "23:00"},
+			"saturday":  map[string]any{"open": "08:00", "close": "23:00"},
+			"sunday":    map[string]any{"open": "08:00", "close": "21:00"},
+		}).
 		Save(ctx)
 	if err != nil {
 		return uuid.Nil, err
