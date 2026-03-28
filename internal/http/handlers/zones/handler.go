@@ -283,13 +283,15 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Point-in-polygon check: find the zone that contains the given coordinates
+	// Point-in-polygon check: find the zone that contains the given coordinates.
+	// Polygon matches take priority over fallback (no-polygon) zones.
 	var bestZone *ent.DeliveryZone
+	var fallbackZone *ent.DeliveryZone
 	for _, zone := range zones {
 		if zone.ZonePolygon == nil {
 			// Zone without polygon: treat as universal (fallback zone)
-			if bestZone == nil {
-				bestZone = zone
+			if fallbackZone == nil {
+				fallbackZone = zone
 			}
 			continue
 		}
@@ -299,6 +301,9 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 				bestZone = zone
 			}
 		}
+	}
+	if bestZone == nil {
+		bestZone = fallbackZone
 	}
 	serviceable := bestZone != nil
 

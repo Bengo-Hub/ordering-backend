@@ -106,6 +106,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		if filter.Section != "" && item.DisplaySection != filter.Section {
 			continue
 		}
+		if filter.CategoryID != nil && (item.CategoryID == nil || *item.CategoryID != *filter.CategoryID) {
+			continue
+		}
 
 		merged = append(merged, item)
 	}
