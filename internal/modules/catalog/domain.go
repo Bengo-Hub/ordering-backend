@@ -72,9 +72,10 @@ type OutletSummary struct {
 
 // CatalogFilter defines filter options for listing merged catalog items.
 type CatalogFilter struct {
-	TenantID    uuid.UUID
-	OutletID    *uuid.UUID
-	Search      string
+	TenantID   uuid.UUID
+	OutletID   *uuid.UUID
+	CategoryID *uuid.UUID
+	Search     string
 	IsFeatured  *bool
 	IsAvailable *bool
 	Section     string

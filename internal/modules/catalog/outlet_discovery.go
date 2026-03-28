@@ -48,7 +48,7 @@ type OutletWithMeta struct {
 	Address       string    `json:"address,omitempty"`
 	Latitude      float64   `json:"latitude,omitempty"`
 	Longitude     float64   `json:"longitude,omitempty"`
-	IsOpen        bool      `json:"is_open"`
+	IsOpen        bool      `json:"isOpen"`
 	AverageRating float64   `json:"average_rating"`
 	TotalRatings  int       `json:"total_ratings"`
 	DeliveryFee   float64   `json:"delivery_fee"`
@@ -388,6 +388,10 @@ func GenerateTimeSlots(openingHours map[string]any, date time.Time, slotMinutes,
 		leadMinutes = 45
 	}
 
+	// Normalize date to local timezone so weekday and today-check are correct
+	// (time.Parse("2006-01-02",...) returns UTC; time.Now() returns local)
+	loc := time.Now().Location()
+	date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, loc)
 	dayName := strings.ToLower(date.Weekday().String())
 	now := time.Now()
 	isToday := date.Year() == now.Year() && date.YearDay() == now.YearDay()
@@ -414,8 +418,10 @@ func GenerateTimeSlots(openingHours map[string]any, date time.Time, slotMinutes,
 		}
 
 		if m, ok := dayData.(map[string]any); ok {
-			o := parseTimeToMinutes(m["open"].(string))
-			c := parseTimeToMinutes(m["close"].(string))
+			openStr, _ := m["open"].(string)
+			closeStr, _ := m["close"].(string)
+			o := parseTimeToMinutes(openStr)
+			c := parseTimeToMinutes(closeStr)
 			if o >= 0 && c >= 0 {
 				periods = append(periods, period{o, c})
 			}
