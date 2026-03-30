@@ -220,6 +220,11 @@ func New(ctx context.Context) (*App, error) {
 	go orderScheduler.Start(ctx)
 	log.Info("app: order scheduler started (scheduled delivery flow)")
 
+	// Start cart cleanup job (expires stale carts every 15 minutes)
+	cartCleanupJob := ordering.NewCartCleanupJob(orderingRepo, log)
+	go cartCleanupJob.Start(ctx)
+	log.Info("app: cart cleanup job started (15-minute interval)")
+
 	groupOrderSvc := ordering.NewGroupOrderService(orderingRepo, log)
 
 	// Create ordering handlers
@@ -245,8 +250,10 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize fulfilment module
 	logisticsClient := logistics.NewClient(cfg.Logistics, log)
+	orderSvc.SetLogisticsClient(logisticsClient)
 	fulfilmentRepo := fulfilment.NewEntRepository(ormClient)
 	taskSvc := fulfilment.NewTaskService(fulfilmentRepo, logisticsClient, log)
+	orderHandler.SetTaskService(taskSvc)
 	fulfilmentWebhookSvc := fulfilment.NewWebhookService(fulfilmentRepo, cfg.Logistics.WebhookSecret, log)
 
 	// Create fulfilment handlers

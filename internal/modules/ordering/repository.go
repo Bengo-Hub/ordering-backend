@@ -90,6 +90,9 @@ type Repository interface {
 	// DeliveryZone operations
 	ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error)
 
+	// Outlet operations
+	GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error)
+
 	// OutletRating operations
 	GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error)
 	UpsertOutletRating(ctx context.Context, rating *OutletRatingData) error
@@ -106,6 +109,9 @@ type Repository interface {
 
 	// ActivePromos returns active promo codes for a tenant, optionally filtered by outlet
 	ListActivePromoCodesForOutlet(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]PromoCode, error)
+
+	// Cart cleanup
+	ListDistinctCartTenantIDs(ctx context.Context) ([]uuid.UUID, error)
 
 	// Global/Cross-module lookups for stock processing
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)

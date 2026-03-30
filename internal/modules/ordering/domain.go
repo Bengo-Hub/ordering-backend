@@ -112,6 +112,18 @@ const (
 	FulfillmentTypeScheduled FulfillmentType = "scheduled"
 )
 
+// PaymentMethod represents the payment method for an order.
+type PaymentMethod string
+
+const (
+	PaymentMethodMpesa   PaymentMethod = "mpesa"
+	PaymentMethodPaystack PaymentMethod = "paystack"
+	PaymentMethodStripe  PaymentMethod = "stripe"
+	PaymentMethodCOD     PaymentMethod = "cod"
+	PaymentMethodWallet  PaymentMethod = "wallet"
+	PaymentMethodLoyalty PaymentMethod = "loyalty"
+)
+
 // Order represents a customer order.
 type Order struct {
 	ID                    uuid.UUID              `json:"id"`
@@ -122,6 +134,7 @@ type Order struct {
 	OrderNumber           string                 `json:"orderNumber"`
 	Status                OrderStatus            `json:"status"`
 	PaymentStatus         PaymentStatus          `json:"paymentStatus"`
+	PaymentMethod         PaymentMethod          `json:"paymentMethod"`
 	FulfillmentType       FulfillmentType        `json:"fulfillmentType"`
 	ScheduledFor          *time.Time             `json:"scheduledFor,omitempty"`
 	Currency              string                 `json:"currency"`
@@ -476,6 +489,7 @@ type CheckoutRequest struct {
 	IdempotencyKey        string
 	FulfillmentType       FulfillmentType
 	ScheduledFor          *time.Time
+	PaymentMethod         PaymentMethod
 }
 
 // CreateOrderFromItemsRequest is the request to create an order directly from a list of items (frontend contract).

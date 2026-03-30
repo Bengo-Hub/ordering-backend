@@ -491,6 +491,26 @@ func PaymentStatusNotIn(vs ...PaymentStatus) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldPaymentStatus, vs...))
 }
 
+// PaymentMethodEQ applies the EQ predicate on the "payment_method" field.
+func PaymentMethodEQ(v PaymentMethod) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPaymentMethod, v))
+}
+
+// PaymentMethodNEQ applies the NEQ predicate on the "payment_method" field.
+func PaymentMethodNEQ(v PaymentMethod) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldPaymentMethod, v))
+}
+
+// PaymentMethodIn applies the In predicate on the "payment_method" field.
+func PaymentMethodIn(vs ...PaymentMethod) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldPaymentMethod, vs...))
+}
+
+// PaymentMethodNotIn applies the NotIn predicate on the "payment_method" field.
+func PaymentMethodNotIn(vs ...PaymentMethod) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldPaymentMethod, vs...))
+}
+
 // PaymentIntentIDEQ applies the EQ predicate on the "payment_intent_id" field.
 func PaymentIntentIDEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldPaymentIntentID, v))
