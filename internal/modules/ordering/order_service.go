@@ -12,6 +12,7 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
+	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
@@ -28,6 +29,7 @@ type OrderService struct {
 	inventoryClient     *inventory.Client
 	treasuryClient      *treasury.Client
 	subscriptionsClient *subscriptions.Client
+	logisticsClient     *logistics.Client
 	logger              *zap.Logger
 }
 
@@ -64,6 +66,11 @@ func (s *OrderService) SetTreasuryClient(client *treasury.Client) {
 // This is called after initialization to avoid circular dependencies.
 func (s *OrderService) SetEventPublisher(publisher *events.Publisher) {
 	s.eventPublisher = publisher
+}
+
+// SetLogisticsClient sets the logistics client for rider rating integration.
+func (s *OrderService) SetLogisticsClient(client *logistics.Client) {
+	s.logisticsClient = client
 }
 
 // checkSubscription enforces that the tenant has an active subscription before
@@ -220,6 +227,16 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Calculate loyalty points earned
 	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
 
+	// Determine payment method and status
+	paymentMethod := req.PaymentMethod
+	if paymentMethod == "" {
+		paymentMethod = PaymentMethodMpesa // default
+	}
+	paymentStatus := PaymentStatusPending
+	if paymentMethod == PaymentMethodCOD {
+		paymentStatus = "cod_pending"
+	}
+
 	// Create order
 	now := time.Now()
 	order := &Order{
@@ -229,7 +246,8 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		CartID:                &cart.ID,
 		OrderNumber:           orderNumber,
 		Status:                OrderStatusPending,
-		PaymentStatus:         PaymentStatusPending,
+		PaymentStatus:         PaymentStatus(paymentStatus),
+		PaymentMethod:         paymentMethod,
 		FulfillmentType:       fulfillmentType,
 		ScheduledFor:          req.ScheduledFor,
 		Currency:              cart.Currency,
@@ -671,6 +689,16 @@ func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID
 	return order, nil
 }
 
+// GetOrderEvents retrieves all lifecycle events for an order.
+func (s *OrderService) GetOrderEvents(ctx context.Context, tenantID, orderID uuid.UUID) ([]OrderEvent, error) {
+	// Verify order exists and belongs to tenant
+	_, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	return s.repo.ListOrderEvents(ctx, orderID)
+}
+
 // GetOrderByNumber retrieves an order by order number.
 func (s *OrderService) GetOrderByNumber(ctx context.Context, tenantID uuid.UUID, orderNumber string) (*Order, error) {
 	return s.repo.GetOrderByNumber(ctx, tenantID, orderNumber)
@@ -784,7 +812,13 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 }
 
 // RateOrder submits a customer rating (1-5 stars) for a delivered/completed order.
-func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, customerID uuid.UUID, rating int, comment string) (*Order, error) {
+// RateOrderOpts holds optional rider rating fields for the RateOrder call.
+type RateOrderOpts struct {
+	RiderRating  *int
+	RiderComment string
+}
+
+func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, customerID uuid.UUID, rating int, comment string, opts ...RateOrderOpts) (*Order, error) {
 	if rating < 1 || rating > 5 {
 		return nil, ErrInvalidRating
 	}
@@ -832,6 +866,30 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 			"comment":     comment,
 		})
 		_ = s.eventPublisher.Publish(ctx, "ordering.order.rated", evt)
+	}
+
+	// Rate the rider via logistics if rider rating was provided and order has a delivery assignment
+	if len(opts) > 0 && opts[0].RiderRating != nil && s.logisticsClient != nil {
+		riderRating := *opts[0].RiderRating
+		if riderRating >= 1 && riderRating <= 5 {
+			// Get tenant slug for the logistics API call
+			tenant, tenantErr := s.repo.GetTenantByID(ctx, tenantID)
+			if tenantErr == nil {
+				// Find the logistics task ID from order assignments
+				// The fulfilment module stores LogisticsTaskID in OrderAssignment
+				go func() {
+					rateErr := s.logisticsClient.RateRider(context.Background(), tenant.Slug, order.ID.String(), logistics.RateRiderRequest{
+						Rating:  riderRating,
+						Comment: opts[0].RiderComment,
+					})
+					if rateErr != nil {
+						s.logger.Warn("failed to rate rider via logistics",
+							zap.Error(rateErr),
+							zap.String("order_id", order.ID.String()))
+					}
+				}()
+			}
+		}
 	}
 
 	s.logger.Info("order rated",
@@ -1271,10 +1329,19 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 	}
 
 	data := events.OrderReadyData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		OutletID:    order.OutletID,
-		CustomerID:  order.CustomerID,
+		OrderID:         order.ID,
+		OrderNumber:     order.OrderNumber,
+		OutletID:        order.OutletID,
+		CustomerID:      order.CustomerID,
+		PaymentMethod:   string(order.PaymentMethod),
+		DeliveryFee:     order.DeliveryFee,
+		GrandTotal:      order.GrandTotal,
+		Instructions:    order.Instructions,
+		FulfillmentType: string(order.FulfillmentType),
+	}
+	// For COD orders, set the cash collection amount
+	if order.PaymentMethod == PaymentMethodCOD {
+		data.CashOnDelivery = order.GrandTotal
 	}
 
 	// Add delivery address if available
@@ -1292,6 +1359,24 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 			"contact_name":  order.DeliveryAddress.ContactName,
 			"contact_phone": order.DeliveryAddress.ContactPhone,
 			"instructions":  order.DeliveryAddress.Instructions,
+		}
+		if order.DeliveryAddress.ContactName != "" {
+			data.CustomerName = order.DeliveryAddress.ContactName
+		}
+		if order.DeliveryAddress.ContactPhone != "" {
+			data.CustomerPhone = order.DeliveryAddress.ContactPhone
+		}
+	}
+
+	// Add outlet location for logistics pickup coordinates
+	outletName, outletLat, outletLng, err := s.repo.GetOutletLocation(ctx, order.TenantID, order.OutletID)
+	if err != nil {
+		s.logger.Warn("failed to get outlet location for order.ready event", zap.Error(err))
+	} else if outletLat != nil && outletLng != nil {
+		data.OutletLocation = map[string]interface{}{
+			"name":      outletName,
+			"latitude":  *outletLat,
+			"longitude": *outletLng,
 		}
 	}
 

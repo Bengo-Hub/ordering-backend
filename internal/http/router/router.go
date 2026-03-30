@@ -96,11 +96,7 @@ func New(
 		"application/json",
 	))
 
-	// Global rate limiting by IP (if rate limiter is configured)
-	if rateLimiter != nil && securityConfig.RateLimitEnabled {
-		r.Use(rateLimiter.IPRateLimiter(securityConfig.RateLimitRequestsPerMin, time.Minute))
-	}
-
+	// CORS must be applied BEFORE rate limiter so 429 responses include CORS headers
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -109,6 +105,11 @@ func New(
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+
+	// Global rate limiting by IP (if rate limiter is configured)
+	if rateLimiter != nil && securityConfig.RateLimitEnabled {
+		r.Use(rateLimiter.IPRateLimiter(securityConfig.RateLimitRequestsPerMin, time.Minute))
+	}
 
 	// System endpoints (no tenant, no auth)
 	r.Get("/healthz", healthHandler.Liveness)

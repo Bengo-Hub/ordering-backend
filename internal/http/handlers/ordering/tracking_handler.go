@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
@@ -106,11 +107,30 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 				lastStatus = current.Status
 			}
 
-			// If order is out for delivery, include a rider location placeholder
-			if current.Status == ordering.OrderStatusOutForDelivery {
-				sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
-					"status": "out_for_delivery",
-				})
+			// If order is out for delivery, fetch real rider location from logistics
+			if current.Status == ordering.OrderStatusOutForDelivery && h.taskService != nil {
+				tenantSlug := ""
+				if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
+					tenantSlug = claims.GetTenantSlug()
+				}
+				if tenantSlug != "" {
+					tracking, trackErr := h.taskService.GetTracking(r.Context(), tenantSlug, tenantID, orderID)
+					if trackErr == nil && tracking != nil {
+						sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
+							"status":     "out_for_delivery",
+							"rider_id":   tracking.RiderID,
+							"latitude":   tracking.RiderLatitude,
+							"longitude":  tracking.RiderLongitude,
+							"eta_minutes": tracking.ETAMinutes,
+							"eta_at":     tracking.ETAAt,
+							"distance_km": tracking.DistanceKm,
+						})
+					} else {
+						sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
+							"status": "out_for_delivery",
+						})
+					}
+				}
 			}
 
 			// Stop streaming when order reaches a terminal state

@@ -139,6 +139,20 @@ func (_u *OrderUpdate) SetNillablePaymentStatus(v *order.PaymentStatus) *OrderUp
 	return _u
 }
 
+// SetPaymentMethod sets the "payment_method" field.
+func (_u *OrderUpdate) SetPaymentMethod(v order.PaymentMethod) *OrderUpdate {
+	_u.mutation.SetPaymentMethod(v)
+	return _u
+}
+
+// SetNillablePaymentMethod sets the "payment_method" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillablePaymentMethod(v *order.PaymentMethod) *OrderUpdate {
+	if v != nil {
+		_u.SetPaymentMethod(*v)
+	}
+	return _u
+}
+
 // SetPaymentIntentID sets the "payment_intent_id" field.
 func (_u *OrderUpdate) SetPaymentIntentID(v uuid.UUID) *OrderUpdate {
 	_u.mutation.SetPaymentIntentID(v)
@@ -1056,6 +1070,11 @@ func (_u *OrderUpdate) check() error {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PaymentMethod(); ok {
+		if err := order.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Order.payment_method": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Currency(); ok {
 		if err := order.CurrencyValidator(v); err != nil {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Order.currency": %w`, err)}
@@ -1124,6 +1143,9 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.PaymentMethod(); ok {
+		_spec.SetField(order.FieldPaymentMethod, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.PaymentIntentID(); ok {
 		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)
@@ -1674,6 +1696,20 @@ func (_u *OrderUpdateOne) SetPaymentStatus(v order.PaymentStatus) *OrderUpdateOn
 func (_u *OrderUpdateOne) SetNillablePaymentStatus(v *order.PaymentStatus) *OrderUpdateOne {
 	if v != nil {
 		_u.SetPaymentStatus(*v)
+	}
+	return _u
+}
+
+// SetPaymentMethod sets the "payment_method" field.
+func (_u *OrderUpdateOne) SetPaymentMethod(v order.PaymentMethod) *OrderUpdateOne {
+	_u.mutation.SetPaymentMethod(v)
+	return _u
+}
+
+// SetNillablePaymentMethod sets the "payment_method" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillablePaymentMethod(v *order.PaymentMethod) *OrderUpdateOne {
+	if v != nil {
+		_u.SetPaymentMethod(*v)
 	}
 	return _u
 }
@@ -2608,6 +2644,11 @@ func (_u *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PaymentMethod(); ok {
+		if err := order.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Order.payment_method": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Currency(); ok {
 		if err := order.CurrencyValidator(v); err != nil {
 			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Order.currency": %w`, err)}
@@ -2693,6 +2734,9 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if value, ok := _u.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.PaymentMethod(); ok {
+		_spec.SetField(order.FieldPaymentMethod, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.PaymentIntentID(); ok {
 		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)

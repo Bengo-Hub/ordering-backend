@@ -16838,6 +16838,7 @@ type OrderMutation struct {
 	order_number               *string
 	status                     *order.Status
 	payment_status             *order.PaymentStatus
+	payment_method             *order.PaymentMethod
 	payment_intent_id          *uuid.UUID
 	currency                   *string
 	subtotal                   *float64
@@ -17275,6 +17276,42 @@ func (m *OrderMutation) OldPaymentStatus(ctx context.Context) (v order.PaymentSt
 // ResetPaymentStatus resets all changes to the "payment_status" field.
 func (m *OrderMutation) ResetPaymentStatus() {
 	m.payment_status = nil
+}
+
+// SetPaymentMethod sets the "payment_method" field.
+func (m *OrderMutation) SetPaymentMethod(om order.PaymentMethod) {
+	m.payment_method = &om
+}
+
+// PaymentMethod returns the value of the "payment_method" field in the mutation.
+func (m *OrderMutation) PaymentMethod() (r order.PaymentMethod, exists bool) {
+	v := m.payment_method
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPaymentMethod returns the old "payment_method" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldPaymentMethod(ctx context.Context) (v order.PaymentMethod, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPaymentMethod is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPaymentMethod requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPaymentMethod: %w", err)
+	}
+	return oldValue.PaymentMethod, nil
+}
+
+// ResetPaymentMethod resets all changes to the "payment_method" field.
+func (m *OrderMutation) ResetPaymentMethod() {
+	m.payment_method = nil
 }
 
 // SetPaymentIntentID sets the "payment_intent_id" field.
@@ -19449,7 +19486,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 45)
+	fields := make([]string, 0, 46)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -19470,6 +19507,9 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.payment_status != nil {
 		fields = append(fields, order.FieldPaymentStatus)
+	}
+	if m.payment_method != nil {
+		fields = append(fields, order.FieldPaymentMethod)
 	}
 	if m.payment_intent_id != nil {
 		fields = append(fields, order.FieldPaymentIntentID)
@@ -19607,6 +19647,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case order.FieldPaymentStatus:
 		return m.PaymentStatus()
+	case order.FieldPaymentMethod:
+		return m.PaymentMethod()
 	case order.FieldPaymentIntentID:
 		return m.PaymentIntentID()
 	case order.FieldCurrency:
@@ -19706,6 +19748,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldStatus(ctx)
 	case order.FieldPaymentStatus:
 		return m.OldPaymentStatus(ctx)
+	case order.FieldPaymentMethod:
+		return m.OldPaymentMethod(ctx)
 	case order.FieldPaymentIntentID:
 		return m.OldPaymentIntentID(ctx)
 	case order.FieldCurrency:
@@ -19839,6 +19883,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPaymentStatus(v)
+		return nil
+	case order.FieldPaymentMethod:
+		v, ok := value.(order.PaymentMethod)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPaymentMethod(v)
 		return nil
 	case order.FieldPaymentIntentID:
 		v, ok := value.(uuid.UUID)
@@ -20463,6 +20514,9 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldPaymentStatus:
 		m.ResetPaymentStatus()
+		return nil
+	case order.FieldPaymentMethod:
+		m.ResetPaymentMethod()
 		return nil
 	case order.FieldPaymentIntentID:
 		m.ResetPaymentIntentID()

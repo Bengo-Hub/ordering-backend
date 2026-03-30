@@ -172,28 +172,64 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 
 // OrderReadyData represents data for order.ready event.
 type OrderReadyData struct {
-	OrderID         uuid.UUID                `json:"order_id"`
-	OrderNumber     string                   `json:"order_number"`
-	OutletID        uuid.UUID                `json:"outlet_id"`
-	CustomerID      uuid.UUID                `json:"customer_id"`
-	DeliveryAddress map[string]interface{}   `json:"delivery_address,omitempty"`
-	Items           []map[string]interface{} `json:"items,omitempty"`
+	OrderID          uuid.UUID                `json:"order_id"`
+	OrderNumber      string                   `json:"order_number"`
+	OutletID         uuid.UUID                `json:"outlet_id"`
+	CustomerID       uuid.UUID                `json:"customer_id"`
+	DeliveryAddress  map[string]interface{}   `json:"delivery_address,omitempty"`
+	OutletLocation   map[string]interface{}   `json:"outlet_location,omitempty"`
+	Items            []map[string]interface{} `json:"items,omitempty"`
+	PaymentMethod    string                   `json:"payment_method,omitempty"`
+	CashOnDelivery   float64                  `json:"cash_on_delivery,omitempty"`
+	DeliveryFee      float64                  `json:"delivery_fee,omitempty"`
+	GrandTotal       float64                  `json:"grand_total,omitempty"`
+	CustomerName     string                   `json:"customer_name,omitempty"`
+	CustomerPhone    string                   `json:"customer_phone,omitempty"`
+	Instructions     string                   `json:"instructions,omitempty"`
+	FulfillmentType  string                   `json:"fulfillment_type,omitempty"`
 }
 
 // PublishOrderReady publishes an order.ready event.
 func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, data OrderReadyData) error {
-	event := NewEvent("ordering.order.ready", tenantID, map[string]interface{}{
+	eventData := map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
 		"outlet_id":        data.OutletID.String(),
 		"customer_id":      data.CustomerID.String(),
 		"delivery_address": data.DeliveryAddress,
+		"outlet_location":  data.OutletLocation,
 		"items":            data.Items,
 		"notification": map[string]interface{}{
 			"target": "customer",
 		},
-	})
+	}
 
+	if data.PaymentMethod != "" {
+		eventData["payment_method"] = data.PaymentMethod
+	}
+	if data.CashOnDelivery > 0 {
+		eventData["cash_on_delivery"] = data.CashOnDelivery
+	}
+	if data.DeliveryFee > 0 {
+		eventData["delivery_fee"] = data.DeliveryFee
+	}
+	if data.GrandTotal > 0 {
+		eventData["grand_total"] = data.GrandTotal
+	}
+	if data.CustomerName != "" {
+		eventData["customer_name"] = data.CustomerName
+	}
+	if data.CustomerPhone != "" {
+		eventData["customer_phone"] = data.CustomerPhone
+	}
+	if data.Instructions != "" {
+		eventData["instructions"] = data.Instructions
+	}
+	if data.FulfillmentType != "" {
+		eventData["fulfillment_type"] = data.FulfillmentType
+	}
+
+	event := NewEvent("ordering.order.ready", tenantID, eventData)
 	return p.Publish(ctx, "ordering.order.ready", event)
 }
 

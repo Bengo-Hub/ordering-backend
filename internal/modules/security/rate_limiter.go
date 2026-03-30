@@ -21,8 +21,8 @@ type RateLimiter struct {
 // RateLimitConfig configures rate limiting behavior.
 type RateLimitConfig struct {
 	// Default rate limits
-	RequestsPerMinute int `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"60"`
-	RequestsPerHour   int `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"1000"`
+	RequestsPerMinute int `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"200"`
+	RequestsPerHour   int `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"5000"`
 
 	// Per-endpoint rate limits (stricter)
 	AuthRequestsPerMinute    int `envconfig:"RATE_LIMIT_AUTH_PER_MINUTE" default:"10"`
