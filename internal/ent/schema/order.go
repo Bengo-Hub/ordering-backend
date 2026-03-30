@@ -40,8 +40,12 @@ func (Order) Fields() []ent.Field {
 			Values("pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded").
 			Default("pending"),
 		field.Enum("payment_status").
-			Values("pending", "authorized", "paid", "failed", "refunded", "partially_refunded").
+			Values("pending", "authorized", "paid", "failed", "refunded", "partially_refunded", "cod_pending", "cod_collected").
 			Default("pending"),
+		field.Enum("payment_method").
+			Values("mpesa", "paystack", "stripe", "cod", "wallet", "loyalty").
+			Default("mpesa").
+			Comment("Payment method used for this order"),
 		field.UUID("payment_intent_id", uuid.UUID{}).
 			Optional().
 			Nillable().

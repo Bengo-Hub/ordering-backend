@@ -36,6 +36,8 @@ type Order struct {
 	Status order.Status `json:"status,omitempty"`
 	// PaymentStatus holds the value of the "payment_status" field.
 	PaymentStatus order.PaymentStatus `json:"payment_status,omitempty"`
+	// Payment method used for this order
+	PaymentMethod order.PaymentMethod `json:"payment_method,omitempty"`
 	// Reference to treasury-api payment intent; payment details from treasury-api.
 	PaymentIntentID *uuid.UUID `json:"payment_intent_id,omitempty"`
 	// Currency holds the value of the "currency" field.
@@ -210,7 +212,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
-		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldCurrency, order.FieldFulfillmentType, order.FieldPreferredCarrier, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
+		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldPaymentMethod, order.FieldCurrency, order.FieldFulfillmentType, order.FieldPreferredCarrier, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
 			values[i] = new(sql.NullString)
 		case order.FieldScheduledFor, order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -279,6 +281,12 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field payment_status", values[i])
 			} else if value.Valid {
 				_m.PaymentStatus = order.PaymentStatus(value.String)
+			}
+		case order.FieldPaymentMethod:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field payment_method", values[i])
+			} else if value.Valid {
+				_m.PaymentMethod = order.PaymentMethod(value.String)
 			}
 		case order.FieldPaymentIntentID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -613,6 +621,9 @@ func (_m *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("payment_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PaymentStatus))
+	builder.WriteString(", ")
+	builder.WriteString("payment_method=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PaymentMethod))
 	builder.WriteString(", ")
 	if v := _m.PaymentIntentID; v != nil {
 		builder.WriteString("payment_intent_id=")

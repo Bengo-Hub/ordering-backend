@@ -12,6 +12,7 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 )
@@ -20,6 +21,7 @@ import (
 type OrderHandler struct {
 	log          *zap.Logger
 	orderService *ordering.OrderService
+	taskService  *fulfilment.TaskService
 }
 
 // NewOrderHandler constructs an OrderHandler instance.
@@ -28,6 +30,11 @@ func NewOrderHandler(log *zap.Logger, orderService *ordering.OrderService) *Orde
 		log:          log.Named("ordering.OrderHandler"),
 		orderService: orderService,
 	}
+}
+
+// SetTaskService sets the fulfilment task service for tracking integration.
+func (h *OrderHandler) SetTaskService(ts *fulfilment.TaskService) {
+	h.taskService = ts
 }
 
 // Register mounts order routes on the supplied router.
@@ -71,7 +78,9 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 
 		adminRouter.Get("/", h.AdminListOrders)
 		adminRouter.Get("/summary", h.GetAnalyticsSummary)
+		adminRouter.Post("/bulk-status", h.BulkUpdateOrderStatus)
 		adminRouter.Get("/{orderId}", h.AdminGetOrder)
+		adminRouter.Get("/{orderId}/events", h.GetOrderEvents)
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
 		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
@@ -104,8 +113,10 @@ type CancelOrderRequest struct {
 }
 
 type RateOrderRequest struct {
-	Rating  int    `json:"rating"`
-	Comment string `json:"comment"`
+	Rating       int    `json:"rating"`
+	Comment      string `json:"comment"`
+	RiderRating  *int   `json:"riderRating,omitempty"`
+	RiderComment string `json:"riderComment,omitempty"`
 }
 
 // GuestCheckoutRequestDTO is the request body for POST /checkout/guest (guest checkout, no auth).
@@ -753,7 +764,11 @@ func (h *OrderHandler) RateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.orderService.RateOrder(r.Context(), tenantID, orderID, user.ID, req.Rating, req.Comment)
+	opts := ordering.RateOrderOpts{
+		RiderRating:  req.RiderRating,
+		RiderComment: req.RiderComment,
+	}
+	order, err := h.orderService.RateOrder(r.Context(), tenantID, orderID, user.ID, req.Rating, req.Comment, opts)
 	if err != nil {
 		switch err {
 		case ordering.ErrInvalidRating:
@@ -1248,4 +1263,94 @@ func (h *OrderHandler) Reorder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusCreated, cart)
+}
+
+// BulkUpdateOrderStatus handles POST /admin/orders/bulk-status
+func (h *OrderHandler) BulkUpdateOrderStatus(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	var req struct {
+		OrderIDs []string `json:"orderIds"`
+		Status   string   `json:"status"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if len(req.OrderIDs) == 0 || req.Status == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "orderIds and status are required")
+		return
+	}
+
+	if len(req.OrderIDs) > 50 {
+		handlers.RespondError(w, http.StatusBadRequest, "maximum 50 orders per bulk operation")
+		return
+	}
+
+	targetStatus := ordering.OrderStatus(req.Status)
+	var results []map[string]interface{}
+	var successCount, failCount int
+
+	for _, idStr := range req.OrderIDs {
+		orderID, parseErr := uuid.Parse(idStr)
+		if parseErr != nil {
+			results = append(results, map[string]interface{}{
+				"order_id": idStr, "success": false, "error": "invalid order ID",
+			})
+			failCount++
+			continue
+		}
+
+		_, updateErr := h.orderService.UpdateOrderStatus(
+			r.Context(), tenantID, orderID,
+			targetStatus,
+			nil, "admin", "",
+		)
+		if updateErr != nil {
+			results = append(results, map[string]interface{}{
+				"order_id": idStr, "success": false, "error": updateErr.Error(),
+			})
+			failCount++
+		} else {
+			results = append(results, map[string]interface{}{
+				"order_id": idStr, "success": true,
+			})
+			successCount++
+		}
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"total":    len(req.OrderIDs),
+		"success":  successCount,
+		"failed":   failCount,
+		"results":  results,
+	})
+}
+
+// GetOrderEvents handles GET /admin/orders/{orderId}/events
+func (h *OrderHandler) GetOrderEvents(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	events, err := h.orderService.GetOrderEvents(r.Context(), tenantID, orderID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, events)
 }

@@ -212,6 +212,18 @@ func (r *EntRepository) ExpireOldCarts(ctx context.Context, tenantID uuid.UUID) 
 	return affected, err
 }
 
+func (r *EntRepository) ListDistinctCartTenantIDs(ctx context.Context) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
+	err := r.client.Cart.Query().
+		Where(cart.StatusEQ(cart.StatusActive)).
+		GroupBy(cart.FieldTenantID).
+		Scan(ctx, &ids)
+	if err != nil {
+		return nil, fmt.Errorf("list distinct cart tenant IDs: %w", err)
+	}
+	return ids, nil
+}
+
 // --- CartItem Methods ---
 
 func (r *EntRepository) CreateCartItem(ctx context.Context, item *CartItem) error {
@@ -401,6 +413,9 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	builder.SetSmallOrderFee(o.SmallOrderFee)
 	if o.ReservationID != nil {
 		builder.SetReservationID(*o.ReservationID)
+	}
+	if o.PaymentMethod != "" {
+		builder.SetPaymentMethod(order.PaymentMethod(o.PaymentMethod))
 	}
 
 	created, err := builder.Save(ctx)
@@ -901,6 +916,7 @@ func entOrderToDomain(o *ent.Order) *Order {
 		OrderNumber:           o.OrderNumber,
 		Status:                OrderStatus(o.Status),
 		PaymentStatus:         PaymentStatus(o.PaymentStatus),
+		PaymentMethod:         PaymentMethod(o.PaymentMethod),
 		Currency:              o.Currency,
 		Subtotal:              o.Subtotal,
 		DiscountTotal:         o.DiscountTotal,

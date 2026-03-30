@@ -373,6 +373,28 @@ func (c *Client) GetProofOfDelivery(ctx context.Context, tenantSlug string, task
 	return &result, nil
 }
 
+// RateRiderRequest is the request to rate a rider on a completed task.
+type RateRiderRequest struct {
+	Rating  int    `json:"rating"`
+	Comment string `json:"comment,omitempty"`
+}
+
+// RateRider submits a customer rating for the rider who delivered a task.
+func (c *Client) RateRider(ctx context.Context, tenantSlug, taskID string, req RateRiderRequest) error {
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s/rate", tenantSlug, taskID)
+
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(""))
+	if err != nil {
+		return fmt.Errorf("rate rider request: %w", err)
+	}
+
+	if !resp.IsSuccess() {
+		return fmt.Errorf("rate rider failed: status %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 // HealthCheck checks if the logistics service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
 	resp, err := c.serviceClient.Get(ctx, "/healthz", nil)

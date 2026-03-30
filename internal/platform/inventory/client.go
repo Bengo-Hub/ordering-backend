@@ -429,9 +429,17 @@ func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateIt
 	return &result, nil
 }
 
-// ListItems returns all active items from inventory-api.
-func (c *Client) ListItems(ctx context.Context, tenantSlug string) ([]ItemResponse, error) {
+// ListItems returns active items from inventory-api, optionally filtered by type.
+// If no typeFilter is given, only GOODS and RECIPE items are returned (catalog-safe).
+// Raw materials, ingredients, equipment, etc. are excluded from ordering catalogs.
+func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter ...string) ([]ItemResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/items", tenantSlug)
+	if len(typeFilter) > 0 && typeFilter[0] != "" {
+		path += "?type=" + typeFilter[0]
+	} else {
+		// Default: only fetch sellable item types for the ordering catalog
+		path += "?type=GOODS"
+	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)

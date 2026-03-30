@@ -180,8 +180,8 @@ type SupersetConfig struct {
 type SecurityConfig struct {
 	// Rate limiting
 	RateLimitEnabled         bool    `envconfig:"RATE_LIMIT_ENABLED" default:"true"`
-	RateLimitRequestsPerMin  int     `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"60"`
-	RateLimitRequestsPerHour int     `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"1000"`
+	RateLimitRequestsPerMin  int     `envconfig:"RATE_LIMIT_REQUESTS_PER_MINUTE" default:"200"`
+	RateLimitRequestsPerHour int     `envconfig:"RATE_LIMIT_REQUESTS_PER_HOUR" default:"5000"`
 	RateLimitAuthPerMin      int     `envconfig:"RATE_LIMIT_AUTH_PER_MINUTE" default:"10"`
 	RateLimitPaymentPerMin   int     `envconfig:"RATE_LIMIT_PAYMENT_PER_MINUTE" default:"20"`
 	RateLimitBurstMultiplier float64 `envconfig:"RATE_LIMIT_BURST_MULTIPLIER" default:"1.5"`
