@@ -544,57 +544,57 @@ func init() {
 	// order.OrderNumberValidator is a validator for the "order_number" field. It is called by the builders before save.
 	order.OrderNumberValidator = orderDescOrderNumber.Validators[0].(func(string) error)
 	// orderDescCurrency is the schema descriptor for currency field.
-	orderDescCurrency := orderFields[9].Descriptor()
+	orderDescCurrency := orderFields[10].Descriptor()
 	// order.DefaultCurrency holds the default value on creation for the currency field.
 	order.DefaultCurrency = orderDescCurrency.Default.(string)
 	// order.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
 	order.CurrencyValidator = orderDescCurrency.Validators[0].(func(string) error)
 	// orderDescDiscountTotal is the schema descriptor for discount_total field.
-	orderDescDiscountTotal := orderFields[11].Descriptor()
+	orderDescDiscountTotal := orderFields[12].Descriptor()
 	// order.DefaultDiscountTotal holds the default value on creation for the discount_total field.
 	order.DefaultDiscountTotal = orderDescDiscountTotal.Default.(float64)
 	// orderDescTaxTotal is the schema descriptor for tax_total field.
-	orderDescTaxTotal := orderFields[12].Descriptor()
+	orderDescTaxTotal := orderFields[13].Descriptor()
 	// order.DefaultTaxTotal holds the default value on creation for the tax_total field.
 	order.DefaultTaxTotal = orderDescTaxTotal.Default.(float64)
 	// orderDescDeliveryFee is the schema descriptor for delivery_fee field.
-	orderDescDeliveryFee := orderFields[13].Descriptor()
+	orderDescDeliveryFee := orderFields[14].Descriptor()
 	// order.DefaultDeliveryFee holds the default value on creation for the delivery_fee field.
 	order.DefaultDeliveryFee = orderDescDeliveryFee.Default.(float64)
 	// orderDescPackagingFee is the schema descriptor for packaging_fee field.
-	orderDescPackagingFee := orderFields[16].Descriptor()
+	orderDescPackagingFee := orderFields[17].Descriptor()
 	// order.DefaultPackagingFee holds the default value on creation for the packaging_fee field.
 	order.DefaultPackagingFee = orderDescPackagingFee.Default.(float64)
 	// orderDescServiceFee is the schema descriptor for service_fee field.
-	orderDescServiceFee := orderFields[17].Descriptor()
+	orderDescServiceFee := orderFields[18].Descriptor()
 	// order.DefaultServiceFee holds the default value on creation for the service_fee field.
 	order.DefaultServiceFee = orderDescServiceFee.Default.(float64)
 	// orderDescSmallOrderFee is the schema descriptor for small_order_fee field.
-	orderDescSmallOrderFee := orderFields[18].Descriptor()
+	orderDescSmallOrderFee := orderFields[19].Descriptor()
 	// order.DefaultSmallOrderFee holds the default value on creation for the small_order_fee field.
 	order.DefaultSmallOrderFee = orderDescSmallOrderFee.Default.(float64)
 	// orderDescTipTotal is the schema descriptor for tip_total field.
-	orderDescTipTotal := orderFields[23].Descriptor()
+	orderDescTipTotal := orderFields[24].Descriptor()
 	// order.DefaultTipTotal holds the default value on creation for the tip_total field.
 	order.DefaultTipTotal = orderDescTipTotal.Default.(float64)
 	// orderDescLoyaltyPointsEarned is the schema descriptor for loyalty_points_earned field.
-	orderDescLoyaltyPointsEarned := orderFields[25].Descriptor()
+	orderDescLoyaltyPointsEarned := orderFields[26].Descriptor()
 	// order.DefaultLoyaltyPointsEarned holds the default value on creation for the loyalty_points_earned field.
 	order.DefaultLoyaltyPointsEarned = orderDescLoyaltyPointsEarned.Default.(int)
 	// orderDescLoyaltyPointsRedeemed is the schema descriptor for loyalty_points_redeemed field.
-	orderDescLoyaltyPointsRedeemed := orderFields[26].Descriptor()
+	orderDescLoyaltyPointsRedeemed := orderFields[27].Descriptor()
 	// order.DefaultLoyaltyPointsRedeemed holds the default value on creation for the loyalty_points_redeemed field.
 	order.DefaultLoyaltyPointsRedeemed = orderDescLoyaltyPointsRedeemed.Default.(int)
 	// orderDescSource is the schema descriptor for source field.
-	orderDescSource := orderFields[31].Descriptor()
+	orderDescSource := orderFields[32].Descriptor()
 	// order.SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	order.SourceValidator = orderDescSource.Validators[0].(func(string) error)
 	// orderDescIdempotencyKey is the schema descriptor for idempotency_key field.
-	orderDescIdempotencyKey := orderFields[32].Descriptor()
+	orderDescIdempotencyKey := orderFields[33].Descriptor()
 	// order.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	order.IdempotencyKeyValidator = orderDescIdempotencyKey.Validators[0].(func(string) error)
 	// orderDescRating is the schema descriptor for rating field.
-	orderDescRating := orderFields[40].Descriptor()
+	orderDescRating := orderFields[41].Descriptor()
 	// order.RatingValidator is a validator for the "rating" field. It is called by the builders before save.
 	order.RatingValidator = func() func(int) error {
 		validators := orderDescRating.Validators
@@ -612,11 +612,11 @@ func init() {
 		}
 	}()
 	// orderDescCreatedAt is the schema descriptor for created_at field.
-	orderDescCreatedAt := orderFields[44].Descriptor()
+	orderDescCreatedAt := orderFields[45].Descriptor()
 	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
 	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
 	// orderDescUpdatedAt is the schema descriptor for updated_at field.
-	orderDescUpdatedAt := orderFields[45].Descriptor()
+	orderDescUpdatedAt := orderFields[46].Descriptor()
 	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
 	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

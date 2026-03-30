@@ -96,6 +96,20 @@ func (_c *OrderCreate) SetNillablePaymentStatus(v *order.PaymentStatus) *OrderCr
 	return _c
 }
 
+// SetPaymentMethod sets the "payment_method" field.
+func (_c *OrderCreate) SetPaymentMethod(v order.PaymentMethod) *OrderCreate {
+	_c.mutation.SetPaymentMethod(v)
+	return _c
+}
+
+// SetNillablePaymentMethod sets the "payment_method" field if the given value is not nil.
+func (_c *OrderCreate) SetNillablePaymentMethod(v *order.PaymentMethod) *OrderCreate {
+	if v != nil {
+		_c.SetPaymentMethod(*v)
+	}
+	return _c
+}
+
 // SetPaymentIntentID sets the "payment_intent_id" field.
 func (_c *OrderCreate) SetPaymentIntentID(v uuid.UUID) *OrderCreate {
 	_c.mutation.SetPaymentIntentID(v)
@@ -721,6 +735,10 @@ func (_c *OrderCreate) defaults() {
 		v := order.DefaultPaymentStatus
 		_c.mutation.SetPaymentStatus(v)
 	}
+	if _, ok := _c.mutation.PaymentMethod(); !ok {
+		v := order.DefaultPaymentMethod
+		_c.mutation.SetPaymentMethod(v)
+	}
 	if _, ok := _c.mutation.Currency(); !ok {
 		v := order.DefaultCurrency
 		_c.mutation.SetCurrency(v)
@@ -816,6 +834,14 @@ func (_c *OrderCreate) check() error {
 	if v, ok := _c.mutation.PaymentStatus(); ok {
 		if err := order.PaymentStatusValidator(v); err != nil {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.PaymentMethod(); !ok {
+		return &ValidationError{Name: "payment_method", err: errors.New(`ent: missing required field "Order.payment_method"`)}
+	}
+	if v, ok := _c.mutation.PaymentMethod(); ok {
+		if err := order.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Order.payment_method": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Currency(); !ok {
@@ -957,6 +983,10 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
 		_node.PaymentStatus = value
+	}
+	if value, ok := _c.mutation.PaymentMethod(); ok {
+		_spec.SetField(order.FieldPaymentMethod, field.TypeEnum, value)
+		_node.PaymentMethod = value
 	}
 	if value, ok := _c.mutation.PaymentIntentID(); ok {
 		_spec.SetField(order.FieldPaymentIntentID, field.TypeUUID, value)
@@ -1344,6 +1374,18 @@ func (u *OrderUpsert) SetPaymentStatus(v order.PaymentStatus) *OrderUpsert {
 // UpdatePaymentStatus sets the "payment_status" field to the value that was provided on create.
 func (u *OrderUpsert) UpdatePaymentStatus() *OrderUpsert {
 	u.SetExcluded(order.FieldPaymentStatus)
+	return u
+}
+
+// SetPaymentMethod sets the "payment_method" field.
+func (u *OrderUpsert) SetPaymentMethod(v order.PaymentMethod) *OrderUpsert {
+	u.Set(order.FieldPaymentMethod, v)
+	return u
+}
+
+// UpdatePaymentMethod sets the "payment_method" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePaymentMethod() *OrderUpsert {
+	u.SetExcluded(order.FieldPaymentMethod)
 	return u
 }
 
@@ -2148,6 +2190,20 @@ func (u *OrderUpsertOne) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertOne
 func (u *OrderUpsertOne) UpdatePaymentStatus() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdatePaymentStatus()
+	})
+}
+
+// SetPaymentMethod sets the "payment_method" field.
+func (u *OrderUpsertOne) SetPaymentMethod(v order.PaymentMethod) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPaymentMethod(v)
+	})
+}
+
+// UpdatePaymentMethod sets the "payment_method" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePaymentMethod() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePaymentMethod()
 	})
 }
 
@@ -3227,6 +3283,20 @@ func (u *OrderUpsertBulk) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertBu
 func (u *OrderUpsertBulk) UpdatePaymentStatus() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdatePaymentStatus()
+	})
+}
+
+// SetPaymentMethod sets the "payment_method" field.
+func (u *OrderUpsertBulk) SetPaymentMethod(v order.PaymentMethod) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPaymentMethod(v)
+	})
+}
+
+// UpdatePaymentMethod sets the "payment_method" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePaymentMethod() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePaymentMethod()
 	})
 }
 

@@ -7,10 +7,30 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
 	"github.com/google/uuid"
 )
+
+// --- Outlet Methods ---
+
+func (r *EntRepository) GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error) {
+	o, err := r.client.Outlet.Query().
+		Where(
+			outlet.ID(outletID),
+			outlet.TenantID(tenantID),
+		).
+		Select(outlet.FieldName, outlet.FieldLatitude, outlet.FieldLongitude).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return "", nil, nil, nil
+		}
+		return "", nil, nil, err
+	}
+	return o.Name, o.Latitude, o.Longitude, nil
+}
 
 // --- CustomerAddress Methods ---
 

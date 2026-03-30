@@ -30,6 +30,8 @@ const (
 	FieldStatus = "status"
 	// FieldPaymentStatus holds the string denoting the payment_status field in the database.
 	FieldPaymentStatus = "payment_status"
+	// FieldPaymentMethod holds the string denoting the payment_method field in the database.
+	FieldPaymentMethod = "payment_method"
 	// FieldPaymentIntentID holds the string denoting the payment_intent_id field in the database.
 	FieldPaymentIntentID = "payment_intent_id"
 	// FieldCurrency holds the string denoting the currency field in the database.
@@ -174,6 +176,7 @@ var Columns = []string{
 	FieldOrderNumber,
 	FieldStatus,
 	FieldPaymentStatus,
+	FieldPaymentMethod,
 	FieldPaymentIntentID,
 	FieldCurrency,
 	FieldSubtotal,
@@ -312,6 +315,8 @@ const (
 	PaymentStatusFailed            PaymentStatus = "failed"
 	PaymentStatusRefunded          PaymentStatus = "refunded"
 	PaymentStatusPartiallyRefunded PaymentStatus = "partially_refunded"
+	PaymentStatusCodPending        PaymentStatus = "cod_pending"
+	PaymentStatusCodCollected      PaymentStatus = "cod_collected"
 )
 
 func (ps PaymentStatus) String() string {
@@ -321,10 +326,40 @@ func (ps PaymentStatus) String() string {
 // PaymentStatusValidator is a validator for the "payment_status" field enum values. It is called by the builders before save.
 func PaymentStatusValidator(ps PaymentStatus) error {
 	switch ps {
-	case PaymentStatusPending, PaymentStatusAuthorized, PaymentStatusPaid, PaymentStatusFailed, PaymentStatusRefunded, PaymentStatusPartiallyRefunded:
+	case PaymentStatusPending, PaymentStatusAuthorized, PaymentStatusPaid, PaymentStatusFailed, PaymentStatusRefunded, PaymentStatusPartiallyRefunded, PaymentStatusCodPending, PaymentStatusCodCollected:
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for payment_status field: %q", ps)
+	}
+}
+
+// PaymentMethod defines the type for the "payment_method" enum field.
+type PaymentMethod string
+
+// PaymentMethodMpesa is the default value of the PaymentMethod enum.
+const DefaultPaymentMethod = PaymentMethodMpesa
+
+// PaymentMethod values.
+const (
+	PaymentMethodMpesa    PaymentMethod = "mpesa"
+	PaymentMethodPaystack PaymentMethod = "paystack"
+	PaymentMethodStripe   PaymentMethod = "stripe"
+	PaymentMethodCod      PaymentMethod = "cod"
+	PaymentMethodWallet   PaymentMethod = "wallet"
+	PaymentMethodLoyalty  PaymentMethod = "loyalty"
+)
+
+func (pm PaymentMethod) String() string {
+	return string(pm)
+}
+
+// PaymentMethodValidator is a validator for the "payment_method" field enum values. It is called by the builders before save.
+func PaymentMethodValidator(pm PaymentMethod) error {
+	switch pm {
+	case PaymentMethodMpesa, PaymentMethodPaystack, PaymentMethodStripe, PaymentMethodCod, PaymentMethodWallet, PaymentMethodLoyalty:
+		return nil
+	default:
+		return fmt.Errorf("order: invalid enum value for payment_method field: %q", pm)
 	}
 }
 
@@ -426,6 +461,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByPaymentStatus orders the results by the payment_status field.
 func ByPaymentStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPaymentStatus, opts...).ToFunc()
+}
+
+// ByPaymentMethod orders the results by the payment_method field.
+func ByPaymentMethod(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaymentMethod, opts...).ToFunc()
 }
 
 // ByPaymentIntentID orders the results by the payment_intent_id field.
