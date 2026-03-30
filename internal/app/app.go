@@ -185,7 +185,11 @@ func New(ctx context.Context) (*App, error) {
 		}
 	}
 
-	identityHandler := identityhandler.New(log, identitySvc)
+	// RBAC service is initialized later (line ~376) but we need a reference for the identity handler.
+	// Create it early — the rbac repo is created just before the router call anyway.
+	rbacRepoForIdentity := rbac.NewEntRepository(ormClient)
+	rbacSvcForIdentity := rbac.NewService(rbacRepoForIdentity, log, tenantSyncer)
+	identityHandler := identityhandler.New(log, identitySvc, rbacSvcForIdentity)
 	authenticator := identityhandler.NewAuthenticator(log, identitySvc, validator)
 
 	// Public tenant/brand config handler (no auth).

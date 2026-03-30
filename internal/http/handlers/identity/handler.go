@@ -13,23 +13,29 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
+	authclient "github.com/Bengo-Hub/shared-auth-client"
+
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 )
 
 // Handler exposes identity-related HTTP endpoints.
 // Authentication is handled entirely by the SSO (auth-service) via OIDC.
 // This handler provides user profile management and sync confirmation endpoints.
 type Handler struct {
-	log     *zap.Logger
-	service *identity.Service
+	log         *zap.Logger
+	service     *identity.Service
+	rbacService *rbac.Service
 }
 
 // New constructs a Handler instance.
-func New(log *zap.Logger, service *identity.Service) *Handler {
+func New(log *zap.Logger, service *identity.Service, rbacService *rbac.Service) *Handler {
 	return &Handler{
-		log:     log.Named("identity.Handler"),
-		service: service,
+		log:         log.Named("identity.Handler"),
+		service:     service,
+		rbacService: rbacService,
 	}
 }
 
@@ -86,7 +92,38 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.respondWithUser(w, r, user)
+	// Enrich identity roles/permissions with service-level RBAC data.
+	roles := roleStrings(user.Roles)
+	permissions := permStrings(user.Permissions)
+
+	ctx := r.Context()
+	tenantID := httpware.GetTenantID(ctx)
+	if tenantID != "" && h.rbacService != nil {
+		if tenantUUID, parseErr := uuid.Parse(tenantID); parseErr == nil {
+			if svcRoles, rErr := h.rbacService.GetUserRoles(ctx, tenantUUID, user.ID); rErr == nil {
+				for _, sr := range svcRoles {
+					roles = appendUnique(roles, sr.RoleCode)
+				}
+			}
+			if svcPerms, pErr := h.rbacService.GetUserPermissions(ctx, tenantUUID, user.ID); pErr == nil {
+				for _, sp := range svcPerms {
+					permissions = appendUnique(permissions, sp.PermissionCode)
+				}
+			}
+		}
+	}
+
+	// Superuser / platform owner gets all service-level permissions
+	claims, _ := authclient.ClaimsFromContext(ctx)
+	if claims != nil && (claims.IsSuperuser() || claims.IsPlatformOwner) {
+		// Consolidate all permissions from the superadmin role
+		superPerms := identity.ConsolidatePermissions([]identity.Role{identity.RoleSuperAdmin})
+		for _, p := range superPerms {
+			permissions = appendUnique(permissions, string(p))
+		}
+	}
+
+	h.respondWithMergedRBAC(w, r, user, roles, permissions)
 }
 
 // UpdateProfile updates user profile information.
@@ -397,4 +434,55 @@ func formatOptionalTime(value *time.Time) string {
 		return ""
 	}
 	return value.Format(time.RFC3339)
+}
+
+// respondWithMergedRBAC returns user profile with merged service-level roles/permissions.
+func (h *Handler) respondWithMergedRBAC(w http.ResponseWriter, r *http.Request, user *identity.User, roles []string, permissions []string) {
+	payload := toUserResponsePayload(user)
+	// Override with merged RBAC data
+	mergedRoles := make([]identity.Role, len(roles))
+	for i, r := range roles {
+		mergedRoles[i] = identity.Role(r)
+	}
+	mergedPerms := make([]identity.Permission, len(permissions))
+	for i, p := range permissions {
+		mergedPerms[i] = identity.Permission(p)
+	}
+	payload.Roles = mergedRoles
+	payload.Permissions = mergedPerms
+
+	resp := AuthResponsePayload{
+		Session: SessionResponsePayload{
+			AccessToken: currentAccessToken(r),
+		},
+		User:       payload,
+		TenantID:   user.TenantID,
+		TenantSlug: getTenantSlugFromRequest(r),
+	}
+	handlers.RespondJSON(w, http.StatusOK, resp)
+}
+
+func roleStrings(roles []identity.Role) []string {
+	out := make([]string, len(roles))
+	for i, r := range roles {
+		out[i] = string(r)
+	}
+	return out
+}
+
+func permStrings(perms []identity.Permission) []string {
+	out := make([]string, len(perms))
+	for i, p := range perms {
+		out[i] = string(p)
+	}
+	return out
+}
+
+func appendUnique(slice []string, val string) []string {
+	for _, s := range slice {
+		if s == val {
+			return slice
+		}
+	}
+	return append(slice, val)
 }
