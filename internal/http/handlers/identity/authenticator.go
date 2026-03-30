@@ -103,6 +103,9 @@ func (a *Authenticator) RequireAuth(next http.Handler) http.Handler {
 				if tenantSlug == "" {
 					tenantSlug = r.URL.Query().Get("tenant")
 				}
+				if tenantSlug == "" {
+					tenantSlug = authClaims.GetTenantSlug()
+				}
 				authUserData := map[string]interface{}{"roles": authClaims.Roles, "permissions": authClaims.Permissions}
 				if authClaims.Email != "" {
 					authUserData["email"] = authClaims.Email

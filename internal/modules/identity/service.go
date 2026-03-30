@@ -90,6 +90,23 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, authServiceUserID uui
 	if authUserData == nil {
 		authUserData = map[string]interface{}{}
 	}
+
+	// Fallback: look up by email and link to auth-service ID (user may exist from
+	// NATS sync or seed data without auth_service_user_id set).
+	if email, _ := authUserData["email"].(string); email != "" {
+		existing, emailErr := s.repo.FindUserByEmail(ctx, email)
+		if emailErr == nil && existing != nil {
+			existing.AuthServiceUserID = &authServiceUserID
+			now := s.now()
+			existing.SyncAt = &now
+			existing.SyncStatus = "synced"
+			if err := s.repo.UpdateUser(ctx, existing); err != nil {
+				return nil, fmt.Errorf("identity: link existing user to auth-service ID: %w", err)
+			}
+			return s.updateUserFromAuthService(ctx, existing, authUserData)
+		}
+	}
+
 	return s.createUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData)
 }
 
