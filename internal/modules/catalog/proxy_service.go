@@ -83,10 +83,14 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 	}
 
-	// 4. Merge
+	// 4. Merge — only items with a CatalogOverride appear on the menu
 	var merged []MergedCatalogItem
 	for _, inv := range invItems {
-		item := mergeItem(inv, overrideMap[inv.SKU], favSet)
+		override, hasOverride := overrideMap[inv.SKU]
+		if !hasOverride {
+			continue // inventory item has no catalog listing
+		}
+		item := mergeItem(inv, override, favSet)
 
 		// Apply filters
 		if filter.Search != "" {
