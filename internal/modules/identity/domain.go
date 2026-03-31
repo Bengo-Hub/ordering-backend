@@ -22,32 +22,32 @@ const (
 type Permission string
 
 const (
-	PermissionOrdersView          Permission = "orders:read"
-	PermissionOrdersManage        Permission = "orders:manage"
-	PermissionOrdersRefund        Permission = "orders:refund"
-	PermissionProfileUpdate       Permission = "profile:update"
-	PermissionPreferencesUpdate   Permission = "preferences:update"
-	PermissionLoyaltyView         Permission = "loyalty:read"
-	PermissionLoyaltyRedeem       Permission = "loyalty:redeem"
-	PermissionCatalogView         Permission = "catalog:read"
-	PermissionCatalogManage       Permission = "catalog:manage"
-	PermissionPaymentsView        Permission = "payments:read"
-	PermissionPaymentsManage      Permission = "payments:manage"
-	PermissionLogisticsView       Permission = "logistics:read"
-	PermissionLogisticsDispatch   Permission = "logistics:dispatch"
-	PermissionOperationsKitchen   Permission = "operations:kitchen"
-	PermissionOperationsInventory Permission = "operations:inventory"
-	PermissionNotificationsView   Permission = "notifications:read"
-	PermissionNotificationsManage Permission = "notifications:manage"
-	PermissionAnalyticsView       Permission = "analytics:read"
-	PermissionAnalyticsExport     Permission = "analytics:export"
-	PermissionSupportView         Permission = "support:read"
-	PermissionSupportManage       Permission = "support:manage"
-	PermissionZonesView           Permission = "zones:read"
-	PermissionZonesManage         Permission = "zones:manage"
-	PermissionRidersOnboard       Permission = "riders:onboard" // Kept for backward compatibility if used elsewhere
-	PermissionStaffInvite         Permission = "staff:invite"   // Kept for backward compatibility if used elsewhere
-	PermissionAdminManage         Permission = "admin:manage"
+	PermissionOrdersView          Permission = "ordering.orders.view"
+	PermissionOrdersManage        Permission = "ordering.orders.manage"
+	PermissionOrdersRefund        Permission = "ordering.orders.delete" // refund mapped to delete (destructive action)
+	PermissionProfileUpdate       Permission = "ordering.users.change_own"
+	PermissionPreferencesUpdate   Permission = "ordering.config.change_own"
+	PermissionLoyaltyView         Permission = "ordering.loyalty.view"
+	PermissionLoyaltyRedeem       Permission = "ordering.loyalty.change"
+	PermissionCatalogView         Permission = "ordering.catalog.view"
+	PermissionCatalogManage       Permission = "ordering.catalog.manage"
+	PermissionPaymentsView        Permission = "ordering.orders.view" // payments projection — same as orders view
+	PermissionPaymentsManage      Permission = "ordering.orders.manage"
+	PermissionLogisticsView       Permission = "ordering.orders.view" // logistics projection — same as orders view
+	PermissionLogisticsDispatch   Permission = "ordering.orders.change"
+	PermissionOperationsKitchen   Permission = "ordering.orders.change"
+	PermissionOperationsInventory Permission = "ordering.catalog.view"
+	PermissionNotificationsView   Permission = "ordering.config.view"
+	PermissionNotificationsManage Permission = "ordering.config.manage"
+	PermissionAnalyticsView       Permission = "ordering.analytics.view"
+	PermissionAnalyticsExport     Permission = "ordering.analytics.manage"
+	PermissionSupportView         Permission = "ordering.orders.view_own"
+	PermissionSupportManage       Permission = "ordering.orders.manage"
+	PermissionZonesView           Permission = "ordering.delivery_zones.view"
+	PermissionZonesManage         Permission = "ordering.delivery_zones.manage"
+	PermissionRidersOnboard       Permission = "ordering.users.add"
+	PermissionStaffInvite         Permission = "ordering.users.add"
+	PermissionAdminManage         Permission = "ordering.config.manage"
 )
 
 // DefaultPermissions returns the permissions granted to the supplied role.
