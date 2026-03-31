@@ -453,7 +453,12 @@ func (h *Handler) AdminListCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handlers.RespondJSON(w, http.StatusOK, categories)
+	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
+		Data:  categories,
+		Total: len(categories),
+		Limit: len(categories),
+		Page:  1,
+	})
 }
 
 // ListOutlets returns the list of outlets for the tenant (public, no auth).
