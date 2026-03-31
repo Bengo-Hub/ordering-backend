@@ -437,8 +437,9 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter ..
 	if len(typeFilter) > 0 && typeFilter[0] != "" {
 		path += "?type=" + typeFilter[0]
 	} else {
-		// Default: only fetch sellable item types for the ordering catalog
-		path += "?type=GOODS"
+		// Default: fetch both GOODS and RECIPE types for the ordering catalog
+		// RECIPE items have BOM linkages and appear on the recipes page
+		path += "?type=GOODS,RECIPE"
 	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
