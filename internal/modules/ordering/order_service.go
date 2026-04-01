@@ -196,31 +196,9 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Reserve stock via inventory service (fail fast if stock unavailable)
 	var reservationID *uuid.UUID
 	if s.inventoryClient != nil {
-		tenant, tenantErr := s.repo.GetTenantByID(ctx, req.TenantID)
-		if tenantErr == nil {
-			reservationItems := make([]inventory.ReservationItem, 0, len(cart.Items))
-			for _, ci := range cart.Items {
-				if ci.InventorySKU != "" {
-					reservationItems = append(reservationItems, inventory.ReservationItem{
-						SKU:      ci.InventorySKU,
-						Quantity: ci.Quantity,
-					})
-				}
-			}
-			if len(reservationItems) > 0 {
-				reserveReq := inventory.ReservationRequest{
-					TenantID:       req.TenantID,
-					OrderID:        uuid.New(), // temporary; will update after order creation
-					Items:          reservationItems,
-					IdempotencyKey: req.IdempotencyKey,
-				}
-				reservation, reserveErr := s.inventoryClient.CreateReservation(ctx, tenant.Slug, reserveReq)
-				if reserveErr != nil {
-					s.logger.Warn("stock reservation failed", zap.Error(reserveErr))
-					return nil, fmt.Errorf("stock not available: %w", reserveErr)
-				}
-				reservationID = &reservation.ID
-			}
+		reservationID, err = s.reserveStockForItems(ctx, req.TenantID, uuid.Nil, cart.Items, req.IdempotencyKey)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -389,9 +367,23 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	discountTotal := 0.0
 	grandTotal := subtotal - discountTotal + deliveryFee
 
+	// Reserve stock via inventory service (fail fast if stock unavailable)
+	var reservationID *uuid.UUID
+	if s.inventoryClient != nil {
+		var reserveErr error
+		reservationID, reserveErr = s.reserveStockForOrderItems(ctx, req.TenantID, uuid.Nil, req.Items, "")
+		if reserveErr != nil {
+			return nil, reserveErr
+		}
+	}
+
 	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.OutletID)
 	if err != nil {
 		s.logger.Error("failed to generate order number", zap.Error(err))
+		// Release reservation if order number generation fails
+		if reservationID != nil {
+			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
+		}
 		return nil, err
 	}
 
@@ -421,6 +413,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		LoyaltyPointsEarned: loyaltyPointsEarned,
 		Instructions:        instructions,
 		Channel:             req.Channel,
+		ReservationID:       reservationID,
 		PlacedAt:            &now,
 		CreatedAt:           now,
 		UpdatedAt:           now,
@@ -428,6 +421,10 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 	if err := s.repo.CreateOrder(ctx, order); err != nil {
 		s.logger.Error("failed to create order", zap.Error(err))
+		// Release reservation on order creation failure
+		if reservationID != nil {
+			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
+		}
 		return nil, err
 	}
 
@@ -501,6 +498,15 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		instructions = instructions + "\n" + req.Instructions
 	}
 
+	// Reserve stock via inventory service (fail fast if stock unavailable)
+	var reservationID *uuid.UUID
+	if s.inventoryClient != nil {
+		reservationID, err = s.reserveStockForItems(ctx, req.TenantID, uuid.Nil, guestCart.Items, "")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Use nil UUID for guest customer
 	guestCustomerID := uuid.Nil
 
@@ -525,6 +531,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		Instructions:          instructions,
 		Channel:               req.Channel,
 		Source:                 "guest",
+		ReservationID:         reservationID,
 		PlacedAt:              &now,
 		Metadata: map[string]interface{}{
 			"guest":        true,
@@ -744,10 +751,14 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
 			s.logger.Error("failed to award loyalty points", zap.Error(err))
 		}
+		// Consume (finalize) the inventory reservation so reserved stock is deducted
+		go s.consumeOrderReservation(context.Background(), order)
 		// Process stock consumption based on recipes (BOM)
 		go s.processStockConsumption(context.Background(), order)
 	case OrderStatusCancelled:
 		order.CancelledAt = &now
+		// Release inventory reservation on cancellation via status update
+		go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
 	}
 
 	if err := s.repo.UpdateOrder(ctx, order); err != nil {
@@ -789,6 +800,9 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	if err := s.repo.UpdateOrder(ctx, order); err != nil {
 		return nil, err
 	}
+
+	// Release inventory reservation if one exists
+	go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
 
 	// Refund loyalty points if they were redeemed
 	if order.LoyaltyPointsRedeemed > 0 {
@@ -1212,6 +1226,153 @@ func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, 
 
 	if err := s.repo.CreateOrderEvent(ctx, event); err != nil {
 		s.logger.Error("failed to create order event", zap.Error(err))
+	}
+}
+
+// --- Inventory Reservation Helpers ---
+
+// reserveStockForItems checks availability and creates an inventory reservation
+// for a set of cart items (or order items). Returns the reservation ID on success,
+// or a wrapped ErrStockNotAvailable on failure.
+func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, orderID uuid.UUID, items []CartItem, idempotencyKey string) (*uuid.UUID, error) {
+	tenant, err := s.repo.GetTenantByID(ctx, tenantID)
+	if err != nil {
+		s.logger.Warn("failed to get tenant for inventory reservation, skipping", zap.Error(err))
+		return nil, nil
+	}
+
+	reservationItems := make([]inventory.ReservationItem, 0, len(items))
+	for _, ci := range items {
+		if ci.InventorySKU != "" {
+			reservationItems = append(reservationItems, inventory.ReservationItem{
+				SKU:      ci.InventorySKU,
+				Quantity: ci.Quantity,
+			})
+		}
+	}
+	if len(reservationItems) == 0 {
+		return nil, nil
+	}
+
+	// Check bulk availability first to return actionable item-level details
+	skus := make([]string, len(reservationItems))
+	for i, ri := range reservationItems {
+		skus[i] = ri.SKU
+	}
+	availabilities, bulkErr := s.inventoryClient.CheckBulkAvailability(ctx, tenant.Slug, skus)
+	if bulkErr == nil {
+		// Build a lookup map
+		availMap := make(map[string]int, len(availabilities))
+		for _, a := range availabilities {
+			availMap[a.SKU] = a.Available
+		}
+		var unavailable []string
+		for _, ri := range reservationItems {
+			avail, found := availMap[ri.SKU]
+			if !found || avail < ri.Quantity {
+				unavailable = append(unavailable, ri.SKU)
+			}
+		}
+		if len(unavailable) > 0 {
+			s.logger.Warn("insufficient stock for items",
+				zap.Strings("skus", unavailable),
+				zap.String("tenantID", tenantID.String()))
+			return nil, fmt.Errorf("%w: insufficient stock for SKUs %v", ErrStockNotAvailable, unavailable)
+		}
+	}
+
+	// Use the provided orderID, or generate a placeholder if not yet known
+	resOrderID := orderID
+	if resOrderID == uuid.Nil {
+		resOrderID = uuid.New()
+	}
+
+	reserveReq := inventory.ReservationRequest{
+		TenantID:       tenantID,
+		OrderID:        resOrderID,
+		Items:          reservationItems,
+		IdempotencyKey: idempotencyKey,
+	}
+	reservation, reserveErr := s.inventoryClient.CreateReservation(ctx, tenant.Slug, reserveReq)
+	if reserveErr != nil {
+		s.logger.Warn("stock reservation failed", zap.Error(reserveErr))
+		return nil, fmt.Errorf("%w: %v", ErrStockNotAvailable, reserveErr)
+	}
+
+	// Check for partial reservations
+	for _, ri := range reservation.Items {
+		if !ri.IsFullyReserved {
+			s.logger.Warn("partial reservation detected, releasing",
+				zap.String("sku", ri.SKU),
+				zap.Int("requested", ri.RequestedQty),
+				zap.Int("reserved", ri.ReservedQty))
+			// Release the partial reservation and fail the order
+			_ = s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, reservation.ID, "partial_reservation_rejected")
+			return nil, fmt.Errorf("%w: item %s only has %d available (requested %d)",
+				ErrStockNotAvailable, ri.SKU, ri.AvailableQty, ri.RequestedQty)
+		}
+	}
+
+	return &reservation.ID, nil
+}
+
+// reserveStockForOrderItems is a convenience wrapper that converts OrderItems
+// to the CartItem shape expected by reserveStockForItems.
+func (s *OrderService) reserveStockForOrderItems(ctx context.Context, tenantID, orderID uuid.UUID, items []CreateOrderItemInput, idempotencyKey string) (*uuid.UUID, error) {
+	cartItems := make([]CartItem, 0, len(items))
+	for _, it := range items {
+		if it.InventorySKU != "" {
+			cartItems = append(cartItems, CartItem{
+				InventorySKU: it.InventorySKU,
+				Quantity:     it.Quantity,
+			})
+		}
+	}
+	return s.reserveStockForItems(ctx, tenantID, orderID, cartItems, idempotencyKey)
+}
+
+// releaseOrderReservation releases the inventory reservation for an order, if one exists.
+func (s *OrderService) releaseOrderReservation(ctx context.Context, order *Order, reason string) {
+	if order.ReservationID == nil || s.inventoryClient == nil {
+		return
+	}
+	tenant, err := s.repo.GetTenantByID(ctx, order.TenantID)
+	if err != nil {
+		s.logger.Error("failed to get tenant for reservation release", zap.Error(err))
+		return
+	}
+	if releaseErr := s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, reason); releaseErr != nil {
+		s.logger.Warn("failed to release inventory reservation",
+			zap.Error(releaseErr),
+			zap.String("reservationID", order.ReservationID.String()),
+			zap.String("orderID", order.ID.String()))
+	} else {
+		s.logger.Info("inventory reservation released",
+			zap.String("reservationID", order.ReservationID.String()),
+			zap.String("orderID", order.ID.String()),
+			zap.String("reason", reason))
+	}
+}
+
+// consumeOrderReservation consumes (finalizes) the inventory reservation for a completed order.
+func (s *OrderService) consumeOrderReservation(ctx context.Context, order *Order) {
+	if order.ReservationID == nil || s.inventoryClient == nil {
+		return
+	}
+	tenant, err := s.repo.GetTenantByID(ctx, order.TenantID)
+	if err != nil {
+		s.logger.Error("failed to get tenant for reservation consumption", zap.Error(err))
+		return
+	}
+	if consumeErr := s.inventoryClient.ConsumeReservation(ctx, tenant.Slug, *order.ReservationID); consumeErr != nil {
+		s.logger.Warn("failed to consume inventory reservation",
+			zap.Error(consumeErr),
+			zap.String("reservationID", order.ReservationID.String()),
+			zap.String("orderID", order.ID.String()))
+	} else {
+		s.logger.Info("inventory reservation consumed",
+			zap.String("reservationID", order.ReservationID.String()),
+			zap.String("orderID", order.ID.String()))
 	}
 }
 
