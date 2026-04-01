@@ -179,6 +179,9 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrCartItemNotFound):
 		handlers.RespondError(w, http.StatusNotFound, err.Error())
 
+	case errors.Is(err, ordering.ErrStockNotAvailable):
+		handlers.RespondError(w, http.StatusConflict, err.Error())
+
 	case errors.Is(err, ordering.ErrOrderAlreadyExists):
 		handlers.RespondError(w, http.StatusConflict, err.Error())
 
