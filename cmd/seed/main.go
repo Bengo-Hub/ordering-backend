@@ -54,9 +54,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("open ent driver: %v", err)
 	}
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(25)
-	db.SetConnMaxIdleTime(5 * time.Minute)
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetConnMaxIdleTime(1 * time.Minute)
 	driver := entsql.OpenDB(dialect.Postgres, db)
 
 	client := ent.NewClient(ent.Driver(driver))
