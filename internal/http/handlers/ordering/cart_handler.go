@@ -43,6 +43,9 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 			guestRouter.Delete("/items/{itemId}", h.RemoveGuestItem)
 		})
 
+		// Public cart endpoints (no auth — needed for guest checkout flow)
+		cartRouter.Get("/fee-breakdown", h.GetFeeBreakdown)
+
 		// Authenticated cart operations (grouped to avoid middleware-after-routes panic)
 		cartRouter.Group(func(authedCart chi.Router) {
 			authedCart.Use(auth.RequireAuth)
@@ -52,7 +55,6 @@ func (h *CartHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 			authedCart.Delete("/items/{itemId}", h.RemoveItem)
 			authedCart.Delete("/", h.ClearCart)
 			authedCart.Get("/summary", h.GetCartSummary)
-			authedCart.Get("/fee-breakdown", h.GetFeeBreakdown)
 			authedCart.Post("/merge", h.MergeGuestCart)
 		})
 	})
