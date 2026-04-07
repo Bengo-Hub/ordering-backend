@@ -127,14 +127,12 @@ func New(ctx context.Context) (*App, error) {
 
 	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
 	ormClient := ent.NewClient(ent.Driver(drv))
-	if err := ormClient.Schema.Create(ctx, schema.WithDir(migrate.Dir)); err != nil {
-		return nil, fmt.Errorf("app: ent schema create: %w", err)
+	if cfg.Postgres.RunMigrations {
+		if err := ormClient.Schema.Create(ctx, schema.WithDir(migrate.Dir)); err != nil {
+			return nil, fmt.Errorf("app: ent schema create: %w", err)
+		}
+		log.Info("app: versioned migrations applied (POSTGRES_RUN_MIGRATIONS=true)")
 	}
-
-	// Note: Seeding should be done manually via 'go run cmd/seed/main.go' after migrations
-	// This ensures roles, permissions, tenant, and demo user are always available
-	// The seed command is idempotent and can be run multiple times safely
-	log.Info("app: migrations completed - run 'go run cmd/seed/main.go' to seed initial data (idempotent)")
 
 	identityRepo := identity.NewEntRepository(ormClient)
 	tenantSyncer := tenant.NewSyncer(ormClient, cfg.Auth.ServiceURL)
