@@ -3,6 +3,7 @@ package zoneshandler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -30,8 +31,9 @@ func New(log *zap.Logger, client *ent.Client) *Handler {
 // Register mounts delivery zone routes on the supplied router.
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/zones", func(zr chi.Router) {
-		// Public: list active zones for an outlet
+		// Public endpoints (no auth — used by guest checkout flow)
 		zr.Get("/", h.ListZones)
+		zr.Get("/check", h.CheckAvailabilityPublic) // must be before /{id}
 		zr.Get("/{id}", h.GetZone)
 
 		// Admin: manage zones (requires auth + permissions)
@@ -323,6 +325,90 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, result)
+}
+
+// CheckAvailabilityPublic is a public GET endpoint for checking delivery zone availability.
+// Used by the guest checkout flow — no auth required.
+// Accepts query params: lat, lng, outlet_id (optional).
+// Returns a flat response matching the frontend's ZoneCheckResult interface.
+func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := h.getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	latStr := r.URL.Query().Get("lat")
+	lngStr := r.URL.Query().Get("lng")
+	if latStr == "" || lngStr == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "lat and lng query parameters are required")
+		return
+	}
+
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid lat value")
+		return
+	}
+	lng, err := strconv.ParseFloat(lngStr, 64)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid lng value")
+		return
+	}
+
+	query := h.client.DeliveryZone.Query().
+		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true))
+
+	if outletIDStr := r.URL.Query().Get("outlet_id"); outletIDStr != "" {
+		if oid, err := uuid.Parse(outletIDStr); err == nil {
+			query = query.Where(deliveryzone.OutletID(oid))
+		}
+	}
+
+	zones, err := query.All(r.Context())
+	if err != nil {
+		handlers.RespondError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+
+	// Point-in-polygon check with fallback to no-polygon zones
+	var bestZone *ent.DeliveryZone
+	var fallbackZone *ent.DeliveryZone
+	for _, zone := range zones {
+		if zone.ZonePolygon == nil {
+			if fallbackZone == nil {
+				fallbackZone = zone
+			}
+			continue
+		}
+		if pointInGeoJSONPolygon(lat, lng, zone.ZonePolygon) {
+			if bestZone == nil || zone.DeliveryFee < bestZone.DeliveryFee {
+				bestZone = zone
+			}
+		}
+	}
+	if bestZone == nil {
+		bestZone = fallbackZone
+	}
+
+	if bestZone == nil {
+		// No zone covers this location
+		handlers.RespondJSON(w, http.StatusOK, map[string]any{
+			"serviceable": false,
+			"latitude":    lat,
+			"longitude":   lng,
+		})
+		return
+	}
+
+	// Return flat response matching frontend ZoneCheckResult interface
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{
+		"serviceable":    true,
+		"zone_id":        bestZone.ID.String(),
+		"delivery_fee":   bestZone.DeliveryFee,
+		"min_order":      bestZone.MinimumOrder,
+		"estimated_time": bestZone.EstimatedTimeMinutes,
+	})
 }
 
 // pointInGeoJSONPolygon checks if a lat/lng point is inside a GeoJSON polygon.
