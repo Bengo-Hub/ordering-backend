@@ -213,8 +213,10 @@ func New(
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/cart/guest") ||
+								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/zones") ||
+								strings.Contains(path, "/ratings") ||
 								isPublicCatalog {
 								next.ServeHTTP(w, r)
 								return

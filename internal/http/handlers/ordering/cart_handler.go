@@ -541,20 +541,22 @@ func (h *CartHandler) GetFeeBreakdown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := getUserFromContext(r)
-	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
 	outletID, err := getOutletID(r)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "outlet_id is required")
 		return
 	}
 
-	// Get user's cart
-	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, &user.ID, "")
+	// Support both authenticated users (by user ID) and guests (by session_id).
+	// This allows the fee-breakdown endpoint to be public for guest checkout.
+	var userIDPtr *uuid.UUID
+	user, userErr := getUserFromContext(r)
+	if userErr == nil {
+		userIDPtr = &user.ID
+	}
+	sessionID := r.URL.Query().Get("session_id")
+
+	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, userIDPtr, sessionID)
 	if err != nil {
 		h.handleError(w, err)
 		return
