@@ -391,23 +391,28 @@ func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request
 		bestZone = fallbackZone
 	}
 
-	if bestZone == nil {
-		// No zone covers this location
+	if bestZone != nil {
+		// Zone match found — return zone fee
 		handlers.RespondJSON(w, http.StatusOK, map[string]any{
-			"serviceable": false,
-			"latitude":    lat,
-			"longitude":   lng,
+			"serviceable":    true,
+			"zone_id":        bestZone.ID.String(),
+			"delivery_fee":   bestZone.DeliveryFee,
+			"min_order":      bestZone.MinimumOrder,
+			"estimated_time": bestZone.EstimatedTimeMinutes,
 		})
 		return
 	}
 
-	// Return flat response matching frontend ZoneCheckResult interface
+	// No zone match — return serviceable with auto-calculated fallback fee.
+	// The actual per-km fee will be calculated at checkout using the outlet's
+	// coordinates. Here we return the base fee as an estimate.
 	handlers.RespondJSON(w, http.StatusOK, map[string]any{
 		"serviceable":    true,
-		"zone_id":        bestZone.ID.String(),
-		"delivery_fee":   bestZone.DeliveryFee,
-		"min_order":      bestZone.MinimumOrder,
-		"estimated_time": bestZone.EstimatedTimeMinutes,
+		"zone_id":        "",
+		"delivery_fee":   100.0, // Base fee — actual fee calculated at checkout
+		"min_order":      0,
+		"estimated_time": 30,
+		"auto_calculated": true,
 	})
 }
 

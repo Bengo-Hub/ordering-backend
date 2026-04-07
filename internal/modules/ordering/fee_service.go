@@ -30,17 +30,22 @@ type FeeConfig struct {
 	SmallOrderFee       float64 `json:"small_order_fee"`
 	SmallOrderThreshold float64 `json:"small_order_threshold"`
 	DeliveryDiscountPct float64 `json:"delivery_discount_pct"`
+	DeliveryFeeBase     float64 `json:"delivery_fee_base"`   // Base delivery fee (default 100 KES)
+	DeliveryFeePerKm    float64 `json:"delivery_fee_per_km"` // Per-km rate (default 30 KES)
+	FreeDeliveryMinimum float64 `json:"free_delivery_minimum"` // Free delivery threshold (default 2000 KES)
 }
 
-// DefaultFeeConfig returns zero defaults when no tenant config is found.
-// Fees are only charged when the tenant explicitly configures them in TenantSetting.features.
+// DefaultFeeConfig returns defaults when no tenant config is found.
 func DefaultFeeConfig() FeeConfig {
 	return FeeConfig{
-		ServiceFeePercent:   0, // 0% — tenant must configure
-		PackagingFeeFlat:    0, // 0 — tenant must configure
-		SmallOrderFee:       0, // 0 — tenant must configure
-		SmallOrderThreshold: 0, // 0 — no threshold by default
-		DeliveryDiscountPct: 0, // 0 — no delivery discount by default
+		ServiceFeePercent:   0,
+		PackagingFeeFlat:    0,
+		SmallOrderFee:       0,
+		SmallOrderThreshold: 0,
+		DeliveryDiscountPct: 0,
+		DeliveryFeeBase:     DeliveryFeeBase,     // 100 KES
+		DeliveryFeePerKm:    DeliveryFeePerKm,    // 30 KES/km
+		FreeDeliveryMinimum: FreeDeliveryMinimum,  // 2000 KES
 	}
 }
 
