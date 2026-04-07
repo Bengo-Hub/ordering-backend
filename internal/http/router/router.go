@@ -174,14 +174,22 @@ func New(
 				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
 				tenant.Use(httpware.TenantV2(tenantCfg))
 
-				// JIT tenant sync: ensure tenant exists in local DB when slug is in context (avoids "tenant not found" after SSO)
+				// JIT tenant sync: ensure tenant exists in local DB when slug is in context.
+				// Also backfills tenant ID into context so getTenantID() works for guest users
+				// who only have a slug (no JWT → no tenant UUID in claims).
 				if tenantSyncer != nil {
 					tenant.Use(func(next http.Handler) http.Handler {
 						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-							slug := httpware.GetTenantSlug(r.Context())
+							ctx := r.Context()
+							slug := httpware.GetTenantSlug(ctx)
 							if slug != "" {
-								if _, err := tenantSyncer.SyncTenant(r.Context(), slug); err != nil {
+								tenantUUID, err := tenantSyncer.SyncTenant(ctx, slug)
+								if err != nil {
 									log.Warn("tenant sync failed during request", zap.String("tenant_slug", slug), zap.Error(err))
+								} else if tid := tenantUUID.String(); tid != "" && tid != "00000000-0000-0000-0000-000000000000" && httpware.GetTenantID(ctx) == "" {
+									// Backfill tenant ID for guest requests that only have the slug
+									ctx = context.WithValue(ctx, httpware.TenantIDKey, tid)
+									r = r.WithContext(ctx)
 								}
 							}
 							next.ServeHTTP(w, r)
