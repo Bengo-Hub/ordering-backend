@@ -2,6 +2,7 @@ package zoneshandler
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -12,10 +13,28 @@ import (
 	"github.com/Bengo-Hub/httpware"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 )
+
+const (
+	maxDeliveryRadiusKm = 50.0  // Maximum delivery distance from nearest outlet
+	deliveryFeeBase     = 100.0 // Default base fee (KES)
+	deliveryFeePerKm    = 30.0  // Default per-km rate (KES)
+	earthRadiusKm       = 6371.0
+)
+
+// haversine calculates distance in km between two lat/lng points.
+func haversine(lat1, lng1, lat2, lng2 float64) float64 {
+	dLat := (lat2 - lat1) * math.Pi / 180
+	dLng := (lng2 - lng1) * math.Pi / 180
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*math.Pi/180)*math.Cos(lat2*math.Pi/180)*
+			math.Sin(dLng/2)*math.Sin(dLng/2)
+	return earthRadiusKm * 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+}
 
 // Handler manages delivery zone endpoints.
 type Handler struct {
@@ -330,7 +349,13 @@ func (h *Handler) CheckAvailability(w http.ResponseWriter, r *http.Request) {
 // CheckAvailabilityPublic is a public GET endpoint for checking delivery zone availability.
 // Used by the guest checkout flow — no auth required.
 // Accepts query params: lat, lng, outlet_id (optional).
-// Returns a flat response matching the frontend's ZoneCheckResult interface.
+//
+// Logic:
+//  1. Find nearest outlet for the tenant and compute distance.
+//  2. If distance > max delivery radius (50km) → not serviceable.
+//  3. Check zone polygons for a match → use zone fee.
+//  4. If no polygon match but fallback zone exists AND within radius → use fallback zone fee.
+//  5. If no zones at all but within radius → auto-calculate: base + per-km.
 func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := h.getTenantID(r)
 	if err != nil {
@@ -356,6 +381,45 @@ func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Step 1: Find the nearest outlet and compute distance.
+	outlets, err := h.client.Outlet.Query().
+		Where(outlet.TenantID(tenantID)).
+		All(r.Context())
+	if err != nil {
+		h.log.Error("failed to query outlets for zone check", zap.Error(err))
+	}
+
+	var nearestOutlet *ent.Outlet
+	nearestDistKm := math.MaxFloat64
+	for _, o := range outlets {
+		if o.Latitude == nil || o.Longitude == nil {
+			continue
+		}
+		d := haversine(lat, lng, *o.Latitude, *o.Longitude)
+		if d < nearestDistKm {
+			nearestDistKm = d
+			nearestOutlet = o
+		}
+	}
+
+	// Step 2: If no outlet found or distance exceeds max radius → not serviceable.
+	if nearestOutlet == nil || nearestDistKm > maxDeliveryRadiusKm {
+		reason := "No outlets nearby"
+		if nearestOutlet != nil {
+			reason = "Too far from nearest outlet (" + nearestOutlet.Name + ")"
+		}
+		handlers.RespondJSON(w, http.StatusOK, map[string]any{
+			"serviceable":  false,
+			"latitude":     lat,
+			"longitude":    lng,
+			"distance_km":  math.Round(nearestDistKm*100) / 100,
+			"max_radius_km": maxDeliveryRadiusKm,
+			"reason":       reason,
+		})
+		return
+	}
+
+	// Step 3: Check delivery zones (polygon match + fallback).
 	query := h.client.DeliveryZone.Query().
 		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true))
 
@@ -365,13 +429,8 @@ func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	zones, err := query.All(r.Context())
-	if err != nil {
-		handlers.RespondError(w, http.StatusInternalServerError, "internal error")
-		return
-	}
+	zones, _ := query.All(r.Context())
 
-	// Point-in-polygon check with fallback to no-polygon zones
 	var bestZone *ent.DeliveryZone
 	var fallbackZone *ent.DeliveryZone
 	for _, zone := range zones {
@@ -387,31 +446,49 @@ func (h *Handler) CheckAvailabilityPublic(w http.ResponseWriter, r *http.Request
 			}
 		}
 	}
-	if bestZone == nil {
-		bestZone = fallbackZone
-	}
 
 	if bestZone != nil {
-		// Zone match found — return zone fee
+		// Polygon match — use zone fee
 		handlers.RespondJSON(w, http.StatusOK, map[string]any{
 			"serviceable":    true,
 			"zone_id":        bestZone.ID.String(),
 			"delivery_fee":   bestZone.DeliveryFee,
 			"min_order":      bestZone.MinimumOrder,
 			"estimated_time": bestZone.EstimatedTimeMinutes,
+			"distance_km":    math.Round(nearestDistKm*100) / 100,
+			"outlet_name":    nearestOutlet.Name,
 		})
 		return
 	}
 
-	// No zone match — return serviceable with auto-calculated fallback fee.
-	// The actual per-km fee will be calculated at checkout using the outlet's
-	// coordinates. Here we return the base fee as an estimate.
+	if fallbackZone != nil {
+		// No polygon match but fallback zone exists — use it
+		handlers.RespondJSON(w, http.StatusOK, map[string]any{
+			"serviceable":    true,
+			"zone_id":        fallbackZone.ID.String(),
+			"delivery_fee":   fallbackZone.DeliveryFee,
+			"min_order":      fallbackZone.MinimumOrder,
+			"estimated_time": fallbackZone.EstimatedTimeMinutes,
+			"distance_km":    math.Round(nearestDistKm*100) / 100,
+			"outlet_name":    nearestOutlet.Name,
+		})
+		return
+	}
+
+	// Step 5: No zones configured — auto-calculate from distance.
+	fee := math.Round((deliveryFeeBase+deliveryFeePerKm*nearestDistKm)*100) / 100
+	etaMin := int(math.Ceil(nearestDistKm * 1.5)) // rough: 1.5 min/km
+	if etaMin < 15 {
+		etaMin = 15
+	}
 	handlers.RespondJSON(w, http.StatusOK, map[string]any{
-		"serviceable":    true,
-		"zone_id":        "",
-		"delivery_fee":   100.0, // Base fee — actual fee calculated at checkout
-		"min_order":      0,
-		"estimated_time": 30,
+		"serviceable":     true,
+		"zone_id":         "",
+		"delivery_fee":    fee,
+		"min_order":       0,
+		"estimated_time":  etaMin,
+		"distance_km":     math.Round(nearestDistKm*100) / 100,
+		"outlet_name":     nearestOutlet.Name,
 		"auto_calculated": true,
 	})
 }
