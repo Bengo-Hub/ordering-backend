@@ -90,16 +90,21 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 // --- Request/Response Types ---
 
 // CheckoutRequestDTO represents a checkout request.
+// Supports two modes: cart-based (cartId) or items-based (outletId + items).
 type CheckoutRequestDTO struct {
-	CartID                string  `json:"cartId"`
-	DeliveryAddressID     *string `json:"deliveryAddressId,omitempty"`
-	PromoCode             string  `json:"promoCode,omitempty"`
-	LoyaltyPointsRedeemed int     `json:"loyaltyPointsRedeemed,omitempty"`
-	Instructions          string  `json:"instructions,omitempty"`
-	Channel               string  `json:"channel,omitempty"`
-	IdempotencyKey        string  `json:"idempotencyKey,omitempty"`
-	FulfillmentType       string  `json:"fulfillmentType,omitempty"`
-	ScheduledAt           string  `json:"scheduledAt,omitempty"`
+	CartID                string         `json:"cartId"`
+	OutletID              string         `json:"outletId,omitempty"`
+	Items                 []OrderItemDTO `json:"items,omitempty"`
+	DeliveryAddressID     *string        `json:"deliveryAddressId,omitempty"`
+	DeliveryAddress       string         `json:"deliveryAddress,omitempty"`
+	DeliveryNotes         string         `json:"deliveryNotes,omitempty"`
+	PromoCode             string         `json:"promoCode,omitempty"`
+	LoyaltyPointsRedeemed int            `json:"loyaltyPointsRedeemed,omitempty"`
+	Instructions          string         `json:"instructions,omitempty"`
+	Channel               string         `json:"channel,omitempty"`
+	IdempotencyKey        string         `json:"idempotencyKey,omitempty"`
+	FulfillmentType       string         `json:"fulfillmentType,omitempty"`
+	ScheduledAt           string         `json:"scheduledAt,omitempty"`
 }
 
 // UpdateStatusRequest represents a request to update order status.
@@ -325,6 +330,84 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse fulfillment type and scheduled time
+	fulfillmentType := ordering.FulfillmentType(req.FulfillmentType)
+	var scheduledFor *time.Time
+	if req.ScheduledAt != "" {
+		t, err := time.Parse(time.RFC3339, req.ScheduledAt)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid scheduledAt format, expected RFC3339")
+			return
+		}
+		scheduledFor = &t
+	}
+
+	// Items-based checkout: frontend sends items directly from local cart state
+	if len(req.Items) > 0 && req.OutletID != "" {
+		outletID, err := uuid.Parse(req.OutletID)
+		if err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
+			return
+		}
+
+		items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
+		for _, it := range req.Items {
+			items = append(items, ordering.CreateOrderItemInput{
+				InventorySKU: it.InventorySKU,
+				Name:         it.Name,
+				Quantity:     it.Quantity,
+				UnitPrice:    it.UnitPrice,
+				TotalPrice:   it.TotalPrice,
+			})
+		}
+
+		// Resolve delivery address: prefer explicit address string, fall back to
+		// looking up the addressId via the repo if only an ID was provided.
+		deliveryAddress := req.DeliveryAddress
+		var deliveryLat, deliveryLng *float64
+		if deliveryAddress == "" && req.DeliveryAddressID != nil && *req.DeliveryAddressID != "" {
+			addrID, parseErr := uuid.Parse(*req.DeliveryAddressID)
+			if parseErr == nil {
+				addr, addrErr := h.orderService.GetCustomerAddress(r.Context(), tenantID, addrID)
+				if addrErr == nil && addr != nil {
+					deliveryAddress = addr.AddressLine1
+					if addr.AddressLine2 != "" {
+						deliveryAddress += ", " + addr.AddressLine2
+					}
+					deliveryLat = addr.Latitude
+					deliveryLng = addr.Longitude
+				}
+			}
+		}
+
+		channel := ordering.OrderChannelWeb
+		if req.Channel != "" {
+			channel = ordering.OrderChannel(req.Channel)
+		}
+
+		order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
+			TenantID:        tenantID,
+			OutletID:        outletID,
+			UserID:          user.ID,
+			Items:           items,
+			DeliveryAddress: deliveryAddress,
+			DeliveryLat:     deliveryLat,
+			DeliveryLng:     deliveryLng,
+			DeliveryNotes:   req.DeliveryNotes,
+			PromoCode:       req.PromoCode,
+			Channel:         channel,
+			FulfillmentType: fulfillmentType,
+			ScheduledFor:    scheduledFor,
+		})
+		if err != nil {
+			h.handleError(w, err)
+			return
+		}
+		handlers.RespondJSON(w, http.StatusCreated, order)
+		return
+	}
+
+	// Cart-based checkout (legacy): requires cartId
 	cartID, err := uuid.Parse(req.CartID)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid cart ID")
@@ -339,18 +422,6 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		deliveryAddressID = &id
-	}
-
-	// Parse fulfillment type and scheduled time
-	fulfillmentType := ordering.FulfillmentType(req.FulfillmentType)
-	var scheduledFor *time.Time
-	if req.ScheduledAt != "" {
-		t, err := time.Parse(time.RFC3339, req.ScheduledAt)
-		if err != nil {
-			handlers.RespondError(w, http.StatusBadRequest, "invalid scheduledAt format, expected RFC3339")
-			return
-		}
-		scheduledFor = &t
 	}
 
 	order, err := h.orderService.Checkout(r.Context(), ordering.CheckoutRequest{

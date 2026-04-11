@@ -758,6 +758,11 @@ func (s *OrderService) ListOrders(ctx context.Context, filter OrderFilter) ([]Or
 	return s.repo.ListOrders(ctx, filter)
 }
 
+// GetCustomerAddress retrieves a customer address by ID (used by checkout to resolve addressId).
+func (s *OrderService) GetCustomerAddress(ctx context.Context, tenantID, addressID uuid.UUID) (*CustomerAddress, error) {
+	return s.repo.GetAddress(ctx, tenantID, addressID)
+}
+
 // GetAnalyticsSummary returns aggregated metrics for the dashboard.
 func (s *OrderService) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
 	return s.repo.GetAnalyticsSummary(ctx, tenantID, dateFrom, dateTo)
