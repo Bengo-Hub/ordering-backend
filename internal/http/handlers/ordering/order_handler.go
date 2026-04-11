@@ -121,17 +121,22 @@ type RateOrderRequest struct {
 
 // GuestCheckoutRequestDTO is the request body for POST /checkout/guest (guest checkout, no auth).
 type GuestCheckoutRequestDTO struct {
-	OutletID        string   `json:"outletId"`
-	SessionID       string   `json:"sessionId"`
-	ContactEmail    string   `json:"contactEmail"`
-	ContactPhone    string   `json:"contactPhone"`
-	DeliveryAddress string   `json:"deliveryAddress"`
-	DeliveryLat     *float64 `json:"deliveryLat,omitempty"`
-	DeliveryLng     *float64 `json:"deliveryLng,omitempty"`
-	DeliveryNotes   string   `json:"deliveryNotes,omitempty"`
-	PaymentMethod   string   `json:"paymentMethod"` // "mpesa" | "cod"
-	Instructions    string   `json:"instructions,omitempty"`
-	Channel         string   `json:"channel,omitempty"`
+	OutletID        string         `json:"outletId"`
+	SessionID       string         `json:"sessionId"`
+	ContactEmail    string         `json:"contactEmail"`
+	ContactPhone    string         `json:"contactPhone"`
+	ContactName     string         `json:"contactName"`
+	Items           []OrderItemDTO `json:"items"`
+	FulfillmentType string         `json:"fulfillmentType,omitempty"`
+	DeliveryAddress string         `json:"deliveryAddress"`
+	DeliveryLat     *float64       `json:"deliveryLat,omitempty"`
+	DeliveryLng     *float64       `json:"deliveryLng,omitempty"`
+	DeliveryNotes   string         `json:"deliveryNotes,omitempty"`
+	PaymentMethod   string         `json:"paymentMethod"` // "mpesa" | "cod"
+	Instructions    string         `json:"instructions,omitempty"`
+	Channel         string         `json:"channel,omitempty"`
+	IdempotencyKey  string         `json:"idempotencyKey,omitempty"`
+	ScheduledAt     string         `json:"scheduledAt,omitempty"`
 }
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
@@ -1217,12 +1222,26 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert DTO items to domain items
+	var items []ordering.CreateOrderItemInput
+	for _, it := range req.Items {
+		items = append(items, ordering.CreateOrderItemInput{
+			InventorySKU: it.InventorySKU,
+			Name:         it.Name,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
+		})
+	}
+
 	order, err := h.orderService.GuestCheckout(r.Context(), ordering.GuestCheckoutRequest{
 		TenantID:        tenantID,
 		OutletID:        outletID,
 		SessionID:       req.SessionID,
 		ContactEmail:    req.ContactEmail,
 		ContactPhone:    req.ContactPhone,
+		ContactName:     req.ContactName,
+		Items:           items,
 		DeliveryAddress: req.DeliveryAddress,
 		DeliveryLat:     req.DeliveryLat,
 		DeliveryLng:     req.DeliveryLng,
@@ -1230,6 +1249,7 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		PaymentMethod:   req.PaymentMethod,
 		Instructions:    req.Instructions,
 		Channel:         parseOrderChannel(req.Channel),
+		FulfillmentType: ordering.FulfillmentType(req.FulfillmentType),
 	})
 	if err != nil {
 		h.handleError(w, err)

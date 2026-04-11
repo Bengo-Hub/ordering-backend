@@ -520,18 +520,21 @@ type CreateOrderItemInput struct {
 
 // GuestCheckoutRequest represents a request for guest checkout (no auth required).
 type GuestCheckoutRequest struct {
-	TenantID      uuid.UUID
-	OutletID      uuid.UUID
-	SessionID     string
-	ContactEmail  string
-	ContactPhone  string
+	TenantID        uuid.UUID
+	OutletID        uuid.UUID
+	SessionID       string
+	ContactEmail    string
+	ContactPhone    string
+	ContactName     string
+	Items           []CreateOrderItemInput // items from frontend local cart
 	DeliveryAddress string
-	DeliveryLat   *float64
-	DeliveryLng   *float64
-	DeliveryNotes string
-	PaymentMethod string
-	Instructions  string
-	Channel       OrderChannel
+	DeliveryLat     *float64
+	DeliveryLng     *float64
+	DeliveryNotes   string
+	PaymentMethod   string
+	Instructions    string
+	Channel         OrderChannel
+	FulfillmentType FulfillmentType
 }
 
 // RefundOrderRequest represents a request to refund an order.
