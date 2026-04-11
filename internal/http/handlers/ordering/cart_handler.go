@@ -558,6 +558,12 @@ func (h *CartHandler) GetFeeBreakdown(w http.ResponseWriter, r *http.Request) {
 
 	existingCart, err := h.cartService.GetOrCreateCart(r.Context(), tenantID, outletID, userIDPtr, sessionID)
 	if err != nil {
+		// When no user and no session_id, return an empty fee breakdown
+		// instead of 403. The frontend computes fees locally for guests.
+		if errors.Is(err, ordering.ErrUnauthorized) {
+			handlers.RespondJSON(w, http.StatusOK, ordering.FeeBreakdown{})
+			return
+		}
 		h.handleError(w, err)
 		return
 	}
