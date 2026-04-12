@@ -184,6 +184,11 @@ func (c *Client) parseError(resp *serviceclient.Response) error {
 	return &apiErr
 }
 
+// BaseURL returns the treasury service base URL (for building initiate URLs).
+func (c *Client) BaseURL() string {
+	return c.baseURL
+}
+
 // CreatePaymentIntent creates a payment intent with the treasury service.
 func (c *Client) CreatePaymentIntent(ctx context.Context, req PaymentIntentRequest) (*PaymentIntentResponse, error) {
 	resp, err := c.serviceClient.Post(ctx, "/api/v1/payments/intents", req, c.headers(req.IdempotencyKey))

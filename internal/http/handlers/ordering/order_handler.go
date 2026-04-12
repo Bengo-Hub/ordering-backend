@@ -407,7 +407,9 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			h.handleError(w, err)
 			return
 		}
-		handlers.RespondJSON(w, http.StatusCreated, order)
+		// Build checkout result with payment intent
+		checkoutResult := h.orderService.BuildCheckoutResult(r.Context(), order, user.Email, "")
+		handlers.RespondJSON(w, http.StatusCreated, checkoutResult)
 		return
 	}
 
@@ -1406,7 +1408,8 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handlers.RespondJSON(w, http.StatusCreated, order)
+	checkoutResult := h.orderService.BuildCheckoutResult(r.Context(), order, req.ContactEmail, req.ContactPhone)
+	handlers.RespondJSON(w, http.StatusCreated, checkoutResult)
 }
 
 // Reorder creates a new cart populated with items from a past order.
