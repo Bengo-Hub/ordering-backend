@@ -39,6 +39,9 @@ func (h *OrderHandler) SetTaskService(ts *fulfilment.TaskService) {
 
 // Register mounts order routes on the supplied router.
 func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
+	// Public order lookup (for guest post-checkout verification and tracking)
+	r.Get("/orders/guest/{orderId}", h.GetGuestOrder)
+
 	// Customer order routes
 	r.Route("/orders", func(orderRouter chi.Router) {
 		orderRouter.Use(auth.RequireAuth)
@@ -663,6 +666,51 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 	// Verify order belongs to user (unless they have orders:manage permission)
 	if (order.CustomerID == nil || *order.CustomerID != user.ID) && !user.HasPermission(identity.PermissionOrdersManage) {
+		handlers.RespondError(w, http.StatusForbidden, "access denied")
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// GetGuestOrder retrieves an order by ID for guest users (no auth, verified by session_id).
+// @Summary Get guest order
+// @Description Retrieves a guest order. Requires session_id query param matching the order's session.
+// @Tags Orders
+// @Produce json
+// @Param orderId path string true "Order ID"
+// @Param session_id query string true "Guest session ID"
+// @Success 200 {object} ordering.Order
+// @Failure 403 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Router /orders/guest/{orderId} [get]
+func (h *OrderHandler) GetGuestOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	sessionID := r.URL.Query().Get("session_id")
+	if sessionID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "session_id is required")
+		return
+	}
+
+	order, err := h.orderService.GetOrder(r.Context(), tenantID, orderID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	// Verify session_id matches the guest order metadata
+	if order.Metadata == nil || order.Metadata["sessionId"] != sessionID {
 		handlers.RespondError(w, http.StatusForbidden, "access denied")
 		return
 	}

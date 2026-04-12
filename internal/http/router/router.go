@@ -215,6 +215,7 @@ func New(
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
+								strings.Contains(path, "/orders/guest") ||
 								strings.Contains(path, "/zones") ||
 								strings.Contains(path, "/ratings") ||
 								isPublicCatalog {
