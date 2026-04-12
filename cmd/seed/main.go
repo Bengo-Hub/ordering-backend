@@ -90,12 +90,10 @@ func main() {
 	log.Println("database seed completed successfully")
 }
 
-// runSeed seeds service-level data: tenant sync events, settings, roles, permissions, demo users, and catalog data.
+// runSeed seeds service-level data: tenant sync events, settings, roles, permissions, and catalog data.
+// Users are NOT seeded here — they are synced from auth-api via JIT provisioning (EnsureUserFromToken)
+// and NATS events (SyncUserFromAuthService). All user management is centralized in auth-api.
 func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err error) {
-	const superAdminID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-
-	superAdminUUID := uuid.MustParse(superAdminID)
-
 	tx, err := client.Tx(ctx)
 	if err != nil {
 		return err
@@ -107,8 +105,6 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 		}
 		err = tx.Commit()
 	}()
-
-	now := time.Now().UTC()
 
 	if err = enqueueTenantSyncEvents(ctx, tx, tenantUUID, "urban-loft"); err != nil {
 		return err
@@ -149,15 +145,6 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 		return err
 	}
 
-	hashedPassword := "$2b$12$Yw8cGZRD4imkA6zQwO4k4O9SFeNkn8MS9KqSXB25tOfvtTDHkJNNy" // bcrypt("ChangeMe123!")
-	if err = seedSuperAdmin(ctx, tx, tenantUUID, superAdminUUID, hashedPassword, now); err != nil {
-		return err
-	}
-
-	if err = seedDemoUser(ctx, tx, tenantUUID, now); err != nil {
-		return err
-	}
-
 	if err = seedCatalog(ctx, tx, tenantUUID); err != nil {
 		return err
 	}
@@ -165,7 +152,8 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 	return nil
 }
 
-// seedDemoUser creates the demo admin user (idempotent).
+// seedDemoUser is DEPRECATED — users are now synced from auth-api via JIT provisioning.
+// This function is retained but no longer called from runSeed.
 func seedDemoUser(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, now time.Time) error {
 	const (
 		demoEmail    = "info@theurbanloftcafe.com"
@@ -624,6 +612,8 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 	return nil
 }
 
+// seedSuperAdmin is DEPRECATED — users are now synced from auth-api via JIT provisioning.
+// This function is retained but no longer called from runSeed.
 func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID, passwordHash string, now time.Time) error {
 	const (
 		email       = "admin@theurbanloftcafe.com"
