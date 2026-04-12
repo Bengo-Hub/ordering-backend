@@ -178,6 +178,17 @@ type Order struct {
 	UpdatedAt             time.Time              `json:"updatedAt"`
 }
 
+// CheckoutResult wraps an order with payment intent details for the frontend.
+type CheckoutResult struct {
+	OrderID         uuid.UUID `json:"orderId"`
+	OrderNumber     string    `json:"orderNumber"`
+	PaymentIntentID string    `json:"paymentIntentId,omitempty"`
+	InitiateURL     string    `json:"initiateUrl,omitempty"`
+	Amount          float64   `json:"amount"`
+	Currency        string    `json:"currency"`
+	Status          string    `json:"status"`
+}
+
 // OrderItem represents an item in an order.
 type OrderItem struct {
 	ID           uuid.UUID              `json:"id"`

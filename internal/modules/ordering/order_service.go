@@ -469,6 +469,51 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	return order, nil
 }
 
+// buildCheckoutResult creates a payment intent in treasury and returns a CheckoutResult.
+func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, customerEmail, customerPhone string) *CheckoutResult {
+	result := &CheckoutResult{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		Amount:      order.GrandTotal,
+		Currency:    order.Currency,
+		Status:      string(order.Status),
+	}
+
+	// Create payment intent in treasury if the order has a non-zero total
+	if s.treasuryClient != nil && order.GrandTotal > 0 {
+		tenant, _ := s.repo.GetTenantByID(ctx, order.TenantID)
+		intentReq := treasury.PaymentIntentRequest{
+			TenantID:      order.TenantID,
+			ReferenceID:   order.ID.String(),
+			ReferenceType: "order",
+			OrderID:       order.ID,
+			Amount:        order.GrandTotal,
+			Currency:      order.Currency,
+			PaymentMethod: "pending",
+			SourceService: "ordering",
+			Description:   fmt.Sprintf("Order %s", order.OrderNumber),
+			CustomerEmail: customerEmail,
+			CustomerPhone: customerPhone,
+		}
+
+		intentResp, err := s.treasuryClient.CreatePaymentIntent(ctx, intentReq)
+		if err != nil {
+			s.logger.Warn("failed to create payment intent, order created without it",
+				zap.String("order_id", order.ID.String()),
+				zap.Error(err))
+		} else {
+			result.PaymentIntentID = intentResp.ID.String()
+			// Build the initiate URL for the treasury-ui pay page
+			if tenant != nil {
+				result.InitiateURL = fmt.Sprintf("%s/api/v1/%s/payments/intents/%s/initiate",
+					s.treasuryClient.BaseURL(), tenant.Slug, intentResp.ID.String())
+			}
+		}
+	}
+
+	return result
+}
+
 // GuestCheckout creates an order for a guest user. It accepts items directly from the
 // frontend local cart. If items are provided in the request they are used; otherwise it
 // falls back to looking up a backend cart by session (for backwards compatibility).
