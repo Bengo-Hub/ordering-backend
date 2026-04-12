@@ -1015,6 +1015,18 @@ func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	return oi
 }
 
+func (r *EntRepository) FindUserByID(ctx context.Context, userID uuid.UUID) (*UserContactInfo, error) {
+	u, err := r.client.User.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &UserContactInfo{
+		Email:    u.Email,
+		FullName: u.FullName,
+		Phone:    u.Phone,
+	}, nil
+}
+
 func entOrderEventToDomain(e *ent.OrderEvent) *OrderEvent {
 	event := &OrderEvent{
 		ID:         e.ID,

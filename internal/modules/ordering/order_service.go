@@ -744,6 +744,9 @@ func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID
 		}
 	}
 
+	// Enrich customer contact info
+	s.enrichOrderContact(ctx, order)
+
 	return order, nil
 }
 
@@ -764,7 +767,22 @@ func (s *OrderService) GetOrderByNumber(ctx context.Context, tenantID uuid.UUID,
 
 // ListOrders lists orders with filters.
 func (s *OrderService) ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error) {
-	return s.repo.ListOrders(ctx, filter)
+	orders, total, err := s.repo.ListOrders(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+	for i := range orders {
+		s.enrichOrderContact(ctx, &orders[i])
+	}
+	return orders, total, nil
+}
+
+// enrichOrderContact populates CustomerName/Email/Phone on an order from metadata or user lookup.
+func (s *OrderService) enrichOrderContact(ctx context.Context, order *Order) {
+	ci := s.orderContactInfo(ctx, order)
+	order.CustomerName = ci.Name
+	order.CustomerEmail = ci.Email
+	order.CustomerPhone = ci.Phone
 }
 
 // GetCustomerAddress retrieves a customer address by ID (used by checkout to resolve addressId).
@@ -1123,14 +1141,18 @@ func (s *OrderService) publishOrderRefunded(ctx context.Context, order *Order, r
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderRefundedData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		CustomerID:  customerIDValue(order.CustomerID),
-		TotalAmount: order.GrandTotal,
-		Currency:    order.Currency,
-		Reason:      reason,
-		RefundedAt:  time.Now(),
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		TotalAmount:   order.GrandTotal,
+		Currency:      order.Currency,
+		Reason:        reason,
+		RefundedAt:    time.Now(),
 	}
 
 	if err := s.eventPublisher.PublishOrderRefunded(ctx, order.TenantID, data); err != nil {
@@ -1436,20 +1458,69 @@ func (s *OrderService) consumeOrderReservation(ctx context.Context, order *Order
 
 // --- Event Publishing Helpers ---
 
+// orderContactInfo extracts customer name, email, phone from an order.
+// For guest orders these come from order.Metadata; for authenticated orders
+// from the user profile (looked up via auth-client cache when available).
+type contactInfo struct {
+	Name  string
+	Email string
+	Phone string
+}
+
+func (s *OrderService) orderContactInfo(ctx context.Context, order *Order) contactInfo {
+	ci := contactInfo{}
+
+	// Guest orders: contact info is in metadata
+	if order.Metadata != nil {
+		if v, ok := order.Metadata["contactName"].(string); ok {
+			ci.Name = v
+		}
+		if v, ok := order.Metadata["contactEmail"].(string); ok {
+			ci.Email = v
+		}
+		if v, ok := order.Metadata["contactPhone"].(string); ok {
+			ci.Phone = v
+		}
+	}
+
+	// Authenticated orders: resolve from the customer edge on the order
+	// (loaded when order is fetched with WithCustomer, or look up from DB)
+	if ci.Email == "" && order.CustomerID != nil {
+		uci, err := s.repo.FindUserByID(ctx, *order.CustomerID)
+		if err == nil && uci != nil {
+			if ci.Email == "" {
+				ci.Email = uci.Email
+			}
+			if ci.Name == "" {
+				ci.Name = uci.FullName
+			}
+			if ci.Phone == "" {
+				ci.Phone = uci.Phone
+			}
+		}
+	}
+
+	return ci
+}
+
 // publishOrderCreated publishes an order.created event to NATS.
 func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, itemCount int) {
 	if s.eventPublisher == nil {
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderCreatedData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		CustomerID:  customerIDValue(order.CustomerID),
-		OutletID:    order.OutletID,
-		TotalAmount: order.GrandTotal,
-		Currency:    order.Currency,
-		ItemCount:   itemCount,
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		OutletID:      order.OutletID,
+		TotalAmount:   order.GrandTotal,
+		Currency:      order.Currency,
+		ItemCount:     itemCount,
 	}
 
 	if err := s.eventPublisher.PublishOrderCreated(ctx, order.TenantID, data); err != nil {
@@ -1465,10 +1536,14 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderStatusChangedData{
 		OrderID:        order.ID,
 		OrderNumber:    order.OrderNumber,
 		CustomerID:     customerIDValue(order.CustomerID),
+		CustomerEmail:  ci.Email,
+		CustomerName:   ci.Name,
+		CustomerPhone:  ci.Phone,
 		PreviousStatus: string(oldStatus),
 		NewStatus:      string(newStatus),
 		ChangedAt:      time.Now(),
@@ -1504,14 +1579,18 @@ func (s *OrderService) publishOrderScheduled(ctx context.Context, order *Order) 
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderScheduledData{
-		OrderID:      order.ID,
-		OrderNumber:  order.OrderNumber,
-		CustomerID:   customerIDValue(order.CustomerID),
-		OutletID:     order.OutletID,
-		ScheduledFor: *order.ScheduledFor,
-		TotalAmount:  order.GrandTotal,
-		Currency:     order.Currency,
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		OutletID:      order.OutletID,
+		ScheduledFor:  *order.ScheduledFor,
+		TotalAmount:   order.GrandTotal,
+		Currency:      order.Currency,
 	}
 
 	if err := s.eventPublisher.PublishOrderScheduled(ctx, order.TenantID, data); err != nil {
@@ -1527,11 +1606,15 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderForPickupData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		CustomerID:  customerIDValue(order.CustomerID),
-		OutletID:    order.OutletID,
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		OutletID:      order.OutletID,
 	}
 
 	if err := s.eventPublisher.PublishOrderForPickup(ctx, order.TenantID, data); err != nil {
@@ -1547,11 +1630,15 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderReadyData{
 		OrderID:         order.ID,
 		OrderNumber:     order.OrderNumber,
 		OutletID:        order.OutletID,
 		CustomerID:      customerIDValue(order.CustomerID),
+		CustomerEmail:   ci.Email,
+		CustomerName:    ci.Name,
+		CustomerPhone:   ci.Phone,
 		PaymentMethod:   string(order.PaymentMethod),
 		DeliveryFee:     order.DeliveryFee,
 		GrandTotal:      order.GrandTotal,
@@ -1612,13 +1699,17 @@ func (s *OrderService) publishOrderCompleted(ctx context.Context, order *Order) 
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderCompletedData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		CustomerID:  customerIDValue(order.CustomerID),
-		TotalAmount: order.GrandTotal,
-		Currency:    order.Currency,
-		CompletedAt: time.Now(),
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		TotalAmount:   order.GrandTotal,
+		Currency:      order.Currency,
+		CompletedAt:   time.Now(),
 	}
 
 	if err := s.eventPublisher.PublishOrderCompleted(ctx, order.TenantID, data); err != nil {
@@ -1634,13 +1725,17 @@ func (s *OrderService) publishOrderCancelled(ctx context.Context, order *Order, 
 		return
 	}
 
+	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderCancelledData{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		CustomerID:  customerIDValue(order.CustomerID),
-		Reason:      reason,
-		CancelledBy: cancelledBy,
-		CancelledAt: time.Now(),
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		Reason:        reason,
+		CancelledBy:   cancelledBy,
+		CancelledAt:   time.Now(),
 	}
 
 	if err := s.eventPublisher.PublishOrderCancelled(ctx, order.TenantID, data); err != nil {

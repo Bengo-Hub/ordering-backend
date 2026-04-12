@@ -114,6 +114,7 @@ type OrderCreatedData struct {
 	OrderNumber   string    `json:"order_number"`
 	CustomerID    uuid.UUID `json:"customer_id"`
 	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
 	CustomerPhone string    `json:"customer_phone,omitempty"`
 	OutletID      uuid.UUID `json:"outlet_id"`
 	TotalAmount   float64   `json:"total_amount"`
@@ -128,6 +129,7 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
 		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
 		"customer_phone": data.CustomerPhone,
 		"outlet_id":      data.OutletID.String(),
 		"total_amount":   data.TotalAmount,
@@ -148,6 +150,9 @@ type OrderStatusChangedData struct {
 	OrderID        uuid.UUID `json:"order_id"`
 	OrderNumber    string    `json:"order_number"`
 	CustomerID     uuid.UUID `json:"customer_id"`
+	CustomerEmail  string    `json:"customer_email,omitempty"`
+	CustomerName   string    `json:"customer_name,omitempty"`
+	CustomerPhone  string    `json:"customer_phone,omitempty"`
 	PreviousStatus string    `json:"previous_status"`
 	NewStatus      string    `json:"new_status"`
 	ChangedAt      time.Time `json:"changed_at"`
@@ -159,11 +164,16 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 		"order_id":        data.OrderID.String(),
 		"order_number":    data.OrderNumber,
 		"customer_id":     data.CustomerID.String(),
+		"customer_email":  data.CustomerEmail,
+		"customer_name":   data.CustomerName,
+		"customer_phone":  data.CustomerPhone,
 		"previous_status": data.PreviousStatus,
 		"new_status":      data.NewStatus,
 		"changed_at":      data.ChangedAt.Format(time.RFC3339),
 		"notification": map[string]interface{}{
-			"target": "customer",
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
 		},
 	})
 
@@ -184,6 +194,7 @@ type OrderReadyData struct {
 	DeliveryFee      float64                  `json:"delivery_fee,omitempty"`
 	GrandTotal       float64                  `json:"grand_total,omitempty"`
 	CustomerName     string                   `json:"customer_name,omitempty"`
+	CustomerEmail    string                   `json:"customer_email,omitempty"`
 	CustomerPhone    string                   `json:"customer_phone,omitempty"`
 	Instructions     string                   `json:"instructions,omitempty"`
 	FulfillmentType  string                   `json:"fulfillment_type,omitempty"`
@@ -219,6 +230,14 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 	if data.CustomerName != "" {
 		eventData["customer_name"] = data.CustomerName
 	}
+	if data.CustomerEmail != "" {
+		eventData["customer_email"] = data.CustomerEmail
+		eventData["notification"] = map[string]interface{}{
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
+		}
+	}
 	if data.CustomerPhone != "" {
 		eventData["customer_phone"] = data.CustomerPhone
 	}
@@ -235,25 +254,33 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 
 // OrderCancelledData represents data for order.cancelled event.
 type OrderCancelledData struct {
-	OrderID     uuid.UUID `json:"order_id"`
-	OrderNumber string    `json:"order_number"`
-	CustomerID  uuid.UUID `json:"customer_id"`
-	Reason      string    `json:"reason"`
-	CancelledBy string    `json:"cancelled_by"` // customer, admin, system
-	CancelledAt time.Time `json:"cancelled_at"`
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
+	CustomerPhone string    `json:"customer_phone,omitempty"`
+	Reason        string    `json:"reason"`
+	CancelledBy   string    `json:"cancelled_by"`
+	CancelledAt   time.Time `json:"cancelled_at"`
 }
 
 // PublishOrderCancelled publishes an order.cancelled event.
 func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUID, data OrderCancelledData) error {
 	event := NewEvent("ordering.order.cancelled", tenantID, map[string]interface{}{
-		"order_id":     data.OrderID.String(),
-		"order_number": data.OrderNumber,
-		"customer_id":  data.CustomerID.String(),
-		"reason":       data.Reason,
-		"cancelled_by": data.CancelledBy,
-		"cancelled_at": data.CancelledAt.Format(time.RFC3339),
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"reason":         data.Reason,
+		"cancelled_by":   data.CancelledBy,
+		"cancelled_at":   data.CancelledAt.Format(time.RFC3339),
 		"notification": map[string]interface{}{
-			"target": "customer",
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
 		},
 	})
 
@@ -262,25 +289,33 @@ func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUI
 
 // OrderCompletedData represents data for order.completed event.
 type OrderCompletedData struct {
-	OrderID     uuid.UUID `json:"order_id"`
-	OrderNumber string    `json:"order_number"`
-	CustomerID  uuid.UUID `json:"customer_id"`
-	TotalAmount float64   `json:"total_amount"`
-	Currency    string    `json:"currency"`
-	CompletedAt time.Time `json:"completed_at"`
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
+	CustomerPhone string    `json:"customer_phone,omitempty"`
+	TotalAmount   float64   `json:"total_amount"`
+	Currency      string    `json:"currency"`
+	CompletedAt   time.Time `json:"completed_at"`
 }
 
 // PublishOrderCompleted publishes an order.completed event.
 func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUID, data OrderCompletedData) error {
 	event := NewEvent("ordering.order.completed", tenantID, map[string]interface{}{
-		"order_id":     data.OrderID.String(),
-		"order_number": data.OrderNumber,
-		"customer_id":  data.CustomerID.String(),
-		"total_amount": data.TotalAmount,
-		"currency":     data.Currency,
-		"completed_at": data.CompletedAt.Format(time.RFC3339),
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"total_amount":   data.TotalAmount,
+		"currency":       data.Currency,
+		"completed_at":   data.CompletedAt.Format(time.RFC3339),
 		"notification": map[string]interface{}{
-			"target": "customer",
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
 		},
 	})
 
@@ -289,27 +324,35 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 
 // OrderRefundedData represents data for order.refunded event.
 type OrderRefundedData struct {
-	OrderID     uuid.UUID `json:"order_id"`
-	OrderNumber string    `json:"order_number"`
-	CustomerID  uuid.UUID `json:"customer_id"`
-	TotalAmount float64   `json:"total_amount"`
-	Currency    string    `json:"currency"`
-	Reason      string    `json:"reason"`
-	RefundedAt  time.Time `json:"refunded_at"`
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
+	CustomerPhone string    `json:"customer_phone,omitempty"`
+	TotalAmount   float64   `json:"total_amount"`
+	Currency      string    `json:"currency"`
+	Reason        string    `json:"reason"`
+	RefundedAt    time.Time `json:"refunded_at"`
 }
 
 // PublishOrderRefunded publishes an order.refunded event.
 func (p *Publisher) PublishOrderRefunded(ctx context.Context, tenantID uuid.UUID, data OrderRefundedData) error {
 	event := NewEvent("ordering.order.refunded", tenantID, map[string]interface{}{
-		"order_id":     data.OrderID.String(),
-		"order_number": data.OrderNumber,
-		"customer_id":  data.CustomerID.String(),
-		"total_amount": data.TotalAmount,
-		"currency":     data.Currency,
-		"reason":       data.Reason,
-		"refunded_at":  data.RefundedAt.Format(time.RFC3339),
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"total_amount":   data.TotalAmount,
+		"currency":       data.Currency,
+		"reason":         data.Reason,
+		"refunded_at":    data.RefundedAt.Format(time.RFC3339),
 		"notification": map[string]interface{}{
-			"target": "customer",
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
 		},
 	})
 
@@ -410,27 +453,35 @@ func (p *Publisher) PublishLoyaltyPointsAwarded(ctx context.Context, tenantID uu
 
 // OrderScheduledData represents data for order.scheduled event.
 type OrderScheduledData struct {
-	OrderID      uuid.UUID  `json:"order_id"`
-	OrderNumber  string     `json:"order_number"`
-	CustomerID   uuid.UUID  `json:"customer_id"`
-	OutletID     uuid.UUID  `json:"outlet_id"`
-	ScheduledFor time.Time  `json:"scheduled_for"`
-	TotalAmount  float64    `json:"total_amount"`
-	Currency     string     `json:"currency"`
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
+	CustomerPhone string    `json:"customer_phone,omitempty"`
+	OutletID      uuid.UUID `json:"outlet_id"`
+	ScheduledFor  time.Time `json:"scheduled_for"`
+	TotalAmount   float64   `json:"total_amount"`
+	Currency      string    `json:"currency"`
 }
 
 // PublishOrderScheduled publishes an order.scheduled event (for logistics planning).
 func (p *Publisher) PublishOrderScheduled(ctx context.Context, tenantID uuid.UUID, data OrderScheduledData) error {
 	event := NewEvent("ordering.order.scheduled", tenantID, map[string]interface{}{
-		"order_id":      data.OrderID.String(),
-		"order_number":  data.OrderNumber,
-		"customer_id":   data.CustomerID.String(),
-		"outlet_id":     data.OutletID.String(),
-		"scheduled_for": data.ScheduledFor.Format(time.RFC3339),
-		"total_amount":  data.TotalAmount,
-		"currency":      data.Currency,
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"outlet_id":      data.OutletID.String(),
+		"scheduled_for":  data.ScheduledFor.Format(time.RFC3339),
+		"total_amount":   data.TotalAmount,
+		"currency":       data.Currency,
 		"notification": map[string]interface{}{
-			"target": "customer",
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
 		},
 	})
 
@@ -468,6 +519,7 @@ type OrderForPickupData struct {
 	OrderID       uuid.UUID                `json:"order_id"`
 	OrderNumber   string                   `json:"order_number"`
 	CustomerID    uuid.UUID                `json:"customer_id"`
+	CustomerEmail string                   `json:"customer_email,omitempty"`
 	CustomerName  string                   `json:"customer_name"`
 	CustomerPhone string                   `json:"customer_phone"`
 	OutletID      uuid.UUID                `json:"outlet_id"`
@@ -482,6 +534,7 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
 		"customer_name":  data.CustomerName,
 		"customer_phone": data.CustomerPhone,
 		"outlet_id":      data.OutletID.String(),
@@ -495,6 +548,7 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 
 	eventData["notification"] = map[string]interface{}{
 		"target":          "customer",
+		"recipient_email": data.CustomerEmail,
 		"recipient_name":  data.CustomerName,
 		"recipient_phone": data.CustomerPhone,
 	}
