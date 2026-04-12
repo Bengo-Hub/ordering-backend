@@ -3,6 +3,7 @@ package ordering
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -1492,7 +1493,21 @@ func (s *OrderService) orderContactInfo(ctx context.Context, order *Order) conta
 				ci.Email = uci.Email
 			}
 			if ci.Name == "" {
-				ci.Name = uci.FullName
+				// If FullName is just the email, derive a display name from the email prefix
+				if uci.FullName != "" && uci.FullName != uci.Email {
+					ci.Name = uci.FullName
+				} else if uci.Email != "" {
+					parts := strings.SplitN(uci.Email, "@", 2)
+					ci.Name = strings.ReplaceAll(parts[0], ".", " ")
+					// Title-case the derived name
+					words := strings.Fields(ci.Name)
+					for i, w := range words {
+						if len(w) > 0 {
+							words[i] = strings.ToUpper(w[:1]) + w[1:]
+						}
+					}
+					ci.Name = strings.Join(words, " ")
+				}
 			}
 			if ci.Phone == "" {
 				ci.Phone = uci.Phone
