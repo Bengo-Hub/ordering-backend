@@ -34,6 +34,7 @@ type Repository interface {
 	GetOrderByNumber(ctx context.Context, tenantID uuid.UUID, orderNumber string) (*Order, error)
 	GetOrderByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*Order, error)
 	UpdateOrder(ctx context.Context, order *Order) error
+	DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
 	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
 	GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error)
