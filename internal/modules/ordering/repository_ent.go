@@ -564,14 +564,22 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 		query = query.Offset(filter.Offset)
 	}
 
-	orders, err := query.All(ctx)
+	orders, err := query.WithItems().All(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	result := make([]Order, len(orders))
 	for i, o := range orders {
-		result[i] = *entOrderToDomain(o)
+		domainOrder := entOrderToDomain(o)
+		// Map eager-loaded order items
+		if edges := o.Edges.Items; len(edges) > 0 {
+			domainOrder.Items = make([]OrderItem, len(edges))
+			for j, item := range edges {
+				domainOrder.Items[j] = *entOrderItemToDomain(item)
+			}
+		}
+		result[i] = *domainOrder
 	}
 	return result, total, nil
 }
