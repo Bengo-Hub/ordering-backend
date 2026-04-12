@@ -751,6 +751,21 @@ func (s *OrderService) GetOrder(ctx context.Context, tenantID, orderID uuid.UUID
 	return order, nil
 }
 
+// DeleteOrder permanently removes an order and its items/events.
+func (s *OrderService) DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return err
+	}
+
+	// Release any inventory reservation
+	if order.ReservationID != nil {
+		go s.releaseOrderReservation(context.Background(), order, "order_deleted")
+	}
+
+	return s.repo.DeleteOrder(ctx, tenantID, orderID)
+}
+
 // GetOrderEvents retrieves all lifecycle events for an order.
 func (s *OrderService) GetOrderEvents(ctx context.Context, tenantID, orderID uuid.UUID) ([]OrderEvent, error) {
 	// Verify order exists and belongs to tenant

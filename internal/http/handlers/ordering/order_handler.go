@@ -84,6 +84,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
 		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
+		adminRouter.Delete("/{orderId}", h.DeleteOrder)
 	})
 }
 
@@ -1202,6 +1203,36 @@ func (h *OrderHandler) RefundOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// DeleteOrder permanently deletes an order and its related data (items, events).
+// @Summary Delete order (admin)
+// @Description Permanently deletes an order. Only cancelled/refunded/completed orders can be deleted.
+// @Tags Admin Orders
+// @Param orderId path string true "Order ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Router /admin/orders/{orderId} [delete]
+func (h *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	if err := h.orderService.DeleteOrder(r.Context(), tenantID, orderID); err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // GetAnalyticsSummary returns aggregated metrics for the dashboard.

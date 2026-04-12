@@ -10,9 +10,10 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
-	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
+	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
+	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	tenantpredicate "github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/google/uuid"
 )
@@ -523,6 +524,20 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 
 	o.UpdatedAt = updated.UpdatedAt
 	return nil
+}
+
+func (r *EntRepository) DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error {
+	// Delete related records first (order_items, order_events, order_assignments)
+	_, _ = r.client.OrderItem.Delete().Where(orderitem.OrderID(orderID)).Exec(ctx)
+	_, _ = r.client.OrderEvent.Delete().Where(orderevent.OrderID(orderID)).Exec(ctx)
+	_, _ = r.client.OrderAssignment.Delete().Where(orderassignment.OrderID(orderID)).Exec(ctx)
+
+	// Delete the order itself
+	err := r.client.Order.DeleteOneID(orderID).Exec(ctx)
+	if ent.IsNotFound(err) {
+		return ErrOrderNotFound
+	}
+	return err
 }
 
 func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error) {
