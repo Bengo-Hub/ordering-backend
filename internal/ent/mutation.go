@@ -17102,7 +17102,7 @@ func (m *OrderMutation) CustomerID() (r uuid.UUID, exists bool) {
 // OldCustomerID returns the old "customer_id" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldCustomerID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *OrderMutation) OldCustomerID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCustomerID is only allowed on UpdateOne operations")
 	}
@@ -17116,9 +17116,22 @@ func (m *OrderMutation) OldCustomerID(ctx context.Context) (v uuid.UUID, err err
 	return oldValue.CustomerID, nil
 }
 
+// ClearCustomerID clears the value of the "customer_id" field.
+func (m *OrderMutation) ClearCustomerID() {
+	m.customer = nil
+	m.clearedFields[order.FieldCustomerID] = struct{}{}
+}
+
+// CustomerIDCleared returns if the "customer_id" field was cleared in this mutation.
+func (m *OrderMutation) CustomerIDCleared() bool {
+	_, ok := m.clearedFields[order.FieldCustomerID]
+	return ok
+}
+
 // ResetCustomerID resets all changes to the "customer_id" field.
 func (m *OrderMutation) ResetCustomerID() {
 	m.customer = nil
+	delete(m.clearedFields, order.FieldCustomerID)
 }
 
 // SetCartID sets the "cart_id" field.
@@ -19406,7 +19419,7 @@ func (m *OrderMutation) ClearCustomer() {
 
 // CustomerCleared reports if the "customer" edge to the User entity was cleared.
 func (m *OrderMutation) CustomerCleared() bool {
-	return m.clearedcustomer
+	return m.CustomerIDCleared() || m.clearedcustomer
 }
 
 // CustomerIDs returns the "customer" edge IDs in the mutation.
@@ -20334,6 +20347,9 @@ func (m *OrderMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OrderMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(order.FieldCustomerID) {
+		fields = append(fields, order.FieldCustomerID)
+	}
 	if m.FieldCleared(order.FieldCartID) {
 		fields = append(fields, order.FieldCartID)
 	}
@@ -20417,6 +20433,9 @@ func (m *OrderMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OrderMutation) ClearField(name string) error {
 	switch name {
+	case order.FieldCustomerID:
+		m.ClearCustomerID()
+		return nil
 	case order.FieldCartID:
 		m.ClearCartID()
 		return nil

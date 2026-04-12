@@ -60,7 +60,7 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if order.CustomerID != user.ID && !user.HasPermission(identity.PermissionOrdersManage) {
+	if (order.CustomerID == nil || *order.CustomerID != user.ID) && !user.HasPermission(identity.PermissionOrdersManage) {
 		handlers.RespondError(w, http.StatusForbidden, "access denied")
 		return
 	}

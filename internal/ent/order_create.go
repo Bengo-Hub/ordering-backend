@@ -48,6 +48,14 @@ func (_c *OrderCreate) SetCustomerID(v uuid.UUID) *OrderCreate {
 	return _c
 }
 
+// SetNillableCustomerID sets the "customer_id" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableCustomerID(v *uuid.UUID) *OrderCreate {
+	if v != nil {
+		_c.SetCustomerID(*v)
+	}
+	return _c
+}
+
 // SetCartID sets the "cart_id" field.
 func (_c *OrderCreate) SetCartID(v uuid.UUID) *OrderCreate {
 	_c.mutation.SetCartID(v)
@@ -809,9 +817,6 @@ func (_c *OrderCreate) check() error {
 	if _, ok := _c.mutation.OutletID(); !ok {
 		return &ValidationError{Name: "outlet_id", err: errors.New(`ent: missing required field "Order.outlet_id"`)}
 	}
-	if _, ok := _c.mutation.CustomerID(); !ok {
-		return &ValidationError{Name: "customer_id", err: errors.New(`ent: missing required field "Order.customer_id"`)}
-	}
 	if _, ok := _c.mutation.OrderNumber(); !ok {
 		return &ValidationError{Name: "order_number", err: errors.New(`ent: missing required field "Order.order_number"`)}
 	}
@@ -924,9 +929,6 @@ func (_c *OrderCreate) check() error {
 	}
 	if len(_c.mutation.OutletIDs()) == 0 {
 		return &ValidationError{Name: "outlet", err: errors.New(`ent: missing required edge "Order.outlet"`)}
-	}
-	if len(_c.mutation.CustomerIDs()) == 0 {
-		return &ValidationError{Name: "customer", err: errors.New(`ent: missing required edge "Order.customer"`)}
 	}
 	return nil
 }
@@ -1215,7 +1217,7 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.CustomerID = nodes[0]
+		_node.CustomerID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.DeliveryAddressIDs(); len(nodes) > 0 {
@@ -1320,6 +1322,12 @@ func (u *OrderUpsert) SetCustomerID(v uuid.UUID) *OrderUpsert {
 // UpdateCustomerID sets the "customer_id" field to the value that was provided on create.
 func (u *OrderUpsert) UpdateCustomerID() *OrderUpsert {
 	u.SetExcluded(order.FieldCustomerID)
+	return u
+}
+
+// ClearCustomerID clears the value of the "customer_id" field.
+func (u *OrderUpsert) ClearCustomerID() *OrderUpsert {
+	u.SetNull(order.FieldCustomerID)
 	return u
 }
 
@@ -2127,6 +2135,13 @@ func (u *OrderUpsertOne) SetCustomerID(v uuid.UUID) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateCustomerID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateCustomerID()
+	})
+}
+
+// ClearCustomerID clears the value of the "customer_id" field.
+func (u *OrderUpsertOne) ClearCustomerID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearCustomerID()
 	})
 }
 
@@ -3220,6 +3235,13 @@ func (u *OrderUpsertBulk) SetCustomerID(v uuid.UUID) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateCustomerID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateCustomerID()
+	})
+}
+
+// ClearCustomerID clears the value of the "customer_id" field.
+func (u *OrderUpsertBulk) ClearCustomerID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearCustomerID()
 	})
 }
 

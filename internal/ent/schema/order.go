@@ -28,7 +28,9 @@ func (Order) Fields() []ent.Field {
 		field.UUID("outlet_id", uuid.UUID{}).
 			Comment("Reference to outlet"),
 		field.UUID("customer_id", uuid.UUID{}).
-			Comment("Reference to customer user"),
+			Optional().
+			Nillable().
+			Comment("Reference to customer user (nil for guest orders)"),
 		field.UUID("cart_id", uuid.UUID{}).
 			Optional().
 			Nillable().
@@ -189,8 +191,7 @@ func (Order) Edges() []ent.Edge {
 		edge.From("customer", User.Type).
 			Ref("orders").
 			Field("customer_id").
-			Unique().
-			Required(),
+			Unique(),
 		edge.From("delivery_address", CustomerAddress.Type).
 			Ref("orders").
 			Field("delivery_address_id").

@@ -363,7 +363,7 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	builder := r.client.Order.Create().
 		SetTenantID(o.TenantID).
 		SetOutletID(o.OutletID).
-		SetCustomerID(o.CustomerID).
+		SetNillableCustomerID(o.CustomerID).
 		SetOrderNumber(o.OrderNumber).
 		SetStatus(order.Status(o.Status)).
 		SetPaymentStatus(order.PaymentStatus(o.PaymentStatus)).

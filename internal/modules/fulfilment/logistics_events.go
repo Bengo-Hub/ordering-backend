@@ -14,6 +14,14 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 )
 
+// uuidPtrString returns the string representation of a *uuid.UUID, or uuid.Nil's string for nil.
+func uuidPtrString(u *uuid.UUID) string {
+	if u != nil {
+		return u.String()
+	}
+	return uuid.Nil.String()
+}
+
 // LogisticsEventHandler handles logistics task events to update order/assignment state.
 type LogisticsEventHandler struct {
 	repo           Repository
@@ -212,7 +220,7 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 	deliveredData := map[string]interface{}{
 		"order_id":     orderID.String(),
 		"order_number": order.OrderNumber,
-		"customer_id":  order.CustomerID.String(),
+		"customer_id":  uuidPtrString(order.CustomerID),
 		"delivered_at": time.Now().UTC().Format(time.RFC3339),
 	}
 	if order.PaymentMethod == ordering.PaymentMethodCOD {

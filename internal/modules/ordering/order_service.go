@@ -17,6 +17,15 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
+// customerIDValue returns the uuid.UUID value from a *uuid.UUID pointer,
+// falling back to uuid.Nil for guest orders.
+func customerIDValue(c *uuid.UUID) uuid.UUID {
+	if c != nil {
+		return *c
+	}
+	return uuid.Nil
+}
+
 // OrderService provides order business logic.
 type OrderService struct {
 	repo                Repository
@@ -220,7 +229,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	order := &Order{
 		TenantID:              req.TenantID,
 		OutletID:              cart.OutletID,
-		CustomerID:            req.UserID,
+		CustomerID:            &req.UserID,
 		CartID:                &cart.ID,
 		OrderNumber:           orderNumber,
 		Status:                OrderStatusPending,
@@ -397,7 +406,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	order := &Order{
 		TenantID:            req.TenantID,
 		OutletID:            req.OutletID,
-		CustomerID:          req.UserID,
+		CustomerID:          &req.UserID,
 		CartID:              nil,
 		OrderNumber:         orderNumber,
 		Status:              OrderStatusPending,
@@ -561,7 +570,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	order := &Order{
 		TenantID:              req.TenantID,
 		OutletID:              req.OutletID,
-		CustomerID:            uuid.Nil,
+		CustomerID:            nil, // guest orders have no customer
 		CartID:                cartID,
 		OrderNumber:           orderNumber,
 		Status:                OrderStatusPending,
@@ -795,8 +804,10 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	case OrderStatusCompleted:
 		order.CompletedAt = &now
 		// Award loyalty points on completion
-		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
-			s.logger.Error("failed to award loyalty points", zap.Error(err))
+		if order.CustomerID != nil {
+			if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
+				s.logger.Error("failed to award loyalty points", zap.Error(err))
+			}
 		}
 		// Consume (finalize) the inventory reservation so reserved stock is deducted
 		go s.consumeOrderReservation(context.Background(), order)
@@ -852,8 +863,8 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
 
 	// Refund loyalty points if they were redeemed
-	if order.LoyaltyPointsRedeemed > 0 {
-		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, order.CustomerID, order.LoyaltyPointsRedeemed, &order.ID, "Points refunded for cancelled order "+order.OrderNumber); err != nil {
+	if order.LoyaltyPointsRedeemed > 0 && order.CustomerID != nil {
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsRedeemed, &order.ID, "Points refunded for cancelled order "+order.OrderNumber); err != nil {
 			s.logger.Error("failed to refund loyalty points", zap.Error(err))
 		}
 	}
@@ -890,7 +901,7 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 	}
 
 	// Only the order owner can rate
-	if order.CustomerID != customerID {
+	if order.CustomerID == nil || *order.CustomerID != customerID {
 		return nil, ErrUnauthorized
 	}
 
@@ -1115,7 +1126,7 @@ func (s *OrderService) publishOrderRefunded(ctx context.Context, order *Order, r
 	data := events.OrderRefundedData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CustomerID:  order.CustomerID,
+		CustomerID:  customerIDValue(order.CustomerID),
 		TotalAmount: order.GrandTotal,
 		Currency:    order.Currency,
 		Reason:      reason,
@@ -1434,7 +1445,7 @@ func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, it
 	data := events.OrderCreatedData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CustomerID:  order.CustomerID,
+		CustomerID:  customerIDValue(order.CustomerID),
 		OutletID:    order.OutletID,
 		TotalAmount: order.GrandTotal,
 		Currency:    order.Currency,
@@ -1457,7 +1468,7 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 	data := events.OrderStatusChangedData{
 		OrderID:        order.ID,
 		OrderNumber:    order.OrderNumber,
-		CustomerID:     order.CustomerID,
+		CustomerID:     customerIDValue(order.CustomerID),
 		PreviousStatus: string(oldStatus),
 		NewStatus:      string(newStatus),
 		ChangedAt:      time.Now(),
@@ -1496,7 +1507,7 @@ func (s *OrderService) publishOrderScheduled(ctx context.Context, order *Order) 
 	data := events.OrderScheduledData{
 		OrderID:      order.ID,
 		OrderNumber:  order.OrderNumber,
-		CustomerID:   order.CustomerID,
+		CustomerID:   customerIDValue(order.CustomerID),
 		OutletID:     order.OutletID,
 		ScheduledFor: *order.ScheduledFor,
 		TotalAmount:  order.GrandTotal,
@@ -1519,7 +1530,7 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 	data := events.OrderForPickupData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CustomerID:  order.CustomerID,
+		CustomerID:  customerIDValue(order.CustomerID),
 		OutletID:    order.OutletID,
 	}
 
@@ -1540,7 +1551,7 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		OrderID:         order.ID,
 		OrderNumber:     order.OrderNumber,
 		OutletID:        order.OutletID,
-		CustomerID:      order.CustomerID,
+		CustomerID:      customerIDValue(order.CustomerID),
 		PaymentMethod:   string(order.PaymentMethod),
 		DeliveryFee:     order.DeliveryFee,
 		GrandTotal:      order.GrandTotal,
@@ -1604,7 +1615,7 @@ func (s *OrderService) publishOrderCompleted(ctx context.Context, order *Order) 
 	data := events.OrderCompletedData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CustomerID:  order.CustomerID,
+		CustomerID:  customerIDValue(order.CustomerID),
 		TotalAmount: order.GrandTotal,
 		Currency:    order.Currency,
 		CompletedAt: time.Now(),
@@ -1626,7 +1637,7 @@ func (s *OrderService) publishOrderCancelled(ctx context.Context, order *Order, 
 	data := events.OrderCancelledData{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
-		CustomerID:  order.CustomerID,
+		CustomerID:  customerIDValue(order.CustomerID),
 		Reason:      reason,
 		CancelledBy: cancelledBy,
 		CancelledAt: time.Now(),
@@ -1649,7 +1660,7 @@ func (s *OrderService) ReorderFromPastOrder(ctx context.Context, tenantID, userI
 	}
 
 	// Ensure the order belongs to this user
-	if order.CustomerID != userID {
+	if order.CustomerID == nil || *order.CustomerID != userID {
 		return nil, ErrUnauthorized
 	}
 
