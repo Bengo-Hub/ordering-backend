@@ -155,6 +155,10 @@ type Order struct {
 	Instructions          string                 `json:"instructions,omitempty"`
 	Channel               OrderChannel           `json:"channel"`
 	Source                string                 `json:"source,omitempty"`
+	// Resolved customer contact info (from metadata for guests, from user for authenticated)
+	CustomerName          string                 `json:"customerName,omitempty"`
+	CustomerEmail         string                 `json:"customerEmail,omitempty"`
+	CustomerPhone         string                 `json:"customerPhone,omitempty"`
 	IdempotencyKey        string                 `json:"idempotencyKey,omitempty"`
 	Items                 []OrderItem            `json:"items,omitempty"`
 	Events                []OrderEvent           `json:"events,omitempty"`
@@ -200,6 +204,13 @@ type OrderEvent struct {
 	ActorType   string                 `json:"actorType,omitempty"`
 	IPAddress   string                 `json:"ipAddress,omitempty"`
 	OccurredAt  time.Time              `json:"occurredAt"`
+}
+
+// UserContactInfo holds minimal user info for event enrichment.
+type UserContactInfo struct {
+	Email    string
+	FullName string
+	Phone    string
 }
 
 // CustomerAddress represents a customer's delivery address.

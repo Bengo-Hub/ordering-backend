@@ -90,6 +90,9 @@ type Repository interface {
 	// DeliveryZone operations
 	ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error)
 
+	// User lookup (for event enrichment — email, name, phone)
+	FindUserByID(ctx context.Context, userID uuid.UUID) (*UserContactInfo, error)
+
 	// Outlet operations
 	GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error)
 
