@@ -77,6 +77,12 @@ func (_u *OrderUpdate) SetNillableCustomerID(v *uuid.UUID) *OrderUpdate {
 	return _u
 }
 
+// ClearCustomerID clears the value of the "customer_id" field.
+func (_u *OrderUpdate) ClearCustomerID() *OrderUpdate {
+	_u.mutation.ClearCustomerID()
+	return _u
+}
+
 // SetCartID sets the "cart_id" field.
 func (_u *OrderUpdate) SetCartID(v uuid.UUID) *OrderUpdate {
 	_u.mutation.SetCartID(v)
@@ -1108,9 +1114,6 @@ func (_u *OrderUpdate) check() error {
 	if _u.mutation.OutletCleared() && len(_u.mutation.OutletIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Order.outlet"`)
 	}
-	if _u.mutation.CustomerCleared() && len(_u.mutation.CustomerIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
-	}
 	return nil
 }
 
@@ -1635,6 +1638,12 @@ func (_u *OrderUpdateOne) SetNillableCustomerID(v *uuid.UUID) *OrderUpdateOne {
 	if v != nil {
 		_u.SetCustomerID(*v)
 	}
+	return _u
+}
+
+// ClearCustomerID clears the value of the "customer_id" field.
+func (_u *OrderUpdateOne) ClearCustomerID() *OrderUpdateOne {
+	_u.mutation.ClearCustomerID()
 	return _u
 }
 
@@ -2681,9 +2690,6 @@ func (_u *OrderUpdateOne) check() error {
 	}
 	if _u.mutation.OutletCleared() && len(_u.mutation.OutletIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Order.outlet"`)
-	}
-	if _u.mutation.CustomerCleared() && len(_u.mutation.CustomerIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Order.customer"`)
 	}
 	return nil
 }

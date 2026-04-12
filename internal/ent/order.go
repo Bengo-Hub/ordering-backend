@@ -26,8 +26,8 @@ type Order struct {
 	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Reference to outlet
 	OutletID uuid.UUID `json:"outlet_id,omitempty"`
-	// Reference to customer user
-	CustomerID uuid.UUID `json:"customer_id,omitempty"`
+	// Reference to customer user (nil for guest orders)
+	CustomerID *uuid.UUID `json:"customer_id,omitempty"`
 	// Reference to source cart
 	CartID *uuid.UUID `json:"cart_id,omitempty"`
 	// Human-readable order number
@@ -204,7 +204,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldAppointmentID, order.FieldStaffPreferenceID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
+		case order.FieldCustomerID, order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldAppointmentID, order.FieldStaffPreferenceID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
@@ -216,7 +216,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case order.FieldScheduledFor, order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case order.FieldID, order.FieldTenantID, order.FieldOutletID, order.FieldCustomerID:
+		case order.FieldID, order.FieldTenantID, order.FieldOutletID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -252,10 +252,11 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 				_m.OutletID = *value
 			}
 		case order.FieldCustomerID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field customer_id", values[i])
-			} else if value != nil {
-				_m.CustomerID = *value
+			} else if value.Valid {
+				_m.CustomerID = new(uuid.UUID)
+				*_m.CustomerID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldCartID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -605,8 +606,10 @@ func (_m *Order) String() string {
 	builder.WriteString("outlet_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OutletID))
 	builder.WriteString(", ")
-	builder.WriteString("customer_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.CustomerID))
+	if v := _m.CustomerID; v != nil {
+		builder.WriteString("customer_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := _m.CartID; v != nil {
 		builder.WriteString("cart_id=")

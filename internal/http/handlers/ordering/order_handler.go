@@ -661,7 +661,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify order belongs to user (unless they have orders:manage permission)
-	if order.CustomerID != user.ID && !user.HasPermission(identity.PermissionOrdersManage) {
+	if (order.CustomerID == nil || *order.CustomerID != user.ID) && !user.HasPermission(identity.PermissionOrdersManage) {
 		handlers.RespondError(w, http.StatusForbidden, "access denied")
 		return
 	}
@@ -783,7 +783,7 @@ func (h *OrderHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if existingOrder.CustomerID != user.ID {
+	if existingOrder.CustomerID == nil || *existingOrder.CustomerID != user.ID {
 		handlers.RespondError(w, http.StatusForbidden, "access denied")
 		return
 	}

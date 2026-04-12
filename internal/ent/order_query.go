@@ -744,7 +744,10 @@ func (_q *OrderQuery) loadCustomer(ctx context.Context, query *UserQuery, nodes 
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Order)
 	for i := range nodes {
-		fk := nodes[i].CustomerID
+		if nodes[i].CustomerID == nil {
+			continue
+		}
+		fk := *nodes[i].CustomerID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}

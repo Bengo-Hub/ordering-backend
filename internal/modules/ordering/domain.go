@@ -129,7 +129,7 @@ type Order struct {
 	ID                    uuid.UUID              `json:"id"`
 	TenantID              uuid.UUID              `json:"tenantId"`
 	OutletID              uuid.UUID              `json:"outletId"`
-	CustomerID            uuid.UUID              `json:"customerId"`
+	CustomerID            *uuid.UUID             `json:"customerId,omitempty"`
 	CartID                *uuid.UUID             `json:"cartId,omitempty"`
 	OrderNumber           string                 `json:"orderNumber"`
 	Status                OrderStatus            `json:"status"`

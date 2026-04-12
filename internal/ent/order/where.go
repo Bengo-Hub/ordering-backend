@@ -336,6 +336,16 @@ func CustomerIDNotIn(vs ...uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldCustomerID, vs...))
 }
 
+// CustomerIDIsNil applies the IsNil predicate on the "customer_id" field.
+func CustomerIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldCustomerID))
+}
+
+// CustomerIDNotNil applies the NotNil predicate on the "customer_id" field.
+func CustomerIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldCustomerID))
+}
+
 // CartIDEQ applies the EQ predicate on the "cart_id" field.
 func CartIDEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCartID, v))

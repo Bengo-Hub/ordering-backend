@@ -741,7 +741,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "delivery_address_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "outlet_id", Type: field.TypeUUID},
-		{Name: "customer_id", Type: field.TypeUUID},
+		{Name: "customer_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{
@@ -765,7 +765,7 @@ var (
 				Symbol:     "orders_users_orders",
 				Columns:    []*schema.Column{OrdersColumns[46]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
