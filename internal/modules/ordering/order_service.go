@@ -481,7 +481,6 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 
 	// Create payment intent in treasury if the order has a non-zero total
 	if s.treasuryClient != nil && order.GrandTotal > 0 {
-		tenant, _ := s.repo.GetTenantByID(ctx, order.TenantID)
 		intentReq := treasury.PaymentIntentRequest{
 			TenantID:      order.TenantID,
 			ReferenceID:   order.ID.String(),
@@ -503,11 +502,9 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 				zap.Error(err))
 		} else {
 			result.PaymentIntentID = intentResp.ID.String()
-			// Build the initiate URL for the treasury-ui pay page
-			if tenant != nil {
-				result.InitiateURL = fmt.Sprintf("%s/api/v1/%s/payments/intents/%s/initiate",
-					s.treasuryClient.BaseURL(), tenant.Slug, intentResp.ID.String())
-			}
+			// Build the initiate URL for the treasury-ui pay page (public route, no auth required)
+			result.InitiateURL = fmt.Sprintf("%s/api/v1/pay/%s/intents/%s/initiate",
+				s.treasuryClient.BaseURL(), order.TenantID.String(), intentResp.ID.String())
 		}
 	}
 
