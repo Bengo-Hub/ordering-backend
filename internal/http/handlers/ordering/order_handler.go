@@ -179,6 +179,99 @@ type ListOrdersResponse struct {
 	Page  int              `json:"page"`
 }
 
+// AdminOrderItemSummary is the lightweight item included in AdminOrderSummary.
+type AdminOrderItemSummary struct {
+	ID           string  `json:"id"`
+	NameSnapshot string  `json:"nameSnapshot"`
+	Quantity     int     `json:"quantity"`
+	UnitPrice    float64 `json:"unitPrice"`
+	TotalPrice   float64 `json:"totalPrice"`
+}
+
+// AdminOrderSummary is a lightweight order representation for admin list views.
+// It omits internal IDs, per-fee breakdowns, events, and rating fields that are
+// not displayed on the order management dashboard, keeping the payload lean.
+type AdminOrderSummary struct {
+	ID              string                  `json:"id"`
+	OrderNumber     string                  `json:"orderNumber"`
+	Status          ordering.OrderStatus    `json:"status"`
+	PaymentStatus   ordering.PaymentStatus  `json:"paymentStatus"`
+	PaymentMethod   ordering.PaymentMethod  `json:"paymentMethod"`
+	FulfillmentType ordering.FulfillmentType `json:"fulfillmentType"`
+	Currency        string                  `json:"currency"`
+	Subtotal        float64                 `json:"subtotal"`
+	DiscountTotal   float64                 `json:"discountTotal"`
+	DeliveryFee     float64                 `json:"deliveryFee"`
+	GrandTotal      float64                 `json:"grandTotal"`
+	CustomerName    string                  `json:"customerName,omitempty"`
+	CustomerEmail   string                  `json:"customerEmail,omitempty"`
+	CustomerPhone   string                  `json:"customerPhone,omitempty"`
+	Channel         string                  `json:"channel,omitempty"`
+	Source          string                  `json:"source,omitempty"`
+	Instructions    string                  `json:"instructions,omitempty"`
+	DeliveryAddress string                  `json:"deliveryAddress,omitempty"`
+	// Metadata kept so the frontend can resolve guest contact info when needed.
+	Metadata map[string]interface{}   `json:"metadata,omitempty"`
+	Items    []AdminOrderItemSummary  `json:"items"`
+	PlacedAt *time.Time              `json:"placedAt,omitempty"`
+	CreatedAt time.Time              `json:"createdAt"`
+}
+
+// AdminListOrdersResponse is the paginated response for admin order list views.
+type AdminListOrdersResponse struct {
+	Data  []AdminOrderSummary `json:"data"`
+	Total int                 `json:"total"`
+	Limit int                 `json:"limit"`
+	Page  int                 `json:"page"`
+}
+
+// toAdminOrderSummary converts a full Order to the lightweight AdminOrderSummary.
+func toAdminOrderSummary(o ordering.Order) AdminOrderSummary {
+	items := make([]AdminOrderItemSummary, 0, len(o.Items))
+	for _, it := range o.Items {
+		items = append(items, AdminOrderItemSummary{
+			ID:           it.ID.String(),
+			NameSnapshot: it.NameSnapshot,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
+		})
+	}
+
+	deliveryAddr := ""
+	if o.DeliveryAddress != nil {
+		deliveryAddr = o.DeliveryAddress.AddressLine1
+		if o.DeliveryAddress.AddressLine2 != "" {
+			deliveryAddr += ", " + o.DeliveryAddress.AddressLine2
+		}
+	}
+
+	return AdminOrderSummary{
+		ID:              o.ID.String(),
+		OrderNumber:     o.OrderNumber,
+		Status:          o.Status,
+		PaymentStatus:   o.PaymentStatus,
+		PaymentMethod:   o.PaymentMethod,
+		FulfillmentType: o.FulfillmentType,
+		Currency:        o.Currency,
+		Subtotal:        o.Subtotal,
+		DiscountTotal:   o.DiscountTotal,
+		DeliveryFee:     o.DeliveryFee,
+		GrandTotal:      o.GrandTotal,
+		CustomerName:    o.CustomerName,
+		CustomerEmail:   o.CustomerEmail,
+		CustomerPhone:   o.CustomerPhone,
+		Channel:         string(o.Channel),
+		Source:          o.Source,
+		Instructions:    o.Instructions,
+		DeliveryAddress: deliveryAddr,
+		Metadata:        o.Metadata,
+		Items:           items,
+		PlacedAt:        o.PlacedAt,
+		CreatedAt:       o.CreatedAt,
+	}
+}
+
 // --- Helper Functions ---
 
 func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
@@ -1055,8 +1148,13 @@ func (h *OrderHandler) AdminListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handlers.RespondJSON(w, http.StatusOK, ListOrdersResponse{
-		Data:  orders,
+	summaries := make([]AdminOrderSummary, 0, len(orders))
+	for _, o := range orders {
+		summaries = append(summaries, toAdminOrderSummary(o))
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, AdminListOrdersResponse{
+		Data:  summaries,
 		Total: total,
 		Limit: limit,
 		Page:  page,
