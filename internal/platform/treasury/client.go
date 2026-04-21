@@ -191,7 +191,8 @@ func (c *Client) BaseURL() string {
 
 // CreatePaymentIntent creates a payment intent with the treasury service.
 func (c *Client) CreatePaymentIntent(ctx context.Context, req PaymentIntentRequest) (*PaymentIntentResponse, error) {
-	resp, err := c.serviceClient.Post(ctx, "/api/v1/payments/intents", req, c.headers(req.IdempotencyKey))
+	path := fmt.Sprintf("/api/v1/%s/payments/intents", req.TenantID.String())
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
