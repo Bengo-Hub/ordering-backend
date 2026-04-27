@@ -1348,6 +1348,32 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	return order, nil
 }
 
+// PayWithWallet debits the user's wallet via treasury S2S and marks the order as paid.
+func (s *OrderService) PayWithWallet(ctx context.Context, tenantID, orderID, userID uuid.UUID) (*Order, error) {
+	if s.treasuryClient == nil {
+		return nil, fmt.Errorf("treasury client not configured")
+	}
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	if order.PaymentStatus == PaymentStatusPaid {
+		return order, nil // idempotent
+	}
+	if order.GrandTotal <= 0 {
+		return nil, fmt.Errorf("order has no payable amount")
+	}
+	_, err = s.treasuryClient.DebitUserWallet(ctx, tenantID, userID, order.GrandTotal,
+		"order_"+orderID.String(), "Payment for order "+order.OrderNumber)
+	if err != nil {
+		return nil, fmt.Errorf("wallet debit failed: %w", err)
+	}
+	return s.UpdatePaymentStatus(ctx, tenantID, orderID, PaymentStatusPaid, map[string]interface{}{
+		"payment_method": "wallet",
+		"user_id":        userID.String(),
+	})
+}
+
 // createOrderEvent creates an order event record.
 func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, eventType, fromStatus, toStatus string, payload map[string]interface{}, actorID *uuid.UUID, actorType, ipAddress string) {
 	event := &OrderEvent{

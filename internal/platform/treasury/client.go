@@ -329,6 +329,60 @@ func (c *Client) CancelPaymentIntent(ctx context.Context, tenantID, intentID uui
 	return nil
 }
 
+// WalletBalanceResponse holds the balance result from treasury S2S.
+type WalletBalanceResponse struct {
+	Balance  float64 `json:"balance"`
+	Currency string  `json:"currency"`
+}
+
+// WalletDebitResponse holds the result of a wallet debit.
+type WalletDebitResponse struct {
+	TransactionID string  `json:"transaction_id"`
+	BalanceBefore float64 `json:"balance_before"`
+	BalanceAfter  float64 `json:"balance_after"`
+	AmountDebited float64 `json:"amount_debited"`
+	Reference     string  `json:"reference"`
+}
+
+// GetUserWalletBalance fetches a user's wallet balance via the S2S route.
+func (c *Client) GetUserWalletBalance(ctx context.Context, tenantID, userID uuid.UUID) (*WalletBalanceResponse, error) {
+	path := fmt.Sprintf("/api/v1/s2s/%s/wallets/%s/balance", tenantID, userID)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result WalletBalanceResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return &result, nil
+}
+
+// DebitUserWallet debits a user's wallet via the S2S route.
+func (c *Client) DebitUserWallet(ctx context.Context, tenantID, userID uuid.UUID, amount float64, reference, description string) (*WalletDebitResponse, error) {
+	path := fmt.Sprintf("/api/v1/s2s/%s/wallets/%s/debit", tenantID, userID)
+	reqBody := map[string]any{
+		"amount":      amount,
+		"reference":   reference,
+		"description": description,
+	}
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result WalletDebitResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return &result, nil
+}
+
 // HealthCheck checks if the treasury service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
 	resp, err := c.serviceClient.Get(ctx, "/health", nil)
