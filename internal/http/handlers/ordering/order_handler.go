@@ -74,6 +74,12 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		})
 	})
 
+	// Wallet payment — authenticated users can pay for their own orders via wallet
+	r.Route("/orders/{orderId}", func(orderDetailRouter chi.Router) {
+		orderDetailRouter.Use(auth.RequireAuth)
+		orderDetailRouter.Post("/pay/wallet", h.PayWithWallet)
+	})
+
 	// Admin order management routes
 	r.Route("/admin/orders", func(adminRouter chi.Router) {
 		adminRouter.Use(auth.RequireAuth)
@@ -1627,4 +1633,40 @@ func (h *OrderHandler) GetOrderEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, events)
+}
+
+// PayWithWallet debits the authenticated user's treasury wallet and marks the order as paid.
+// POST /{slug}/orders/{orderId}/pay/wallet
+func (h *OrderHandler) PayWithWallet(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	user, err := getUserFromContext(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusUnauthorized, "authentication required")
+		return
+	}
+
+	order, err := h.orderService.PayWithWallet(r.Context(), tenantID, orderID, user.ID)
+	if err != nil {
+		h.log.Error("wallet payment failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{
+		"success":        true,
+		"order_id":       order.ID,
+		"payment_status": order.PaymentStatus,
+		"order_status":   order.Status,
+	})
 }
