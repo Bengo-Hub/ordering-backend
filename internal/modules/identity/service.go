@@ -265,45 +265,78 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 		return []Role{RoleSuperAdmin, RoleAdmin}
 	}
 
-	// Check for roles array
-	if rolesData, ok := authUserData["roles"].([]interface{}); ok {
-		for _, r := range rolesData {
-			if roleStr, ok := r.(string); ok {
-				switch roleStr {
-				case "superuser":
-					roles = append(roles, RoleSuperAdmin)
-				case "admin":
-					roles = append(roles, RoleAdmin)
-				case "staff":
-					roles = append(roles, RoleStaff)
-				case "driver", "rider":
-					roles = append(roles, RoleDriver)
-				case "customer", "user":
-					roles = append(roles, RoleCustomer)
-				}
-			}
-		}
-	}
-
-	// Also check for string roles (not just array)
-	if rolesData, ok := authUserData["roles"].([]string); ok {
-		for _, roleStr := range rolesData {
-			switch strings.ToLower(roleStr) {
-			case "superuser":
-				roles = append(roles, RoleSuperAdmin)
-			case "admin":
-				roles = append(roles, RoleAdmin)
-			case "staff":
+	mapRole := func(roleStr string) {
+		switch strings.ToLower(roleStr) {
+		case "superuser":
+			roles = append(roles, RoleSuperAdmin)
+		case "admin":
+			roles = append(roles, RoleAdmin)
+		case "staff":
+			roles = append(roles, RoleStaff)
+		case "driver", "rider":
+			roles = append(roles, RoleDriver)
+		case "customer", "user":
+			roles = append(roles, RoleCustomer)
+		case "member":
+			// "member" is the SSO org-membership role (assigned to anyone who joins an org).
+			// Resolve the local service role from JWT permissions: if the member holds any
+			// ordering staff permission, treat them as staff locally; otherwise customer.
+			if hasOrderingStaffPermissions(authUserData) {
 				roles = append(roles, RoleStaff)
-			case "driver", "rider":
-				roles = append(roles, RoleDriver)
-			case "customer", "user":
+			} else {
 				roles = append(roles, RoleCustomer)
 			}
 		}
 	}
 
+	if rolesData, ok := authUserData["roles"].([]interface{}); ok {
+		for _, r := range rolesData {
+			if roleStr, ok := r.(string); ok {
+				mapRole(roleStr)
+			}
+		}
+	}
+
+	if rolesData, ok := authUserData["roles"].([]string); ok {
+		for _, roleStr := range rolesData {
+			mapRole(roleStr)
+		}
+	}
+
 	return roles
+}
+
+// hasOrderingStaffPermissions returns true when authUserData contains at least one ordering
+// permission that implies staff-level access (not customer own-only access).
+func hasOrderingStaffPermissions(authUserData map[string]interface{}) bool {
+	staffPerms := map[string]bool{
+		"ordering.orders.manage":      true,
+		"ordering.orders.add":         true,
+		"ordering.orders.read":        true,
+		"ordering.orders.change":      true,
+		"ordering.catalog.manage":     true,
+		"ordering.catalog.change":     true,
+		"ordering.catalog.add":        true,
+		"ordering.operations.manage":  true,
+		"ordering.operations.read":    true,
+	}
+	check := func(p string) bool { return staffPerms[p] }
+
+	if perms, ok := authUserData["permissions"].([]interface{}); ok {
+		for _, p := range perms {
+			if s, ok := p.(string); ok && check(s) {
+				return true
+			}
+		}
+	}
+	if perms, ok := authUserData["permissions"].([]string); ok {
+		for _, s := range perms {
+			if check(s) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // extractPermissionsFromAuthServiceUser extracts permissions from auth-service user data.
