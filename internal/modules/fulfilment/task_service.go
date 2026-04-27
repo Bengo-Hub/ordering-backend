@@ -239,6 +239,42 @@ func (s *TaskService) GetTracking(ctx context.Context, tenantSlug string, tenant
 	return tracking, nil
 }
 
+// AssignRider assigns a fleet member (rider) to the delivery task for an order.
+// If no task exists yet, ErrAssignmentNotFound is returned — caller should create the task first.
+func (s *TaskService) AssignRider(ctx context.Context, tenantSlug string, tenantID, orderID uuid.UUID, fleetMemberID string) (*OrderAssignment, error) {
+	assignment, err := s.repo.GetAssignmentByOrderID(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskID, err := uuid.Parse(assignment.LogisticsTaskID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid logistics task ID: %w", err)
+	}
+
+	taskResp, err := s.logisticsClient.AssignTask(ctx, tenantSlug, taskID, fleetMemberID)
+	if err != nil {
+		s.logger.Error("failed to assign rider via logistics",
+			zap.Error(err),
+			zap.String("task_id", assignment.LogisticsTaskID),
+			zap.String("fleet_member_id", fleetMemberID))
+		return nil, fmt.Errorf("assign rider failed: %w", err)
+	}
+
+	now := time.Now()
+	assignment.RiderID = fleetMemberID
+	assignment.Status = AssignmentStatus(taskResp.Status)
+	assignment.AssignedAt = &now
+
+	if err := s.repo.UpdateAssignment(ctx, assignment); err != nil {
+		s.logger.Warn("failed to update local assignment after rider assign",
+			zap.Error(err),
+			zap.String("assignment_id", assignment.ID.String()))
+	}
+
+	return assignment, nil
+}
+
 // GetDeliveryWindow retrieves the current delivery window.
 func (s *TaskService) GetDeliveryWindow(ctx context.Context, assignmentID uuid.UUID) (*DeliveryWindow, error) {
 	return s.repo.GetCurrentDeliveryWindow(ctx, assignmentID)

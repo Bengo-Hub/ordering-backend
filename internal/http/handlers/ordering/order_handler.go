@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	authclient "github.com/Bengo-Hub/shared-auth-client"
+	
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -91,6 +93,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Get("/{orderId}", h.AdminGetOrder)
 		adminRouter.Get("/{orderId}/events", h.GetOrderEvents)
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
+		adminRouter.Put("/{orderId}/rider", h.AdminAssignRider)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
 		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
 		adminRouter.Delete("/{orderId}", h.DeleteOrder)
@@ -1669,4 +1672,54 @@ func (h *OrderHandler) PayWithWallet(w http.ResponseWriter, r *http.Request) {
 		"payment_status": order.PaymentStatus,
 		"order_status":   order.Status,
 	})
+}
+
+// AssignRiderRequest is the request body for PUT /admin/orders/{orderId}/rider.
+type AssignRiderRequest struct {
+	RiderID string `json:"rider_id"`
+}
+
+// AdminAssignRider assigns a fleet member (rider) to a delivery order.
+func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	var req AssignRiderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.RiderID == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "rider_id is required")
+		return
+	}
+
+	if h.taskService == nil {
+		handlers.RespondError(w, http.StatusServiceUnavailable, "logistics service unavailable")
+		return
+	}
+
+	tenantSlug := ""
+	if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
+		tenantSlug = claims.GetTenantSlug()
+	}
+
+	assignment, err := h.taskService.AssignRider(r.Context(), tenantSlug, tenantID, orderID, req.RiderID)
+	if err != nil {
+		h.log.Error("failed to assign rider", zap.Error(err), zap.String("order_id", orderID.String()))
+		handlers.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, assignment)
 }

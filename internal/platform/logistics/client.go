@@ -373,6 +373,33 @@ func (c *Client) GetProofOfDelivery(ctx context.Context, tenantSlug string, task
 	return &result, nil
 }
 
+// AssignTaskRequest represents a request to assign a fleet member to a task.
+type AssignTaskRequest struct {
+	FleetMemberID string `json:"fleet_member_id"`
+}
+
+// AssignTask assigns a fleet member (rider) to a pending task.
+func (c *Client) AssignTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, fleetMemberID string) (*TaskResponse, error) {
+	path := fmt.Sprintf("/api/v1/%s/tasks/%s/assign", tenantSlug, taskID.String())
+	reqBody := AssignTaskRequest{FleetMemberID: fleetMemberID}
+
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+
+	var result TaskResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	return &result, nil
+}
+
 // RateRiderRequest is the request to rate a rider on a completed task.
 type RateRiderRequest struct {
 	Rating  int    `json:"rating"`
