@@ -471,16 +471,30 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 // buildCheckoutResult creates a payment intent in treasury and returns a CheckoutResult.
 func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, customerEmail, customerPhone string) *CheckoutResult {
+	// Build line item breakdown (subtotal + fees + discounts = grand total)
+	lineItems := buildOrderLineItems(order)
+
 	result := &CheckoutResult{
 		OrderID:     order.ID,
 		OrderNumber: order.OrderNumber,
 		Amount:      order.GrandTotal,
 		Currency:    order.Currency,
 		Status:      string(order.Status),
+		LineItems:   lineItems,
 	}
 
 	// Create payment intent in treasury if the order has a non-zero total
 	if s.treasuryClient != nil && order.GrandTotal > 0 {
+		// Pass line items as metadata for treasury invoicing and analytics
+		lineItemsForMeta := make([]map[string]interface{}, 0, len(lineItems))
+		for _, li := range lineItems {
+			lineItemsForMeta = append(lineItemsForMeta, map[string]interface{}{
+				"label":    li.Label,
+				"amount":   li.Amount,
+				"currency": li.Currency,
+			})
+		}
+
 		intentReq := treasury.PaymentIntentRequest{
 			TenantID:      order.TenantID,
 			ReferenceID:   order.ID.String(),
@@ -493,6 +507,10 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			Description:   fmt.Sprintf("Order %s", order.OrderNumber),
 			CustomerEmail: customerEmail,
 			CustomerPhone: customerPhone,
+			Metadata: map[string]interface{}{
+				"line_items":   lineItemsForMeta,
+				"order_number": order.OrderNumber,
+			},
 		}
 
 		intentResp, err := s.treasuryClient.CreatePaymentIntent(ctx, intentReq)
@@ -510,6 +528,46 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 
 	return result
 }
+
+// buildOrderLineItems constructs a structured fee breakdown from an order's pricing fields.
+func buildOrderLineItems(order *Order) []LineItem {
+	currency := order.Currency
+	var items []LineItem
+
+	// Subtotal (items total before fees/discounts)
+	subtotal := order.GrandTotal
+	if order.DeliveryFee > 0 {
+		subtotal -= order.DeliveryFee
+	}
+	if order.PackagingFee > 0 {
+		subtotal -= order.PackagingFee
+	}
+	if order.TaxTotal > 0 {
+		subtotal -= order.TaxTotal
+	}
+	if order.DiscountTotal > 0 {
+		subtotal += order.DiscountTotal
+	}
+	if subtotal > 0 {
+		items = append(items, LineItem{Label: "Subtotal", Amount: round2(subtotal), Currency: currency})
+	}
+
+	if order.DeliveryFee > 0 {
+		items = append(items, LineItem{Label: "Delivery Fee", Amount: round2(order.DeliveryFee), Currency: currency})
+	}
+	if order.PackagingFee > 0 {
+		items = append(items, LineItem{Label: "Packaging Fee", Amount: round2(order.PackagingFee), Currency: currency})
+	}
+	if order.TaxTotal > 0 {
+		items = append(items, LineItem{Label: "Tax", Amount: round2(order.TaxTotal), Currency: currency})
+	}
+	if order.DiscountTotal > 0 {
+		items = append(items, LineItem{Label: "Discount", Amount: -round2(order.DiscountTotal), Currency: currency})
+	}
+
+	return items
+}
+
 
 // GuestCheckout creates an order for a guest user. It accepts items directly from the
 // frontend local cart. If items are provided in the request they are used; otherwise it
