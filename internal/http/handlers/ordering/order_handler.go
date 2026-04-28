@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
@@ -1680,6 +1681,8 @@ type AssignRiderRequest struct {
 }
 
 // AdminAssignRider assigns a fleet member (rider) to a delivery order.
+// If no delivery task exists yet, one is auto-created from the order data before assignment.
+// On success the order status is automatically set to out_for_delivery.
 func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := getTenantID(r)
 	if err != nil {
@@ -1714,12 +1717,106 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 		tenantSlug = claims.GetTenantSlug()
 	}
 
+	// Attempt assignment; auto-create delivery task if none exists yet.
 	assignment, err := h.taskService.AssignRider(r.Context(), tenantSlug, tenantID, orderID, req.RiderID)
 	if err != nil {
-		h.log.Error("failed to assign rider", zap.Error(err), zap.String("order_id", orderID.String()))
-		handlers.RespondError(w, http.StatusUnprocessableEntity, err.Error())
-		return
+		if !errors.Is(err, fulfilment.ErrAssignmentNotFound) {
+			h.log.Error("failed to assign rider", zap.Error(err), zap.String("order_id", orderID.String()))
+			handlers.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+
+		// No task exists yet — fetch the order and auto-create the delivery task.
+		order, oErr := h.orderService.GetOrder(r.Context(), tenantID, orderID)
+		if oErr != nil {
+			h.log.Error("order not found for rider assignment", zap.Error(oErr), zap.String("order_id", orderID.String()))
+			handlers.RespondError(w, http.StatusNotFound, "order not found")
+			return
+		}
+
+		if order.FulfillmentType != ordering.FulfillmentTypeDelivery {
+			handlers.RespondError(w, http.StatusUnprocessableEntity, "order is not a delivery order")
+			return
+		}
+
+		orderInfo := buildOrderInfoFromOrder(order, tenantSlug)
+		createReq := fulfilment.CreateDeliveryTaskRequest{
+			OrderInfo:      orderInfo,
+			Priority:       fulfilment.PriorityNormal,
+			IdempotencyKey: order.ID.String() + ":create",
+		}
+
+		if _, cErr := h.taskService.CreateDeliveryTask(r.Context(), createReq); cErr != nil {
+			h.log.Error("failed to auto-create delivery task", zap.Error(cErr), zap.String("order_id", orderID.String()))
+			handlers.RespondError(w, http.StatusUnprocessableEntity, "failed to create delivery task: "+cErr.Error())
+			return
+		}
+
+		// Retry assignment after task creation.
+		assignment, err = h.taskService.AssignRider(r.Context(), tenantSlug, tenantID, orderID, req.RiderID)
+		if err != nil {
+			h.log.Error("failed to assign rider after task creation", zap.Error(err), zap.String("order_id", orderID.String()))
+			handlers.RespondError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+	}
+
+	// Auto-transition order status to out_for_delivery.
+	if _, sErr := h.orderService.UpdateOrderStatus(r.Context(), tenantID, orderID,
+		ordering.OrderStatusOutForDelivery, nil, "system", r.RemoteAddr); sErr != nil {
+		h.log.Warn("failed to mark order out_for_delivery after rider assign",
+			zap.Error(sErr), zap.String("order_id", orderID.String()))
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, assignment)
+}
+
+// buildOrderInfoFromOrder converts an Order to the OrderInfo needed for task creation.
+func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilment.OrderInfo {
+	info := fulfilment.OrderInfo{
+		ID:          order.ID,
+		TenantID:    order.TenantID,
+		TenantSlug:  tenantSlug,
+		OrderNumber: order.OrderNumber,
+		CustomerName:  order.CustomerName,
+		CustomerPhone: order.CustomerPhone,
+		Instructions:  order.Instructions,
+		ItemCount:     len(order.Items),
+	}
+
+	if order.DeliveryAddress != nil {
+		addr := order.DeliveryAddress
+		addrStr := addr.AddressLine1
+		if addr.AddressLine2 != "" {
+			addrStr += ", " + addr.AddressLine2
+		}
+		if addr.City != "" {
+			addrStr += ", " + addr.City
+		}
+		info.DeliveryAddress = addrStr
+		if addr.Latitude != nil {
+			info.DeliveryLat = *addr.Latitude
+		}
+		if addr.Longitude != nil {
+			info.DeliveryLng = *addr.Longitude
+		}
+		info.DeliveryNotes = addr.Instructions
+		if addr.ContactName != "" {
+			info.CustomerName = addr.ContactName
+		}
+		if addr.ContactPhone != "" {
+			info.CustomerPhone = addr.ContactPhone
+		}
+	}
+
+	// Build items description
+	if len(order.Items) > 0 {
+		names := make([]string, 0, len(order.Items))
+		for _, item := range order.Items {
+			names = append(names, item.NameSnapshot)
+		}
+		info.ItemsDescription = strings.Join(names, ", ")
+	}
+
+	return info
 }
