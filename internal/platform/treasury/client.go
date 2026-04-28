@@ -74,6 +74,9 @@ type PaymentIntentRequest struct {
 
 // PaymentIntentResponse represents a payment intent from treasury.
 type PaymentIntentResponse struct {
+	// IntentID is the primary field from the s2s create endpoint (json:"intent_id").
+	IntentID               uuid.UUID       `json:"intent_id"`
+	// ID is kept for other treasury endpoints that return json:"id".
 	ID                     uuid.UUID       `json:"id"`
 	TenantID               uuid.UUID       `json:"tenant_id"`
 	OrderID                uuid.UUID       `json:"order_id"`
@@ -86,6 +89,15 @@ type PaymentIntentResponse struct {
 	MpesaCheckoutRequestID string          `json:"mpesa_checkout_request_id,omitempty"`
 	CreatedAt              time.Time       `json:"created_at"`
 	ExpiresAt              *time.Time      `json:"expires_at,omitempty"`
+}
+
+// ResolvedID returns IntentID if non-nil, falling back to ID.
+// The s2s create endpoint returns "intent_id"; other endpoints return "id".
+func (r *PaymentIntentResponse) ResolvedID() uuid.UUID {
+	if r.IntentID != uuid.Nil {
+		return r.IntentID
+	}
+	return r.ID
 }
 
 // MpesaSTKPushRequest represents an M-Pesa STK Push request.
