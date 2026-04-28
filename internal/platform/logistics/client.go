@@ -375,13 +375,15 @@ func (c *Client) GetProofOfDelivery(ctx context.Context, tenantSlug string, task
 
 // AssignTaskRequest represents a request to assign a fleet member to a task.
 type AssignTaskRequest struct {
-	FleetMemberID string `json:"fleet_member_id"`
+	FleetMemberID     string `json:"fleet_member_id"`
+	ExternalReference string `json:"external_reference,omitempty"` // order_id for logistics-side lookup-or-create
 }
 
 // AssignTask assigns a fleet member (rider) to a pending task.
-func (c *Client) AssignTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, fleetMemberID string) (*TaskResponse, error) {
+// orderID is passed as external_reference so the logistics service can look up or create the task by order ID.
+func (c *Client) AssignTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, fleetMemberID string, orderID string) (*TaskResponse, error) {
 	path := fmt.Sprintf("/api/v1/%s/tasks/%s/assign", tenantSlug, taskID.String())
-	reqBody := AssignTaskRequest{FleetMemberID: fleetMemberID}
+	reqBody := AssignTaskRequest{FleetMemberID: fleetMemberID, ExternalReference: orderID}
 
 	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
 	if err != nil {
