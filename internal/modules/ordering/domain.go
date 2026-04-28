@@ -178,15 +178,23 @@ type Order struct {
 	UpdatedAt             time.Time              `json:"updatedAt"`
 }
 
+// LineItem is a single component of the order total (delivery fee, packaging, taxes, etc.).
+type LineItem struct {
+	Label    string  `json:"label"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
+}
+
 // CheckoutResult wraps an order with payment intent details for the frontend.
 type CheckoutResult struct {
-	OrderID         uuid.UUID `json:"orderId"`
-	OrderNumber     string    `json:"orderNumber"`
-	PaymentIntentID string    `json:"paymentIntentId,omitempty"`
-	InitiateURL     string    `json:"initiateUrl,omitempty"`
-	Amount          float64   `json:"amount"`
-	Currency        string    `json:"currency"`
-	Status          string    `json:"status"`
+	OrderID         uuid.UUID  `json:"orderId"`
+	OrderNumber     string     `json:"orderNumber"`
+	PaymentIntentID string     `json:"paymentIntentId,omitempty"`
+	InitiateURL     string     `json:"initiateUrl,omitempty"`
+	Amount          float64    `json:"amount"`
+	Currency        string     `json:"currency"`
+	Status          string     `json:"status"`
+	LineItems       []LineItem `json:"lineItems,omitempty"`
 }
 
 // OrderItem represents an item in an order.
