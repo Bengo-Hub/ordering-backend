@@ -936,6 +936,30 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		order.ReadyAt = &now
 	case OrderStatusDelivered:
 		order.DeliveredAt = &now
+		// For COD orders: mark payment as paid and trigger treasury settlement.
+		// This handles admin/manual delivery confirmation as well as rider-confirmed delivery.
+		if order.PaymentMethod == PaymentMethodCOD && order.PaymentStatus != PaymentStatusPaid {
+			order.PaymentStatus = PaymentStatusPaid
+			if s.treasuryClient != nil {
+				go func(tid, oid uuid.UUID, amount float64, currency string) {
+					settleCtx := context.Background()
+					_, err := s.treasuryClient.SettleCODPayment(settleCtx, treasury.SettleCODPaymentRequest{
+						TenantID:   tid,
+						OrderID:    oid.String(),
+						AmountPaid: amount,
+						Currency:   currency,
+					})
+					if err != nil {
+						s.logger.Error("failed to settle COD payment intent on delivery",
+							zap.Error(err),
+							zap.String("order_id", oid.String()))
+					} else {
+						s.logger.Info("COD payment intent settled on delivery confirmation",
+							zap.String("order_id", oid.String()))
+					}
+				}(tenantID, orderID, order.GrandTotal, order.Currency)
+			}
+		}
 	case OrderStatusCompleted:
 		order.CompletedAt = &now
 		// Award loyalty points on completion

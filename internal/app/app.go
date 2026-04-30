@@ -311,6 +311,8 @@ func New(ctx context.Context) (*App, error) {
 
 		// Subscribe to logistics task events for order auto-completion and assignment
 		logisticsEventHandler := fulfilment.NewLogisticsEventHandler(fulfilmentRepo, orderSvc, orderingRepo, eventPublisher, log)
+		// Wire treasury client so COD payments are settled when delivery is confirmed
+		logisticsEventHandler.SetTreasuryClient(treasuryClient)
 		if err := logisticsEventHandler.SubscribeToLogisticsEvents(natsConn); err != nil {
 			log.Warn("app: failed to subscribe to logistics events", zap.Error(err))
 		}

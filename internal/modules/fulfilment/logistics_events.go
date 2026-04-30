@@ -12,6 +12,7 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
+	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
 // uuidPtrString returns the string representation of a *uuid.UUID, or uuid.Nil's string for nil.
@@ -24,11 +25,12 @@ func uuidPtrString(u *uuid.UUID) string {
 
 // LogisticsEventHandler handles logistics task events to update order/assignment state.
 type LogisticsEventHandler struct {
-	repo           Repository
-	orderingSvc    *ordering.OrderService
-	orderingRepo   ordering.Repository
-	eventPublisher *events.Publisher
-	logger         *zap.Logger
+	repo            Repository
+	orderingSvc     *ordering.OrderService
+	orderingRepo    ordering.Repository
+	eventPublisher  *events.Publisher
+	treasuryClient  *treasury.Client
+	logger          *zap.Logger
 }
 
 // NewLogisticsEventHandler creates a new logistics event handler.
@@ -46,6 +48,11 @@ func NewLogisticsEventHandler(
 		eventPublisher: eventPublisher,
 		logger:         logger.Named("fulfilment.logistics_events"),
 	}
+}
+
+// SetTreasuryClient sets the treasury client for COD settlement on delivery.
+func (h *LogisticsEventHandler) SetTreasuryClient(client *treasury.Client) {
+	h.treasuryClient = client
 }
 
 // LogisticsTaskEvent represents a logistics task event payload (CloudEvents envelope).
@@ -191,6 +198,7 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 	}
 
 	// Handle COD payment: if cash was collected, update payment status to paid
+	// and settle the payment intent in treasury so the transaction is recorded.
 	cashCollected, _ := data["cash_collected"].(bool)
 	if order.PaymentMethod == ordering.PaymentMethodCOD && cashCollected {
 		order.PaymentStatus = ordering.PaymentStatusPaid
@@ -201,6 +209,29 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		} else {
 			h.logger.Info("COD payment marked as paid",
 				zap.String("order_id", orderID.String()))
+		}
+
+		// Settle the treasury payment intent so it moves from pending → succeeded
+		// and a PaymentTransaction record is created for accounting.
+		if h.treasuryClient != nil {
+			amountCollected, _ := data["amount_collected"].(float64)
+			if amountCollected <= 0 {
+				amountCollected = order.GrandTotal
+			}
+			settleReq := treasury.SettleCODPaymentRequest{
+				TenantID:   tenantID,
+				OrderID:    orderID.String(),
+				AmountPaid: amountCollected,
+				Currency:   order.Currency,
+			}
+			if _, settleErr := h.treasuryClient.SettleCODPayment(ctx, settleReq); settleErr != nil {
+				h.logger.Error("failed to settle COD payment intent in treasury",
+					zap.Error(settleErr),
+					zap.String("order_id", orderID.String()))
+			} else {
+				h.logger.Info("COD payment intent settled in treasury",
+					zap.String("order_id", orderID.String()))
+			}
 		}
 	}
 
