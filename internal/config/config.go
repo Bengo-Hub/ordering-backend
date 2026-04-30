@@ -117,8 +117,8 @@ type AuthConfig struct {
 
 type TreasuryConfig struct {
 	// Treasury service URL
-	ServiceURL     string        `envconfig:"TREASURY_SERVICE_URL" default:"http://localhost:4010"`
-	APIKey         string        `envconfig:"TREASURY_API_KEY"`
+	ServiceURL     string        `envconfig:"TREASURY_API_URL" default:"http://localhost:4010"`
+	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	WebhookSecret  string        `envconfig:"TREASURY_WEBHOOK_SECRET"`
 	RequestTimeout time.Duration `envconfig:"TREASURY_REQUEST_TIMEOUT" default:"30s"`
 

@@ -395,6 +395,42 @@ func (c *Client) DebitUserWallet(ctx context.Context, tenantID, userID uuid.UUID
 	return &result, nil
 }
 
+// SettleCODPaymentRequest is sent to treasury when COD is collected at delivery.
+type SettleCODPaymentRequest struct {
+	TenantID    uuid.UUID `json:"tenant_id"`
+	OrderID     string    `json:"order_id"`
+	AmountPaid  float64   `json:"amount_paid"`
+	Currency    string    `json:"currency"`
+}
+
+// SettleCODPaymentResponse is returned after COD settlement.
+type SettleCODPaymentResponse struct {
+	IntentID string `json:"intent_id"`
+	Status   string `json:"status"`
+}
+
+// SettleCODPayment marks the COD payment intent for an order as succeeded
+// via the treasury S2S endpoint. This is called when delivery is confirmed
+// (rider marks order delivered with cash collected).
+func (c *Client) SettleCODPayment(ctx context.Context, req SettleCODPaymentRequest) (*SettleCODPaymentResponse, error) {
+	path := fmt.Sprintf("/api/v1/s2s/%s/payments/cod/settle", req.TenantID.String())
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(fmt.Sprintf("cod-settle-%s", req.OrderID)))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+
+	var result SettleCODPaymentResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	return &result, nil
+}
+
 // HealthCheck checks if the treasury service is healthy.
 func (c *Client) HealthCheck(ctx context.Context) error {
 	resp, err := c.serviceClient.Get(ctx, "/health", nil)
