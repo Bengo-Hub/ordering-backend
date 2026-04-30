@@ -102,7 +102,7 @@ type AuthConfig struct {
 	JWKSCacheTTL        time.Duration `envconfig:"AUTH_JWKS_CACHE_TTL" default:"3600s"`
 	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
 	EnableAPIKeyAuth    bool          `envconfig:"AUTH_ENABLE_API_KEY_AUTH" default:"true"`
-	AuthServiceAPIKey   string        `envconfig:"AUTH_SERVICE_API_KEY"`
+	AuthServiceAPIKey   string        `envconfig:"INTERNAL_SERVICE_KEY"`
 
 	// Legacy config (deprecated - use auth-service instead)
 	AccessTokenSecret  string        `envconfig:"AUTH_ACCESS_TOKEN_SECRET" default:"dev-access-secret-change-me"`
@@ -130,7 +130,7 @@ type TreasuryConfig struct {
 type LogisticsConfig struct {
 	// Logistics service URL
 	ServiceURL     string        `envconfig:"LOGISTICS_SERVICE_URL" default:"http://localhost:4003"`
-	APIKey         string        `envconfig:"LOGISTICS_API_KEY"`
+	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	WebhookSecret  string        `envconfig:"LOGISTICS_WEBHOOK_SECRET"`
 	RequestTimeout time.Duration `envconfig:"LOGISTICS_REQUEST_TIMEOUT" default:"30s"`
 
@@ -141,21 +141,21 @@ type LogisticsConfig struct {
 type InventoryConfig struct {
 	// Inventory service URL
 	ServiceURL     string        `envconfig:"INVENTORY_SERVICE_URL" default:"http://localhost:4001"`
-	APIKey         string        `envconfig:"INVENTORY_API_KEY"`
+	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	RequestTimeout time.Duration `envconfig:"INVENTORY_REQUEST_TIMEOUT" default:"10s"`
 }
 
 type NotificationsConfig struct {
 	// Notifications service URL
 	ServiceURL     string        `envconfig:"NOTIFICATIONS_SERVICE_URL" default:"http://localhost:4004"`
-	APIKey         string        `envconfig:"NOTIFICATIONS_API_KEY"`
+	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	RequestTimeout time.Duration `envconfig:"NOTIFICATIONS_REQUEST_TIMEOUT" default:"10s"`
 }
 
 type SubscriptionsConfig struct {
 	// Subscriptions service URL
 	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4008"`
-	APIKey         string        `envconfig:"SUBSCRIPTIONS_API_KEY"`
+	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	RequestTimeout time.Duration `envconfig:"SUBSCRIPTIONS_REQUEST_TIMEOUT" default:"10s"`
 }
 
