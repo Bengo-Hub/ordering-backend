@@ -1040,13 +1040,13 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 
 	roles := []roleSpec{
 		{
-			code:  "ordering_admin",
+			code:  "admin",
 			name:  "Ordering Admin",
 			desc:  "Full tenant administrator with access to all ordering modules",
 			perms: allPerms(allModules...),
 		},
 		{
-			code: "store_manager",
+			code: "manager",
 			name: "Store Manager",
 			desc: "Manages a store/outlet including orders, catalog, and staff",
 			perms: append(
@@ -1058,7 +1058,7 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 				}...),
 		},
 		{
-			code: "kitchen_staff",
+			code: "kitchen",
 			name: "Kitchen Staff",
 			desc: "Kitchen/preparation staff who manage order preparation",
 			perms: []string{
