@@ -116,8 +116,11 @@ type AuthConfig struct {
 }
 
 type TreasuryConfig struct {
-	// Treasury service URL
+	// Treasury service URL (internal/S2S — used for backend-to-backend calls)
 	ServiceURL     string        `envconfig:"TREASURY_API_URL" default:"http://localhost:4010"`
+	// PublicURL is the browser-accessible treasury API URL embedded in initiate_url responses.
+	// Defaults to ServiceURL when not set. Set TREASURY_API_PUBLIC_URL in prod K8s.
+	PublicURL      string        `envconfig:"TREASURY_API_PUBLIC_URL"`
 	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	WebhookSecret  string        `envconfig:"TREASURY_WEBHOOK_SECRET"`
 	RequestTimeout time.Duration `envconfig:"TREASURY_REQUEST_TIMEOUT" default:"30s"`

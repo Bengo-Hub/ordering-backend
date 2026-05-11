@@ -15,6 +15,7 @@ import (
 // Client provides methods to interact with the treasury service.
 type Client struct {
 	baseURL       string
+	publicBaseURL string // browser-accessible URL for initiate_url construction
 	apiKey        string
 	serviceClient *serviceclient.Client
 	logger        *zap.Logger
@@ -29,8 +30,14 @@ func NewClient(cfg config.TreasuryConfig, logger *zap.Logger) *Client {
 	)
 	scCfg.Timeout = cfg.RequestTimeout
 
+	publicURL := cfg.PublicURL
+	if publicURL == "" {
+		publicURL = cfg.ServiceURL
+	}
+
 	return &Client{
 		baseURL:       cfg.ServiceURL,
+		publicBaseURL: publicURL,
 		apiKey:        cfg.APIKey,
 		serviceClient: serviceclient.New(scCfg),
 		logger:        logger.Named("treasury.client"),
@@ -196,9 +203,15 @@ func (c *Client) parseError(resp *serviceclient.Response) error {
 	return &apiErr
 }
 
-// BaseURL returns the treasury service base URL (for building initiate URLs).
+// BaseURL returns the internal treasury service base URL (for S2S API calls).
 func (c *Client) BaseURL() string {
 	return c.baseURL
+}
+
+// PublicBaseURL returns the browser-accessible treasury API URL used when
+// building initiate_url values that are returned to the frontend.
+func (c *Client) PublicBaseURL() string {
+	return c.publicBaseURL
 }
 
 // CreatePaymentIntent creates a payment intent with the treasury service.
