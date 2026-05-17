@@ -11,6 +11,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // PromoHandler exposes promo code HTTP endpoints.
@@ -38,6 +39,7 @@ func (h *PromoHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		// Cart-related promo endpoints (requires auth)
 		promoRouter.Group(func(cartPromoRouter chi.Router) {
 			cartPromoRouter.Use(auth.RequireAuth)
+			cartPromoRouter.Use(subscriptions.RequireFeature("promo_codes"))
 			cartPromoRouter.Post("/apply", h.ApplyPromoToCart)
 			cartPromoRouter.Delete("/remove", h.RemovePromoFromCart)
 		})

@@ -20,6 +20,7 @@ import (
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // Handler exposes catalog-related HTTP endpoints (proxy model).
@@ -55,9 +56,10 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 			authRouter.Post("/items/{sku}/favorite", h.ToggleFavorite)
 		})
 
-		// Admin catalog override management (auth + permissions required)
+		// Admin catalog override management (auth + permissions + multi_outlet feature required)
 		catalogRouter.Group(func(adminRouter chi.Router) {
 			adminRouter.Use(auth.RequireAuth)
+			adminRouter.Use(subscriptions.RequireFeature("multi_outlet"))
 
 			adminRouter.With(auth.RequirePermissions(identity.PermissionCatalogManage)).
 				Post("/overrides", h.UpsertOverride)

@@ -408,26 +408,46 @@ This pattern applies to ALL services (logistics, inventory, POS, notifications, 
 
 ### POS Service
 
-**Integration Type**: Events (NATS) - Minimal integration
+**Integration Type**: Events (NATS) + REST (S2S for order detail fetch)
 
-**Scope Clarification**: 
-- **POS Service Handles**: Over-the-counter orders (walk-in customers), pickup orders, dine-in orders, kitchen tickets, cash management
-- **Ordering Service Handles**: Online delivery orders only
-- **Integration Point**: Customer places online order for pickup → order transitions from ordering-service to POS-service for fulfillment
+**Scope Clarification**:
+- **POS Service Handles**: Walk-in orders, dine-in orders, kitchen display (KDS), cash management, table management, hotel folios
+- **Ordering Service Handles**: Online orders (delivery and pickup) placed by customers via the ordering app or third-party channels (Uber Eats, Glovo)
+- **Integration Points**: (1) Online dine-in / pickup orders → POS KDS, (2) Catalog changes → ordering storefront sync
 
-**Use Cases for Ordering Service**:
-- Catalog sync (catalog changes published, POS subscribes)
-- Online-for-pickup orders (created in ordering-service, fulfilled by POS-service)
+---
 
-**Events Published by Ordering Service**:
-- `ordering.catalog.updated` - Notify POS of menu changes (for catalog consistency)
-- `ordering.order.for_pickup` - Online order placed for pickup (POS takes over fulfillment)
+#### KDS Integration (Hospitality — Critical Gap)
+
+When a hospitality order (dine-in or pickup) placed via ordering-backend transitions to `confirmed` or `preparing`, pos-api must create KDS tickets so the kitchen sees the order without manual re-entry by a waiter.
+
+**Current state:** ordering-backend publishes `ordering.order.status.changed` on every status transition but pos-api does NOT yet subscribe. This means online hospitality orders are invisible to the KDS. See [pos-api Sprint 13](../../../pos-service/pos-api/docs/sprints/sprint-13-ordering-kds-integration.md).
+
+**Required from ordering-backend (already implemented):**
+- `ordering.order.status.changed` NATS event published on every status transition
+- Event payload MUST include `fulfillment_type` and, for dine-in, `table_reference`
+- Event payload SHOULD include the full `items` array (SKU, name, quantity, notes, modifiers) so pos-api does not need a follow-up REST call
+
+**Recommended enhancement:** Ensure the `ordering.order.status.changed` event payload is enriched with full item details when `new_status IN (confirmed, preparing)` — this avoids a synchronous REST call from pos-api back to ordering-backend.
+
+**If item enrichment is not added to the event**, pos-api will call:
+- `GET /api/v1/{tenant}/orders/{order_id}` with `X-API-Key: {INTERNAL_SERVICE_KEY}` (S2S)
+- This endpoint must be accessible without a user Bearer token; add it under the ordering-backend S2S routes
+
+**Events Published (relevant to POS)**:
+- `ordering.order.status.changed` — pos-api subscribes (filter: `confirmed`, `preparing`, dine_in/pickup)
+- `ordering.order.for_pickup` — pos-api consumes for pickup order handoff (existing)
+- `ordering.catalog.updated` — pos-api consumes to refresh catalog projection (existing)
 
 **Events Consumed from POS**:
-- `pos.order.ready` - Pickup order ready for customer (if initiated from ordering)
-- `pos.pickup.completed` - Customer picked up order (close ordering record)
+- `pos.kds.order.ready` — (planned, Phase 2) pos-api publishes when all KDS tickets for an order are marked ready; ordering-backend may auto-transition order to `ready`
+- `pos.pickup.completed` — customer picked up order; close the ordering record
 
-**Note**: Direct POS operations (cash drawers, kitchen tickets, table management) are NOT in ordering-service scope. Those belong entirely to POS-service.
+**S2S API Key**:
+- ordering-backend accepts `X-API-Key: {INTERNAL_SERVICE_KEY}` on S2S order-detail routes (same shared platform key)
+- pos-api env var: `ORDERING_SERVICE_URL`, `INTERNAL_SERVICE_KEY`
+
+**Note**: Cash drawers, table management, and hotel folios are NOT in ordering-backend scope. Those belong entirely to pos-api.
 
 ---
 

@@ -29,6 +29,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // New constructs the chi router with global middleware and base routes.
@@ -226,29 +227,8 @@ func New(
 						})
 					})
 
-					// Layer 2: Subscription enforcement for authenticated mutation requests.
-					// Read-only (GET) and public routes pass through; mutations require active subscription.
-					tenant.Use(func(next http.Handler) http.Handler {
-						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-							if r.Method == http.MethodGet || r.Method == http.MethodHead || r.Method == http.MethodOptions {
-								next.ServeHTTP(w, r)
-								return
-							}
-							claims, ok := authclient.ClaimsFromContext(r.Context())
-							if !ok {
-								// No claims = public route, allow through
-								next.ServeHTTP(w, r)
-								return
-							}
-							if claims.IsSuperuser() || claims.IsSubscriptionActive() {
-								next.ServeHTTP(w, r)
-								return
-							}
-							w.Header().Set("Content-Type", "application/json")
-							w.WriteHeader(http.StatusForbidden)
-							_, _ = w.Write([]byte(`{"error":"Your subscription is not active. Please renew to continue.","code":"subscription_inactive"}`))
-						})
-					})
+					// Layer 2: Subscription gate — enforces status, grace period, and 402 on hard expiry.
+					tenant.Use(subscriptions.SubscriptionGate())
 				}
 
 				// Audit logging middleware for mutation endpoints
