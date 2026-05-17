@@ -11,6 +11,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // LoyaltyHandler exposes loyalty program HTTP endpoints.
@@ -31,6 +32,7 @@ func NewLoyaltyHandler(log *zap.Logger, loyaltySvc *ordering.LoyaltyService) *Lo
 func (h *LoyaltyHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/loyalty", func(loyaltyRouter chi.Router) {
 		loyaltyRouter.Use(auth.RequireAuth)
+		loyaltyRouter.Use(subscriptions.RequireFeature("loyalty_program"))
 
 		loyaltyRouter.Get("/balance", h.GetBalance)
 		loyaltyRouter.Get("/account", h.GetAccount)
