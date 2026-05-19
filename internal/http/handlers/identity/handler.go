@@ -92,11 +92,20 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Enrich identity roles/permissions with service-level RBAC data.
-	roles := roleStrings(user.Roles)
-	permissions := permStrings(user.Permissions)
-
 	ctx := r.Context()
+	claims, _ := authclient.ClaimsFromContext(ctx)
+
+	// Prefer JWT claims permissions (Django-style codes) over potentially stale local DB values.
+	// The local DB may have human-readable strings from older code paths.
+	roles := roleStrings(user.Roles)
+	var permissions []string
+	if claims != nil && len(claims.Permissions) > 0 {
+		permissions = make([]string, len(claims.Permissions))
+		copy(permissions, claims.Permissions)
+	} else {
+		permissions = permStrings(user.Permissions)
+	}
+
 	tenantID := httpware.GetTenantID(ctx)
 	if tenantID != "" && h.rbacService != nil {
 		if tenantUUID, parseErr := uuid.Parse(tenantID); parseErr == nil {
@@ -114,7 +123,6 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Superuser / platform owner gets all service-level permissions
-	claims, _ := authclient.ClaimsFromContext(ctx)
 	if claims != nil && (claims.IsSuperuser() || claims.IsPlatformOwner) {
 		// Consolidate all permissions from the superadmin role
 		superPerms := identity.ConsolidatePermissions([]identity.Role{identity.RoleSuperAdmin})
