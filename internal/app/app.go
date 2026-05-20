@@ -195,6 +195,9 @@ func New(ctx context.Context) (*App, error) {
 	tenantCache := sharedcache.New(redisClient, log)
 	configHandler := confighandler.New(log, ormClient, tenantCache, cfg.Auth.ServiceURL)
 
+	// Admin service config handler for platform/tenant-level configuration CRUD.
+	serviceConfigHandler := confighandler.NewServiceConfigHandler(ormClient, log)
+
 	// Initialize cache service for catalog read caching
 	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
 
@@ -380,7 +383,7 @@ func New(ctx context.Context) (*App, error) {
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
 	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

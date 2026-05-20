@@ -66,6 +66,7 @@ func New(
 	mediaHandler *handlers.MediaHandler,
 	rbacHandler *handlers.RBACHandler,
 	tenantSyncer *tenant.Syncer,
+	serviceConfigHandler *confighandler.ServiceConfigHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -314,6 +315,18 @@ func New(
 				// Register RBAC routes (role/permission management)
 				if rbacHandler != nil {
 					rbacHandler.RegisterRoutes(tenant)
+				}
+
+				// Admin service config routes (platform owner / tenant-scoped settings)
+				if serviceConfigHandler != nil {
+					tenant.Route("/admin/service-config", func(adminCfg chi.Router) {
+						adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)
+						adminCfg.Put("/{key}", serviceConfigHandler.UpsertPlatformSetting)
+					})
+					tenant.Route("/settings/service-config", func(settingsCfg chi.Router) {
+						settingsCfg.Get("/", serviceConfigHandler.ListTenantSettings)
+						settingsCfg.Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
+					})
 				}
 
 				// Webhook routes (no auth required - use signature verification)
