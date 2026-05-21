@@ -65,24 +65,43 @@ const (
 	TaskStatusFailed          TaskStatus = "failed"
 )
 
+// TaskPriorityToInt maps string priority levels to int values expected by logistics-api.
+func TaskPriorityToInt(p TaskPriority) int {
+	switch p {
+	case PriorityLow:
+		return 0
+	case PriorityHigh:
+		return 2
+	case PriorityUrgent:
+		return 3
+	default: // PriorityNormal or empty
+		return 1
+	}
+}
+
 // CreateTaskRequest represents a request to create a delivery task.
+// Field names match the logistics-api CreateTaskRequest JSON contract.
 type CreateTaskRequest struct {
-	TenantID           uuid.UUID              `json:"tenant_id"`
-	ExternalReference  string                 `json:"external_reference"` // order_id
-	ExternalType       string                 `json:"external_type"`      // "order"
-	Priority           TaskPriority           `json:"priority"`
-	PickupLocation     Location               `json:"pickup_location"`
-	DropoffLocation    Location               `json:"dropoff_location"`
-	ScheduledPickupAt  *time.Time             `json:"scheduled_pickup_at,omitempty"`
-	ScheduledDropoffAt *time.Time             `json:"scheduled_dropoff_at,omitempty"`
-	Instructions       string                 `json:"instructions,omitempty"`
-	CustomerName       string                 `json:"customer_name,omitempty"`
-	CustomerPhone      string                 `json:"customer_phone,omitempty"`
-	ItemsDescription   string                 `json:"items_description,omitempty"`
-	ItemCount          int                    `json:"item_count,omitempty"`
-	CashOnDelivery     float64                `json:"cash_on_delivery,omitempty"`
-	IdempotencyKey     string                 `json:"idempotency_key,omitempty"`
-	Metadata           map[string]interface{} `json:"metadata,omitempty"`
+	ExternalReference string                 `json:"external_reference"`
+	SourceService     string                 `json:"source_service"`
+	TaskType          string                 `json:"task_type"`
+	Priority          int                    `json:"priority"`
+	SLADueAt          *time.Time             `json:"sla_due_at,omitempty"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	IdempotencyKey    string                 `json:"idempotency_key,omitempty"`
+
+	// Delivery-specific fields — used to auto-create pickup/dropoff steps.
+	PickupAddress  string  `json:"pickup_address,omitempty"`
+	PickupLat      float64 `json:"pickup_lat,omitempty"`
+	PickupLng      float64 `json:"pickup_lng,omitempty"`
+	PickupContact  string  `json:"pickup_contact,omitempty"`
+	DropoffAddress string  `json:"dropoff_address,omitempty"`
+	DropoffLat     float64 `json:"dropoff_lat,omitempty"`
+	DropoffLng     float64 `json:"dropoff_lng,omitempty"`
+	DropoffContact string  `json:"dropoff_contact,omitempty"`
+	CustomerName   string  `json:"customer_name,omitempty"`
+	CustomerPhone  string  `json:"customer_phone,omitempty"`
+	Instructions   string  `json:"instructions,omitempty"`
 }
 
 // Location represents a geographical location.
