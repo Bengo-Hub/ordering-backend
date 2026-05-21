@@ -157,9 +157,13 @@ func (s *PaymentService) CreatePaymentIntent(ctx context.Context, req CreatePaym
 	treasuryReq := treasury.PaymentIntentRequest{
 		TenantID:       req.TenantID,
 		OrderID:        req.OrderID,
+		ReferenceID:    req.OrderID.String(),
+		ReferenceType:  "order",
+		SourceService:  "ordering",
 		Amount:         req.Amount,
 		Currency:       req.Currency,
 		Provider:       treasury.PaymentProvider(req.Provider),
+		PaymentMethod:  string(req.Provider), // map provider → payment_method for treasury contract
 		Description:    req.Description,
 		IdempotencyKey: req.IdempotencyKey,
 		CustomerEmail:  req.CustomerEmail,
