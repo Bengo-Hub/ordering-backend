@@ -15,6 +15,7 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/config"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
+	ordermw "github.com/bengobox/ordering-backend/internal/http/middleware"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
@@ -102,7 +103,7 @@ func New(
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Request-ID", "X-Tenant-ID", "X-Tenant-Slug", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Request-ID", "X-Tenant-ID", "X-Tenant-Slug", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "X-Outlet-ID"},
 		ExposedHeaders:   []string{"Link", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -175,6 +176,9 @@ func New(
 			v1.Route("/{tenant}", func(tenant chi.Router) {
 				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
 				tenant.Use(httpware.TenantV2(tenantCfg))
+
+				// Optional outlet context — extracts X-Outlet-ID if present
+				tenant.Use(ordermw.OutletContext)
 
 				// JIT tenant sync: ensure tenant exists in local DB when slug is in context.
 				// Also backfills tenant ID into context so getTenantID() works for guest users
