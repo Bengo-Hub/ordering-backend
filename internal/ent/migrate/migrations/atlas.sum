@@ -1,2 +1,5 @@
+h1:PfcN1vMlTEPAAUpDzoy0b0KEVYN3HFvhkte+MJf03WM=
 00000000000000_placeholder.sql h1:eAvsggBsq1ssn/mrZysNWxXQEDwl2gD4K3Hjqr4EKxM=
 20260324210144_initial_schema.sql h1:9lcTtD9yAENqk9VVGJ9DlurXhqs0rxcNYwVSQrB45vc=
+20260330120000_add_payment_method_to_orders.sql h1:P9MOt4ruS1+lGgcvZz/BDrdE3a+s9GNPwtodOxpKhmo=
+20260521104157_add_payment_timeout_status.sql h1:+fkJm7HYP95yqbtFQddVmd0CmJv6VCto9AmZxOGjo9c=

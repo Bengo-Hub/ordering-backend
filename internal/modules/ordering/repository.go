@@ -42,6 +42,9 @@ type Repository interface {
 	// Scheduled order operations
 	ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error)
 
+	// Cross-tenant query for payment polling fallback
+	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]StalePaymentOrder, error)
+
 	// OrderItem operations
 	CreateOrderItem(ctx context.Context, item *OrderItem) error
 	GetOrderItem(ctx context.Context, orderID, itemID uuid.UUID) (*OrderItem, error)

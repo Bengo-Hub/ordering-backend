@@ -8,14 +8,23 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
+// OrderingRepository is the minimal interface PaymentService needs for polling stale orders.
+type OrderingRepository interface {
+	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]ordering.StalePaymentOrder, error)
+}
+
 // PaymentService provides payment business logic.
 type PaymentService struct {
-	repo           Repository
-	treasuryClient *treasury.Client
-	logger         *zap.Logger
+	repo             Repository
+	treasuryClient   *treasury.Client
+	logger           *zap.Logger
+	orderingRepo     OrderingRepository
+	onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error
+	onPaymentFailed  func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error
 }
 
 // NewPaymentService creates a new payment service.
@@ -28,6 +37,104 @@ func NewPaymentService(
 		repo:           repo,
 		treasuryClient: treasuryClient,
 		logger:         logger,
+	}
+}
+
+// SetOrderingRepo wires the ordering repository for cross-tenant payment polling.
+func (s *PaymentService) SetOrderingRepo(repo OrderingRepository) {
+	s.orderingRepo = repo
+}
+
+// SetPaymentSuccessCallback wires the callback invoked when polling finds a succeeded payment.
+func (s *PaymentService) SetPaymentSuccessCallback(fn func(ctx context.Context, tenantID, orderID uuid.UUID) error) {
+	s.onPaymentSuccess = fn
+}
+
+// SetPaymentFailedCallback wires the callback invoked when polling detects a failed/timed-out payment.
+func (s *PaymentService) SetPaymentFailedCallback(fn func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error) {
+	s.onPaymentFailed = fn
+}
+
+// StartPaymentPolling starts a background goroutine that polls for orders stuck in payment_status=pending.
+// Every 2 minutes it checks orders older than 5 minutes. Orders older than 15 minutes are timed out.
+func (s *PaymentService) StartPaymentPolling(ctx context.Context) {
+	if s.orderingRepo == nil {
+		s.logger.Warn("payment poller: ordering repo not set, skipping payment polling")
+		return
+	}
+
+	s.logger.Info("payment poller: started (2-minute interval)")
+	ticker := time.NewTicker(2 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			s.logger.Info("payment poller: stopping")
+			return
+		case <-ticker.C:
+			s.pollPendingPayments(ctx)
+		}
+	}
+}
+
+func (s *PaymentService) pollPendingPayments(ctx context.Context) {
+	cutoff := time.Now().Add(-5 * time.Minute)
+	timeoutCutoff := time.Now().Add(-15 * time.Minute)
+
+	orders, err := s.orderingRepo.GetStalePaymentOrders(ctx, cutoff, 50)
+	if err != nil {
+		s.logger.Error("payment poller: failed to list stale orders", zap.Error(err))
+		return
+	}
+
+	for _, o := range orders {
+		// Orders older than 15 minutes are timed out regardless of treasury state
+		if o.PlacedAt != nil && o.PlacedAt.Before(timeoutCutoff) {
+			s.logger.Info("payment poller: order payment timed out",
+				zap.String("order_id", o.ID.String()),
+				zap.String("tenant_id", o.TenantID.String()))
+					if s.onPaymentFailed != nil {
+				_ = s.onPaymentFailed(ctx, o.TenantID, o.ID, "payment_timeout")
+			}
+			continue
+		}
+
+		if o.PaymentIntentID == nil {
+			continue
+		}
+
+		status, err := s.treasuryClient.GetPaymentStatus(ctx, o.TenantID, *o.PaymentIntentID)
+		if err != nil {
+			s.logger.Debug("payment poller: failed to get status from treasury",
+				zap.Error(err), zap.String("order_id", o.ID.String()))
+			continue
+		}
+
+		switch status.Status {
+		case "succeeded":
+			s.logger.Info("payment poller: payment succeeded, confirming order",
+				zap.String("order_id", o.ID.String()))
+			if s.onPaymentSuccess != nil {
+				if err := s.onPaymentSuccess(ctx, o.TenantID, o.ID); err != nil {
+					s.logger.Error("payment poller: onPaymentSuccess callback failed",
+						zap.Error(err), zap.String("order_id", o.ID.String()))
+				}
+			}
+		case "failed", "cancelled", "expired":
+			s.logger.Info("payment poller: payment failed, notifying",
+				zap.String("order_id", o.ID.String()), zap.String("status", status.Status))
+			if s.onPaymentFailed != nil {
+				errMsg := status.ErrorMessage
+				if errMsg == "" {
+					errMsg = status.Status
+				}
+				if err := s.onPaymentFailed(ctx, o.TenantID, o.ID, errMsg); err != nil {
+					s.logger.Error("payment poller: onPaymentFailed callback failed",
+						zap.Error(err), zap.String("order_id", o.ID.String()))
+				}
+			}
+		}
 	}
 }
 

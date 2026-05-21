@@ -75,8 +75,9 @@ const (
 	OrderStatusOutForDelivery OrderStatus = "out_for_delivery"
 	OrderStatusDelivered      OrderStatus = "delivered"
 	OrderStatusCompleted      OrderStatus = "completed"
-	OrderStatusCancelled      OrderStatus = "cancelled"
-	OrderStatusRefunded       OrderStatus = "refunded"
+	OrderStatusCancelled       OrderStatus = "cancelled"
+	OrderStatusRefunded        OrderStatus = "refunded"
+	OrderStatusPaymentTimeout  OrderStatus = "payment_timeout"
 )
 
 // PaymentStatus represents the payment status of an order.
@@ -148,6 +149,7 @@ type Order struct {
 	TipTotal              float64                `json:"tipTotal"`
 	GrandTotal            float64                `json:"grandTotal"`
 	ReservationID         *uuid.UUID             `json:"reservationId,omitempty"`
+	PaymentIntentID       *uuid.UUID             `json:"paymentIntentId,omitempty"`
 	LoyaltyPointsEarned   int                    `json:"loyaltyPointsEarned"`
 	LoyaltyPointsRedeemed int                    `json:"loyaltyPointsRedeemed"`
 	DeliveryAddressID     *uuid.UUID             `json:"deliveryAddressId,omitempty"`
@@ -468,6 +470,15 @@ type CartFilter struct {
 	Status    *CartStatus
 	Limit     int
 	Offset    int
+}
+
+// StalePaymentOrder holds minimal order data for the payment polling fallback.
+type StalePaymentOrder struct {
+	ID              uuid.UUID
+	TenantID        uuid.UUID
+	PaymentIntentID *uuid.UUID
+	PaymentStatus   PaymentStatus
+	PlacedAt        *time.Time
 }
 
 // OrderFilter defines filter options for listing orders.
