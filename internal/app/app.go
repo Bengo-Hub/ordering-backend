@@ -181,6 +181,13 @@ func New(ctx context.Context) (*App, error) {
 			if err := branchSub.RegisterSubscribers(eventSub); err != nil {
 				log.Error("failed to register branch subscribers", zap.Error(err))
 			}
+
+			// Invalidate tenant branding cache when subscription changes so new plan
+			// is reflected in subsequent JWT-enriched responses without a restart.
+			subCacheSub := subscriptions.NewCacheSubscriber(redisClient, "", log)
+			if err := subCacheSub.Start(natsConn); err != nil {
+				log.Warn("app: failed to start subscription cache subscriber", zap.Error(err))
+			}
 		}
 	}
 
