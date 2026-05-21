@@ -55,13 +55,13 @@ func (h *LogisticsEventHandler) SetTreasuryClient(client *treasury.Client) {
 	h.treasuryClient = client
 }
 
-// LogisticsTaskEvent represents a logistics task event payload (CloudEvents envelope).
+// LogisticsTaskEvent represents a logistics task event payload (shared-events envelope).
 type LogisticsTaskEvent struct {
 	ID        string                 `json:"id"`
-	Type      string                 `json:"type"`
-	TenantID  string                 `json:"tenantId"`
-	Data      map[string]interface{} `json:"data"`
-	Timestamp string                 `json:"time"`
+	EventType string                 `json:"event_type"`
+	TenantID  string                 `json:"tenant_id"`
+	Data      map[string]interface{} `json:"payload"`
+	Timestamp string                 `json:"timestamp"`
 }
 
 // SubscribeToLogisticsEvents subscribes to logistics task events via NATS.
