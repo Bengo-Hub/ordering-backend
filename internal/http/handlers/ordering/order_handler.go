@@ -119,6 +119,7 @@ type CheckoutRequestDTO struct {
 	IdempotencyKey        string         `json:"idempotencyKey,omitempty"`
 	FulfillmentType       string         `json:"fulfillmentType,omitempty"`
 	ScheduledAt           string         `json:"scheduledAt,omitempty"`
+	PaymentMethod         string         `json:"paymentMethod,omitempty"` // "mpesa" | "cod"
 }
 
 // UpdateStatusRequest represents a request to update order status.
@@ -505,6 +506,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			Channel:         channel,
 			FulfillmentType: fulfillmentType,
 			ScheduledFor:    scheduledFor,
+			PaymentMethod:   req.PaymentMethod,
 		})
 		if err != nil {
 			h.handleError(w, err)
@@ -545,6 +547,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		IdempotencyKey:        req.IdempotencyKey,
 		FulfillmentType:       fulfillmentType,
 		ScheduledFor:          scheduledFor,
+		PaymentMethod:         ordering.PaymentMethod(req.PaymentMethod),
 	})
 	if err != nil {
 		h.handleError(w, err)
