@@ -122,7 +122,7 @@ type TaskResponse struct {
 	ExternalReference  string                 `json:"external_reference"`
 	ExternalType       string                 `json:"external_type"`
 	Status             TaskStatus             `json:"status"`
-	Priority           TaskPriority           `json:"priority"`
+	Priority           int                    `json:"priority"`
 	RiderID            string                 `json:"rider_id,omitempty"`
 	RiderName          string                 `json:"rider_name,omitempty"`
 	RiderPhone         string                 `json:"rider_phone,omitempty"`
