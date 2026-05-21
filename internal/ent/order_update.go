@@ -83,6 +83,26 @@ func (_u *OrderUpdate) ClearCustomerID() *OrderUpdate {
 	return _u
 }
 
+// SetCrmContactID sets the "crm_contact_id" field.
+func (_u *OrderUpdate) SetCrmContactID(v uuid.UUID) *OrderUpdate {
+	_u.mutation.SetCrmContactID(v)
+	return _u
+}
+
+// SetNillableCrmContactID sets the "crm_contact_id" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableCrmContactID(v *uuid.UUID) *OrderUpdate {
+	if v != nil {
+		_u.SetCrmContactID(*v)
+	}
+	return _u
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (_u *OrderUpdate) ClearCrmContactID() *OrderUpdate {
+	_u.mutation.ClearCrmContactID()
+	return _u
+}
+
 // SetCartID sets the "cart_id" field.
 func (_u *OrderUpdate) SetCartID(v uuid.UUID) *OrderUpdate {
 	_u.mutation.SetCartID(v)
@@ -1132,6 +1152,12 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
 	}
+	if value, ok := _u.mutation.CrmContactID(); ok {
+		_spec.SetField(order.FieldCrmContactID, field.TypeUUID, value)
+	}
+	if _u.mutation.CrmContactIDCleared() {
+		_spec.ClearField(order.FieldCrmContactID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)
 	}
@@ -1644,6 +1670,26 @@ func (_u *OrderUpdateOne) SetNillableCustomerID(v *uuid.UUID) *OrderUpdateOne {
 // ClearCustomerID clears the value of the "customer_id" field.
 func (_u *OrderUpdateOne) ClearCustomerID() *OrderUpdateOne {
 	_u.mutation.ClearCustomerID()
+	return _u
+}
+
+// SetCrmContactID sets the "crm_contact_id" field.
+func (_u *OrderUpdateOne) SetCrmContactID(v uuid.UUID) *OrderUpdateOne {
+	_u.mutation.SetCrmContactID(v)
+	return _u
+}
+
+// SetNillableCrmContactID sets the "crm_contact_id" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableCrmContactID(v *uuid.UUID) *OrderUpdateOne {
+	if v != nil {
+		_u.SetCrmContactID(*v)
+	}
+	return _u
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (_u *OrderUpdateOne) ClearCrmContactID() *OrderUpdateOne {
+	_u.mutation.ClearCrmContactID()
 	return _u
 }
 
@@ -2725,6 +2771,12 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.CrmContactID(); ok {
+		_spec.SetField(order.FieldCrmContactID, field.TypeUUID, value)
+	}
+	if _u.mutation.CrmContactIDCleared() {
+		_spec.ClearField(order.FieldCrmContactID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)

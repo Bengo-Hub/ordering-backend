@@ -71,6 +71,11 @@ func CustomerID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCustomerID, v))
 }
 
+// CrmContactID applies equality check predicate on the "crm_contact_id" field. It's identical to CrmContactIDEQ.
+func CrmContactID(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldCrmContactID, v))
+}
+
 // CartID applies equality check predicate on the "cart_id" field. It's identical to CartIDEQ.
 func CartID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCartID, v))
@@ -344,6 +349,56 @@ func CustomerIDIsNil() predicate.Order {
 // CustomerIDNotNil applies the NotNil predicate on the "customer_id" field.
 func CustomerIDNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldCustomerID))
+}
+
+// CrmContactIDEQ applies the EQ predicate on the "crm_contact_id" field.
+func CrmContactIDEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldCrmContactID, v))
+}
+
+// CrmContactIDNEQ applies the NEQ predicate on the "crm_contact_id" field.
+func CrmContactIDNEQ(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldCrmContactID, v))
+}
+
+// CrmContactIDIn applies the In predicate on the "crm_contact_id" field.
+func CrmContactIDIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldCrmContactID, vs...))
+}
+
+// CrmContactIDNotIn applies the NotIn predicate on the "crm_contact_id" field.
+func CrmContactIDNotIn(vs ...uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldCrmContactID, vs...))
+}
+
+// CrmContactIDGT applies the GT predicate on the "crm_contact_id" field.
+func CrmContactIDGT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldCrmContactID, v))
+}
+
+// CrmContactIDGTE applies the GTE predicate on the "crm_contact_id" field.
+func CrmContactIDGTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldCrmContactID, v))
+}
+
+// CrmContactIDLT applies the LT predicate on the "crm_contact_id" field.
+func CrmContactIDLT(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldCrmContactID, v))
+}
+
+// CrmContactIDLTE applies the LTE predicate on the "crm_contact_id" field.
+func CrmContactIDLTE(v uuid.UUID) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldCrmContactID, v))
+}
+
+// CrmContactIDIsNil applies the IsNil predicate on the "crm_contact_id" field.
+func CrmContactIDIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldCrmContactID))
+}
+
+// CrmContactIDNotNil applies the NotNil predicate on the "crm_contact_id" field.
+func CrmContactIDNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldCrmContactID))
 }
 
 // CartIDEQ applies the EQ predicate on the "cart_id" field.

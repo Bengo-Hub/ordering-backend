@@ -28,6 +28,8 @@ type Order struct {
 	OutletID uuid.UUID `json:"outlet_id,omitempty"`
 	// Reference to customer user (nil for guest orders)
 	CustomerID *uuid.UUID `json:"customer_id,omitempty"`
+	// MarketFlow CRM contact reference — never duplicate contact data here
+	CrmContactID *uuid.UUID `json:"crm_contact_id,omitempty"`
 	// Reference to source cart
 	CartID *uuid.UUID `json:"cart_id,omitempty"`
 	// Human-readable order number
@@ -204,7 +206,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldCustomerID, order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldAppointmentID, order.FieldStaffPreferenceID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
+		case order.FieldCustomerID, order.FieldCrmContactID, order.FieldCartID, order.FieldPaymentIntentID, order.FieldReservationID, order.FieldAppointmentID, order.FieldStaffPreferenceID, order.FieldDeliveryAddressID, order.FieldPromoCodeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
@@ -257,6 +259,13 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CustomerID = new(uuid.UUID)
 				*_m.CustomerID = *value.S.(*uuid.UUID)
+			}
+		case order.FieldCrmContactID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field crm_contact_id", values[i])
+			} else if value.Valid {
+				_m.CrmContactID = new(uuid.UUID)
+				*_m.CrmContactID = *value.S.(*uuid.UUID)
 			}
 		case order.FieldCartID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -608,6 +617,11 @@ func (_m *Order) String() string {
 	builder.WriteString(", ")
 	if v := _m.CustomerID; v != nil {
 		builder.WriteString("customer_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.CrmContactID; v != nil {
+		builder.WriteString("crm_contact_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
