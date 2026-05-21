@@ -1,9 +1,11 @@
 package fulfilment
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -14,19 +16,27 @@ import (
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
+	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 )
+
+// OrderFetcher is the minimal interface needed to look up order details for task creation.
+type OrderFetcher interface {
+	GetOrder(ctx context.Context, tenantID, orderID uuid.UUID) (*ordering.Order, error)
+}
 
 // TaskHandler handles delivery task HTTP requests.
 type TaskHandler struct {
-	logger  *zap.Logger
-	taskSvc *fulfilment.TaskService
+	logger   *zap.Logger
+	taskSvc  *fulfilment.TaskService
+	orderSvc OrderFetcher
 }
 
 // NewTaskHandler creates a new task handler.
-func NewTaskHandler(logger *zap.Logger, taskSvc *fulfilment.TaskService) *TaskHandler {
+func NewTaskHandler(logger *zap.Logger, taskSvc *fulfilment.TaskService, orderSvc OrderFetcher) *TaskHandler {
 	return &TaskHandler{
-		logger:  logger,
-		taskSvc: taskSvc,
+		logger:   logger,
+		taskSvc:  taskSvc,
+		orderSvc: orderSvc,
 	}
 }
 
@@ -90,13 +100,57 @@ func (h *TaskHandler) CreateDeliveryTask(w http.ResponseWriter, r *http.Request)
 		priority = fulfilment.TaskPriority(req.Priority)
 	}
 
-	// Note: In a real implementation, we would fetch order details from the order service
-	// For now, we create a minimal OrderInfo
+	tenantSlug := chi.URLParam(r, "tenant")
+
+	// Build OrderInfo from stored order details.
 	orderInfo := fulfilment.OrderInfo{
-		ID:           orderID,
-		TenantID:     tenantID,
-		TenantSlug:   chi.URLParam(r, "tenant"),
-		Instructions: req.Instructions,
+		ID:         orderID,
+		TenantID:   tenantID,
+		TenantSlug: tenantSlug,
+	}
+	if h.orderSvc != nil {
+		if order, oErr := h.orderSvc.GetOrder(ctx, tenantID, orderID); oErr == nil {
+			orderInfo.OrderNumber = order.OrderNumber
+			orderInfo.CustomerName = order.CustomerName
+			orderInfo.CustomerPhone = order.CustomerPhone
+			orderInfo.Instructions = order.Instructions
+			orderInfo.ItemCount = len(order.Items)
+			if len(order.Items) > 0 {
+				names := make([]string, 0, len(order.Items))
+				for _, item := range order.Items {
+					names = append(names, item.NameSnapshot)
+				}
+				orderInfo.ItemsDescription = strings.Join(names, ", ")
+			}
+			if order.DeliveryAddress != nil {
+				addr := order.DeliveryAddress
+				parts := []string{addr.AddressLine1}
+				if addr.AddressLine2 != "" {
+					parts = append(parts, addr.AddressLine2)
+				}
+				if addr.City != "" {
+					parts = append(parts, addr.City)
+				}
+				orderInfo.DeliveryAddress = strings.Join(parts, ", ")
+				if addr.Latitude != nil {
+					orderInfo.DeliveryLat = *addr.Latitude
+				}
+				if addr.Longitude != nil {
+					orderInfo.DeliveryLng = *addr.Longitude
+				}
+				orderInfo.DeliveryNotes = addr.Instructions
+				if addr.ContactName != "" {
+					orderInfo.CustomerName = addr.ContactName
+				}
+				if addr.ContactPhone != "" {
+					orderInfo.CustomerPhone = addr.ContactPhone
+				}
+			}
+		}
+	}
+	// Allow request-body instructions to override
+	if req.Instructions != "" {
+		orderInfo.Instructions = req.Instructions
 	}
 
 	taskReq := fulfilment.CreateDeliveryTaskRequest{

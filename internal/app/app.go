@@ -262,7 +262,7 @@ func New(ctx context.Context) (*App, error) {
 	fulfilmentWebhookSvc := fulfilment.NewWebhookService(fulfilmentRepo, cfg.Logistics.WebhookSecret, log)
 
 	// Create fulfilment handlers
-	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc)
+	fulfilmentTaskHandler := fulfilmenthandler.NewTaskHandler(log, taskSvc, orderSvc)
 	fulfilmentWebhookHandler := fulfilmenthandler.NewWebhookHandler(log, fulfilmentWebhookSvc)
 
 	// Initialize external notifications client (for sending to notifications-service)
