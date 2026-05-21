@@ -60,7 +60,9 @@ func NewClient(cfg config.SubscriptionsConfig, logger *zap.Logger) *Client {
 // GetSubscription fetches the current subscription for a tenant.
 // Returns ErrNotFound if no subscription record exists.
 func (c *Client) GetSubscription(ctx context.Context, tenantID uuid.UUID, bearerToken string) (*SubscriptionStatus, error) {
-	url := fmt.Sprintf("%s/api/v1/subscription", c.baseURL)
+	// Use the S2S tenant-scoped path so the subscription-api can resolve the tenant
+	// from the URL parameter instead of relying on JWT claims (which are absent for API-key auth).
+	url := fmt.Sprintf("%s/api/v1/tenants/%s/subscription", c.baseURL, tenantID.String())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
