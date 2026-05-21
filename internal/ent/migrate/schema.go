@@ -697,9 +697,10 @@ var (
 	OrdersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "crm_contact_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "cart_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "order_number", Type: field.TypeString, Size: 50},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded"}, Default: "pending"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded", "payment_timeout"}, Default: "pending"},
 		{Name: "payment_status", Type: field.TypeEnum, Enums: []string{"pending", "authorized", "paid", "failed", "refunded", "partially_refunded", "cod_pending", "cod_collected"}, Default: "pending"},
 		{Name: "payment_method", Type: field.TypeEnum, Enums: []string{"mpesa", "paystack", "stripe", "cod", "wallet", "loyalty"}, Default: "mpesa"},
 		{Name: "payment_intent_id", Type: field.TypeUUID, Nullable: true},
@@ -751,19 +752,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_customer_addresses_orders",
-				Columns:    []*schema.Column{OrdersColumns[44]},
+				Columns:    []*schema.Column{OrdersColumns[45]},
 				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "orders_outlets_orders",
-				Columns:    []*schema.Column{OrdersColumns[45]},
+				Columns:    []*schema.Column{OrdersColumns[46]},
 				RefColumns: []*schema.Column{OutletsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[46]},
+				Columns:    []*schema.Column{OrdersColumns[47]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -772,47 +773,47 @@ var (
 			{
 				Name:    "order_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[45]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47]},
 			},
 			{
 				Name:    "order_tenant_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_tenant_id_payment_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[6]},
 			},
 			{
 				Name:    "order_tenant_id_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4], OrdersColumns[42]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[43]},
 			},
 			{
 				Name:    "order_tenant_id_outlet_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[45], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46], OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_order_number",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[3]},
+				Columns: []*schema.Column{OrdersColumns[4]},
 			},
 			{
 				Name:    "order_idempotency_key",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[30]},
+				Columns: []*schema.Column{OrdersColumns[31]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "idempotency_key IS NOT NULL",
 				},
@@ -820,42 +821,42 @@ var (
 			{
 				Name:    "order_placed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[31]},
+				Columns: []*schema.Column{OrdersColumns[32]},
 			},
 			{
 				Name:    "order_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[42]},
+				Columns: []*schema.Column{OrdersColumns[43]},
 			},
 			{
 				Name:    "order_completed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[35]},
+				Columns: []*schema.Column{OrdersColumns[36]},
 			},
 			{
 				Name:    "order_delivered_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[34]},
+				Columns: []*schema.Column{OrdersColumns[35]},
 			},
 			{
 				Name:    "order_delivery_address_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[44]},
+				Columns: []*schema.Column{OrdersColumns[45]},
 			},
 			{
 				Name:    "order_channel",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[28]},
+				Columns: []*schema.Column{OrdersColumns[29]},
 			},
 			{
 				Name:    "order_fulfillment_type",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[13]},
+				Columns: []*schema.Column{OrdersColumns[14]},
 			},
 			{
 				Name:    "order_scheduled_for",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[14]},
+				Columns: []*schema.Column{OrdersColumns[15]},
 			},
 		},
 	}

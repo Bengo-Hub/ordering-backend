@@ -31,6 +31,10 @@ func (Order) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("Reference to customer user (nil for guest orders)"),
+		field.UUID("crm_contact_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Comment("MarketFlow CRM contact reference — never duplicate contact data here"),
 		field.UUID("cart_id", uuid.UUID{}).
 			Optional().
 			Nillable().

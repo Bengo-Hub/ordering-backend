@@ -16834,6 +16834,7 @@ type OrderMutation struct {
 	typ                        string
 	id                         *uuid.UUID
 	tenant_id                  *uuid.UUID
+	crm_contact_id             *uuid.UUID
 	cart_id                    *uuid.UUID
 	order_number               *string
 	status                     *order.Status
@@ -17132,6 +17133,55 @@ func (m *OrderMutation) CustomerIDCleared() bool {
 func (m *OrderMutation) ResetCustomerID() {
 	m.customer = nil
 	delete(m.clearedFields, order.FieldCustomerID)
+}
+
+// SetCrmContactID sets the "crm_contact_id" field.
+func (m *OrderMutation) SetCrmContactID(u uuid.UUID) {
+	m.crm_contact_id = &u
+}
+
+// CrmContactID returns the value of the "crm_contact_id" field in the mutation.
+func (m *OrderMutation) CrmContactID() (r uuid.UUID, exists bool) {
+	v := m.crm_contact_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCrmContactID returns the old "crm_contact_id" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldCrmContactID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCrmContactID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCrmContactID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCrmContactID: %w", err)
+	}
+	return oldValue.CrmContactID, nil
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (m *OrderMutation) ClearCrmContactID() {
+	m.crm_contact_id = nil
+	m.clearedFields[order.FieldCrmContactID] = struct{}{}
+}
+
+// CrmContactIDCleared returns if the "crm_contact_id" field was cleared in this mutation.
+func (m *OrderMutation) CrmContactIDCleared() bool {
+	_, ok := m.clearedFields[order.FieldCrmContactID]
+	return ok
+}
+
+// ResetCrmContactID resets all changes to the "crm_contact_id" field.
+func (m *OrderMutation) ResetCrmContactID() {
+	m.crm_contact_id = nil
+	delete(m.clearedFields, order.FieldCrmContactID)
 }
 
 // SetCartID sets the "cart_id" field.
@@ -19499,7 +19549,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 46)
+	fields := make([]string, 0, 47)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -19508,6 +19558,9 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.customer != nil {
 		fields = append(fields, order.FieldCustomerID)
+	}
+	if m.crm_contact_id != nil {
+		fields = append(fields, order.FieldCrmContactID)
 	}
 	if m.cart_id != nil {
 		fields = append(fields, order.FieldCartID)
@@ -19652,6 +19705,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.OutletID()
 	case order.FieldCustomerID:
 		return m.CustomerID()
+	case order.FieldCrmContactID:
+		return m.CrmContactID()
 	case order.FieldCartID:
 		return m.CartID()
 	case order.FieldOrderNumber:
@@ -19753,6 +19808,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldOutletID(ctx)
 	case order.FieldCustomerID:
 		return m.OldCustomerID(ctx)
+	case order.FieldCrmContactID:
+		return m.OldCrmContactID(ctx)
 	case order.FieldCartID:
 		return m.OldCartID(ctx)
 	case order.FieldOrderNumber:
@@ -19868,6 +19925,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCustomerID(v)
+		return nil
+	case order.FieldCrmContactID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCrmContactID(v)
 		return nil
 	case order.FieldCartID:
 		v, ok := value.(uuid.UUID)
@@ -20350,6 +20414,9 @@ func (m *OrderMutation) ClearedFields() []string {
 	if m.FieldCleared(order.FieldCustomerID) {
 		fields = append(fields, order.FieldCustomerID)
 	}
+	if m.FieldCleared(order.FieldCrmContactID) {
+		fields = append(fields, order.FieldCrmContactID)
+	}
 	if m.FieldCleared(order.FieldCartID) {
 		fields = append(fields, order.FieldCartID)
 	}
@@ -20436,6 +20503,9 @@ func (m *OrderMutation) ClearField(name string) error {
 	case order.FieldCustomerID:
 		m.ClearCustomerID()
 		return nil
+	case order.FieldCrmContactID:
+		m.ClearCrmContactID()
+		return nil
 	case order.FieldCartID:
 		m.ClearCartID()
 		return nil
@@ -20521,6 +20591,9 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldCustomerID:
 		m.ResetCustomerID()
+		return nil
+	case order.FieldCrmContactID:
+		m.ResetCrmContactID()
 		return nil
 	case order.FieldCartID:
 		m.ResetCartID()

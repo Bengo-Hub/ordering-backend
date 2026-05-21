@@ -56,6 +56,20 @@ func (_c *OrderCreate) SetNillableCustomerID(v *uuid.UUID) *OrderCreate {
 	return _c
 }
 
+// SetCrmContactID sets the "crm_contact_id" field.
+func (_c *OrderCreate) SetCrmContactID(v uuid.UUID) *OrderCreate {
+	_c.mutation.SetCrmContactID(v)
+	return _c
+}
+
+// SetNillableCrmContactID sets the "crm_contact_id" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableCrmContactID(v *uuid.UUID) *OrderCreate {
+	if v != nil {
+		_c.SetCrmContactID(*v)
+	}
+	return _c
+}
+
 // SetCartID sets the "cart_id" field.
 func (_c *OrderCreate) SetCartID(v uuid.UUID) *OrderCreate {
 	_c.mutation.SetCartID(v)
@@ -970,6 +984,10 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldTenantID, field.TypeUUID, value)
 		_node.TenantID = value
 	}
+	if value, ok := _c.mutation.CrmContactID(); ok {
+		_spec.SetField(order.FieldCrmContactID, field.TypeUUID, value)
+		_node.CrmContactID = &value
+	}
 	if value, ok := _c.mutation.CartID(); ok {
 		_spec.SetField(order.FieldCartID, field.TypeUUID, value)
 		_node.CartID = &value
@@ -1328,6 +1346,24 @@ func (u *OrderUpsert) UpdateCustomerID() *OrderUpsert {
 // ClearCustomerID clears the value of the "customer_id" field.
 func (u *OrderUpsert) ClearCustomerID() *OrderUpsert {
 	u.SetNull(order.FieldCustomerID)
+	return u
+}
+
+// SetCrmContactID sets the "crm_contact_id" field.
+func (u *OrderUpsert) SetCrmContactID(v uuid.UUID) *OrderUpsert {
+	u.Set(order.FieldCrmContactID, v)
+	return u
+}
+
+// UpdateCrmContactID sets the "crm_contact_id" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateCrmContactID() *OrderUpsert {
+	u.SetExcluded(order.FieldCrmContactID)
+	return u
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (u *OrderUpsert) ClearCrmContactID() *OrderUpsert {
+	u.SetNull(order.FieldCrmContactID)
 	return u
 }
 
@@ -2142,6 +2178,27 @@ func (u *OrderUpsertOne) UpdateCustomerID() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearCustomerID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearCustomerID()
+	})
+}
+
+// SetCrmContactID sets the "crm_contact_id" field.
+func (u *OrderUpsertOne) SetCrmContactID(v uuid.UUID) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetCrmContactID(v)
+	})
+}
+
+// UpdateCrmContactID sets the "crm_contact_id" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateCrmContactID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateCrmContactID()
+	})
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (u *OrderUpsertOne) ClearCrmContactID() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearCrmContactID()
 	})
 }
 
@@ -3242,6 +3299,27 @@ func (u *OrderUpsertBulk) UpdateCustomerID() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearCustomerID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearCustomerID()
+	})
+}
+
+// SetCrmContactID sets the "crm_contact_id" field.
+func (u *OrderUpsertBulk) SetCrmContactID(v uuid.UUID) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetCrmContactID(v)
+	})
+}
+
+// UpdateCrmContactID sets the "crm_contact_id" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateCrmContactID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateCrmContactID()
+	})
+}
+
+// ClearCrmContactID clears the value of the "crm_contact_id" field.
+func (u *OrderUpsertBulk) ClearCrmContactID() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearCrmContactID()
 	})
 }
 

@@ -22,6 +22,8 @@ const (
 	FieldOutletID = "outlet_id"
 	// FieldCustomerID holds the string denoting the customer_id field in the database.
 	FieldCustomerID = "customer_id"
+	// FieldCrmContactID holds the string denoting the crm_contact_id field in the database.
+	FieldCrmContactID = "crm_contact_id"
 	// FieldCartID holds the string denoting the cart_id field in the database.
 	FieldCartID = "cart_id"
 	// FieldOrderNumber holds the string denoting the order_number field in the database.
@@ -172,6 +174,7 @@ var Columns = []string{
 	FieldTenantID,
 	FieldOutletID,
 	FieldCustomerID,
+	FieldCrmContactID,
 	FieldCartID,
 	FieldOrderNumber,
 	FieldStatus,
@@ -285,6 +288,7 @@ const (
 	StatusCompleted      Status = "completed"
 	StatusCancelled      Status = "cancelled"
 	StatusRefunded       Status = "refunded"
+	StatusPaymentTimeout Status = "payment_timeout"
 )
 
 func (s Status) String() string {
@@ -294,7 +298,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusPending, StatusConfirmed, StatusPreparing, StatusReady, StatusOutForDelivery, StatusDelivered, StatusCompleted, StatusCancelled, StatusRefunded:
+	case StatusPending, StatusConfirmed, StatusPreparing, StatusReady, StatusOutForDelivery, StatusDelivered, StatusCompleted, StatusCancelled, StatusRefunded, StatusPaymentTimeout:
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for status field: %q", s)
@@ -441,6 +445,11 @@ func ByOutletID(opts ...sql.OrderTermOption) OrderOption {
 // ByCustomerID orders the results by the customer_id field.
 func ByCustomerID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCustomerID, opts...).ToFunc()
+}
+
+// ByCrmContactID orders the results by the crm_contact_id field.
+func ByCrmContactID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCrmContactID, opts...).ToFunc()
 }
 
 // ByCartID orders the results by the cart_id field.
