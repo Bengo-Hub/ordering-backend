@@ -17,6 +17,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 )
 
 // OrderFetcher is the minimal interface needed to look up order details for task creation.
@@ -44,7 +45,8 @@ func NewTaskHandler(logger *zap.Logger, taskSvc *fulfilment.TaskService, orderSv
 func (h *TaskHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/orders/{orderId}/delivery", func(delivery chi.Router) {
 		delivery.Use(auth.RequireAuth)
-		delivery.Post("/create-task", h.CreateDeliveryTask)
+		// Delivery tasks only apply to outlet types that handle physical delivery
+		delivery.With(subscriptions.RequireUseCase("hospitality", "quick_service", "food_delivery")).Post("/create-task", h.CreateDeliveryTask)
 		delivery.Get("/task", h.GetDeliveryTask)
 		delivery.Post("/cancel-task", h.CancelDeliveryTask)
 		delivery.Get("/tracking", h.GetTracking)
