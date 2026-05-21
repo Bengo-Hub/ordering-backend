@@ -39,7 +39,7 @@ func (Order) Fields() []ent.Field {
 			MaxLen(50).
 			Comment("Human-readable order number"),
 		field.Enum("status").
-			Values("pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded").
+			Values("pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered", "completed", "cancelled", "refunded", "payment_timeout").
 			Default("pending"),
 		field.Enum("payment_status").
 			Values("pending", "authorized", "paid", "failed", "refunded", "partially_refunded", "cod_pending", "cod_collected").

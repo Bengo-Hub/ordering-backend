@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/schema"
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
@@ -247,6 +248,19 @@ func New(ctx context.Context) (*App, error) {
 	paymentSvc := payments.NewPaymentService(paymentsRepo, treasuryClient, log)
 	paymentMethodSvc := payments.NewPaymentMethodService(paymentsRepo, log)
 	paymentWebhookSvc := payments.NewWebhookService(paymentsRepo, cfg.Treasury.WebhookSecret, log)
+
+	// Wire payment poller so stale pending-payment orders are auto-resolved
+	paymentSvc.SetOrderingRepo(orderingRepo)
+	paymentSvc.SetPaymentSuccessCallback(func(ctx context.Context, tenantID, orderID uuid.UUID) error {
+		_, err := orderSvc.UpdatePaymentStatus(ctx, tenantID, orderID, ordering.PaymentStatusPaid, nil)
+		return err
+	})
+	paymentSvc.SetPaymentFailedCallback(func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error {
+		_, err := orderSvc.CancelOrder(ctx, tenantID, orderID, "payment_failed: "+errMsg, nil, "system", "")
+		return err
+	})
+	go paymentSvc.StartPaymentPolling(ctx)
+	log.Info("app: payment polling started (2-minute interval, 5-minute staleness cutoff)")
 
 	// Create payment handlers
 	paymentHandler := paymentshandler.NewPaymentHandler(log, paymentSvc)

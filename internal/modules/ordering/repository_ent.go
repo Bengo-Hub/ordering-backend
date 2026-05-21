@@ -602,6 +602,37 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 
 // --- Scheduled Orders ---
 
+// GetStalePaymentOrders returns orders with payment_status=pending that are older than olderThan, across all tenants.
+func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]StalePaymentOrder, error) {
+	ents, err := r.client.Order.Query().
+		Where(
+			order.PaymentStatusEQ(order.PaymentStatusPending),
+			order.PlacedAtNotNil(),
+			order.PlacedAtLT(olderThan),
+			order.StatusEQ(order.StatusPending),
+		).
+		Limit(limit).
+		Order(ent.Asc(order.FieldPlacedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]StalePaymentOrder, 0, len(ents))
+	for _, o := range ents {
+		s := StalePaymentOrder{
+			ID:            o.ID,
+			TenantID:      o.TenantID,
+			PaymentIntentID: o.PaymentIntentID,
+		}
+		ps := PaymentStatus(o.PaymentStatus)
+		s.PaymentStatus = ps
+		s.PlacedAt = o.PlacedAt
+		result = append(result, s)
+	}
+	return result, nil
+}
+
 func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error) {
 	cutoff := time.Now().Add(prepBuffer)
 	ents, err := r.client.Order.Query().
@@ -965,6 +996,9 @@ func entOrderToDomain(o *ent.Order) *Order {
 
 	if o.CartID != nil {
 		ord.CartID = o.CartID
+	}
+	if o.PaymentIntentID != nil {
+		ord.PaymentIntentID = o.PaymentIntentID
 	}
 	if o.DeliveryAddressID != nil {
 		ord.DeliveryAddressID = o.DeliveryAddressID
