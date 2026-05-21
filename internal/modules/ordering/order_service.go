@@ -403,6 +403,15 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		instructions = instructions + "\n" + req.DeliveryNotes
 	}
 
+	paymentMethod := PaymentMethod(req.PaymentMethod)
+	if paymentMethod == "" {
+		paymentMethod = PaymentMethodMpesa
+	}
+	paymentStatus := PaymentStatusPending
+	if paymentMethod == PaymentMethodCOD {
+		paymentStatus = "cod_pending"
+	}
+
 	now := time.Now()
 	order := &Order{
 		TenantID:            req.TenantID,
@@ -411,7 +420,8 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		CartID:              nil,
 		OrderNumber:         orderNumber,
 		Status:              OrderStatusPending,
-		PaymentStatus:       PaymentStatusPending,
+		PaymentStatus:       PaymentStatus(paymentStatus),
+		PaymentMethod:       paymentMethod,
 		FulfillmentType:     fulfillmentType,
 		ScheduledFor:        req.ScheduledFor,
 		Currency:            "KES",
