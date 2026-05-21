@@ -366,6 +366,8 @@ func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt 
 		return nil
 	}
 
+	tenantID, _ := uuid.Parse(evt.TenantID)
+
 	assignment, err := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
 	if err != nil {
 		return nil // No assignment for this task
@@ -377,6 +379,21 @@ func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt 
 			zap.Error(updateErr),
 			zap.String("task_id", taskIDStr),
 			zap.String("status", status))
+	}
+
+	// When rider is en_route, transition order to out_for_delivery if it hasn't already
+	if status == "en_route" && tenantID != uuid.Nil {
+		order, getErr := h.orderingRepo.GetOrder(ctx, tenantID, assignment.OrderID)
+		if getErr == nil && (order.Status == ordering.OrderStatusReady || order.Status == ordering.OrderStatusConfirmed || order.Status == ordering.OrderStatusPreparing) {
+			if _, transErr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, assignment.OrderID, ordering.OrderStatusOutForDelivery, nil, "system", ""); transErr != nil {
+				h.logger.Error("failed to transition order to out_for_delivery on en_route",
+					zap.Error(transErr),
+					zap.String("order_id", assignment.OrderID.String()))
+			} else {
+				h.logger.Info("order transitioned to out_for_delivery on rider en_route",
+					zap.String("order_id", assignment.OrderID.String()))
+			}
+		}
 	}
 
 	return nil
