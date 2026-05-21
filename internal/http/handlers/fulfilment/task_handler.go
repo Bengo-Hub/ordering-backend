@@ -32,7 +32,7 @@ func NewTaskHandler(logger *zap.Logger, taskSvc *fulfilment.TaskService) *TaskHa
 
 // Register registers the task routes.
 func (h *TaskHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
-	r.Route("/{tenant}/orders/{orderId}/delivery", func(delivery chi.Router) {
+	r.Route("/orders/{orderId}/delivery", func(delivery chi.Router) {
 		delivery.Use(auth.RequireAuth)
 		delivery.Post("/create-task", h.CreateDeliveryTask)
 		delivery.Get("/task", h.GetDeliveryTask)
@@ -40,7 +40,7 @@ func (h *TaskHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 		delivery.Get("/tracking", h.GetTracking)
 	})
 
-	r.Route("/{tenant}/assignments", func(assignments chi.Router) {
+	r.Route("/assignments", func(assignments chi.Router) {
 		assignments.Use(auth.RequireAuth)
 		assignments.Get("/", h.ListAssignments)
 		assignments.Get("/{id}", h.GetAssignment)
