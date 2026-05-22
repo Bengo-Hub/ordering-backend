@@ -485,12 +485,13 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 	lineItems := buildOrderLineItems(order)
 
 	result := &CheckoutResult{
-		OrderID:     order.ID,
-		OrderNumber: order.OrderNumber,
-		Amount:      order.GrandTotal,
-		Currency:    order.Currency,
-		Status:      string(order.Status),
-		LineItems:   lineItems,
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		Amount:        order.GrandTotal,
+		Currency:      order.Currency,
+		Status:        string(order.Status),
+		PaymentMethod: string(order.PaymentMethod),
+		LineItems:     lineItems,
 	}
 
 	// Create payment intent in treasury if the order has a non-zero total
@@ -528,6 +529,7 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			s.logger.Warn("failed to create payment intent, order created without it",
 				zap.String("order_id", order.ID.String()),
 				zap.Error(err))
+			result.PaymentError = "Payment gateway unavailable. Please retry or contact support."
 		} else {
 			intentID := intentResp.ResolvedID()
 			result.PaymentIntentID = intentID.String()
