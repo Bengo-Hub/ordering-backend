@@ -196,6 +196,8 @@ type CheckoutResult struct {
 	Amount          float64    `json:"amount"`
 	Currency        string     `json:"currency"`
 	Status          string     `json:"status"`
+	PaymentMethod   string     `json:"paymentMethod,omitempty"`
+	PaymentError    string     `json:"paymentError,omitempty"`
 	LineItems       []LineItem `json:"lineItems,omitempty"`
 }
 
