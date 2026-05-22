@@ -17,6 +17,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
+	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
@@ -146,6 +147,10 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 	}
 
 	if err = seedCatalog(ctx, tx, tenantUUID); err != nil {
+		return err
+	}
+
+	if err = seedDeliveryZones(ctx, tx, tenantUUID); err != nil {
 		return err
 	}
 
@@ -1320,6 +1325,106 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 	}
 
 	log.Printf("  + Seeded %d service configs", len(configs))
+	return nil
+}
+
+// --- Delivery Zone Seeding ---
+
+// seedDeliveryZones seeds delivery zones for the Urban Loft Cafe Busia outlet.
+// Two zones: a polygon-bounded "Busia Town" zone and a universal fallback zone.
+func seedDeliveryZones(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
+	outletID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
+
+	type zone struct {
+		id            uuid.UUID
+		name          string
+		slug          string
+		polygon       map[string]any
+		deliveryFee   float64
+		minimumOrder  float64
+		estimatedTime int
+	}
+
+	// GeoJSON polygon covering Busia town: ~5km box around the outlet (lat 0.4612, lng 34.1109)
+	busiaPolygon := map[string]any{
+		"type": "Polygon",
+		"coordinates": [][][2]float64{
+			{
+				{34.0659, 0.4162},
+				{34.1559, 0.4162},
+				{34.1559, 0.5062},
+				{34.0659, 0.5062},
+				{34.0659, 0.4162}, // closing point
+			},
+		},
+	}
+
+	zones := []zone{
+		{
+			id:            uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:zone:urban-loft:busia-town")),
+			name:          "Busia Town",
+			slug:          "busia-town",
+			polygon:       busiaPolygon,
+			deliveryFee:   100,
+			minimumOrder:  500,
+			estimatedTime: 20,
+		},
+		{
+			id:            uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:zone:urban-loft:busia-fallback")),
+			name:          "Busia & Surroundings",
+			slug:          "busia-surroundings",
+			polygon:       nil,
+			deliveryFee:   200,
+			minimumOrder:  700,
+			estimatedTime: 35,
+		},
+	}
+
+	for _, z := range zones {
+		existing, err := tx.DeliveryZone.Query().
+			Where(deliveryzone.TenantID(tenantID), deliveryzone.Slug(z.slug)).
+			Only(ctx)
+		if err == nil {
+			upd := tx.DeliveryZone.UpdateOneID(existing.ID).
+				SetName(z.name).
+				SetDeliveryFee(z.deliveryFee).
+				SetMinimumOrder(z.minimumOrder).
+				SetEstimatedTimeMinutes(z.estimatedTime).
+				SetIsActive(true).
+				SetOutletID(outletID)
+			if z.polygon != nil {
+				upd = upd.SetZonePolygon(z.polygon)
+			} else {
+				upd = upd.ClearZonePolygon()
+			}
+			if _, err = upd.Save(ctx); err != nil {
+				return fmt.Errorf("update delivery zone %s: %w", z.slug, err)
+			}
+			continue
+		}
+		if !ent.IsNotFound(err) {
+			return fmt.Errorf("query delivery zone %s: %w", z.slug, err)
+		}
+
+		builder := tx.DeliveryZone.Create().
+			SetID(z.id).
+			SetTenantID(tenantID).
+			SetOutletID(outletID).
+			SetName(z.name).
+			SetSlug(z.slug).
+			SetDeliveryFee(z.deliveryFee).
+			SetMinimumOrder(z.minimumOrder).
+			SetEstimatedTimeMinutes(z.estimatedTime).
+			SetIsActive(true)
+		if z.polygon != nil {
+			builder = builder.SetZonePolygon(z.polygon)
+		}
+		if _, err = builder.Save(ctx); err != nil {
+			return fmt.Errorf("create delivery zone %s: %w", z.slug, err)
+		}
+	}
+
+	log.Printf("  ✓ Seeded %d delivery zones", len(zones))
 	return nil
 }
 
