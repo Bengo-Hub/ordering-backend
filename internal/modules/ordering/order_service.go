@@ -1513,14 +1513,15 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 		return nil, nil
 	}
 
-	// Check bulk availability first to return actionable item-level details
+	// Check bulk availability as an advisory signal — catalog isAvailable is the authoritative
+	// source of truth for ordering. Inventory stock levels may lag or use BOM expansion
+	// (raw materials) that the ordering layer doesn't control. Log warnings but never block.
 	skus := make([]string, len(reservationItems))
 	for i, ri := range reservationItems {
 		skus[i] = ri.SKU
 	}
 	availabilities, bulkErr := s.inventoryClient.CheckBulkAvailability(ctx, tenant.Slug, skus)
 	if bulkErr == nil {
-		// Build a lookup map
 		availMap := make(map[string]int, len(availabilities))
 		for _, a := range availabilities {
 			availMap[a.SKU] = a.Available
@@ -1533,10 +1534,10 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 			}
 		}
 		if len(unavailable) > 0 {
-			s.logger.Warn("insufficient stock for items",
+			s.logger.Warn("inventory reports low/unknown stock for items (catalog availability is authoritative)",
 				zap.Strings("skus", unavailable),
 				zap.String("tenantID", tenantID.String()))
-			return nil, fmt.Errorf("%w: insufficient stock for SKUs %v", ErrStockNotAvailable, unavailable)
+			// Do not block — catalog override isAvailable controls customer-facing availability
 		}
 	}
 
@@ -1554,8 +1555,12 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 	}
 	reservation, reserveErr := s.inventoryClient.CreateReservation(ctx, tenant.Slug, reserveReq)
 	if reserveErr != nil {
-		s.logger.Warn("stock reservation failed", zap.Error(reserveErr))
-		return nil, fmt.Errorf("%w: %v", ErrStockNotAvailable, reserveErr)
+		// Soft failure: BOM expansion or stock shortfall in inventory-api should not block
+		// order creation. The catalog override isAvailable flag is the customer-facing gate.
+		s.logger.Warn("stock reservation failed, proceeding without reservation",
+			zap.Error(reserveErr),
+			zap.String("tenantID", tenantID.String()))
+		return nil, nil
 	}
 
 	// Check for partial reservations
