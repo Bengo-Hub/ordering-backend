@@ -2,11 +2,12 @@ package catalog
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
@@ -27,67 +28,86 @@ func NewStockEventHandler(db *ent.Client, logger *zap.Logger) *StockEventHandler
 	}
 }
 
-// SubscribeToStockEvents subscribes to inventory stock-out and item-updated events via NATS.
-func (h *StockEventHandler) SubscribeToStockEvents(nc *nats.Conn) error {
-	if nc == nil {
-		h.logger.Warn("NATS connection not available, skipping stock event subscriptions")
-		return nil
+// SubscribeToStockEvents subscribes to inventory stock-out and item-updated events via JetStream.
+func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) error {
+	// ensureInventoryStream is defined in inventory_events.go (same package).
+	if err := ensureInventoryStream(js); err != nil {
+		return fmt.Errorf("catalog: ensure inventory stream for stock: %w", err)
 	}
 
-	// Subscribe to inventory.stock.out
-	_, err := nc.Subscribe("inventory.stock.out", func(msg *nats.Msg) {
-		var evt InventoryItemEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal inventory.stock.out event", zap.Error(err))
+	// inventory.stock.out
+	subOut, err := js.Subscribe("inventory.stock.out", func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("failed to parse inventory.stock.out envelope", zap.Error(parseErr))
+			_ = msg.Ack()
 			return
 		}
 		ctx := context.Background()
-		if err := h.handleStockOut(ctx, &evt); err != nil {
+		if err := h.handleStockOut(ctx, evt); err != nil {
 			h.logger.Error("failed to handle inventory.stock.out event", zap.Error(err))
+			_ = msg.Nak()
 			return
 		}
 		_ = msg.Ack()
-	})
+	},
+		nats.Durable("ord-inventory-stock-out"),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(inventoryStreamName),
+	)
 	if err != nil {
 		return fmt.Errorf("catalog: subscribe to inventory.stock.out: %w", err)
 	}
+	_ = subOut
 
-	// Subscribe to inventory.item.updated
-	_, err = nc.Subscribe("inventory.item.updated", func(msg *nats.Msg) {
-		var evt InventoryItemEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal inventory.item.updated event", zap.Error(err))
+	// inventory.item.updated
+	subUpd, err := js.Subscribe("inventory.item.updated", func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("failed to parse inventory.item.updated envelope", zap.Error(parseErr))
+			_ = msg.Ack()
 			return
 		}
 		ctx := context.Background()
-		if err := h.handleItemUpdated(ctx, &evt); err != nil {
+		if err := h.handleItemUpdated(ctx, evt); err != nil {
 			h.logger.Error("failed to handle inventory.item.updated event", zap.Error(err))
+			_ = msg.Nak()
 			return
 		}
 		_ = msg.Ack()
-	})
+	},
+		nats.Durable("ord-inventory-item-updated"),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(inventoryStreamName),
+	)
 	if err != nil {
 		return fmt.Errorf("catalog: subscribe to inventory.item.updated: %w", err)
 	}
+	_ = subUpd
 
-	h.logger.Info("stock event subscriptions active",
+	h.logger.Info("stock event subscriptions active (JetStream)",
 		zap.Strings("subjects", []string{"inventory.stock.out", "inventory.item.updated"}))
 	return nil
 }
 
 // handleStockOut marks catalog items unavailable when stock runs out.
-func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *InventoryItemEvent) error {
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid or missing tenant_id in stock-out event")
 	}
 
-	sku, _ := evt.Data["sku"].(string)
+	sku, _ := evt.Payload["sku"].(string)
 	if sku == "" {
-		return fmt.Errorf("no sku in stock-out event data")
+		return fmt.Errorf("no sku in stock-out event payload")
 	}
 
-	// Find and update all CatalogOverride entries for this SKU
 	count, err := h.db.CatalogOverride.Update().
 		Where(
 			catalogoverride.TenantID(tenantID),
@@ -107,27 +127,25 @@ func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *InventoryIt
 }
 
 // handleItemUpdated syncs catalog override metadata when an inventory item is updated.
-func (h *StockEventHandler) handleItemUpdated(ctx context.Context, evt *InventoryItemEvent) error {
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+func (h *StockEventHandler) handleItemUpdated(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid or missing tenant_id in item-updated event")
 	}
 
-	sku, _ := evt.Data["sku"].(string)
+	sku, _ := evt.Payload["sku"].(string)
 	if sku == "" {
-		return fmt.Errorf("no sku in item-updated event data")
+		return fmt.Errorf("no sku in item-updated event payload")
 	}
 
-	isActive, hasActive := evt.Data["is_active"].(bool)
+	isActive, hasActive := evt.Payload["is_active"].(bool)
 	if !hasActive {
-		// No is_active field in update; nothing to do
 		h.logger.Debug("inventory.item.updated without is_active, skipping",
 			zap.String("sku", sku))
 		return nil
 	}
 
 	if !isActive {
-		// Item deactivated in inventory: mark catalog overrides unavailable
 		count, err := h.db.CatalogOverride.Update().
 			Where(
 				catalogoverride.TenantID(tenantID),

@@ -2,26 +2,41 @@ package catalog
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 )
 
-// InventoryItemEvent represents an inventory item event from inventory-service.
-type InventoryItemEvent struct {
-	ID            string                 `json:"id"`
-	TenantID      string                 `json:"tenantId"`
-	AggregateType string                 `json:"aggregateType"`
-	AggregateID   string                 `json:"aggregateId"`
-	EventType     string                 `json:"type"`
-	Data          map[string]interface{} `json:"data"`
-	Timestamp     string                 `json:"timestamp"`
+const (
+	inventoryStreamName     = "inventory"
+	inventoryStreamSubjects = "inventory.>"
+	inventoryStreamMaxAge   = 72 * time.Hour
+)
+
+// ensureInventoryStream ensures the "inventory" JetStream stream exists.
+func ensureInventoryStream(js nats.JetStreamContext) error {
+	_, err := js.StreamInfo(inventoryStreamName)
+	if err == nil {
+		return nil
+	}
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     inventoryStreamName,
+		Subjects: []string{inventoryStreamSubjects},
+		MaxAge:   inventoryStreamMaxAge,
+		Storage:  nats.FileStorage,
+		Replicas: 1,
+	})
+	if err != nil {
+		return fmt.Errorf("create inventory stream: %w", err)
+	}
+	return nil
 }
 
 // InventoryEventHandler handles inventory events by auto-creating CatalogOverride entries.
@@ -38,46 +53,59 @@ func NewInventoryEventHandler(db *ent.Client, logger *zap.Logger) *InventoryEven
 	}
 }
 
-// SubscribeToInventoryEvents subscribes to inventory-service events via NATS.
-func (h *InventoryEventHandler) SubscribeToInventoryEvents(nc *nats.Conn) error {
-	// Subscribe to inventory.item.created
-	_, err := nc.Subscribe("inventory.item.created", func(msg *nats.Msg) {
-		var evt InventoryItemEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal inventory.item.created event", zap.Error(err))
+// SubscribeToInventoryEvents subscribes to inventory-service events via JetStream durable consumers.
+func (h *InventoryEventHandler) SubscribeToInventoryEvents(js nats.JetStreamContext) error {
+	if err := ensureInventoryStream(js); err != nil {
+		return fmt.Errorf("catalog: ensure inventory stream: %w", err)
+	}
+
+	sub, err := js.Subscribe("inventory.item.created", func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("failed to parse inventory.item.created envelope", zap.Error(parseErr))
+			_ = msg.Ack()
 			return
 		}
 
 		ctx := context.Background()
-		if err := h.handleItemCreated(ctx, &evt); err != nil {
+		if err := h.handleItemCreated(ctx, evt); err != nil {
 			h.logger.Error("failed to handle inventory.item.created event", zap.Error(err))
+			_ = msg.Nak()
 			return
 		}
 		_ = msg.Ack()
-	})
+	},
+		nats.Durable("ord-inventory-item-created"),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(inventoryStreamName),
+	)
 	if err != nil {
 		return fmt.Errorf("catalog: subscribe to inventory.item.created: %w", err)
 	}
+	_ = sub
 
-	h.logger.Info("inventory event subscriptions active",
-		zap.String("subjects", "inventory.item.created"))
+	h.logger.Info("inventory event subscriptions active (JetStream)",
+		zap.String("subject", "inventory.item.created"),
+		zap.String("durable", "ord-inventory-item-created"))
 	return nil
 }
 
 // handleItemCreated auto-creates a CatalogOverride entry when an inventory item is created.
-func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *InventoryItemEvent) error {
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid or missing tenant_id in event")
 	}
 
-	data := evt.Data
-	sku, _ := data["sku"].(string)
+	sku, _ := evt.Payload["sku"].(string)
 	if sku == "" {
-		return fmt.Errorf("no sku in event data")
+		return fmt.Errorf("no sku in event payload")
 	}
 
-	isActive, _ := data["is_active"].(bool)
+	isActive, _ := evt.Payload["is_active"].(bool)
 
 	// Check if override already exists
 	exists, _ := h.db.CatalogOverride.Query().
@@ -102,7 +130,6 @@ func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *Inve
 
 	outletID := outlets[0].ID
 
-	// Create override with default values
 	_, err = h.db.CatalogOverride.Create().
 		SetTenantID(tenantID).
 		SetOutletID(outletID).

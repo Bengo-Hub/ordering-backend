@@ -2,14 +2,21 @@ package fulfilment
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+)
+
+const (
+	orderingStreamName     = "ordering"
+	orderingStreamSubjects = "ordering.>"
+	orderingStreamMaxAge   = 72 * time.Hour
 )
 
 // EventHandler handles events for automatic task creation.
@@ -35,65 +42,78 @@ func NewEventHandler(
 	}
 }
 
-// OrderReadyEvent represents the ordering.order.ready event payload.
-type OrderReadyEvent struct {
-	ID        string                 `json:"id"`
-	EventType string                 `json:"event_type"`
-	TenantID  string                 `json:"tenant_id"`
-	Timestamp string                 `json:"timestamp"`
-	Data      map[string]interface{} `json:"data"`
-}
-
-// SubscribeToOrderEvents subscribes to order events via NATS for automatic task creation.
-func (h *EventHandler) SubscribeToOrderEvents(nc *nats.Conn) error {
-	if nc == nil {
-		h.logger.Warn("NATS connection not available, skipping order event subscriptions")
+// ensureOrderingStream ensures the "ordering" JetStream stream exists.
+// The stream is primarily managed by ordering-backend itself (see platform/events/nats.go),
+// but we guard here in case this handler is initialised before that call.
+func ensureOrderingStream(js nats.JetStreamContext) error {
+	_, err := js.StreamInfo(orderingStreamName)
+	if err == nil {
 		return nil
 	}
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     orderingStreamName,
+		Subjects: []string{orderingStreamSubjects},
+		MaxAge:   orderingStreamMaxAge,
+		Storage:  nats.FileStorage,
+		Replicas: 1,
+	})
+	if err != nil {
+		return fmt.Errorf("create ordering stream: %w", err)
+	}
+	return nil
+}
 
-	// Subscribe to ordering.order.ready events
-	_, err := nc.Subscribe("ordering.order.ready", func(msg *nats.Msg) {
-		var event OrderReadyEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal ordering.order.ready event", zap.Error(err))
+// SubscribeToOrderEvents subscribes to order events via JetStream for automatic task creation.
+func (h *EventHandler) SubscribeToOrderEvents(js nats.JetStreamContext) error {
+	if err := ensureOrderingStream(js); err != nil {
+		return fmt.Errorf("fulfilment: ensure ordering stream: %w", err)
+	}
+
+	sub, err := js.Subscribe("ordering.order.ready", func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("Failed to parse ordering.order.ready envelope", zap.Error(parseErr))
+			_ = msg.Ack()
 			return
 		}
 
 		ctx := context.Background()
-		if err := h.handleOrderReady(ctx, &event); err != nil {
+		if err := h.handleOrderReady(ctx, evt); err != nil {
 			h.logger.Error("Failed to handle ordering.order.ready event",
 				zap.Error(err),
-				zap.String("event_id", event.ID))
-			// Don't ack the message so it can be retried
+				zap.String("event_id", evt.ID.String()))
+			_ = msg.Nak()
 			return
 		}
-
-		// Ack the message
 		_ = msg.Ack()
-	})
-
+	},
+		nats.Durable("ord-fulfilment-order-ready"),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(orderingStreamName),
+	)
 	if err != nil {
 		return fmt.Errorf("fulfilment: subscribe to ordering.order.ready: %w", err)
 	}
+	_ = sub
 
-	h.logger.Info("Subscribed to order events for automatic task creation",
-		zap.Strings("events", []string{"ordering.order.ready"}))
-
+	h.logger.Info("Subscribed to order events for automatic task creation (JetStream)",
+		zap.Strings("subjects", []string{"ordering.order.ready"}))
 	return nil
 }
 
 // handleOrderReady handles the order ready event and creates a delivery task.
-func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEvent) error {
-	// Parse tenant ID
-	tenantID, err := uuid.Parse(event.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id in event: %w", err)
+func (h *EventHandler) handleOrderReady(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid tenant_id in event")
 	}
 
-	// Extract order ID from event data
-	orderIDStr, ok := event.Data["order_id"].(string)
-	if !ok {
-		return fmt.Errorf("order_id not found in event data")
+	orderIDStr, ok := evt.Payload["order_id"].(string)
+	if !ok || orderIDStr == "" {
+		return fmt.Errorf("order_id not found in event payload")
 	}
 
 	orderID, err := uuid.Parse(orderIDStr)
@@ -105,29 +125,27 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEv
 		zap.String("order_id", orderID.String()),
 		zap.String("tenant_id", tenantID.String()))
 
-	// Fetch order details
 	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("failed to get order: %w", err)
 	}
 
-	// Check if order has a delivery address (pickup orders don't need delivery tasks)
 	if order.DeliveryAddressID == nil {
 		h.logger.Info("Order is not for delivery, skipping task creation",
 			zap.String("order_id", orderID.String()))
 		return nil
 	}
 
-	// Fetch delivery address
 	deliveryAddr, err := h.orderingRepo.GetAddress(ctx, tenantID, *order.DeliveryAddressID)
 	if err != nil {
 		return fmt.Errorf("failed to get delivery address: %w", err)
 	}
 
-	// Get tenant slug for logistics API
-	tenantSlug := h.getTenantSlugFromEvent(event)
+	tenantSlug, _ := evt.Payload["tenant_slug"].(string)
+	if tenantSlug == "" {
+		tenantSlug = tenantID.String()
+	}
 
-	// Build OrderInfo for task creation
 	orderInfo := OrderInfo{
 		ID:          orderID,
 		TenantID:    tenantID,
@@ -135,7 +153,6 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEv
 		OrderNumber: order.OrderNumber,
 	}
 
-	// Set customer info
 	if deliveryAddr.ContactName != "" {
 		orderInfo.CustomerName = deliveryAddr.ContactName
 	}
@@ -143,7 +160,6 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEv
 		orderInfo.CustomerPhone = deliveryAddr.ContactPhone
 	}
 
-	// Set delivery address
 	orderInfo.DeliveryAddress = formatAddress(deliveryAddr)
 	if deliveryAddr.Latitude != nil {
 		orderInfo.DeliveryLat = *deliveryAddr.Latitude
@@ -153,18 +169,13 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEv
 	}
 	orderInfo.DeliveryNotes = deliveryAddr.Instructions
 
-	// Set pickup address from cafe (use event data if available, otherwise use default)
-	orderInfo.PickupAddress = h.getPickupAddress(event.Data)
-	orderInfo.PickupLat, orderInfo.PickupLng = h.getPickupCoordinates(event.Data)
+	orderInfo.PickupAddress = getPickupAddress(evt.Payload)
+	orderInfo.PickupLat, orderInfo.PickupLng = getPickupCoordinates(evt.Payload)
 
-	// Set item info
 	orderInfo.ItemCount = len(order.Items)
-	orderInfo.ItemsDescription = h.buildItemsDescription(order.Items)
-
-	// Set instructions
+	orderInfo.ItemsDescription = buildItemsDescription(order.Items)
 	orderInfo.Instructions = order.Instructions
 
-	// Create delivery task
 	taskReq := CreateDeliveryTaskRequest{
 		OrderInfo:      orderInfo,
 		Priority:       PriorityNormal,
@@ -180,42 +191,24 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, event *OrderReadyEv
 		zap.String("order_id", orderID.String()),
 		zap.String("assignment_id", assignment.ID.String()),
 		zap.String("logistics_task_id", assignment.LogisticsTaskID))
-
 	return nil
 }
 
-// getTenantSlugFromEvent extracts the tenant slug from event data.
-func (h *EventHandler) getTenantSlugFromEvent(event *OrderReadyEvent) string {
-	// Try to get from event data first
-	if slug, ok := event.Data["tenant_slug"].(string); ok && slug != "" {
-		return slug
-	}
-
-	// Default to tenant ID if slug not available
-	return event.TenantID
-}
-
-// getPickupAddress gets the pickup address from event data or returns default.
-func (h *EventHandler) getPickupAddress(data map[string]interface{}) string {
-	// Try to get cafe address from event data
+// getPickupAddress gets the pickup address from event payload or returns default.
+func getPickupAddress(data map[string]interface{}) string {
 	if cafeInfo, ok := data["cafe_info"].(map[string]interface{}); ok {
 		if addr, ok := cafeInfo["address"].(string); ok {
 			return addr
 		}
 	}
-
-	// If pickup address is in metadata
 	if pickup, ok := data["pickup_address"].(string); ok {
 		return pickup
 	}
-
-	// Default placeholder - logistics service will use cafe lookup
 	return ""
 }
 
-// getPickupCoordinates gets the pickup coordinates from event data.
-func (h *EventHandler) getPickupCoordinates(data map[string]interface{}) (float64, float64) {
-	// Try to get from cafe info
+// getPickupCoordinates gets the pickup coordinates from event payload.
+func getPickupCoordinates(data map[string]interface{}) (float64, float64) {
 	if cafeInfo, ok := data["cafe_info"].(map[string]interface{}); ok {
 		lat, latOk := cafeInfo["latitude"].(float64)
 		lng, lngOk := cafeInfo["longitude"].(float64)
@@ -223,14 +216,11 @@ func (h *EventHandler) getPickupCoordinates(data map[string]interface{}) (float6
 			return lat, lng
 		}
 	}
-
-	// Try from direct pickup fields
 	if lat, ok := data["pickup_latitude"].(float64); ok {
 		if lng, ok := data["pickup_longitude"].(float64); ok {
 			return lat, lng
 		}
 	}
-
 	return 0, 0
 }
 
@@ -253,7 +243,7 @@ func formatAddress(addr *ordering.CustomerAddress) string {
 }
 
 // buildItemsDescription builds a description of order items.
-func (h *EventHandler) buildItemsDescription(items []ordering.OrderItem) string {
+func buildItemsDescription(items []ordering.OrderItem) string {
 	if len(items) == 0 {
 		return ""
 	}
@@ -268,13 +258,10 @@ func (h *EventHandler) buildItemsDescription(items []ordering.OrderItem) string 
 		} else {
 			description += item.NameSnapshot
 		}
-
-		// Limit description length
 		if len(description) > 200 {
 			description = description[:197] + "..."
 			break
 		}
 	}
-
 	return description
 }

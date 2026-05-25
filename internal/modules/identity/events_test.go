@@ -2,44 +2,56 @@ package identity
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
 )
 
+// makeUserEvent builds a sharedevents.Event that mimics an auth.user.* envelope.
+func makeUserEvent(eventType string, tenantID uuid.UUID, payload map[string]interface{}) *sharedevents.Event {
+	return &sharedevents.Event{
+		ID:            uuid.New(),
+		EventType:     eventType,
+		AggregateType: "auth.user",
+		AggregateID:   uuid.New(),
+		TenantID:      tenantID,
+		Payload:       payload,
+		Timestamp:     time.Now().UTC(),
+		Version:       "1.0",
+	}
+}
+
 func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
+	tenantID := uuid.New()
+	userID := uuid.New()
+
 	tests := []struct {
 		name           string
-		event          *AuthUserCreatedEvent
+		evt            *sharedevents.Event
 		setupRepo      func() *MemoryRepository
 		wantErr        bool
 		validateResult func(t *testing.T, repo *MemoryRepository, err error)
 	}{
 		{
 			name: "successful user creation from event",
-			event: &AuthUserCreatedEvent{
-				UserID:    uuid.New().String(),
-				TenantID:  uuid.New().String(),
-				Email:     "newuser@example.com",
-				FullName:  "New User",
-				Phone:     "+254712345678",
-				Status:    "active",
-				CreatedAt: time.Now(),
-			},
-			setupRepo: func() *MemoryRepository {
-				return NewMemoryRepository()
-			},
-			wantErr: false,
+			evt: makeUserEvent("created", tenantID, map[string]interface{}{
+				"user_id":   userID.String(),
+				"email":     "newuser@example.com",
+				"full_name": "New User",
+				"phone":     "+254712345678",
+				"status":    "active",
+			}),
+			setupRepo: func() *MemoryRepository { return NewMemoryRepository() },
+			wantErr:   false,
 			validateResult: func(t *testing.T, repo *MemoryRepository, err error) {
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
-				// Verify user was created by finding by email
 				user, findErr := repo.FindUserByEmail(context.Background(), "newuser@example.com")
 				if findErr != nil {
 					t.Fatalf("failed to find created user: %v", findErr)
@@ -51,17 +63,14 @@ func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
 		},
 		{
 			name: "invalid user ID in event",
-			event: &AuthUserCreatedEvent{
-				UserID:   "invalid-uuid",
-				TenantID: uuid.New().String(),
-				Email:    "user@example.com",
-				FullName: "Test User",
-				Status:   "active",
-			},
-			setupRepo: func() *MemoryRepository {
-				return NewMemoryRepository()
-			},
-			wantErr: true,
+			evt: makeUserEvent("created", tenantID, map[string]interface{}{
+				"user_id":   "invalid-uuid",
+				"email":     "user@example.com",
+				"full_name": "Test User",
+				"status":    "active",
+			}),
+			setupRepo: func() *MemoryRepository { return NewMemoryRepository() },
+			wantErr:   true,
 		},
 	}
 
@@ -85,7 +94,7 @@ func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
 			handler := NewEventHandler(service, logger)
 
 			ctx := context.Background()
-			err = handler.HandleAuthUserCreated(ctx, tt.event)
+			err = handler.HandleAuthUserCreated(ctx, tt.evt)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HandleAuthUserCreated() error = %v, wantErr %v", err, tt.wantErr)
@@ -101,28 +110,29 @@ func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
 
 func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 	authID := uuid.New()
+	tenantID := uuid.New()
+
 	tests := []struct {
 		name           string
-		event          *AuthUserUpdatedEvent
+		evt            *sharedevents.Event
 		setupRepo      func() *MemoryRepository
 		wantErr        bool
-		validateResult func(t *testing.T, repo *MemoryRepository, eventUserID string, err error)
+		validateResult func(t *testing.T, repo *MemoryRepository, err error)
 	}{
 		{
 			name: "successful user update from event",
-			event: &AuthUserUpdatedEvent{
-				UserID:    authID.String(),
-				Email:     "updated@example.com",
-				FullName:  "Updated User",
-				Status:    "active",
-				UpdatedAt: time.Now(),
-			},
+			evt: makeUserEvent("updated", tenantID, map[string]interface{}{
+				"user_id":   authID.String(),
+				"email":     "updated@example.com",
+				"full_name": "Updated User",
+				"status":    "active",
+			}),
 			setupRepo: func() *MemoryRepository {
 				repo := NewMemoryRepository()
-				authIDCopy := authID // Capture the closure variable
+				authIDCopy := authID
 				user := &User{
 					ID:                uuid.New(),
-					TenantID:          uuid.New().String(),
+					TenantID:          tenantID.String(),
 					AuthServiceUserID: &authIDCopy,
 					Email:             "old@example.com",
 					FullName:          "Old User",
@@ -136,13 +146,11 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 				return repo
 			},
 			wantErr: false,
-			validateResult: func(t *testing.T, repo *MemoryRepository, eventUserID string, err error) {
+			validateResult: func(t *testing.T, repo *MemoryRepository, err error) {
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
-				// Verify user was updated by finding by auth-service ID
-				authIDParsed, _ := uuid.Parse(eventUserID)
-				user, findErr := repo.FindUserByAuthServiceID(context.Background(), authIDParsed)
+				user, findErr := repo.FindUserByAuthServiceID(context.Background(), authID)
 				if findErr != nil {
 					t.Fatalf("failed to find updated user: %v", findErr)
 				}
@@ -173,7 +181,7 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 			handler := NewEventHandler(service, logger)
 
 			ctx := context.Background()
-			err = handler.HandleAuthUserUpdated(ctx, tt.event)
+			err = handler.HandleAuthUserUpdated(ctx, tt.evt)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HandleAuthUserUpdated() error = %v, wantErr %v", err, tt.wantErr)
@@ -181,7 +189,7 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 			}
 
 			if tt.validateResult != nil {
-				tt.validateResult(t, repo, tt.event.UserID, err)
+				tt.validateResult(t, repo, err)
 			}
 		})
 	}
@@ -189,24 +197,25 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 
 func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 	authID := uuid.New()
+	tenantID := uuid.New()
+
 	tests := []struct {
 		name           string
-		event          *AuthUserDeactivatedEvent
+		evt            *sharedevents.Event
 		setupRepo      func() *MemoryRepository
 		wantErr        bool
 		validateResult func(t *testing.T, repo *MemoryRepository, err error)
 	}{
 		{
 			name: "successful user deactivation from event",
-			event: &AuthUserDeactivatedEvent{
-				UserID:        authID.String(),
-				DeactivatedAt: time.Now(),
-			},
+			evt: makeUserEvent("deactivated", tenantID, map[string]interface{}{
+				"user_id": authID.String(),
+			}),
 			setupRepo: func() *MemoryRepository {
 				repo := NewMemoryRepository()
 				user := &User{
 					ID:                uuid.New(),
-					TenantID:          uuid.New().String(),
+					TenantID:          tenantID.String(),
 					AuthServiceUserID: &authID,
 					Email:             "user@example.com",
 					FullName:          "Test User",
@@ -223,9 +232,7 @@ func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
-				// Verify user was deactivated by finding by auth-service ID
-				authIDParsed, _ := uuid.Parse(authID.String())
-				user, findErr := repo.FindUserByAuthServiceID(context.Background(), authIDParsed)
+				user, findErr := repo.FindUserByAuthServiceID(context.Background(), authID)
 				if findErr != nil {
 					t.Fatalf("failed to find deactivated user: %v", findErr)
 				}
@@ -256,7 +263,7 @@ func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 			handler := NewEventHandler(service, logger)
 
 			ctx := context.Background()
-			err = handler.HandleAuthUserDeactivated(ctx, tt.event)
+			err = handler.HandleAuthUserDeactivated(ctx, tt.evt)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HandleAuthUserDeactivated() error = %v, wantErr %v", err, tt.wantErr)
@@ -270,7 +277,12 @@ func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 	}
 }
 
-func TestEventHandler_EventJSONUnmarshal(t *testing.T) {
+func TestEventHandler_EventEnvelopeParsing(t *testing.T) {
+	tenantID := uuid.New()
+	userID := uuid.New()
+
+	// Verify that sharedevents.FromJSON correctly parses the envelope and
+	// that our handlers can extract fields from evt.Payload.
 	tests := []struct {
 		name      string
 		jsonData  string
@@ -278,35 +290,22 @@ func TestEventHandler_EventJSONUnmarshal(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			name:      "valid user created event",
+			name:      "valid user created envelope",
 			eventType: "auth.user.created",
 			jsonData: `{
-				"user_id": "` + uuid.New().String() + `",
-				"tenant_id": "` + uuid.New().String() + `",
-				"email": "user@example.com",
-				"full_name": "Test User",
-				"status": "active",
-				"created_at": "2024-01-01T00:00:00Z"
-			}`,
-			wantErr: false,
-		},
-		{
-			name:      "valid user updated event",
-			eventType: "auth.user.updated",
-			jsonData: `{
-				"user_id": "` + uuid.New().String() + `",
-				"email": "updated@example.com",
-				"full_name": "Updated User",
-				"updated_at": "2024-01-01T00:00:00Z"
-			}`,
-			wantErr: false,
-		},
-		{
-			name:      "valid user deactivated event",
-			eventType: "auth.user.deactivated",
-			jsonData: `{
-				"user_id": "` + uuid.New().String() + `",
-				"deactivated_at": "2024-01-01T00:00:00Z"
+				"id": "` + uuid.New().String() + `",
+				"event_type": "created",
+				"aggregate_type": "auth.user",
+				"aggregate_id": "` + uuid.New().String() + `",
+				"tenant_id": "` + tenantID.String() + `",
+				"payload": {
+					"user_id": "` + userID.String() + `",
+					"email": "user@example.com",
+					"full_name": "Test User",
+					"status": "active"
+				},
+				"timestamp": "2024-01-01T00:00:00Z",
+				"version": "1.0"
 			}`,
 			wantErr: false,
 		},
@@ -314,21 +313,18 @@ func TestEventHandler_EventJSONUnmarshal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var err error
-			switch tt.eventType {
-			case "auth.user.created":
-				var event AuthUserCreatedEvent
-				err = json.Unmarshal([]byte(tt.jsonData), &event)
-			case "auth.user.updated":
-				var event AuthUserUpdatedEvent
-				err = json.Unmarshal([]byte(tt.jsonData), &event)
-			case "auth.user.deactivated":
-				var event AuthUserDeactivatedEvent
-				err = json.Unmarshal([]byte(tt.jsonData), &event)
-			}
-
+			evt, err := sharedevents.FromJSON([]byte(tt.jsonData))
 			if (err != nil) != tt.wantErr {
-				t.Errorf("JSON unmarshal error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("FromJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil {
+				if evt.TenantID != tenantID {
+					t.Errorf("expected tenant_id %s, got %s", tenantID, evt.TenantID)
+				}
+				if emailVal, _ := evt.Payload["email"].(string); emailVal != "user@example.com" {
+					t.Errorf("expected email user@example.com in payload, got %q", emailVal)
+				}
 			}
 		})
 	}

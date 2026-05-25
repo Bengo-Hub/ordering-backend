@@ -168,13 +168,8 @@ func New(ctx context.Context) (*App, error) {
 			authMiddleware = authclient.NewAuthMiddleware(validator)
 		}
 
-		// Subscribe to auth-service events for user sync
+		// Initialize NATS core subscribers (plain subscribe, no JetStream needed)
 		if natsConn != nil {
-			eventHandler := identity.NewEventHandler(identitySvc, log)
-			if err := eventHandler.SubscribeToAuthEvents(natsConn); err != nil {
-				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
-			}
-
 			// Initialize NATS event subscribers for proactive provisioning
 			eventSub := events.NewSubscriber(natsConn, log)
 			branchSub := tenant.NewBranchSubscriber(ormClient, log)
@@ -315,30 +310,38 @@ func New(ctx context.Context) (*App, error) {
 		// Wire event publisher to order service for publishing order events
 		orderSvc.SetEventPublisher(eventPublisher)
 
-		// Subscribe to order events for automatic delivery task creation
-		fulfilmentEventHandler := fulfilment.NewEventHandler(taskSvc, orderSvc, orderingRepo, log)
-		if err := fulfilmentEventHandler.SubscribeToOrderEvents(natsConn); err != nil {
-			log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
-		}
+		if js != nil {
+			// Subscribe to auth-service events for user sync (JetStream durable consumers)
+			authEventHandler := identity.NewEventHandler(identitySvc, log)
+			if err := authEventHandler.SubscribeToAuthEvents(js); err != nil {
+				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
+			}
 
-		// Subscribe to inventory events for catalog projection sync
-		inventoryEventHandler := catalog.NewInventoryEventHandler(ormClient, log)
-		if err := inventoryEventHandler.SubscribeToInventoryEvents(natsConn); err != nil {
-			log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
-		}
+			// Subscribe to order events for automatic delivery task creation
+			fulfilmentEventHandler := fulfilment.NewEventHandler(taskSvc, orderSvc, orderingRepo, log)
+			if err := fulfilmentEventHandler.SubscribeToOrderEvents(js); err != nil {
+				log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
+			}
 
-		// Subscribe to inventory stock-out and item-updated events
-		stockEventHandler := catalog.NewStockEventHandler(ormClient, log)
-		if err := stockEventHandler.SubscribeToStockEvents(natsConn); err != nil {
-			log.Warn("app: failed to subscribe to stock events", zap.Error(err))
-		}
+			// Subscribe to inventory events for catalog projection sync
+			inventoryEventHandler := catalog.NewInventoryEventHandler(ormClient, log)
+			if err := inventoryEventHandler.SubscribeToInventoryEvents(js); err != nil {
+				log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
+			}
 
-		// Subscribe to logistics task events for order auto-completion and assignment
-		logisticsEventHandler := fulfilment.NewLogisticsEventHandler(fulfilmentRepo, orderSvc, orderingRepo, eventPublisher, log)
-		// Wire treasury client so COD payments are settled when delivery is confirmed
-		logisticsEventHandler.SetTreasuryClient(treasuryClient)
-		if err := logisticsEventHandler.SubscribeToLogisticsEvents(natsConn); err != nil {
-			log.Warn("app: failed to subscribe to logistics events", zap.Error(err))
+			// Subscribe to inventory stock-out and item-updated events
+			stockEventHandler := catalog.NewStockEventHandler(ormClient, log)
+			if err := stockEventHandler.SubscribeToStockEvents(js); err != nil {
+				log.Warn("app: failed to subscribe to stock events", zap.Error(err))
+			}
+
+			// Subscribe to logistics task events for order auto-completion and assignment
+			logisticsEventHandler := fulfilment.NewLogisticsEventHandler(fulfilmentRepo, orderSvc, orderingRepo, eventPublisher, log)
+			// Wire treasury client so COD payments are settled when delivery is confirmed
+			logisticsEventHandler.SetTreasuryClient(treasuryClient)
+			if err := logisticsEventHandler.SubscribeToLogisticsEvents(js); err != nil {
+				log.Warn("app: failed to subscribe to logistics events", zap.Error(err))
+			}
 		}
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
