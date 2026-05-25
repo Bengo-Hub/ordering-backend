@@ -2,12 +2,12 @@ package fulfilment
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
@@ -25,12 +25,12 @@ func uuidPtrString(u *uuid.UUID) string {
 
 // LogisticsEventHandler handles logistics task events to update order/assignment state.
 type LogisticsEventHandler struct {
-	repo            Repository
-	orderingSvc     *ordering.OrderService
-	orderingRepo    ordering.Repository
-	eventPublisher  *events.Publisher
-	treasuryClient  *treasury.Client
-	logger          *zap.Logger
+	repo           Repository
+	orderingSvc    *ordering.OrderService
+	orderingRepo   ordering.Repository
+	eventPublisher *events.Publisher
+	treasuryClient *treasury.Client
+	logger         *zap.Logger
 }
 
 // NewLogisticsEventHandler creates a new logistics event handler.
@@ -55,93 +55,97 @@ func (h *LogisticsEventHandler) SetTreasuryClient(client *treasury.Client) {
 	h.treasuryClient = client
 }
 
-// LogisticsTaskEvent represents a logistics task event payload (shared-events envelope).
-type LogisticsTaskEvent struct {
-	ID        string                 `json:"id"`
-	EventType string                 `json:"event_type"`
-	TenantID  string                 `json:"tenant_id"`
-	Data      map[string]interface{} `json:"payload"`
-	Timestamp string                 `json:"timestamp"`
-}
+const (
+	logisticsStreamName     = "logistics"
+	logisticsStreamSubjects = "logistics.>"
+	logisticsStreamMaxAge   = 72 * time.Hour
+)
 
-// SubscribeToLogisticsEvents subscribes to logistics task events via NATS.
-func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(nc *nats.Conn) error {
-	if nc == nil {
-		h.logger.Warn("NATS connection not available, skipping logistics event subscriptions")
+// ensureLogisticsStream ensures the "logistics" JetStream stream exists.
+func ensureLogisticsStream(js nats.JetStreamContext) error {
+	_, err := js.StreamInfo(logisticsStreamName)
+	if err == nil {
 		return nil
 	}
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     logisticsStreamName,
+		Subjects: []string{logisticsStreamSubjects},
+		MaxAge:   logisticsStreamMaxAge,
+		Storage:  nats.FileStorage,
+		Replicas: 1,
+	})
+	if err != nil {
+		return fmt.Errorf("create logistics stream: %w", err)
+	}
+	return nil
+}
 
-	// logistics.task.completed -> auto-complete order
-	_, err := nc.Subscribe("logistics.task.completed", func(msg *nats.Msg) {
-		var evt LogisticsTaskEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal logistics.task.completed event", zap.Error(err))
+// subscribeLogisticsDurable sets up a single JetStream durable push subscription for a logistics subject.
+func (h *LogisticsEventHandler) subscribeLogisticsDurable(
+	js nats.JetStreamContext,
+	subject string,
+	durable string,
+	handler func(context.Context, *sharedevents.Event) error,
+) error {
+	sub, err := js.Subscribe(subject, func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("failed to parse logistics event envelope",
+				zap.String("subject", subject),
+				zap.Error(parseErr))
+			_ = msg.Ack()
 			return
 		}
 		ctx := context.Background()
-		if err := h.handleTaskCompleted(ctx, &evt); err != nil {
-			h.logger.Error("failed to handle logistics.task.completed event", zap.Error(err))
+		if err := handler(ctx, evt); err != nil {
+			h.logger.Error("logistics event handler error, will redeliver",
+				zap.String("subject", subject),
+				zap.Error(err))
+			_ = msg.Nak()
 			return
 		}
 		_ = msg.Ack()
-	})
+	},
+		nats.Durable(durable),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(logisticsStreamName),
+	)
 	if err != nil {
-		return fmt.Errorf("subscribe to logistics.task.completed: %w", err)
+		return fmt.Errorf("subscribe to %s (durable=%s): %w", subject, durable, err)
+	}
+	_ = sub
+	return nil
+}
+
+// SubscribeToLogisticsEvents subscribes to logistics task events via JetStream durable consumers.
+func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamContext) error {
+	if err := ensureLogisticsStream(js); err != nil {
+		return fmt.Errorf("fulfilment: ensure logistics stream: %w", err)
 	}
 
-	// logistics.task.assigned -> update order assignment and status
-	_, err = nc.Subscribe("logistics.task.assigned", func(msg *nats.Msg) {
-		var evt LogisticsTaskEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal logistics.task.assigned event", zap.Error(err))
-			return
-		}
-		ctx := context.Background()
-		if err := h.handleTaskAssigned(ctx, &evt); err != nil {
-			h.logger.Error("failed to handle logistics.task.assigned event", zap.Error(err))
-			return
-		}
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("subscribe to logistics.task.assigned: %w", err)
+	subs := []struct {
+		subject string
+		durable string
+		handler func(context.Context, *sharedevents.Event) error
+	}{
+		{"logistics.task.completed", "ord-logistics-task-completed", h.handleTaskCompleted},
+		{"logistics.task.assigned", "ord-logistics-task-assigned", h.handleTaskAssigned},
+		{"logistics.task.en_route", "ord-logistics-task-en-route", func(ctx context.Context, evt *sharedevents.Event) error {
+			return h.handleTaskStatusUpdate(ctx, evt, "en_route")
+		}},
+		{"logistics.task.failed", "ord-logistics-task-failed", h.handleTaskFailed},
 	}
 
-	// logistics.task.en_route -> update assignment status for tracking
-	_, err = nc.Subscribe("logistics.task.en_route", func(msg *nats.Msg) {
-		var evt LogisticsTaskEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal logistics.task.en_route event", zap.Error(err))
-			return
+	for _, s := range subs {
+		if err := h.subscribeLogisticsDurable(js, s.subject, s.durable, s.handler); err != nil {
+			return err
 		}
-		ctx := context.Background()
-		if err := h.handleTaskStatusUpdate(ctx, &evt, "en_route"); err != nil {
-			h.logger.Error("failed to handle logistics.task.en_route event", zap.Error(err))
-		}
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("subscribe to logistics.task.en_route: %w", err)
 	}
 
-	// logistics.task.failed -> handle delivery failures
-	_, err = nc.Subscribe("logistics.task.failed", func(msg *nats.Msg) {
-		var evt LogisticsTaskEvent
-		if err := json.Unmarshal(msg.Data, &evt); err != nil {
-			h.logger.Error("failed to unmarshal logistics.task.failed event", zap.Error(err))
-			return
-		}
-		ctx := context.Background()
-		if err := h.handleTaskFailed(ctx, &evt); err != nil {
-			h.logger.Error("failed to handle logistics.task.failed event", zap.Error(err))
-		}
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("subscribe to logistics.task.failed: %w", err)
-	}
-
-	h.logger.Info("logistics event subscriptions active",
+	h.logger.Info("logistics event subscriptions active (JetStream)",
 		zap.Strings("subjects", []string{
 			"logistics.task.completed", "logistics.task.assigned",
 			"logistics.task.en_route", "logistics.task.failed",
@@ -150,13 +154,11 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(nc *nats.Conn) error 
 }
 
 // handleTaskCompleted auto-completes an order when a logistics task is completed.
-func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *LogisticsTaskEvent) error {
-	data := evt.Data
+func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sharedevents.Event) error {
+	data := evt.Payload
 
-	// external_reference is the order_id
 	orderIDStr, _ := data["external_reference"].(string)
 	if orderIDStr == "" {
-		// Fall back to order_id field
 		orderIDStr, _ = data["order_id"].(string)
 	}
 	if orderIDStr == "" {
@@ -168,18 +170,16 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		return fmt.Errorf("invalid order_id %q: %w", orderIDStr, err)
 	}
 
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid tenant_id in task.completed event")
 	}
 
-	// Get the order
 	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("get order %s: %w", orderID, err)
 	}
 
-	// Only transition if order is currently out_for_delivery
 	if order.Status != ordering.OrderStatusOutForDelivery {
 		h.logger.Info("order not in out_for_delivery status, skipping auto-complete",
 			zap.String("order_id", orderID.String()),
@@ -187,7 +187,6 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		return nil
 	}
 
-	// Transition order to delivered
 	_, err = h.orderingSvc.UpdateOrderStatus(
 		ctx, tenantID, orderID,
 		ordering.OrderStatusDelivered,
@@ -197,8 +196,6 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		return fmt.Errorf("transition order to delivered: %w", err)
 	}
 
-	// Handle COD payment: if cash was collected, update payment status to paid
-	// and settle the payment intent in treasury so the transaction is recorded.
 	cashCollected, _ := data["cash_collected"].(bool)
 	if order.PaymentMethod == ordering.PaymentMethodCOD && cashCollected {
 		order.PaymentStatus = ordering.PaymentStatusPaid
@@ -211,8 +208,6 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 				zap.String("order_id", orderID.String()))
 		}
 
-		// Settle the treasury payment intent so it moves from pending → succeeded
-		// and a PaymentTransaction record is created for accounting.
 		if h.treasuryClient != nil {
 			amountCollected, _ := data["amount_collected"].(float64)
 			if amountCollected <= 0 {
@@ -235,7 +230,6 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		}
 	}
 
-	// Update assignment status
 	taskIDStr, _ := data["task_id"].(string)
 	if taskIDStr != "" {
 		assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
@@ -247,7 +241,6 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 		}
 	}
 
-	// Publish ordering.order.delivered event
 	deliveredData := map[string]interface{}{
 		"order_id":     orderID.String(),
 		"order_number": order.OrderNumber,
@@ -268,15 +261,13 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *Lo
 	h.logger.Info("order auto-completed from logistics task",
 		zap.String("order_id", orderID.String()),
 		zap.String("order_number", order.OrderNumber))
-
 	return nil
 }
 
 // handleTaskAssigned updates order assignment and transitions order status when a rider is assigned.
-func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *LogisticsTaskEvent) error {
-	data := evt.Data
+func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *sharedevents.Event) error {
+	data := evt.Payload
 
-	// external_reference is the order_id
 	orderIDStr, _ := data["external_reference"].(string)
 	if orderIDStr == "" {
 		orderIDStr, _ = data["order_id"].(string)
@@ -290,19 +281,17 @@ func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *Log
 		return fmt.Errorf("invalid order_id %q: %w", orderIDStr, err)
 	}
 
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid tenant_id in task.assigned event")
 	}
 
 	fleetMemberID, _ := data["fleet_member_id"].(string)
 	taskIDStr, _ := data["task_id"].(string)
 
-	// Update or create order assignment
 	if taskIDStr != "" {
 		assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
 		if assignErr == nil && assignment != nil {
-			// Update existing assignment
 			now := time.Now()
 			assignment.RiderID = fleetMemberID
 			assignment.Status = AssignmentStatusAssigned
@@ -313,7 +302,6 @@ func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *Log
 					zap.String("task_id", taskIDStr))
 			}
 		} else {
-			// Create new assignment
 			now := time.Now()
 			newAssignment := &OrderAssignment{
 				TenantID:        tenantID,
@@ -332,7 +320,6 @@ func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *Log
 		}
 	}
 
-	// If order is currently "ready", transition to "out_for_delivery"
 	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("get order %s: %w", orderID, err)
@@ -359,18 +346,18 @@ func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *Log
 }
 
 // handleTaskStatusUpdate updates the assignment status when a task transitions (e.g. en_route).
-func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt *LogisticsTaskEvent, status string) error {
-	data := evt.Data
+func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt *sharedevents.Event, status string) error {
+	data := evt.Payload
 	taskIDStr, _ := data["task_id"].(string)
 	if taskIDStr == "" {
 		return nil
 	}
 
-	tenantID, _ := uuid.Parse(evt.TenantID)
+	tenantID := evt.TenantID
 
 	assignment, err := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
 	if err != nil {
-		return nil // No assignment for this task
+		return nil
 	}
 
 	assignment.Status = AssignmentStatus(status)
@@ -381,7 +368,6 @@ func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt 
 			zap.String("status", status))
 	}
 
-	// When rider is en_route, transition order to out_for_delivery if it hasn't already
 	if status == "en_route" && tenantID != uuid.Nil {
 		order, getErr := h.orderingRepo.GetOrder(ctx, tenantID, assignment.OrderID)
 		if getErr == nil && (order.Status == ordering.OrderStatusReady || order.Status == ordering.OrderStatusConfirmed || order.Status == ordering.OrderStatusPreparing) {
@@ -400,8 +386,8 @@ func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt 
 }
 
 // handleTaskFailed handles delivery failure events from logistics.
-func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *LogisticsTaskEvent) error {
-	data := evt.Data
+func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *sharedevents.Event) error {
+	data := evt.Payload
 
 	orderIDStr, _ := data["external_reference"].(string)
 	if orderIDStr == "" {
@@ -411,15 +397,14 @@ func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *Logis
 		return nil
 	}
 
-	tenantID, err := uuid.Parse(evt.TenantID)
-	if err != nil {
-		return fmt.Errorf("invalid tenant_id: %w", err)
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid tenant_id in task.failed event")
 	}
 
 	taskIDStr, _ := data["task_id"].(string)
 	failureReason, _ := data["failure_reason"].(string)
 
-	// Update assignment status to failed
 	if taskIDStr != "" {
 		assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
 		if assignErr == nil {
@@ -431,7 +416,6 @@ func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *Logis
 		}
 	}
 
-	// Publish delivery failure event for notifications (do NOT auto-cancel order)
 	if h.eventPublisher != nil {
 		failedEvent := events.NewEvent("ordering.order.delivery_failed", tenantID, map[string]interface{}{
 			"order_id":       orderIDStr,
@@ -449,6 +433,5 @@ func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *Logis
 		zap.String("order_id", orderIDStr),
 		zap.String("task_id", taskIDStr),
 		zap.String("reason", failureReason))
-
 	return nil
 }

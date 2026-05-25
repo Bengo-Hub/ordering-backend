@@ -2,12 +2,11 @@ package identity
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 )
 
@@ -25,106 +24,65 @@ func NewEventHandler(service *Service, logger *zap.Logger) *EventHandler {
 	}
 }
 
-// AuthUserCreatedEvent represents an auth.user.created event.
-type AuthUserCreatedEvent struct {
-	UserID      string                 `json:"user_id"`
-	TenantID    string                 `json:"tenant_id"`
-	Email       string                 `json:"email"`
-	FullName    string                 `json:"full_name"`
-	Phone       string                 `json:"phone,omitempty"`
-	Status      string                 `json:"status"`
-	Roles       []string               `json:"roles,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"created_at"`
-}
-
-// AuthUserUpdatedEvent represents an auth.user.updated event.
-type AuthUserUpdatedEvent struct {
-	UserID    string                 `json:"user_id"`
-	TenantID  string                 `json:"tenant_id,omitempty"`
-	Email     string                 `json:"email,omitempty"`
-	FullName  string                 `json:"full_name,omitempty"`
-	Phone     string                 `json:"phone,omitempty"`
-	Status    string                 `json:"status,omitempty"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
-	UpdatedAt time.Time              `json:"updated_at"`
-}
-
-// AuthUserDeactivatedEvent represents an auth.user.deactivated event.
-type AuthUserDeactivatedEvent struct {
-	UserID        string    `json:"user_id"`
-	TenantID      string    `json:"tenant_id,omitempty"`
-	DeactivatedAt time.Time `json:"deactivated_at"`
-}
-
-// AuthTenantCreatedEvent represents an auth.tenant.created event.
-type AuthTenantCreatedEvent struct {
-	TenantID     string                 `json:"tenant_id"`
-	Slug         string                 `json:"slug"`
-	Name         string                 `json:"name"`
-	Status       string                 `json:"status"`
-	ContactEmail string                 `json:"contact_email,omitempty"`
-	ContactPhone string                 `json:"contact_phone,omitempty"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt    time.Time              `json:"created_at"`
-}
-
-// AuthTenantUpdatedEvent represents an auth.tenant.updated event.
-type AuthTenantUpdatedEvent struct {
-	TenantID     string                 `json:"tenant_id"`
-	Slug         string                 `json:"slug,omitempty"`
-	Name         string                 `json:"name,omitempty"`
-	Status       string                 `json:"status,omitempty"`
-	ContactEmail string                 `json:"contact_email,omitempty"`
-	ContactPhone string                 `json:"contact_phone,omitempty"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
-	UpdatedAt    time.Time              `json:"updated_at"`
+// strFromPayload extracts a string from the payload map, returning "" if absent or wrong type.
+func strFromPayload(payload map[string]interface{}, key string) string {
+	v, _ := payload[key].(string)
+	return v
 }
 
 // HandleAuthUserCreated handles auth.user.created events.
-func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, event *AuthUserCreatedEvent) error {
-	authServiceUserID, err := uuid.Parse(event.UserID)
+func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, evt *sharedevents.Event) error {
+	userID := strFromPayload(evt.Payload, "user_id")
+	authServiceUserID, err := uuid.Parse(userID)
 	if err != nil {
 		return fmt.Errorf("identity: invalid user_id in event: %w", err)
 	}
 
-	tenantID := event.TenantID
-	if tenantID == "" {
+	tenantID := evt.TenantID.String()
+	if evt.TenantID == uuid.Nil {
 		return fmt.Errorf("identity: tenant_id required in event")
 	}
 
-	// Convert event to auth-service user data format
-	authUserData := map[string]interface{}{
-		"id":        event.UserID,
-		"email":     event.Email,
-		"full_name": event.FullName,
-		"phone":     event.Phone,
-		"status":    event.Status,
-		"roles":     event.Roles,
-		"metadata":  event.Metadata,
+	// Convert roles []interface{} → []string
+	var roles []string
+	if raw, ok := evt.Payload["roles"].([]interface{}); ok {
+		for _, r := range raw {
+			if s, ok := r.(string); ok {
+				roles = append(roles, s)
+			}
+		}
 	}
 
-	// Create or sync user
+	authUserData := map[string]interface{}{
+		"id":        userID,
+		"email":     strFromPayload(evt.Payload, "email"),
+		"full_name": strFromPayload(evt.Payload, "full_name"),
+		"phone":     strFromPayload(evt.Payload, "phone"),
+		"status":    strFromPayload(evt.Payload, "status"),
+		"roles":     roles,
+		"metadata":  evt.Payload["metadata"],
+	}
+
 	_, err = h.service.SyncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, "")
 	if err != nil {
 		h.logger.Error("Failed to sync user from auth.user.created event",
-			zap.String("user_id", event.UserID),
+			zap.String("user_id", userID),
 			zap.String("tenant_id", tenantID),
 			zap.Error(err))
 		return fmt.Errorf("identity: sync user from event: %w", err)
 	}
 
 	h.logger.Info("User synced from auth.user.created event",
-		zap.String("user_id", event.UserID),
+		zap.String("user_id", userID),
 		zap.String("tenant_id", tenantID),
-		zap.String("email", event.Email))
-
+		zap.String("email", strFromPayload(evt.Payload, "email")))
 	return nil
 }
 
 // HandleAuthUserUpdated handles auth.user.updated events.
-func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, event *AuthUserUpdatedEvent) error {
-	authServiceUserID, err := uuid.Parse(event.UserID)
+func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, evt *sharedevents.Event) error {
+	userID := strFromPayload(evt.Payload, "user_id")
+	authServiceUserID, err := uuid.Parse(userID)
 	if err != nil {
 		return fmt.Errorf("identity: invalid user_id in event: %w", err)
 	}
@@ -133,19 +91,19 @@ func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, event *AuthUse
 	user, err := h.service.repo.FindUserByAuthServiceID(ctx, authServiceUserID)
 	if err != nil {
 		h.logger.Warn("User not found for auth.user.updated event",
-			zap.String("user_id", event.UserID),
+			zap.String("user_id", userID),
 			zap.Error(err))
-		// User might not exist yet, try to create if we have tenant_id
-		if event.TenantID != "" {
+		tenantID := evt.TenantID.String()
+		if evt.TenantID != uuid.Nil {
 			authUserData := map[string]interface{}{
-				"id":        event.UserID,
-				"email":     event.Email,
-				"full_name": event.FullName,
-				"phone":     event.Phone,
-				"status":    event.Status,
-				"metadata":  event.Metadata,
+				"id":        userID,
+				"email":     strFromPayload(evt.Payload, "email"),
+				"full_name": strFromPayload(evt.Payload, "full_name"),
+				"phone":     strFromPayload(evt.Payload, "phone"),
+				"status":    strFromPayload(evt.Payload, "status"),
+				"metadata":  evt.Payload["metadata"],
 			}
-			_, err = h.service.SyncUserFromAuthService(ctx, authServiceUserID, event.TenantID, authUserData, "")
+			_, err = h.service.SyncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, "")
 			if err != nil {
 				return fmt.Errorf("identity: create user from update event: %w", err)
 			}
@@ -154,48 +112,44 @@ func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, event *AuthUse
 		return fmt.Errorf("identity: user not found and no tenant_id: %w", err)
 	}
 
-	// Update user with event data
 	authUserData := map[string]interface{}{
-		"id":        event.UserID,
-		"email":     event.Email,
-		"full_name": event.FullName,
-		"phone":     event.Phone,
-		"status":    event.Status,
-		"metadata":  event.Metadata,
+		"id":        userID,
+		"email":     strFromPayload(evt.Payload, "email"),
+		"full_name": strFromPayload(evt.Payload, "full_name"),
+		"phone":     strFromPayload(evt.Payload, "phone"),
+		"status":    strFromPayload(evt.Payload, "status"),
+		"metadata":  evt.Payload["metadata"],
 	}
 
 	_, err = h.service.updateUserFromAuthService(ctx, user, authUserData)
 	if err != nil {
 		h.logger.Error("Failed to update user from auth.user.updated event",
-			zap.String("user_id", event.UserID),
+			zap.String("user_id", userID),
 			zap.Error(err))
 		return fmt.Errorf("identity: update user from event: %w", err)
 	}
 
 	h.logger.Info("User updated from auth.user.updated event",
-		zap.String("user_id", event.UserID))
-
+		zap.String("user_id", userID))
 	return nil
 }
 
 // HandleAuthUserDeactivated handles auth.user.deactivated events.
-func (h *EventHandler) HandleAuthUserDeactivated(ctx context.Context, event *AuthUserDeactivatedEvent) error {
-	authServiceUserID, err := uuid.Parse(event.UserID)
+func (h *EventHandler) HandleAuthUserDeactivated(ctx context.Context, evt *sharedevents.Event) error {
+	userID := strFromPayload(evt.Payload, "user_id")
+	authServiceUserID, err := uuid.Parse(userID)
 	if err != nil {
 		return fmt.Errorf("identity: invalid user_id in event: %w", err)
 	}
 
-	// Find user by auth_service_user_id
 	user, err := h.service.repo.FindUserByAuthServiceID(ctx, authServiceUserID)
 	if err != nil {
 		h.logger.Warn("User not found for auth.user.deactivated event",
-			zap.String("user_id", event.UserID),
+			zap.String("user_id", userID),
 			zap.Error(err))
-		// User doesn't exist locally, nothing to deactivate
 		return nil
 	}
 
-	// Deactivate user
 	user.Status = "deactivated"
 	now := time.Now()
 	user.UpdatedAt = now
@@ -204,228 +158,104 @@ func (h *EventHandler) HandleAuthUserDeactivated(ctx context.Context, event *Aut
 
 	if err := h.service.repo.UpdateUser(ctx, user); err != nil {
 		h.logger.Error("Failed to deactivate user from auth.user.deactivated event",
-			zap.String("user_id", event.UserID),
+			zap.String("user_id", userID),
 			zap.Error(err))
 		return fmt.Errorf("identity: deactivate user from event: %w", err)
 	}
 
 	h.logger.Info("User deactivated from auth.user.deactivated event",
-		zap.String("user_id", event.UserID))
-
+		zap.String("user_id", userID))
 	return nil
 }
 
 // HandleAuthTenantCreated handles auth.tenant.created events.
-func (h *EventHandler) HandleAuthTenantCreated(ctx context.Context, event *AuthTenantCreatedEvent) error {
-	tenantID, err := uuid.Parse(event.TenantID)
-	if err != nil {
-		return fmt.Errorf("identity: invalid tenant_id in event: %w", err)
+func (h *EventHandler) HandleAuthTenantCreated(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("identity: invalid tenant_id in event")
 	}
 
-	if event.Slug == "" {
+	slug := strFromPayload(evt.Payload, "slug")
+	if slug == "" {
 		return fmt.Errorf("identity: slug required in tenant.created event")
 	}
 
-	tenant := &Tenant{
+	status := strFromPayload(evt.Payload, "status")
+	if status == "" {
+		status = "active"
+	}
+
+	t := &Tenant{
 		ID:     tenantID,
-		Slug:   event.Slug,
-		Name:   event.Name,
-		Status: event.Status,
+		Slug:   slug,
+		Name:   strFromPayload(evt.Payload, "name"),
+		Status: status,
 	}
 
-	if tenant.Status == "" {
-		tenant.Status = "active"
-	}
-
-	if err := h.service.repo.UpsertTenant(ctx, tenant); err != nil {
+	if err := h.service.repo.UpsertTenant(ctx, t); err != nil {
 		h.logger.Error("Failed to create tenant from auth.tenant.created event",
-			zap.String("tenant_id", event.TenantID),
-			zap.String("slug", event.Slug),
+			zap.String("tenant_id", tenantID.String()),
+			zap.String("slug", slug),
 			zap.Error(err))
 		return fmt.Errorf("identity: create tenant from event: %w", err)
 	}
 
 	h.logger.Info("Tenant created from auth.tenant.created event",
-		zap.String("tenant_id", event.TenantID),
-		zap.String("slug", event.Slug),
-		zap.String("name", event.Name))
-
+		zap.String("tenant_id", tenantID.String()),
+		zap.String("slug", slug),
+		zap.String("name", strFromPayload(evt.Payload, "name")))
 	return nil
 }
 
 // HandleAuthTenantUpdated handles auth.tenant.updated events.
-func (h *EventHandler) HandleAuthTenantUpdated(ctx context.Context, event *AuthTenantUpdatedEvent) error {
-	tenantID, err := uuid.Parse(event.TenantID)
-	if err != nil {
-		return fmt.Errorf("identity: invalid tenant_id in event: %w", err)
+func (h *EventHandler) HandleAuthTenantUpdated(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("identity: invalid tenant_id in event")
 	}
 
-	// Find existing tenant
-	tenant, err := h.service.repo.FindTenantByID(ctx, tenantID)
+	slug := strFromPayload(evt.Payload, "slug")
+	name := strFromPayload(evt.Payload, "name")
+	status := strFromPayload(evt.Payload, "status")
+
+	existing, err := h.service.repo.FindTenantByID(ctx, tenantID)
 	if err != nil {
 		h.logger.Warn("Tenant not found for auth.tenant.updated event, creating new tenant",
-			zap.String("tenant_id", event.TenantID),
+			zap.String("tenant_id", tenantID.String()),
 			zap.Error(err))
-
-		// Tenant might not exist yet, create it if we have the slug
-		if event.Slug == "" {
+		if slug == "" {
 			return fmt.Errorf("identity: tenant not found and no slug provided: %w", err)
 		}
-
-		tenant = &Tenant{
-			ID:     tenantID,
-			Slug:   event.Slug,
-			Name:   event.Name,
-			Status: event.Status,
+		if status == "" {
+			status = "active"
 		}
-		if tenant.Status == "" {
-			tenant.Status = "active"
+		existing = &Tenant{
+			ID:     tenantID,
+			Slug:   slug,
+			Name:   name,
+			Status: status,
 		}
 	} else {
-		// Update existing tenant fields (only if provided in event)
-		if event.Slug != "" {
-			tenant.Slug = event.Slug
+		if slug != "" {
+			existing.Slug = slug
 		}
-		if event.Name != "" {
-			tenant.Name = event.Name
+		if name != "" {
+			existing.Name = name
 		}
-		if event.Status != "" {
-			tenant.Status = event.Status
+		if status != "" {
+			existing.Status = status
 		}
 	}
 
-	if err := h.service.repo.UpsertTenant(ctx, tenant); err != nil {
+	if err := h.service.repo.UpsertTenant(ctx, existing); err != nil {
 		h.logger.Error("Failed to update tenant from auth.tenant.updated event",
-			zap.String("tenant_id", event.TenantID),
+			zap.String("tenant_id", tenantID.String()),
 			zap.Error(err))
 		return fmt.Errorf("identity: update tenant from event: %w", err)
 	}
 
 	h.logger.Info("Tenant updated from auth.tenant.updated event",
-		zap.String("tenant_id", event.TenantID),
-		zap.String("slug", tenant.Slug))
-
+		zap.String("tenant_id", tenantID.String()),
+		zap.String("slug", existing.Slug))
 	return nil
 }
-
-// SubscribeToAuthEvents subscribes to auth-service events via NATS.
-func (h *EventHandler) SubscribeToAuthEvents(nc *nats.Conn) error {
-	// Subscribe to auth.user.created
-	_, err := nc.Subscribe("auth.user.created", func(msg *nats.Msg) {
-		var event AuthUserCreatedEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal auth.user.created event", zap.Error(err))
-			return
-		}
-
-		ctx := context.Background()
-		if err := h.HandleAuthUserCreated(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle auth.user.created event", zap.Error(err))
-			// Don't ack the message so it can be retried
-			return
-		}
-
-		// Ack the message
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("identity: subscribe to auth.user.created: %w", err)
-	}
-
-	// Subscribe to auth.user.updated
-	_, err = nc.Subscribe("auth.user.updated", func(msg *nats.Msg) {
-		var event AuthUserUpdatedEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal auth.user.updated event", zap.Error(err))
-			return
-		}
-
-		ctx := context.Background()
-		if err := h.HandleAuthUserUpdated(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle auth.user.updated event", zap.Error(err))
-			// Don't ack the message so it can be retried
-			return
-		}
-
-		// Ack the message
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("identity: subscribe to auth.user.updated: %w", err)
-	}
-
-	// Subscribe to auth.user.deactivated
-	_, err = nc.Subscribe("auth.user.deactivated", func(msg *nats.Msg) {
-		var event AuthUserDeactivatedEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal auth.user.deactivated event", zap.Error(err))
-			return
-		}
-
-		ctx := context.Background()
-		if err := h.HandleAuthUserDeactivated(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle auth.user.deactivated event", zap.Error(err))
-			// Don't ack the message so it can be retried
-			return
-		}
-
-		// Ack the message
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("identity: subscribe to auth.user.deactivated: %w", err)
-	}
-
-	// Subscribe to auth.tenant.created
-	_, err = nc.Subscribe("auth.tenant.created", func(msg *nats.Msg) {
-		var event AuthTenantCreatedEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal auth.tenant.created event", zap.Error(err))
-			return
-		}
-
-		ctx := context.Background()
-		if err := h.HandleAuthTenantCreated(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle auth.tenant.created event", zap.Error(err))
-			// Don't ack the message so it can be retried
-			return
-		}
-
-		// Ack the message
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("identity: subscribe to auth.tenant.created: %w", err)
-	}
-
-	// Subscribe to auth.tenant.updated
-	_, err = nc.Subscribe("auth.tenant.updated", func(msg *nats.Msg) {
-		var event AuthTenantUpdatedEvent
-		if err := json.Unmarshal(msg.Data, &event); err != nil {
-			h.logger.Error("Failed to unmarshal auth.tenant.updated event", zap.Error(err))
-			return
-		}
-
-		ctx := context.Background()
-		if err := h.HandleAuthTenantUpdated(ctx, &event); err != nil {
-			h.logger.Error("Failed to handle auth.tenant.updated event", zap.Error(err))
-			// Don't ack the message so it can be retried
-			return
-		}
-
-		// Ack the message
-		_ = msg.Ack()
-	})
-	if err != nil {
-		return fmt.Errorf("identity: subscribe to auth.tenant.updated: %w", err)
-	}
-
-	h.logger.Info("Subscribed to auth-service events",
-		zap.Strings("events", []string{
-			"auth.user.created", "auth.user.updated", "auth.user.deactivated",
-			"auth.tenant.created", "auth.tenant.updated",
-		}))
-
-	return nil
-}
-
