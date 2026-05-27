@@ -47,8 +47,16 @@ func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc
 // ListItems fetches items from inventory-api, merges with local overrides,
 // and attaches favorite status if userID is provided.
 func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, filter CatalogFilter) ([]MergedCatalogItem, int, error) {
-	// 1. Fetch inventory items — pass type filter so inventory-api returns only needed types
-	invItems, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType)
+	// 1. Fetch inventory items with server-side type filter and pagination.
+	limit := filter.Limit
+	if limit <= 0 {
+		limit = 20
+	}
+	page := 1
+	if filter.Offset > 0 {
+		page = (filter.Offset / limit) + 1
+	}
+	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page)
 	if err != nil {
 		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
@@ -136,28 +144,13 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		merged = append(merged, item)
 	}
 
-	total := len(merged)
-
-	// Apply pagination
-	start := filter.Offset
-	if start > total {
-		start = total
-	}
-	end := start + filter.Limit
-	if filter.Limit <= 0 {
-		end = total
-	}
-	if end > total {
-		end = total
-	}
-
-	return merged[start:end], total, nil
+	return merged, invTotal, nil
 }
 
 // GetItem fetches a single item from inventory-api by SKU, merges with override.
 func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*MergedCatalogItem, error) {
-	// Fetch from inventory
-	invItems, err := s.inventoryClient.ListItems(ctx, tenantSlug)
+	// Fetch all orderable types to locate the item by SKU (single-item lookup, no pagination).
+	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
