@@ -21,14 +21,16 @@ func TestIsSuperuser(t *testing.T) {
 		{
 			name: "superuser in scope",
 			claims: &authclient.Claims{
-				Scope: []string{"superuser", "read", "write"},
+				Roles: []string{"superuser"},
+				Scope: []string{"read", "write"},
 			},
 			want: true,
 		},
 		{
 			name: "superuser as role",
 			claims: &authclient.Claims{
-				Scope: []string{"role:superuser", "read"},
+				Roles: []string{"superuser"},
+				Scope: []string{"read"},
 			},
 			want: true,
 		},
@@ -74,7 +76,7 @@ func TestAuthenticator_RequireRoles_WithSuperuser(t *testing.T) {
 		{
 			name: "superuser bypasses role check",
 			claims: &authclient.Claims{
-				Scope: []string{"superuser"},
+				Roles: []string{"superuser"},
 			},
 			requiredRoles:  []identity.Role{identity.RoleAdmin},
 			expectedStatus: http.StatusOK,

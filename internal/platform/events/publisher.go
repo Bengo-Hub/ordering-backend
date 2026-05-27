@@ -528,6 +528,40 @@ type OrderForPickupData struct {
 	Notes         string                   `json:"notes,omitempty"`
 }
 
+// OrderOutForDeliveryData represents data for order.out_for_delivery event.
+type OrderOutForDeliveryData struct {
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name"`
+	CustomerPhone string    `json:"customer_phone"`
+	RiderName     string    `json:"rider_name,omitempty"`
+	RiderPhone    string    `json:"rider_phone,omitempty"`
+}
+
+// PublishOrderOutForDelivery publishes an ordering.order.out_for_delivery event.
+func (p *Publisher) PublishOrderOutForDelivery(ctx context.Context, tenantID uuid.UUID, data OrderOutForDeliveryData) error {
+	eventData := map[string]interface{}{
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"rider_name":     data.RiderName,
+		"rider_phone":    data.RiderPhone,
+		"notification": map[string]interface{}{
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_name":  data.CustomerName,
+			"recipient_phone": data.CustomerPhone,
+		},
+	}
+	event := NewEvent("ordering.order.out_for_delivery", tenantID, eventData)
+	return p.Publish(ctx, "ordering.order.out_for_delivery", event)
+}
+
 // PublishOrderForPickup publishes an order.for_pickup event (for POS handoff).
 func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUID, data OrderForPickupData) error {
 	eventData := map[string]interface{}{
