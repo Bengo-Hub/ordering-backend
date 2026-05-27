@@ -1762,6 +1762,8 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 		} else {
 			s.publishOrderReady(ctx, order)
 		}
+	case OrderStatusOutForDelivery:
+		s.publishOrderOutForDelivery(ctx, order)
 	case OrderStatusCompleted:
 		s.publishOrderCompleted(ctx, order)
 	}
@@ -1817,6 +1819,27 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 
 	if err := s.eventPublisher.PublishOrderForPickup(ctx, order.TenantID, data); err != nil {
 		s.logger.Error("failed to publish order.for_pickup event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderOutForDelivery publishes an ordering.order.out_for_delivery event to NATS.
+func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+	ci := s.orderContactInfo(ctx, order)
+	data := events.OrderOutForDeliveryData{
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+	}
+	if err := s.eventPublisher.PublishOrderOutForDelivery(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.out_for_delivery event",
 			zap.Error(err),
 			zap.String("order_id", order.ID.String()))
 	}
