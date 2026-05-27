@@ -21,6 +21,7 @@ type MergedCatalogItem struct {
 	ImageURL     string     `json:"imageUrl,omitempty"`
 	CategoryID   *uuid.UUID `json:"categoryId,omitempty"`
 	CategoryName string     `json:"categoryName,omitempty"`
+	Tags         []string   `json:"tags,omitempty"`
 
 	// Override fields (from CatalogOverride)
 	BasePrice         float64 `json:"basePrice"`
@@ -82,6 +83,8 @@ type CatalogFilter struct {
 	UserID      *uuid.UUID // for checking favorites
 	Limit       int
 	Offset      int
+	ItemType    string   // e.g. "SERVICE", "GOODS", "RECIPE" — empty means all
+	Tags        []string // items must have ALL of these tags
 }
 
 // OverrideUpsertRequest is the request payload for creating/updating a CatalogOverride.

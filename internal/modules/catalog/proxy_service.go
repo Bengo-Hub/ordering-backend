@@ -93,6 +93,25 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		item := mergeItem(inv, override, favSet)
 
 		// Apply filters
+		if filter.ItemType != "" && !strings.EqualFold(item.Type, filter.ItemType) {
+			continue
+		}
+		if len(filter.Tags) > 0 {
+			tagSet := make(map[string]struct{}, len(item.Tags))
+			for _, t := range item.Tags {
+				tagSet[strings.ToLower(t)] = struct{}{}
+			}
+			skip := false
+			for _, required := range filter.Tags {
+				if _, ok := tagSet[strings.ToLower(required)]; !ok {
+					skip = true
+					break
+				}
+			}
+			if skip {
+				continue
+			}
+		}
 		if filter.Search != "" {
 			q := strings.ToLower(filter.Search)
 			if !strings.Contains(strings.ToLower(item.Name), q) &&
@@ -442,6 +461,7 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		ImageURL:     inv.ImageURL,
 		CategoryID:   inv.CategoryID,
 		CategoryName: inv.CategoryName,
+		Tags:         inv.Tags,
 		Currency:     DefaultCurrency,
 		IsAvailable:  inv.IsActive,
 	}

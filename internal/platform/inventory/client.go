@@ -399,17 +399,18 @@ type CreateItemRequest struct {
 
 // ItemResponse represents an item returned from inventory-api.
 type ItemResponse struct {
-	ID          uuid.UUID      `json:"id"`
-	SKU         string         `json:"sku"`
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	Type        string         `json:"type"`
-	IsActive    bool           `json:"is_active"`
-	ImageURL    string         `json:"image_url,omitempty"`
+	ID           uuid.UUID      `json:"id"`
+	SKU          string         `json:"sku"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description,omitempty"`
+	Type         string         `json:"type"`
+	IsActive     bool           `json:"is_active"`
+	ImageURL     string         `json:"image_url,omitempty"`
 	CategoryID   *uuid.UUID     `json:"category_id,omitempty"`
 	CategoryName string         `json:"category_name,omitempty"`
 	UnitID       *uuid.UUID     `json:"unit_id,omitempty"`
-	Metadata    map[string]any `json:"metadata,omitempty"`
+	Tags         []string       `json:"tags,omitempty"`
+	Metadata     map[string]any `json:"metadata,omitempty"`
 }
 
 // CreateItem creates a new item in inventory-api.
@@ -437,9 +438,9 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter ..
 	if len(typeFilter) > 0 && typeFilter[0] != "" {
 		path += "?type=" + typeFilter[0]
 	} else {
-		// Default: fetch both GOODS and RECIPE types for the ordering catalog
-		// RECIPE items have BOM linkages and appear on the recipes page
-		path += "?type=GOODS,RECIPE"
+		// Default: fetch GOODS, RECIPE, and SERVICE types for the ordering catalog.
+		// SERVICE covers non-stockable items like events and experiences.
+		path += "?type=GOODS,RECIPE,SERVICE"
 	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
