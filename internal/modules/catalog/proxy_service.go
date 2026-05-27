@@ -47,8 +47,8 @@ func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc
 // ListItems fetches items from inventory-api, merges with local overrides,
 // and attaches favorite status if userID is provided.
 func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, filter CatalogFilter) ([]MergedCatalogItem, int, error) {
-	// 1. Fetch inventory items
-	invItems, err := s.inventoryClient.ListItems(ctx, tenantSlug)
+	// 1. Fetch inventory items — pass type filter so inventory-api returns only needed types
+	invItems, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType)
 	if err != nil {
 		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
