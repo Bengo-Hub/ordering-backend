@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -119,8 +120,17 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		TenantID: tenantID,
 		Search:   r.URL.Query().Get("search"),
 		Section:  r.URL.Query().Get("section"),
+		ItemType: strings.ToUpper(r.URL.Query().Get("item_type")),
 		Limit:    limit,
 		Offset:   offset,
+	}
+
+	if tagsParam := r.URL.Query().Get("tags"); tagsParam != "" {
+		for _, t := range strings.Split(tagsParam, ",") {
+			if t = strings.TrimSpace(t); t != "" {
+				filter.Tags = append(filter.Tags, t)
+			}
+		}
 	}
 
 	if outletIDStr := r.URL.Query().Get("outlet_id"); outletIDStr != "" {

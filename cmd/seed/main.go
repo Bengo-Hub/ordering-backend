@@ -1577,6 +1577,14 @@ func seedCatalogOverrides(ctx context.Context, tx *ent.Tx, tenantID, outletID uu
 		// Pizza
 		{"PIZ-MAR-001", 750, false, 20, "default", ""},
 		{"PIZ-PEP-001", 850, true, 20, "top_rated", ""},
+
+		// Events & Experiences (SERVICE type — non-stockable)
+		{"EVT-JAZ-001", 2500, true, 0, "events", ""},
+		{"EVT-BAR-001", 1500, false, 0, "events", ""},
+		{"EVT-WIN-001", 3000, true, 0, "events", ""},
+		{"EVT-BRN-001", 1800, false, 0, "events", ""},
+		{"EVT-MIX-001", 2000, false, 0, "events", ""},
+		{"EVT-QUZ-001", 500, false, 0, "events", ""},
 	}
 
 	for i, o := range overrides {
