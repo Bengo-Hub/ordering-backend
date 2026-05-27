@@ -3,10 +3,10 @@ package orderinghandler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Bengo-Hub/pagination"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	httpware "github.com/Bengo-Hub/httpware"
 
@@ -185,10 +185,11 @@ type OrderItemDTO struct {
 
 // ListOrdersResponse represents the paginated order list response.
 type ListOrdersResponse struct {
-	Data  []ordering.Order `json:"data"`
-	Total int              `json:"total"`
-	Limit int              `json:"limit"`
-	Page  int              `json:"page"`
+	Data    []ordering.Order `json:"data"`
+	Total   int              `json:"total"`
+	Limit   int              `json:"limit"`
+	Page    int              `json:"page"`
+	HasMore bool             `json:"hasMore"`
 }
 
 // AdminOrderItemSummary is the lightweight item included in AdminOrderSummary.
@@ -231,10 +232,11 @@ type AdminOrderSummary struct {
 
 // AdminListOrdersResponse is the paginated response for admin order list views.
 type AdminListOrdersResponse struct {
-	Data  []AdminOrderSummary `json:"data"`
-	Total int                 `json:"total"`
-	Limit int                 `json:"limit"`
-	Page  int                 `json:"page"`
+	Data    []AdminOrderSummary `json:"data"`
+	Total   int                 `json:"total"`
+	Limit   int                 `json:"limit"`
+	Page    int                 `json:"page"`
+	HasMore bool                `json:"hasMore"`
 }
 
 // toAdminOrderSummary converts a full Order to the lightweight AdminOrderSummary.
@@ -333,25 +335,6 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		h.log.Error("internal error", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
 	}
-}
-
-func getPagination(r *http.Request) (limit, offset, page int) {
-	limit = 50
-	page = 1
-
-	if l := r.URL.Query().Get("limit"); l != "" {
-		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 && parsed <= 100 {
-			limit = parsed
-		}
-	}
-	if p := r.URL.Query().Get("page"); p != "" {
-		if parsed, err := strconv.Atoi(p); err == nil && parsed > 0 {
-			page = parsed
-		}
-	}
-
-	offset = (page - 1) * limit
-	return
 }
 
 func parseOrderStatus(status string) (ordering.OrderStatus, error) {
@@ -856,13 +839,13 @@ func (h *OrderHandler) ListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit, offset, page := getPagination(r)
+	p := pagination.Parse(r)
 
 	filter := ordering.OrderFilter{
 		TenantID:   tenantID,
 		CustomerID: &user.ID,
-		Limit:      limit,
-		Offset:     offset,
+		Limit:      p.Limit,
+		Offset:     p.Offset,
 	}
 
 	// Apply outlet context filter if X-Outlet-ID was sent
@@ -899,10 +882,11 @@ func (h *OrderHandler) ListOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, ListOrdersResponse{
-		Data:  orders,
-		Total: total,
-		Limit: limit,
-		Page:  page,
+		Data:    orders,
+		Total:   total,
+		Limit:   p.Limit,
+		Page:    p.Page,
+		HasMore: p.Offset+len(orders) < total,
 	})
 }
 
@@ -1102,12 +1086,12 @@ func (h *OrderHandler) AdminListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit, offset, page := getPagination(r)
+	p := pagination.Parse(r)
 
 	filter := ordering.OrderFilter{
 		TenantID: tenantID,
-		Limit:    limit,
-		Offset:   offset,
+		Limit:    p.Limit,
+		Offset:   p.Offset,
 		Search:   r.URL.Query().Get("search"),
 	}
 
@@ -1175,10 +1159,11 @@ func (h *OrderHandler) AdminListOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, AdminListOrdersResponse{
-		Data:  summaries,
-		Total: total,
-		Limit: limit,
-		Page:  page,
+		Data:    summaries,
+		Total:   total,
+		Limit:   p.Limit,
+		Page:    p.Page,
+		HasMore: p.Offset+len(summaries) < total,
 	})
 }
 
