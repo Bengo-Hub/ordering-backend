@@ -4,45 +4,42 @@
 
 set -e
 
+# Use direct PostgreSQL URL for migrate/seed to bypass PgBouncer transaction mode.
+MIGRATE_URL="${POSTGRES_MIGRATE_URL:-$POSTGRES_URL}"
+
 echo "=========================================="
 echo "Ordering-Backend Service Startup"
 echo "=========================================="
 
 # Sync media assets to persistent volume if mounted
 if [ -d "/media" ] && [ -d "/app/media" ]; then
-  echo "📁 Synchronizing media assets to persistent volume..."
-  # -n: do not overwrite existing files
-  # -r: recursive
+  echo "Synchronizing media assets to persistent volume..."
   cp -rn /app/media/* /media/ 2>/dev/null || true
-  echo "✅ Media synchronization complete"
+  echo "Media synchronization complete"
 fi
 
-# Wait for database to be ready (with timeout)
-echo "Waiting for database connection..."
-# 60 retries * 5s = 5 minutes
+echo "Waiting for database and running migrations..."
 MAX_RETRIES=60
 RETRY_COUNT=0
 
-# Use the ordering-migrate binary to check connection
-# It will succeed if DB is ready, fail otherwise
-until /usr/local/bin/ordering-migrate > /dev/null 2>&1 || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
+until POSTGRES_URL="$MIGRATE_URL" /usr/local/bin/ordering-migrate > /dev/null 2>&1 || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
   RETRY_COUNT=$((RETRY_COUNT+1))
-  echo "Database not ready yet or migrations failing... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+  echo "Database not ready yet... (attempt $RETRY_COUNT/$MAX_RETRIES)"
   sleep 5
 done
 
 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
   echo "Database connection timeout after $MAX_RETRIES attempts"
-  echo "Proceeding to start server anyway (will fail if DB is critical)"
-else
-  echo "Database connected and migrations completed (attempt $RETRY_COUNT)"
+  exit 1
 fi
+
+echo "Migrations applied successfully"
 
 echo ""
 echo "=========================================="
 echo "Running seed (idempotent)"
 echo "=========================================="
-/usr/local/bin/ordering-seed || echo "Seed completed with warnings (non-fatal)"
+POSTGRES_URL="$MIGRATE_URL" /usr/local/bin/ordering-seed || echo "Seed completed with warnings (non-fatal)"
 
 echo ""
 echo "=========================================="
