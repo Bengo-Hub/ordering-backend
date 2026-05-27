@@ -431,14 +431,14 @@ func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateIt
 }
 
 // ListItems returns active items from inventory-api, optionally filtered by type.
-// If no typeFilter is given, GOODS, RECIPE, and SERVICE types are returned (catalog-safe).
-// Passes limit=500 to fetch the full catalog in one request (inventory-api default is 20).
+// If no typeFilter is given, defaults to GOODS,RECIPE (the orderable catalog — SERVICE items are
+// fetched only when explicitly requested, e.g. item_type=SERVICE for the events endpoint).
 func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter ...string) ([]ItemResponse, error) {
-	typeParam := "GOODS,RECIPE,SERVICE"
+	typeParam := "GOODS,RECIPE"
 	if len(typeFilter) > 0 && typeFilter[0] != "" {
 		typeParam = typeFilter[0]
 	}
-	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&limit=500", tenantSlug, typeParam)
+	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s", tenantSlug, typeParam)
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
