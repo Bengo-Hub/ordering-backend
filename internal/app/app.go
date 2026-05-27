@@ -43,7 +43,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/rbac"
-	"github.com/bengobox/ordering-backend/internal/modules/outbox"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
@@ -68,7 +67,7 @@ type App struct {
 	cache           cacheCloser
 	events          eventCloser
 	orm             *ent.Client
-	outboxPublisher *outbox.Publisher
+	outboxPublisher *eventslib.OutboxPoller
 }
 
 type dbCloser interface {
@@ -287,7 +286,7 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize event publisher for NATS JetStream events
 	var eventPublisher *events.Publisher
-	var outboxPublisher *outbox.Publisher
+	var outboxPublisher *eventslib.OutboxPoller
 	if natsConn != nil {
 		// Ensure the "ordering" JetStream stream exists for durable event delivery
 		if err := events.EnsureStream(ctx, natsConn, cfg.Events); err != nil {
@@ -347,12 +346,12 @@ func New(ctx context.Context) (*App, error) {
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
 		if cfg.Events.OutboxEnabled && js != nil {
 			outboxRepo := eventslib.NewSQLOutboxRepository(sqlDB)
-			outboxNatsPublisher := events.NewOutboxPublisher(js, log)
-			outboxConfig := outbox.PublisherConfig{
+			outboxJSPublisher := eventslib.NewJetStreamAdapter(js, log)
+			outboxConfig := eventslib.PollerConfig{
 				BatchSize:  cfg.Events.OutboxBatchSize,
 				PollPeriod: cfg.Events.OutboxPollPeriod,
 			}
-			outboxPublisher = outbox.NewPublisher(outboxRepo, outboxNatsPublisher, log, outboxConfig)
+			outboxPublisher = eventslib.NewOutboxPoller(outboxRepo, outboxJSPublisher, log, outboxConfig)
 			outboxPublisher.Start(ctx)
 			log.Info("app: outbox background publisher started (JetStream)",
 				zap.Int("batch_size", cfg.Events.OutboxBatchSize),
