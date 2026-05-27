@@ -430,29 +430,36 @@ func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateIt
 	return &result, nil
 }
 
-// ListItems returns active items from inventory-api, optionally filtered by type.
-// If no typeFilter is given, defaults to GOODS,RECIPE (the orderable catalog — SERVICE items are
-// fetched only when explicitly requested, e.g. item_type=SERVICE for the events endpoint).
-func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter ...string) ([]ItemResponse, error) {
-	typeParam := "GOODS,RECIPE"
-	if len(typeFilter) > 0 && typeFilter[0] != "" {
-		typeParam = typeFilter[0]
+// ListItems returns items from inventory-api filtered by type, with server-side pagination.
+// typeFilter: comma-separated types (e.g. "SERVICE", "GOODS,RECIPE"). Defaults to "GOODS,RECIPE".
+// limit: page size; uses inventory-api default (20) when <= 0.
+// page: 1-based page number; defaults to 1 when <= 0.
+func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int) ([]ItemResponse, int, error) {
+	if typeFilter == "" {
+		typeFilter = "GOODS,RECIPE"
 	}
-	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s", tenantSlug, typeParam)
+	if limit <= 0 {
+		limit = 20
+	}
+	if page <= 0 {
+		page = 1
+	}
+	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&limit=%d&page=%d", tenantSlug, typeFilter, limit, page)
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
+		return nil, 0, fmt.Errorf("execute request: %w", err)
 	}
 	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
+		return nil, 0, c.parseError(resp)
 	}
 	var listResp struct {
-		Data []ItemResponse `json:"data"`
+		Data  []ItemResponse `json:"data"`
+		Total int            `json:"total"`
 	}
 	if err := resp.DecodeJSON(&listResp); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
+		return nil, 0, fmt.Errorf("decode response: %w", err)
 	}
-	return listResp.Data, nil
+	return listResp.Data, listResp.Total, nil
 }
 
 // GetOrCreateItem checks if an item exists by SKU, creates it if not.
