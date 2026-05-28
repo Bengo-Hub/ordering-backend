@@ -44,7 +44,7 @@ func EnsureStream(ctx context.Context, nc *nats.Conn, cfg config.EventsConfig) e
 	// Create stream with subjects matching all ordering event types
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:     cfg.StreamName, // "ordering"
-		Subjects: []string{"ordering.*", "ordering.order.*", "ordering.catalog.*", "cafe.*"},
+		Subjects: []string{"ordering.>", "cafe.>"},
 		Replicas: 1,
 	})
 	if err != nil {
