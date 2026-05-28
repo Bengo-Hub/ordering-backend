@@ -81,6 +81,18 @@ func main() {
 		log.Fatalf("seed data: %v", err)
 	}
 
+	// Seed codevertex-demo tenant so it is ready for demo logins.
+	// Outlets are synced automatically via NATS JetStream at runtime; only the
+	// tenant row and service-level settings need to be seeded here.
+	if demoID, demoErr := syncer.SyncTenant(ctx, "codevertex-demo"); demoErr != nil {
+		log.Printf("  [SKIP] sync codevertex-demo: %v", demoErr)
+	} else {
+		log.Printf("▶ Seeding ordering for tenant: codevertex-demo (%s)", demoID)
+		if err := seedDemoTenantSettings(ctx, client, demoID); err != nil {
+			log.Printf("  ⚠️  seed demo tenant settings: %v", err)
+		}
+	}
+
 	// Seed platform admin user for codevertex (global admin) when SEED_PLATFORM_ADMIN_USER_ID is set.
 	if codevertexTenantID != uuid.Nil {
 		if err := seedPlatformAdminForCodevertex(ctx, client, codevertexTenantID); err != nil {
@@ -578,6 +590,20 @@ func upsertTenantSettings(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) e
 		}
 	}
 	return nil
+}
+
+// seedDemoTenantSettings upserts ordering settings for the codevertex-demo tenant
+// outside of a transaction (used at startup, not in the main runSeed flow).
+func seedDemoTenantSettings(ctx context.Context, client *ent.Client, tenantID uuid.UUID) error {
+	tx, err := client.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	if err := upsertTenantSettings(ctx, tx, tenantID); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
 func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, tenantSlug string) error {

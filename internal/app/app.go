@@ -167,13 +167,13 @@ func New(ctx context.Context) (*App, error) {
 			authMiddleware = authclient.NewAuthMiddleware(validator)
 		}
 
-		// Initialize NATS core subscribers (plain subscribe, no JetStream needed)
+		// Initialize JetStream durable subscribers for outlet sync and subscription cache.
 		if natsConn != nil {
-			// Initialize NATS event subscribers for proactive provisioning
-			eventSub := events.NewSubscriber(natsConn, log)
+			// Outlet sync: auth.outlet.* JetStream events → local outlet projections.
+			// Replaces the legacy plain-NATS auth.tenant.branch.created subscription.
 			branchSub := tenant.NewBranchSubscriber(ormClient, log)
-			if err := branchSub.RegisterSubscribers(eventSub); err != nil {
-				log.Error("failed to register branch subscribers", zap.Error(err))
+			if err := branchSub.Start(natsConn); err != nil {
+				log.Error("failed to start outlet event subscriber", zap.Error(err))
 			}
 
 			// Invalidate tenant branding cache when subscription changes so new plan
