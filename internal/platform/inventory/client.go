@@ -413,6 +413,11 @@ type ItemResponse struct {
 	Metadata       map[string]any `json:"metadata,omitempty"`
 	CostPrice      *float64       `json:"cost_price,omitempty"`
 	SuggestedPrice *float64       `json:"suggested_price,omitempty"`
+	// Event fields — SERVICE type only
+	TotalCapacity  *int       `json:"total_capacity,omitempty"`
+	EventStartAt   *time.Time `json:"event_start_at,omitempty"`
+	EventEndAt     *time.Time `json:"event_end_at,omitempty"`
+	EventVenue     string     `json:"event_venue,omitempty"`
 }
 
 // CreateItem creates a new item in inventory-api.
