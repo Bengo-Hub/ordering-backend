@@ -16,7 +16,6 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
-	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
@@ -1457,16 +1456,10 @@ func seedDeliveryZones(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) erro
 // --- Catalog Seeding ---
 
 func seedCatalog(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
-	outletID, err := seedOutlet(ctx, tx, tenantID)
-	if err != nil {
+	if _, err := seedOutlet(ctx, tx, tenantID); err != nil {
 		return fmt.Errorf("seed outlet: %w", err)
 	}
-
-	if err := seedCatalogOverrides(ctx, tx, tenantID, outletID); err != nil {
-		return fmt.Errorf("seed catalog overrides: %w", err)
-	}
-
-	log.Println("  ✓ Catalog seeded (outlet, catalog overrides)")
+	log.Println("  ✓ Catalog seeded (outlet)")
 	return nil
 }
 
@@ -1522,139 +1515,3 @@ func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID,
 	return o.ID, nil
 }
 
-// seedCatalogOverrides creates per-outlet pricing overrides for inventory-api items.
-// Master data (name, description, image, category) comes from inventory-api.
-// This seeds ONLY ordering-specific fields: pricing, availability, featured status, etc.
-// Uses the same SKUs as inventory-api so items are linked via inventory_sku.
-func seedCatalogOverrides(ctx context.Context, tx *ent.Tx, tenantID, outletID uuid.UUID) error {
-	type override struct {
-		sku            string
-		price          float64 // KES — ordering-specific pricing
-		featured       bool
-		leadTime       int    // prep time in minutes
-		displaySection string // featured, new, top_rated, stores, default
-		imageOverride  string // optional image override (empty = use inventory image)
-	}
-	// Overrides aligned with inventory-api item SKUs.
-	// Name, description, category, and image come from inventory-api master data.
-	overrides := []override{
-		// Hot Beverages
-		{"BEV-ESP-001", 250, false, 3, "default", ""},
-		{"BEV-ESP-002", 300, false, 3, "default", ""},
-		{"BEV-LAT-001", 350, false, 4, "default", ""},
-		{"BEV-CAP-001", 350, true, 4, "featured", ""},
-		{"BEV-AME-001", 280, false, 3, "default", ""},
-		{"BEV-MOC-001", 400, false, 5, "default", ""},
-		{"BEV-MAC-001", 300, false, 3, "default", ""},
-		{"BEV-TEA-001", 200, false, 4, "default", ""},
-		{"BEV-TEA-002", 250, true, 5, "featured", ""},
-		{"BEV-HOT-001", 400, false, 5, "default", ""},
-
-		// Cold Beverages
-		{"BEV-ICE-001", 350, false, 4, "default", ""},
-		{"BEV-ICE-002", 300, false, 3, "default", ""},
-		{"BEV-FRP-001", 450, true, 5, "featured", ""},
-		{"BEV-FRP-002", 450, false, 5, "default", ""},
-		{"BEV-SMO-001", 400, true, 5, "featured", ""},
-		{"BEV-SMO-002", 400, false, 5, "default", ""},
-		{"BEV-JCE-001", 350, false, 5, "default", ""},
-
-		// Pastries & Bakery
-		{"PST-CRO-001", 200, false, 2, "default", ""},
-		{"PST-CRO-002", 250, true, 2, "new", ""},
-		{"PST-MUF-001", 220, false, 2, "default", ""},
-		{"PST-MUF-002", 220, false, 2, "default", ""},
-		{"PST-CKE-001", 350, false, 2, "default", ""},
-		{"PST-CKE-002", 380, false, 2, "default", ""},
-		{"PST-CKE-003", 380, false, 2, "default", ""},
-		{"PST-DAN-001", 250, false, 2, "default", ""},
-		{"PST-SCO-001", 200, false, 2, "default", ""},
-
-		// Sandwiches & Wraps
-		{"SND-CLB-001", 650, false, 12, "default", ""},
-		{"SND-GRL-001", 600, true, 10, "top_rated", ""},
-		{"SND-VEG-001", 500, false, 8, "default", ""},
-		{"SND-BLT-001", 550, false, 10, "default", ""},
-		{"SND-TUN-001", 550, false, 10, "default", ""},
-
-		// Salads
-		{"SAL-CES-001", 500, false, 8, "default", ""},
-		{"SAL-GRK-001", 500, false, 8, "default", ""},
-
-		// Light Bites
-		{"BTE-SAM-001", 300, false, 10, "default", ""},
-		{"BTE-SPR-001", 350, false, 10, "default", ""},
-
-		// Main Courses
-		{"MIN-GRL-001", 1200, true, 30, "featured", ""},
-		{"MIN-GRL-002", 950, true, 25, "featured", ""},
-		{"MIN-CUR-001", 850, false, 25, "default", ""},
-		{"MIN-CUR-002", 800, false, 30, "default", ""},
-		{"MIN-SEA-001", 850, false, 20, "default", ""},
-		{"MIN-PAS-001", 750, false, 20, "default", ""},
-		{"MIN-RIC-001", 700, false, 20, "default", ""},
-
-		// Breakfast
-		{"BRK-FUL-001", 850, true, 15, "featured", ""},
-		{"BRK-PAN-001", 650, false, 12, "default", ""},
-		{"BRK-AVT-001", 550, false, 10, "new", ""},
-		{"BRK-OAT-001", 400, false, 2, "default", ""},
-
-		// Pizza
-		{"PIZ-MAR-001", 750, false, 20, "default", ""},
-		{"PIZ-PEP-001", 850, true, 20, "top_rated", ""},
-
-		// Events & Experiences (SERVICE type — non-stockable)
-		{"EVT-JAZ-001", 2500, true, 0, "events", ""},
-		{"EVT-BAR-001", 1500, false, 0, "events", ""},
-		{"EVT-WIN-001", 3000, true, 0, "events", ""},
-		{"EVT-BRN-001", 1800, false, 0, "events", ""},
-		{"EVT-MIX-001", 2000, false, 0, "events", ""},
-		{"EVT-QUZ-001", 500, false, 0, "events", ""},
-	}
-
-	for i, o := range overrides {
-		// Use deterministic UUID for the catalog override
-		overrideID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:override:urban-loft:"+o.sku))
-
-		existing, err := tx.CatalogOverride.Query().Where(catalogoverride.ID(overrideID)).Only(ctx)
-		if err == nil {
-			// Update in case fields changed
-			upd := tx.CatalogOverride.UpdateOneID(existing.ID).
-				SetBasePrice(o.price).
-				SetIsFeatured(o.featured).
-				SetLeadTimeMinutes(o.leadTime).
-				SetDisplayOrder(i + 1).
-				SetDisplaySection(o.displaySection)
-			if o.imageOverride != "" {
-				upd = upd.SetImageURLOverride(o.imageOverride)
-			}
-			_, _ = upd.Save(ctx)
-			continue
-		}
-		if !ent.IsNotFound(err) {
-			return err
-		}
-
-		cr := tx.CatalogOverride.Create().
-			SetID(overrideID).
-			SetTenantID(tenantID).
-			SetOutletID(outletID).
-			SetInventorySku(o.sku).
-			SetBasePrice(o.price).
-			SetCurrency("KES").
-			SetIsAvailable(true).
-			SetIsFeatured(o.featured).
-			SetLeadTimeMinutes(o.leadTime).
-			SetDisplayOrder(i + 1).
-			SetDisplaySection(o.displaySection)
-		if o.imageOverride != "" {
-			cr = cr.SetImageURLOverride(o.imageOverride)
-		}
-		_, err = cr.Save(ctx)
-		if err != nil {
-			return fmt.Errorf("create catalog override for %s: %w", o.sku, err)
-		}
-	}
-	return nil
-}

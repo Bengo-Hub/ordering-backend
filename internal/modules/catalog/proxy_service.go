@@ -91,13 +91,10 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 	}
 
-	// 4. Merge — only items with a CatalogOverride appear on the menu
+	// 4. Merge — all inventory items appear; override enriches them when present
 	var merged []MergedCatalogItem
 	for _, inv := range invItems {
-		override, hasOverride := overrideMap[inv.SKU]
-		if !hasOverride {
-			continue // inventory item has no catalog listing
-		}
+		override := overrideMap[inv.SKU] // nil when no override exists — mergeItem handles it
 		item := mergeItem(inv, override, favSet)
 
 		// Apply filters
@@ -459,8 +456,17 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		IsAvailable:  inv.IsActive,
 	}
 
+	// Seed price from inventory cost/suggested price as baseline fallback.
+	if inv.SuggestedPrice != nil && *inv.SuggestedPrice > 0 {
+		item.BasePrice = *inv.SuggestedPrice
+	} else if inv.CostPrice != nil && *inv.CostPrice > 0 {
+		item.BasePrice = *inv.CostPrice
+	}
+
 	if override != nil {
-		item.BasePrice = override.BasePrice
+		if override.BasePrice > 0 {
+			item.BasePrice = override.BasePrice
+		}
 		item.Currency = override.Currency
 		item.IsAvailable = override.IsAvailable
 		item.IsFeatured = override.IsFeatured
