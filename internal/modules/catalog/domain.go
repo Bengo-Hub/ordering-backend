@@ -22,6 +22,13 @@ type MergedCatalogItem struct {
 	CategoryID   *uuid.UUID `json:"categoryId,omitempty"`
 	CategoryName string     `json:"categoryName,omitempty"`
 	Tags         []string   `json:"tags,omitempty"`
+	Metadata     map[string]any `json:"metadata,omitempty"`
+
+	// Event fields (SERVICE type only) — sourced from inventory
+	TotalCapacity *int       `json:"totalCapacity,omitempty"`
+	EventStartAt  *time.Time `json:"eventStartAt,omitempty"`
+	EventEndAt    *time.Time `json:"eventEndAt,omitempty"`
+	EventVenue    string     `json:"eventVenue,omitempty"`
 
 	// Override fields (from CatalogOverride)
 	BasePrice         float64 `json:"basePrice"`

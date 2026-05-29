@@ -442,18 +442,23 @@ func entOutletToSummary(o *ent.Outlet) OutletSummary {
 
 func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet map[string]struct{}) MergedCatalogItem {
 	item := MergedCatalogItem{
-		InventorySKU: inv.SKU,
-		InventoryID:  inv.ID,
-		Name:         inv.Name,
-		Description:  inv.Description,
-		Type:         inv.Type,
-		IsActive:     inv.IsActive,
-		ImageURL:     inv.ImageURL,
-		CategoryID:   inv.CategoryID,
-		CategoryName: inv.CategoryName,
-		Tags:         inv.Tags,
-		Currency:     DefaultCurrency,
-		IsAvailable:  inv.IsActive,
+		InventorySKU:  inv.SKU,
+		InventoryID:   inv.ID,
+		Name:          inv.Name,
+		Description:   inv.Description,
+		Type:          inv.Type,
+		IsActive:      inv.IsActive,
+		ImageURL:      inv.ImageURL,
+		CategoryID:    inv.CategoryID,
+		CategoryName:  inv.CategoryName,
+		Tags:          inv.Tags,
+		Metadata:      inv.Metadata,
+		TotalCapacity: inv.TotalCapacity,
+		EventStartAt:  inv.EventStartAt,
+		EventEndAt:    inv.EventEndAt,
+		EventVenue:    inv.EventVenue,
+		Currency:      DefaultCurrency,
+		IsAvailable:   inv.IsActive,
 	}
 
 	// Seed price from inventory cost/suggested price as baseline fallback.
