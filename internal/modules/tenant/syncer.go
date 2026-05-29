@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
+	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
 	enttenant "github.com/bengobox/ordering-backend/internal/ent/tenant"
 )
 
@@ -141,4 +142,124 @@ func nillableStr(s string) *string {
 		return nil
 	}
 	return &s
+}
+
+type authAPIOutletResponse struct {
+	ID      string `json:"id"`
+	Code    string `json:"code"`
+	Name    string `json:"name"`
+	UseCase string `json:"use_case"`
+	IsHQ    bool   `json:"is_hq"`
+	Status  string `json:"status"`
+	Address string `json:"address"`
+}
+
+// BootstrapOutlets fetches all active outlets for tenantSlug from auth-api and
+// upserts them into the local outlets table. Intended for seed / startup when
+// JetStream events may have aged out (72h TTL). Skips use-cases not applicable
+// to ordering (e.g. pharmacy, salon).
+func (s *Syncer) BootstrapOutlets(ctx context.Context, tenantSlug string, tenantID uuid.UUID) error {
+	authAPIURL := s.authURL
+	if envURL := os.Getenv("AUTH_API_URL"); envURL != "" {
+		authAPIURL = envURL
+	}
+	svcKey := os.Getenv("INTERNAL_SERVICE_KEY")
+
+	endpoint := strings.TrimRight(authAPIURL, "/") + "/api/v1/tenants/" + tenantSlug + "/outlets"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("outlet bootstrap: build request: %w", err)
+	}
+	if svcKey != "" {
+		req.Header.Set("X-API-Key", svcKey)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("outlet bootstrap: GET %s: %w", endpoint, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("outlet bootstrap: auth-api HTTP %d", resp.StatusCode)
+	}
+
+	var outlets []authAPIOutletResponse
+	if err := json.NewDecoder(resp.Body).Decode(&outlets); err != nil {
+		return fmt.Errorf("outlet bootstrap: decode: %w", err)
+	}
+
+	synced, skipped := 0, 0
+	for _, o := range outlets {
+		if o.UseCase != "" && !orderingAcceptedUseCases[o.UseCase] {
+			skipped++
+			continue
+		}
+		outletID, parseErr := uuid.Parse(o.ID)
+		if parseErr != nil {
+			log.Printf("  [outlet-bootstrap] invalid outlet_id %q, skipping", o.ID)
+			continue
+		}
+		slug := strings.ToLower(strings.ReplaceAll(o.Code, " ", "-"))
+		if slug == "" {
+			slug = o.ID[:8]
+		}
+		status := o.Status
+		if status == "" {
+			status = "active"
+		}
+
+		existing, getErr := s.client.Outlet.Get(ctx, outletID)
+		if getErr != nil {
+			// Create
+			create := s.client.Outlet.Create().
+				SetID(outletID).
+				SetTenantID(tenantID).
+				SetName(o.Name).
+				SetSlug(slug).
+				SetStatus(status).
+				SetSupportsPickup(!o.IsHQ)
+			if o.UseCase != "" {
+				create = create.SetUseCase(o.UseCase)
+			}
+			if o.Address != "" {
+				create = create.SetAddress(o.Address)
+			}
+			if _, createErr := create.Save(ctx); createErr != nil {
+				log.Printf("  [outlet-bootstrap] create %s (%s): %v", o.Name, o.ID, createErr)
+				continue
+			}
+		} else {
+			// Update
+			upd := s.client.Outlet.UpdateOne(existing).SetName(o.Name).SetStatus(status)
+			if o.UseCase != "" {
+				upd = upd.SetUseCase(o.UseCase)
+			}
+			if o.Address != "" {
+				upd = upd.SetAddress(o.Address)
+			}
+			if _, updErr := upd.Save(ctx); updErr != nil {
+				log.Printf("  [outlet-bootstrap] update %s (%s): %v", o.Name, o.ID, updErr)
+				continue
+			}
+		}
+		synced++
+	}
+
+	log.Printf("  [outlet-bootstrap] %s: synced %d outlet(s), skipped %d non-ordering use-case(s)", tenantSlug, synced, skipped)
+	return nil
+}
+
+// BootstrapOutletsIfEmpty calls BootstrapOutlets only when the tenant has no outlets
+// in the local DB. Safe to call on every seed run.
+func (s *Syncer) BootstrapOutletsIfEmpty(ctx context.Context, tenantSlug string, tenantID uuid.UUID) error {
+	count, err := s.client.Outlet.Query().Where(entoutlet.TenantID(tenantID)).Count(ctx)
+	if err != nil {
+		return fmt.Errorf("outlet bootstrap: count: %w", err)
+	}
+	if count > 0 {
+		log.Printf("  [outlet-bootstrap] %s: %d outlet(s) already present, skipping bootstrap", tenantSlug, count)
+		return nil
+	}
+	return s.BootstrapOutlets(ctx, tenantSlug, tenantID)
 }
