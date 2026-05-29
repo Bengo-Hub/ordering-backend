@@ -81,14 +81,16 @@ func main() {
 	}
 
 	// Seed codevertex-demo tenant so it is ready for demo logins.
-	// Outlets are synced automatically via NATS JetStream at runtime; only the
-	// tenant row and service-level settings need to be seeded here.
 	if demoID, demoErr := syncer.SyncTenant(ctx, "codevertex-demo"); demoErr != nil {
 		log.Printf("  [SKIP] sync codevertex-demo: %v", demoErr)
 	} else {
 		log.Printf("▶ Seeding ordering for tenant: codevertex-demo (%s)", demoID)
 		if err := seedDemoTenantSettings(ctx, client, demoID); err != nil {
 			log.Printf("  ⚠️  seed demo tenant settings: %v", err)
+		}
+		// Bootstrap outlets from auth-api when JetStream events have aged out (72h TTL).
+		if err := syncer.BootstrapOutletsIfEmpty(ctx, "codevertex-demo", demoID); err != nil {
+			log.Printf("  ⚠️  outlet bootstrap codevertex-demo: %v", err)
 		}
 	}
 
