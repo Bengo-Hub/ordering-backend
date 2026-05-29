@@ -62,6 +62,19 @@ func (s *Service) SyncUserFromAuthService(ctx context.Context, authServiceUserID
 func (s *Service) EnsureUserFromToken(ctx context.Context, authServiceUserID uuid.UUID, tenantIDOrSlug string, authUserData map[string]interface{}) (*User, error) {
 	user, err := s.repo.FindUserByAuthServiceID(ctx, authServiceUserID)
 	if err == nil && user != nil {
+		// If the stored user only has customer role but JWT indicates elevated access, refresh roles now.
+		onlyCustomer := len(user.Roles) == 0 || (len(user.Roles) == 1 && user.Roles[0] == RoleCustomer)
+		rolesFromAuth := extractRolesFromAuthServiceUser(authUserData, user.Email)
+		hasElevated := false
+		for _, r := range rolesFromAuth {
+			if r != RoleCustomer {
+				hasElevated = true
+				break
+			}
+		}
+		if onlyCustomer && hasElevated {
+			return s.updateUserFromAuthService(ctx, user, authUserData)
+		}
 		return user, nil
 	}
 	tenantID := tenantIDOrSlug
@@ -162,11 +175,11 @@ func (s *Service) updateUserFromAuthService(ctx context.Context, user *User, aut
 	user.UpdatedAt = now
 	user.LastLoginAt = &now
 
-	// Extract and merge roles and permissions from auth-service
+	// Extract roles and permissions from auth-service; JWT is canonical — replace, don't merge.
 	rolesFromAuth := extractRolesFromAuthServiceUser(authUserData, user.Email)
 	permissionsFromAuth := extractPermissionsFromAuthServiceUser(authUserData)
 	if len(rolesFromAuth) > 0 {
-		user.Roles = mergeRoles(user.Roles, rolesFromAuth)
+		user.Roles = rolesFromAuth
 	}
 	if len(permissionsFromAuth) > 0 {
 		user.Permissions = mergePermissions(user.Permissions, permissionsFromAuth)
@@ -207,11 +220,11 @@ func (s *Service) createUserFromAuthService(ctx context.Context, authServiceUser
 		status = "active"
 	}
 
-	// Determine roles and permissions
-	roles := []Role{RoleCustomer} // Default role
+	// Determine roles and permissions — JWT is canonical; only fall back to customer when JWT provides nothing.
 	rolesFromAuth := extractRolesFromAuthServiceUser(authUserData, email)
-	if len(rolesFromAuth) > 0 {
-		roles = mergeRoles(roles, rolesFromAuth)
+	roles := rolesFromAuth
+	if len(roles) == 0 {
+		roles = []Role{RoleCustomer}
 	}
 	
 	permissionsFromAuth := extractPermissionsFromAuthServiceUser(authUserData)
