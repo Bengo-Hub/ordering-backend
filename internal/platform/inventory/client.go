@@ -399,18 +399,20 @@ type CreateItemRequest struct {
 
 // ItemResponse represents an item returned from inventory-api.
 type ItemResponse struct {
-	ID           uuid.UUID      `json:"id"`
-	SKU          string         `json:"sku"`
-	Name         string         `json:"name"`
-	Description  string         `json:"description,omitempty"`
-	Type         string         `json:"type"`
-	IsActive     bool           `json:"is_active"`
-	ImageURL     string         `json:"image_url,omitempty"`
-	CategoryID   *uuid.UUID     `json:"category_id,omitempty"`
-	CategoryName string         `json:"category_name,omitempty"`
-	UnitID       *uuid.UUID     `json:"unit_id,omitempty"`
-	Tags         []string       `json:"tags,omitempty"`
-	Metadata     map[string]any `json:"metadata,omitempty"`
+	ID             uuid.UUID      `json:"id"`
+	SKU            string         `json:"sku"`
+	Name           string         `json:"name"`
+	Description    string         `json:"description,omitempty"`
+	Type           string         `json:"type"`
+	IsActive       bool           `json:"is_active"`
+	ImageURL       string         `json:"image_url,omitempty"`
+	CategoryID     *uuid.UUID     `json:"category_id,omitempty"`
+	CategoryName   string         `json:"category_name,omitempty"`
+	UnitID         *uuid.UUID     `json:"unit_id,omitempty"`
+	Tags           []string       `json:"tags,omitempty"`
+	Metadata       map[string]any `json:"metadata,omitempty"`
+	CostPrice      *float64       `json:"cost_price,omitempty"`
+	SuggestedPrice *float64       `json:"suggested_price,omitempty"`
 }
 
 // CreateItem creates a new item in inventory-api.
