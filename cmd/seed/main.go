@@ -16,10 +16,8 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
-	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/ratelimitconfig"
 	"github.com/bengobox/ordering-backend/internal/ent/rolepermission"
 	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
@@ -71,22 +69,13 @@ func main() {
 	} else {
 		codevertexTenantID = id
 	}
-	tenantUUID, err := syncer.SyncTenant(ctx, "urban-loft")
-	if err != nil {
-		log.Fatalf("sync tenant: %v", err)
-	}
-
-	if err := runSeed(ctx, client, tenantUUID); err != nil {
-		log.Fatalf("seed data: %v", err)
-	}
-
 	// Seed codevertex-demo tenant so it is ready for demo logins.
 	if demoID, demoErr := syncer.SyncTenant(ctx, "codevertex-demo"); demoErr != nil {
 		log.Printf("  [SKIP] sync codevertex-demo: %v", demoErr)
 	} else {
 		log.Printf("▶ Seeding ordering for tenant: codevertex-demo (%s)", demoID)
-		if err := seedDemoTenantSettings(ctx, client, demoID); err != nil {
-			log.Printf("  ⚠️  seed demo tenant settings: %v", err)
+		if err := runSeed(ctx, client, demoID, "codevertex-demo"); err != nil {
+			log.Printf("  ⚠️  seed codevertex-demo: %v", err)
 		}
 		// Bootstrap outlets from auth-api when JetStream events have aged out (72h TTL).
 		if err := syncer.BootstrapOutletsIfEmpty(ctx, "codevertex-demo", demoID); err != nil {
@@ -107,7 +96,7 @@ func main() {
 // runSeed seeds service-level data: tenant sync events, settings, roles, permissions, and catalog data.
 // Users are NOT seeded here — they are synced from auth-api via JIT provisioning (EnsureUserFromToken)
 // and NATS events (SyncUserFromAuthService). All user management is centralized in auth-api.
-func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err error) {
+func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID, tenantSlug string) (err error) {
 	tx, err := client.Tx(ctx)
 	if err != nil {
 		return err
@@ -120,7 +109,7 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 		err = tx.Commit()
 	}()
 
-	if err = enqueueTenantSyncEvents(ctx, tx, tenantUUID, "urban-loft"); err != nil {
+	if err = enqueueTenantSyncEvents(ctx, tx, tenantUUID, tenantSlug); err != nil {
 		return err
 	}
 
@@ -159,96 +148,6 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID) (err
 		return err
 	}
 
-	if err = seedCatalog(ctx, tx, tenantUUID); err != nil {
-		return err
-	}
-
-	if err = seedDeliveryZones(ctx, tx, tenantUUID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// seedDemoUser is DEPRECATED — users are now synced from auth-api via JIT provisioning.
-// This function is retained but no longer called from runSeed.
-func seedDemoUser(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, now time.Time) error {
-	const (
-		demoEmail    = "info@theurbanloftcafe.com"
-		demoFullName = "Demo Admin"
-		status       = "active"
-		locale       = "en"
-		timezone     = "Africa/Nairobi"
-		primaryRole  = "admin"
-	)
-	demoUserID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:user:"+demoEmail))
-	demoPasswordHash := "$2a$10$c1SpaELSb9xPUIoFQ8np.OYphHWIBxkPdm9Su.52eCeEet0VM8Q2G" // bcrypt("password123")
-	demoRoleIDs := []string{"admin"}
-	metadata := map[string]any{
-		"timezone": timezone,
-	}
-
-	// Resolve email conflicts: if another user has this email, delete them.
-	_, err := tx.User.Query().
-		Where(user.EmailEQ(demoEmail), user.TenantIDEQ(tenantID), user.IDNEQ(demoUserID)).
-		Only(ctx)
-	if err == nil {
-		if _, delErr := tx.User.Delete().
-			Where(user.EmailEQ(demoEmail), user.TenantIDEQ(tenantID), user.IDNEQ(demoUserID)).
-			Exec(ctx); delErr != nil {
-			return fmt.Errorf("resolve email conflict for demo user: %w", delErr)
-		}
-	}
-
-	_, err = tx.User.Get(ctx, demoUserID)
-	switch {
-	case ent.IsNotFound(err):
-		_, createErr := tx.User.Create().
-			SetID(demoUserID).
-			SetTenantID(tenantID).
-			SetEmail(demoEmail).
-			SetPasswordHash(demoPasswordHash).
-			SetFullName(demoFullName).
-			SetStatus(status).
-			SetLocale(locale).
-			SetTimezone(timezone).
-			SetMetadata(metadata).
-			SetPrimaryRole(primaryRole).
-			SetCreatedAt(now).
-			SetUpdatedAt(now).
-			AddRoleIDs(demoRoleIDs...).
-			Save(ctx)
-		if createErr != nil {
-			return fmt.Errorf("create demo admin: %w", createErr)
-		}
-	case err != nil:
-		return fmt.Errorf("lookup demo admin: %w", err)
-	default:
-		_, updateErr := tx.User.UpdateOneID(demoUserID).
-			SetTenantID(tenantID).
-			SetEmail(demoEmail).
-			SetPasswordHash(demoPasswordHash).
-			SetFullName(demoFullName).
-			SetStatus(status).
-			SetLocale(locale).
-			SetTimezone(timezone).
-			SetMetadata(metadata).
-			SetPrimaryRole(primaryRole).
-			SetUpdatedAt(now).
-			ClearRoles().
-			AddRoleIDs(demoRoleIDs...).
-			Save(ctx)
-		if updateErr != nil {
-			return fmt.Errorf("update demo admin: %w", updateErr)
-		}
-	}
-
-	if err := upsertUserPreference(ctx, tx, demoUserID, timezone); err != nil {
-		return fmt.Errorf("create demo user preference: %w", err)
-	}
-	if err := upsertUserProfile(ctx, tx, demoUserID); err != nil {
-		return fmt.Errorf("create demo user profile: %w", err)
-	}
 	return nil
 }
 
@@ -595,18 +494,6 @@ func upsertTenantSettings(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) e
 
 // seedDemoTenantSettings upserts ordering settings for the codevertex-demo tenant
 // outside of a transaction (used at startup, not in the main runSeed flow).
-func seedDemoTenantSettings(ctx context.Context, client *ent.Client, tenantID uuid.UUID) error {
-	tx, err := client.Tx(ctx)
-	if err != nil {
-		return fmt.Errorf("begin tx: %w", err)
-	}
-	if err := upsertTenantSettings(ctx, tx, tenantID); err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-	return tx.Commit()
-}
-
 func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, tenantSlug string) error {
 	payload := map[string]any{
 		"tenant_slug": tenantSlug,
@@ -640,87 +527,6 @@ func enqueueTenantSyncEvents(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID
 				return fmt.Errorf("enqueue tenant sync event for %s: %w", destination, createErr)
 			}
 		}
-	}
-	return nil
-}
-
-// seedSuperAdmin is DEPRECATED — users are now synced from auth-api via JIT provisioning.
-// This function is retained but no longer called from runSeed.
-func seedSuperAdmin(ctx context.Context, tx *ent.Tx, tenantID, userID uuid.UUID, passwordHash string, now time.Time) error {
-	const (
-		email       = "admin@theurbanloftcafe.com"
-		fullName    = "Super Admin"
-		status      = "active"
-		locale      = "en"
-		timezone    = "Africa/Nairobi"
-		primaryRole = "superuser"
-	)
-	roleIDs := []string{"superuser", "admin"}
-	metadata := map[string]any{
-		"timezone": timezone,
-	}
-
-	// Resolve email conflicts: if another user has this email, delete them.
-	// This handles manual email swaps between runs.
-	_, err := tx.User.Query().
-		Where(user.EmailEQ(email), user.TenantIDEQ(tenantID), user.IDNEQ(userID)).
-		Only(ctx)
-	if err == nil {
-		if _, delErr := tx.User.Delete().
-			Where(user.EmailEQ(email), user.TenantIDEQ(tenantID), user.IDNEQ(userID)).
-			Exec(ctx); delErr != nil {
-			return fmt.Errorf("resolve email conflict for super admin: %w", delErr)
-		}
-	}
-
-	_, err = tx.User.Get(ctx, userID)
-	switch {
-	case ent.IsNotFound(err):
-		_, createErr := tx.User.Create().
-			SetID(userID).
-			SetTenantID(tenantID).
-			SetEmail(email).
-			SetPasswordHash(passwordHash).
-			SetFullName(fullName).
-			SetStatus(status).
-			SetLocale(locale).
-			SetTimezone(timezone).
-			SetMetadata(metadata).
-			SetPrimaryRole(primaryRole).
-			SetCreatedAt(now).
-			SetUpdatedAt(now).
-			AddRoleIDs(roleIDs...).
-			Save(ctx)
-		if createErr != nil {
-			return fmt.Errorf("create super admin: %w", createErr)
-		}
-	case err != nil:
-		return fmt.Errorf("lookup super admin: %w", err)
-	default:
-		_, updateErr := tx.User.UpdateOneID(userID).
-			SetTenantID(tenantID).
-			SetEmail(email).
-			SetPasswordHash(passwordHash).
-			SetFullName(fullName).
-			SetStatus(status).
-			SetLocale(locale).
-			SetTimezone(timezone).
-			SetMetadata(metadata).
-			SetPrimaryRole(primaryRole).
-			SetUpdatedAt(now).
-			ClearRoles().
-			AddRoleIDs(roleIDs...).
-			Save(ctx)
-		if updateErr != nil {
-			return fmt.Errorf("update super admin: %w", updateErr)
-		}
-	}
-
-	if err := upsertUserPreference(ctx, tx, userID, timezone); err != nil {
-		return err
-	}
-	if err := upsertUserProfile(ctx, tx, userID); err != nil {
-		return err
 	}
 	return nil
 }
@@ -1353,167 +1159,5 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 
 	log.Printf("  + Seeded %d service configs", len(configs))
 	return nil
-}
-
-// --- Delivery Zone Seeding ---
-
-// seedDeliveryZones seeds delivery zones for the Urban Loft Cafe Busia outlet.
-// Two zones: a polygon-bounded "Busia Town" zone and a universal fallback zone.
-func seedDeliveryZones(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
-	outletID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
-
-	type zone struct {
-		id            uuid.UUID
-		name          string
-		slug          string
-		polygon       map[string]any
-		deliveryFee   float64
-		minimumOrder  float64
-		estimatedTime int
-	}
-
-	// GeoJSON polygon covering Busia town: ~5km box around the outlet (lat 0.4612, lng 34.1109)
-	busiaPolygon := map[string]any{
-		"type": "Polygon",
-		"coordinates": [][][2]float64{
-			{
-				{34.0659, 0.4162},
-				{34.1559, 0.4162},
-				{34.1559, 0.5062},
-				{34.0659, 0.5062},
-				{34.0659, 0.4162}, // closing point
-			},
-		},
-	}
-
-	zones := []zone{
-		{
-			id:            uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:zone:urban-loft:busia-town")),
-			name:          "Busia Town",
-			slug:          "busia-town",
-			polygon:       busiaPolygon,
-			deliveryFee:   100,
-			minimumOrder:  500,
-			estimatedTime: 20,
-		},
-		{
-			id:            uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:zone:urban-loft:busia-fallback")),
-			name:          "Busia & Surroundings",
-			slug:          "busia-surroundings",
-			polygon:       nil,
-			deliveryFee:   200,
-			minimumOrder:  700,
-			estimatedTime: 35,
-		},
-	}
-
-	for _, z := range zones {
-		existing, err := tx.DeliveryZone.Query().
-			Where(deliveryzone.TenantID(tenantID), deliveryzone.Slug(z.slug)).
-			Only(ctx)
-		if err == nil {
-			upd := tx.DeliveryZone.UpdateOneID(existing.ID).
-				SetName(z.name).
-				SetDeliveryFee(z.deliveryFee).
-				SetMinimumOrder(z.minimumOrder).
-				SetEstimatedTimeMinutes(z.estimatedTime).
-				SetIsActive(true).
-				SetOutletID(outletID)
-			if z.polygon != nil {
-				upd = upd.SetZonePolygon(z.polygon)
-			} else {
-				upd = upd.ClearZonePolygon()
-			}
-			if _, err = upd.Save(ctx); err != nil {
-				return fmt.Errorf("update delivery zone %s: %w", z.slug, err)
-			}
-			continue
-		}
-		if !ent.IsNotFound(err) {
-			return fmt.Errorf("query delivery zone %s: %w", z.slug, err)
-		}
-
-		builder := tx.DeliveryZone.Create().
-			SetID(z.id).
-			SetTenantID(tenantID).
-			SetOutletID(outletID).
-			SetName(z.name).
-			SetSlug(z.slug).
-			SetDeliveryFee(z.deliveryFee).
-			SetMinimumOrder(z.minimumOrder).
-			SetEstimatedTimeMinutes(z.estimatedTime).
-			SetIsActive(true)
-		if z.polygon != nil {
-			builder = builder.SetZonePolygon(z.polygon)
-		}
-		if _, err = builder.Save(ctx); err != nil {
-			return fmt.Errorf("create delivery zone %s: %w", z.slug, err)
-		}
-	}
-
-	log.Printf("  ✓ Seeded %d delivery zones", len(zones))
-	return nil
-}
-
-// --- Catalog Seeding ---
-
-func seedCatalog(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) error {
-	if _, err := seedOutlet(ctx, tx, tenantID); err != nil {
-		return fmt.Errorf("seed outlet: %w", err)
-	}
-	log.Println("  ✓ Catalog seeded (outlet)")
-	return nil
-}
-
-func seedOutlet(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID) (uuid.UUID, error) {
-	outletID := uuid.NewSHA1(uuid.NameSpaceURL, []byte("bengobox:cafe:outlet:urban-loft:busia"))
-
-	existing, err := tx.Outlet.Query().Where(outlet.ID(outletID)).Only(ctx)
-	if err == nil {
-		// Update existing outlet with coordinates and pickup support
-		_, updErr := tx.Outlet.UpdateOneID(existing.ID).
-			SetLatitude(0.4612).
-			SetLongitude(34.1109).
-			SetSupportsPickup(true).
-			Save(ctx)
-		if updErr != nil {
-			return uuid.Nil, updErr
-		}
-		return existing.ID, nil
-	}
-	if !ent.IsNotFound(err) {
-		return uuid.Nil, err
-	}
-
-	o, err := tx.Outlet.Create().
-		SetID(outletID).
-		SetTenantID(tenantID).
-		SetName("Urban Loft Cafe Busia").
-		SetSlug("busia").
-		SetDescription("The Urban Loft Cafe, Busia branch — coffee, meals, and more.").
-		SetAddress("Main Street, Busia, Kenya").
-		SetPhone("+254700000000").
-		SetEmail("info@theurbanloftcafe.com").
-		SetLocation("Busia, Kenya").
-		SetImageURL("/media/images/outlets/urban-loft-busia.jpeg").
-		SetUseCase("hospitality").
-		SetLatitude(0.4612).
-		SetLongitude(34.1109).
-		SetSupportsPickup(true).
-		SetStatus("active").
-		SetOpeningHours(map[string]any{
-			"monday":    map[string]any{"open": "07:00", "close": "22:00"},
-			"tuesday":   map[string]any{"open": "07:00", "close": "22:00"},
-			"wednesday": map[string]any{"open": "07:00", "close": "22:00"},
-			"thursday":  map[string]any{"open": "07:00", "close": "22:00"},
-			"friday":    map[string]any{"open": "07:00", "close": "23:00"},
-			"saturday":  map[string]any{"open": "08:00", "close": "23:00"},
-			"sunday":    map[string]any{"open": "08:00", "close": "21:00"},
-		}).
-		Save(ctx)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return o.ID, nil
 }
 
