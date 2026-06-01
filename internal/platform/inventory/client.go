@@ -411,13 +411,22 @@ type ItemResponse struct {
 	UnitID         *uuid.UUID     `json:"unit_id,omitempty"`
 	Tags           []string       `json:"tags,omitempty"`
 	Metadata       map[string]any `json:"metadata,omitempty"`
-	CostPrice      *float64       `json:"cost_price,omitempty"`
-	SuggestedPrice *float64       `json:"suggested_price,omitempty"`
+	CostPrice      *float64 `json:"cost_price,omitempty"`
+	SuggestedPrice *float64 `json:"suggested_price,omitempty"`
+	// Recipe-costing fields (added 2026-06-01)
+	SellingPrice   *float64 `json:"selling_price,omitempty"`
+	FoodCostPct    *float64 `json:"food_cost_pct,omitempty"`
+	FoodCostStatus string   `json:"status,omitempty"` // "OK - healthy" | "OK - above target FC%" | "LOSS"
+	// Supplier / EP-cost fields
+	PurchasePrice    *float64 `json:"purchase_price,omitempty"`
+	PurchasePackSize *float64 `json:"purchase_pack_size,omitempty"`
+	PurchaseUnit     string   `json:"purchase_unit,omitempty"`
+	YieldPct         *float64 `json:"yield_pct,omitempty"`
 	// Event fields — SERVICE type only
-	TotalCapacity  *int       `json:"total_capacity,omitempty"`
-	EventStartAt   *time.Time `json:"event_start_at,omitempty"`
-	EventEndAt     *time.Time `json:"event_end_at,omitempty"`
-	EventVenue     string     `json:"event_venue,omitempty"`
+	TotalCapacity *int       `json:"total_capacity,omitempty"`
+	EventStartAt  *time.Time `json:"event_start_at,omitempty"`
+	EventEndAt    *time.Time `json:"event_end_at,omitempty"`
+	EventVenue    string     `json:"event_venue,omitempty"`
 }
 
 // CreateItem creates a new item in inventory-api.
