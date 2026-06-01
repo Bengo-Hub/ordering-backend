@@ -41,6 +41,13 @@ type MergedCatalogItem struct {
 	PackagingFee      float64 `json:"packagingFee"`
 	ServiceFeePercent float64 `json:"serviceFeePercent"`
 
+	// Recipe-costing fields (sourced from inventory, added 2026-06-01)
+	CostPrice      *float64 `json:"costPrice,omitempty"`
+	SuggestedPrice *float64 `json:"suggestedPrice,omitempty"`
+	SellingPrice   *float64 `json:"sellingPrice,omitempty"`
+	FoodCostPct    *float64 `json:"foodCostPct,omitempty"`
+	FoodCostStatus string   `json:"foodCostStatus,omitempty"` // "OK - healthy" | "OK - above target FC%" | "LOSS"
+
 	// Computed fields
 	IsFavorite bool `json:"isFavorite"`
 

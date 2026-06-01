@@ -461,8 +461,17 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		IsAvailable:   inv.IsActive,
 	}
 
-	// Seed price from inventory cost/suggested price as baseline fallback.
-	if inv.SuggestedPrice != nil && *inv.SuggestedPrice > 0 {
+	// Propagate new costing fields from inventory.
+	item.CostPrice      = inv.CostPrice
+	item.SuggestedPrice = inv.SuggestedPrice
+	item.SellingPrice   = inv.SellingPrice
+	item.FoodCostPct    = inv.FoodCostPct
+	item.FoodCostStatus = inv.FoodCostStatus
+
+	// Seed price from inventory: selling_price > suggested_price > cost_price fallback.
+	if inv.SellingPrice != nil && *inv.SellingPrice > 0 {
+		item.BasePrice = *inv.SellingPrice
+	} else if inv.SuggestedPrice != nil && *inv.SuggestedPrice > 0 {
 		item.BasePrice = *inv.SuggestedPrice
 	} else if inv.CostPrice != nil && *inv.CostPrice > 0 {
 		item.BasePrice = *inv.CostPrice
