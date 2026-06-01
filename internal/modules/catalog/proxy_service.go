@@ -497,6 +497,13 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		}
 	}
 
+	// Items with no price cannot be ordered online regardless of override.
+	// A price must be set in inventory (cost_price/suggested_price/selling_price)
+	// OR in a catalog override before the item appears in the public catalog.
+	if item.BasePrice == 0 {
+		item.IsAvailable = false
+	}
+
 	_, item.IsFavorite = favSet[inv.SKU]
 
 	return item
