@@ -3,6 +3,7 @@ package catalog
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -495,6 +496,11 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		if override.ImageURLOverride != "" {
 			item.ImageURL = override.ImageURLOverride
 		}
+	}
+
+	// Round price up to next whole number — no decimal prices on the ordering app.
+	if item.BasePrice > 0 {
+		item.BasePrice = math.Ceil(item.BasePrice)
 	}
 
 	// Items with no price cannot be ordered online regardless of override.
