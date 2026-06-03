@@ -3,18 +3,19 @@ module github.com/bengobox/ordering-backend
 go 1.26.0
 
 // Map module path to correct GitHub repository
-replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-client v0.7.0
+replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-client v0.8.0
 
 // use tagged releases for other shared modules
 
 require (
 	ariga.io/atlas v0.32.1-0.20250325101103-175b25e1c1b9
 	entgo.io/ent v0.14.5
-	github.com/Bengo-Hub/cache v0.2.0
-	github.com/Bengo-Hub/httpware v0.4.1
+	github.com/Bengo-Hub/cache v0.3.0
+	github.com/Bengo-Hub/httpware v0.5.0
+	github.com/Bengo-Hub/pagination v0.3.0
 	github.com/Bengo-Hub/shared-auth-client v0.4.1
-	github.com/Bengo-Hub/shared-events v0.3.0
-	github.com/Bengo-Hub/shared-service-client v0.2.0
+	github.com/Bengo-Hub/shared-events v0.4.0
+	github.com/Bengo-Hub/shared-service-client v0.3.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -32,7 +33,6 @@ require (
 )
 
 require (
-	github.com/Bengo-Hub/pagination v0.2.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
@@ -70,7 +70,6 @@ require (
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/lib/pq v1.12.3 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
