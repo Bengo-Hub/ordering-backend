@@ -176,11 +176,12 @@ type CreateOrderRequestDTO struct {
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
 type OrderItemDTO struct {
-	InventorySKU string  `json:"inventorySku"`
-	Name         string  `json:"name"`
-	Quantity     int     `json:"quantity"`
-	UnitPrice    float64 `json:"unitPrice"`
-	TotalPrice   float64 `json:"totalPrice"`
+	InventorySKU string                 `json:"inventorySku"`
+	Name         string                 `json:"name"`
+	Quantity     int                    `json:"quantity"`
+	UnitPrice    float64                `json:"unitPrice"`
+	TotalPrice   float64                `json:"totalPrice"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -450,6 +451,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 				Quantity:     it.Quantity,
 				UnitPrice:    it.UnitPrice,
 				TotalPrice:   it.TotalPrice,
+				Metadata:     it.Metadata,
 			})
 		}
 
@@ -674,6 +676,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
+			Metadata:     it.Metadata,
 		})
 	}
 
@@ -1487,6 +1490,7 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
+			Metadata:     it.Metadata,
 		})
 	}
 

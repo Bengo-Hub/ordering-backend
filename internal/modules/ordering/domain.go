@@ -559,6 +559,7 @@ type CreateOrderItemInput struct {
 	Quantity     int
 	UnitPrice    float64
 	TotalPrice   float64
+	Metadata     map[string]interface{} // per-line metadata (e.g. event ticket tier_id/is_ticket)
 }
 
 // GuestCheckoutRequest represents a request for guest checkout (no auth required).

@@ -731,6 +731,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
+			Metadata:     it.Metadata,
 		}
 		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
 			s.logger.Error("failed to create guest order item", zap.Error(err))
