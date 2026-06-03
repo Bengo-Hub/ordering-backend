@@ -548,3 +548,82 @@ func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]Categ
 func (c *Client) ServiceClient() *serviceclient.Client {
 	return c.serviceClient
 }
+
+// ── Event ticketing (public storefront) ─────────────────────────────────────
+
+// EventResponse is an event Item (type=SERVICE) as needed for the public event page.
+type EventResponse struct {
+	ID            uuid.UUID      `json:"id"`
+	SKU           string         `json:"sku"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description,omitempty"`
+	ImageURL      string         `json:"image_url,omitempty"`
+	EventStartAt  *time.Time     `json:"event_start_at,omitempty"`
+	EventEndAt    *time.Time     `json:"event_end_at,omitempty"`
+	EventVenue    *string        `json:"event_venue,omitempty"`
+	TotalCapacity *int           `json:"total_capacity,omitempty"`
+	BookedCapacity *int          `json:"booked_capacity,omitempty"`
+	Metadata      map[string]any `json:"metadata,omitempty"`
+}
+
+// EventTierAvailability mirrors inventory tickets.TierAvailability.
+type EventTierAvailability struct {
+	TierID    string  `json:"tier_id"`
+	Name      string  `json:"name"`
+	Price     float64 `json:"price"`
+	Capacity  int     `json:"capacity"`
+	Issued    int     `json:"issued"`
+	Remaining int     `json:"remaining"`
+}
+
+// EventAvailability mirrors inventory tickets.Availability.
+type EventAvailability struct {
+	EventItemID    uuid.UUID               `json:"event_item_id"`
+	TotalCapacity  int                     `json:"total_capacity"`
+	BookedCapacity int                     `json:"booked_capacity"`
+	Remaining      int                     `json:"remaining"`
+	Tiers          []EventTierAvailability `json:"tiers"`
+}
+
+// ListEvents fetches SERVICE-type event items for a tenant (public catalog browse).
+func (c *Client) ListEvents(ctx context.Context, tenantSlug string, limit, page int) ([]EventResponse, int, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	if page <= 0 {
+		page = 1
+	}
+	path := fmt.Sprintf("/v1/%s/inventory/events?limit=%d&page=%d", tenantSlug, limit, page)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, 0, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, 0, c.parseError(resp)
+	}
+	var listResp struct {
+		Data  []EventResponse `json:"data"`
+		Total int             `json:"total"`
+	}
+	if err := resp.DecodeJSON(&listResp); err != nil {
+		return nil, 0, fmt.Errorf("decode response: %w", err)
+	}
+	return listResp.Data, listResp.Total, nil
+}
+
+// GetEventAvailability fetches per-tier + total availability for an event.
+func (c *Client) GetEventAvailability(ctx context.Context, tenantSlug, eventID string) (*EventAvailability, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/events/%s/availability", tenantSlug, url.PathEscape(eventID))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var av EventAvailability
+	if err := resp.DecodeJSON(&av); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return &av, nil
+}
