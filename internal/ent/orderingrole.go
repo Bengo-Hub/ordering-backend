@@ -18,8 +18,8 @@ type OrderingRole struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// Tenant identifier
-	TenantID uuid.UUID `json:"tenant_id,omitempty"`
+	// NULL = global/system role shared platform-wide; non-NULL = tenant custom role
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// Role code: ordering_admin, store_manager, kitchen_staff, cashier, delivery_coordinator, viewer
 	RoleCode string `json:"role_code,omitempty"`
 	// Display name
@@ -83,13 +83,15 @@ func (*OrderingRole) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case orderingrole.FieldTenantID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case orderingrole.FieldIsSystemRole:
 			values[i] = new(sql.NullBool)
 		case orderingrole.FieldRoleCode, orderingrole.FieldName, orderingrole.FieldDescription:
 			values[i] = new(sql.NullString)
 		case orderingrole.FieldCreatedAt, orderingrole.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case orderingrole.FieldID, orderingrole.FieldTenantID:
+		case orderingrole.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -113,10 +115,11 @@ func (_m *OrderingRole) assignValues(columns []string, values []any) error {
 				_m.ID = *value
 			}
 		case orderingrole.FieldTenantID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
-			} else if value != nil {
-				_m.TenantID = *value
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case orderingrole.FieldRoleCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -205,8 +208,10 @@ func (_m *OrderingRole) String() string {
 	var builder strings.Builder
 	builder.WriteString("OrderingRole(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("role_code=")
 	builder.WriteString(_m.RoleCode)

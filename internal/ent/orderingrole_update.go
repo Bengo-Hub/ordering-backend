@@ -46,6 +46,12 @@ func (_u *OrderingRoleUpdate) SetNillableTenantID(v *uuid.UUID) *OrderingRoleUpd
 	return _u
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *OrderingRoleUpdate) ClearTenantID() *OrderingRoleUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetRoleCode sets the "role_code" field.
 func (_u *OrderingRoleUpdate) SetRoleCode(v string) *OrderingRoleUpdate {
 	_u.mutation.SetRoleCode(v)
@@ -293,6 +299,9 @@ func (_u *OrderingRoleUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderingrole.FieldTenantID, field.TypeUUID, value)
 	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(orderingrole.FieldTenantID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.RoleCode(); ok {
 		_spec.SetField(orderingrole.FieldRoleCode, field.TypeString, value)
 	}
@@ -477,6 +486,12 @@ func (_u *OrderingRoleUpdateOne) SetNillableTenantID(v *uuid.UUID) *OrderingRole
 	if v != nil {
 		_u.SetTenantID(*v)
 	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *OrderingRoleUpdateOne) ClearTenantID() *OrderingRoleUpdateOne {
+	_u.mutation.ClearTenantID()
 	return _u
 }
 
@@ -756,6 +771,9 @@ func (_u *OrderingRoleUpdateOne) sqlSave(ctx context.Context) (_node *OrderingRo
 	}
 	if value, ok := _u.mutation.TenantID(); ok {
 		_spec.SetField(orderingrole.FieldTenantID, field.TypeUUID, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(orderingrole.FieldTenantID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.RoleCode(); ok {
 		_spec.SetField(orderingrole.FieldRoleCode, field.TypeString, value)

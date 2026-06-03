@@ -1,6 +1,7 @@
-h1:mwjDwFx+Jg2xaqMQ1SesOdezY72Hvc481C6rl9ISbg8=
+h1:6Om43BP6tkhyOBD8GTOyen9+u04gHItpyrIcShgexpo=
 00000000000000_placeholder.sql h1:eAvsggBsq1ssn/mrZysNWxXQEDwl2gD4K3Hjqr4EKxM=
 20260324210144_initial_schema.sql h1:9lcTtD9yAENqk9VVGJ9DlurXhqs0rxcNYwVSQrB45vc=
 20260330120000_add_payment_method_to_orders.sql h1:P9MOt4ruS1+lGgcvZz/BDrdE3a+s9GNPwtodOxpKhmo=
 20260521104157_add_payment_timeout_status.sql h1:+fkJm7HYP95yqbtFQddVmd0CmJv6VCto9AmZxOGjo9c=
 20260521114914_add_crm_contact_id.sql h1:JILmYhdK6VSzJBgEiQ4rFWYwu8E+Qo8Un1HNUdLfJBs=
+20260603130304_ordering_roles_global_nullable_tenant.sql h1:0Cy+2JGFxVynqY+3xdoTr/zdq5pFXEOtw9GRUPB5+s8=

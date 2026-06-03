@@ -1055,7 +1055,7 @@ var (
 	// OrderingRolesColumns holds the columns for the "ordering_roles" table.
 	OrderingRolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "role_code", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
@@ -1078,6 +1078,11 @@ var (
 				Name:    "orderingrole_tenant_id_role_code",
 				Unique:  true,
 				Columns: []*schema.Column{OrderingRolesColumns[1], OrderingRolesColumns[2]},
+			},
+			{
+				Name:    "orderingrole_role_code",
+				Unique:  false,
+				Columns: []*schema.Column{OrderingRolesColumns[2]},
 			},
 			{
 				Name:    "orderingrole_is_system_role",

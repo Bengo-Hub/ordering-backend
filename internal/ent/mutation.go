@@ -26016,7 +26016,7 @@ func (m *OrderingRoleMutation) TenantID() (r uuid.UUID, exists bool) {
 // OldTenantID returns the old "tenant_id" field's value of the OrderingRole entity.
 // If the OrderingRole object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderingRoleMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *OrderingRoleMutation) OldTenantID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
 	}
@@ -26030,9 +26030,22 @@ func (m *OrderingRoleMutation) OldTenantID(ctx context.Context) (v uuid.UUID, er
 	return oldValue.TenantID, nil
 }
 
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *OrderingRoleMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.clearedFields[orderingrole.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *OrderingRoleMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[orderingrole.FieldTenantID]
+	return ok
+}
+
 // ResetTenantID resets all changes to the "tenant_id" field.
 func (m *OrderingRoleMutation) ResetTenantID() {
 	m.tenant_id = nil
+	delete(m.clearedFields, orderingrole.FieldTenantID)
 }
 
 // SetRoleCode sets the "role_code" field.
@@ -26615,6 +26628,9 @@ func (m *OrderingRoleMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OrderingRoleMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(orderingrole.FieldTenantID) {
+		fields = append(fields, orderingrole.FieldTenantID)
+	}
 	if m.FieldCleared(orderingrole.FieldDescription) {
 		fields = append(fields, orderingrole.FieldDescription)
 	}
@@ -26632,6 +26648,9 @@ func (m *OrderingRoleMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OrderingRoleMutation) ClearField(name string) error {
 	switch name {
+	case orderingrole.FieldTenantID:
+		m.ClearTenantID()
+		return nil
 	case orderingrole.FieldDescription:
 		m.ClearDescription()
 		return nil

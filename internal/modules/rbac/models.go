@@ -22,7 +22,7 @@ type OrderingUser struct {
 // OrderingRole represents an ordering service role.
 type OrderingRole struct {
 	ID           uuid.UUID
-	TenantID     uuid.UUID
+	TenantID     *uuid.UUID // nil = global/system role shared platform-wide
 	RoleCode     string
 	Name         string
 	Description  *string
