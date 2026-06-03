@@ -50,6 +50,10 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 
 		catalogRouter.Get("/items/{sku}/images", h.GetItemImages)
 
+		// Public event-ticket storefront (no auth): browse events + per-tier availability
+		catalogRouter.Get("/events", h.ListPublicEvents)
+		catalogRouter.Get("/events/{id}", h.GetPublicEvent)
+
 		// Optional auth for toggling favorites
 		catalogRouter.Group(func(authRouter chi.Router) {
 			authRouter.Use(auth.OptionalAuth)
