@@ -2,12 +2,12 @@ package cataloghandler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
+	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 )
 
 // ListPublicEvents lists a tenant's SERVICE-type events for the public storefront (no auth).
@@ -17,15 +17,14 @@ func (h *Handler) ListPublicEvents(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	limit, _, page := getPagination(r)
 	events, total, err := h.service.ListEvents(r.Context(), tenantSlug, limit, page)
 	if err != nil {
 		h.log.Error("list public events failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "failed to list events")
 		return
 	}
-	handlers.RespondJSON(w, http.StatusOK, map[string]any{"data": events, "total": total})
+	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{Data: events, Total: total, Limit: limit, Page: page})
 }
 
 // GetPublicEvent returns a single event with live per-tier availability for the public page (no auth).
