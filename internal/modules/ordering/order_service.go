@@ -1436,11 +1436,55 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	// Create order event
 	s.createOrderEvent(ctx, order.ID, "payment_"+string(newStatus), string(oldStatus), string(newStatus), payload, nil, "system", "")
 
+	// On successful payment, emit order.payment_confirmed with line items so downstream services
+	// (e.g. inventory ticket issuance for event orders) can react. Best-effort; never blocks payment.
+	if newStatus == PaymentStatusPaid {
+		s.publishPaymentConfirmed(ctx, order)
+	}
+
 	s.logger.Info("order payment status updated",
 		zap.String("id", order.ID.String()),
 		zap.String("paymentStatus", string(newStatus)))
 
 	return order, nil
+}
+
+// publishPaymentConfirmed emits order.payment_confirmed carrying the paid line items (incl. metadata).
+func (s *OrderService) publishPaymentConfirmed(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil || order == nil {
+		return
+	}
+	items := order.Items
+	if len(items) == 0 {
+		if loaded, err := s.repo.ListOrderItems(ctx, order.ID); err == nil {
+			items = loaded
+		}
+	}
+	lines := make([]events.OrderPaymentConfirmedLine, 0, len(items))
+	for _, it := range items {
+		lines = append(lines, events.OrderPaymentConfirmedLine{
+			SKU:       it.InventorySKU,
+			Name:      it.NameSnapshot,
+			Quantity:  it.Quantity,
+			UnitPrice: it.UnitPrice,
+			Metadata:  it.Metadata,
+		})
+	}
+	customerID := ""
+	if order.CustomerID != nil {
+		customerID = order.CustomerID.String()
+	}
+	if err := s.eventPublisher.PublishOrderPaymentConfirmed(ctx, order.TenantID, events.OrderPaymentConfirmedData{
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerID,
+		CustomerEmail: order.CustomerEmail,
+		CustomerName:  order.CustomerName,
+		Currency:      order.Currency,
+		Lines:         lines,
+	}); err != nil {
+		s.logger.Warn("publish order.payment_confirmed failed", zap.String("order_id", order.ID.String()), zap.Error(err))
+	}
 }
 
 // PayWithWallet debits the user's wallet via treasury S2S and marks the order as paid.

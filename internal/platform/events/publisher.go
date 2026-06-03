@@ -322,6 +322,51 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 	return p.Publish(ctx, "ordering.order.completed", event)
 }
 
+// OrderPaymentConfirmedLine is a single paid line item (for downstream ticket issuance etc.).
+type OrderPaymentConfirmedLine struct {
+	SKU       string                 `json:"sku"`
+	Name      string                 `json:"name"`
+	Quantity  int                    `json:"quantity"`
+	UnitPrice float64                `json:"unit_price"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// OrderPaymentConfirmedData represents data for the order.payment_confirmed event.
+type OrderPaymentConfirmedData struct {
+	OrderID       uuid.UUID                   `json:"order_id"`
+	OrderNumber   string                      `json:"order_number"`
+	CustomerID    string                      `json:"customer_id,omitempty"`
+	CustomerEmail string                      `json:"customer_email,omitempty"`
+	CustomerName  string                      `json:"customer_name,omitempty"`
+	Currency      string                      `json:"currency"`
+	Lines         []OrderPaymentConfirmedLine `json:"lines"`
+}
+
+// PublishOrderPaymentConfirmed publishes order.payment_confirmed with the paid line items (incl. per-line
+// metadata) so downstream services (e.g. inventory ticket issuance) can react.
+func (p *Publisher) PublishOrderPaymentConfirmed(ctx context.Context, tenantID uuid.UUID, data OrderPaymentConfirmedData) error {
+	lines := make([]map[string]interface{}, 0, len(data.Lines))
+	for _, l := range data.Lines {
+		lines = append(lines, map[string]interface{}{
+			"sku":        l.SKU,
+			"name":       l.Name,
+			"quantity":   l.Quantity,
+			"unit_price": l.UnitPrice,
+			"metadata":   l.Metadata,
+		})
+	}
+	event := NewEvent("ordering.order.payment_confirmed", tenantID, map[string]interface{}{
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID,
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"currency":       data.Currency,
+		"lines":          lines,
+	})
+	return p.Publish(ctx, "ordering.order.payment_confirmed", event)
+}
+
 // OrderRefundedData represents data for order.refunded event.
 type OrderRefundedData struct {
 	OrderID       uuid.UUID `json:"order_id"`
