@@ -88,31 +88,49 @@ func (s *PaymentService) pollPendingPayments(ctx context.Context) {
 		return
 	}
 
-	for _, o := range orders {
-		// Orders older than 15 minutes are timed out regardless of treasury state
-		if o.PlacedAt != nil && o.PlacedAt.Before(timeoutCutoff) {
-			s.logger.Info("payment poller: order payment timed out",
-				zap.String("order_id", o.ID.String()),
-				zap.String("tenant_id", o.TenantID.String()))
-					if s.onPaymentFailed != nil {
-				_ = s.onPaymentFailed(ctx, o.TenantID, o.ID, "payment_timeout")
+	timedOut := func(o ordering.StalePaymentOrder) bool {
+		return o.PlacedAt != nil && o.PlacedAt.Before(timeoutCutoff)
+	}
+	failOrder := func(o ordering.StalePaymentOrder, reason string) {
+		s.logger.Info("payment poller: failing order",
+			zap.String("order_id", o.ID.String()),
+			zap.String("tenant_id", o.TenantID.String()),
+			zap.String("reason", reason))
+		if s.onPaymentFailed != nil {
+			if err := s.onPaymentFailed(ctx, o.TenantID, o.ID, reason); err != nil {
+				s.logger.Error("payment poller: onPaymentFailed callback failed",
+					zap.Error(err), zap.String("order_id", o.ID.String()))
 			}
-			continue
 		}
+	}
 
+	for _, o := range orders {
+		// No intent to verify — time out only once past the window.
 		if o.PaymentIntentID == nil {
+			if timedOut(o) {
+				failOrder(o, "payment_timeout")
+			}
 			continue
 		}
 
 		status, err := s.treasuryClient.GetPaymentStatus(ctx, o.TenantID, *o.PaymentIntentID)
 		if err != nil {
-			s.logger.Debug("payment poller: failed to get status from treasury",
+			// Warn (not Debug): a persistent failure here silently stops every order from being
+			// confirmed via the poller, so it must be visible in prod logs.
+			s.logger.Warn("payment poller: failed to get status from treasury",
 				zap.Error(err), zap.String("order_id", o.ID.String()))
+			// Don't fail solely because the status check errored — retry next tick, unless the order
+			// has also exceeded the timeout window (treasury may be down for an extended period).
+			if timedOut(o) {
+				failOrder(o, "payment_timeout")
+			}
 			continue
 		}
 
 		switch status.Status {
 		case "succeeded":
+			// A succeeded payment ALWAYS wins over the age-based timeout: gateways (e.g. Paystack)
+			// can confirm late, so we must never fail an order whose payment actually went through.
 			s.logger.Info("payment poller: payment succeeded, confirming order",
 				zap.String("order_id", o.ID.String()))
 			if s.onPaymentSuccess != nil {
@@ -122,17 +140,15 @@ func (s *PaymentService) pollPendingPayments(ctx context.Context) {
 				}
 			}
 		case "failed", "cancelled", "expired":
-			s.logger.Info("payment poller: payment failed, notifying",
-				zap.String("order_id", o.ID.String()), zap.String("status", status.Status))
-			if s.onPaymentFailed != nil {
-				errMsg := status.ErrorMessage
-				if errMsg == "" {
-					errMsg = status.Status
-				}
-				if err := s.onPaymentFailed(ctx, o.TenantID, o.ID, errMsg); err != nil {
-					s.logger.Error("payment poller: onPaymentFailed callback failed",
-						zap.Error(err), zap.String("order_id", o.ID.String()))
-				}
+			errMsg := status.ErrorMessage
+			if errMsg == "" {
+				errMsg = status.Status
+			}
+			failOrder(o, errMsg)
+		default:
+			// Still pending/processing — time out only once past the window.
+			if timedOut(o) {
+				failOrder(o, "payment_timeout")
 			}
 		}
 	}
