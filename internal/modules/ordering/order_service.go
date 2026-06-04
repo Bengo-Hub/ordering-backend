@@ -1443,8 +1443,15 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	// services (e.g. inventory ticket issuance for event orders) can react. Guard on the status
 	// change so re-confirmation (COD + webhook both calling this) does not double-emit and cause
 	// duplicate ticket issuance. Best-effort; never blocks payment.
-	if newStatus == PaymentStatusPaid && oldStatus != PaymentStatusPaid {
+	// Also skip terminal orders: a late payment landing on a cancelled/timed-out/refunded order must
+	// NOT trigger fulfillment (e.g. issue a ticket for an order the customer no longer holds) — that
+	// is an orphaned payment requiring reconciliation/refund, not fulfillment.
+	terminal := order.Status == OrderStatusCancelled || order.Status == OrderStatusRefunded || order.Status == OrderStatusPaymentTimeout
+	if newStatus == PaymentStatusPaid && oldStatus != PaymentStatusPaid && !terminal {
 		s.publishPaymentConfirmed(ctx, order)
+	} else if newStatus == PaymentStatusPaid && oldStatus != PaymentStatusPaid && terminal {
+		s.logger.Warn("payment landed on a terminal order — not fulfilling; needs reconciliation",
+			zap.String("order_id", order.ID.String()), zap.String("order_status", string(order.Status)))
 	}
 
 	s.logger.Info("order payment status updated",
