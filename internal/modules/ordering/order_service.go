@@ -1548,12 +1548,28 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 	}
 
 	reservationItems := make([]inventory.ReservationItem, 0, len(items))
+	var ticketLines []CartItem
 	for _, ci := range items {
-		if ci.InventorySKU != "" {
-			reservationItems = append(reservationItems, inventory.ReservationItem{
-				SKU:      ci.InventorySKU,
-				Quantity: ci.Quantity,
-			})
+		if ci.InventorySKU == "" {
+			continue
+		}
+		// Event tickets are NOT inventory stock — capacity is enforced at issuance time, not via a
+		// stock reservation. Skip them here so a SERVICE event item (0 inventory balance) never 409s,
+		// but collect them for a soft capacity pre-check below.
+		if isTicketItem(ci.Metadata) {
+			ticketLines = append(ticketLines, ci)
+			continue
+		}
+		reservationItems = append(reservationItems, inventory.ReservationItem{
+			SKU:      ci.InventorySKU,
+			Quantity: ci.Quantity,
+		})
+	}
+	// Soft pre-check ticket capacity so a buyer isn't charged for a sold-out event. Best-effort:
+	// never blocks when inventory is unreachable (final capacity is still enforced at issuance).
+	if len(ticketLines) > 0 {
+		if err := s.checkTicketCapacity(ctx, tenant.Slug, ticketLines); err != nil {
+			return nil, err
 		}
 	}
 	if len(reservationItems) == 0 {
@@ -1636,10 +1652,56 @@ func (s *OrderService) reserveStockForOrderItems(ctx context.Context, tenantID, 
 			cartItems = append(cartItems, CartItem{
 				InventorySKU: it.InventorySKU,
 				Quantity:     it.Quantity,
+				Metadata:     it.Metadata, // preserve so ticket lines can be excluded from reservation
 			})
 		}
 	}
 	return s.reserveStockForItems(ctx, tenantID, orderID, cartItems, idempotencyKey)
+}
+
+// isTicketItem reports whether a line is an event ticket (capacity-gated at issuance, not
+// inventory-stocked) based on the cart metadata flag set by the public event page.
+func isTicketItem(meta map[string]interface{}) bool {
+	if meta == nil {
+		return false
+	}
+	v, ok := meta["is_ticket"].(bool)
+	return ok && v
+}
+
+// checkTicketCapacity soft-validates event-ticket availability against live event capacity
+// (per-tier when a tier is selected). Best-effort: returns nil when inventory is unreachable so
+// it never blocks checkout; returns ErrStockNotAvailable only when capacity is known to be short.
+func (s *OrderService) checkTicketCapacity(ctx context.Context, tenantSlug string, lines []CartItem) error {
+	if s.inventoryClient == nil {
+		return nil
+	}
+	for _, ci := range lines {
+		eventID, _ := ci.Metadata["event_item_id"].(string)
+		if eventID == "" {
+			continue
+		}
+		av, err := s.inventoryClient.GetEventAvailability(ctx, tenantSlug, eventID)
+		if err != nil || av == nil {
+			s.logger.Warn("ticket availability pre-check skipped (inventory unavailable)",
+				zap.String("event_item_id", eventID), zap.Error(err))
+			continue
+		}
+		remaining := av.Remaining
+		if tierID, _ := ci.Metadata["tier_id"].(string); tierID != "" {
+			for _, t := range av.Tiers {
+				if t.TierID == tierID {
+					remaining = t.Remaining
+					break
+				}
+			}
+		}
+		if remaining < ci.Quantity {
+			return fmt.Errorf("%w: %s has only %d ticket(s) left (requested %d)",
+				ErrStockNotAvailable, ci.InventorySKU, remaining, ci.Quantity)
+		}
+	}
+	return nil
 }
 
 // releaseOrderReservation releases the inventory reservation for an order, if one exists.
