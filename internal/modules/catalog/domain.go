@@ -48,6 +48,13 @@ type MergedCatalogItem struct {
 	FoodCostPct    *float64 `json:"foodCostPct,omitempty"`
 	FoodCostStatus string   `json:"foodCostStatus,omitempty"` // "OK - healthy" | "OK - above target FC%" | "LOSS"
 
+	// Tax — enriched by inventory-api from treasury-api (source of truth)
+	TaxCodeID    string   `json:"taxCodeId,omitempty"`
+	TaxInclusive bool     `json:"taxInclusive,omitempty"`
+	TaxRate      *float64 `json:"taxRate,omitempty"`
+	NetPrice     *float64 `json:"netPrice,omitempty"`
+	TaxAmount    *float64 `json:"taxAmount,omitempty"`
+
 	// Computed fields
 	IsFavorite bool `json:"isFavorite"`
 

@@ -178,7 +178,17 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 			return nil, err
 		}
 	} else {
-		// Create new cart item (always new line item when modifiers are present)
+		// Create new cart item (always new line item when modifiers are present).
+		// Snapshot the item's tax (rate/inclusive/code, enriched by inventory-api from treasury-api)
+		// so cart/order VAT totals can be computed without re-fetching the catalog.
+		meta := map[string]any{}
+		if catalogItem.TaxRate != nil && *catalogItem.TaxRate > 0 {
+			meta["tax_rate"] = *catalogItem.TaxRate
+		}
+		meta["tax_inclusive"] = catalogItem.TaxInclusive
+		if catalogItem.TaxCodeID != "" {
+			meta["tax_code_id"] = catalogItem.TaxCodeID
+		}
 		item := &CartItem{
 			CartID:        cart.ID,
 			InventorySKU:  req.InventorySKU,
@@ -190,6 +200,7 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 			ModifierTotal: modifierTotal,
 			TotalPrice:    (unitPrice + modifierTotal) * float64(req.Quantity),
 			Notes:         req.Notes,
+			Metadata:      meta,
 		}
 
 		if err := s.repo.CreateCartItem(ctx, item); err != nil {
@@ -334,13 +345,32 @@ func (s *CartService) recalculateCartTotals(ctx context.Context, cart *Cart) err
 		return err
 	}
 
-	var subtotal float64
+	// Subtotal is net-of-tax; TaxTotal is the VAT portion. For tax-inclusive items the tax is
+	// computed backwards from the line total (net = total/(1+rate)); for exclusive items it is
+	// added on top. Grand total = Subtotal + TaxTotal (see GetCartSummary), so both cases reconcile
+	// to the displayed gross price. Rates/flags are snapshotted from the catalog (inventory→treasury).
+	var subtotal, taxTotal float64
 	for _, item := range items {
 		// TotalPrice already includes modifiers: (unitPrice + modifierTotal) * quantity
-		subtotal += item.TotalPrice
+		lineTotal := item.TotalPrice
+		rate, _ := item.Metadata["tax_rate"].(float64)
+		inclusive, _ := item.Metadata["tax_inclusive"].(bool)
+		if rate > 0 {
+			if inclusive {
+				net := lineTotal / (1 + rate/100)
+				subtotal += net
+				taxTotal += lineTotal - net
+			} else {
+				subtotal += lineTotal
+				taxTotal += lineTotal * rate / 100
+			}
+		} else {
+			subtotal += lineTotal
+		}
 	}
 
 	cart.Subtotal = subtotal
+	cart.TaxTotal = taxTotal
 	cart.Items = items
 
 	// Extend expiration on activity
