@@ -39,7 +39,8 @@ func (c *Client) Enabled() bool { return c != nil && c.baseURL != "" }
 
 type upsertContactRequest struct {
 	TenantID  string `json:"tenant_id"`
-	Phone     string `json:"phone"`
+	Phone     string `json:"phone,omitempty"`
+	Email     string `json:"email,omitempty"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
@@ -48,11 +49,12 @@ type upsertContactResponse struct {
 	ID string `json:"id"`
 }
 
-// UpsertContactByPhone creates or returns the existing MarketFlow contact for the phone (the CRM's
-// per-tenant unique key). Returns uuid.Nil on any error or when disabled — callers must treat the
-// link as optional and never block the order on it.
-func (c *Client) UpsertContactByPhone(ctx context.Context, tenantID uuid.UUID, phone, fullName string) uuid.UUID {
-	if !c.Enabled() || phone == "" {
+// UpsertContact creates or returns the existing MarketFlow contact, keyed by phone and/or email
+// (the CRM's per-tenant unique keys). Sending both covers guests (phone) and authenticated/SSO
+// customers (often email-only). Returns uuid.Nil on any error or when disabled — callers must treat
+// the link as optional and never block the order on it.
+func (c *Client) UpsertContact(ctx context.Context, tenantID uuid.UUID, phone, email, fullName string) uuid.UUID {
+	if !c.Enabled() || (phone == "" && email == "") {
 		return uuid.Nil
 	}
 
@@ -60,6 +62,7 @@ func (c *Client) UpsertContactByPhone(ctx context.Context, tenantID uuid.UUID, p
 	payload, _ := json.Marshal(upsertContactRequest{
 		TenantID:  tenantID.String(),
 		Phone:     phone,
+		Email:     email,
 		FirstName: firstName,
 		LastName:  lastName,
 	})

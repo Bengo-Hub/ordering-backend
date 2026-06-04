@@ -520,13 +520,13 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 	// link the order, so the order, the payment intent, and downstream events all carry
 	// crm_contact_id. Best-effort and non-fatal — never blocks checkout. Keyed by phone (the CRM's
 	// per-tenant unique key); ordering stores only the reference, never customer PII.
-	if order.CrmContactID == nil && s.crmClient.Enabled() && customerPhone != "" {
+	if order.CrmContactID == nil && s.crmClient.Enabled() && (customerPhone != "" || customerEmail != "") {
 		name := order.CustomerName
 		if name == "" {
 			s.enrichOrderContact(ctx, order)
 			name = order.CustomerName
 		}
-		if cid := s.crmClient.UpsertContactByPhone(ctx, order.TenantID, customerPhone, name); cid != uuid.Nil {
+		if cid := s.crmClient.UpsertContact(ctx, order.TenantID, customerPhone, customerEmail, name); cid != uuid.Nil {
 			order.CrmContactID = &cid
 			if err := s.repo.UpdateOrder(ctx, order); err != nil {
 				s.logger.Warn("failed to persist crm_contact_id on order",
