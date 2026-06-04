@@ -131,6 +131,7 @@ type Order struct {
 	TenantID              uuid.UUID              `json:"tenantId"`
 	OutletID              uuid.UUID              `json:"outletId"`
 	CustomerID            *uuid.UUID             `json:"customerId,omitempty"`
+	CrmContactID          *uuid.UUID             `json:"crmContactId,omitempty"`
 	CartID                *uuid.UUID             `json:"cartId,omitempty"`
 	OrderNumber           string                 `json:"orderNumber"`
 	Status                OrderStatus            `json:"status"`

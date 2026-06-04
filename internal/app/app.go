@@ -52,6 +52,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
+	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
@@ -245,6 +246,14 @@ func New(ctx context.Context) (*App, error) {
 	// Initialize payments module (treasury-api is source of truth; ordering only keeps payment_intent_id on Order)
 	treasuryClient := treasury.NewClient(cfg.Treasury, log)
 	orderSvc.SetTreasuryClient(treasuryClient)
+
+	// MarketFlow CRM client — single source of truth for customer contact data. Disabled (no-op)
+	// when MARKETFLOW_API_URL is unset; ordering then creates orders without a crm_contact_id.
+	crmClient := marketflow.NewClient(cfg.Marketflow.ServiceURL, cfg.Marketflow.APIKey, log)
+	orderSvc.SetCrmClient(crmClient)
+	if crmClient.Enabled() {
+		log.Info("app: marketflow CRM client enabled", zap.String("url", cfg.Marketflow.ServiceURL))
+	}
 	paymentsRepo := payments.NewTreasuryRepository(treasuryClient)
 	paymentSvc := payments.NewPaymentService(paymentsRepo, treasuryClient, log)
 	paymentMethodSvc := payments.NewPaymentMethodService(paymentsRepo, log)

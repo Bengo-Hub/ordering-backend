@@ -14,6 +14,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
+	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
@@ -40,6 +41,7 @@ type OrderService struct {
 	treasuryClient      *treasury.Client
 	subscriptionsClient *subscriptions.Client
 	logisticsClient     *logistics.Client
+	crmClient           *marketflow.Client
 	logger              *zap.Logger
 }
 
@@ -81,6 +83,30 @@ func (s *OrderService) SetEventPublisher(publisher *events.Publisher) {
 // SetLogisticsClient sets the logistics client for rider rating integration.
 func (s *OrderService) SetLogisticsClient(client *logistics.Client) {
 	s.logisticsClient = client
+}
+
+// SetCrmClient sets the MarketFlow CRM client used to upsert the buyer as the single source of
+// truth and link the order via crm_contact_id.
+func (s *OrderService) SetCrmClient(client *marketflow.Client) {
+	s.crmClient = client
+}
+
+// loyaltyEarnEnabled reports whether the requesting tenant may earn loyalty points, gating on the
+// "loyalty_program" subscription feature. Mirrors subscriptions.RequireFeature: platform owners,
+// superusers, demo and service-charge tenants are always allowed; guests (no claims) get nothing
+// (they have no loyalty account anyway).
+func (s *OrderService) loyaltyEarnEnabled(ctx context.Context) bool {
+	claims, ok := authclient.ClaimsFromContext(ctx)
+	if !ok {
+		return false
+	}
+	if claims.IsPlatformOwner || claims.IsSuperuser() {
+		return true
+	}
+	if claims.IsDemo || claims.BillingMode == "service_charge" {
+		return true
+	}
+	return claims.HasFeature("loyalty_program")
 }
 
 // checkSubscription enforces that the tenant has an active subscription before
@@ -212,8 +238,11 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		}
 	}
 
-	// Calculate loyalty points earned
-	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
+	// Calculate loyalty points earned — gated on the tenant's loyalty_program subscription feature.
+	loyaltyPointsEarned := 0
+	if s.loyaltyEarnEnabled(ctx) {
+		loyaltyPointsEarned = s.loyaltySvc.CalculatePointsForAmount(grandTotal)
+	}
 
 	// Determine payment method and status
 	paymentMethod := req.PaymentMethod
@@ -397,7 +426,10 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		return nil, err
 	}
 
-	loyaltyPointsEarned := s.loyaltySvc.CalculatePointsForAmount(grandTotal)
+	loyaltyPointsEarned := 0
+	if s.loyaltyEarnEnabled(ctx) {
+		loyaltyPointsEarned = s.loyaltySvc.CalculatePointsForAmount(grandTotal)
+	}
 	instructions := req.DeliveryAddress
 	if req.DeliveryNotes != "" {
 		instructions = instructions + "\n" + req.DeliveryNotes
@@ -484,6 +516,25 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 	// Build line item breakdown (subtotal + fees + discounts = grand total)
 	lineItems := buildOrderLineItems(order)
 
+	// Upsert the buyer into the CRM (single source of truth, per CROSS-SERVICE-DATA-OWNERSHIP.md) and
+	// link the order, so the order, the payment intent, and downstream events all carry
+	// crm_contact_id. Best-effort and non-fatal — never blocks checkout. Keyed by phone (the CRM's
+	// per-tenant unique key); ordering stores only the reference, never customer PII.
+	if order.CrmContactID == nil && s.crmClient.Enabled() && customerPhone != "" {
+		name := order.CustomerName
+		if name == "" {
+			s.enrichOrderContact(ctx, order)
+			name = order.CustomerName
+		}
+		if cid := s.crmClient.UpsertContactByPhone(ctx, order.TenantID, customerPhone, name); cid != uuid.Nil {
+			order.CrmContactID = &cid
+			if err := s.repo.UpdateOrder(ctx, order); err != nil {
+				s.logger.Warn("failed to persist crm_contact_id on order",
+					zap.String("order_id", order.ID.String()), zap.Error(err))
+			}
+		}
+	}
+
 	result := &CheckoutResult{
 		OrderID:       order.ID,
 		OrderNumber:   order.OrderNumber,
@@ -518,6 +569,7 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			Description:   fmt.Sprintf("Order %s", order.OrderNumber),
 			CustomerEmail: customerEmail,
 			CustomerPhone: customerPhone,
+			CrmContactId:  order.CrmContactID,
 			Metadata: map[string]interface{}{
 				"line_items":     lineItemsForMeta,
 				"order_number":   order.OrderNumber,

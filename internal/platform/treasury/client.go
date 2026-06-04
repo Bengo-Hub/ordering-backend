@@ -91,6 +91,9 @@ type PaymentIntentRequest struct {
 	IdempotencyKey string                 `json:"idempotency_key,omitempty"`
 	CustomerEmail  string                 `json:"customer_email,omitempty"`
 	CustomerPhone  string                 `json:"customer_phone,omitempty"`
+	// CrmContactId references the MarketFlow CRM contact (single source of truth). Set by ordering
+	// after upserting the buyer at checkout; treasury stores only this reference, never PII.
+	CrmContactId   *uuid.UUID             `json:"crm_contact_id,omitempty"`
 	CallbackURL    string                 `json:"callback_url,omitempty"`
 	// Service charge fields — from subscriptions-api service charge plan
 	ServiceChargePercentage *float64 `json:"service_charge_percentage,omitempty"`
