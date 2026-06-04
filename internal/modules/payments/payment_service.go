@@ -117,13 +117,12 @@ func (s *PaymentService) pollPendingPayments(ctx context.Context) {
 		if err != nil {
 			// Warn (not Debug): a persistent failure here silently stops every order from being
 			// confirmed via the poller, so it must be visible in prod logs.
-			s.logger.Warn("payment poller: failed to get status from treasury",
+			// NEVER cancel on a status-check error — the payment may actually have succeeded and the
+			// error is transient (treasury/Redis blip). Cancelling here once burned a PAID order whose
+			// confirmation was delayed by a Redis outage. Retry next tick; only an explicit
+			// still-pending status past the window times an order out (handled below).
+			s.logger.Warn("payment poller: failed to get status from treasury (will retry)",
 				zap.Error(err), zap.String("order_id", o.ID.String()))
-			// Don't fail solely because the status check errored — retry next tick, unless the order
-			// has also exceeded the timeout window (treasury may be down for an extended period).
-			if timedOut(o) {
-				failOrder(o, "payment_timeout")
-			}
 			continue
 		}
 

@@ -252,10 +252,13 @@ func New(ctx context.Context) (*App, error) {
 
 	// Wire payment poller so stale pending-payment orders are auto-resolved
 	paymentSvc.SetOrderingRepo(orderingRepo)
-	paymentSvc.SetPaymentSuccessCallback(func(ctx context.Context, tenantID, orderID uuid.UUID) error {
+	// Shared confirmation handler: used by BOTH the event-driven treasury.payment.succeeded consumer
+	// (instant) and the poller fallback. Idempotent (UpdatePaymentStatus no-ops if already paid).
+	onPaymentSuccess := func(ctx context.Context, tenantID, orderID uuid.UUID) error {
 		_, err := orderSvc.UpdatePaymentStatus(ctx, tenantID, orderID, ordering.PaymentStatusPaid, nil)
 		return err
-	})
+	}
+	paymentSvc.SetPaymentSuccessCallback(onPaymentSuccess)
 	paymentSvc.SetPaymentFailedCallback(func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error {
 		_, err := orderSvc.CancelOrder(ctx, tenantID, orderID, "payment_failed: "+errMsg, nil, "system", "")
 		return err
@@ -341,6 +344,16 @@ func New(ctx context.Context) (*App, error) {
 			if err := logisticsEventHandler.SubscribeToLogisticsEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to logistics events", zap.Error(err))
 			}
+
+			// Subscribe to treasury.payment.succeeded for INSTANT, event-driven order confirmation
+			// (replaces reliance on the 5-minute poller; poller stays as a durable fallback).
+			treasuryPaymentConsumer := payments.NewTreasuryPaymentConsumer(log, onPaymentSuccess)
+			go func() {
+				if err := treasuryPaymentConsumer.Start(ctx, js); err != nil {
+					log.Error("app: treasury payment consumer stopped", zap.Error(err))
+				}
+			}()
+			log.Info("app: treasury payment consumer started (treasury.payment.succeeded)")
 		}
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
