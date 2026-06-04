@@ -519,8 +519,10 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			CustomerEmail: customerEmail,
 			CustomerPhone: customerPhone,
 			Metadata: map[string]interface{}{
-				"line_items":   lineItemsForMeta,
-				"order_number": order.OrderNumber,
+				"line_items":     lineItemsForMeta,
+				"order_number":   order.OrderNumber,
+				"customer_email": customerEmail,
+				"customer_phone": customerPhone,
 			},
 		}
 
