@@ -468,6 +468,12 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 	item.SellingPrice   = inv.SellingPrice
 	item.FoodCostPct    = inv.FoodCostPct
 	item.FoodCostStatus = inv.FoodCostStatus
+	// Tax (enriched by inventory-api from treasury-api).
+	item.TaxCodeID    = inv.TaxCodeID
+	item.TaxInclusive = inv.TaxInclusive
+	item.TaxRate      = inv.TaxRate
+	item.NetPrice     = inv.NetPrice
+	item.TaxAmount    = inv.TaxAmount
 
 	// Seed price from inventory: selling_price > suggested_price > cost_price fallback.
 	if inv.SellingPrice != nil && *inv.SellingPrice > 0 {

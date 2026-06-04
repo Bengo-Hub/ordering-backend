@@ -422,6 +422,12 @@ type ItemResponse struct {
 	PurchasePackSize *float64 `json:"purchase_pack_size,omitempty"`
 	PurchaseUnit     string   `json:"purchase_unit,omitempty"`
 	YieldPct         *float64 `json:"yield_pct,omitempty"`
+	// Tax — enriched by inventory-api from treasury-api (source of truth)
+	TaxCodeID    string   `json:"tax_code_id,omitempty"`
+	TaxInclusive bool     `json:"tax_inclusive,omitempty"`
+	TaxRate      *float64 `json:"tax_rate,omitempty"`
+	NetPrice     *float64 `json:"net_price,omitempty"`
+	TaxAmount    *float64 `json:"tax_amount,omitempty"`
 	// Event fields — SERVICE type only
 	TotalCapacity *int       `json:"total_capacity,omitempty"`
 	EventStartAt  *time.Time `json:"event_start_at,omitempty"`

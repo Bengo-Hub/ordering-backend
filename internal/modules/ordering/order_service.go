@@ -1437,9 +1437,11 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	// Create order event
 	s.createOrderEvent(ctx, order.ID, "payment_"+string(newStatus), string(oldStatus), string(newStatus), payload, nil, "system", "")
 
-	// On successful payment, emit order.payment_confirmed with line items so downstream services
-	// (e.g. inventory ticket issuance for event orders) can react. Best-effort; never blocks payment.
-	if newStatus == PaymentStatusPaid {
+	// On the transition INTO paid, emit order.payment_confirmed with line items so downstream
+	// services (e.g. inventory ticket issuance for event orders) can react. Guard on the status
+	// change so re-confirmation (COD + webhook both calling this) does not double-emit and cause
+	// duplicate ticket issuance. Best-effort; never blocks payment.
+	if newStatus == PaymentStatusPaid && oldStatus != PaymentStatusPaid {
 		s.publishPaymentConfirmed(ctx, order)
 	}
 
@@ -1852,6 +1854,22 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 	}
 
 	ci := s.orderContactInfo(ctx, order)
+	// Populate line items so POS creates the click-and-collect order WITH priced lines.
+	// Previously Items was left nil, so every pickup order reached POS empty.
+	if len(order.Items) == 0 {
+		if items, lErr := s.repo.ListOrderItems(ctx, order.ID); lErr == nil {
+			order.Items = items
+		}
+	}
+	pickupItems := make([]map[string]interface{}, 0, len(order.Items))
+	for _, it := range order.Items {
+		pickupItems = append(pickupItems, map[string]interface{}{
+			"sku":        it.InventorySKU,
+			"name":       it.NameSnapshot,
+			"quantity":   it.Quantity,
+			"unit_price": it.UnitPrice,
+		})
+	}
 	data := events.OrderForPickupData{
 		OrderID:       order.ID,
 		OrderNumber:   order.OrderNumber,
@@ -1860,6 +1878,7 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 		CustomerName:  ci.Name,
 		CustomerPhone: ci.Phone,
 		OutletID:      order.OutletID,
+		Items:         pickupItems,
 	}
 
 	if err := s.eventPublisher.PublishOrderForPickup(ctx, order.TenantID, data); err != nil {
