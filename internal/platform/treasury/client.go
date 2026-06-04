@@ -275,9 +275,9 @@ func (c *Client) InitiateMpesaSTKPush(ctx context.Context, req MpesaSTKPushReque
 	return &result, nil
 }
 
-// GetPaymentIntent retrieves a payment intent by ID.
+// GetPaymentIntent retrieves a payment intent by ID via the S2S route (X-API-Key auth).
 func (c *Client) GetPaymentIntent(ctx context.Context, tenantID, intentID uuid.UUID) (*PaymentIntentResponse, error) {
-	path := fmt.Sprintf("/api/v1/payments/intents/%s?tenant_id=%s", intentID.String(), tenantID.String())
+	path := fmt.Sprintf("/api/v1/s2s/%s/payments/intents/%s", tenantID.String(), intentID.String())
 
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
@@ -296,9 +296,13 @@ func (c *Client) GetPaymentIntent(ctx context.Context, tenantID, intentID uuid.U
 	return &result, nil
 }
 
-// GetPaymentStatus retrieves the current status of a payment.
+// GetPaymentStatus retrieves the current status of a payment intent via the S2S route. Treasury has
+// no dedicated /status sub-route; it returns the full intent (whose Status field is what the poller
+// reads), served by GET /api/v1/s2s/{tenant}/payments/intents/{id} with X-API-Key auth. The old
+// /api/v1/payments/intents/{id}/status path 404'd, which (logged only at Debug) silently broke the
+// payment poller — orders paid outside the webhook path were never confirmed.
 func (c *Client) GetPaymentStatus(ctx context.Context, tenantID, paymentIntentID uuid.UUID) (*PaymentStatusResponse, error) {
-	path := fmt.Sprintf("/api/v1/payments/intents/%s/status?tenant_id=%s", paymentIntentID.String(), tenantID.String())
+	path := fmt.Sprintf("/api/v1/s2s/%s/payments/intents/%s", tenantID.String(), paymentIntentID.String())
 
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
