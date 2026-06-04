@@ -259,7 +259,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		ReservationID:         reservationID,
 	}
 
-	if err := s.repo.CreateOrder(ctx, order); err != nil {
+	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create order", zap.Error(err))
 		return nil, err
 	}
@@ -439,7 +439,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		UpdatedAt:           now,
 	}
 
-	if err := s.repo.CreateOrder(ctx, order); err != nil {
+	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create order", zap.Error(err))
 		// Release reservation on order creation failure
 		if reservationID != nil {
@@ -714,7 +714,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		},
 	}
 
-	if err := s.repo.CreateOrder(ctx, order); err != nil {
+	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create guest order", zap.Error(err))
 		if reservationID != nil {
 			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
@@ -1657,6 +1657,38 @@ func (s *OrderService) reserveStockForOrderItems(ctx context.Context, tenantID, 
 		}
 	}
 	return s.reserveStockForItems(ctx, tenantID, orderID, cartItems, idempotencyKey)
+}
+
+// createOrderWithRetry inserts an order, regenerating the order number and retrying on a
+// unique-violation. Combined with the per-tenant unique index + gap-safe generator, this makes
+// order-number assignment race-safe under concurrent checkouts.
+func (s *OrderService) createOrderWithRetry(ctx context.Context, order *Order) error {
+	const maxAttempts = 5
+	var err error
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		if err = s.repo.CreateOrder(ctx, order); err == nil {
+			return nil
+		}
+		if !isOrderNumberConflict(err) {
+			return err
+		}
+		num, gerr := s.repo.GenerateOrderNumber(ctx, order.TenantID, order.OutletID)
+		if gerr != nil {
+			return err
+		}
+		order.OrderNumber = num
+	}
+	return err
+}
+
+// isOrderNumberConflict reports whether err is a duplicate order_number unique-constraint violation.
+func isOrderNumberConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "order_number") &&
+		(strings.Contains(msg, "duplicate") || strings.Contains(msg, "unique") || strings.Contains(msg, "23505"))
 }
 
 // isTicketItem reports whether a line is an event ticket (capacity-gated at issuance, not

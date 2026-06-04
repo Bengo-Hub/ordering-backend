@@ -806,9 +806,9 @@ var (
 				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47], OrdersColumns[5]},
 			},
 			{
-				Name:    "order_order_number",
+				Name:    "order_tenant_id_order_number",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[4]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[4]},
 			},
 			{
 				Name:    "order_idempotency_key",

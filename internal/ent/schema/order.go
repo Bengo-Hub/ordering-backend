@@ -223,7 +223,9 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("tenant_id", "status", "created_at"),
 		index.Fields("tenant_id", "outlet_id", "status"),
 		index.Fields("tenant_id", "customer_id", "status"),
-		index.Fields("order_number").
+		// Order numbers are generated per-tenant/day (YYYYMMDD-NNNN), so uniqueness must be scoped
+		// to the tenant — a GLOBAL unique here makes two tenants collide on the same day's NNNN.
+		index.Fields("tenant_id", "order_number").
 			Unique(),
 		// Partial unique index: unique idempotency key when set
 		index.Fields("idempotency_key").
