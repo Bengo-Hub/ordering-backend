@@ -498,8 +498,10 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			h.handleError(w, err)
 			return
 		}
-		// Build checkout result with payment intent
-		checkoutResult := h.orderService.BuildCheckoutResult(r.Context(), order, user.Email, "")
+		// Build checkout result with payment intent. Pass the authenticated user's email AND phone so
+		// the CRM upsert links the order to the customer (a logged-in buyer's phone was previously
+		// dropped here, skipping the upsert entirely).
+		checkoutResult := h.orderService.BuildCheckoutResult(r.Context(), order, user.Email, user.Phone)
 		handlers.RespondJSON(w, http.StatusCreated, checkoutResult)
 		return
 	}
