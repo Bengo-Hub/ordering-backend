@@ -135,7 +135,7 @@ func treasuryIntentToPaymentIntent(resp *treasury.PaymentIntentResponse) *Paymen
 		ProviderIntentID: resp.ProviderIntentID,
 		ClientSecret:     resp.ClientSecret,
 		Status:           PaymentIntentStatus(resp.Status),
-		Amount:           resp.Amount,
+		Amount:           float64(resp.Amount),
 		Currency:         resp.Currency,
 		CreatedAt:        resp.CreatedAt,
 		UpdatedAt:        resp.CreatedAt,

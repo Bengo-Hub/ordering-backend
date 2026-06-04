@@ -3,6 +3,8 @@ package treasury
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +13,24 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 )
+
+// money decodes a monetary amount from treasury-api, which serializes decimals as a
+// quoted JSON string (e.g. "638.00") — and tolerates a plain JSON number. Underlying float64.
+type money float64
+
+func (m *money) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(strings.TrimSpace(string(b)), `"`)
+	if s == "" || s == "null" {
+		*m = 0
+		return nil
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return fmt.Errorf("treasury: parse amount %q: %w", s, err)
+	}
+	*m = money(v)
+	return nil
+}
 
 // Client provides methods to interact with the treasury service.
 type Client struct {
@@ -91,7 +111,7 @@ type PaymentIntentResponse struct {
 	ProviderIntentID       string          `json:"provider_intent_id,omitempty"`
 	ClientSecret           string          `json:"client_secret,omitempty"`
 	Status                 string          `json:"status"`
-	Amount                 float64         `json:"amount"`
+	Amount                 money           `json:"amount"`
 	Currency               string          `json:"currency"`
 	MpesaCheckoutRequestID string          `json:"mpesa_checkout_request_id,omitempty"`
 	CreatedAt              time.Time       `json:"created_at"`
@@ -142,7 +162,7 @@ type RefundRequest struct {
 type RefundResponse struct {
 	ID                uuid.UUID  `json:"id"`
 	PaymentID         uuid.UUID  `json:"payment_id"`
-	Amount            float64    `json:"amount"`
+	Amount            money      `json:"amount"`
 	Currency          string     `json:"currency"`
 	Status            string     `json:"status"`
 	Reason            string     `json:"reason"`
@@ -158,7 +178,7 @@ type PaymentStatusResponse struct {
 	Status            string     `json:"status"`
 	ProviderReference string     `json:"provider_reference,omitempty"`
 	ProviderReceipt   string     `json:"provider_receipt,omitempty"`
-	Amount            float64    `json:"amount"`
+	Amount            money      `json:"amount"`
 	Currency          string     `json:"currency"`
 	ProcessedAt       *time.Time `json:"processed_at,omitempty"`
 	ErrorMessage      string     `json:"error_message,omitempty"`
