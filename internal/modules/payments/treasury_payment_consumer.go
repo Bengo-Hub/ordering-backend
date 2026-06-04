@@ -3,6 +3,7 @@ package payments
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -12,23 +13,28 @@ import (
 )
 
 const (
-	treasuryPaymentDurable    = "ordering-treasury-payment-succeeded"
+	// Fresh durable name (the earlier push durable is intentionally abandoned). A PULL consumer is
+	// used so BOTH ordering replicas can share one durable (work-queue semantics) and it survives pod
+	// restarts — unlike push durables, which fail every replica after the first with "consumer is
+	// already bound to a subscription".
+	treasuryPaymentDurable    = "ordering-treasury-pay"
 	treasuryPaymentAckWait    = 30 * time.Second
 	treasuryPaymentMaxDeliver = 8
+	treasuryPaymentFetchBatch = 10
+	treasuryPaymentFetchWait  = 5 * time.Second
 )
 
-// TreasuryPaymentConsumer confirms an order the instant treasury reports its payment succeeded,
-// instead of waiting for the ~5-minute HTTP poller. It subscribes to the shared-events subject
-// treasury.payment.succeeded (published by treasury's outbox) via a durable JetStream consumer, so
-// it is event-driven, low-latency, and survives restarts. The poller remains as a durable fallback
-// for any event that is missed (e.g. published while this consumer was briefly down).
+// TreasuryPaymentConsumer confirms an order the instant treasury publishes treasury.payment.succeeded
+// (shared-events subject on the "treasury" JetStream stream), instead of waiting for the ~5-minute
+// HTTP poller. It uses a durable PULL subscription so it is multi-replica and restart safe. The
+// poller remains as a durable fallback for any event missed while the consumer is down.
 type TreasuryPaymentConsumer struct {
 	log              *zap.Logger
 	onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error
 }
 
-// NewTreasuryPaymentConsumer constructs the consumer. onPaymentSuccess is the same callback the
-// poller uses (UpdatePaymentStatus -> paid -> publish payment_confirmed), which is idempotent.
+// NewTreasuryPaymentConsumer constructs the consumer. onPaymentSuccess is the same idempotent
+// handler the poller uses (UpdatePaymentStatus -> paid -> publish payment_confirmed).
 func NewTreasuryPaymentConsumer(log *zap.Logger, onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error) *TreasuryPaymentConsumer {
 	return &TreasuryPaymentConsumer{
 		log:              log.Named("consumers.treasury_payment"),
@@ -36,11 +42,10 @@ func NewTreasuryPaymentConsumer(log *zap.Logger, onPaymentSuccess func(ctx conte
 	}
 }
 
-// Start ensures the treasury stream exists then subscribes to treasury.payment.succeeded. Blocks
-// until ctx is done.
+// Start ensures the treasury stream exists then pulls treasury.payment.succeeded in a loop until ctx
+// is done.
 func (c *TreasuryPaymentConsumer) Start(ctx context.Context, js nats.JetStreamContext) error {
-	// Ensure the stream that retains treasury events exists, so a durable consumer can bind even if
-	// ordering starts before treasury. Mirrors treasury's own stream-ensure (subjects treasury.>).
+	// Ensure the stream that retains treasury events exists (idempotent; treasury ensures it too).
 	if _, err := js.StreamInfo("treasury"); err != nil {
 		if _, aerr := js.AddStream(&nats.StreamConfig{
 			Name:      "treasury",
@@ -53,21 +58,41 @@ func (c *TreasuryPaymentConsumer) Start(ctx context.Context, js nats.JetStreamCo
 		}
 	}
 
-	sub, err := js.Subscribe(
+	sub, err := js.PullSubscribe(
 		"treasury.payment.succeeded",
-		c.handleMessage,
-		nats.Durable(treasuryPaymentDurable),
+		treasuryPaymentDurable,
 		nats.AckExplicit(),
 		nats.AckWait(treasuryPaymentAckWait),
 		nats.MaxDeliver(treasuryPaymentMaxDeliver),
-		nats.DeliverAll(),
+		nats.BindStream("treasury"),
 	)
 	if err != nil {
-		return fmt.Errorf("treasury payment consumer: subscribe: %w", err)
+		return fmt.Errorf("treasury payment consumer: pull subscribe: %w", err)
 	}
-	c.log.Info("treasury payment consumer started", zap.String("durable", treasuryPaymentDurable))
-	<-ctx.Done()
-	return sub.Unsubscribe()
+	c.log.Info("treasury payment consumer started (pull)", zap.String("durable", treasuryPaymentDurable))
+
+	for {
+		if ctx.Err() != nil {
+			_ = sub.Unsubscribe()
+			return nil
+		}
+		msgs, ferr := sub.Fetch(treasuryPaymentFetchBatch, nats.MaxWait(treasuryPaymentFetchWait))
+		if ferr != nil {
+			// Timeout simply means no messages were ready in this window — keep polling.
+			if errors.Is(ferr, nats.ErrTimeout) {
+				continue
+			}
+			if ctx.Err() != nil {
+				_ = sub.Unsubscribe()
+				return nil
+			}
+			c.log.Warn("treasury payment: fetch error", zap.Error(ferr))
+			continue
+		}
+		for _, m := range msgs {
+			c.handleMessage(ctx, m)
+		}
+	}
 }
 
 // sharedEventEnvelope matches the JSON of github.com/Bengo-Hub/shared-events Event (the format
@@ -78,7 +103,7 @@ type sharedEventEnvelope struct {
 	Payload   map[string]interface{} `json:"payload"`
 }
 
-func (c *TreasuryPaymentConsumer) handleMessage(msg *nats.Msg) {
+func (c *TreasuryPaymentConsumer) handleMessage(ctx context.Context, msg *nats.Msg) {
 	var env sharedEventEnvelope
 	if err := json.Unmarshal(msg.Data, &env); err != nil {
 		c.log.Warn("treasury payment: unmarshal failed", zap.Error(err))
@@ -107,7 +132,7 @@ func (c *TreasuryPaymentConsumer) handleMessage(msg *nats.Msg) {
 	if c.onPaymentSuccess != nil {
 		// UpdatePaymentStatus is idempotent: re-confirming an already-paid order is a no-op and does
 		// not re-publish payment_confirmed, so duplicate delivery / overlap with the poller is safe.
-		if err := c.onPaymentSuccess(context.Background(), tenantID, orderID); err != nil {
+		if err := c.onPaymentSuccess(ctx, tenantID, orderID); err != nil {
 			c.log.Error("treasury payment: confirm order failed (will retry)",
 				zap.String("order_id", orderID.String()), zap.Error(err))
 			_ = msg.Nak()
