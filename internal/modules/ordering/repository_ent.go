@@ -3,6 +3,8 @@ package ordering
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
@@ -741,23 +743,27 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 }
 
 func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error) {
-	// Get today's date prefix
-	today := time.Now().Format("20060102")
-
-	// Count orders today for this outlet
-	count, err := r.client.Order.Query().
+	// Format: YYYYMMDD-NNNN per tenant per day (e.g. 20260117-0001). order_number is unique PER
+	// TENANT (composite index), so scope generation to the tenant. Use the highest existing suffix
+	// + 1 (gap-safe — count() would collide after a rolled-back order). The zero-padded suffix makes
+	// lexical desc == numeric desc up to 9999/day.
+	prefix := time.Now().Format("20060102") + "-"
+	latest, err := r.client.Order.Query().
 		Where(
 			order.TenantID(tenantID),
-			order.OutletID(outletID),
-			order.CreatedAtGTE(time.Now().Truncate(24*time.Hour)),
+			order.OrderNumberHasPrefix(prefix),
 		).
-		Count(ctx)
-	if err != nil {
+		Order(ent.Desc(order.FieldOrderNumber)).
+		First(ctx)
+	next := 1
+	if err == nil && latest != nil {
+		if n, perr := strconv.Atoi(strings.TrimPrefix(latest.OrderNumber, prefix)); perr == nil {
+			next = n + 1
+		}
+	} else if err != nil && !ent.IsNotFound(err) {
 		return "", err
 	}
-
-	// Format: YYYYMMDD-NNNN (e.g., 20260117-0001)
-	return fmt.Sprintf("%s-%04d", today, count+1), nil
+	return fmt.Sprintf("%s%04d", prefix, next), nil
 }
 
 // --- OrderItem Methods ---
