@@ -31,6 +31,7 @@ type Config struct {
 	Inventory     InventoryConfig     `envconfig:""`
 	Notifications  NotificationsConfig  `envconfig:""`
 	Subscriptions  SubscriptionsConfig  `envconfig:""`
+	Marketflow     MarketflowConfig     `envconfig:""`
 	Superset       SupersetConfig       `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
 	Media         MediaConfig         `envconfig:""`
@@ -161,6 +162,13 @@ type SubscriptionsConfig struct {
 	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4008"`
 	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	RequestTimeout time.Duration `envconfig:"SUBSCRIPTIONS_REQUEST_TIMEOUT" default:"10s"`
+}
+
+type MarketflowConfig struct {
+	// MarketFlow (CRM) service URL — when empty, the CRM client is disabled (no-op) and orders are
+	// created without a crm_contact_id. CRM is the single source of truth for customer contact data.
+	ServiceURL string `envconfig:"MARKETFLOW_API_URL"`
+	APIKey     string `envconfig:"INTERNAL_SERVICE_KEY"`
 }
 
 type SupersetConfig struct {

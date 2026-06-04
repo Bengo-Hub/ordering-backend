@@ -417,6 +417,9 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	if o.ReservationID != nil {
 		builder.SetReservationID(*o.ReservationID)
 	}
+	if o.CrmContactID != nil {
+		builder.SetCrmContactID(*o.CrmContactID)
+	}
 	if o.PaymentMethod != "" {
 		builder.SetPaymentMethod(order.PaymentMethod(o.PaymentMethod))
 	}
@@ -514,6 +517,9 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 	}
 	if o.RatedAt != nil {
 		builder.SetRatedAt(*o.RatedAt)
+	}
+	if o.CrmContactID != nil {
+		builder.SetCrmContactID(*o.CrmContactID)
 	}
 
 	updated, err := builder.Save(ctx)
@@ -1044,6 +1050,9 @@ func entOrderToDomain(o *ent.Order) *Order {
 	}
 	if o.ReservationID != nil {
 		ord.ReservationID = o.ReservationID
+	}
+	if o.CrmContactID != nil {
+		ord.CrmContactID = o.CrmContactID
 	}
 
 	return ord
