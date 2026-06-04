@@ -1466,6 +1466,13 @@ func (s *OrderService) publishPaymentConfirmed(ctx context.Context, order *Order
 	if s.eventPublisher == nil || order == nil {
 		return
 	}
+	// Ensure buyer contact is populated. Guest orders store it in metadata (contactEmail/contactName);
+	// the transient CustomerEmail/Name fields are only filled by enrichOrderContact. Without this the
+	// payment_confirmed event — and therefore the issued ticket — carries an empty buyer_email, so no
+	// ticket email can be sent to the purchaser.
+	if order.CustomerEmail == "" || order.CustomerName == "" {
+		s.enrichOrderContact(ctx, order)
+	}
 	items := order.Items
 	if len(items) == 0 {
 		if loaded, err := s.repo.ListOrderItems(ctx, order.ID); err == nil {
