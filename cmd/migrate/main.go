@@ -60,10 +60,21 @@ func main() {
 		}
 	}
 
-	if err := client.Schema.Create(ctx, 
+	if err := client.Schema.Create(ctx,
 		schema.WithDir(migrate.Dir),
 	); err != nil {
 		log.Fatalf("run migrations: %v", err)
+	}
+
+	// Converge the order_number uniqueness to PER-TENANT. Declarative auto-migrate is additive and
+	// cannot drop the legacy GLOBAL unique index (which made two tenants collide on the same day's
+	// YYYYMMDD-NNNN). Both statements are idempotent and safe: every existing order_number was
+	// globally unique, so it is necessarily unique per (tenant_id, order_number).
+	if _, err := db.ExecContext(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS order_tenant_id_order_number ON orders (tenant_id, order_number)`); err != nil {
+		log.Printf("warning: ensure per-tenant order_number index: %v", err)
+	}
+	if _, err := db.ExecContext(ctx, `DROP INDEX IF EXISTS order_order_number`); err != nil {
+		log.Printf("warning: drop legacy global order_number index: %v", err)
 	}
 
 	log.Println("database migrations applied successfully")
