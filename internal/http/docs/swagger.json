@@ -3533,21 +3533,19 @@
         },
         "/payment-methods": {
             "get": {
+                "description": "Aggregate of enabled gateways, wallet summary, and saved cards for checkout.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Payment Methods"
                 ],
-                "summary": "List payment methods",
+                "summary": "List checkout payment methods",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
-                            }
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodsAggregateResponse"
                         }
                     }
                 }
@@ -6755,6 +6753,57 @@
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.PaymentGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.PaymentMethodsAggregateResponse": {
+            "type": "object",
+            "properties": {
+                "gateways": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.PaymentGatewayResponse"
+                    }
+                },
+                "saved_methods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
+                    }
+                },
+                "wallet": {
+                    "$ref": "#/definitions/internal_http_handlers_payments.WalletSummaryResponse"
+                }
+            }
+        },
+        "internal_http_handlers_payments.WalletSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "currency": {
                     "type": "string"
                 }
             }
