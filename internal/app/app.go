@@ -26,13 +26,13 @@ import (
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
-	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
+	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
@@ -42,8 +42,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
-	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
+	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
@@ -363,6 +363,16 @@ func New(ctx context.Context) (*App, error) {
 				}
 			}()
 			log.Info("app: treasury payment consumer started (treasury.payment.succeeded)")
+
+			// Subscribe to pos-api events (shared-events "pos" stream): pos.kds.order.ready advances
+			// the online order to ready; pos.online_order.collected completes it. Reuses the order
+			// status-update service method so customer notifications fire automatically.
+			posEventConsumer := ordering.NewPOSEventConsumer(log, orderSvc, orderingRepo)
+			if err := posEventConsumer.Start(ctx, js); err != nil {
+				log.Warn("app: failed to start pos event consumer", zap.Error(err))
+			} else {
+				log.Info("app: pos event consumer started (pos.kds.order.ready, pos.online_order.collected)")
+			}
 		}
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)

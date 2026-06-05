@@ -47,236 +47,6 @@ definitions:
     - DashboardModuleCustomers
     - DashboardModuleOperations
     - DashboardModuleSubscription
-  github_com_bengobox_ordering-backend_internal_modules_catalog.Asset:
-    properties:
-      assetType:
-        $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.AssetType'
-      createdAt:
-        type: string
-      id:
-        type: string
-      menuItemId:
-        type: string
-      metadata:
-        additionalProperties: true
-        type: object
-      url:
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.AssetType:
-    enum:
-    - image
-    - video
-    type: string
-    x-enum-varnames:
-    - AssetTypeImage
-    - AssetTypeVideo
-  github_com_bengobox_ordering-backend_internal_modules_catalog.Category:
-    properties:
-      cafeId:
-        type: string
-      children:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Category'
-        type: array
-      createdAt:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      id:
-        type: string
-      imageUrl:
-        type: string
-      isActive:
-        type: boolean
-      itemCount:
-        type: integer
-      name:
-        type: string
-      parentId:
-        type: string
-      tenantId:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.DietaryTag:
-    properties:
-      code:
-        description: 'Primary key: vegetarian, vegan, gluten-free, etc.'
-        type: string
-      createdAt:
-        type: string
-      description:
-        type: string
-      iconUrl:
-        type: string
-      label:
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.MenuItem:
-    properties:
-      assets:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Asset'
-        type: array
-      basePrice:
-        type: number
-      cafeId:
-        type: string
-      category:
-        $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Category'
-      categoryId:
-        type: string
-      createdAt:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      dietaryTags:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.DietaryTag'
-        type: array
-      displayOrder:
-        type: integer
-      id:
-        type: string
-      imageUrl:
-        type: string
-      isAvailable:
-        type: boolean
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      nutrition:
-        additionalProperties: true
-        type: object
-      schedules:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Schedule'
-        type: array
-      sku:
-        type: string
-      tenantId:
-        type: string
-      translations:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Translation'
-        type: array
-      updatedAt:
-        type: string
-      variants:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Variant'
-        type: array
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.PublicCategory:
-    properties:
-      children:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.PublicCategory'
-        type: array
-      description:
-        type: string
-      id:
-        type: string
-      imageUrl:
-        type: string
-      itemCount:
-        type: integer
-      name:
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.PublicMenuItem:
-    properties:
-      basePrice:
-        type: number
-      categoryId:
-        type: string
-      categoryName:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      dietaryTags:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.DietaryTag'
-        type: array
-      id:
-        type: string
-      imageUrl:
-        type: string
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      variants:
-        items:
-          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Variant'
-        type: array
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.Schedule:
-    properties:
-      createdAt:
-        type: string
-      dayOfWeek:
-        description: 0=Sunday, 6=Saturday
-        type: integer
-      id:
-        type: string
-      menuItemId:
-        type: string
-      timeEnd:
-        description: HH:MM format
-        type: string
-      timeStart:
-        description: HH:MM format
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.Translation:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      locale:
-        description: e.g., "en", "sw"
-        type: string
-      menuItemId:
-        type: string
-      name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  github_com_bengobox_ordering-backend_internal_modules_catalog.Variant:
-    properties:
-      createdAt:
-        type: string
-      displayOrder:
-        type: integer
-      id:
-        type: string
-      isAvailable:
-        type: boolean
-      menuItemId:
-        type: string
-      name:
-        type: string
-      priceDelta:
-        type: number
-      sku:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   github_com_bengobox_ordering-backend_internal_modules_compliance.DataDeletionJob:
     properties:
       completed_at:
@@ -580,37 +350,50 @@ definitions:
     type: object
   github_com_bengobox_ordering-backend_internal_modules_identity.Permission:
     enum:
-    - orders:view
-    - orders:manage
-    - orders:refund
-    - profile:update
-    - preferences:update
-    - loyalty:view
-    - loyalty:redeem
-    - catalog:view
-    - catalog:manage
-    - payments:view
-    - payments:manage
-    - logistics:view
-    - logistics:dispatch
-    - operations:kitchen
-    - operations:inventory
-    - notifications:view
-    - notifications:manage
-    - analytics:view
-    - analytics:export
-    - support:view
-    - support:manage
-    - riders:onboard
-    - staff:invite
-    - admin:manage
+    - ordering.orders.view
+    - ordering.orders.manage
+    - ordering.orders.delete
+    - ordering.users.change_own
+    - ordering.config.change_own
+    - ordering.loyalty.view
+    - ordering.loyalty.change
+    - ordering.catalog.view
+    - ordering.catalog.manage
+    - ordering.orders.view
+    - ordering.orders.manage
+    - ordering.orders.view
+    - ordering.orders.change
+    - ordering.orders.change
+    - ordering.catalog.view
+    - ordering.config.view
+    - ordering.config.manage
+    - ordering.analytics.view
+    - ordering.analytics.manage
+    - ordering.orders.view_own
+    - ordering.orders.manage
+    - ordering.delivery_zones.view
+    - ordering.delivery_zones.manage
+    - ordering.users.add
+    - ordering.users.add
+    - ordering.config.manage
     type: string
     x-enum-comments:
-      PermissionRidersOnboard: Kept for backward compatibility if used elsewhere
-      PermissionStaffInvite: Kept for backward compatibility if used elsewhere
+      PermissionLogisticsView: logistics projection — same as orders view
+      PermissionOrdersRefund: refund mapped to delete (destructive action)
+      PermissionPaymentsView: payments projection — same as orders view
     x-enum-descriptions:
     - ""
     - ""
+    - refund mapped to delete (destructive action)
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - payments projection — same as orders view
+    - ""
+    - logistics projection — same as orders view
     - ""
     - ""
     - ""
@@ -624,14 +407,6 @@ definitions:
     - ""
     - ""
     - ""
-    - ""
-    - ""
-    - ""
-    - ""
-    - ""
-    - ""
-    - Kept for backward compatibility if used elsewhere
-    - Kept for backward compatibility if used elsewhere
     - ""
     x-enum-varnames:
     - PermissionOrdersView
@@ -655,27 +430,65 @@ definitions:
     - PermissionAnalyticsExport
     - PermissionSupportView
     - PermissionSupportManage
+    - PermissionZonesView
+    - PermissionZonesManage
     - PermissionRidersOnboard
     - PermissionStaffInvite
     - PermissionAdminManage
   github_com_bengobox_ordering-backend_internal_modules_identity.Role:
     enum:
     - customer
+    - driver
     - rider
     - staff
     - admin
     - superuser
     type: string
+    x-enum-comments:
+      RoleDriver: Universal role for delivery/courier/taxi use cases
+      RoleRider: 'Deprecated: use RoleDriver; kept for backward compatibility'
+    x-enum-descriptions:
+    - ""
+    - Universal role for delivery/courier/taxi use cases
+    - 'Deprecated: use RoleDriver; kept for backward compatibility'
+    - ""
+    - ""
+    - ""
     x-enum-varnames:
     - RoleCustomer
+    - RoleDriver
     - RoleRider
     - RoleStaff
     - RoleAdmin
     - RoleSuperAdmin
+  github_com_bengobox_ordering-backend_internal_modules_ordering.AnalyticsSummary:
+    properties:
+      cancelledOrders:
+        type: integer
+      ordersByStatus:
+        additionalProperties:
+          type: integer
+        type: object
+      revenueByCurrency:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      topSellingItems:
+        items:
+          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.ItemSalesSummary'
+        type: array
+      totalOrders:
+        type: integer
+      totalRevenue:
+        type: number
+      trend:
+        items:
+          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.DailyMetric'
+        type: array
+    type: object
   github_com_bengobox_ordering-backend_internal_modules_ordering.Cart:
     properties:
-      cafeId:
-        type: string
       createdAt:
         type: string
       currency:
@@ -694,6 +507,8 @@ definitions:
         type: array
       loyaltyPointsRedeemed:
         type: integer
+      outletId:
+        type: string
       promoCodeId:
         type: string
       sessionId:
@@ -719,11 +534,17 @@ definitions:
         type: string
       id:
         type: string
-      menuItemId:
+      inventorySku:
         type: string
       metadata:
         additionalProperties: true
         type: object
+      modifierTotal:
+        type: number
+      modifiers:
+        items:
+          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CartItemModifier'
+        type: array
       nameSnapshot:
         type: string
       notes:
@@ -738,6 +559,19 @@ definitions:
         type: string
       variantId:
         type: string
+    type: object
+  github_com_bengobox_ordering-backend_internal_modules_ordering.CartItemModifier:
+    properties:
+      group_id:
+        type: string
+      group_name:
+        type: string
+      option_id:
+        type: string
+      option_name:
+        type: string
+      price_adjustment:
+        type: number
     type: object
   github_com_bengobox_ordering-backend_internal_modules_ordering.CartStatus:
     enum:
@@ -811,6 +645,61 @@ definitions:
       userId:
         type: string
     type: object
+  github_com_bengobox_ordering-backend_internal_modules_ordering.DailyMetric:
+    properties:
+      date:
+        type: string
+      orders:
+        type: integer
+      revenue:
+        type: number
+    type: object
+  github_com_bengobox_ordering-backend_internal_modules_ordering.FeeBreakdown:
+    properties:
+      delivery_discount:
+        type: number
+      delivery_fee:
+        type: number
+      discount:
+        type: number
+      grand_total:
+        type: number
+      item_total:
+        type: number
+      packaging_fee:
+        type: number
+      service_fee:
+        type: number
+      small_order_fee:
+        type: number
+      subtotal:
+        type: number
+      tax_total:
+        type: number
+    type: object
+  github_com_bengobox_ordering-backend_internal_modules_ordering.FulfillmentType:
+    enum:
+    - delivery
+    - pickup
+    - dine_in
+    - scheduled
+    type: string
+    x-enum-varnames:
+    - FulfillmentTypeDelivery
+    - FulfillmentTypePickup
+    - FulfillmentTypeDineIn
+    - FulfillmentTypeScheduled
+  github_com_bengobox_ordering-backend_internal_modules_ordering.ItemSalesSummary:
+    properties:
+      inventorySku:
+        type: string
+      nameSnapshot:
+        type: string
+      quantity:
+        type: integer
+      revenue:
+        type: number
+    type: object
   github_com_bengobox_ordering-backend_internal_modules_ordering.LoyaltyTransaction:
     properties:
       accountId:
@@ -847,8 +736,6 @@ definitions:
     - LoyaltyTransactionTypeBonus
   github_com_bengobox_ordering-backend_internal_modules_ordering.Order:
     properties:
-      cafeId:
-        type: string
       cancellationReason:
         type: string
       cancelledAt:
@@ -863,9 +750,19 @@ definitions:
         type: string
       createdAt:
         type: string
+      crmContactId:
+        type: string
       currency:
         type: string
+      customerEmail:
+        type: string
       customerId:
+        type: string
+      customerName:
+        description: Resolved customer contact info (from metadata for guests, from
+          user for authenticated)
+        type: string
+      customerPhone:
         type: string
       deliveredAt:
         type: string
@@ -881,6 +778,8 @@ definitions:
         items:
           $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OrderEvent'
         type: array
+      fulfillmentType:
+        $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.FulfillmentType'
       grandTotal:
         type: number
       id:
@@ -902,6 +801,14 @@ definitions:
         type: object
       orderNumber:
         type: string
+      outletId:
+        type: string
+      packagingFee:
+        type: number
+      paymentIntentId:
+        type: string
+      paymentMethod:
+        $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentMethod'
       paymentStatus:
         $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentStatus'
       placedAt:
@@ -916,6 +823,14 @@ definitions:
         type: string
       readyAt:
         type: string
+      reservationId:
+        type: string
+      scheduledFor:
+        type: string
+      serviceFee:
+        type: number
+      smallOrderFee:
+        type: number
       source:
         type: string
       status:
@@ -973,7 +888,7 @@ definitions:
     properties:
       id:
         type: string
-      menuItemId:
+      inventorySku:
         type: string
       metadata:
         additionalProperties: true
@@ -1004,6 +919,7 @@ definitions:
     - completed
     - cancelled
     - refunded
+    - payment_timeout
     type: string
     x-enum-varnames:
     - OrderStatusPending
@@ -1015,6 +931,52 @@ definitions:
     - OrderStatusCompleted
     - OrderStatusCancelled
     - OrderStatusRefunded
+    - OrderStatusPaymentTimeout
+  github_com_bengobox_ordering-backend_internal_modules_ordering.OutletRatingData:
+    properties:
+      averageRating:
+        type: number
+      createdAt:
+        type: string
+      fiveStar:
+        type: integer
+      fourStar:
+        type: integer
+      id:
+        type: string
+      oneStar:
+        type: integer
+      outletId:
+        type: string
+      tenantId:
+        type: string
+      threeStar:
+        type: integer
+      totalRatings:
+        type: integer
+      totalReviews:
+        type: integer
+      twoStar:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentMethod:
+    enum:
+    - mpesa
+    - paystack
+    - stripe
+    - cod
+    - wallet
+    - loyalty
+    type: string
+    x-enum-varnames:
+    - PaymentMethodMpesa
+    - PaymentMethodPaystack
+    - PaymentMethodStripe
+    - PaymentMethodCOD
+    - PaymentMethodWallet
+    - PaymentMethodLoyalty
   github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentStatus:
     enum:
     - pending
@@ -1077,125 +1039,6 @@ definitions:
         example: OK
         type: string
     type: object
-  internal_http_handlers_catalog.AddDietaryTagRequest:
-    properties:
-      code:
-        type: string
-    type: object
-  internal_http_handlers_catalog.CreateCategoryRequest:
-    properties:
-      cafeId:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isActive:
-        type: boolean
-      name:
-        type: string
-      parentId:
-        type: string
-    type: object
-  internal_http_handlers_catalog.CreateMenuItemRequest:
-    properties:
-      basePrice:
-        type: number
-      cafeId:
-        type: string
-      categoryId:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isAvailable:
-        type: boolean
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      sku:
-        type: string
-    type: object
-  internal_http_handlers_catalog.CreateTranslationRequest:
-    properties:
-      description:
-        type: string
-      locale:
-        type: string
-      name:
-        type: string
-    type: object
-  internal_http_handlers_catalog.CreateVariantRequest:
-    properties:
-      displayOrder:
-        type: integer
-      isAvailable:
-        type: boolean
-      name:
-        type: string
-      priceDelta:
-        type: number
-      sku:
-        type: string
-    type: object
-  internal_http_handlers_catalog.ListResponse:
-    properties:
-      data: {}
-      limit:
-        type: integer
-      page:
-        type: integer
-      total:
-        type: integer
-    type: object
-  internal_http_handlers_catalog.UpdateCategoryRequest:
-    properties:
-      clearParent:
-        type: boolean
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isActive:
-        type: boolean
-      name:
-        type: string
-      parentId:
-        type: string
-    type: object
-  internal_http_handlers_catalog.UpdateMenuItemRequest:
-    properties:
-      basePrice:
-        type: number
-      categoryId:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      displayOrder:
-        type: integer
-      imageUrl:
-        type: string
-      isAvailable:
-        type: boolean
-      leadTimeMinutes:
-        type: integer
-      name:
-        type: string
-      sku:
-        type: string
-    type: object
   internal_http_handlers_compliance.CreateDataSubjectRequestRequest:
     properties:
       description:
@@ -1225,6 +1068,33 @@ definitions:
           type: string
         type: array
     type: object
+  internal_http_handlers_config.PublicConfigResponse:
+    properties:
+      brand_palette:
+        additionalProperties:
+          type: string
+        type: object
+      features:
+        additionalProperties:
+          type: boolean
+        type: object
+      logo_url:
+        type: string
+      name:
+        type: string
+      primary_color:
+        type: string
+      secondary_color:
+        type: string
+      short_name:
+        type: string
+      support_email:
+        type: string
+      support_phone:
+        type: string
+      tagline:
+        type: string
+    type: object
   internal_http_handlers_fulfilment.CancelDeliveryTaskRequest:
     properties:
       reason:
@@ -1243,6 +1113,10 @@ definitions:
     properties:
       session:
         $ref: '#/definitions/internal_http_handlers_identity.SessionResponsePayload'
+      tenant_id:
+        type: string
+      tenant_slug:
+        type: string
       user:
         $ref: '#/definitions/internal_http_handlers_identity.UserResponsePayload'
     type: object
@@ -1309,13 +1183,6 @@ definitions:
       phone:
         example: "+254700000000"
         type: string
-    type: object
-  internal_http_handlers_identity.UpdateSecurityRequest:
-    properties:
-      disableTwoFactor:
-        type: boolean
-      enableTwoFactor:
-        type: boolean
     type: object
   internal_http_handlers_identity.UserPreferencesResponse:
     properties:
@@ -1385,11 +1252,15 @@ definitions:
     type: object
   internal_http_handlers_ordering.AddItemRequest:
     properties:
-      cafeId:
+      inventorySku:
         type: string
-      menuItemId:
-        type: string
+      modifiers:
+        items:
+          $ref: '#/definitions/internal_http_handlers_ordering.CartItemModifierDTO'
+        type: array
       notes:
+        type: string
+      outletId:
         type: string
       quantity:
         type: integer
@@ -1401,6 +1272,11 @@ definitions:
       cartId:
         type: string
       code:
+        type: string
+    type: object
+  internal_http_handlers_ordering.AssignRiderRequest:
+    properties:
+      rider_id:
         type: string
     type: object
   internal_http_handlers_ordering.BalanceResponse:
@@ -1417,21 +1293,51 @@ definitions:
       reason:
         type: string
     type: object
+  internal_http_handlers_ordering.CartItemModifierDTO:
+    properties:
+      groupId:
+        type: string
+      groupName:
+        type: string
+      optionId:
+        type: string
+      optionName:
+        type: string
+      priceAdjustment:
+        type: number
+    type: object
   internal_http_handlers_ordering.CheckoutRequestDTO:
     properties:
       cartId:
         type: string
       channel:
         type: string
+      deliveryAddress:
+        type: string
       deliveryAddressId:
+        type: string
+      deliveryNotes:
+        type: string
+      fulfillmentType:
         type: string
       idempotencyKey:
         type: string
       instructions:
         type: string
+      items:
+        items:
+          $ref: '#/definitions/internal_http_handlers_ordering.OrderItemDTO'
+        type: array
       loyaltyPointsRedeemed:
         type: integer
+      outletId:
+        type: string
+      paymentMethod:
+        description: '"mpesa" | "cod"'
+        type: string
       promoCode:
+        type: string
+      scheduledAt:
         type: string
     type: object
   internal_http_handlers_ordering.CreateAddressRequestDTO:
@@ -1475,6 +1381,8 @@ definitions:
         type: number
       deliveryNotes:
         type: string
+      fulfillmentType:
+        type: string
       items:
         items:
           $ref: '#/definitions/internal_http_handlers_ordering.OrderItemDTO'
@@ -1489,12 +1397,52 @@ definitions:
       scheduledAt:
         type: string
     type: object
+  internal_http_handlers_ordering.GuestCheckoutRequestDTO:
+    properties:
+      channel:
+        type: string
+      contactEmail:
+        type: string
+      contactName:
+        type: string
+      contactPhone:
+        type: string
+      deliveryAddress:
+        type: string
+      deliveryLat:
+        type: number
+      deliveryLng:
+        type: number
+      deliveryNotes:
+        type: string
+      fulfillmentType:
+        type: string
+      idempotencyKey:
+        type: string
+      instructions:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/internal_http_handlers_ordering.OrderItemDTO'
+        type: array
+      outletId:
+        type: string
+      paymentMethod:
+        description: '"mpesa" | "cod"'
+        type: string
+      scheduledAt:
+        type: string
+      sessionId:
+        type: string
+    type: object
   internal_http_handlers_ordering.ListOrdersResponse:
     properties:
       data:
         items:
           $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order'
         type: array
+      hasMore:
+        type: boolean
       limit:
         type: integer
       page:
@@ -1504,15 +1452,18 @@ definitions:
     type: object
   internal_http_handlers_ordering.MergeCartRequest:
     properties:
-      cafeId:
+      outletId:
         type: string
       sessionId:
         type: string
     type: object
   internal_http_handlers_ordering.OrderItemDTO:
     properties:
-      menuItemId:
+      inventorySku:
         type: string
+      metadata:
+        additionalProperties: true
+        type: object
       name:
         type: string
       quantity:
@@ -1527,6 +1478,10 @@ definitions:
       comment:
         type: string
       rating:
+        type: integer
+      riderComment:
+        type: string
+      riderRating:
         type: integer
     type: object
   internal_http_handlers_ordering.RemovePromoRequest:
@@ -2096,9 +2051,9 @@ paths:
         name: X-Tenant-ID
         required: true
         type: string
-      - description: Filter by cafe ID
+      - description: Filter by outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         type: string
       - description: Filter by customer ID
         in: query
@@ -2155,6 +2110,29 @@ paths:
       tags:
       - Admin Orders
   /admin/orders/{orderId}:
+    delete:
+      description: Permanently deletes an order. Only cancelled/refunded/completed
+        orders can be deleted.
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Delete order (admin)
+      tags:
+      - Admin Orders
     get:
       description: Retrieves any order by its ID
       parameters:
@@ -2252,6 +2230,65 @@ paths:
       summary: Cancel order (admin)
       tags:
       - Admin Orders
+  /admin/orders/{orderId}/rider:
+    put:
+      consumes:
+      - application/json
+      description: Assigns a fleet member (rider) to a delivery order, auto-creating
+        the logistics task if needed. Only valid for delivery-fulfilment orders; the
+        order is then moved to out_for_delivery.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Rider to assign
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.AssignRiderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Assign a rider to a delivery order
+      tags:
+      - Admin Orders
   /admin/orders/{orderId}/status:
     put:
       consumes:
@@ -2303,6 +2340,46 @@ paths:
           schema:
             $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
       summary: Update order status
+      tags:
+      - Admin Orders
+  /admin/orders/summary:
+    get:
+      description: Returns high-level metrics (revenue, orders, trends)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Start date (RFC3339)
+        in: query
+        name: date_from
+        type: string
+      - description: End date (RFC3339)
+        in: query
+        name: date_to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.AnalyticsSummary'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get analytics summary (admin)
       tags:
       - Admin Orders
   /admin/refunds:
@@ -2871,7 +2948,7 @@ paths:
         type: string
       - description: Cafe ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       responses:
@@ -2905,7 +2982,7 @@ paths:
         type: string
       - description: Cafe ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       produces:
@@ -2928,6 +3005,211 @@ paths:
           schema:
             $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
       summary: Get current cart
+      tags:
+      - Cart
+  /cart/fee-breakdown:
+    get:
+      description: Returns the full fee breakdown (packaging, service, small order,
+        delivery fees) for the current cart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Outlet ID
+        in: query
+        name: outlet_id
+        required: true
+        type: string
+      - default: delivery
+        description: Fulfillment type (delivery, pickup)
+        in: query
+        name: fulfillment_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.FeeBreakdown'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get fee breakdown
+      tags:
+      - Cart
+  /cart/guest:
+    get:
+      description: Retrieves the guest cart identified by session ID (no auth required)
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Session ID
+        in: header
+        name: X-Session-ID
+        required: true
+        type: string
+      - description: Outlet ID
+        in: query
+        name: outlet_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get guest cart
+      tags:
+      - Cart
+  /cart/guest/items:
+    post:
+      consumes:
+      - application/json
+      description: Adds a menu item to a guest cart (no auth required)
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Session ID
+        in: header
+        name: X-Session-ID
+        required: true
+        type: string
+      - description: Item to add
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.AddItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Add item to guest cart
+      tags:
+      - Cart
+  /cart/guest/items/{itemId}:
+    delete:
+      description: Removes an item from a guest cart (no auth required)
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Session ID
+        in: header
+        name: X-Session-ID
+        required: true
+        type: string
+      - description: Cart item ID
+        in: path
+        name: itemId
+        required: true
+        type: string
+      - description: Outlet ID
+        in: query
+        name: outlet_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Remove guest cart item
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Updates the quantity or notes of a guest cart item (no auth required)
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Session ID
+        in: header
+        name: X-Session-ID
+        required: true
+        type: string
+      - description: Cart item ID
+        in: path
+        name: itemId
+        required: true
+        type: string
+      - description: Outlet ID
+        in: query
+        name: outlet_id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.UpdateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Update guest cart item
       tags:
       - Cart
   /cart/items:
@@ -3113,9 +3395,9 @@ paths:
         name: X-Tenant-ID
         required: true
         type: string
-      - description: Cafe ID
+      - description: Outlet ID
         in: query
-        name: cafe_id
+        name: outlet_id
         required: true
         type: string
       produces:
@@ -3140,598 +3422,6 @@ paths:
       summary: Get cart summary
       tags:
       - Cart
-  /catalog/categories:
-    get:
-      description: Lists all menu categories with optional filters
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Filter by cafe ID
-        in: query
-        name: cafe_id
-        type: string
-      - description: Filter by parent ID
-        in: query
-        name: parent_id
-        type: string
-      - description: Filter by active status
-        in: query
-        name: is_active
-        type: boolean
-      - description: Search by name
-        in: query
-        name: search
-        type: string
-      - description: Page size (default 50)
-        in: query
-        name: limit
-        type: integer
-      - description: Page number (default 1)
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_http_handlers_catalog.ListResponse'
-      summary: List categories
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a new menu category for organizing menu items
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Category data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.CreateCategoryRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Category'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Create a new category
-      tags:
-      - Catalog
-  /catalog/categories/{id}:
-    delete:
-      description: Deletes a menu category if it has no items or children
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Category ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Delete a category
-      tags:
-      - Catalog
-    get:
-      description: Retrieves a menu category by its ID
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Category ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Category'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Get a category
-      tags:
-      - Catalog
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing menu category
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Category ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated category data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.UpdateCategoryRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Category'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Update a category
-      tags:
-      - Catalog
-  /catalog/dietary-tags:
-    get:
-      description: Lists all available dietary tags
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.DietaryTag'
-            type: array
-      summary: List dietary tags
-      tags:
-      - Catalog
-  /catalog/items:
-    get:
-      description: Lists all menu items with optional filters
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Filter by cafe ID
-        in: query
-        name: cafe_id
-        type: string
-      - description: Filter by category ID
-        in: query
-        name: category_id
-        type: string
-      - description: Filter by availability
-        in: query
-        name: is_available
-        type: boolean
-      - description: Search by name or description
-        in: query
-        name: search
-        type: string
-      - description: Minimum price filter
-        in: query
-        name: min_price
-        type: number
-      - description: Maximum price filter
-        in: query
-        name: max_price
-        type: number
-      - description: Page size (default 50)
-        in: query
-        name: limit
-        type: integer
-      - description: Page number (default 1)
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_http_handlers_catalog.ListResponse'
-      summary: List menu items
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a new menu item within a category
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.CreateMenuItemRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.MenuItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Create a new menu item
-      tags:
-      - Catalog
-  /catalog/items/{id}:
-    delete:
-      description: Deletes a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Delete a menu item
-      tags:
-      - Catalog
-    get:
-      description: Retrieves a menu item by its ID including variants and translations
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.MenuItem'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Get a menu item
-      tags:
-      - Catalog
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated item data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.UpdateMenuItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.MenuItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Update a menu item
-      tags:
-      - Catalog
-  /catalog/items/{id}/dietary-tags:
-    post:
-      consumes:
-      - application/json
-      description: Adds a dietary tag to a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Dietary tag code
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.AddDietaryTagRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Add dietary tag to item
-      tags:
-      - Catalog
-  /catalog/items/{id}/dietary-tags/{code}:
-    delete:
-      description: Removes a dietary tag from a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Dietary tag code
-        in: path
-        name: code
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Remove dietary tag from item
-      tags:
-      - Catalog
-  /catalog/items/{id}/translations:
-    get:
-      description: Lists all translations for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Translation'
-            type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: List menu item translations
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a localized translation for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Translation data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.CreateTranslationRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Translation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Create a menu item translation
-      tags:
-      - Catalog
-  /catalog/items/{id}/variants:
-    get:
-      description: Lists all variants for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Variant'
-            type: array
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: List menu item variants
-      tags:
-      - Catalog
-    post:
-      consumes:
-      - application/json
-      description: Creates a new variant (e.g., size, flavor) for a menu item
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Variant data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_catalog.CreateVariantRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.Variant'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Create a menu item variant
-      tags:
-      - Catalog
   /checkout:
     post:
       consumes:
@@ -3776,6 +3466,42 @@ paths:
       summary: Checkout cart
       tags:
       - Checkout
+  /checkout/guest:
+    post:
+      consumes:
+      - application/json
+      description: Creates an order from a guest cart identified by session ID (no
+        auth required)
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Guest checkout data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.GuestCheckoutRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Guest checkout
+      tags:
+      - Checkout
   /checkout/validate:
     post:
       consumes:
@@ -3817,6 +3543,30 @@ paths:
       summary: Validate checkout
       tags:
       - Checkout
+  /config:
+    get:
+      description: Returns tenant display name and optional brand (logo_url, primary_color,
+        secondary_color) for theming
+      parameters:
+      - description: Tenant slug (e.g. urban-loft)
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_config.PublicConfigResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get tenant public config (brand)
+      tags:
+      - Config
   /customers/orders/summary:
     get:
       description: Returns a collection of recent order summaries for the authenticated
@@ -3989,93 +3739,6 @@ paths:
       summary: Get loyalty transactions
       tags:
       - Loyalty
-  /menu/categories:
-    get:
-      description: Lists active menu categories for public display
-      parameters:
-      - description: Cafe ID
-        in: query
-        name: cafe_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.PublicCategory'
-            type: array
-      summary: List public categories
-      tags:
-      - Menu
-  /menu/items:
-    get:
-      description: Lists available menu items for public display with localization
-        support
-      parameters:
-      - description: Filter by cafe ID
-        in: query
-        name: cafe_id
-        type: string
-      - description: Filter by category ID
-        in: query
-        name: category_id
-        type: string
-      - description: Search by name
-        in: query
-        name: search
-        type: string
-      - description: 'Locale for translations (default: en)'
-        in: query
-        name: locale
-        type: string
-      - description: Page size (default 50)
-        in: query
-        name: limit
-        type: integer
-      - description: Page number (default 1)
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_http_handlers_catalog.ListResponse'
-      summary: List public menu items
-      tags:
-      - Menu
-  /menu/items/{id}:
-    get:
-      description: Retrieves a menu item for public display
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 'Locale for translations (default: en)'
-        in: query
-        name: locale
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_catalog.PublicMenuItem'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      summary: Get a public menu item
-      tags:
-      - Menu
   /metrics:
     get:
       description: Exposes Prometheus metrics in the text format.
@@ -4332,6 +3995,111 @@ paths:
       summary: Rate an order
       tags:
       - Orders
+  /orders/{orderId}/track:
+    get:
+      description: Server-Sent Events stream for real-time order tracking
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE stream
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Track order (SSE)
+      tags:
+      - Orders
+  /orders/guest/{orderId}:
+    get:
+      description: Retrieves a guest order. Requires session_id query param matching
+        the order's session.
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Guest session ID
+        in: query
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get guest order
+      tags:
+      - Orders
+  /outlets/{outletId}/rating:
+    get:
+      description: Returns average rating, star breakdown, and review count for an
+        outlet
+      parameters:
+      - description: Outlet ID
+        in: path
+        name: outletId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OutletRatingData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Get outlet rating
+      tags:
+      - Outlets
   /payment-methods:
     get:
       produces:
@@ -4784,39 +4552,6 @@ paths:
       security:
       - bearerAuth: []
       summary: Update profile information
-      tags:
-      - Users
-  /users/security:
-    post:
-      consumes:
-      - application/json
-      description: Enables or disables two-factor authentication for the authenticated
-        user.
-      parameters:
-      - description: Security update payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http_handlers_identity.UpdateSecurityRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_http_handlers_identity.AuthResponsePayload'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Update account security settings
       tags:
       - Users
   /webhooks/mpesa/callback:

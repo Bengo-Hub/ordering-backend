@@ -182,22 +182,22 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 
 // OrderReadyData represents data for order.ready event.
 type OrderReadyData struct {
-	OrderID          uuid.UUID                `json:"order_id"`
-	OrderNumber      string                   `json:"order_number"`
-	OutletID         uuid.UUID                `json:"outlet_id"`
-	CustomerID       uuid.UUID                `json:"customer_id"`
-	DeliveryAddress  map[string]interface{}   `json:"delivery_address,omitempty"`
-	OutletLocation   map[string]interface{}   `json:"outlet_location,omitempty"`
-	Items            []map[string]interface{} `json:"items,omitempty"`
-	PaymentMethod    string                   `json:"payment_method,omitempty"`
-	CashOnDelivery   float64                  `json:"cash_on_delivery,omitempty"`
-	DeliveryFee      float64                  `json:"delivery_fee,omitempty"`
-	GrandTotal       float64                  `json:"grand_total,omitempty"`
-	CustomerName     string                   `json:"customer_name,omitempty"`
-	CustomerEmail    string                   `json:"customer_email,omitempty"`
-	CustomerPhone    string                   `json:"customer_phone,omitempty"`
-	Instructions     string                   `json:"instructions,omitempty"`
-	FulfillmentType  string                   `json:"fulfillment_type,omitempty"`
+	OrderID         uuid.UUID                `json:"order_id"`
+	OrderNumber     string                   `json:"order_number"`
+	OutletID        uuid.UUID                `json:"outlet_id"`
+	CustomerID      uuid.UUID                `json:"customer_id"`
+	DeliveryAddress map[string]interface{}   `json:"delivery_address,omitempty"`
+	OutletLocation  map[string]interface{}   `json:"outlet_location,omitempty"`
+	Items           []map[string]interface{} `json:"items,omitempty"`
+	PaymentMethod   string                   `json:"payment_method,omitempty"`
+	CashOnDelivery  float64                  `json:"cash_on_delivery,omitempty"`
+	DeliveryFee     float64                  `json:"delivery_fee,omitempty"`
+	GrandTotal      float64                  `json:"grand_total,omitempty"`
+	CustomerName    string                   `json:"customer_name,omitempty"`
+	CustomerEmail   string                   `json:"customer_email,omitempty"`
+	CustomerPhone   string                   `json:"customer_phone,omitempty"`
+	Instructions    string                   `json:"instructions,omitempty"`
+	FulfillmentType string                   `json:"fulfillment_type,omitempty"`
 }
 
 // PublishOrderReady publishes an order.ready event.
@@ -250,6 +250,39 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 
 	event := NewEvent("ordering.order.ready", tenantID, eventData)
 	return p.Publish(ctx, "ordering.order.ready", event)
+}
+
+// OrderConfirmedData represents data for the ordering.order.confirmed event.
+// Emitted once an order is confirmed after successful payment, for pickup/delivery
+// fulfilment only (scheduled / ticket-only orders are skipped). Carries the line items
+// (sku/name/quantity/unit_price) so downstream services (pos-api KDS handoff, etc.) can react.
+type OrderConfirmedData struct {
+	OrderID         uuid.UUID                `json:"order_id"`
+	OrderNumber     string                   `json:"order_number"`
+	OutletID        uuid.UUID                `json:"outlet_id"`
+	FulfillmentType string                   `json:"fulfillment_type"`
+	CustomerName    string                   `json:"customer_name,omitempty"`
+	CustomerEmail   string                   `json:"customer_email,omitempty"`
+	CustomerPhone   string                   `json:"customer_phone,omitempty"`
+	Items           []map[string]interface{} `json:"items"`
+}
+
+// PublishOrderConfirmed publishes an ordering.order.confirmed event. It keeps ordering's own
+// CloudEvents envelope (type/data), consistent with ordering.order.created.
+func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUID, data OrderConfirmedData) error {
+	event := NewEvent("ordering.order.confirmed", tenantID, map[string]interface{}{
+		"order_id":         data.OrderID.String(),
+		"order_number":     data.OrderNumber,
+		"tenant_id":        tenantID.String(),
+		"outlet_id":        data.OutletID.String(),
+		"fulfillment_type": data.FulfillmentType,
+		"customer_name":    data.CustomerName,
+		"customer_email":   data.CustomerEmail,
+		"customer_phone":   data.CustomerPhone,
+		"items":            data.Items,
+	})
+
+	return p.Publish(ctx, "ordering.order.confirmed", event)
 }
 
 // OrderCancelledData represents data for order.cancelled event.
