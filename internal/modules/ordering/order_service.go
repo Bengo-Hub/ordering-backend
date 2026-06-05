@@ -1653,14 +1653,14 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 	}
 	availabilities, bulkErr := s.inventoryClient.CheckBulkAvailability(ctx, tenant.Slug, skus)
 	if bulkErr == nil {
-		availMap := make(map[string]int, len(availabilities))
+		availMap := make(map[string]float64, len(availabilities))
 		for _, a := range availabilities {
 			availMap[a.SKU] = a.Available
 		}
 		var unavailable []string
 		for _, ri := range reservationItems {
 			avail, found := availMap[ri.SKU]
-			if !found || avail < ri.Quantity {
+			if !found || avail < float64(ri.Quantity) {
 				unavailable = append(unavailable, ri.SKU)
 			}
 		}
@@ -1699,11 +1699,11 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 		if !ri.IsFullyReserved {
 			s.logger.Warn("partial reservation detected, releasing",
 				zap.String("sku", ri.SKU),
-				zap.Int("requested", ri.RequestedQty),
-				zap.Int("reserved", ri.ReservedQty))
+				zap.Float64("requested", ri.RequestedQty),
+				zap.Float64("reserved", ri.ReservedQty))
 			// Release the partial reservation and fail the order
 			_ = s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, reservation.ID, "partial_reservation_rejected")
-			return nil, fmt.Errorf("%w: item %s only has %d available (requested %d)",
+			return nil, fmt.Errorf("%w: item %s only has %g available (requested %g)",
 				ErrStockNotAvailable, ri.SKU, ri.AvailableQty, ri.RequestedQty)
 		}
 	}
