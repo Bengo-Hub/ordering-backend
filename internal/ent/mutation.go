@@ -21,6 +21,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
 	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
@@ -63,45 +64,46 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAuditLog           = "AuditLog"
-	TypeCart               = "Cart"
-	TypeCartItem           = "CartItem"
-	TypeCatalogOverride    = "CatalogOverride"
-	TypeCustomerAddress    = "CustomerAddress"
-	TypeDataDeletionJob    = "DataDeletionJob"
-	TypeDataExportJob      = "DataExportJob"
-	TypeDataSubjectRequest = "DataSubjectRequest"
-	TypeDeliveryWindow     = "DeliveryWindow"
-	TypeDeliveryZone       = "DeliveryZone"
-	TypeGroupOrder         = "GroupOrder"
-	TypeGroupParticipant   = "GroupParticipant"
-	TypeLoyaltyAccount     = "LoyaltyAccount"
-	TypeLoyaltyTransaction = "LoyaltyTransaction"
-	TypeOrder              = "Order"
-	TypeOrderAssignment    = "OrderAssignment"
-	TypeOrderEvent         = "OrderEvent"
-	TypeOrderItem          = "OrderItem"
-	TypeOrderingPermission = "OrderingPermission"
-	TypeOrderingRole       = "OrderingRole"
-	TypeOutboxEvent        = "OutboxEvent"
-	TypeOutlet             = "Outlet"
-	TypeOutletRating       = "OutletRating"
-	TypePermission         = "Permission"
-	TypePromoCode          = "PromoCode"
-	TypePromoRedemption    = "PromoRedemption"
-	TypeRateLimitConfig    = "RateLimitConfig"
-	TypeRole               = "Role"
-	TypeRolePermission     = "RolePermission"
-	TypeSLAMetric          = "SLAMetric"
-	TypeServiceConfig      = "ServiceConfig"
-	TypeTenant             = "Tenant"
-	TypeTenantSetting      = "TenantSetting"
-	TypeTenantSyncEvent    = "TenantSyncEvent"
-	TypeUser               = "User"
-	TypeUserFavorite       = "UserFavorite"
-	TypeUserPreference     = "UserPreference"
-	TypeUserProfile        = "UserProfile"
-	TypeUserRoleAssignment = "UserRoleAssignment"
+	TypeAuditLog                 = "AuditLog"
+	TypeCart                     = "Cart"
+	TypeCartItem                 = "CartItem"
+	TypeCatalogOverride          = "CatalogOverride"
+	TypeCustomerAddress          = "CustomerAddress"
+	TypeDataDeletionJob          = "DataDeletionJob"
+	TypeDataExportJob            = "DataExportJob"
+	TypeDataSubjectRequest       = "DataSubjectRequest"
+	TypeDeliveryWindow           = "DeliveryWindow"
+	TypeDeliveryZone             = "DeliveryZone"
+	TypeGoogleBusinessConnection = "GoogleBusinessConnection"
+	TypeGroupOrder               = "GroupOrder"
+	TypeGroupParticipant         = "GroupParticipant"
+	TypeLoyaltyAccount           = "LoyaltyAccount"
+	TypeLoyaltyTransaction       = "LoyaltyTransaction"
+	TypeOrder                    = "Order"
+	TypeOrderAssignment          = "OrderAssignment"
+	TypeOrderEvent               = "OrderEvent"
+	TypeOrderItem                = "OrderItem"
+	TypeOrderingPermission       = "OrderingPermission"
+	TypeOrderingRole             = "OrderingRole"
+	TypeOutboxEvent              = "OutboxEvent"
+	TypeOutlet                   = "Outlet"
+	TypeOutletRating             = "OutletRating"
+	TypePermission               = "Permission"
+	TypePromoCode                = "PromoCode"
+	TypePromoRedemption          = "PromoRedemption"
+	TypeRateLimitConfig          = "RateLimitConfig"
+	TypeRole                     = "Role"
+	TypeRolePermission           = "RolePermission"
+	TypeSLAMetric                = "SLAMetric"
+	TypeServiceConfig            = "ServiceConfig"
+	TypeTenant                   = "Tenant"
+	TypeTenantSetting            = "TenantSetting"
+	TypeTenantSyncEvent          = "TenantSyncEvent"
+	TypeUser                     = "User"
+	TypeUserFavorite             = "UserFavorite"
+	TypeUserPreference           = "UserPreference"
+	TypeUserProfile              = "UserProfile"
+	TypeUserRoleAssignment       = "UserRoleAssignment"
 )
 
 // AuditLogMutation represents an operation that mutates the AuditLog nodes in the graph.
@@ -13304,6 +13306,1160 @@ func (m *DeliveryZoneMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DeliveryZoneMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown DeliveryZone edge %s", name)
+}
+
+// GoogleBusinessConnectionMutation represents an operation that mutates the GoogleBusinessConnection nodes in the graph.
+type GoogleBusinessConnectionMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	tenant_id        *uuid.UUID
+	outlet_id        *uuid.UUID
+	account_id       *string
+	location_id      *string
+	place_id         *string
+	location_name    *string
+	encrypted_tokens *string
+	token_expiry     *time.Time
+	status           *string
+	connected_at     *time.Time
+	connected_by     *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*GoogleBusinessConnection, error)
+	predicates       []predicate.GoogleBusinessConnection
+}
+
+var _ ent.Mutation = (*GoogleBusinessConnectionMutation)(nil)
+
+// googlebusinessconnectionOption allows management of the mutation configuration using functional options.
+type googlebusinessconnectionOption func(*GoogleBusinessConnectionMutation)
+
+// newGoogleBusinessConnectionMutation creates new mutation for the GoogleBusinessConnection entity.
+func newGoogleBusinessConnectionMutation(c config, op Op, opts ...googlebusinessconnectionOption) *GoogleBusinessConnectionMutation {
+	m := &GoogleBusinessConnectionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeGoogleBusinessConnection,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withGoogleBusinessConnectionID sets the ID field of the mutation.
+func withGoogleBusinessConnectionID(id uuid.UUID) googlebusinessconnectionOption {
+	return func(m *GoogleBusinessConnectionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *GoogleBusinessConnection
+		)
+		m.oldValue = func(ctx context.Context) (*GoogleBusinessConnection, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().GoogleBusinessConnection.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withGoogleBusinessConnection sets the old GoogleBusinessConnection of the mutation.
+func withGoogleBusinessConnection(node *GoogleBusinessConnection) googlebusinessconnectionOption {
+	return func(m *GoogleBusinessConnectionMutation) {
+		m.oldValue = func(context.Context) (*GoogleBusinessConnection, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m GoogleBusinessConnectionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m GoogleBusinessConnectionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of GoogleBusinessConnection entities.
+func (m *GoogleBusinessConnectionMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *GoogleBusinessConnectionMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *GoogleBusinessConnectionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().GoogleBusinessConnection.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *GoogleBusinessConnectionMutation) SetTenantID(u uuid.UUID) {
+	m.tenant_id = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *GoogleBusinessConnectionMutation) ResetTenantID() {
+	m.tenant_id = nil
+}
+
+// SetOutletID sets the "outlet_id" field.
+func (m *GoogleBusinessConnectionMutation) SetOutletID(u uuid.UUID) {
+	m.outlet_id = &u
+}
+
+// OutletID returns the value of the "outlet_id" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) OutletID() (r uuid.UUID, exists bool) {
+	v := m.outlet_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutletID returns the old "outlet_id" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldOutletID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutletID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutletID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutletID: %w", err)
+	}
+	return oldValue.OutletID, nil
+}
+
+// ClearOutletID clears the value of the "outlet_id" field.
+func (m *GoogleBusinessConnectionMutation) ClearOutletID() {
+	m.outlet_id = nil
+	m.clearedFields[googlebusinessconnection.FieldOutletID] = struct{}{}
+}
+
+// OutletIDCleared returns if the "outlet_id" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) OutletIDCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldOutletID]
+	return ok
+}
+
+// ResetOutletID resets all changes to the "outlet_id" field.
+func (m *GoogleBusinessConnectionMutation) ResetOutletID() {
+	m.outlet_id = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldOutletID)
+}
+
+// SetAccountID sets the "account_id" field.
+func (m *GoogleBusinessConnectionMutation) SetAccountID(s string) {
+	m.account_id = &s
+}
+
+// AccountID returns the value of the "account_id" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) AccountID() (r string, exists bool) {
+	v := m.account_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountID returns the old "account_id" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldAccountID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountID: %w", err)
+	}
+	return oldValue.AccountID, nil
+}
+
+// ClearAccountID clears the value of the "account_id" field.
+func (m *GoogleBusinessConnectionMutation) ClearAccountID() {
+	m.account_id = nil
+	m.clearedFields[googlebusinessconnection.FieldAccountID] = struct{}{}
+}
+
+// AccountIDCleared returns if the "account_id" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) AccountIDCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldAccountID]
+	return ok
+}
+
+// ResetAccountID resets all changes to the "account_id" field.
+func (m *GoogleBusinessConnectionMutation) ResetAccountID() {
+	m.account_id = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldAccountID)
+}
+
+// SetLocationID sets the "location_id" field.
+func (m *GoogleBusinessConnectionMutation) SetLocationID(s string) {
+	m.location_id = &s
+}
+
+// LocationID returns the value of the "location_id" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) LocationID() (r string, exists bool) {
+	v := m.location_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocationID returns the old "location_id" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldLocationID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocationID: %w", err)
+	}
+	return oldValue.LocationID, nil
+}
+
+// ClearLocationID clears the value of the "location_id" field.
+func (m *GoogleBusinessConnectionMutation) ClearLocationID() {
+	m.location_id = nil
+	m.clearedFields[googlebusinessconnection.FieldLocationID] = struct{}{}
+}
+
+// LocationIDCleared returns if the "location_id" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) LocationIDCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldLocationID]
+	return ok
+}
+
+// ResetLocationID resets all changes to the "location_id" field.
+func (m *GoogleBusinessConnectionMutation) ResetLocationID() {
+	m.location_id = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldLocationID)
+}
+
+// SetPlaceID sets the "place_id" field.
+func (m *GoogleBusinessConnectionMutation) SetPlaceID(s string) {
+	m.place_id = &s
+}
+
+// PlaceID returns the value of the "place_id" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) PlaceID() (r string, exists bool) {
+	v := m.place_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlaceID returns the old "place_id" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldPlaceID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlaceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlaceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlaceID: %w", err)
+	}
+	return oldValue.PlaceID, nil
+}
+
+// ClearPlaceID clears the value of the "place_id" field.
+func (m *GoogleBusinessConnectionMutation) ClearPlaceID() {
+	m.place_id = nil
+	m.clearedFields[googlebusinessconnection.FieldPlaceID] = struct{}{}
+}
+
+// PlaceIDCleared returns if the "place_id" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) PlaceIDCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldPlaceID]
+	return ok
+}
+
+// ResetPlaceID resets all changes to the "place_id" field.
+func (m *GoogleBusinessConnectionMutation) ResetPlaceID() {
+	m.place_id = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldPlaceID)
+}
+
+// SetLocationName sets the "location_name" field.
+func (m *GoogleBusinessConnectionMutation) SetLocationName(s string) {
+	m.location_name = &s
+}
+
+// LocationName returns the value of the "location_name" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) LocationName() (r string, exists bool) {
+	v := m.location_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocationName returns the old "location_name" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldLocationName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocationName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocationName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocationName: %w", err)
+	}
+	return oldValue.LocationName, nil
+}
+
+// ClearLocationName clears the value of the "location_name" field.
+func (m *GoogleBusinessConnectionMutation) ClearLocationName() {
+	m.location_name = nil
+	m.clearedFields[googlebusinessconnection.FieldLocationName] = struct{}{}
+}
+
+// LocationNameCleared returns if the "location_name" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) LocationNameCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldLocationName]
+	return ok
+}
+
+// ResetLocationName resets all changes to the "location_name" field.
+func (m *GoogleBusinessConnectionMutation) ResetLocationName() {
+	m.location_name = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldLocationName)
+}
+
+// SetEncryptedTokens sets the "encrypted_tokens" field.
+func (m *GoogleBusinessConnectionMutation) SetEncryptedTokens(s string) {
+	m.encrypted_tokens = &s
+}
+
+// EncryptedTokens returns the value of the "encrypted_tokens" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) EncryptedTokens() (r string, exists bool) {
+	v := m.encrypted_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEncryptedTokens returns the old "encrypted_tokens" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldEncryptedTokens(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEncryptedTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEncryptedTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEncryptedTokens: %w", err)
+	}
+	return oldValue.EncryptedTokens, nil
+}
+
+// ClearEncryptedTokens clears the value of the "encrypted_tokens" field.
+func (m *GoogleBusinessConnectionMutation) ClearEncryptedTokens() {
+	m.encrypted_tokens = nil
+	m.clearedFields[googlebusinessconnection.FieldEncryptedTokens] = struct{}{}
+}
+
+// EncryptedTokensCleared returns if the "encrypted_tokens" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) EncryptedTokensCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldEncryptedTokens]
+	return ok
+}
+
+// ResetEncryptedTokens resets all changes to the "encrypted_tokens" field.
+func (m *GoogleBusinessConnectionMutation) ResetEncryptedTokens() {
+	m.encrypted_tokens = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldEncryptedTokens)
+}
+
+// SetTokenExpiry sets the "token_expiry" field.
+func (m *GoogleBusinessConnectionMutation) SetTokenExpiry(t time.Time) {
+	m.token_expiry = &t
+}
+
+// TokenExpiry returns the value of the "token_expiry" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) TokenExpiry() (r time.Time, exists bool) {
+	v := m.token_expiry
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTokenExpiry returns the old "token_expiry" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldTokenExpiry(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTokenExpiry is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTokenExpiry requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTokenExpiry: %w", err)
+	}
+	return oldValue.TokenExpiry, nil
+}
+
+// ClearTokenExpiry clears the value of the "token_expiry" field.
+func (m *GoogleBusinessConnectionMutation) ClearTokenExpiry() {
+	m.token_expiry = nil
+	m.clearedFields[googlebusinessconnection.FieldTokenExpiry] = struct{}{}
+}
+
+// TokenExpiryCleared returns if the "token_expiry" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) TokenExpiryCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldTokenExpiry]
+	return ok
+}
+
+// ResetTokenExpiry resets all changes to the "token_expiry" field.
+func (m *GoogleBusinessConnectionMutation) ResetTokenExpiry() {
+	m.token_expiry = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldTokenExpiry)
+}
+
+// SetStatus sets the "status" field.
+func (m *GoogleBusinessConnectionMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *GoogleBusinessConnectionMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetConnectedAt sets the "connected_at" field.
+func (m *GoogleBusinessConnectionMutation) SetConnectedAt(t time.Time) {
+	m.connected_at = &t
+}
+
+// ConnectedAt returns the value of the "connected_at" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) ConnectedAt() (r time.Time, exists bool) {
+	v := m.connected_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConnectedAt returns the old "connected_at" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldConnectedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConnectedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConnectedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConnectedAt: %w", err)
+	}
+	return oldValue.ConnectedAt, nil
+}
+
+// ClearConnectedAt clears the value of the "connected_at" field.
+func (m *GoogleBusinessConnectionMutation) ClearConnectedAt() {
+	m.connected_at = nil
+	m.clearedFields[googlebusinessconnection.FieldConnectedAt] = struct{}{}
+}
+
+// ConnectedAtCleared returns if the "connected_at" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) ConnectedAtCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldConnectedAt]
+	return ok
+}
+
+// ResetConnectedAt resets all changes to the "connected_at" field.
+func (m *GoogleBusinessConnectionMutation) ResetConnectedAt() {
+	m.connected_at = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldConnectedAt)
+}
+
+// SetConnectedBy sets the "connected_by" field.
+func (m *GoogleBusinessConnectionMutation) SetConnectedBy(s string) {
+	m.connected_by = &s
+}
+
+// ConnectedBy returns the value of the "connected_by" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) ConnectedBy() (r string, exists bool) {
+	v := m.connected_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConnectedBy returns the old "connected_by" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldConnectedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConnectedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConnectedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConnectedBy: %w", err)
+	}
+	return oldValue.ConnectedBy, nil
+}
+
+// ClearConnectedBy clears the value of the "connected_by" field.
+func (m *GoogleBusinessConnectionMutation) ClearConnectedBy() {
+	m.connected_by = nil
+	m.clearedFields[googlebusinessconnection.FieldConnectedBy] = struct{}{}
+}
+
+// ConnectedByCleared returns if the "connected_by" field was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) ConnectedByCleared() bool {
+	_, ok := m.clearedFields[googlebusinessconnection.FieldConnectedBy]
+	return ok
+}
+
+// ResetConnectedBy resets all changes to the "connected_by" field.
+func (m *GoogleBusinessConnectionMutation) ResetConnectedBy() {
+	m.connected_by = nil
+	delete(m.clearedFields, googlebusinessconnection.FieldConnectedBy)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *GoogleBusinessConnectionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GoogleBusinessConnectionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *GoogleBusinessConnectionMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *GoogleBusinessConnectionMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the GoogleBusinessConnection entity.
+// If the GoogleBusinessConnection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GoogleBusinessConnectionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *GoogleBusinessConnectionMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the GoogleBusinessConnectionMutation builder.
+func (m *GoogleBusinessConnectionMutation) Where(ps ...predicate.GoogleBusinessConnection) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the GoogleBusinessConnectionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *GoogleBusinessConnectionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.GoogleBusinessConnection, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *GoogleBusinessConnectionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *GoogleBusinessConnectionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (GoogleBusinessConnection).
+func (m *GoogleBusinessConnectionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *GoogleBusinessConnectionMutation) Fields() []string {
+	fields := make([]string, 0, 13)
+	if m.tenant_id != nil {
+		fields = append(fields, googlebusinessconnection.FieldTenantID)
+	}
+	if m.outlet_id != nil {
+		fields = append(fields, googlebusinessconnection.FieldOutletID)
+	}
+	if m.account_id != nil {
+		fields = append(fields, googlebusinessconnection.FieldAccountID)
+	}
+	if m.location_id != nil {
+		fields = append(fields, googlebusinessconnection.FieldLocationID)
+	}
+	if m.place_id != nil {
+		fields = append(fields, googlebusinessconnection.FieldPlaceID)
+	}
+	if m.location_name != nil {
+		fields = append(fields, googlebusinessconnection.FieldLocationName)
+	}
+	if m.encrypted_tokens != nil {
+		fields = append(fields, googlebusinessconnection.FieldEncryptedTokens)
+	}
+	if m.token_expiry != nil {
+		fields = append(fields, googlebusinessconnection.FieldTokenExpiry)
+	}
+	if m.status != nil {
+		fields = append(fields, googlebusinessconnection.FieldStatus)
+	}
+	if m.connected_at != nil {
+		fields = append(fields, googlebusinessconnection.FieldConnectedAt)
+	}
+	if m.connected_by != nil {
+		fields = append(fields, googlebusinessconnection.FieldConnectedBy)
+	}
+	if m.created_at != nil {
+		fields = append(fields, googlebusinessconnection.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, googlebusinessconnection.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *GoogleBusinessConnectionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case googlebusinessconnection.FieldTenantID:
+		return m.TenantID()
+	case googlebusinessconnection.FieldOutletID:
+		return m.OutletID()
+	case googlebusinessconnection.FieldAccountID:
+		return m.AccountID()
+	case googlebusinessconnection.FieldLocationID:
+		return m.LocationID()
+	case googlebusinessconnection.FieldPlaceID:
+		return m.PlaceID()
+	case googlebusinessconnection.FieldLocationName:
+		return m.LocationName()
+	case googlebusinessconnection.FieldEncryptedTokens:
+		return m.EncryptedTokens()
+	case googlebusinessconnection.FieldTokenExpiry:
+		return m.TokenExpiry()
+	case googlebusinessconnection.FieldStatus:
+		return m.Status()
+	case googlebusinessconnection.FieldConnectedAt:
+		return m.ConnectedAt()
+	case googlebusinessconnection.FieldConnectedBy:
+		return m.ConnectedBy()
+	case googlebusinessconnection.FieldCreatedAt:
+		return m.CreatedAt()
+	case googlebusinessconnection.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *GoogleBusinessConnectionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case googlebusinessconnection.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case googlebusinessconnection.FieldOutletID:
+		return m.OldOutletID(ctx)
+	case googlebusinessconnection.FieldAccountID:
+		return m.OldAccountID(ctx)
+	case googlebusinessconnection.FieldLocationID:
+		return m.OldLocationID(ctx)
+	case googlebusinessconnection.FieldPlaceID:
+		return m.OldPlaceID(ctx)
+	case googlebusinessconnection.FieldLocationName:
+		return m.OldLocationName(ctx)
+	case googlebusinessconnection.FieldEncryptedTokens:
+		return m.OldEncryptedTokens(ctx)
+	case googlebusinessconnection.FieldTokenExpiry:
+		return m.OldTokenExpiry(ctx)
+	case googlebusinessconnection.FieldStatus:
+		return m.OldStatus(ctx)
+	case googlebusinessconnection.FieldConnectedAt:
+		return m.OldConnectedAt(ctx)
+	case googlebusinessconnection.FieldConnectedBy:
+		return m.OldConnectedBy(ctx)
+	case googlebusinessconnection.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case googlebusinessconnection.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown GoogleBusinessConnection field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GoogleBusinessConnectionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case googlebusinessconnection.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case googlebusinessconnection.FieldOutletID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutletID(v)
+		return nil
+	case googlebusinessconnection.FieldAccountID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountID(v)
+		return nil
+	case googlebusinessconnection.FieldLocationID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocationID(v)
+		return nil
+	case googlebusinessconnection.FieldPlaceID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlaceID(v)
+		return nil
+	case googlebusinessconnection.FieldLocationName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocationName(v)
+		return nil
+	case googlebusinessconnection.FieldEncryptedTokens:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEncryptedTokens(v)
+		return nil
+	case googlebusinessconnection.FieldTokenExpiry:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTokenExpiry(v)
+		return nil
+	case googlebusinessconnection.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case googlebusinessconnection.FieldConnectedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConnectedAt(v)
+		return nil
+	case googlebusinessconnection.FieldConnectedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConnectedBy(v)
+		return nil
+	case googlebusinessconnection.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case googlebusinessconnection.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown GoogleBusinessConnection field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *GoogleBusinessConnectionMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *GoogleBusinessConnectionMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GoogleBusinessConnectionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown GoogleBusinessConnection numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *GoogleBusinessConnectionMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(googlebusinessconnection.FieldOutletID) {
+		fields = append(fields, googlebusinessconnection.FieldOutletID)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldAccountID) {
+		fields = append(fields, googlebusinessconnection.FieldAccountID)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldLocationID) {
+		fields = append(fields, googlebusinessconnection.FieldLocationID)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldPlaceID) {
+		fields = append(fields, googlebusinessconnection.FieldPlaceID)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldLocationName) {
+		fields = append(fields, googlebusinessconnection.FieldLocationName)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldEncryptedTokens) {
+		fields = append(fields, googlebusinessconnection.FieldEncryptedTokens)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldTokenExpiry) {
+		fields = append(fields, googlebusinessconnection.FieldTokenExpiry)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldConnectedAt) {
+		fields = append(fields, googlebusinessconnection.FieldConnectedAt)
+	}
+	if m.FieldCleared(googlebusinessconnection.FieldConnectedBy) {
+		fields = append(fields, googlebusinessconnection.FieldConnectedBy)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *GoogleBusinessConnectionMutation) ClearField(name string) error {
+	switch name {
+	case googlebusinessconnection.FieldOutletID:
+		m.ClearOutletID()
+		return nil
+	case googlebusinessconnection.FieldAccountID:
+		m.ClearAccountID()
+		return nil
+	case googlebusinessconnection.FieldLocationID:
+		m.ClearLocationID()
+		return nil
+	case googlebusinessconnection.FieldPlaceID:
+		m.ClearPlaceID()
+		return nil
+	case googlebusinessconnection.FieldLocationName:
+		m.ClearLocationName()
+		return nil
+	case googlebusinessconnection.FieldEncryptedTokens:
+		m.ClearEncryptedTokens()
+		return nil
+	case googlebusinessconnection.FieldTokenExpiry:
+		m.ClearTokenExpiry()
+		return nil
+	case googlebusinessconnection.FieldConnectedAt:
+		m.ClearConnectedAt()
+		return nil
+	case googlebusinessconnection.FieldConnectedBy:
+		m.ClearConnectedBy()
+		return nil
+	}
+	return fmt.Errorf("unknown GoogleBusinessConnection nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *GoogleBusinessConnectionMutation) ResetField(name string) error {
+	switch name {
+	case googlebusinessconnection.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case googlebusinessconnection.FieldOutletID:
+		m.ResetOutletID()
+		return nil
+	case googlebusinessconnection.FieldAccountID:
+		m.ResetAccountID()
+		return nil
+	case googlebusinessconnection.FieldLocationID:
+		m.ResetLocationID()
+		return nil
+	case googlebusinessconnection.FieldPlaceID:
+		m.ResetPlaceID()
+		return nil
+	case googlebusinessconnection.FieldLocationName:
+		m.ResetLocationName()
+		return nil
+	case googlebusinessconnection.FieldEncryptedTokens:
+		m.ResetEncryptedTokens()
+		return nil
+	case googlebusinessconnection.FieldTokenExpiry:
+		m.ResetTokenExpiry()
+		return nil
+	case googlebusinessconnection.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case googlebusinessconnection.FieldConnectedAt:
+		m.ResetConnectedAt()
+		return nil
+	case googlebusinessconnection.FieldConnectedBy:
+		m.ResetConnectedBy()
+		return nil
+	case googlebusinessconnection.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case googlebusinessconnection.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown GoogleBusinessConnection field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *GoogleBusinessConnectionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *GoogleBusinessConnectionMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *GoogleBusinessConnectionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *GoogleBusinessConnectionMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *GoogleBusinessConnectionMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *GoogleBusinessConnectionMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown GoogleBusinessConnection unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *GoogleBusinessConnectionMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown GoogleBusinessConnection edge %s", name)
 }
 
 // GroupOrderMutation represents an operation that mutates the GroupOrder nodes in the graph.

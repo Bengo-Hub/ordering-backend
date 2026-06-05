@@ -26,6 +26,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
 	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
@@ -82,6 +83,8 @@ type Client struct {
 	DeliveryWindow *DeliveryWindowClient
 	// DeliveryZone is the client for interacting with the DeliveryZone builders.
 	DeliveryZone *DeliveryZoneClient
+	// GoogleBusinessConnection is the client for interacting with the GoogleBusinessConnection builders.
+	GoogleBusinessConnection *GoogleBusinessConnectionClient
 	// GroupOrder is the client for interacting with the GroupOrder builders.
 	GroupOrder *GroupOrderClient
 	// GroupParticipant is the client for interacting with the GroupParticipant builders.
@@ -161,6 +164,7 @@ func (c *Client) init() {
 	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
 	c.DeliveryZone = NewDeliveryZoneClient(c.config)
+	c.GoogleBusinessConnection = NewGoogleBusinessConnectionClient(c.config)
 	c.GroupOrder = NewGroupOrderClient(c.config)
 	c.GroupParticipant = NewGroupParticipantClient(c.config)
 	c.LoyaltyAccount = NewLoyaltyAccountClient(c.config)
@@ -280,47 +284,48 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		AuditLog:           NewAuditLogClient(cfg),
-		Cart:               NewCartClient(cfg),
-		CartItem:           NewCartItemClient(cfg),
-		CatalogOverride:    NewCatalogOverrideClient(cfg),
-		CustomerAddress:    NewCustomerAddressClient(cfg),
-		DataDeletionJob:    NewDataDeletionJobClient(cfg),
-		DataExportJob:      NewDataExportJobClient(cfg),
-		DataSubjectRequest: NewDataSubjectRequestClient(cfg),
-		DeliveryWindow:     NewDeliveryWindowClient(cfg),
-		DeliveryZone:       NewDeliveryZoneClient(cfg),
-		GroupOrder:         NewGroupOrderClient(cfg),
-		GroupParticipant:   NewGroupParticipantClient(cfg),
-		LoyaltyAccount:     NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction: NewLoyaltyTransactionClient(cfg),
-		Order:              NewOrderClient(cfg),
-		OrderAssignment:    NewOrderAssignmentClient(cfg),
-		OrderEvent:         NewOrderEventClient(cfg),
-		OrderItem:          NewOrderItemClient(cfg),
-		OrderingPermission: NewOrderingPermissionClient(cfg),
-		OrderingRole:       NewOrderingRoleClient(cfg),
-		OutboxEvent:        NewOutboxEventClient(cfg),
-		Outlet:             NewOutletClient(cfg),
-		OutletRating:       NewOutletRatingClient(cfg),
-		Permission:         NewPermissionClient(cfg),
-		PromoCode:          NewPromoCodeClient(cfg),
-		PromoRedemption:    NewPromoRedemptionClient(cfg),
-		RateLimitConfig:    NewRateLimitConfigClient(cfg),
-		Role:               NewRoleClient(cfg),
-		RolePermission:     NewRolePermissionClient(cfg),
-		SLAMetric:          NewSLAMetricClient(cfg),
-		ServiceConfig:      NewServiceConfigClient(cfg),
-		Tenant:             NewTenantClient(cfg),
-		TenantSetting:      NewTenantSettingClient(cfg),
-		TenantSyncEvent:    NewTenantSyncEventClient(cfg),
-		User:               NewUserClient(cfg),
-		UserFavorite:       NewUserFavoriteClient(cfg),
-		UserPreference:     NewUserPreferenceClient(cfg),
-		UserProfile:        NewUserProfileClient(cfg),
-		UserRoleAssignment: NewUserRoleAssignmentClient(cfg),
+		ctx:                      ctx,
+		config:                   cfg,
+		AuditLog:                 NewAuditLogClient(cfg),
+		Cart:                     NewCartClient(cfg),
+		CartItem:                 NewCartItemClient(cfg),
+		CatalogOverride:          NewCatalogOverrideClient(cfg),
+		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DataDeletionJob:          NewDataDeletionJobClient(cfg),
+		DataExportJob:            NewDataExportJobClient(cfg),
+		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
+		DeliveryWindow:           NewDeliveryWindowClient(cfg),
+		DeliveryZone:             NewDeliveryZoneClient(cfg),
+		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
+		GroupOrder:               NewGroupOrderClient(cfg),
+		GroupParticipant:         NewGroupParticipantClient(cfg),
+		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
+		Order:                    NewOrderClient(cfg),
+		OrderAssignment:          NewOrderAssignmentClient(cfg),
+		OrderEvent:               NewOrderEventClient(cfg),
+		OrderItem:                NewOrderItemClient(cfg),
+		OrderingPermission:       NewOrderingPermissionClient(cfg),
+		OrderingRole:             NewOrderingRoleClient(cfg),
+		OutboxEvent:              NewOutboxEventClient(cfg),
+		Outlet:                   NewOutletClient(cfg),
+		OutletRating:             NewOutletRatingClient(cfg),
+		Permission:               NewPermissionClient(cfg),
+		PromoCode:                NewPromoCodeClient(cfg),
+		PromoRedemption:          NewPromoRedemptionClient(cfg),
+		RateLimitConfig:          NewRateLimitConfigClient(cfg),
+		Role:                     NewRoleClient(cfg),
+		RolePermission:           NewRolePermissionClient(cfg),
+		SLAMetric:                NewSLAMetricClient(cfg),
+		ServiceConfig:            NewServiceConfigClient(cfg),
+		Tenant:                   NewTenantClient(cfg),
+		TenantSetting:            NewTenantSettingClient(cfg),
+		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
+		User:                     NewUserClient(cfg),
+		UserFavorite:             NewUserFavoriteClient(cfg),
+		UserPreference:           NewUserPreferenceClient(cfg),
+		UserProfile:              NewUserProfileClient(cfg),
+		UserRoleAssignment:       NewUserRoleAssignmentClient(cfg),
 	}, nil
 }
 
@@ -338,47 +343,48 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		AuditLog:           NewAuditLogClient(cfg),
-		Cart:               NewCartClient(cfg),
-		CartItem:           NewCartItemClient(cfg),
-		CatalogOverride:    NewCatalogOverrideClient(cfg),
-		CustomerAddress:    NewCustomerAddressClient(cfg),
-		DataDeletionJob:    NewDataDeletionJobClient(cfg),
-		DataExportJob:      NewDataExportJobClient(cfg),
-		DataSubjectRequest: NewDataSubjectRequestClient(cfg),
-		DeliveryWindow:     NewDeliveryWindowClient(cfg),
-		DeliveryZone:       NewDeliveryZoneClient(cfg),
-		GroupOrder:         NewGroupOrderClient(cfg),
-		GroupParticipant:   NewGroupParticipantClient(cfg),
-		LoyaltyAccount:     NewLoyaltyAccountClient(cfg),
-		LoyaltyTransaction: NewLoyaltyTransactionClient(cfg),
-		Order:              NewOrderClient(cfg),
-		OrderAssignment:    NewOrderAssignmentClient(cfg),
-		OrderEvent:         NewOrderEventClient(cfg),
-		OrderItem:          NewOrderItemClient(cfg),
-		OrderingPermission: NewOrderingPermissionClient(cfg),
-		OrderingRole:       NewOrderingRoleClient(cfg),
-		OutboxEvent:        NewOutboxEventClient(cfg),
-		Outlet:             NewOutletClient(cfg),
-		OutletRating:       NewOutletRatingClient(cfg),
-		Permission:         NewPermissionClient(cfg),
-		PromoCode:          NewPromoCodeClient(cfg),
-		PromoRedemption:    NewPromoRedemptionClient(cfg),
-		RateLimitConfig:    NewRateLimitConfigClient(cfg),
-		Role:               NewRoleClient(cfg),
-		RolePermission:     NewRolePermissionClient(cfg),
-		SLAMetric:          NewSLAMetricClient(cfg),
-		ServiceConfig:      NewServiceConfigClient(cfg),
-		Tenant:             NewTenantClient(cfg),
-		TenantSetting:      NewTenantSettingClient(cfg),
-		TenantSyncEvent:    NewTenantSyncEventClient(cfg),
-		User:               NewUserClient(cfg),
-		UserFavorite:       NewUserFavoriteClient(cfg),
-		UserPreference:     NewUserPreferenceClient(cfg),
-		UserProfile:        NewUserProfileClient(cfg),
-		UserRoleAssignment: NewUserRoleAssignmentClient(cfg),
+		ctx:                      ctx,
+		config:                   cfg,
+		AuditLog:                 NewAuditLogClient(cfg),
+		Cart:                     NewCartClient(cfg),
+		CartItem:                 NewCartItemClient(cfg),
+		CatalogOverride:          NewCatalogOverrideClient(cfg),
+		CustomerAddress:          NewCustomerAddressClient(cfg),
+		DataDeletionJob:          NewDataDeletionJobClient(cfg),
+		DataExportJob:            NewDataExportJobClient(cfg),
+		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
+		DeliveryWindow:           NewDeliveryWindowClient(cfg),
+		DeliveryZone:             NewDeliveryZoneClient(cfg),
+		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
+		GroupOrder:               NewGroupOrderClient(cfg),
+		GroupParticipant:         NewGroupParticipantClient(cfg),
+		LoyaltyAccount:           NewLoyaltyAccountClient(cfg),
+		LoyaltyTransaction:       NewLoyaltyTransactionClient(cfg),
+		Order:                    NewOrderClient(cfg),
+		OrderAssignment:          NewOrderAssignmentClient(cfg),
+		OrderEvent:               NewOrderEventClient(cfg),
+		OrderItem:                NewOrderItemClient(cfg),
+		OrderingPermission:       NewOrderingPermissionClient(cfg),
+		OrderingRole:             NewOrderingRoleClient(cfg),
+		OutboxEvent:              NewOutboxEventClient(cfg),
+		Outlet:                   NewOutletClient(cfg),
+		OutletRating:             NewOutletRatingClient(cfg),
+		Permission:               NewPermissionClient(cfg),
+		PromoCode:                NewPromoCodeClient(cfg),
+		PromoRedemption:          NewPromoRedemptionClient(cfg),
+		RateLimitConfig:          NewRateLimitConfigClient(cfg),
+		Role:                     NewRoleClient(cfg),
+		RolePermission:           NewRolePermissionClient(cfg),
+		SLAMetric:                NewSLAMetricClient(cfg),
+		ServiceConfig:            NewServiceConfigClient(cfg),
+		Tenant:                   NewTenantClient(cfg),
+		TenantSetting:            NewTenantSettingClient(cfg),
+		TenantSyncEvent:          NewTenantSyncEventClient(cfg),
+		User:                     NewUserClient(cfg),
+		UserFavorite:             NewUserFavoriteClient(cfg),
+		UserPreference:           NewUserPreferenceClient(cfg),
+		UserProfile:              NewUserProfileClient(cfg),
+		UserRoleAssignment:       NewUserRoleAssignmentClient(cfg),
 	}, nil
 }
 
@@ -410,13 +416,13 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AuditLog, c.Cart, c.CartItem, c.CatalogOverride, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.DeliveryZone, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
-		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
-		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
-		c.UserRoleAssignment,
+		c.DeliveryZone, c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant,
+		c.LoyaltyAccount, c.LoyaltyTransaction, c.Order, c.OrderAssignment,
+		c.OrderEvent, c.OrderItem, c.OrderingPermission, c.OrderingRole, c.OutboxEvent,
+		c.Outlet, c.OutletRating, c.Permission, c.PromoCode, c.PromoRedemption,
+		c.RateLimitConfig, c.Role, c.RolePermission, c.SLAMetric, c.ServiceConfig,
+		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.User, c.UserFavorite,
+		c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Use(hooks...)
 	}
@@ -428,13 +434,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AuditLog, c.Cart, c.CartItem, c.CatalogOverride, c.CustomerAddress,
 		c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest, c.DeliveryWindow,
-		c.DeliveryZone, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
-		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
-		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
-		c.UserRoleAssignment,
+		c.DeliveryZone, c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant,
+		c.LoyaltyAccount, c.LoyaltyTransaction, c.Order, c.OrderAssignment,
+		c.OrderEvent, c.OrderItem, c.OrderingPermission, c.OrderingRole, c.OutboxEvent,
+		c.Outlet, c.OutletRating, c.Permission, c.PromoCode, c.PromoRedemption,
+		c.RateLimitConfig, c.Role, c.RolePermission, c.SLAMetric, c.ServiceConfig,
+		c.Tenant, c.TenantSetting, c.TenantSyncEvent, c.User, c.UserFavorite,
+		c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -463,6 +469,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DeliveryWindow.mutate(ctx, m)
 	case *DeliveryZoneMutation:
 		return c.DeliveryZone.mutate(ctx, m)
+	case *GoogleBusinessConnectionMutation:
+		return c.GoogleBusinessConnection.mutate(ctx, m)
 	case *GroupOrderMutation:
 		return c.GroupOrder.mutate(ctx, m)
 	case *GroupParticipantMutation:
@@ -1949,6 +1957,139 @@ func (c *DeliveryZoneClient) mutate(ctx context.Context, m *DeliveryZoneMutation
 		return (&DeliveryZoneDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DeliveryZone mutation op: %q", m.Op())
+	}
+}
+
+// GoogleBusinessConnectionClient is a client for the GoogleBusinessConnection schema.
+type GoogleBusinessConnectionClient struct {
+	config
+}
+
+// NewGoogleBusinessConnectionClient returns a client for the GoogleBusinessConnection from the given config.
+func NewGoogleBusinessConnectionClient(c config) *GoogleBusinessConnectionClient {
+	return &GoogleBusinessConnectionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `googlebusinessconnection.Hooks(f(g(h())))`.
+func (c *GoogleBusinessConnectionClient) Use(hooks ...Hook) {
+	c.hooks.GoogleBusinessConnection = append(c.hooks.GoogleBusinessConnection, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `googlebusinessconnection.Intercept(f(g(h())))`.
+func (c *GoogleBusinessConnectionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GoogleBusinessConnection = append(c.inters.GoogleBusinessConnection, interceptors...)
+}
+
+// Create returns a builder for creating a GoogleBusinessConnection entity.
+func (c *GoogleBusinessConnectionClient) Create() *GoogleBusinessConnectionCreate {
+	mutation := newGoogleBusinessConnectionMutation(c.config, OpCreate)
+	return &GoogleBusinessConnectionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of GoogleBusinessConnection entities.
+func (c *GoogleBusinessConnectionClient) CreateBulk(builders ...*GoogleBusinessConnectionCreate) *GoogleBusinessConnectionCreateBulk {
+	return &GoogleBusinessConnectionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *GoogleBusinessConnectionClient) MapCreateBulk(slice any, setFunc func(*GoogleBusinessConnectionCreate, int)) *GoogleBusinessConnectionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &GoogleBusinessConnectionCreateBulk{err: fmt.Errorf("calling to GoogleBusinessConnectionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*GoogleBusinessConnectionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &GoogleBusinessConnectionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for GoogleBusinessConnection.
+func (c *GoogleBusinessConnectionClient) Update() *GoogleBusinessConnectionUpdate {
+	mutation := newGoogleBusinessConnectionMutation(c.config, OpUpdate)
+	return &GoogleBusinessConnectionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GoogleBusinessConnectionClient) UpdateOne(_m *GoogleBusinessConnection) *GoogleBusinessConnectionUpdateOne {
+	mutation := newGoogleBusinessConnectionMutation(c.config, OpUpdateOne, withGoogleBusinessConnection(_m))
+	return &GoogleBusinessConnectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GoogleBusinessConnectionClient) UpdateOneID(id uuid.UUID) *GoogleBusinessConnectionUpdateOne {
+	mutation := newGoogleBusinessConnectionMutation(c.config, OpUpdateOne, withGoogleBusinessConnectionID(id))
+	return &GoogleBusinessConnectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for GoogleBusinessConnection.
+func (c *GoogleBusinessConnectionClient) Delete() *GoogleBusinessConnectionDelete {
+	mutation := newGoogleBusinessConnectionMutation(c.config, OpDelete)
+	return &GoogleBusinessConnectionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GoogleBusinessConnectionClient) DeleteOne(_m *GoogleBusinessConnection) *GoogleBusinessConnectionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *GoogleBusinessConnectionClient) DeleteOneID(id uuid.UUID) *GoogleBusinessConnectionDeleteOne {
+	builder := c.Delete().Where(googlebusinessconnection.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GoogleBusinessConnectionDeleteOne{builder}
+}
+
+// Query returns a query builder for GoogleBusinessConnection.
+func (c *GoogleBusinessConnectionClient) Query() *GoogleBusinessConnectionQuery {
+	return &GoogleBusinessConnectionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeGoogleBusinessConnection},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a GoogleBusinessConnection entity by its id.
+func (c *GoogleBusinessConnectionClient) Get(ctx context.Context, id uuid.UUID) (*GoogleBusinessConnection, error) {
+	return c.Query().Where(googlebusinessconnection.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GoogleBusinessConnectionClient) GetX(ctx context.Context, id uuid.UUID) *GoogleBusinessConnection {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *GoogleBusinessConnectionClient) Hooks() []Hook {
+	return c.hooks.GoogleBusinessConnection
+}
+
+// Interceptors returns the client interceptors.
+func (c *GoogleBusinessConnectionClient) Interceptors() []Interceptor {
+	return c.inters.GoogleBusinessConnection
+}
+
+func (c *GoogleBusinessConnectionClient) mutate(ctx context.Context, m *GoogleBusinessConnectionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&GoogleBusinessConnectionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&GoogleBusinessConnectionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&GoogleBusinessConnectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&GoogleBusinessConnectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown GoogleBusinessConnection mutation op: %q", m.Op())
 	}
 }
 
@@ -6565,22 +6706,22 @@ func (c *UserRoleAssignmentClient) mutate(ctx context.Context, m *UserRoleAssign
 type (
 	hooks struct {
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone, GroupOrder,
-		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
-		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
-		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
-		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
-		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
-		UserRoleAssignment []ent.Hook
+		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
+		GoogleBusinessConnection, GroupOrder, GroupParticipant, LoyaltyAccount,
+		LoyaltyTransaction, Order, OrderAssignment, OrderEvent, OrderItem,
+		OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
+		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
+		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
+		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Hook
 	}
 	inters struct {
 		AuditLog, Cart, CartItem, CatalogOverride, CustomerAddress, DataDeletionJob,
-		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone, GroupOrder,
-		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
-		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
-		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
-		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
-		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
-		UserRoleAssignment []ent.Interceptor
+		DataExportJob, DataSubjectRequest, DeliveryWindow, DeliveryZone,
+		GoogleBusinessConnection, GroupOrder, GroupParticipant, LoyaltyAccount,
+		LoyaltyTransaction, Order, OrderAssignment, OrderEvent, OrderItem,
+		OrderingPermission, OrderingRole, OutboxEvent, Outlet, OutletRating,
+		Permission, PromoCode, PromoRedemption, RateLimitConfig, Role, RolePermission,
+		SLAMetric, ServiceConfig, Tenant, TenantSetting, TenantSyncEvent, User,
+		UserFavorite, UserPreference, UserProfile, UserRoleAssignment []ent.Interceptor
 	}
 )

@@ -29,12 +29,32 @@ type Config struct {
 	Treasury      TreasuryConfig      `envconfig:""`
 	Logistics     LogisticsConfig     `envconfig:""`
 	Inventory     InventoryConfig     `envconfig:""`
-	Notifications  NotificationsConfig  `envconfig:""`
-	Subscriptions  SubscriptionsConfig  `envconfig:""`
-	Marketflow     MarketflowConfig     `envconfig:""`
-	Superset       SupersetConfig       `envconfig:""`
+	Notifications NotificationsConfig `envconfig:""`
+	Subscriptions SubscriptionsConfig `envconfig:""`
+	Marketflow    MarketflowConfig    `envconfig:""`
+	Superset      SupersetConfig      `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
 	Media         MediaConfig         `envconfig:""`
+	Google        GoogleConfig        `envconfig:""`
+}
+
+// GoogleConfig holds the Google Business Profile (GBP) OAuth integration settings.
+// The integration stays INERT until ClientID, ClientSecret, and RedirectURL are all set;
+// when any is empty, endpoints respond 503 "Google integration not configured".
+type GoogleConfig struct {
+	// OAuth client credentials from the Google Cloud Console (with the
+	// Business Profile / My Business APIs enabled).
+	OAuthClientID     string `envconfig:"GOOGLE_OAUTH_CLIENT_ID"`
+	OAuthClientSecret string `envconfig:"GOOGLE_OAUTH_CLIENT_SECRET"`
+	// OAuthRedirectURL must exactly match a redirect URI registered on the OAuth client,
+	// e.g. https://orderingapi.codevertexitsolutions.com/api/v1/{tenant}/integrations/google/callback
+	OAuthRedirectURL string `envconfig:"GOOGLE_OAUTH_REDIRECT_URL"`
+	// FrontendIntegrationsURL is where the callback redirects after storing tokens.
+	FrontendIntegrationsURL string `envconfig:"GOOGLE_FRONTEND_INTEGRATIONS_URL" default:"https://ordersapp.codevertexitsolutions.com/admin/integrations"`
+	// TokenEncryptionKey documents the env var used to encrypt OAuth tokens at rest.
+	// The key is read directly in the googlebusiness module (GOOGLE_TOKEN_ENCRYPTION_KEY);
+	// this field is informational so it appears in config dumps.
+	TokenEncryptionKey string `envconfig:"GOOGLE_TOKEN_ENCRYPTION_KEY"`
 }
 
 // MediaConfig configures local media storage for menu item images and uploads.
@@ -119,7 +139,7 @@ type AuthConfig struct {
 
 type TreasuryConfig struct {
 	// Treasury service URL (internal/S2S — used for backend-to-backend calls)
-	ServiceURL     string        `envconfig:"TREASURY_API_URL" default:"http://localhost:4010"`
+	ServiceURL string `envconfig:"TREASURY_API_URL" default:"http://localhost:4010"`
 	// PublicURL is the browser-accessible treasury API URL embedded in initiate_url responses.
 	// Defaults to ServiceURL when not set. Set TREASURY_API_PUBLIC_URL in prod K8s.
 	PublicURL      string        `envconfig:"TREASURY_API_PUBLIC_URL"`
@@ -267,6 +287,9 @@ func Load() (*Config, error) {
 	}
 	if err := envconfig.Process(namespace, &cfg.Media); err != nil {
 		return nil, fmt.Errorf("config: failed to load media config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.Google); err != nil {
+		return nil, fmt.Errorf("config: failed to load google config: %w", err)
 	}
 
 	return &cfg, nil

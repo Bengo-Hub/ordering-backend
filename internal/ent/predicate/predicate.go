@@ -36,6 +36,9 @@ type DeliveryWindow func(*sql.Selector)
 // DeliveryZone is the predicate function for deliveryzone builders.
 type DeliveryZone func(*sql.Selector)
 
+// GoogleBusinessConnection is the predicate function for googlebusinessconnection builders.
+type GoogleBusinessConnection func(*sql.Selector)
+
 // GroupOrder is the predicate function for grouporder builders.
 type GroupOrder func(*sql.Selector)
 

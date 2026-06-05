@@ -348,6 +348,19 @@ definitions:
       status:
         $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.AssignmentStatus'
     type: object
+  github_com_bengobox_ordering-backend_internal_modules_googlebusiness.StatusResult:
+    properties:
+      configured:
+        type: boolean
+      connected:
+        type: boolean
+      location_name:
+        type: string
+      place_id:
+        type: string
+      status:
+        type: string
+    type: object
   github_com_bengobox_ordering-backend_internal_modules_identity.Permission:
     enum:
     - ordering.orders.view
@@ -1130,6 +1143,20 @@ definitions:
       instructions:
         type: string
       priority:
+        type: string
+    type: object
+  internal_http_handlers_googlebusiness.replyRequest:
+    properties:
+      comment:
+        type: string
+    type: object
+  internal_http_handlers_googlebusiness.selectLocationRequest:
+    properties:
+      display_name:
+        type: string
+      location_name:
+        type: string
+      place_id:
         type: string
     type: object
   internal_http_handlers_identity.AuthResponsePayload:
@@ -2507,6 +2534,182 @@ paths:
       summary: Get refund
       tags:
       - Refunds
+  /api/v1/{tenant}/admin/integrations/google/connect:
+    delete:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Disconnect Google Business Profile
+      tags:
+      - Integrations
+    get:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Begin Google Business Profile connect
+      tags:
+      - Integrations
+  /api/v1/{tenant}/admin/integrations/google/location:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Location selection
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_googlebusiness.selectLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Select Google Business location
+      tags:
+      - Integrations
+  /api/v1/{tenant}/admin/integrations/google/locations:
+    get:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: List Google Business locations
+      tags:
+      - Integrations
+  /api/v1/{tenant}/admin/integrations/google/reviews:
+    get:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: List Google reviews
+      tags:
+      - Integrations
+  /api/v1/{tenant}/admin/integrations/google/reviews/{reviewId}/reply:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Review ID
+        in: path
+        name: reviewId
+        required: true
+        type: string
+      - description: Reply comment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_googlebusiness.replyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Reply to a Google review
+      tags:
+      - Integrations
+  /api/v1/{tenant}/admin/integrations/google/status:
+    get:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_googlebusiness.StatusResult'
+      summary: Google Business Profile status
+      tags:
+      - Integrations
   /api/v1/{tenant}/analytics/dashboards:
     get:
       parameters:
@@ -2823,6 +3026,28 @@ paths:
       summary: Get data subject request
       tags:
       - Compliance
+  /api/v1/{tenant}/integrations/google/callback:
+    get:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Authorization code
+        in: query
+        name: code
+        type: string
+      - description: Signed state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: Found
+      summary: Google Business Profile OAuth callback
+      tags:
+      - Integrations
   /api/v1/{tenant}/orders/{orderId}/delivery/cancel-task:
     post:
       consumes:

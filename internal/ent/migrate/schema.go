@@ -534,6 +534,41 @@ var (
 			},
 		},
 	}
+	// GoogleBusinessConnectionsColumns holds the columns for the "google_business_connections" table.
+	GoogleBusinessConnectionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "outlet_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "account_id", Type: field.TypeString, Nullable: true},
+		{Name: "location_id", Type: field.TypeString, Nullable: true},
+		{Name: "place_id", Type: field.TypeString, Nullable: true},
+		{Name: "location_name", Type: field.TypeString, Nullable: true},
+		{Name: "encrypted_tokens", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "token_expiry", Type: field.TypeTime, Nullable: true},
+		{Name: "status", Type: field.TypeString, Default: "disconnected"},
+		{Name: "connected_at", Type: field.TypeTime, Nullable: true},
+		{Name: "connected_by", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// GoogleBusinessConnectionsTable holds the schema information for the "google_business_connections" table.
+	GoogleBusinessConnectionsTable = &schema.Table{
+		Name:       "google_business_connections",
+		Columns:    GoogleBusinessConnectionsColumns,
+		PrimaryKey: []*schema.Column{GoogleBusinessConnectionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "googlebusinessconnection_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{GoogleBusinessConnectionsColumns[1]},
+			},
+			{
+				Name:    "googlebusinessconnection_tenant_id_outlet_id",
+				Unique:  true,
+				Columns: []*schema.Column{GoogleBusinessConnectionsColumns[1], GoogleBusinessConnectionsColumns[2]},
+			},
+		},
+	}
 	// GroupOrdersColumns holds the columns for the "group_orders" table.
 	GroupOrdersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1869,6 +1904,7 @@ var (
 		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
 		DeliveryZonesTable,
+		GoogleBusinessConnectionsTable,
 		GroupOrdersTable,
 		GroupParticipantsTable,
 		LoyaltyAccountsTable,
