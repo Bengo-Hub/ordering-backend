@@ -43,9 +43,9 @@ type StockAvailability struct {
 	ItemID      uuid.UUID `json:"item_id"`
 	SKU         string    `json:"sku"`
 	WarehouseID uuid.UUID `json:"warehouse_id"`
-	OnHand      int       `json:"on_hand"`
-	Available   int       `json:"available"`
-	Reserved    int       `json:"reserved"`
+	OnHand      float64   `json:"on_hand"`
+	Available   float64   `json:"available"`
+	Reserved    float64   `json:"reserved"`
 	UnitOfMeasure string  `json:"unit_of_measure"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -80,11 +80,11 @@ type ReservationResponse struct {
 
 // ReservedItem represents a reserved item.
 type ReservedItem struct {
-	SKU              string `json:"sku"`
-	RequestedQty     int    `json:"requested_qty"`
-	ReservedQty      int    `json:"reserved_qty"`
-	AvailableQty     int    `json:"available_qty"`
-	IsFullyReserved  bool   `json:"is_fully_reserved"`
+	SKU              string  `json:"sku"`
+	RequestedQty     float64 `json:"requested_qty"`
+	ReservedQty      float64 `json:"reserved_qty"`
+	AvailableQty     float64 `json:"available_qty"`
+	IsFullyReserved  bool    `json:"is_fully_reserved"`
 }
 
 // RecipeResponse represents a recipe/BOM from inventory.
