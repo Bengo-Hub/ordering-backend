@@ -47,20 +47,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/ordering.CustomerAddress"
+                                "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -98,7 +98,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CreateAddressRequestDTO"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CreateAddressRequestDTO"
                         }
                     }
                 ],
@@ -106,19 +106,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ordering.CustomerAddress"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -154,25 +154,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.CustomerAddress"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -215,31 +215,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.CustomerAddress"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -284,7 +284,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.UpdateAddressRequestDTO"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.UpdateAddressRequestDTO"
                         }
                     }
                 ],
@@ -292,31 +292,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.CustomerAddress"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -357,25 +357,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -424,25 +424,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -532,25 +532,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.ListOrdersResponse"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.ListOrdersResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -598,19 +598,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.AnalyticsSummary"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.AnalyticsSummary"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -653,31 +653,64 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Permanently deletes an order. Only cancelled/refunded/completed orders can be deleted.",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Delete order (admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -724,7 +757,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CancelOrderRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CancelOrderRequest"
                         }
                     }
                 ],
@@ -732,31 +765,116 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/{orderId}/rider": {
+            "put": {
+                "description": "Assigns a fleet member (rider) to a delivery order, auto-creating the logistics task if needed. Only valid for delivery-fulfilment orders; the order is then moved to out_for_delivery.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Assign a rider to a delivery order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Rider to assign",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.AssignRiderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -803,7 +921,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.UpdateStatusRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.UpdateStatusRequest"
                         }
                     }
                 ],
@@ -811,31 +929,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -882,7 +1000,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.ListRefundsResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.ListRefundsResponse"
                         }
                     }
                 }
@@ -905,7 +1023,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.CreateRefundRequest"
+                            "$ref": "#/definitions/internal_http_handlers_payments.CreateRefundRequest"
                         }
                     }
                 ],
@@ -913,7 +1031,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.RefundResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.RefundResponse"
                         }
                     }
                 }
@@ -941,7 +1059,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.RefundResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.RefundResponse"
                         }
                     }
                 }
@@ -972,6 +1090,275 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/{tenant}/admin/integrations/google/connect": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Begin Google Business Profile connect",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Disconnect Google Business Profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/admin/integrations/google/location": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Select Google Business location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Location selection",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_googlebusiness.selectLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/admin/integrations/google/locations": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "List Google Business locations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/admin/integrations/google/reviews": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "List Google reviews",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/admin/integrations/google/reviews/{reviewId}/reply": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Reply to a Google review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Review ID",
+                        "name": "reviewId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reply comment",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_googlebusiness.replyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/admin/integrations/google/status": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Google Business Profile status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_googlebusiness.StatusResult"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/{tenant}/analytics/dashboards": {
             "get": {
                 "produces": [
@@ -996,7 +1383,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/analytics.DashboardInfo"
+                                "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardInfo"
                             }
                         }
                     }
@@ -1032,7 +1419,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.DashboardInfo"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardInfo"
                         }
                     }
                 }
@@ -1067,7 +1454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/analytics.DashboardEmbed"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardEmbed"
                         }
                     }
                 }
@@ -1184,7 +1571,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/fulfilment.OrderAssignment"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment"
                         }
                     }
                 }
@@ -1216,7 +1603,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/compliance.RequestDataDeletionRequest"
+                            "$ref": "#/definitions/internal_http_handlers_compliance.RequestDataDeletionRequest"
                         }
                     }
                 ],
@@ -1224,7 +1611,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataDeletionJob"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataDeletionJob"
                         }
                     }
                 }
@@ -1259,7 +1646,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataDeletionJob"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataDeletionJob"
                         }
                     }
                 }
@@ -1291,7 +1678,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/compliance.RequestDataExportRequest"
+                            "$ref": "#/definitions/internal_http_handlers_compliance.RequestDataExportRequest"
                         }
                     }
                 ],
@@ -1299,7 +1686,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataExportJob"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataExportJob"
                         }
                     }
                 }
@@ -1334,7 +1721,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataExportJob"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataExportJob"
                         }
                     }
                 }
@@ -1405,7 +1792,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/compliance.CreateDataSubjectRequestRequest"
+                            "$ref": "#/definitions/internal_http_handlers_compliance.CreateDataSubjectRequestRequest"
                         }
                     }
                 ],
@@ -1413,7 +1800,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataSubjectRequest"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequest"
                         }
                     }
                 }
@@ -1448,8 +1835,42 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/compliance.DataSubjectRequest"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequest"
                         }
+                    }
+                }
+            }
+        },
+        "/api/v1/{tenant}/integrations/google/callback": {
+            "get": {
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Google Business Profile OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Signed state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Found"
                     }
                 }
             }
@@ -1487,7 +1908,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/fulfilment.CancelDeliveryTaskRequest"
+                            "$ref": "#/definitions/internal_http_handlers_fulfilment.CancelDeliveryTaskRequest"
                         }
                     }
                 ],
@@ -1545,7 +1966,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/fulfilment.OrderAssignment"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment"
                         }
                     }
                 }
@@ -1580,7 +2001,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/fulfilment.OrderAssignment"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment"
                         }
                     }
                 }
@@ -1615,7 +2036,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/fulfilment.TrackingInfo"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.TrackingInfo"
                         }
                     }
                 }
@@ -1640,13 +2061,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.OperationStatusResponse"
+                            "$ref": "#/definitions/internal_http_handlers_identity.OperationStatusResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1671,71 +2092,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/cafes": {
-            "get": {
-                "description": "Returns distinct cafes (outlets) that have menu data for the tenant",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "List cafes for tenant",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/catalog.OutletSummary"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/cafes/{id}": {
-            "get": {
-                "description": "Returns one cafe/outlet if it belongs to the tenant",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "Get cafe by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Cafe ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.OutletSummary"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1778,25 +2141,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1834,19 +2197,321 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/fee-breakdown": {
+            "get": {
+                "description": "Returns the full fee breakdown (packaging, service, small order, delivery fees) for the current cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get fee breakdown",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outlet_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "delivery",
+                        "description": "Fulfillment type (delivery, pickup)",
+                        "name": "fulfillment_type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.FeeBreakdown"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/guest": {
+            "get": {
+                "description": "Retrieves the guest cart identified by session ID (no auth required)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get guest cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "X-Session-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outlet_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/guest/items": {
+            "post": {
+                "description": "Adds a menu item to a guest cart (no auth required)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add item to guest cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "X-Session-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Item to add",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.AddItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/guest/items/{itemId}": {
+            "put": {
+                "description": "Updates the quantity or notes of a guest cart item (no auth required)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update guest cart item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "X-Session-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cart item ID",
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outlet_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Update data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.UpdateItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Removes an item from a guest cart (no auth required)",
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove guest cart item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "X-Session-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cart item ID",
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outlet_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1886,7 +2551,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.AddItemRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.AddItemRequest"
                         }
                     }
                 ],
@@ -1894,19 +2559,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1953,7 +2618,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.UpdateItemRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.UpdateItemRequest"
                         }
                     }
                 ],
@@ -1961,25 +2626,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2017,25 +2682,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2075,7 +2740,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.MergeCartRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.MergeCartRequest"
                         }
                     }
                 ],
@@ -2083,19 +2748,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2138,699 +2803,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.CartSummary"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CartSummary"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/categories": {
-            "get": {
-                "description": "Lists all menu categories with optional filters",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "List categories",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by outlet ID",
-                        "name": "outlet_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by parent ID",
-                        "name": "parent_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by active status",
-                        "name": "is_active",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search by name",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size (default 50)",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (default 1)",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.ListResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new menu category for organizing menu items",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Create a new category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Category data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.CreateCategoryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.Category"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/categories/{id}": {
-            "get": {
-                "description": "Retrieves a menu category by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Get a category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Category ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.Category"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Updates an existing menu category",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Update a category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Category ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated category data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.UpdateCategoryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.Category"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a menu category if it has no items or children",
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Delete a category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Category ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/dietary-tags": {
-            "get": {
-                "description": "Lists all available dietary tags",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "List dietary tags",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/catalog.DietaryTag"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/items": {
-            "get": {
-                "description": "Lists all menu items with optional filters",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "List menu items",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by outlet ID",
-                        "name": "outlet_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by category ID",
-                        "name": "category_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by availability",
-                        "name": "is_available",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search by name or description",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Minimum price filter",
-                        "name": "min_price",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Maximum price filter",
-                        "name": "max_price",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size (default 50)",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (default 1)",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.ListResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new menu item within a category",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Create a new menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Menu item data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.CreateCatalogItemRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.CatalogItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/items/{id}": {
-            "get": {
-                "description": "Retrieves a menu item by its ID including variants and translations",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Get a menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.CatalogItem"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Updates an existing menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Update a menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated item data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.UpdateCatalogItemRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.CatalogItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a menu item",
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Delete a menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/items/{id}/dietary-tags": {
-            "post": {
-                "description": "Adds a dietary tag to a menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Add dietary tag to item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Dietary tag code",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.AddDietaryTagRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/catalog/items/{id}/dietary-tags/{code}": {
-            "delete": {
-                "description": "Removes a dietary tag from a menu item",
-                "tags": [
-                    "Catalog"
-                ],
-                "summary": "Remove dietary tag from item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Dietary tag code",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2870,7 +2861,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CheckoutRequestDTO"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CheckoutRequestDTO"
                         }
                     }
                 ],
@@ -2878,25 +2869,78 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/checkout/guest": {
+            "post": {
+                "description": "Creates an order from a guest cart identified by session ID (no auth required)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Checkout"
+                ],
+                "summary": "Guest checkout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Guest checkout data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.GuestCheckoutRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2936,7 +2980,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CheckoutRequestDTO"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CheckoutRequestDTO"
                         }
                     }
                 ],
@@ -2951,13 +2995,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2986,13 +3030,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/config.PublicConfigResponse"
+                            "$ref": "#/definitions/internal_http_handlers_config.PublicConfigResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3019,14 +3063,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/identityhandler.OrderSummaryResponse"
+                                "$ref": "#/definitions/internal_http_handlers_identity.OrderSummaryResponse"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3046,7 +3090,36 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.livenessResponse"
+                            "$ref": "#/definitions/internal_http_handlers.livenessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/integrations/google/review-url": {
+            "get": {
+                "description": "Public lookup of the tenant's \"Review us on Google\" deep link from service config. Returns an empty string when not configured.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Get Google review URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_config.googleReviewURLResponse"
                         }
                     }
                 }
@@ -3082,19 +3155,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.AccountResponse"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.AccountResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3130,19 +3203,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.BalanceResponse"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.BalanceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3185,13 +3258,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3239,195 +3312,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.TransactionsResponse"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.TransactionsResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/categories": {
-            "get": {
-                "description": "Lists active menu categories for public display. Tenant can be provided via X-Tenant-ID (UUID), X-Tenant-Slug, or URL path. outlet_id is optional; when omitted, the first outlet for the tenant is used.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "List public categories",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Outlet ID (optional; defaults to first outlet)",
-                        "name": "outlet_id",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/catalog.PublicCategory"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/items": {
-            "get": {
-                "description": "Lists available menu items for public display with localization support",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "List public menu items",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter by outlet ID",
-                        "name": "outlet_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by category ID",
-                        "name": "category_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search by name",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Locale for translations (default: en)",
-                        "name": "locale",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size (default 50)",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (default 1)",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/cataloghandler.ListResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/items/{id}": {
-            "get": {
-                "description": "Retrieves a menu item for public display",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "Get a public menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Locale for translations (default: en)",
-                        "name": "locale",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/catalog.PublicCatalogItem"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/items/{id}/favorite": {
-            "post": {
-                "description": "Adds or removes a menu item from the current user's favorites",
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "Toggle favorite status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3513,19 +3410,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.ListOrdersResponse"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.ListOrdersResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3563,7 +3460,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CreateOrderRequestDTO"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CreateOrderRequestDTO"
                         }
                     }
                 ],
@@ -3571,25 +3468,73 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/guest/{orderId}": {
+            "get": {
+                "description": "Retrieves a guest order. Requires session_id query param matching the order's session.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Get guest order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Guest session ID",
+                        "name": "session_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3632,31 +3577,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3703,7 +3648,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.CancelOrderRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.CancelOrderRequest"
                         }
                     }
                 ],
@@ -3711,31 +3656,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3782,7 +3727,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.RateOrderRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.RateOrderRequest"
                         }
                     }
                 ],
@@ -3790,25 +3735,132 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Order"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{orderId}/track": {
+            "get": {
+                "description": "Server-Sent Events stream for real-time order tracking",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Track order (SSE)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/outlets/{outletId}/rating": {
+            "get": {
+                "description": "Returns average rating, star breakdown, and review count for an outlet",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outlets"
+                ],
+                "summary": "Get outlet rating",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outletId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OutletRatingData"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -3816,21 +3868,19 @@ const docTemplate = `{
         },
         "/payment-methods": {
             "get": {
+                "description": "Aggregate of enabled gateways, wallet summary, and saved cards for checkout.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Payment Methods"
                 ],
-                "summary": "List payment methods",
+                "summary": "List checkout payment methods",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/paymentshandler.PaymentMethodResponse"
-                            }
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodsAggregateResponse"
                         }
                     }
                 }
@@ -3853,7 +3903,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.CreatePaymentMethodRequest"
+                            "$ref": "#/definitions/internal_http_handlers_payments.CreatePaymentMethodRequest"
                         }
                     }
                 ],
@@ -3861,7 +3911,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentMethodResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
                         }
                     }
                 }
@@ -3880,7 +3930,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentMethodResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
                         }
                     }
                 }
@@ -3908,7 +3958,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentMethodResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
                         }
                     }
                 }
@@ -3938,7 +3988,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.UpdatePaymentMethodRequest"
+                            "$ref": "#/definitions/internal_http_handlers_payments.UpdatePaymentMethodRequest"
                         }
                     }
                 ],
@@ -3946,7 +3996,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentMethodResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
                         }
                     }
                 }
@@ -4029,7 +4079,145 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.ListPaymentsResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.ListPaymentsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/gateways/available": {
+            "get": {
+                "description": "Gateway types the tenant could enable, proxied from treasury-api.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "List available payment gateways",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.AvailableGatewaysResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/gateways/select/{gatewayType}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "Select (enable) a payment gateway",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
+                        "name": "gatewayType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Select gateway request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.SelectGatewayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.gatewayActionResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "Deactivate (disable) a payment gateway",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
+                        "name": "gatewayType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.gatewayActionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/gateways/selected": {
+            "get": {
+                "description": "Gateways the tenant has selected/configured, proxied from treasury-api.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "List selected payment gateways",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.SelectedGatewaysResponse"
                         }
                     }
                 }
@@ -4054,7 +4242,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.CreatePaymentIntentRequest"
+                            "$ref": "#/definitions/internal_http_handlers_payments.CreatePaymentIntentRequest"
                         }
                     }
                 ],
@@ -4062,7 +4250,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentIntentResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentIntentResponse"
                         }
                     }
                 }
@@ -4090,7 +4278,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentIntentResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentIntentResponse"
                         }
                     }
                 }
@@ -4140,7 +4328,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentIntentResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentIntentResponse"
                         }
                     }
                 }
@@ -4165,7 +4353,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.MpesaSTKPushRequest"
+                            "$ref": "#/definitions/internal_http_handlers_payments.MpesaSTKPushRequest"
                         }
                     }
                 ],
@@ -4173,7 +4361,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentIntentResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentIntentResponse"
                         }
                     }
                 }
@@ -4201,7 +4389,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/paymentshandler.PaymentResponse"
+                            "$ref": "#/definitions/internal_http_handlers_payments.PaymentResponse"
                         }
                     }
                 }
@@ -4241,7 +4429,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.ApplyPromoRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.ApplyPromoRequest"
                         }
                     }
                 ],
@@ -4249,25 +4437,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -4307,7 +4495,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.RemovePromoRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.RemovePromoRequest"
                         }
                     }
                 ],
@@ -4315,25 +4503,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.Cart"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Cart"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -4366,7 +4554,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orderinghandler.ValidatePromoRequest"
+                            "$ref": "#/definitions/internal_http_handlers_ordering.ValidatePromoRequest"
                         }
                     }
                 ],
@@ -4374,13 +4562,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ordering.PromoValidationResult"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PromoValidationResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -4400,13 +4588,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.readinessResponse"
+                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/handlers.readinessResponse"
+                            "$ref": "#/definitions/internal_http_handlers.readinessResponse"
                         }
                     }
                 }
@@ -4437,7 +4625,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.UpdatePreferencesRequest"
+                            "$ref": "#/definitions/internal_http_handlers_identity.UpdatePreferencesRequest"
                         }
                     }
                 ],
@@ -4445,19 +4633,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -4488,7 +4676,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.UpdateProfileRequest"
+                            "$ref": "#/definitions/internal_http_handlers_identity.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -4496,19 +4684,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/identityhandler.AuthResponsePayload"
+                            "$ref": "#/definitions/internal_http_handlers_identity.AuthResponsePayload"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
                         }
                     }
                 }
@@ -4616,14 +4804,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "analytics.DashboardEmbed": {
+        "github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid credentials"
+                }
+            }
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardEmbed": {
             "type": "object",
             "properties": {
                 "expires_at": {
                     "type": "string"
                 },
                 "module": {
-                    "$ref": "#/definitions/analytics.DashboardModule"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardModule"
                 },
                 "token": {
                     "type": "string"
@@ -4633,7 +4834,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.DashboardInfo": {
+        "github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardInfo": {
             "type": "object",
             "properties": {
                 "description": {
@@ -4643,7 +4844,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "module": {
-                    "$ref": "#/definitions/analytics.DashboardModule"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardModule"
                 },
                 "title": {
                     "type": "string"
@@ -4653,7 +4854,7 @@ const docTemplate = `{
                 }
             }
         },
-        "analytics.DashboardModule": {
+        "github_com_bengobox_ordering-backend_internal_modules_analytics.DashboardModule": {
             "type": "string",
             "enum": [
                 "orders",
@@ -4670,445 +4871,7 @@ const docTemplate = `{
                 "DashboardModuleSubscription"
             ]
         },
-        "catalog.Asset": {
-            "type": "object",
-            "properties": {
-                "assetType": {
-                    "$ref": "#/definitions/catalog.AssetType"
-                },
-                "catalogItemId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.AssetType": {
-            "type": "string",
-            "enum": [
-                "image",
-                "video"
-            ],
-            "x-enum-varnames": [
-                "AssetTypeImage",
-                "AssetTypeVideo"
-            ]
-        },
-        "catalog.CatalogItem": {
-            "type": "object",
-            "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Asset"
-                    }
-                },
-                "basePrice": {
-                    "description": "Projected from inventory",
-                    "type": "number"
-                },
-                "category": {
-                    "$ref": "#/definitions/catalog.Category"
-                },
-                "categoryId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "dietaryTags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.DietaryTag"
-                    }
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "inventoryItemId": {
-                    "type": "string"
-                },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "isFavorite": {
-                    "type": "boolean"
-                },
-                "isFeatured": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "Projected from inventory",
-                    "type": "string"
-                },
-                "outletId": {
-                    "type": "string"
-                },
-                "recipeId": {
-                    "type": "string"
-                },
-                "schedules": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Schedule"
-                    }
-                },
-                "sku": {
-                    "type": "string"
-                },
-                "tenantId": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "variants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Variant"
-                    }
-                }
-            }
-        },
-        "catalog.Category": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.Category"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "itemCount": {
-                    "type": "integer"
-                },
-                "outletId": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "string"
-                },
-                "tenantId": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.DietaryTag": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "Primary key: vegetarian, vegan, gluten-free, etc.",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "iconUrl": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.OutletSummary": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.PublicCatalogItem": {
-            "type": "object",
-            "properties": {
-                "basePrice": {
-                    "type": "number"
-                },
-                "categoryId": {
-                    "type": "string"
-                },
-                "categoryName": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "dietaryTags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.DietaryTag"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "isFavorite": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.PublicCategory": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/catalog.PublicCategory"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "itemCount": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.Schedule": {
-            "type": "object",
-            "properties": {
-                "catalogItemId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "dayOfWeek": {
-                    "description": "0=Sunday, 6=Saturday",
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "timeEnd": {
-                    "description": "HH:MM format",
-                    "type": "string"
-                },
-                "timeStart": {
-                    "description": "HH:MM format",
-                    "type": "string"
-                }
-            }
-        },
-        "catalog.Variant": {
-            "type": "object",
-            "properties": {
-                "catalogItemId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "priceDelta": {
-                    "type": "number"
-                },
-                "sku": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.AddDietaryTagRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.CreateCatalogItemRequest": {
-            "type": "object",
-            "properties": {
-                "categoryId": {
-                    "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "inventoryItemId": {
-                    "type": "string"
-                },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "isFeatured": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "outletId": {
-                    "type": "string"
-                },
-                "recipeId": {
-                    "type": "string"
-                },
-                "sku": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.CreateCategoryRequest": {
-            "type": "object",
-            "properties": {
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "outletId": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.ListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "cataloghandler.UpdateCatalogItemRequest": {
-            "type": "object",
-            "properties": {
-                "categoryId": {
-                    "type": "string"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "isAvailable": {
-                    "type": "boolean"
-                },
-                "isFeatured": {
-                    "type": "boolean"
-                },
-                "leadTimeMinutes": {
-                    "type": "integer"
-                },
-                "recipeId": {
-                    "type": "string"
-                },
-                "sku": {
-                    "type": "string"
-                }
-            }
-        },
-        "cataloghandler.UpdateCategoryRequest": {
-            "type": "object",
-            "properties": {
-                "clearParent": {
-                    "type": "boolean"
-                },
-                "displayOrder": {
-                    "type": "integer"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "parentId": {
-                    "type": "string"
-                }
-            }
-        },
-        "compliance.CreateDataSubjectRequestRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "request_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "compliance.DataDeletionJob": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DataDeletionJob": {
             "type": "object",
             "properties": {
                 "completed_at": {
@@ -5128,7 +4891,7 @@ const docTemplate = `{
                     }
                 },
                 "deletion_type": {
-                    "$ref": "#/definitions/compliance.DeletionType"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DeletionType"
                 },
                 "error_message": {
                     "type": "string"
@@ -5153,7 +4916,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/compliance.DeletionJobStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DeletionJobStatus"
                 },
                 "tenant_id": {
                     "type": "string"
@@ -5166,7 +4929,7 @@ const docTemplate = `{
                 }
             }
         },
-        "compliance.DataExportJob": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DataExportJob": {
             "type": "object",
             "properties": {
                 "completed_at": {
@@ -5185,7 +4948,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "format": {
-                    "$ref": "#/definitions/compliance.ExportFormat"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.ExportFormat"
                 },
                 "id": {
                     "type": "string"
@@ -5207,7 +4970,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/compliance.ExportJobStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.ExportJobStatus"
                 },
                 "storage_url": {
                     "type": "string"
@@ -5223,7 +4986,7 @@ const docTemplate = `{
                 }
             }
         },
-        "compliance.DataSubjectRequest": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequest": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -5251,13 +5014,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "request_type": {
-                    "$ref": "#/definitions/compliance.DataSubjectRequestType"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequestType"
                 },
                 "result_url": {
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/compliance.DataSubjectRequestStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequestStatus"
                 },
                 "submitted_at": {
                     "type": "string"
@@ -5273,7 +5036,7 @@ const docTemplate = `{
                 }
             }
         },
-        "compliance.DataSubjectRequestStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequestStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -5290,7 +5053,7 @@ const docTemplate = `{
                 "RequestStatusCancelled"
             ]
         },
-        "compliance.DataSubjectRequestType": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DataSubjectRequestType": {
             "type": "string",
             "enum": [
                 "export",
@@ -5305,7 +5068,7 @@ const docTemplate = `{
                 "RequestTypeRectify"
             ]
         },
-        "compliance.DeletionJobStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DeletionJobStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -5324,7 +5087,7 @@ const docTemplate = `{
                 "DeletionStatusCancelled"
             ]
         },
-        "compliance.DeletionType": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.DeletionType": {
             "type": "string",
             "enum": [
                 "soft",
@@ -5347,7 +5110,7 @@ const docTemplate = `{
                 "DeletionTypeAnonymize"
             ]
         },
-        "compliance.ExportFormat": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.ExportFormat": {
             "type": "string",
             "enum": [
                 "json",
@@ -5358,7 +5121,7 @@ const docTemplate = `{
                 "ExportFormatCSV"
             ]
         },
-        "compliance.ExportJobStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_compliance.ExportJobStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -5375,81 +5138,7 @@ const docTemplate = `{
                 "ExportStatusExpired"
             ]
         },
-        "compliance.RequestDataDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "confirmed": {
-                    "type": "boolean"
-                },
-                "deletion_type": {
-                    "description": "soft, permanent, anonymize",
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "retention_days": {
-                    "type": "integer"
-                }
-            }
-        },
-        "compliance.RequestDataExportRequest": {
-            "type": "object",
-            "properties": {
-                "format": {
-                    "description": "json or csv",
-                    "type": "string"
-                },
-                "included_data": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "config.PublicConfigResponse": {
-            "type": "object",
-            "properties": {
-                "brand_palette": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "features": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
-                    }
-                },
-                "logo_url": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "primary_color": {
-                    "type": "string"
-                },
-                "secondary_color": {
-                    "type": "string"
-                },
-                "short_name": {
-                    "type": "string"
-                },
-                "support_email": {
-                    "type": "string"
-                },
-                "support_phone": {
-                    "type": "string"
-                },
-                "tagline": {
-                    "type": "string"
-                }
-            }
-        },
-        "fulfilment.AssignmentStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_fulfilment.AssignmentStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -5478,15 +5167,7 @@ const docTemplate = `{
                 "AssignmentStatusFailed"
             ]
         },
-        "fulfilment.CancelDeliveryTaskRequest": {
-            "type": "object",
-            "properties": {
-                "reason": {
-                    "type": "string"
-                }
-            }
-        },
-        "fulfilment.OrderAssignment": {
+        "github_com_bengobox_ordering-backend_internal_modules_fulfilment.OrderAssignment": {
             "type": "object",
             "properties": {
                 "accepted_at": {
@@ -5530,7 +5211,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "priority": {
-                    "$ref": "#/definitions/fulfilment.TaskPriority"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.TaskPriority"
                 },
                 "rejection_reason": {
                     "type": "string"
@@ -5542,7 +5223,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/fulfilment.AssignmentStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.AssignmentStatus"
                 },
                 "tenant_id": {
                     "type": "string"
@@ -5552,7 +5233,7 @@ const docTemplate = `{
                 }
             }
         },
-        "fulfilment.TaskPriority": {
+        "github_com_bengobox_ordering-backend_internal_modules_fulfilment.TaskPriority": {
             "type": "string",
             "enum": [
                 "low",
@@ -5567,7 +5248,7 @@ const docTemplate = `{
                 "PriorityUrgent"
             ]
         },
-        "fulfilment.TrackingInfo": {
+        "github_com_bengobox_ordering-backend_internal_modules_fulfilment.TrackingInfo": {
             "type": "object",
             "properties": {
                 "assignment_id": {
@@ -5604,86 +5285,79 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/fulfilment.AssignmentStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_fulfilment.AssignmentStatus"
                 }
             }
         },
-        "handlers.ErrorResponse": {
+        "github_com_bengobox_ordering-backend_internal_modules_googlebusiness.StatusResult": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "Unauthorized"
+                "configured": {
+                    "type": "boolean"
                 },
-                "message": {
-                    "type": "string",
-                    "example": "invalid credentials"
-                }
-            }
-        },
-        "handlers.livenessResponse": {
-            "type": "object",
-            "properties": {
-                "service": {
-                    "type": "string",
-                    "example": "ordering-backend"
+                "connected": {
+                    "type": "boolean"
+                },
+                "location_name": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
                 },
                 "status": {
-                    "type": "string",
-                    "example": "ok"
+                    "type": "string"
                 }
             }
         },
-        "handlers.readinessResponse": {
-            "type": "object",
-            "properties": {
-                "dependencies": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "OK"
-                }
-            }
-        },
-        "identity.Permission": {
+        "github_com_bengobox_ordering-backend_internal_modules_identity.Permission": {
             "type": "string",
             "enum": [
-                "orders:read",
-                "orders:manage",
-                "orders:refund",
-                "profile:update",
-                "preferences:update",
-                "loyalty:read",
-                "loyalty:redeem",
-                "catalog:read",
-                "catalog:manage",
-                "payments:read",
-                "payments:manage",
-                "logistics:read",
-                "logistics:dispatch",
-                "operations:kitchen",
-                "operations:inventory",
-                "notifications:read",
-                "notifications:manage",
-                "analytics:read",
-                "analytics:export",
-                "support:read",
-                "support:manage",
-                "riders:onboard",
-                "staff:invite",
-                "admin:manage"
+                "ordering.orders.view",
+                "ordering.orders.manage",
+                "ordering.orders.delete",
+                "ordering.users.change_own",
+                "ordering.config.change_own",
+                "ordering.loyalty.view",
+                "ordering.loyalty.change",
+                "ordering.catalog.view",
+                "ordering.catalog.manage",
+                "ordering.orders.view",
+                "ordering.orders.manage",
+                "ordering.orders.view",
+                "ordering.orders.change",
+                "ordering.orders.change",
+                "ordering.catalog.view",
+                "ordering.config.view",
+                "ordering.config.manage",
+                "ordering.analytics.view",
+                "ordering.analytics.manage",
+                "ordering.orders.view_own",
+                "ordering.orders.manage",
+                "ordering.delivery_zones.view",
+                "ordering.delivery_zones.manage",
+                "ordering.users.add",
+                "ordering.users.add",
+                "ordering.config.manage",
+                "ordering.users.manage"
             ],
             "x-enum-comments": {
-                "PermissionRidersOnboard": "Kept for backward compatibility if used elsewhere",
-                "PermissionStaffInvite": "Kept for backward compatibility if used elsewhere"
+                "PermissionLogisticsView": "logistics projection — same as orders view",
+                "PermissionOrdersRefund": "refund mapped to delete (destructive action)",
+                "PermissionPaymentsView": "payments projection — same as orders view"
             },
             "x-enum-descriptions": [
                 "",
                 "",
+                "refund mapped to delete (destructive action)",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "payments projection — same as orders view",
+                "",
+                "logistics projection — same as orders view",
                 "",
                 "",
                 "",
@@ -5698,13 +5372,6 @@ const docTemplate = `{
                 "",
                 "",
                 "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "Kept for backward compatibility if used elsewhere",
-                "Kept for backward compatibility if used elsewhere",
                 ""
             ],
             "x-enum-varnames": [
@@ -5729,228 +5396,61 @@ const docTemplate = `{
                 "PermissionAnalyticsExport",
                 "PermissionSupportView",
                 "PermissionSupportManage",
+                "PermissionZonesView",
+                "PermissionZonesManage",
                 "PermissionRidersOnboard",
                 "PermissionStaffInvite",
-                "PermissionAdminManage"
+                "PermissionAdminManage",
+                "PermissionRbacManage"
             ]
         },
-        "identity.Role": {
+        "github_com_bengobox_ordering-backend_internal_modules_identity.Role": {
             "type": "string",
             "enum": [
                 "customer",
+                "driver",
                 "rider",
                 "staff",
+                "manager",
+                "kitchen",
+                "cashier",
+                "delivery_coordinator",
+                "viewer",
                 "admin",
                 "superuser"
             ],
+            "x-enum-comments": {
+                "RoleDriver": "Universal role for delivery/courier/taxi use cases",
+                "RoleRider": "Deprecated: use RoleDriver; kept for backward compatibility"
+            },
+            "x-enum-descriptions": [
+                "",
+                "Universal role for delivery/courier/taxi use cases",
+                "Deprecated: use RoleDriver; kept for backward compatibility",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
             "x-enum-varnames": [
                 "RoleCustomer",
+                "RoleDriver",
                 "RoleRider",
                 "RoleStaff",
+                "RoleManager",
+                "RoleKitchen",
+                "RoleCashier",
+                "RoleDeliveryCoordinator",
+                "RoleViewer",
                 "RoleAdmin",
                 "RoleSuperAdmin"
             ]
         },
-        "identityhandler.AuthResponsePayload": {
-            "type": "object",
-            "properties": {
-                "session": {
-                    "$ref": "#/definitions/identityhandler.SessionResponsePayload"
-                },
-                "tenant_id": {
-                    "type": "string"
-                },
-                "tenant_slug": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/identityhandler.UserResponsePayload"
-                }
-            }
-        },
-        "identityhandler.NotificationPreferenceInput": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "push": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "sms": {
-                    "type": "boolean",
-                    "example": false
-                }
-            }
-        },
-        "identityhandler.OperationStatusResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "identityhandler.OrderSummaryResponse": {
-            "type": "object",
-            "properties": {
-                "eta": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "placedAt": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "total": {
-                    "type": "number"
-                }
-            }
-        },
-        "identityhandler.SessionResponsePayload": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "expiresAt": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                },
-                "sessionId": {
-                    "type": "string"
-                }
-            }
-        },
-        "identityhandler.UpdatePreferencesRequest": {
-            "type": "object",
-            "properties": {
-                "language": {
-                    "type": "string",
-                    "example": "en"
-                },
-                "notifications": {
-                    "$ref": "#/definitions/identityhandler.NotificationPreferenceInput"
-                },
-                "theme": {
-                    "type": "string",
-                    "example": "dark"
-                }
-            }
-        },
-        "identityhandler.UpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "avatarUrl": {
-                    "type": "string",
-                    "example": "https://cdn.example.com/avatar.png"
-                },
-                "fullName": {
-                    "type": "string",
-                    "example": "Urban Café Guest"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "+254700000000"
-                }
-            }
-        },
-        "identityhandler.UserPreferencesResponse": {
-            "type": "object",
-            "properties": {
-                "language": {
-                    "type": "string"
-                },
-                "notifications": {
-                    "$ref": "#/definitions/identityhandler.NotificationPreferenceInput"
-                },
-                "theme": {
-                    "type": "string"
-                }
-            }
-        },
-        "identityhandler.UserResponsePayload": {
-            "type": "object",
-            "properties": {
-                "availableCoupons": {
-                    "type": "integer"
-                },
-                "avatarUrl": {
-                    "type": "string"
-                },
-                "backupCodesEnabled": {
-                    "type": "boolean"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "defaultLocationLabel": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastLoginAt": {
-                    "type": "string"
-                },
-                "loyaltyPoints": {
-                    "type": "integer"
-                },
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/identity.Permission"
-                    }
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "preferences": {
-                    "$ref": "#/definitions/identityhandler.UserPreferencesResponse"
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/identity.Role"
-                    }
-                },
-                "twoFactorEnabled": {
-                    "type": "boolean"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_http_handlers_fulfilment.CreateDeliveryTaskRequest": {
-            "type": "object",
-            "properties": {
-                "idempotency_key": {
-                    "type": "string"
-                },
-                "instructions": {
-                    "type": "string"
-                },
-                "priority": {
-                    "type": "string"
-                }
-            }
-        },
-        "ordering.AnalyticsSummary": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.AnalyticsSummary": {
             "type": "object",
             "properties": {
                 "cancelledOrders": {
@@ -5972,7 +5472,7 @@ const docTemplate = `{
                 "topSellingItems": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.ItemSalesSummary"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.ItemSalesSummary"
                     }
                 },
                 "totalOrders": {
@@ -5984,12 +5484,12 @@ const docTemplate = `{
                 "trend": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.DailyMetric"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.DailyMetric"
                     }
                 }
             }
         },
-        "ordering.Cart": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.Cart": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6013,7 +5513,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.CartItem"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CartItem"
                     }
                 },
                 "loyaltyPointsRedeemed": {
@@ -6029,7 +5529,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/ordering.CartStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CartStatus"
                 },
                 "subtotal": {
                     "type": "number"
@@ -6048,13 +5548,10 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.CartItem": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.CartItem": {
             "type": "object",
             "properties": {
                 "cartId": {
-                    "type": "string"
-                },
-                "catalogItemId": {
                     "type": "string"
                 },
                 "createdAt": {
@@ -6063,9 +5560,21 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "inventorySku": {
+                    "type": "string"
+                },
                 "metadata": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "modifierTotal": {
+                    "type": "number"
+                },
+                "modifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CartItemModifier"
+                    }
                 },
                 "nameSnapshot": {
                     "type": "string"
@@ -6090,7 +5599,27 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.CartStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.CartItemModifier": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "string"
+                },
+                "group_name": {
+                    "type": "string"
+                },
+                "option_id": {
+                    "type": "string"
+                },
+                "option_name": {
+                    "type": "string"
+                },
+                "price_adjustment": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.CartStatus": {
             "type": "string",
             "enum": [
                 "active",
@@ -6105,7 +5634,7 @@ const docTemplate = `{
                 "CartStatusExpired"
             ]
         },
-        "ordering.CartSummary": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.CartSummary": {
             "type": "object",
             "properties": {
                 "deliveryFee": {
@@ -6131,7 +5660,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.CustomerAddress": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress": {
             "type": "object",
             "properties": {
                 "addressLine1": {
@@ -6196,7 +5725,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.DailyMetric": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.DailyMetric": {
             "type": "object",
             "properties": {
                 "date": {
@@ -6210,10 +5739,60 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.ItemSalesSummary": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.FeeBreakdown": {
             "type": "object",
             "properties": {
-                "catalogItemId": {
+                "delivery_discount": {
+                    "type": "number"
+                },
+                "delivery_fee": {
+                    "type": "number"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "grand_total": {
+                    "type": "number"
+                },
+                "item_total": {
+                    "type": "number"
+                },
+                "packaging_fee": {
+                    "type": "number"
+                },
+                "service_fee": {
+                    "type": "number"
+                },
+                "small_order_fee": {
+                    "type": "number"
+                },
+                "subtotal": {
+                    "type": "number"
+                },
+                "tax_total": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.FulfillmentType": {
+            "type": "string",
+            "enum": [
+                "delivery",
+                "pickup",
+                "dine_in",
+                "scheduled"
+            ],
+            "x-enum-varnames": [
+                "FulfillmentTypeDelivery",
+                "FulfillmentTypePickup",
+                "FulfillmentTypeDineIn",
+                "FulfillmentTypeScheduled"
+            ]
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.ItemSalesSummary": {
+            "type": "object",
+            "properties": {
+                "inventorySku": {
                     "type": "string"
                 },
                 "nameSnapshot": {
@@ -6227,7 +5806,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.LoyaltyTransaction": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.LoyaltyTransaction": {
             "type": "object",
             "properties": {
                 "accountId": {
@@ -6253,11 +5832,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "transactionType": {
-                    "$ref": "#/definitions/ordering.LoyaltyTransactionType"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.LoyaltyTransactionType"
                 }
             }
         },
-        "ordering.LoyaltyTransactionType": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.LoyaltyTransactionType": {
             "type": "string",
             "enum": [
                 "earn",
@@ -6274,7 +5853,7 @@ const docTemplate = `{
                 "LoyaltyTransactionTypeBonus"
             ]
         },
-        "ordering.Order": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.Order": {
             "type": "object",
             "properties": {
                 "cancellationReason": {
@@ -6287,7 +5866,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "channel": {
-                    "$ref": "#/definitions/ordering.OrderChannel"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OrderChannel"
                 },
                 "completedAt": {
                     "type": "string"
@@ -6298,17 +5877,30 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "crmContactId": {
+                    "type": "string"
+                },
                 "currency": {
                     "type": "string"
                 },
+                "customerEmail": {
+                    "type": "string"
+                },
                 "customerId": {
+                    "type": "string"
+                },
+                "customerName": {
+                    "description": "Resolved customer contact info (from metadata for guests, from user for authenticated)",
+                    "type": "string"
+                },
+                "customerPhone": {
                     "type": "string"
                 },
                 "deliveredAt": {
                     "type": "string"
                 },
                 "deliveryAddress": {
-                    "$ref": "#/definitions/ordering.CustomerAddress"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.CustomerAddress"
                 },
                 "deliveryAddressId": {
                     "type": "string"
@@ -6322,8 +5914,11 @@ const docTemplate = `{
                 "events": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.OrderEvent"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OrderEvent"
                     }
+                },
+                "fulfillmentType": {
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.FulfillmentType"
                 },
                 "grandTotal": {
                     "type": "number"
@@ -6340,7 +5935,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.OrderItem"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OrderItem"
                     }
                 },
                 "loyaltyPointsEarned": {
@@ -6359,8 +5954,17 @@ const docTemplate = `{
                 "outletId": {
                     "type": "string"
                 },
+                "packagingFee": {
+                    "type": "number"
+                },
+                "paymentIntentId": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentMethod"
+                },
                 "paymentStatus": {
-                    "$ref": "#/definitions/ordering.PaymentStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentStatus"
                 },
                 "placedAt": {
                     "type": "string"
@@ -6380,11 +5984,23 @@ const docTemplate = `{
                 "readyAt": {
                     "type": "string"
                 },
+                "reservationId": {
+                    "type": "string"
+                },
+                "scheduledFor": {
+                    "type": "string"
+                },
+                "serviceFee": {
+                    "type": "number"
+                },
+                "smallOrderFee": {
+                    "type": "number"
+                },
                 "source": {
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/ordering.OrderStatus"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.OrderStatus"
                 },
                 "subtotal": {
                     "type": "number"
@@ -6403,7 +6019,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.OrderChannel": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.OrderChannel": {
             "type": "string",
             "enum": [
                 "web",
@@ -6420,7 +6036,7 @@ const docTemplate = `{
                 "OrderChannelAPI"
             ]
         },
-        "ordering.OrderEvent": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.OrderEvent": {
             "type": "object",
             "properties": {
                 "actorType": {
@@ -6456,13 +6072,13 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.OrderItem": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.OrderItem": {
             "type": "object",
             "properties": {
-                "catalogItemId": {
+                "id": {
                     "type": "string"
                 },
-                "id": {
+                "inventorySku": {
                     "type": "string"
                 },
                 "metadata": {
@@ -6492,7 +6108,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ordering.OrderStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.OrderStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -6503,7 +6119,8 @@ const docTemplate = `{
                 "delivered",
                 "completed",
                 "cancelled",
-                "refunded"
+                "refunded",
+                "payment_timeout"
             ],
             "x-enum-varnames": [
                 "OrderStatusPending",
@@ -6514,10 +6131,74 @@ const docTemplate = `{
                 "OrderStatusDelivered",
                 "OrderStatusCompleted",
                 "OrderStatusCancelled",
-                "OrderStatusRefunded"
+                "OrderStatusRefunded",
+                "OrderStatusPaymentTimeout"
             ]
         },
-        "ordering.PaymentStatus": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.OutletRatingData": {
+            "type": "object",
+            "properties": {
+                "averageRating": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "fiveStar": {
+                    "type": "integer"
+                },
+                "fourStar": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "oneStar": {
+                    "type": "integer"
+                },
+                "outletId": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string"
+                },
+                "threeStar": {
+                    "type": "integer"
+                },
+                "totalRatings": {
+                    "type": "integer"
+                },
+                "totalReviews": {
+                    "type": "integer"
+                },
+                "twoStar": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentMethod": {
+            "type": "string",
+            "enum": [
+                "mpesa",
+                "paystack",
+                "stripe",
+                "cod",
+                "wallet",
+                "loyalty"
+            ],
+            "x-enum-varnames": [
+                "PaymentMethodMpesa",
+                "PaymentMethodPaystack",
+                "PaymentMethodStripe",
+                "PaymentMethodCOD",
+                "PaymentMethodWallet",
+                "PaymentMethodLoyalty"
+            ]
+        },
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -6536,7 +6217,7 @@ const docTemplate = `{
                 "PaymentStatusPartiallyRefunded"
             ]
         },
-        "ordering.PromoCodeType": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.PromoCodeType": {
             "type": "string",
             "enum": [
                 "percentage",
@@ -6551,14 +6232,14 @@ const docTemplate = `{
                 "PromoCodeTypeFreeItem"
             ]
         },
-        "ordering.PromoValidationResult": {
+        "github_com_bengobox_ordering-backend_internal_modules_ordering.PromoValidationResult": {
             "type": "object",
             "properties": {
                 "discountAmount": {
                     "type": "number"
                 },
                 "discountType": {
-                    "$ref": "#/definitions/ordering.PromoCodeType"
+                    "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PromoCodeType"
                 },
                 "discountValue": {
                     "type": "number"
@@ -6574,7 +6255,398 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.AccountResponse": {
+        "github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "gateway_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_primary": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_transactions": {
+                    "type": "integer"
+                },
+                "transaction_fee_type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers.livenessResponse": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "example": "ordering-backend"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "internal_http_handlers.readinessResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "internal_http_handlers_compliance.CreateDataSubjectRequestRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "request_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_compliance.RequestDataDeletionRequest": {
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "boolean"
+                },
+                "deletion_type": {
+                    "description": "soft, permanent, anonymize",
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "retention_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_http_handlers_compliance.RequestDataExportRequest": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "description": "json or csv",
+                    "type": "string"
+                },
+                "included_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_http_handlers_config.PublicConfigResponse": {
+            "type": "object",
+            "properties": {
+                "brand_palette": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "features": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "primary_color": {
+                    "type": "string"
+                },
+                "secondary_color": {
+                    "type": "string"
+                },
+                "short_name": {
+                    "type": "string"
+                },
+                "support_email": {
+                    "type": "string"
+                },
+                "support_phone": {
+                    "type": "string"
+                },
+                "tagline": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_config.googleReviewURLResponse": {
+            "type": "object",
+            "properties": {
+                "review_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_fulfilment.CancelDeliveryTaskRequest": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_fulfilment.CreateDeliveryTaskRequest": {
+            "type": "object",
+            "properties": {
+                "idempotency_key": {
+                    "type": "string"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_googlebusiness.replyRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_googlebusiness.selectLocationRequest": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "location_name": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.AuthResponsePayload": {
+            "type": "object",
+            "properties": {
+                "session": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.SessionResponsePayload"
+                },
+                "tenant_id": {
+                    "type": "string"
+                },
+                "tenant_slug": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.UserResponsePayload"
+                }
+            }
+        },
+        "internal_http_handlers_identity.NotificationPreferenceInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "push": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "sms": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "internal_http_handlers_identity.OperationStatusResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.OrderSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "eta": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "placedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_http_handlers_identity.SessionResponsePayload": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UpdatePreferencesRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "notifications": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "dark"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string",
+                    "example": "https://cdn.example.com/avatar.png"
+                },
+                "fullName": {
+                    "type": "string",
+                    "example": "Urban Café Guest"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+254700000000"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UserPreferencesResponse": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "notifications": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.NotificationPreferenceInput"
+                },
+                "theme": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_identity.UserResponsePayload": {
+            "type": "object",
+            "properties": {
+                "availableCoupons": {
+                    "type": "integer"
+                },
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "backupCodesEnabled": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "defaultLocationLabel": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isSuperUser": {
+                    "type": "boolean"
+                },
+                "is_platform_owner": {
+                    "type": "boolean"
+                },
+                "lastLoginAt": {
+                    "type": "string"
+                },
+                "loyaltyPoints": {
+                    "type": "integer"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_identity.Permission"
+                    }
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "preferences": {
+                    "$ref": "#/definitions/internal_http_handlers_identity.UserPreferencesResponse"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_identity.Role"
+                    }
+                },
+                "twoFactorEnabled": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.AccountResponse": {
             "type": "object",
             "properties": {
                 "balancePoints": {
@@ -6601,11 +6673,17 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.AddItemRequest": {
+        "internal_http_handlers_ordering.AddItemRequest": {
             "type": "object",
             "properties": {
-                "catalogItemId": {
+                "inventorySku": {
                     "type": "string"
+                },
+                "modifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_ordering.CartItemModifierDTO"
+                    }
                 },
                 "notes": {
                     "type": "string"
@@ -6621,7 +6699,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.ApplyPromoRequest": {
+        "internal_http_handlers_ordering.ApplyPromoRequest": {
             "type": "object",
             "properties": {
                 "cartId": {
@@ -6632,7 +6710,15 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.BalanceResponse": {
+        "internal_http_handlers_ordering.AssignRiderRequest": {
+            "type": "object",
+            "properties": {
+                "rider_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.BalanceResponse": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -6646,7 +6732,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.CancelOrderRequest": {
+        "internal_http_handlers_ordering.CancelOrderRequest": {
             "type": "object",
             "properties": {
                 "reason": {
@@ -6654,7 +6740,27 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.CheckoutRequestDTO": {
+        "internal_http_handlers_ordering.CartItemModifierDTO": {
+            "type": "object",
+            "properties": {
+                "groupId": {
+                    "type": "string"
+                },
+                "groupName": {
+                    "type": "string"
+                },
+                "optionId": {
+                    "type": "string"
+                },
+                "optionName": {
+                    "type": "string"
+                },
+                "priceAdjustment": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.CheckoutRequestDTO": {
             "type": "object",
             "properties": {
                 "cartId": {
@@ -6663,7 +6769,16 @@ const docTemplate = `{
                 "channel": {
                     "type": "string"
                 },
+                "deliveryAddress": {
+                    "type": "string"
+                },
                 "deliveryAddressId": {
+                    "type": "string"
+                },
+                "deliveryNotes": {
+                    "type": "string"
+                },
+                "fulfillmentType": {
                     "type": "string"
                 },
                 "idempotencyKey": {
@@ -6672,15 +6787,31 @@ const docTemplate = `{
                 "instructions": {
                     "type": "string"
                 },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_ordering.OrderItemDTO"
+                    }
+                },
                 "loyaltyPointsRedeemed": {
                     "type": "integer"
                 },
+                "outletId": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "description": "\"mpesa\" | \"cod\"",
+                    "type": "string"
+                },
                 "promoCode": {
+                    "type": "string"
+                },
+                "scheduledAt": {
                     "type": "string"
                 }
             }
         },
-        "orderinghandler.CreateAddressRequestDTO": {
+        "internal_http_handlers_ordering.CreateAddressRequestDTO": {
             "type": "object",
             "properties": {
                 "addressLine1": {
@@ -6727,7 +6858,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.CreateOrderRequestDTO": {
+        "internal_http_handlers_ordering.CreateOrderRequestDTO": {
             "type": "object",
             "properties": {
                 "deliveryAddress": {
@@ -6742,10 +6873,13 @@ const docTemplate = `{
                 "deliveryNotes": {
                     "type": "string"
                 },
+                "fulfillmentType": {
+                    "type": "string"
+                },
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/orderinghandler.OrderItemDTO"
+                        "$ref": "#/definitions/internal_http_handlers_ordering.OrderItemDTO"
                     }
                 },
                 "outletId": {
@@ -6763,14 +6897,74 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.ListOrdersResponse": {
+        "internal_http_handlers_ordering.GuestCheckoutRequestDTO": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactName": {
+                    "type": "string"
+                },
+                "contactPhone": {
+                    "type": "string"
+                },
+                "deliveryAddress": {
+                    "type": "string"
+                },
+                "deliveryLat": {
+                    "type": "number"
+                },
+                "deliveryLng": {
+                    "type": "number"
+                },
+                "deliveryNotes": {
+                    "type": "string"
+                },
+                "fulfillmentType": {
+                    "type": "string"
+                },
+                "idempotencyKey": {
+                    "type": "string"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_ordering.OrderItemDTO"
+                    }
+                },
+                "outletId": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "description": "\"mpesa\" | \"cod\"",
+                    "type": "string"
+                },
+                "scheduledAt": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.ListOrdersResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.Order"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.Order"
                     }
+                },
+                "hasMore": {
+                    "type": "boolean"
                 },
                 "limit": {
                     "type": "integer"
@@ -6783,7 +6977,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.MergeCartRequest": {
+        "internal_http_handlers_ordering.MergeCartRequest": {
             "type": "object",
             "properties": {
                 "outletId": {
@@ -6794,11 +6988,15 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.OrderItemDTO": {
+        "internal_http_handlers_ordering.OrderItemDTO": {
             "type": "object",
             "properties": {
-                "catalogItemId": {
+                "inventorySku": {
                     "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "name": {
                     "type": "string"
@@ -6814,7 +7012,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.RateOrderRequest": {
+        "internal_http_handlers_ordering.RateOrderRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -6822,10 +7020,16 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "integer"
+                },
+                "riderComment": {
+                    "type": "string"
+                },
+                "riderRating": {
+                    "type": "integer"
                 }
             }
         },
-        "orderinghandler.RemovePromoRequest": {
+        "internal_http_handlers_ordering.RemovePromoRequest": {
             "type": "object",
             "properties": {
                 "cartId": {
@@ -6833,13 +7037,13 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.TransactionsResponse": {
+        "internal_http_handlers_ordering.TransactionsResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ordering.LoyaltyTransaction"
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.LoyaltyTransaction"
                     }
                 },
                 "limit": {
@@ -6853,7 +7057,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.UpdateAddressRequestDTO": {
+        "internal_http_handlers_ordering.UpdateAddressRequestDTO": {
             "type": "object",
             "properties": {
                 "addressLine1": {
@@ -6900,7 +7104,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.UpdateItemRequest": {
+        "internal_http_handlers_ordering.UpdateItemRequest": {
             "type": "object",
             "properties": {
                 "notes": {
@@ -6911,7 +7115,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.UpdateStatusRequest": {
+        "internal_http_handlers_ordering.UpdateStatusRequest": {
             "type": "object",
             "properties": {
                 "status": {
@@ -6919,7 +7123,7 @@ const docTemplate = `{
                 }
             }
         },
-        "orderinghandler.ValidatePromoRequest": {
+        "internal_http_handlers_ordering.ValidatePromoRequest": {
             "type": "object",
             "properties": {
                 "cafeId": {
@@ -6933,7 +7137,35 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.CreatePaymentIntentRequest": {
+        "internal_http_handlers_payments.AvailableGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "gateway_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "supports_stk_push": {
+                    "type": "boolean"
+                },
+                "transaction_fee_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.AvailableGatewaysResponse": {
+            "type": "object",
+            "properties": {
+                "gateways": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.AvailableGatewayResponse"
+                    }
+                }
+            }
+        },
+        "internal_http_handlers_payments.CreatePaymentIntentRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -6959,7 +7191,7 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.CreatePaymentMethodRequest": {
+        "internal_http_handlers_payments.CreatePaymentMethodRequest": {
             "type": "object",
             "properties": {
                 "expMonth": {
@@ -6988,7 +7220,7 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.CreateRefundRequest": {
+        "internal_http_handlers_payments.CreateRefundRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -7008,13 +7240,13 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.ListPaymentsResponse": {
+        "internal_http_handlers_payments.ListPaymentsResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/paymentshandler.PaymentResponse"
+                        "$ref": "#/definitions/internal_http_handlers_payments.PaymentResponse"
                     }
                 },
                 "limit": {
@@ -7028,13 +7260,13 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.ListRefundsResponse": {
+        "internal_http_handlers_payments.ListRefundsResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/paymentshandler.RefundResponse"
+                        "$ref": "#/definitions/internal_http_handlers_payments.RefundResponse"
                     }
                 },
                 "limit": {
@@ -7048,7 +7280,7 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.MpesaSTKPushRequest": {
+        "internal_http_handlers_payments.MpesaSTKPushRequest": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -7068,7 +7300,27 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.PaymentIntentResponse": {
+        "internal_http_handlers_payments.PaymentGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.PaymentIntentResponse": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -7103,7 +7355,7 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.PaymentMethodResponse": {
+        "internal_http_handlers_payments.PaymentMethodResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7135,7 +7387,27 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.PaymentResponse": {
+        "internal_http_handlers_payments.PaymentMethodsAggregateResponse": {
+            "type": "object",
+            "properties": {
+                "gateways": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.PaymentGatewayResponse"
+                    }
+                },
+                "saved_methods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.PaymentMethodResponse"
+                    }
+                },
+                "wallet": {
+                    "$ref": "#/definitions/internal_http_handlers_payments.WalletSummaryResponse"
+                }
+            }
+        },
+        "internal_http_handlers_payments.PaymentResponse": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -7173,7 +7445,7 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.RefundResponse": {
+        "internal_http_handlers_payments.RefundResponse": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -7208,10 +7480,48 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.UpdatePaymentMethodRequest": {
+        "internal_http_handlers_payments.SelectGatewayRequest": {
+            "type": "object",
+            "properties": {
+                "is_primary": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_http_handlers_payments.SelectedGatewaysResponse": {
+            "type": "object",
+            "properties": {
+                "selected": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway"
+                    }
+                }
+            }
+        },
+        "internal_http_handlers_payments.UpdatePaymentMethodRequest": {
             "type": "object",
             "properties": {
                 "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.WalletSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.gatewayActionResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
