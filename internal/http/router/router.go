@@ -28,6 +28,7 @@ import (
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
@@ -318,18 +319,25 @@ func New(
 
 				// Register RBAC routes (role/permission management)
 				if rbacHandler != nil {
-					rbacHandler.RegisterRoutes(tenant)
+					rbacHandler.RegisterRoutes(tenant, authenticator)
 				}
 
 				// Admin service config routes (platform owner / tenant-scoped settings)
 				if serviceConfigHandler != nil {
+					// PLATFORM defaults + UNMASKED secrets: superuser / platform-owner ONLY.
+					// RequirePermissions would let tenant admins bypass, so use RequireSuperuser
+					// which honors claims.IsSuperuser() and does NOT honor IsAdmin.
 					tenant.Route("/admin/service-config", func(adminCfg chi.Router) {
+						adminCfg.Use(authenticator.RequireSuperuser)
 						adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)
 						adminCfg.Put("/{key}", serviceConfigHandler.UpsertPlatformSetting)
 					})
+					// Tenant-scoped config (fee-config save path). GET stays read-only;
+					// PUT requires config.manage (admin/superuser bypass so tenant admins can save).
 					tenant.Route("/settings/service-config", func(settingsCfg chi.Router) {
 						settingsCfg.Get("/", serviceConfigHandler.ListTenantSettings)
-						settingsCfg.Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
+						settingsCfg.With(authenticator.RequirePermissions(identity.PermissionAdminManage)).
+							Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
 					})
 				}
 

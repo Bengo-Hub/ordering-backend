@@ -10,12 +10,17 @@ import (
 type Role string
 
 const (
-	RoleCustomer   Role = "customer"
-	RoleDriver     Role = "driver" // Universal role for delivery/courier/taxi use cases
-	RoleRider      Role = "rider"  // Deprecated: use RoleDriver; kept for backward compatibility
-	RoleStaff      Role = "staff"
-	RoleAdmin      Role = "admin"
-	RoleSuperAdmin Role = "superuser"
+	RoleCustomer            Role = "customer"
+	RoleDriver              Role = "driver" // Universal role for delivery/courier/taxi use cases
+	RoleRider               Role = "rider"  // Deprecated: use RoleDriver; kept for backward compatibility
+	RoleStaff               Role = "staff"
+	RoleManager             Role = "manager"
+	RoleKitchen             Role = "kitchen"
+	RoleCashier             Role = "cashier"
+	RoleDeliveryCoordinator Role = "delivery_coordinator"
+	RoleViewer              Role = "viewer"
+	RoleAdmin               Role = "admin"
+	RoleSuperAdmin          Role = "superuser"
 )
 
 // Permission captures fine-grained feature access across the platform.
@@ -48,6 +53,7 @@ const (
 	PermissionRidersOnboard       Permission = "ordering.users.add"
 	PermissionStaffInvite         Permission = "ordering.users.add"
 	PermissionAdminManage         Permission = "ordering.config.manage"
+	PermissionRbacManage          Permission = "ordering.users.manage"
 )
 
 // DefaultPermissions returns the permissions granted to the supplied role.
@@ -125,8 +131,78 @@ func DefaultPermissions(role Role) []Permission {
 			PermissionSupportView,
 			PermissionSupportManage,
 			PermissionAdminManage,
+			PermissionRbacManage,
 			PermissionRidersOnboard,
 			PermissionStaffInvite,
+		}
+	case RoleManager:
+		// Mirrors seedOrderingRoles "manager" grants in cmd/seed/main.go.
+		return []Permission{
+			// orders, catalog, outlets, promotions, delivery_zones, delivery_windows, loyalty (all actions)
+			Permission("ordering.orders.add"), Permission("ordering.orders.view"), Permission("ordering.orders.view_own"),
+			Permission("ordering.orders.change"), Permission("ordering.orders.change_own"), Permission("ordering.orders.delete"),
+			Permission("ordering.orders.delete_own"), Permission("ordering.orders.manage"), Permission("ordering.orders.manage_own"),
+			Permission("ordering.catalog.add"), Permission("ordering.catalog.view"), Permission("ordering.catalog.view_own"),
+			Permission("ordering.catalog.change"), Permission("ordering.catalog.change_own"), Permission("ordering.catalog.delete"),
+			Permission("ordering.catalog.delete_own"), Permission("ordering.catalog.manage"), Permission("ordering.catalog.manage_own"),
+			Permission("ordering.outlets.add"), Permission("ordering.outlets.view"), Permission("ordering.outlets.view_own"),
+			Permission("ordering.outlets.change"), Permission("ordering.outlets.change_own"), Permission("ordering.outlets.delete"),
+			Permission("ordering.outlets.delete_own"), Permission("ordering.outlets.manage"), Permission("ordering.outlets.manage_own"),
+			Permission("ordering.promotions.add"), Permission("ordering.promotions.view"), Permission("ordering.promotions.view_own"),
+			Permission("ordering.promotions.change"), Permission("ordering.promotions.change_own"), Permission("ordering.promotions.delete"),
+			Permission("ordering.promotions.delete_own"), Permission("ordering.promotions.manage"), Permission("ordering.promotions.manage_own"),
+			Permission("ordering.delivery_zones.add"), Permission("ordering.delivery_zones.view"), Permission("ordering.delivery_zones.view_own"),
+			Permission("ordering.delivery_zones.change"), Permission("ordering.delivery_zones.change_own"), Permission("ordering.delivery_zones.delete"),
+			Permission("ordering.delivery_zones.delete_own"), Permission("ordering.delivery_zones.manage"), Permission("ordering.delivery_zones.manage_own"),
+			Permission("ordering.delivery_windows.add"), Permission("ordering.delivery_windows.view"), Permission("ordering.delivery_windows.view_own"),
+			Permission("ordering.delivery_windows.change"), Permission("ordering.delivery_windows.change_own"), Permission("ordering.delivery_windows.delete"),
+			Permission("ordering.delivery_windows.delete_own"), Permission("ordering.delivery_windows.manage"), Permission("ordering.delivery_windows.manage_own"),
+			Permission("ordering.loyalty.add"), Permission("ordering.loyalty.view"), Permission("ordering.loyalty.view_own"),
+			Permission("ordering.loyalty.change"), Permission("ordering.loyalty.change_own"), Permission("ordering.loyalty.delete"),
+			Permission("ordering.loyalty.delete_own"), Permission("ordering.loyalty.manage"), Permission("ordering.loyalty.manage_own"),
+			// extras
+			Permission("ordering.analytics.view"), Permission("ordering.analytics.view_own"),
+			Permission("ordering.users.view"), Permission("ordering.users.view_own"), Permission("ordering.users.change_own"),
+			Permission("ordering.config.view"),
+		}
+	case RoleKitchen:
+		// Mirrors seedOrderingRoles "kitchen" grants in cmd/seed/main.go.
+		return []Permission{
+			Permission("ordering.orders.view"), Permission("ordering.orders.change"), Permission("ordering.orders.manage"),
+			Permission("ordering.catalog.view"),
+			Permission("ordering.users.view_own"), Permission("ordering.users.change_own"),
+		}
+	case RoleCashier:
+		// Mirrors seedOrderingRoles "cashier" grants in cmd/seed/main.go.
+		return []Permission{
+			Permission("ordering.orders.add"), Permission("ordering.orders.view"), Permission("ordering.orders.change"), Permission("ordering.orders.manage"),
+			Permission("ordering.catalog.view"),
+			Permission("ordering.promotions.view"),
+			Permission("ordering.loyalty.view"), Permission("ordering.loyalty.manage"),
+			Permission("ordering.users.view_own"), Permission("ordering.users.change_own"),
+		}
+	case RoleDeliveryCoordinator:
+		// Mirrors seedOrderingRoles "delivery_coordinator" grants in cmd/seed/main.go.
+		return []Permission{
+			Permission("ordering.orders.view"), Permission("ordering.orders.change"),
+			Permission("ordering.delivery_zones.view"), Permission("ordering.delivery_zones.change"), Permission("ordering.delivery_zones.manage"),
+			Permission("ordering.delivery_windows.view"), Permission("ordering.delivery_windows.change"), Permission("ordering.delivery_windows.manage"),
+			Permission("ordering.outlets.view"),
+			Permission("ordering.users.view_own"), Permission("ordering.users.change_own"),
+		}
+	case RoleViewer:
+		// Mirrors seedOrderingRoles "viewer" grants in cmd/seed/main.go.
+		return []Permission{
+			Permission("ordering.orders.view"),
+			Permission("ordering.catalog.view"),
+			Permission("ordering.outlets.view"),
+			Permission("ordering.promotions.view"),
+			Permission("ordering.delivery_zones.view"),
+			Permission("ordering.delivery_windows.view"),
+			Permission("ordering.loyalty.view"),
+			Permission("ordering.analytics.view"),
+			Permission("ordering.config.view"),
+			Permission("ordering.users.view_own"),
 		}
 	default:
 		return []Permission{}

@@ -50,10 +50,10 @@ func (h *PaymentHandler) Register(r chi.Router, auth *identityhandler.Authentica
 		paymentRouter.Get("/{paymentId}", h.GetPayment)
 	})
 
-	// Admin refund routes
+	// Admin refund routes (refunds are destructive; restricted to admin-tier).
 	r.Route("/admin/refunds", func(refundRouter chi.Router) {
 		refundRouter.Use(auth.RequireAuth)
-		refundRouter.Use(auth.RequirePermissions(identity.PermissionPaymentsManage))
+		refundRouter.Use(auth.RequirePermissions(identity.PermissionOrdersRefund))
 
 		refundRouter.Post("/", h.CreateRefund)
 		refundRouter.Get("/", h.ListRefunds)

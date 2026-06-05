@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 )
 
@@ -183,11 +184,23 @@ func (h *RBACHandler) ListOrderingPermissions(w http.ResponseWriter, r *http.Req
 	RespondJSON(w, http.StatusOK, map[string]interface{}{"permissions": permissions})
 }
 
-// RegisterRoutes registers RBAC routes on the provided router.
-func (h *RBACHandler) RegisterRoutes(r chi.Router) {
-	r.Post("/rbac/assignments", h.AssignRole)
-	r.Get("/rbac/assignments", h.ListAssignments)
-	r.Delete("/rbac/assignments/{id}", h.RevokeRole)
-	r.Get("/rbac/roles", h.ListOrderingRoles)
-	r.Get("/rbac/permissions", h.ListOrderingPermissions)
+// rbacAuthenticator is the subset of *identityhandler.Authenticator that the RBAC
+// routes depend on. It is declared as an interface here to avoid an import cycle
+// (the handlers package is imported by the identity handler package).
+type rbacAuthenticator interface {
+	RequirePermissions(perms ...identity.Permission) func(http.Handler) http.Handler
+}
+
+// RegisterRoutes registers RBAC routes on the provided router, guarding every
+// route with the RBAC-management permission so only privileged users (and the
+// admin/superuser bypass) can read or mutate role assignments.
+func (h *RBACHandler) RegisterRoutes(r chi.Router, auth rbacAuthenticator) {
+	r.Group(func(rbacRouter chi.Router) {
+		rbacRouter.Use(auth.RequirePermissions(identity.PermissionRbacManage))
+		rbacRouter.Post("/rbac/assignments", h.AssignRole)
+		rbacRouter.Get("/rbac/assignments", h.ListAssignments)
+		rbacRouter.Delete("/rbac/assignments/{id}", h.RevokeRole)
+		rbacRouter.Get("/rbac/roles", h.ListOrderingRoles)
+		rbacRouter.Get("/rbac/permissions", h.ListOrderingPermissions)
+	})
 }
