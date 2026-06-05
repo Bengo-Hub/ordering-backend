@@ -206,6 +206,25 @@ func (a *Authenticator) RequireRoles(roles ...identity.Role) func(http.Handler) 
 	}
 }
 
+// RequireSuperuser enforces that the authenticated user is a platform superuser.
+// Unlike RequirePermissions/RequireRoles, this does NOT honor the admin role — a
+// tenant admin must not pass. Used to gate platform-owner-only endpoints
+// (e.g. platform service-config defaults and unmasked secrets).
+func (a *Authenticator) RequireSuperuser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims, ok := authclient.ClaimsFromContext(r.Context())
+		if !ok {
+			handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+		if !IsSuperuser(claims) {
+			handlers.RespondError(w, http.StatusForbidden, "superuser access required")
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // RequirePermissions enforces that the user has all supplied permissions.
 // Priority: (1) superuser/admin bypass → (2) JWT claims permissions → (3) local DB user permissions.
 // JWT claims are the source of truth and are always checked before local DB to avoid stale data.
