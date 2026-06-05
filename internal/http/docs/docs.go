@@ -6435,6 +6435,12 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "isSuperUser": {
+                    "type": "boolean"
+                },
+                "is_platform_owner": {
+                    "type": "boolean"
+                },
                 "lastLoginAt": {
                     "type": "string"
                 },

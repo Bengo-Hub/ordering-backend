@@ -1261,6 +1261,10 @@ definitions:
         type: string
       id:
         type: string
+      is_platform_owner:
+        type: boolean
+      isSuperUser:
+        type: boolean
       lastLoginAt:
         type: string
       loyaltyPoints:
