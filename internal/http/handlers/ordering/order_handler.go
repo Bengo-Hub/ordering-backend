@@ -45,6 +45,8 @@ func (h *OrderHandler) SetTaskService(ts *fulfilment.TaskService) {
 func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	// Public order lookup (for guest post-checkout verification and tracking)
 	r.Get("/orders/guest/{orderId}", h.GetGuestOrder)
+	// Public order rating from the emailed "Leave Review" link (no auth; the order UUID is the capability).
+	r.Post("/orders/guest/{orderId}/rate", h.RateOrderGuest)
 
 	// Customer order routes
 	r.Route("/orders", func(orderRouter chi.Router) {
@@ -331,6 +333,9 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 
 	case errors.Is(err, ordering.ErrUnauthorized):
 		handlers.RespondError(w, http.StatusForbidden, err.Error())
+
+	case errors.Is(err, ordering.ErrDeliveryNotServiceable):
+		handlers.RespondError(w, http.StatusUnprocessableEntity, "We don't deliver to this location yet.")
 
 	default:
 		h.log.Error("internal error", zap.Error(err))
@@ -795,10 +800,6 @@ func (h *OrderHandler) GetGuestOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID := r.URL.Query().Get("session_id")
-	if sessionID == "" {
-		handlers.RespondError(w, http.StatusBadRequest, "session_id is required")
-		return
-	}
 
 	order, err := h.orderService.GetOrder(r.Context(), tenantID, orderID)
 	if err != nil {
@@ -806,10 +807,14 @@ func (h *OrderHandler) GetGuestOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify session_id matches the guest order metadata
-	if order.Metadata == nil || order.Metadata["sessionId"] != sessionID {
-		handlers.RespondError(w, http.StatusForbidden, "access denied")
-		return
+	// Verify the session only when a session_id was supplied. When it is absent, the
+	// unguessable order UUID is the capability — this lets emailed order links open for
+	// both guest and authenticated-user orders without login.
+	if sessionID != "" {
+		if order.Metadata == nil || order.Metadata["sessionId"] != sessionID {
+			handlers.RespondError(w, http.StatusForbidden, "access denied")
+			return
+		}
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
@@ -1018,6 +1023,42 @@ func (h *OrderHandler) RateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// RateOrderGuest rates an order without authentication, used by the emailed
+// "Leave Review" link. The unguessable order UUID is the access capability.
+func (h *OrderHandler) RateOrderGuest(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+	var req RateOrderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	opts := ordering.RateOrderOpts{RiderRating: req.RiderRating, RiderComment: req.RiderComment}
+	order, err := h.orderService.RateOrderGuest(r.Context(), tenantID, orderID, req.Rating, req.Comment, opts)
+	if err != nil {
+		switch err {
+		case ordering.ErrInvalidRating:
+			handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		case ordering.ErrOrderNotRatable:
+			handlers.RespondError(w, http.StatusConflict, err.Error())
+		case ordering.ErrAlreadyRated:
+			handlers.RespondError(w, http.StatusConflict, err.Error())
+		default:
+			h.handleError(w, err)
+		}
+		return
+	}
 	handlers.RespondJSON(w, http.StatusOK, order)
 }
 

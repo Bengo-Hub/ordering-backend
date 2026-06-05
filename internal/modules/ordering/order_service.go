@@ -394,14 +394,15 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		deliveryFee = 0
 	} else if req.DeliveryLat != nil && req.DeliveryLng != nil {
 		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
-		if zoneErr == nil {
+		switch {
+		case zoneErr == nil:
 			deliveryFee = fee
-		} else if zoneErr != ErrDeliveryNotServiceable {
+		case zoneErr == ErrDeliveryNotServiceable:
+			return nil, ErrDeliveryNotServiceable
+		default:
 			s.logger.Warn("delivery fee calculation failed, using default", zap.Error(zoneErr))
 			deliveryFee = DeliveryFeeBase
 		}
-		// If ErrDeliveryNotServiceable, we let the order proceed with 0 fee
-		// since this is the convenience endpoint and the address might be text-based
 	}
 	discountTotal := 0.0
 	grandTotal := subtotal - discountTotal + deliveryFee
@@ -699,9 +700,12 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		deliveryFee = 0
 	} else if req.DeliveryLat != nil && req.DeliveryLng != nil {
 		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
-		if zoneErr == nil {
+		switch {
+		case zoneErr == nil:
 			deliveryFee = fee
-		} else if zoneErr != ErrDeliveryNotServiceable {
+		case zoneErr == ErrDeliveryNotServiceable:
+			return nil, ErrDeliveryNotServiceable
+		default:
 			s.logger.Warn("guest delivery fee calculation failed, using default", zap.Error(zoneErr))
 			deliveryFee = DeliveryFeeBase
 		}
@@ -1130,6 +1134,30 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 		return nil, ErrUnauthorized
 	}
 
+	return s.applyRating(ctx, tenantID, order, customerID, rating, comment, opts...)
+}
+
+// RateOrderGuest rates an order without an authenticated customer. The caller is
+// authorized by possession of the unguessable order UUID (the emailed review link).
+func (s *OrderService) RateOrderGuest(ctx context.Context, tenantID, orderID uuid.UUID, rating int, comment string, opts ...RateOrderOpts) (*Order, error) {
+	if rating < 1 || rating > 5 {
+		return nil, ErrInvalidRating
+	}
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	customerID := uuid.Nil
+	if order.CustomerID != nil {
+		customerID = *order.CustomerID
+	}
+	return s.applyRating(ctx, tenantID, order, customerID, rating, comment, opts...)
+}
+
+// applyRating runs the status/double-rate checks, persists the rating, and fires the outlet
+// aggregate update, rated event, and rider-rating side effects. Shared by RateOrder (owner
+// checked) and RateOrderGuest (authorized by the order UUID).
+func (s *OrderService) applyRating(ctx context.Context, tenantID uuid.UUID, order *Order, customerID uuid.UUID, rating int, comment string, opts ...RateOrderOpts) (*Order, error) {
 	// Only delivered or completed orders can be rated
 	if order.Status != OrderStatusDelivered && order.Status != OrderStatusCompleted {
 		return nil, ErrOrderNotRatable
