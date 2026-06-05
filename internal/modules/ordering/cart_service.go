@@ -426,11 +426,9 @@ func (s *CartService) CalculateDeliveryFee(ctx context.Context, tenantID uuid.UU
 		s.logger.Warn("failed to query delivery zones, falling back to distance-based fee", zap.Error(err))
 	}
 
-	// Priority 1: zone with polygon that contains the delivery point
+	// Priority 1: zone whose geo-fence polygon actually contains the delivery point
 	for _, zone := range zones {
-		if zone.ZonePolygon != nil && zone.DeliveryFee > 0 {
-			// Point-in-polygon check would go here if we had the function available
-			// For now, zones with polygons are handled by the zones/check endpoint
+		if zone.ZonePolygon != nil && zone.DeliveryFee > 0 && pointInZonePolygon(lat, lng, zone.ZonePolygon) {
 			return zone.DeliveryFee, nil
 		}
 	}
