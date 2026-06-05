@@ -70,6 +70,7 @@ func New(
 	rbacHandler *handlers.RBACHandler,
 	tenantSyncer *tenant.Syncer,
 	serviceConfigHandler *confighandler.ServiceConfigHandler,
+	useCaseHandler *confighandler.UseCaseHandler,
 	googleBusinessHandler *googlebusinesshandler.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
@@ -354,6 +355,12 @@ func New(
 						settingsCfg.With(authenticator.RequirePermissions(identity.PermissionAdminManage)).
 							Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
 					})
+				}
+
+				// Read-only use-case configuration (tenant + per-outlet use_case).
+				if useCaseHandler != nil && authenticator != nil {
+					tenant.With(authenticator.RequirePermissions(identity.Permission("ordering.config.view"))).
+						Get("/admin/use-case", useCaseHandler.GetUseCaseConfig)
 				}
 
 				// Google Business Profile integration (admin connect/reviews + public callback).
