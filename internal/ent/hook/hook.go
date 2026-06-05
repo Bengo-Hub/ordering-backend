@@ -129,6 +129,18 @@ func (f DeliveryZoneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryZoneMutation", m)
 }
 
+// The GoogleBusinessConnectionFunc type is an adapter to allow the use of ordinary
+// function as GoogleBusinessConnection mutator.
+type GoogleBusinessConnectionFunc func(context.Context, *ent.GoogleBusinessConnectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GoogleBusinessConnectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GoogleBusinessConnectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GoogleBusinessConnectionMutation", m)
+}
+
 // The GroupOrderFunc type is an adapter to allow the use of ordinary
 // function as GroupOrder mutator.
 type GroupOrderFunc func(context.Context, *ent.GroupOrderMutation) (ent.Value, error)

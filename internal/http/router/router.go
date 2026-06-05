@@ -15,18 +15,19 @@ import (
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/config"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
-	ordermw "github.com/bengobox/ordering-backend/internal/http/middleware"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
-	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
+	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
+	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
+	ordermw "github.com/bengobox/ordering-backend/internal/http/middleware"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/security"
@@ -69,6 +70,7 @@ func New(
 	rbacHandler *handlers.RBACHandler,
 	tenantSyncer *tenant.Syncer,
 	serviceConfigHandler *confighandler.ServiceConfigHandler,
+	googleBusinessHandler *googlebusinesshandler.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -217,13 +219,18 @@ func New(
 							isPublicCatalog := strings.Contains(path, "/catalog") &&
 								!strings.Contains(path, "/catalog/admin") &&
 								r.Method == http.MethodGet
+							// Public Google endpoints: the OAuth callback (Google redirects here,
+							// state-signed) and the review-url deep-link lookup. Admin Google
+							// endpoints live under /admin/integrations/google and DO require auth.
+							isPublicGoogle := strings.Contains(path, "/integrations/google/callback") ||
+								strings.Contains(path, "/integrations/google/review-url")
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/orders/guest") ||
-								strings.Contains(path, "/integrations/google") ||
+								isPublicGoogle ||
 								strings.Contains(path, "/zones") ||
 								strings.Contains(path, "/ratings") ||
 								isPublicCatalog {
@@ -344,6 +351,12 @@ func New(
 						settingsCfg.With(authenticator.RequirePermissions(identity.PermissionAdminManage)).
 							Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
 					})
+				}
+
+				// Google Business Profile integration (admin connect/reviews + public callback).
+				// Safe when OAuth env is unset: endpoints return 503 "not configured".
+				if googleBusinessHandler != nil && authenticator != nil {
+					googleBusinessHandler.Register(tenant, authenticator)
 				}
 
 				// Webhook routes (no auth required - use signature verification)

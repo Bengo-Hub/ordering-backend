@@ -15,6 +15,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
 	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
 	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
@@ -453,6 +454,26 @@ func init() {
 	deliveryzoneDescID := deliveryzoneFields[0].Descriptor()
 	// deliveryzone.DefaultID holds the default value on creation for the id field.
 	deliveryzone.DefaultID = deliveryzoneDescID.Default.(func() uuid.UUID)
+	googlebusinessconnectionFields := schema.GoogleBusinessConnection{}.Fields()
+	_ = googlebusinessconnectionFields
+	// googlebusinessconnectionDescStatus is the schema descriptor for status field.
+	googlebusinessconnectionDescStatus := googlebusinessconnectionFields[9].Descriptor()
+	// googlebusinessconnection.DefaultStatus holds the default value on creation for the status field.
+	googlebusinessconnection.DefaultStatus = googlebusinessconnectionDescStatus.Default.(string)
+	// googlebusinessconnectionDescCreatedAt is the schema descriptor for created_at field.
+	googlebusinessconnectionDescCreatedAt := googlebusinessconnectionFields[12].Descriptor()
+	// googlebusinessconnection.DefaultCreatedAt holds the default value on creation for the created_at field.
+	googlebusinessconnection.DefaultCreatedAt = googlebusinessconnectionDescCreatedAt.Default.(func() time.Time)
+	// googlebusinessconnectionDescUpdatedAt is the schema descriptor for updated_at field.
+	googlebusinessconnectionDescUpdatedAt := googlebusinessconnectionFields[13].Descriptor()
+	// googlebusinessconnection.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	googlebusinessconnection.DefaultUpdatedAt = googlebusinessconnectionDescUpdatedAt.Default.(func() time.Time)
+	// googlebusinessconnection.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	googlebusinessconnection.UpdateDefaultUpdatedAt = googlebusinessconnectionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// googlebusinessconnectionDescID is the schema descriptor for id field.
+	googlebusinessconnectionDescID := googlebusinessconnectionFields[0].Descriptor()
+	// googlebusinessconnection.DefaultID holds the default value on creation for the id field.
+	googlebusinessconnection.DefaultID = googlebusinessconnectionDescID.Default.(func() uuid.UUID)
 	grouporderFields := schema.GroupOrder{}.Fields()
 	_ = grouporderFields
 	// grouporderDescInviteCode is the schema descriptor for invite_code field.

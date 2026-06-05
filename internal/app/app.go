@@ -27,6 +27,7 @@ import (
 	compliancehandler "github.com/bengobox/ordering-backend/internal/http/handlers/compliance"
 	confighandler "github.com/bengobox/ordering-backend/internal/http/handlers/config"
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
+	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
@@ -39,6 +40,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
+	"github.com/bengobox/ordering-backend/internal/modules/googlebusiness"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/notifications"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
@@ -200,6 +202,21 @@ func New(ctx context.Context) (*App, error) {
 
 	// Admin service config handler for platform/tenant-level configuration CRUD.
 	serviceConfigHandler := confighandler.NewServiceConfigHandler(ormClient, log)
+
+	// Google Business Profile integration (reviews + connect). INERT until the operator
+	// sets GOOGLE_OAUTH_CLIENT_ID/SECRET/REDIRECT_URL — IsConfigured() gates every endpoint.
+	googleOAuthCfg := googlebusiness.NewOAuthConfig(
+		cfg.Google.OAuthClientID,
+		cfg.Google.OAuthClientSecret,
+		cfg.Google.OAuthRedirectURL,
+	)
+	googleBusinessSvc := googlebusiness.NewService(ormClient, googleOAuthCfg, cfg.Google.FrontendIntegrationsURL, log)
+	googleBusinessHandler := googlebusinesshandler.NewHandler(log, googleBusinessSvc)
+	if googleOAuthCfg.IsConfigured() {
+		log.Info("app: Google Business Profile integration enabled")
+	} else {
+		log.Info("app: Google Business Profile integration inert (GOOGLE_OAUTH_* not set)")
+	}
 
 	// Initialize cache service for catalog read caching
 	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
@@ -438,7 +455,7 @@ func New(ctx context.Context) (*App, error) {
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
 	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, googleBusinessHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
