@@ -256,6 +256,9 @@ func Load() (*Config, error) {
 	if err := envconfig.Process(namespace, &cfg.Subscriptions); err != nil {
 		return nil, fmt.Errorf("config: failed to load subscriptions config: %w", err)
 	}
+	if err := envconfig.Process(namespace, &cfg.Marketflow); err != nil {
+		return nil, fmt.Errorf("config: failed to load marketflow config: %w", err)
+	}
 	if err := envconfig.Process(namespace, &cfg.Superset); err != nil {
 		return nil, fmt.Errorf("config: failed to load superset config: %w", err)
 	}
