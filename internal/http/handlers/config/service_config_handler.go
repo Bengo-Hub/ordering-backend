@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	httpware "github.com/Bengo-Hub/httpware"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -12,6 +13,11 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 )
+
+// googleReviewURLConfigKey is the service-config key under which a tenant stores
+// their "Review us on Google" deep link (e.g. a maps.google.com/?cid=... or a
+// search.google.com/local/writereview?placeid=... URL).
+const googleReviewURLConfigKey = "google_review_url"
 
 // ServiceConfigHandler handles service-level configuration CRUD for ordering-backend.
 type ServiceConfigHandler struct {
@@ -264,4 +270,63 @@ func (h *ServiceConfigHandler) UpsertTenantSetting(w http.ResponseWriter, r *htt
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, toOrderingSCResponse(cfg, true))
+}
+
+// googleReviewURLResponse is the public response for the Google review-url lookup.
+type googleReviewURLResponse struct {
+	ReviewURL string `json:"review_url"`
+}
+
+// GetGoogleReviewURL returns the tenant's "Review us on Google" deep link, if configured.
+//
+// This is a PUBLIC endpoint (no auth) so the guest post-rating page can render a
+// "Review us on Google" CTA. It reads the `google_review_url` key from the
+// service-config store, preferring a tenant-specific override and falling back to
+// the platform default. When unset, review_url is returned as an empty string.
+//
+// @Summary Get Google review URL
+// @Description Public lookup of the tenant's "Review us on Google" deep link from service config. Returns an empty string when not configured.
+// @Tags Integrations
+// @Produce json
+// @Param tenant path string true "Tenant slug or ID"
+// @Success 200 {object} googleReviewURLResponse
+// @Router /integrations/google/review-url [get]
+func (h *ServiceConfigHandler) GetGoogleReviewURL(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	resp := googleReviewURLResponse{ReviewURL: ""}
+
+	// Resolve the tenant UUID from context (TenantV2 middleware / JIT sync backfill).
+	// For guests this is the backfilled UUID derived from the slug.
+	tenantIDStr := httpware.GetTenantID(ctx)
+
+	// Prefer a tenant-specific override when we have a valid tenant UUID.
+	if tenantIDStr != "" {
+		if tenantID, err := uuid.Parse(tenantIDStr); err == nil {
+			tcfg, err := h.client.ServiceConfig.Query().
+				Where(
+					serviceconfig.ConfigKey(googleReviewURLConfigKey),
+					serviceconfig.TenantID(tenantID),
+				).
+				First(ctx)
+			if err == nil && tcfg.ConfigValue != "" {
+				resp.ReviewURL = tcfg.ConfigValue
+				handlers.RespondJSON(w, http.StatusOK, resp)
+				return
+			}
+		}
+	}
+
+	// Fall back to the platform default (tenant_id IS NULL).
+	pcfg, err := h.client.ServiceConfig.Query().
+		Where(
+			serviceconfig.ConfigKey(googleReviewURLConfigKey),
+			serviceconfig.TenantIDIsNil(),
+		).
+		First(ctx)
+	if err == nil {
+		resp.ReviewURL = pcfg.ConfigValue
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, resp)
 }

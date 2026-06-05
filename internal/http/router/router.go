@@ -223,6 +223,7 @@ func New(
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/orders/guest") ||
+								strings.Contains(path, "/integrations/google") ||
 								strings.Contains(path, "/zones") ||
 								strings.Contains(path, "/ratings") ||
 								isPublicCatalog {
@@ -324,6 +325,10 @@ func New(
 
 				// Admin service config routes (platform owner / tenant-scoped settings)
 				if serviceConfigHandler != nil {
+					// PUBLIC: "Review us on Google" deep link for the guest post-rating CTA.
+					// No auth (covered by the public-skip list above) — a plain config read.
+					tenant.Get("/integrations/google/review-url", serviceConfigHandler.GetGoogleReviewURL)
+
 					// PLATFORM defaults + UNMASKED secrets: superuser / platform-owner ONLY.
 					// RequirePermissions would let tenant admins bypass, so use RequireSuperuser
 					// which honors claims.IsSuperuser() and does NOT honor IsAdmin.

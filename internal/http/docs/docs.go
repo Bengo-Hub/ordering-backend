@@ -2793,6 +2793,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/integrations/google/review-url": {
+            "get": {
+                "description": "Public lookup of the tenant's \"Review us on Google\" deep link from service config. Returns an empty string when not configured.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Get Google review URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_config.googleReviewURLResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/loyalty/account": {
             "get": {
                 "description": "Retrieves the current user's loyalty account with tier information",
@@ -4847,7 +4876,8 @@ const docTemplate = `{
                 "ordering.delivery_zones.manage",
                 "ordering.users.add",
                 "ordering.users.add",
-                "ordering.config.manage"
+                "ordering.config.manage",
+                "ordering.users.manage"
             ],
             "x-enum-comments": {
                 "PermissionLogisticsView": "logistics projection — same as orders view",
@@ -4867,6 +4897,7 @@ const docTemplate = `{
                 "payments projection — same as orders view",
                 "",
                 "logistics projection — same as orders view",
+                "",
                 "",
                 "",
                 "",
@@ -4908,7 +4939,8 @@ const docTemplate = `{
                 "PermissionZonesManage",
                 "PermissionRidersOnboard",
                 "PermissionStaffInvite",
-                "PermissionAdminManage"
+                "PermissionAdminManage",
+                "PermissionRbacManage"
             ]
         },
         "github_com_bengobox_ordering-backend_internal_modules_identity.Role": {
@@ -4918,6 +4950,11 @@ const docTemplate = `{
                 "driver",
                 "rider",
                 "staff",
+                "manager",
+                "kitchen",
+                "cashier",
+                "delivery_coordinator",
+                "viewer",
                 "admin",
                 "superuser"
             ],
@@ -4931,6 +4968,11 @@ const docTemplate = `{
                 "Deprecated: use RoleDriver; kept for backward compatibility",
                 "",
                 "",
+                "",
+                "",
+                "",
+                "",
+                "",
                 ""
             ],
             "x-enum-varnames": [
@@ -4938,6 +4980,11 @@ const docTemplate = `{
                 "RoleDriver",
                 "RoleRider",
                 "RoleStaff",
+                "RoleManager",
+                "RoleKitchen",
+                "RoleCashier",
+                "RoleDeliveryCoordinator",
+                "RoleViewer",
                 "RoleAdmin",
                 "RoleSuperAdmin"
             ]
@@ -5860,6 +5907,14 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_http_handlers_config.googleReviewURLResponse": {
+            "type": "object",
+            "properties": {
+                "review_url": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_http_handlers_fulfilment.CancelDeliveryTaskRequest": {
             "type": "object",
             "properties": {
@@ -6693,6 +6748,26 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_http_handlers_payments.PaymentGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_http_handlers_payments.PaymentIntentResponse": {
             "type": "object",
             "properties": {
@@ -6760,26 +6835,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_http_handlers_payments.PaymentGatewayResponse": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
         "internal_http_handlers_payments.PaymentMethodsAggregateResponse": {
             "type": "object",
             "properties": {
@@ -6797,17 +6852,6 @@ const docTemplate = `{
                 },
                 "wallet": {
                     "$ref": "#/definitions/internal_http_handlers_payments.WalletSummaryResponse"
-                }
-            }
-        },
-        "internal_http_handlers_payments.WalletSummaryResponse": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "type": "number"
-                },
-                "currency": {
-                    "type": "string"
                 }
             }
         },
@@ -6888,6 +6932,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.WalletSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "currency": {
                     "type": "string"
                 }
             }

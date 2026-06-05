@@ -376,6 +376,7 @@ definitions:
     - ordering.users.add
     - ordering.users.add
     - ordering.config.manage
+    - ordering.users.manage
     type: string
     x-enum-comments:
       PermissionLogisticsView: logistics projection — same as orders view
@@ -394,6 +395,7 @@ definitions:
     - payments projection — same as orders view
     - ""
     - logistics projection — same as orders view
+    - ""
     - ""
     - ""
     - ""
@@ -435,12 +437,18 @@ definitions:
     - PermissionRidersOnboard
     - PermissionStaffInvite
     - PermissionAdminManage
+    - PermissionRbacManage
   github_com_bengobox_ordering-backend_internal_modules_identity.Role:
     enum:
     - customer
     - driver
     - rider
     - staff
+    - manager
+    - kitchen
+    - cashier
+    - delivery_coordinator
+    - viewer
     - admin
     - superuser
     type: string
@@ -454,11 +462,21 @@ definitions:
     - ""
     - ""
     - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
     x-enum-varnames:
     - RoleCustomer
     - RoleDriver
     - RoleRider
     - RoleStaff
+    - RoleManager
+    - RoleKitchen
+    - RoleCashier
+    - RoleDeliveryCoordinator
+    - RoleViewer
     - RoleAdmin
     - RoleSuperAdmin
   github_com_bengobox_ordering-backend_internal_modules_ordering.AnalyticsSummary:
@@ -1095,6 +1113,11 @@ definitions:
       tagline:
         type: string
     type: object
+  internal_http_handlers_config.googleReviewURLResponse:
+    properties:
+      review_url:
+        type: string
+    type: object
   internal_http_handlers_fulfilment.CancelDeliveryTaskRequest:
     properties:
       reason:
@@ -1642,6 +1665,19 @@ definitions:
       phoneNumber:
         type: string
     type: object
+  internal_http_handlers_payments.PaymentGatewayResponse:
+    properties:
+      enabled:
+        type: boolean
+      icon:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      type:
+        type: string
+    type: object
   internal_http_handlers_payments.PaymentIntentResponse:
     properties:
       amount:
@@ -1663,19 +1699,6 @@ definitions:
       provider:
         type: string
       status:
-        type: string
-    type: object
-  internal_http_handlers_payments.PaymentGatewayResponse:
-    properties:
-      enabled:
-        type: boolean
-      icon:
-        type: string
-      name:
-        type: string
-      reason:
-        type: string
-      type:
         type: string
     type: object
   internal_http_handlers_payments.PaymentMethodResponse:
@@ -1711,13 +1734,6 @@ definitions:
         type: array
       wallet:
         $ref: '#/definitions/internal_http_handlers_payments.WalletSummaryResponse'
-    type: object
-  internal_http_handlers_payments.WalletSummaryResponse:
-    properties:
-      balance:
-        type: number
-      currency:
-        type: string
     type: object
   internal_http_handlers_payments.PaymentResponse:
     properties:
@@ -1770,6 +1786,13 @@ definitions:
   internal_http_handlers_payments.UpdatePaymentMethodRequest:
     properties:
       label:
+        type: string
+    type: object
+  internal_http_handlers_payments.WalletSummaryResponse:
+    properties:
+      balance:
+        type: number
+      currency:
         type: string
     type: object
 info:
@@ -3635,6 +3658,26 @@ paths:
       summary: Service liveness probe
       tags:
       - Health
+  /integrations/google/review-url:
+    get:
+      description: Public lookup of the tenant's "Review us on Google" deep link from
+        service config. Returns an empty string when not configured.
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_config.googleReviewURLResponse'
+      summary: Get Google review URL
+      tags:
+      - Integrations
   /loyalty/account:
     get:
       description: Retrieves the current user's loyalty account with tier information
@@ -4135,8 +4178,8 @@ paths:
       - Outlets
   /payment-methods:
     get:
-      description: Aggregate of enabled gateways, wallet summary, and saved cards for
-        checkout.
+      description: Aggregate of enabled gateways, wallet summary, and saved cards
+        for checkout.
       produces:
       - application/json
       responses:
