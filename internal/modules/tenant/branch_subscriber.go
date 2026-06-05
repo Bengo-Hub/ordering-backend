@@ -17,13 +17,25 @@ import (
 
 const authStream = "auth"
 
-// orderingAcceptedUseCases is the set of outlet use_cases that ordering supports.
-// Logistics hubs, warehouses, and weighbridge stations do not place orders.
-var orderingAcceptedUseCases = map[string]bool{
-	"hospitality":  true,
-	"retail":       true,
-	"quick_service": true,
+// OrderingAcceptedUseCases is the ordered list of outlet use_cases that ordering
+// supports. Logistics hubs, warehouses, and weighbridge stations do not place
+// orders. This is the single source of truth for the available use-case values
+// surfaced to admin clients.
+var OrderingAcceptedUseCases = []string{
+	"hospitality",
+	"retail",
+	"quick_service",
 }
+
+// orderingAcceptedUseCases is the set form of OrderingAcceptedUseCases for O(1)
+// membership checks during event ingestion.
+var orderingAcceptedUseCases = func() map[string]bool {
+	m := make(map[string]bool, len(OrderingAcceptedUseCases))
+	for _, uc := range OrderingAcceptedUseCases {
+		m[uc] = true
+	}
+	return m
+}()
 
 // BranchSubscriber syncs auth.outlet.* JetStream events from auth-api into the
 // local ordering-backend outlets table. Replaces the legacy plain-NATS

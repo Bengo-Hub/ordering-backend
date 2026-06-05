@@ -1065,6 +1065,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/use-case": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the tenant's primary business use_case, the available use-case values ordering supports, and each outlet's use_case. Read-only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Configuration"
+                ],
+                "summary": "Get use-case configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_config.useCaseConfigResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/webhooks/logistics": {
             "post": {
                 "consumes": [
@@ -4085,6 +4119,144 @@ const docTemplate = `{
                 }
             }
         },
+        "/payments/gateways/available": {
+            "get": {
+                "description": "Gateway types the tenant could enable, proxied from treasury-api.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "List available payment gateways",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.AvailableGatewaysResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/gateways/select/{gatewayType}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "Select (enable) a payment gateway",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
+                        "name": "gatewayType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Select gateway request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.SelectGatewayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.gatewayActionResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "Deactivate (disable) a payment gateway",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
+                        "name": "gatewayType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.gatewayActionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/gateways/selected": {
+            "get": {
+                "description": "Gateways the tenant has selected/configured, proxied from treasury-api.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment Gateways"
+                ],
+                "summary": "List selected payment gateways",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug or ID",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_payments.SelectedGatewaysResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payments/intents": {
             "post": {
                 "consumes": [
@@ -6117,6 +6289,41 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "gateway_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_primary": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_transactions": {
+                    "type": "integer"
+                },
+                "transaction_fee_type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_http_handlers.livenessResponse": {
             "type": "object",
             "properties": {
@@ -6234,6 +6441,40 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "review_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_config.useCaseConfigResponse": {
+            "type": "object",
+            "properties": {
+                "available_use_cases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "outlets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_config.useCaseOutlet"
+                    }
+                },
+                "use_case": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_config.useCaseOutlet": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "use_case": {
                     "type": "string"
                 }
             }
@@ -6964,6 +7205,34 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_http_handlers_payments.AvailableGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "gateway_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "supports_stk_push": {
+                    "type": "boolean"
+                },
+                "transaction_fee_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.AvailableGatewaysResponse": {
+            "type": "object",
+            "properties": {
+                "gateways": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_http_handlers_payments.AvailableGatewayResponse"
+                    }
+                }
+            }
+        },
         "internal_http_handlers_payments.CreatePaymentIntentRequest": {
             "type": "object",
             "properties": {
@@ -7279,6 +7548,25 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_http_handlers_payments.SelectGatewayRequest": {
+            "type": "object",
+            "properties": {
+                "is_primary": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_http_handlers_payments.SelectedGatewaysResponse": {
+            "type": "object",
+            "properties": {
+                "selected": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway"
+                    }
+                }
+            }
+        },
         "internal_http_handlers_payments.UpdatePaymentMethodRequest": {
             "type": "object",
             "properties": {
@@ -7294,6 +7582,14 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_payments.gatewayActionResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

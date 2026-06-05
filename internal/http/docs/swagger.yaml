@@ -1051,6 +1051,29 @@ definitions:
       valid:
         type: boolean
     type: object
+  github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway:
+    properties:
+      created_at:
+        type: string
+      gateway_type:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      is_primary:
+        type: boolean
+      name:
+        type: string
+      status:
+        type: string
+      total_transactions:
+        type: integer
+      transaction_fee_type:
+        type: string
+      updated_at:
+        type: string
+    type: object
   internal_http_handlers.livenessResponse:
     properties:
       service:
@@ -1129,6 +1152,28 @@ definitions:
   internal_http_handlers_config.googleReviewURLResponse:
     properties:
       review_url:
+        type: string
+    type: object
+  internal_http_handlers_config.useCaseConfigResponse:
+    properties:
+      available_use_cases:
+        items:
+          type: string
+        type: array
+      outlets:
+        items:
+          $ref: '#/definitions/internal_http_handlers_config.useCaseOutlet'
+        type: array
+      use_case:
+        type: string
+    type: object
+  internal_http_handlers_config.useCaseOutlet:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      use_case:
         type: string
     type: object
   internal_http_handlers_fulfilment.CancelDeliveryTaskRequest:
@@ -1608,6 +1653,24 @@ definitions:
       subtotal:
         type: number
     type: object
+  internal_http_handlers_payments.AvailableGatewayResponse:
+    properties:
+      gateway_type:
+        type: string
+      name:
+        type: string
+      supports_stk_push:
+        type: boolean
+      transaction_fee_type:
+        type: string
+    type: object
+  internal_http_handlers_payments.AvailableGatewaysResponse:
+    properties:
+      gateways:
+        items:
+          $ref: '#/definitions/internal_http_handlers_payments.AvailableGatewayResponse'
+        type: array
+    type: object
   internal_http_handlers_payments.CreatePaymentIntentRequest:
     properties:
       amount:
@@ -1814,6 +1877,18 @@ definitions:
       status:
         type: string
     type: object
+  internal_http_handlers_payments.SelectGatewayRequest:
+    properties:
+      is_primary:
+        type: boolean
+    type: object
+  internal_http_handlers_payments.SelectedGatewaysResponse:
+    properties:
+      selected:
+        items:
+          $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_platform_treasury.SelectedGateway'
+        type: array
+    type: object
   internal_http_handlers_payments.UpdatePaymentMethodRequest:
     properties:
       label:
@@ -1824,6 +1899,11 @@ definitions:
       balance:
         type: number
       currency:
+        type: string
+    type: object
+  internal_http_handlers_payments.gatewayActionResponse:
+    properties:
+      message:
         type: string
     type: object
 info:
@@ -2538,6 +2618,28 @@ paths:
       summary: Get refund
       tags:
       - Refunds
+  /admin/use-case:
+    get:
+      description: Returns the tenant's primary business use_case, the available use-case
+        values ordering supports, and each outlet's use_case. Read-only.
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_config.useCaseConfigResponse'
+      security:
+      - BearerAuth: []
+      summary: Get use-case configuration
+      tags:
+      - Configuration
   /api/v1/{tenant}/admin/integrations/google/connect:
     delete:
       parameters:
@@ -4566,6 +4668,97 @@ paths:
       summary: Get payment
       tags:
       - Payments
+  /payments/gateways/available:
+    get:
+      description: Gateway types the tenant could enable, proxied from treasury-api.
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_payments.AvailableGatewaysResponse'
+      summary: List available payment gateways
+      tags:
+      - Payment Gateways
+  /payments/gateways/select/{gatewayType}:
+    delete:
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)
+        in: path
+        name: gatewayType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_payments.gatewayActionResponse'
+      summary: Deactivate (disable) a payment gateway
+      tags:
+      - Payment Gateways
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)
+        in: path
+        name: gatewayType
+        required: true
+        type: string
+      - description: Select gateway request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_payments.SelectGatewayRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_payments.gatewayActionResponse'
+      summary: Select (enable) a payment gateway
+      tags:
+      - Payment Gateways
+  /payments/gateways/selected:
+    get:
+      description: Gateways the tenant has selected/configured, proxied from treasury-api.
+      parameters:
+      - description: Tenant slug or ID
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_payments.SelectedGatewaysResponse'
+      summary: List selected payment gateways
+      tags:
+      - Payment Gateways
   /payments/intents:
     post:
       consumes:
