@@ -2,6 +2,7 @@ package treasury
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -410,6 +411,170 @@ func (c *Client) ListEnabledGateways(ctx context.Context, tenantID uuid.UUID) ([
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 	return result.Gateways, nil
+}
+
+// AvailableGateway describes a payment gateway type the tenant could enable, as returned by
+// treasury-api's S2S GET /api/v1/s2s/{tenant}/gateways/available endpoint.
+type AvailableGateway struct {
+	GatewayType        string `json:"gateway_type"`
+	Name               string `json:"name"`
+	TransactionFeeType string `json:"transaction_fee_type"`
+	SupportsStkPush    bool   `json:"supports_stk_push"`
+}
+
+// SelectedGateway describes a payment gateway the tenant has selected/configured, as returned
+// by treasury-api's S2S GET /api/v1/s2s/{tenant}/gateways/selected endpoint. URL fields are kept
+// as a free-form map so this client need not track every per-provider url field treasury adds.
+type SelectedGateway struct {
+	ID                 string    `json:"id"`
+	GatewayType        string    `json:"gateway_type"`
+	Name               string    `json:"name"`
+	IsActive           bool      `json:"is_active"`
+	IsPrimary          bool      `json:"is_primary"`
+	Status             string    `json:"status"`
+	TransactionFeeType string    `json:"transaction_fee_type"`
+	TotalTransactions  int64     `json:"total_transactions"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
+	// URLs captures any provider url fields treasury returns (e.g. callback/webhook/return urls)
+	// that are not modelled explicitly above, so the proxy can pass them through unchanged.
+	URLs map[string]any `json:"-"`
+}
+
+// knownSelectedGatewayFields are the JSON keys modelled by SelectedGateway's explicit struct
+// fields; any other key returned by treasury is preserved in SelectedGateway.URLs.
+var knownSelectedGatewayFields = map[string]struct{}{
+	"id": {}, "gateway_type": {}, "name": {}, "is_active": {}, "is_primary": {},
+	"status": {}, "transaction_fee_type": {}, "total_transactions": {},
+	"created_at": {}, "updated_at": {},
+}
+
+// UnmarshalJSON decodes the explicit fields and stashes any remaining (url) fields into URLs so
+// the proxy can forward provider-specific url fields without this client tracking each of them.
+func (g *SelectedGateway) UnmarshalJSON(b []byte) error {
+	type alias SelectedGateway
+	if err := json.Unmarshal(b, (*alias)(g)); err != nil {
+		return err
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	for k, v := range raw {
+		if _, known := knownSelectedGatewayFields[k]; known {
+			continue
+		}
+		var val any
+		if err := json.Unmarshal(v, &val); err != nil {
+			continue
+		}
+		if g.URLs == nil {
+			g.URLs = map[string]any{}
+		}
+		g.URLs[k] = val
+	}
+	return nil
+}
+
+// MarshalJSON re-emits the explicit fields together with any preserved url fields so the proxy
+// response to ordering-frontend mirrors treasury's selected-gateway shape.
+func (g SelectedGateway) MarshalJSON() ([]byte, error) {
+	type alias SelectedGateway
+	base, err := json.Marshal(alias(g))
+	if err != nil {
+		return nil, err
+	}
+	if len(g.URLs) == 0 {
+		return base, nil
+	}
+	var merged map[string]json.RawMessage
+	if err := json.Unmarshal(base, &merged); err != nil {
+		return nil, err
+	}
+	for k, v := range g.URLs {
+		vb, err := json.Marshal(v)
+		if err != nil {
+			continue
+		}
+		merged[k] = vb
+	}
+	return json.Marshal(merged)
+}
+
+// availableGatewaysResponse mirrors treasury's body: {"gateways":[...]}.
+type availableGatewaysResponse struct {
+	Gateways []AvailableGateway `json:"gateways"`
+}
+
+// selectedGatewaysResponse mirrors treasury's body: {"selected":[...]}.
+type selectedGatewaysResponse struct {
+	Selected []SelectedGateway `json:"selected"`
+}
+
+// ListAvailableGateways returns the gateway types a tenant could enable, via the S2S route
+// GET /api/v1/s2s/{tenant}/gateways/available (X-API-Key auth). {tenant} accepts UUID or slug;
+// this passes the tenant UUID, matching ListEnabledGateways.
+func (c *Client) ListAvailableGateways(ctx context.Context, tenant uuid.UUID) ([]AvailableGateway, error) {
+	path := fmt.Sprintf("/api/v1/s2s/%s/gateways/available", tenant.String())
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result availableGatewaysResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return result.Gateways, nil
+}
+
+// ListSelectedGateways returns the gateways the tenant has selected/configured, via the S2S route
+// GET /api/v1/s2s/{tenant}/gateways/selected (X-API-Key auth).
+func (c *Client) ListSelectedGateways(ctx context.Context, tenant uuid.UUID) ([]SelectedGateway, error) {
+	path := fmt.Sprintf("/api/v1/s2s/%s/gateways/selected", tenant.String())
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result selectedGatewaysResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return result.Selected, nil
+}
+
+// SelectGateway selects (enables) a gateway type for the tenant via the S2S route
+// POST /api/v1/s2s/{tenant}/gateways/select/{gatewayType} with body {"is_primary": bool}.
+func (c *Client) SelectGateway(ctx context.Context, tenant uuid.UUID, gatewayType string, isPrimary bool) error {
+	path := fmt.Sprintf("/api/v1/s2s/%s/gateways/select/%s", tenant.String(), gatewayType)
+	reqBody := map[string]any{"is_primary": isPrimary}
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	if err != nil {
+		return fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return c.parseError(resp)
+	}
+	return nil
+}
+
+// DeactivateGateway deselects (disables) a gateway type for the tenant via the S2S route
+// DELETE /api/v1/s2s/{tenant}/gateways/select/{gatewayType}.
+func (c *Client) DeactivateGateway(ctx context.Context, tenant uuid.UUID, gatewayType string) error {
+	path := fmt.Sprintf("/api/v1/s2s/%s/gateways/select/%s", tenant.String(), gatewayType)
+	resp, err := c.serviceClient.Delete(ctx, path, c.headers(""))
+	if err != nil {
+		return fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return c.parseError(resp)
+	}
+	return nil
 }
 
 // WalletBalanceResponse holds the balance result from treasury S2S.
