@@ -131,7 +131,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.respondWithMergedRBAC(w, r, user, roles, permissions)
+	h.respondWithMergedRBAC(w, r, user, roles, permissions, claims)
 }
 
 // UpdateProfile updates user profile information.
@@ -381,6 +381,8 @@ type UserResponsePayload struct {
 	DefaultLocationLabel string                  `json:"defaultLocationLabel"`
 	TwoFactorEnabled     bool                    `json:"twoFactorEnabled"`
 	BackupCodesEnabled   bool                    `json:"backupCodesEnabled"`
+	IsPlatformOwner      bool                    `json:"is_platform_owner"`
+	IsSuperuser          bool                    `json:"isSuperUser"`
 	Preferences          UserPreferencesResponse `json:"preferences"`
 	LastLoginAt          string                  `json:"lastLoginAt"`
 	CreatedAt            string                  `json:"createdAt"`
@@ -445,7 +447,7 @@ func formatOptionalTime(value *time.Time) string {
 }
 
 // respondWithMergedRBAC returns user profile with merged service-level roles/permissions.
-func (h *Handler) respondWithMergedRBAC(w http.ResponseWriter, r *http.Request, user *identity.User, roles []string, permissions []string) {
+func (h *Handler) respondWithMergedRBAC(w http.ResponseWriter, r *http.Request, user *identity.User, roles []string, permissions []string, claims *authclient.Claims) {
 	payload := toUserResponsePayload(user)
 	// Override with merged RBAC data
 	mergedRoles := make([]identity.Role, len(roles))
@@ -458,6 +460,13 @@ func (h *Handler) respondWithMergedRBAC(w http.ResponseWriter, r *http.Request, 
 	}
 	payload.Roles = mergedRoles
 	payload.Permissions = mergedPerms
+
+	// Platform-owner / superuser flags from JWT claims so the frontend useMe()
+	// (which hits this /auth/me as PRIMARY) can gate platform-only features.
+	if claims != nil {
+		payload.IsPlatformOwner = claims.IsPlatformOwner
+		payload.IsSuperuser = claims.IsSuperuser()
+	}
 
 	resp := AuthResponsePayload{
 		Session: SessionResponsePayload{
