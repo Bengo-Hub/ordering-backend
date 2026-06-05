@@ -381,10 +381,43 @@ func (c *Client) CancelPaymentIntent(ctx context.Context, tenantID, intentID uui
 	return nil
 }
 
+// EnabledGateway is a payment gateway type key the tenant has active, as returned by
+// treasury-api's PublicListActiveGateways endpoint. Treasury returns a flat list of type
+// keys (e.g. "paystack", "mpesa", "wallet", "cod") under {"gateways":[...]} — there are no
+// per-gateway display fields, so the caller maps each key to its presentation metadata.
+type EnabledGateway string
+
+// enabledGatewaysResponse mirrors treasury's PublicListActiveGateways body: {"gateways":[...]}.
+type enabledGatewaysResponse struct {
+	Gateways []EnabledGateway `json:"gateways"`
+}
+
+// ListEnabledGateways returns the payment gateway type keys active for a tenant via the
+// PUBLIC treasury endpoint GET {baseURL}/api/v1/pay/{tenantID}/gateways (no auth required).
+// The endpoint is served by the same treasury-api service, so it is reachable over the
+// internal serviceClient just like the S2S routes.
+func (c *Client) ListEnabledGateways(ctx context.Context, tenantID uuid.UUID) ([]EnabledGateway, error) {
+	path := fmt.Sprintf("/api/v1/pay/%s/gateways", tenantID.String())
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result enabledGatewaysResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return result.Gateways, nil
+}
+
 // WalletBalanceResponse holds the balance result from treasury S2S.
+// Balance uses the money type because treasury serializes decimal amounts as a
+// quoted JSON string (e.g. "638.00"); money also tolerates a plain JSON number.
 type WalletBalanceResponse struct {
-	Balance  float64 `json:"balance"`
-	Currency string  `json:"currency"`
+	Balance  money  `json:"balance"`
+	Currency string `json:"currency"`
 }
 
 // WalletDebitResponse holds the result of a wallet debit.

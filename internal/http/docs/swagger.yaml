@@ -1665,6 +1665,19 @@ definitions:
       status:
         type: string
     type: object
+  internal_http_handlers_payments.PaymentGatewayResponse:
+    properties:
+      enabled:
+        type: boolean
+      icon:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      type:
+        type: string
+    type: object
   internal_http_handlers_payments.PaymentMethodResponse:
     properties:
       createdAt:
@@ -1684,6 +1697,26 @@ definitions:
       provider:
         type: string
       type:
+        type: string
+    type: object
+  internal_http_handlers_payments.PaymentMethodsAggregateResponse:
+    properties:
+      gateways:
+        items:
+          $ref: '#/definitions/internal_http_handlers_payments.PaymentGatewayResponse'
+        type: array
+      saved_methods:
+        items:
+          $ref: '#/definitions/internal_http_handlers_payments.PaymentMethodResponse'
+        type: array
+      wallet:
+        $ref: '#/definitions/internal_http_handlers_payments.WalletSummaryResponse'
+    type: object
+  internal_http_handlers_payments.WalletSummaryResponse:
+    properties:
+      balance:
+        type: number
+      currency:
         type: string
     type: object
   internal_http_handlers_payments.PaymentResponse:
@@ -4102,16 +4135,16 @@ paths:
       - Outlets
   /payment-methods:
     get:
+      description: Aggregate of enabled gateways, wallet summary, and saved cards for
+        checkout.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/internal_http_handlers_payments.PaymentMethodResponse'
-            type: array
-      summary: List payment methods
+            $ref: '#/definitions/internal_http_handlers_payments.PaymentMethodsAggregateResponse'
+      summary: List checkout payment methods
       tags:
       - Payment Methods
     post:
