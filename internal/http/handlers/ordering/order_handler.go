@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	httpware "github.com/Bengo-Hub/httpware"
 	"github.com/Bengo-Hub/pagination"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
-	httpware "github.com/Bengo-Hub/httpware"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -162,16 +162,16 @@ type GuestCheckoutRequestDTO struct {
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
 type CreateOrderRequestDTO struct {
-	OutletID         string         `json:"outletId"`
-	Items            []OrderItemDTO `json:"items"`
-	DeliveryAddress  string         `json:"deliveryAddress"`
-	DeliveryLat      *float64       `json:"deliveryLat,omitempty"`
-	DeliveryLng      *float64       `json:"deliveryLng,omitempty"`
-	DeliveryNotes    string         `json:"deliveryNotes,omitempty"`
-	PaymentMethod    string         `json:"paymentMethod"` // "mpesa" | "cod"
-	PromoCode        string         `json:"promoCode,omitempty"`
-	FulfillmentType  string         `json:"fulfillmentType,omitempty"`
-	ScheduledAt      string         `json:"scheduledAt,omitempty"`
+	OutletID        string         `json:"outletId"`
+	Items           []OrderItemDTO `json:"items"`
+	DeliveryAddress string         `json:"deliveryAddress"`
+	DeliveryLat     *float64       `json:"deliveryLat,omitempty"`
+	DeliveryLng     *float64       `json:"deliveryLng,omitempty"`
+	DeliveryNotes   string         `json:"deliveryNotes,omitempty"`
+	PaymentMethod   string         `json:"paymentMethod"` // "mpesa" | "cod"
+	PromoCode       string         `json:"promoCode,omitempty"`
+	FulfillmentType string         `json:"fulfillmentType,omitempty"`
+	ScheduledAt     string         `json:"scheduledAt,omitempty"`
 }
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
@@ -206,29 +206,29 @@ type AdminOrderItemSummary struct {
 // It omits internal IDs, per-fee breakdowns, events, and rating fields that are
 // not displayed on the order management dashboard, keeping the payload lean.
 type AdminOrderSummary struct {
-	ID              string                  `json:"id"`
-	OrderNumber     string                  `json:"orderNumber"`
-	Status          ordering.OrderStatus    `json:"status"`
-	PaymentStatus   ordering.PaymentStatus  `json:"paymentStatus"`
-	PaymentMethod   ordering.PaymentMethod  `json:"paymentMethod"`
+	ID              string                   `json:"id"`
+	OrderNumber     string                   `json:"orderNumber"`
+	Status          ordering.OrderStatus     `json:"status"`
+	PaymentStatus   ordering.PaymentStatus   `json:"paymentStatus"`
+	PaymentMethod   ordering.PaymentMethod   `json:"paymentMethod"`
 	FulfillmentType ordering.FulfillmentType `json:"fulfillmentType"`
-	Currency        string                  `json:"currency"`
-	Subtotal        float64                 `json:"subtotal"`
-	DiscountTotal   float64                 `json:"discountTotal"`
-	DeliveryFee     float64                 `json:"deliveryFee"`
-	GrandTotal      float64                 `json:"grandTotal"`
-	CustomerName    string                  `json:"customerName,omitempty"`
-	CustomerEmail   string                  `json:"customerEmail,omitempty"`
-	CustomerPhone   string                  `json:"customerPhone,omitempty"`
-	Channel         string                  `json:"channel,omitempty"`
-	Source          string                  `json:"source,omitempty"`
-	Instructions    string                  `json:"instructions,omitempty"`
-	DeliveryAddress string                  `json:"deliveryAddress,omitempty"`
+	Currency        string                   `json:"currency"`
+	Subtotal        float64                  `json:"subtotal"`
+	DiscountTotal   float64                  `json:"discountTotal"`
+	DeliveryFee     float64                  `json:"deliveryFee"`
+	GrandTotal      float64                  `json:"grandTotal"`
+	CustomerName    string                   `json:"customerName,omitempty"`
+	CustomerEmail   string                   `json:"customerEmail,omitempty"`
+	CustomerPhone   string                   `json:"customerPhone,omitempty"`
+	Channel         string                   `json:"channel,omitempty"`
+	Source          string                   `json:"source,omitempty"`
+	Instructions    string                   `json:"instructions,omitempty"`
+	DeliveryAddress string                   `json:"deliveryAddress,omitempty"`
 	// Metadata kept so the frontend can resolve guest contact info when needed.
-	Metadata map[string]interface{}   `json:"metadata,omitempty"`
-	Items    []AdminOrderItemSummary  `json:"items"`
-	PlacedAt *time.Time              `json:"placedAt,omitempty"`
-	CreatedAt time.Time              `json:"createdAt"`
+	Metadata  map[string]interface{}  `json:"metadata,omitempty"`
+	Items     []AdminOrderItemSummary `json:"items"`
+	PlacedAt  *time.Time              `json:"placedAt,omitempty"`
+	CreatedAt time.Time               `json:"createdAt"`
 }
 
 // AdminListOrdersResponse is the paginated response for admin order list views.
@@ -1611,10 +1611,10 @@ func (h *OrderHandler) BulkUpdateOrderStatus(w http.ResponseWriter, r *http.Requ
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":    len(req.OrderIDs),
-		"success":  successCount,
-		"failed":   failCount,
-		"results":  results,
+		"total":   len(req.OrderIDs),
+		"success": successCount,
+		"failed":  failCount,
+		"results": results,
 	})
 }
 
@@ -1685,6 +1685,22 @@ type AssignRiderRequest struct {
 // AdminAssignRider assigns a fleet member (rider) to a delivery order.
 // If no delivery task exists yet, one is auto-created from the order data before assignment.
 // On success the order status is automatically set to out_for_delivery.
+// @Summary Assign a rider to a delivery order
+// @Description Assigns a fleet member (rider) to a delivery order, auto-creating the logistics task if needed. Only valid for delivery-fulfilment orders; the order is then moved to out_for_delivery.
+// @Tags Admin Orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param orderId path string true "Order ID"
+// @Param payload body AssignRiderRequest true "Rider to assign"
+// @Success 200 {object} fulfilment.OrderAssignment
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 422 {object} handlers.ErrorResponse
+// @Failure 503 {object} handlers.ErrorResponse
+// @Router /admin/orders/{orderId}/rider [put]
 func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) {
 	tenantID, err := getTenantID(r)
 	if err != nil {
@@ -1714,6 +1730,20 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// A rider can only be assigned to a delivery order — reject pickup/dine-in/scheduled up front
+	// (previously this was only checked in the auto-create-task branch, so a stale non-delivery task
+	// could still be assigned a rider).
+	order, oErr := h.orderService.GetOrder(r.Context(), tenantID, orderID)
+	if oErr != nil {
+		h.log.Error("order not found for rider assignment", zap.Error(oErr), zap.String("order_id", orderID.String()))
+		handlers.RespondError(w, http.StatusNotFound, "order not found")
+		return
+	}
+	if order.FulfillmentType != ordering.FulfillmentTypeDelivery {
+		handlers.RespondError(w, http.StatusUnprocessableEntity, "order is not a delivery order")
+		return
+	}
+
 	tenantSlug := ""
 	if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
 		tenantSlug = claims.GetTenantSlug()
@@ -1728,19 +1758,7 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		// No task exists yet — fetch the order and auto-create the delivery task.
-		order, oErr := h.orderService.GetOrder(r.Context(), tenantID, orderID)
-		if oErr != nil {
-			h.log.Error("order not found for rider assignment", zap.Error(oErr), zap.String("order_id", orderID.String()))
-			handlers.RespondError(w, http.StatusNotFound, "order not found")
-			return
-		}
-
-		if order.FulfillmentType != ordering.FulfillmentTypeDelivery {
-			handlers.RespondError(w, http.StatusUnprocessableEntity, "order is not a delivery order")
-			return
-		}
-
+		// No task exists yet — auto-create the delivery task from the order fetched above.
 		orderInfo := buildOrderInfoFromOrder(order, tenantSlug)
 		createReq := fulfilment.CreateDeliveryTaskRequest{
 			OrderInfo:      orderInfo,
@@ -1776,10 +1794,10 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 // buildOrderInfoFromOrder converts an Order to the OrderInfo needed for task creation.
 func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilment.OrderInfo {
 	info := fulfilment.OrderInfo{
-		ID:          order.ID,
-		TenantID:    order.TenantID,
-		TenantSlug:  tenantSlug,
-		OrderNumber: order.OrderNumber,
+		ID:            order.ID,
+		TenantID:      order.TenantID,
+		TenantSlug:    tenantSlug,
+		OrderNumber:   order.OrderNumber,
 		CustomerName:  order.CustomerName,
 		CustomerPhone: order.CustomerPhone,
 		Instructions:  order.Instructions,

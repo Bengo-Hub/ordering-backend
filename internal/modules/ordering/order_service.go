@@ -296,10 +296,10 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	// Create order items from cart items
 	for _, cartItem := range cart.Items {
 		orderItem := &OrderItem{
-			OrderID:       order.ID,
+			OrderID:      order.ID,
 			InventorySKU: cartItem.InventorySKU,
-			VariantID:     cartItem.VariantID,
-			NameSnapshot:  cartItem.NameSnapshot,
+			VariantID:    cartItem.VariantID,
+			NameSnapshot: cartItem.NameSnapshot,
 			Quantity:     cartItem.Quantity,
 			UnitPrice:    cartItem.UnitPrice,
 			TotalPrice:   cartItem.TotalPrice,
@@ -482,9 +482,9 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 	for _, it := range req.Items {
 		orderItem := &OrderItem{
-			OrderID:       order.ID,
+			OrderID:      order.ID,
 			InventorySKU: it.InventorySKU,
-			NameSnapshot:  it.Name,
+			NameSnapshot: it.Name,
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
@@ -635,7 +635,6 @@ func buildOrderLineItems(order *Order) []LineItem {
 	return items
 }
 
-
 // GuestCheckout creates an order for a guest user. It accepts items directly from the
 // frontend local cart. If items are provided in the request they are used; otherwise it
 // falls back to looking up a backend cart by session (for backwards compatibility).
@@ -754,7 +753,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		LoyaltyPointsRedeemed: 0,
 		Instructions:          instructions,
 		Channel:               req.Channel,
-		Source:                 "guest",
+		Source:                "guest",
 		ReservationID:         reservationID,
 		PlacedAt:              &now,
 		CreatedAt:             now,
@@ -1156,12 +1155,12 @@ func (s *OrderService) RateOrder(ctx context.Context, tenantID, orderID, custome
 	// Publish order.rated event
 	if s.eventPublisher != nil {
 		evt := events.NewEvent("ordering.order.rated", tenantID, map[string]interface{}{
-			"order_id":    order.ID.String(),
+			"order_id":     order.ID.String(),
 			"order_number": order.OrderNumber,
-			"customer_id": customerID.String(),
-			"outlet_id":   order.OutletID.String(),
-			"rating":      rating,
-			"comment":     comment,
+			"customer_id":  customerID.String(),
+			"outlet_id":    order.OutletID.String(),
+			"rating":       rating,
+			"comment":      comment,
 		})
 		_ = s.eventPublisher.Publish(ctx, "ordering.order.rated", evt)
 	}
@@ -1478,10 +1477,12 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	order.PaymentStatus = newStatus
 
 	// Auto-confirm order on successful payment
+	justConfirmed := false
 	if newStatus == PaymentStatusPaid && order.Status == OrderStatusPending {
 		now := time.Now()
 		order.Status = OrderStatusConfirmed
 		order.ConfirmedAt = &now
+		justConfirmed = true
 	}
 
 	if err := s.repo.UpdateOrder(ctx, order); err != nil {
@@ -1504,6 +1505,15 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	} else if newStatus == PaymentStatusPaid && oldStatus != PaymentStatusPaid && terminal {
 		s.logger.Warn("payment landed on a terminal order — not fulfilling; needs reconciliation",
 			zap.String("order_id", order.ID.String()), zap.String("order_status", string(order.Status)))
+	}
+
+	// On the payment-driven confirmation of a pickup/delivery order, emit ordering.order.confirmed
+	// carrying the line items so downstream services (pos-api KDS handoff, etc.) can react. Scheduled
+	// and ticket-only (dine_in) fulfilment are intentionally skipped per the cross-service contract.
+	// Best-effort — never blocks checkout/payment.
+	if justConfirmed && !terminal &&
+		(order.FulfillmentType == FulfillmentTypePickup || order.FulfillmentType == FulfillmentTypeDelivery) {
+		s.publishOrderConfirmed(ctx, order)
 	}
 
 	s.logger.Info("order payment status updated",
@@ -1555,6 +1565,43 @@ func (s *OrderService) publishPaymentConfirmed(ctx context.Context, order *Order
 		Lines:         lines,
 	}); err != nil {
 		s.logger.Warn("publish order.payment_confirmed failed", zap.String("order_id", order.ID.String()), zap.Error(err))
+	}
+}
+
+// publishOrderConfirmed emits ordering.order.confirmed for a pickup/delivery order that has just been
+// confirmed after payment. It loads the line items the same way publishOrderReady/publishOrderForpickup
+// do so downstream consumers receive the priced lines. Best-effort; never blocks payment.
+func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil || order == nil {
+		return
+	}
+	ci := s.orderContactInfo(ctx, order)
+	if len(order.Items) == 0 {
+		if items, lErr := s.repo.ListOrderItems(ctx, order.ID); lErr == nil {
+			order.Items = items
+		}
+	}
+	items := make([]map[string]interface{}, 0, len(order.Items))
+	for _, it := range order.Items {
+		items = append(items, map[string]interface{}{
+			"sku":        it.InventorySKU,
+			"name":       it.NameSnapshot,
+			"quantity":   it.Quantity,
+			"unit_price": it.UnitPrice,
+		})
+	}
+	if err := s.eventPublisher.PublishOrderConfirmed(ctx, order.TenantID, events.OrderConfirmedData{
+		OrderID:         order.ID,
+		OrderNumber:     order.OrderNumber,
+		OutletID:        order.OutletID,
+		FulfillmentType: string(order.FulfillmentType),
+		CustomerName:    ci.Name,
+		CustomerEmail:   ci.Email,
+		CustomerPhone:   ci.Phone,
+		Items:           items,
+	}); err != nil {
+		s.logger.Warn("publish ordering.order.confirmed failed",
+			zap.String("order_id", order.ID.String()), zap.Error(err))
 	}
 }
 
