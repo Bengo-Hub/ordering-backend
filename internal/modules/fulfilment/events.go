@@ -175,6 +175,7 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, evt *sharedevents.E
 	orderInfo.ItemCount = len(order.Items)
 	orderInfo.ItemsDescription = buildItemsDescription(order.Items)
 	orderInfo.Instructions = order.Instructions
+	orderInfo.DeliveryFee = order.DeliveryFee
 
 	taskReq := CreateDeliveryTaskRequest{
 		OrderInfo:      orderInfo,

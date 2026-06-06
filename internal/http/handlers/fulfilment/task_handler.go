@@ -116,6 +116,7 @@ func (h *TaskHandler) CreateDeliveryTask(w http.ResponseWriter, r *http.Request)
 			orderInfo.CustomerName = order.CustomerName
 			orderInfo.CustomerPhone = order.CustomerPhone
 			orderInfo.Instructions = order.Instructions
+			orderInfo.DeliveryFee = order.DeliveryFee
 			orderInfo.ItemCount = len(order.Items)
 			if len(order.Items) > 0 {
 				names := make([]string, 0, len(order.Items))
