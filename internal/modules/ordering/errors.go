@@ -28,6 +28,9 @@ var (
 	ErrPaymentPending     = errors.New("payment is still pending")
 	ErrPaymentFailed      = errors.New("payment failed")
 	ErrInvalidPaymentStatus = errors.New("invalid payment status")
+	ErrNoPaymentIntent      = errors.New("order has no payment intent")
+	ErrTreasuryNotConfigured = errors.New("payment service not configured")
+	ErrPaymentInitiateFailed = errors.New("payment initiation failed")
 
 	// Address errors
 	ErrAddressNotFound     = errors.New("address not found")

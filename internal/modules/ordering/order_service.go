@@ -1659,6 +1659,58 @@ func (s *OrderService) PayWithWallet(ctx context.Context, tenantID, orderID, use
 	})
 }
 
+// InitiateOrderPaymentInput parameterizes a staff/rider-triggered payment initiation for an order.
+type InitiateOrderPaymentInput struct {
+	TenantID      uuid.UUID
+	OrderID       uuid.UUID
+	PaymentMethod string // optional; defaults to "paystack" (primary gateway, supports all M-Pesa rails + card)
+	PhoneNumber   string // optional override; defaults to the order's customer phone
+}
+
+// InitiateOrderPayment lets a rider/staff member trigger payment on an existing order's payment
+// intent (e.g. prompt the customer for an M-Pesa STK push at delivery). It reuses treasury's
+// public per-intent initiate primitive via the S2S-configured treasury client, so the public
+// route is never exposed to staff clients directly. It resolves the phone (override → customer
+// phone → delivery contact phone) and defaults the method to mpesa.
+func (s *OrderService) InitiateOrderPayment(ctx context.Context, in InitiateOrderPaymentInput) (*treasury.InitiateIntentPaymentResponse, error) {
+	if s.treasuryClient == nil {
+		return nil, ErrTreasuryNotConfigured
+	}
+
+	order, err := s.repo.GetOrder(ctx, in.TenantID, in.OrderID)
+	if err != nil {
+		return nil, err
+	}
+	if order.PaymentIntentID == nil || *order.PaymentIntentID == uuid.Nil {
+		return nil, ErrNoPaymentIntent
+	}
+
+	paymentMethod := in.PaymentMethod
+	if paymentMethod == "" {
+		// Paystack is the primary gateway and supports all M-Pesa rails (STK push,
+		// paybill, till) plus card, so it's the sensible default for a rider-triggered prompt.
+		paymentMethod = string(PaymentMethodPaystack)
+	}
+
+	phone := in.PhoneNumber
+	if phone == "" {
+		phone = order.CustomerPhone
+	}
+	if phone == "" && order.DeliveryAddress != nil {
+		phone = order.DeliveryAddress.ContactPhone
+	}
+
+	resp, err := s.treasuryClient.InitiateIntentPayment(ctx, in.TenantID, order.PaymentIntentID.String(), paymentMethod, phone)
+	if err != nil {
+		s.logger.Warn("treasury initiate intent payment failed",
+			zap.String("order_id", in.OrderID.String()),
+			zap.String("intent_id", order.PaymentIntentID.String()),
+			zap.Error(err))
+		return nil, fmt.Errorf("%w: %v", ErrPaymentInitiateFailed, err)
+	}
+	return resp, nil
+}
+
 // createOrderEvent creates an order event record.
 func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, eventType, fromStatus, toStatus string, payload map[string]interface{}, actorID *uuid.UUID, actorType, ipAddress string) {
 	event := &OrderEvent{
