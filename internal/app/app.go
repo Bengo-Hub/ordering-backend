@@ -456,7 +456,7 @@ func New(ctx context.Context) (*App, error) {
 	// Initialize RBAC module
 	rbacRepo := rbac.NewEntRepository(ormClient)
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
-	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo)
+	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo, identityRepo)
 
 	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler)
 

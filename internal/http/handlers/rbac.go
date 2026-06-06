@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/go-chi/chi/v5"
@@ -15,18 +16,93 @@ import (
 
 // RBACHandler handles RBAC-related operations.
 type RBACHandler struct {
-	logger      *zap.Logger
-	rbacService *rbac.Service
-	rbacRepo    rbac.Repository
+	logger       *zap.Logger
+	rbacService  *rbac.Service
+	rbacRepo     rbac.Repository
+	identityRepo identity.Repository
 }
 
 // NewRBACHandler creates a new RBAC handler.
-func NewRBACHandler(logger *zap.Logger, rbacService *rbac.Service, rbacRepo rbac.Repository) *RBACHandler {
+func NewRBACHandler(logger *zap.Logger, rbacService *rbac.Service, rbacRepo rbac.Repository, identityRepo identity.Repository) *RBACHandler {
 	return &RBACHandler{
-		logger:      logger,
-		rbacService: rbacService,
-		rbacRepo:    rbacRepo,
+		logger:       logger,
+		rbacService:  rbacService,
+		rbacRepo:     rbacRepo,
+		identityRepo: identityRepo,
 	}
+}
+
+// TenantUserResponse is a lightweight projection of a tenant user, used to back
+// searchable user pickers in admin UIs (e.g. role assignment).
+type TenantUserResponse struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+// maxTenantUsersLimit caps the ?limit query parameter for ListTenantUsers.
+const maxTenantUsersLimit = 200
+
+// ListTenantUsers returns the tenant's synced users as a searchable list.
+//
+// @Summary List tenant users
+// @Description Returns the calling tenant's synced ordering users as a lightweight {id,name,email} list, intended to back searchable user pickers (e.g. role assignment). Supports an optional case-insensitive name/email filter and a result cap.
+// @Tags RBAC
+// @Security bearerAuth
+// @Produce json
+// @Param tenant path string true "Tenant slug"
+// @Param q query string false "Case-insensitive name/email search filter"
+// @Param limit query int false "Maximum number of users to return (default 50, max 200)"
+// @Success 200 {object} map[string][]TenantUserResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /{tenant}/admin/users [get]
+func (h *RBACHandler) ListTenantUsers(w http.ResponseWriter, r *http.Request) {
+	claims, ok := authclient.ClaimsFromContext(r.Context())
+	if !ok {
+		RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	tenantID, err := uuid.Parse(claims.TenantID)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, "invalid tenant ID in claims")
+		return
+	}
+
+	q := r.URL.Query().Get("q")
+
+	limit := 0
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		if parsed, perr := strconv.Atoi(raw); perr == nil {
+			limit = parsed
+		}
+	}
+	if limit > maxTenantUsersLimit {
+		limit = maxTenantUsersLimit
+	}
+
+	users, err := h.identityRepo.ListTenantUsers(r.Context(), tenantID, q, limit)
+	if err != nil {
+		h.logger.Error("failed to list tenant users", zap.Error(err))
+		RespondError(w, http.StatusInternalServerError, "failed to list users")
+		return
+	}
+
+	out := make([]TenantUserResponse, 0, len(users))
+	for _, u := range users {
+		name := u.FullName
+		if name == "" {
+			name = u.Email
+		}
+		out = append(out, TenantUserResponse{
+			ID:    u.ID.String(),
+			Name:  name,
+			Email: u.Email,
+		})
+	}
+
+	RespondJSON(w, http.StatusOK, map[string]interface{}{"users": out})
 }
 
 // AssignRoleRequest represents a request to assign a role.
@@ -202,5 +278,8 @@ func (h *RBACHandler) RegisterRoutes(r chi.Router, auth rbacAuthenticator) {
 		rbacRouter.Delete("/rbac/assignments/{id}", h.RevokeRole)
 		rbacRouter.Get("/rbac/roles", h.ListOrderingRoles)
 		rbacRouter.Get("/rbac/permissions", h.ListOrderingPermissions)
+		// Tenant users directory — backs the searchable user picker in admin UIs
+		// (e.g. role assignment). Gated by the same RBAC-management permission.
+		rbacRouter.Get("/admin/users", h.ListTenantUsers)
 	})
 }

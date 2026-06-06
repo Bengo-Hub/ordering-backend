@@ -22,6 +22,10 @@ type Repository interface {
 	FindUserByID(ctx context.Context, id uuid.UUID) (*User, error)
 	FindUserByAuthServiceID(ctx context.Context, authServiceUserID uuid.UUID) (*User, error)
 	ListUsers(ctx context.Context) ([]*User, error)
+	// ListTenantUsers returns the users belonging to a tenant, optionally filtered
+	// by a case-insensitive name/email substring (q). A non-positive limit applies
+	// a sane default cap.
+	ListTenantUsers(ctx context.Context, tenantID uuid.UUID, q string, limit int) ([]*User, error)
 
 	FindTenantBySlug(ctx context.Context, slug string) (*Tenant, error)
 	FindTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
