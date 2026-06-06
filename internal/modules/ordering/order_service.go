@@ -1023,6 +1023,35 @@ func (s *OrderService) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UU
 	return s.repo.GetAnalyticsSummary(ctx, tenantID, dateFrom, dateTo)
 }
 
+// finalizeOrder runs the one-time terminal finalization for an order: awarding
+// loyalty points, finalizing (consuming) the inventory reservation, and processing
+// recipe-based (BOM) stock consumption.
+//
+// Both terminal transitions funnel through here so there is a single implementation:
+// DELIVERY orders terminate at "delivered", while pickup/dine-in orders terminate at
+// "completed". An order only reaches a terminal state once, so finalization runs once.
+// The alreadyFinalized guard (set when the order already carried a DeliveredAt or
+// CompletedAt timestamp BEFORE this transition) makes it safe against any accidental
+// re-entry, preventing double loyalty awards or double stock deduction.
+func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, order *Order, alreadyFinalized bool) {
+	if alreadyFinalized {
+		s.logger.Info("skipping order finalization: order already finalized",
+			zap.String("order_id", order.ID.String()))
+		return
+	}
+
+	// Award loyalty points (guests have no CustomerID and are skipped).
+	if order.CustomerID != nil {
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
+			s.logger.Error("failed to award loyalty points", zap.Error(err))
+		}
+	}
+	// Consume (finalize) the inventory reservation so reserved stock is deducted.
+	go s.consumeOrderReservation(context.Background(), order)
+	// Process stock consumption based on recipes (BOM).
+	go s.processStockConsumption(context.Background(), order)
+}
+
 // UpdateOrderStatus transitions an order to a new status.
 func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus OrderStatus, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
@@ -1038,6 +1067,9 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	// Update timestamps based on status
 	now := time.Now()
 	oldStatus := order.Status
+	// Capture terminal-finalization state BEFORE mutating timestamps so the guard
+	// reflects whether the order was already finalized prior to this transition.
+	alreadyFinalized := order.DeliveredAt != nil || order.CompletedAt != nil
 	order.Status = newStatus
 
 	switch newStatus {
@@ -1071,18 +1103,16 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 				}(tenantID, orderID, order.GrandTotal, order.Currency)
 			}
 		}
+		// DELIVERY orders terminate at "delivered" (they never reach "completed"), so run
+		// the same terminal finalization here as the completed case: award loyalty points,
+		// finalize the inventory reservation (otherwise reserved stock leaks — held forever),
+		// and process recipe (BOM) stock consumption.
+		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
 	case OrderStatusCompleted:
 		order.CompletedAt = &now
-		// Award loyalty points on completion
-		if order.CustomerID != nil {
-			if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
-				s.logger.Error("failed to award loyalty points", zap.Error(err))
-			}
-		}
-		// Consume (finalize) the inventory reservation so reserved stock is deducted
-		go s.consumeOrderReservation(context.Background(), order)
-		// Process stock consumption based on recipes (BOM)
-		go s.processStockConsumption(context.Background(), order)
+		// Pickup/dine-in orders terminate at "completed": run terminal finalization
+		// (loyalty points, inventory reservation consumption, recipe stock consumption).
+		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
 	case OrderStatusCancelled:
 		order.CancelledAt = &now
 		// Release inventory reservation on cancellation via status update
@@ -2142,6 +2172,11 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 		}
 	case OrderStatusOutForDelivery:
 		s.publishOrderOutForDelivery(ctx, order)
+	case OrderStatusDelivered:
+		// DELIVERY orders terminate here (they never reach "completed"). Publish a
+		// delivered event carrying full customer contact info so the notifications
+		// service can send the review/rating email (mirrors the completed case).
+		s.publishOrderDelivered(ctx, order)
 	case OrderStatusCompleted:
 		s.publishOrderCompleted(ctx, order)
 	}
@@ -2347,6 +2382,35 @@ func (s *OrderService) publishOrderCompleted(ctx context.Context, order *Order) 
 
 	if err := s.eventPublisher.PublishOrderCompleted(ctx, order.TenantID, data); err != nil {
 		s.logger.Error("failed to publish order.completed event",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+	}
+}
+
+// publishOrderDelivered publishes an ordering.order.delivered event to NATS.
+// Delivery orders terminate at "delivered" and never reach "completed", so this
+// event carries the same customer contact data the review/rating email needs
+// (order_id, order_number, customer name/email) — mirroring publishOrderCompleted.
+func (s *OrderService) publishOrderDelivered(ctx context.Context, order *Order) {
+	if s.eventPublisher == nil {
+		return
+	}
+
+	ci := s.orderContactInfo(ctx, order)
+	data := events.OrderDeliveredData{
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		CustomerID:    customerIDValue(order.CustomerID),
+		CustomerEmail: ci.Email,
+		CustomerName:  ci.Name,
+		CustomerPhone: ci.Phone,
+		TotalAmount:   order.GrandTotal,
+		Currency:      order.Currency,
+		DeliveredAt:   time.Now(),
+	}
+
+	if err := s.eventPublisher.PublishOrderDelivered(ctx, order.TenantID, data); err != nil {
+		s.logger.Error("failed to publish order.delivered event",
 			zap.Error(err),
 			zap.String("order_id", order.ID.String()))
 	}
