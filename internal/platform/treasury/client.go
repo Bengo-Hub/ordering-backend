@@ -413,6 +413,49 @@ func (c *Client) ListEnabledGateways(ctx context.Context, tenantID uuid.UUID) ([
 	return result.Gateways, nil
 }
 
+// InitiateIntentPaymentResponse mirrors the body returned by treasury-api's public
+// PublicInitiateIntent endpoint. The endpoint is provider-polymorphic, so this struct is
+// permissive: M-Pesa returns checkout_request_id + customer_message + status ("processing"),
+// Paystack returns authorization_url, and any provider may return a redirect_url. Unknown
+// fields are ignored; absent fields decode to their zero value.
+type InitiateIntentPaymentResponse struct {
+	Status            string `json:"status,omitempty"`
+	Success           bool   `json:"success,omitempty"`
+	Message           string `json:"message,omitempty"`
+	CustomerMessage   string `json:"customer_message,omitempty"`
+	CheckoutRequestID string `json:"checkout_request_id,omitempty"`
+	AuthorizationURL  string `json:"authorization_url,omitempty"`
+	RedirectURL       string `json:"redirect_url,omitempty"`
+	IntentID          string `json:"intent_id,omitempty"`
+}
+
+// InitiateIntentPayment triggers payment on an existing intent via treasury-api's PUBLIC endpoint
+// POST /api/v1/pay/{tenant}/intents/{intentID}/initiate, posting {payment_method, phone_number}.
+// This is the same primitive the treasury-ui pay page POSTs to; it fires the provider action
+// (e.g. an M-Pesa STK push) for the intent. {tenant} accepts the tenant UUID, matching the other
+// /api/v1/pay/{tenant}/... call (ListEnabledGateways). The route is public, but we still send the
+// same headers as the other treasury calls (X-API-Key when configured) — treasury ignores it on
+// public routes, so this is safe whether or not the route requires auth.
+func (c *Client) InitiateIntentPayment(ctx context.Context, tenant uuid.UUID, intentID, paymentMethod, phoneNumber string) (*InitiateIntentPaymentResponse, error) {
+	path := fmt.Sprintf("/api/v1/pay/%s/intents/%s/initiate", tenant.String(), intentID)
+	reqBody := map[string]any{
+		"payment_method": paymentMethod,
+		"phone_number":   phoneNumber,
+	}
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	var result InitiateIntentPaymentResponse
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return &result, nil
+}
+
 // AvailableGateway describes a payment gateway type the tenant could enable, as returned by
 // treasury-api's S2S GET /api/v1/s2s/{tenant}/gateways/available endpoint.
 type AvailableGateway struct {

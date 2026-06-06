@@ -1534,6 +1534,26 @@ definitions:
       sessionId:
         type: string
     type: object
+  internal_http_handlers_ordering.InitiateOrderPaymentRequestDTO:
+    properties:
+      paymentMethod:
+        type: string
+      phoneNumber:
+        type: string
+    type: object
+  internal_http_handlers_ordering.InitiateOrderPaymentResponseDTO:
+    properties:
+      authorizationUrl:
+        type: string
+      checkoutRequestId:
+        type: string
+      customerMessage:
+        type: string
+      redirectUrl:
+        type: string
+      status:
+        type: string
+    type: object
   internal_http_handlers_ordering.ListOrdersResponse:
     properties:
       data:
@@ -2395,6 +2415,72 @@ paths:
           schema:
             $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
       summary: Cancel order (admin)
+      tags:
+      - Admin Orders
+  /admin/orders/{orderId}/payment/initiate:
+    post:
+      consumes:
+      - application/json
+      description: 'Triggers payment (e.g. M-Pesa STK push) on the order''s existing
+        payment intent. Body is optional: paymentMethod defaults to "mpesa", phoneNumber
+        defaults to the order''s customer phone.'
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Optional payment-method / phone override
+        in: body
+        name: payload
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.InitiateOrderPaymentRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http_handlers_ordering.InitiateOrderPaymentResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse'
+      summary: Initiate payment for an order (admin/rider)
       tags:
       - Admin Orders
   /admin/orders/{orderId}/rider:

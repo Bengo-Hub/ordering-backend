@@ -795,6 +795,102 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/orders/{orderId}/payment/initiate": {
+            "post": {
+                "description": "Triggers payment (e.g. M-Pesa STK push) on the order's existing payment intent. Body is optional: paymentMethod defaults to \"mpesa\", phoneNumber defaults to the order's customer phone.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Initiate payment for an order (admin/rider)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tenant ID",
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Optional payment-method / phone override",
+                        "name": "payload",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.InitiateOrderPaymentRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.InitiateOrderPaymentResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bengobox_ordering-backend_internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/orders/{orderId}/rider": {
             "put": {
                 "description": "Assigns a fleet member (rider) to a delivery order, auto-creating the logistics task if needed. Only valid for delivery-fulfilment orders; the order is then moved to out_for_delivery.",
@@ -7018,6 +7114,37 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "sessionId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.InitiateOrderPaymentRequestDTO": {
+            "type": "object",
+            "properties": {
+                "paymentMethod": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.InitiateOrderPaymentResponseDTO": {
+            "type": "object",
+            "properties": {
+                "authorizationUrl": {
+                    "type": "string"
+                },
+                "checkoutRequestId": {
+                    "type": "string"
+                },
+                "customerMessage": {
+                    "type": "string"
+                },
+                "redirectUrl": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

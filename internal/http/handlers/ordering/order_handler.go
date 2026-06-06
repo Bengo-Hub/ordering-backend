@@ -100,6 +100,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Put("/{orderId}/rider", h.AdminAssignRider)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
 		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
+		adminRouter.Post("/{orderId}/payment/initiate", h.AdminInitiateOrderPayment)
 		adminRouter.Delete("/{orderId}", h.DeleteOrder)
 	})
 }
@@ -1403,6 +1404,95 @@ func (h *OrderHandler) RefundOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// InitiateOrderPaymentRequestDTO is the (optional) body for staff/rider-triggered payment initiation.
+// Both fields are optional: paymentMethod defaults to "paystack" (the primary gateway, which supports
+// all M-Pesa rails — STK push, paybill, till — plus card); phoneNumber defaults to the order's customer phone.
+type InitiateOrderPaymentRequestDTO struct {
+	PaymentMethod string `json:"paymentMethod,omitempty"`
+	PhoneNumber   string `json:"phoneNumber,omitempty"`
+}
+
+// InitiateOrderPaymentResponseDTO is returned after a staff/rider triggers payment on an order.
+type InitiateOrderPaymentResponseDTO struct {
+	Status            string `json:"status,omitempty"`
+	CustomerMessage   string `json:"customerMessage,omitempty"`
+	CheckoutRequestID string `json:"checkoutRequestId,omitempty"`
+	AuthorizationURL  string `json:"authorizationUrl,omitempty"`
+	RedirectURL       string `json:"redirectUrl,omitempty"`
+}
+
+// AdminInitiateOrderPayment triggers payment (e.g. an M-Pesa STK push) on an existing order's
+// payment intent, so a rider/staff member can prompt the customer to pay at delivery. Reuses
+// treasury's per-intent initiate primitive via the S2S client (the public route is never exposed
+// to staff clients).
+// @Summary Initiate payment for an order (admin/rider)
+// @Description Triggers payment (e.g. M-Pesa STK push) on the order's existing payment intent. Body is optional: paymentMethod defaults to "paystack", phoneNumber defaults to the order's customer phone.
+// @Tags Admin Orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param orderId path string true "Order ID"
+// @Param payload body InitiateOrderPaymentRequestDTO false "Optional payment-method / phone override"
+// @Success 200 {object} InitiateOrderPaymentResponseDTO
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 403 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Failure 502 {object} handlers.ErrorResponse
+// @Failure 503 {object} handlers.ErrorResponse
+// @Router /admin/orders/{orderId}/payment/initiate [post]
+func (h *OrderHandler) AdminInitiateOrderPayment(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+
+	// Body is optional — a bare POST defaults to paystack + the order's customer phone.
+	var req InitiateOrderPaymentRequestDTO
+	if r.Body != nil {
+		_ = decodeJSON(r, &req)
+	}
+
+	resp, err := h.orderService.InitiateOrderPayment(r.Context(), ordering.InitiateOrderPaymentInput{
+		TenantID:      tenantID,
+		OrderID:       orderID,
+		PaymentMethod: req.PaymentMethod,
+		PhoneNumber:   req.PhoneNumber,
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, ordering.ErrOrderNotFound):
+			handlers.RespondError(w, http.StatusNotFound, err.Error())
+		case errors.Is(err, ordering.ErrNoPaymentIntent):
+			handlers.RespondError(w, http.StatusConflict, err.Error())
+		case errors.Is(err, ordering.ErrTreasuryNotConfigured):
+			handlers.RespondError(w, http.StatusServiceUnavailable, err.Error())
+		case errors.Is(err, ordering.ErrPaymentInitiateFailed):
+			handlers.RespondError(w, http.StatusBadGateway, err.Error())
+		default:
+			h.handleError(w, err)
+		}
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, InitiateOrderPaymentResponseDTO{
+		Status:            resp.Status,
+		CustomerMessage:   resp.CustomerMessage,
+		CheckoutRequestID: resp.CheckoutRequestID,
+		AuthorizationURL:  resp.AuthorizationURL,
+		RedirectURL:       resp.RedirectURL,
+	})
 }
 
 // DeleteOrder permanently deletes an order and its related data (items, events).
