@@ -191,6 +191,11 @@ func Instructions(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldInstructions, v))
 }
 
+// PodCode applies equality check predicate on the "pod_code" field. It's identical to PodCodeEQ.
+func PodCode(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPodCode, v))
+}
+
 // Source applies equality check predicate on the "source" field. It's identical to SourceEQ.
 func Source(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldSource, v))
@@ -1579,6 +1584,81 @@ func InstructionsEqualFold(v string) predicate.Order {
 // InstructionsContainsFold applies the ContainsFold predicate on the "instructions" field.
 func InstructionsContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldInstructions, v))
+}
+
+// PodCodeEQ applies the EQ predicate on the "pod_code" field.
+func PodCodeEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldPodCode, v))
+}
+
+// PodCodeNEQ applies the NEQ predicate on the "pod_code" field.
+func PodCodeNEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldPodCode, v))
+}
+
+// PodCodeIn applies the In predicate on the "pod_code" field.
+func PodCodeIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldPodCode, vs...))
+}
+
+// PodCodeNotIn applies the NotIn predicate on the "pod_code" field.
+func PodCodeNotIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldPodCode, vs...))
+}
+
+// PodCodeGT applies the GT predicate on the "pod_code" field.
+func PodCodeGT(v string) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldPodCode, v))
+}
+
+// PodCodeGTE applies the GTE predicate on the "pod_code" field.
+func PodCodeGTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldPodCode, v))
+}
+
+// PodCodeLT applies the LT predicate on the "pod_code" field.
+func PodCodeLT(v string) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldPodCode, v))
+}
+
+// PodCodeLTE applies the LTE predicate on the "pod_code" field.
+func PodCodeLTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldPodCode, v))
+}
+
+// PodCodeContains applies the Contains predicate on the "pod_code" field.
+func PodCodeContains(v string) predicate.Order {
+	return predicate.Order(sql.FieldContains(FieldPodCode, v))
+}
+
+// PodCodeHasPrefix applies the HasPrefix predicate on the "pod_code" field.
+func PodCodeHasPrefix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasPrefix(FieldPodCode, v))
+}
+
+// PodCodeHasSuffix applies the HasSuffix predicate on the "pod_code" field.
+func PodCodeHasSuffix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasSuffix(FieldPodCode, v))
+}
+
+// PodCodeIsNil applies the IsNil predicate on the "pod_code" field.
+func PodCodeIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldPodCode))
+}
+
+// PodCodeNotNil applies the NotNil predicate on the "pod_code" field.
+func PodCodeNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldPodCode))
+}
+
+// PodCodeEqualFold applies the EqualFold predicate on the "pod_code" field.
+func PodCodeEqualFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldEqualFold(FieldPodCode, v))
+}
+
+// PodCodeContainsFold applies the ContainsFold predicate on the "pod_code" field.
+func PodCodeContainsFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldContainsFold(FieldPodCode, v))
 }
 
 // ChannelEQ applies the EQ predicate on the "channel" field.

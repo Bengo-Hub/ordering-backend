@@ -30,6 +30,8 @@ type OrderInfo struct {
 	Instructions    string
 	ItemCount       int
 	ItemsDescription string
+	// PODCode is the 6-digit proof-of-delivery confirmation code; surfaced to logistics via task metadata.
+	PODCode         string
 }
 
 // CreateDeliveryTaskRequest represents a request to create a delivery task.
@@ -90,6 +92,7 @@ func (s *TaskService) CreateDeliveryTask(ctx context.Context, req CreateDelivery
 			"order_number":      req.OrderInfo.OrderNumber,
 			"items_description": req.OrderInfo.ItemsDescription,
 			"item_count":        req.OrderInfo.ItemCount,
+			"pod_code":          req.OrderInfo.PODCode,
 		},
 	}
 

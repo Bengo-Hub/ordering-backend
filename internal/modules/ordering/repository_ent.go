@@ -393,6 +393,9 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	if o.Instructions != "" {
 		builder.SetInstructions(o.Instructions)
 	}
+	if o.PODCode != "" {
+		builder.SetPodCode(o.PODCode)
+	}
 	if o.Source != "" {
 		builder.SetSource(o.Source)
 	}
@@ -1047,6 +1050,9 @@ func entOrderToDomain(o *ent.Order) *Order {
 	}
 	if o.ScheduledFor != nil {
 		ord.ScheduledFor = o.ScheduledFor
+	}
+	if o.PodCode != nil {
+		ord.PODCode = *o.PodCode
 	}
 	if o.ReservationID != nil {
 		ord.ReservationID = o.ReservationID

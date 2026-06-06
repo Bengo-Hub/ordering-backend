@@ -120,6 +120,8 @@ type OrderCreatedData struct {
 	TotalAmount   float64   `json:"total_amount"`
 	Currency      string    `json:"currency"`
 	ItemCount     int       `json:"item_count"`
+	// PODCode is the 6-digit proof-of-delivery confirmation code; empty for non-delivery orders.
+	PODCode       string    `json:"pod_code"`
 }
 
 // PublishOrderCreated publishes an order.created event.
@@ -135,6 +137,7 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 		"total_amount":   data.TotalAmount,
 		"currency":       data.Currency,
 		"item_count":     data.ItemCount,
+		"pod_code":       data.PODCode,
 		"notification": map[string]interface{}{
 			"target":          "customer",
 			"recipient_email": data.CustomerEmail,

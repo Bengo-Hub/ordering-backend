@@ -1933,6 +1933,7 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 		CustomerPhone: order.CustomerPhone,
 		Instructions:  order.Instructions,
 		ItemCount:     len(order.Items),
+		PODCode:       order.PODCode,
 	}
 
 	if order.DeliveryAddress != nil {

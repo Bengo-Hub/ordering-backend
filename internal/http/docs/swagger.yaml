@@ -844,6 +844,10 @@ definitions:
         $ref: '#/definitions/github_com_bengobox_ordering-backend_internal_modules_ordering.PaymentStatus'
       placedAt:
         type: string
+      podCode:
+        description: PODCode is the 6-digit proof-of-delivery confirmation code, set
+          only for delivery-fulfilment orders.
+        type: string
       promoCodeId:
         type: string
       ratedAt:

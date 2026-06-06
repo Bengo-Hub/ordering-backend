@@ -759,6 +759,7 @@ var (
 		{Name: "loyalty_points_redeemed", Type: field.TypeInt, Default: 0},
 		{Name: "promo_code_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "instructions", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "pod_code", Type: field.TypeString, Nullable: true, Size: 12},
 		{Name: "channel", Type: field.TypeEnum, Enums: []string{"web", "mobile_app", "kiosk", "phone", "api"}, Default: "web"},
 		{Name: "source", Type: field.TypeString, Nullable: true, Size: 100},
 		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, Size: 255},
@@ -787,19 +788,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_customer_addresses_orders",
-				Columns:    []*schema.Column{OrdersColumns[45]},
+				Columns:    []*schema.Column{OrdersColumns[46]},
 				RefColumns: []*schema.Column{CustomerAddressesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "orders_outlets_orders",
-				Columns:    []*schema.Column{OrdersColumns[46]},
+				Columns:    []*schema.Column{OrdersColumns[47]},
 				RefColumns: []*schema.Column{OutletsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[47]},
+				Columns:    []*schema.Column{OrdersColumns[48]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -808,12 +809,12 @@ var (
 			{
 				Name:    "order_tenant_id_outlet_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[48]},
 			},
 			{
 				Name:    "order_tenant_id_status",
@@ -828,17 +829,17 @@ var (
 			{
 				Name:    "order_tenant_id_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[43]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[44]},
 			},
 			{
 				Name:    "order_tenant_id_outlet_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46], OrdersColumns[5]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_tenant_id_customer_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[47], OrdersColumns[5]},
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[48], OrdersColumns[5]},
 			},
 			{
 				Name:    "order_tenant_id_order_number",
@@ -848,7 +849,7 @@ var (
 			{
 				Name:    "order_idempotency_key",
 				Unique:  true,
-				Columns: []*schema.Column{OrdersColumns[31]},
+				Columns: []*schema.Column{OrdersColumns[32]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "idempotency_key IS NOT NULL",
 				},
@@ -856,32 +857,32 @@ var (
 			{
 				Name:    "order_placed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[32]},
+				Columns: []*schema.Column{OrdersColumns[33]},
 			},
 			{
 				Name:    "order_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[43]},
+				Columns: []*schema.Column{OrdersColumns[44]},
 			},
 			{
 				Name:    "order_completed_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[36]},
+				Columns: []*schema.Column{OrdersColumns[37]},
 			},
 			{
 				Name:    "order_delivered_at",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[35]},
+				Columns: []*schema.Column{OrdersColumns[36]},
 			},
 			{
 				Name:    "order_delivery_address_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[45]},
+				Columns: []*schema.Column{OrdersColumns[46]},
 			},
 			{
 				Name:    "order_channel",
 				Unique:  false,
-				Columns: []*schema.Column{OrdersColumns[29]},
+				Columns: []*schema.Column{OrdersColumns[30]},
 			},
 			{
 				Name:    "order_fulfillment_type",
