@@ -84,6 +84,8 @@ type Order struct {
 	PromoCodeID *uuid.UUID `json:"promo_code_id,omitempty"`
 	// Delivery/order instructions
 	Instructions string `json:"instructions,omitempty"`
+	// Proof-of-delivery confirmation code (6-digit numeric); set only for delivery-fulfilment orders
+	PodCode *string `json:"pod_code,omitempty"`
 	// Order channel
 	Channel order.Channel `json:"channel,omitempty"`
 	// Order source identifier
@@ -214,7 +216,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
-		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldPaymentMethod, order.FieldCurrency, order.FieldFulfillmentType, order.FieldPreferredCarrier, order.FieldInstructions, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
+		case order.FieldOrderNumber, order.FieldStatus, order.FieldPaymentStatus, order.FieldPaymentMethod, order.FieldCurrency, order.FieldFulfillmentType, order.FieldPreferredCarrier, order.FieldInstructions, order.FieldPodCode, order.FieldChannel, order.FieldSource, order.FieldIdempotencyKey, order.FieldCancellationReason, order.FieldRatingComment:
 			values[i] = new(sql.NullString)
 		case order.FieldScheduledFor, order.FieldPlacedAt, order.FieldConfirmedAt, order.FieldReadyAt, order.FieldDeliveredAt, order.FieldCompletedAt, order.FieldCancelledAt, order.FieldRatedAt, order.FieldCreatedAt, order.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -436,6 +438,13 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field instructions", values[i])
 			} else if value.Valid {
 				_m.Instructions = value.String
+			}
+		case order.FieldPodCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pod_code", values[i])
+			} else if value.Valid {
+				_m.PodCode = new(string)
+				*_m.PodCode = value.String
 			}
 		case order.FieldChannel:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -721,6 +730,11 @@ func (_m *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("instructions=")
 	builder.WriteString(_m.Instructions)
+	builder.WriteString(", ")
+	if v := _m.PodCode; v != nil {
+		builder.WriteString("pod_code=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("channel=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Channel))

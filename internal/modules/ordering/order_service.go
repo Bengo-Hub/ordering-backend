@@ -2,7 +2,9 @@ package ordering
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"strings"
 	"time"
 
@@ -26,6 +28,17 @@ func customerIDValue(c *uuid.UUID) uuid.UUID {
 		return *c
 	}
 	return uuid.Nil
+}
+
+// generatePODCode returns a zero-padded 6-digit numeric proof-of-delivery
+// confirmation code (e.g. "482913"). Uses crypto/rand; falls back to a
+// time-derived value only if the system RNG is unavailable.
+func generatePODCode() string {
+	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
+	if err != nil {
+		return fmt.Sprintf("%06d", time.Now().UnixNano()%1000000)
+	}
+	return fmt.Sprintf("%06d", n.Int64())
 }
 
 // OrderService provides order business logic.
@@ -288,6 +301,11 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		ReservationID:         reservationID,
 	}
 
+	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
+	if fulfillmentType == FulfillmentTypeDelivery {
+		order.PODCode = generatePODCode()
+	}
+
 	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create order", zap.Error(err))
 		return nil, err
@@ -470,6 +488,11 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		PlacedAt:            &now,
 		CreatedAt:           now,
 		UpdatedAt:           now,
+	}
+
+	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
+	if fulfillmentType == FulfillmentTypeDelivery {
+		order.PODCode = generatePODCode()
 	}
 
 	if err := s.createOrderWithRetry(ctx, order); err != nil {
@@ -769,6 +792,11 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 			"contactPhone": req.ContactPhone,
 			"sessionId":    req.SessionID,
 		},
+	}
+
+	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
+	if fulfillmentType == FulfillmentTypeDelivery {
+		order.PODCode = generatePODCode()
 	}
 
 	if err := s.createOrderWithRetry(ctx, order); err != nil {
@@ -2055,6 +2083,7 @@ func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, it
 		TotalAmount:   order.GrandTotal,
 		Currency:      order.Currency,
 		ItemCount:     itemCount,
+		PODCode:       order.PODCode,
 	}
 
 	if err := s.eventPublisher.PublishOrderCreated(ctx, order.TenantID, data); err != nil {
@@ -2191,6 +2220,23 @@ func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Or
 		CustomerName:  ci.Name,
 		CustomerPhone: ci.Phone,
 	}
+
+	// Resolve the assigned rider's display name from logistics so consumers/templates can show it.
+	// The logistics delivery task is keyed by the order ID (its external reference). If logistics is
+	// unavailable or the task carries no rider yet, rider_name is simply left empty.
+	if s.logisticsClient != nil {
+		if tenant, tErr := s.repo.GetTenantByID(ctx, order.TenantID); tErr == nil {
+			if task, taskErr := s.logisticsClient.GetTaskByExternalRef(ctx, tenant.Slug, order.ID.String()); taskErr == nil && task != nil {
+				data.RiderName = task.RiderName
+				data.RiderPhone = task.RiderPhone
+			} else if taskErr != nil {
+				s.logger.Warn("failed to resolve rider name for out_for_delivery event",
+					zap.Error(taskErr),
+					zap.String("order_id", order.ID.String()))
+			}
+		}
+	}
+
 	if err := s.eventPublisher.PublishOrderOutForDelivery(ctx, order.TenantID, data); err != nil {
 		s.logger.Error("failed to publish order.out_for_delivery event",
 			zap.Error(err),

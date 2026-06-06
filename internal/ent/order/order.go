@@ -78,6 +78,8 @@ const (
 	FieldPromoCodeID = "promo_code_id"
 	// FieldInstructions holds the string denoting the instructions field in the database.
 	FieldInstructions = "instructions"
+	// FieldPodCode holds the string denoting the pod_code field in the database.
+	FieldPodCode = "pod_code"
 	// FieldChannel holds the string denoting the channel field in the database.
 	FieldChannel = "channel"
 	// FieldSource holds the string denoting the source field in the database.
@@ -202,6 +204,7 @@ var Columns = []string{
 	FieldDeliveryAddressID,
 	FieldPromoCodeID,
 	FieldInstructions,
+	FieldPodCode,
 	FieldChannel,
 	FieldSource,
 	FieldIdempotencyKey,
@@ -255,6 +258,8 @@ var (
 	DefaultLoyaltyPointsEarned int
 	// DefaultLoyaltyPointsRedeemed holds the default value on creation for the "loyalty_points_redeemed" field.
 	DefaultLoyaltyPointsRedeemed int
+	// PodCodeValidator is a validator for the "pod_code" field. It is called by the builders before save.
+	PodCodeValidator func(string) error
 	// SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	SourceValidator func(string) error
 	// IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
@@ -585,6 +590,11 @@ func ByPromoCodeID(opts ...sql.OrderTermOption) OrderOption {
 // ByInstructions orders the results by the instructions field.
 func ByInstructions(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldInstructions, opts...).ToFunc()
+}
+
+// ByPodCode orders the results by the pod_code field.
+func ByPodCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPodCode, opts...).ToFunc()
 }
 
 // ByChannel orders the results by the channel field.

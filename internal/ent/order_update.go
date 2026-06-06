@@ -618,6 +618,26 @@ func (_u *OrderUpdate) ClearInstructions() *OrderUpdate {
 	return _u
 }
 
+// SetPodCode sets the "pod_code" field.
+func (_u *OrderUpdate) SetPodCode(v string) *OrderUpdate {
+	_u.mutation.SetPodCode(v)
+	return _u
+}
+
+// SetNillablePodCode sets the "pod_code" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillablePodCode(v *string) *OrderUpdate {
+	if v != nil {
+		_u.SetPodCode(*v)
+	}
+	return _u
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (_u *OrderUpdate) ClearPodCode() *OrderUpdate {
+	_u.mutation.ClearPodCode()
+	return _u
+}
+
 // SetChannel sets the "channel" field.
 func (_u *OrderUpdate) SetChannel(v order.Channel) *OrderUpdate {
 	_u.mutation.SetChannel(v)
@@ -1111,6 +1131,11 @@ func (_u *OrderUpdate) check() error {
 			return &ValidationError{Name: "fulfillment_type", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PodCode(); ok {
+		if err := order.PodCodeValidator(v); err != nil {
+			return &ValidationError{Name: "pod_code", err: fmt.Errorf(`ent: validator failed for field "Order.pod_code": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
@@ -1295,6 +1320,12 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.InstructionsCleared() {
 		_spec.ClearField(order.FieldInstructions, field.TypeString)
+	}
+	if value, ok := _u.mutation.PodCode(); ok {
+		_spec.SetField(order.FieldPodCode, field.TypeString, value)
+	}
+	if _u.mutation.PodCodeCleared() {
+		_spec.ClearField(order.FieldPodCode, field.TypeString)
 	}
 	if value, ok := _u.mutation.Channel(); ok {
 		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
@@ -2208,6 +2239,26 @@ func (_u *OrderUpdateOne) ClearInstructions() *OrderUpdateOne {
 	return _u
 }
 
+// SetPodCode sets the "pod_code" field.
+func (_u *OrderUpdateOne) SetPodCode(v string) *OrderUpdateOne {
+	_u.mutation.SetPodCode(v)
+	return _u
+}
+
+// SetNillablePodCode sets the "pod_code" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillablePodCode(v *string) *OrderUpdateOne {
+	if v != nil {
+		_u.SetPodCode(*v)
+	}
+	return _u
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (_u *OrderUpdateOne) ClearPodCode() *OrderUpdateOne {
+	_u.mutation.ClearPodCode()
+	return _u
+}
+
 // SetChannel sets the "channel" field.
 func (_u *OrderUpdateOne) SetChannel(v order.Channel) *OrderUpdateOne {
 	_u.mutation.SetChannel(v)
@@ -2714,6 +2765,11 @@ func (_u *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "fulfillment_type", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PodCode(); ok {
+		if err := order.PodCodeValidator(v); err != nil {
+			return &ValidationError{Name: "pod_code", err: fmt.Errorf(`ent: validator failed for field "Order.pod_code": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
@@ -2915,6 +2971,12 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if _u.mutation.InstructionsCleared() {
 		_spec.ClearField(order.FieldInstructions, field.TypeString)
+	}
+	if value, ok := _u.mutation.PodCode(); ok {
+		_spec.SetField(order.FieldPodCode, field.TypeString, value)
+	}
+	if _u.mutation.PodCodeCleared() {
+		_spec.ClearField(order.FieldPodCode, field.TypeString)
 	}
 	if value, ok := _u.mutation.Channel(); ok {
 		_spec.SetField(order.FieldChannel, field.TypeEnum, value)

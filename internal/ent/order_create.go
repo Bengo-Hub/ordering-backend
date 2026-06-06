@@ -424,6 +424,20 @@ func (_c *OrderCreate) SetNillableInstructions(v *string) *OrderCreate {
 	return _c
 }
 
+// SetPodCode sets the "pod_code" field.
+func (_c *OrderCreate) SetPodCode(v string) *OrderCreate {
+	_c.mutation.SetPodCode(v)
+	return _c
+}
+
+// SetNillablePodCode sets the "pod_code" field if the given value is not nil.
+func (_c *OrderCreate) SetNillablePodCode(v *string) *OrderCreate {
+	if v != nil {
+		_c.SetPodCode(*v)
+	}
+	return _c
+}
+
 // SetChannel sets the "channel" field.
 func (_c *OrderCreate) SetChannel(v order.Channel) *OrderCreate {
 	_c.mutation.SetChannel(v)
@@ -912,6 +926,11 @@ func (_c *OrderCreate) check() error {
 	if _, ok := _c.mutation.LoyaltyPointsRedeemed(); !ok {
 		return &ValidationError{Name: "loyalty_points_redeemed", err: errors.New(`ent: missing required field "Order.loyalty_points_redeemed"`)}
 	}
+	if v, ok := _c.mutation.PodCode(); ok {
+		if err := order.PodCodeValidator(v); err != nil {
+			return &ValidationError{Name: "pod_code", err: fmt.Errorf(`ent: validator failed for field "Order.pod_code": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Channel(); !ok {
 		return &ValidationError{Name: "channel", err: errors.New(`ent: missing required field "Order.channel"`)}
 	}
@@ -1091,6 +1110,10 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Instructions(); ok {
 		_spec.SetField(order.FieldInstructions, field.TypeString, value)
 		_node.Instructions = value
+	}
+	if value, ok := _c.mutation.PodCode(); ok {
+		_spec.SetField(order.FieldPodCode, field.TypeString, value)
+		_node.PodCode = &value
 	}
 	if value, ok := _c.mutation.Channel(); ok {
 		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
@@ -1814,6 +1837,24 @@ func (u *OrderUpsert) UpdateInstructions() *OrderUpsert {
 // ClearInstructions clears the value of the "instructions" field.
 func (u *OrderUpsert) ClearInstructions() *OrderUpsert {
 	u.SetNull(order.FieldInstructions)
+	return u
+}
+
+// SetPodCode sets the "pod_code" field.
+func (u *OrderUpsert) SetPodCode(v string) *OrderUpsert {
+	u.Set(order.FieldPodCode, v)
+	return u
+}
+
+// UpdatePodCode sets the "pod_code" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePodCode() *OrderUpsert {
+	u.SetExcluded(order.FieldPodCode)
+	return u
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (u *OrderUpsert) ClearPodCode() *OrderUpsert {
+	u.SetNull(order.FieldPodCode)
 	return u
 }
 
@@ -2724,6 +2765,27 @@ func (u *OrderUpsertOne) UpdateInstructions() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearInstructions() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearInstructions()
+	})
+}
+
+// SetPodCode sets the "pod_code" field.
+func (u *OrderUpsertOne) SetPodCode(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPodCode(v)
+	})
+}
+
+// UpdatePodCode sets the "pod_code" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePodCode() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePodCode()
+	})
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (u *OrderUpsertOne) ClearPodCode() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPodCode()
 	})
 }
 
@@ -3845,6 +3907,27 @@ func (u *OrderUpsertBulk) UpdateInstructions() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearInstructions() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearInstructions()
+	})
+}
+
+// SetPodCode sets the "pod_code" field.
+func (u *OrderUpsertBulk) SetPodCode(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPodCode(v)
+	})
+}
+
+// UpdatePodCode sets the "pod_code" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePodCode() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePodCode()
+	})
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (u *OrderUpsertBulk) ClearPodCode() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPodCode()
 	})
 }
 

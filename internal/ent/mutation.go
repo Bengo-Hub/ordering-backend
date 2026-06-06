@@ -18028,6 +18028,7 @@ type OrderMutation struct {
 	addloyalty_points_redeemed *int
 	promo_code_id              *uuid.UUID
 	instructions               *string
+	pod_code                   *string
 	channel                    *order.Channel
 	source                     *string
 	idempotency_key            *string
@@ -19662,6 +19663,55 @@ func (m *OrderMutation) ResetInstructions() {
 	delete(m.clearedFields, order.FieldInstructions)
 }
 
+// SetPodCode sets the "pod_code" field.
+func (m *OrderMutation) SetPodCode(s string) {
+	m.pod_code = &s
+}
+
+// PodCode returns the value of the "pod_code" field in the mutation.
+func (m *OrderMutation) PodCode() (r string, exists bool) {
+	v := m.pod_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPodCode returns the old "pod_code" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldPodCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPodCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPodCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPodCode: %w", err)
+	}
+	return oldValue.PodCode, nil
+}
+
+// ClearPodCode clears the value of the "pod_code" field.
+func (m *OrderMutation) ClearPodCode() {
+	m.pod_code = nil
+	m.clearedFields[order.FieldPodCode] = struct{}{}
+}
+
+// PodCodeCleared returns if the "pod_code" field was cleared in this mutation.
+func (m *OrderMutation) PodCodeCleared() bool {
+	_, ok := m.clearedFields[order.FieldPodCode]
+	return ok
+}
+
+// ResetPodCode resets all changes to the "pod_code" field.
+func (m *OrderMutation) ResetPodCode() {
+	m.pod_code = nil
+	delete(m.clearedFields, order.FieldPodCode)
+}
+
 // SetChannel sets the "channel" field.
 func (m *OrderMutation) SetChannel(o order.Channel) {
 	m.channel = &o
@@ -20705,7 +20755,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 47)
+	fields := make([]string, 0, 48)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -20798,6 +20848,9 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.instructions != nil {
 		fields = append(fields, order.FieldInstructions)
+	}
+	if m.pod_code != nil {
+		fields = append(fields, order.FieldPodCode)
 	}
 	if m.channel != nil {
 		fields = append(fields, order.FieldChannel)
@@ -20917,6 +20970,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.PromoCodeID()
 	case order.FieldInstructions:
 		return m.Instructions()
+	case order.FieldPodCode:
+		return m.PodCode()
 	case order.FieldChannel:
 		return m.Channel()
 	case order.FieldSource:
@@ -21020,6 +21075,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPromoCodeID(ctx)
 	case order.FieldInstructions:
 		return m.OldInstructions(ctx)
+	case order.FieldPodCode:
+		return m.OldPodCode(ctx)
 	case order.FieldChannel:
 		return m.OldChannel(ctx)
 	case order.FieldSource:
@@ -21277,6 +21334,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetInstructions(v)
+		return nil
+	case order.FieldPodCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPodCode(v)
 		return nil
 	case order.FieldChannel:
 		v, ok := value.(order.Channel)
@@ -21603,6 +21667,9 @@ func (m *OrderMutation) ClearedFields() []string {
 	if m.FieldCleared(order.FieldInstructions) {
 		fields = append(fields, order.FieldInstructions)
 	}
+	if m.FieldCleared(order.FieldPodCode) {
+		fields = append(fields, order.FieldPodCode)
+	}
 	if m.FieldCleared(order.FieldSource) {
 		fields = append(fields, order.FieldSource)
 	}
@@ -21691,6 +21758,9 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldInstructions:
 		m.ClearInstructions()
+		return nil
+	case order.FieldPodCode:
+		m.ClearPodCode()
 		return nil
 	case order.FieldSource:
 		m.ClearSource()
@@ -21831,6 +21901,9 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldInstructions:
 		m.ResetInstructions()
+		return nil
+	case order.FieldPodCode:
+		m.ResetPodCode()
 		return nil
 	case order.FieldChannel:
 		m.ResetChannel()

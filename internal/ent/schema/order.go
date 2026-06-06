@@ -122,6 +122,11 @@ func (Order) Fields() []ent.Field {
 		field.Text("instructions").
 			Optional().
 			Comment("Delivery/order instructions"),
+		field.String("pod_code").
+			Optional().
+			Nillable().
+			MaxLen(12).
+			Comment("Proof-of-delivery confirmation code (6-digit numeric); set only for delivery-fulfilment orders"),
 		field.Enum("channel").
 			Values("web", "mobile_app", "kiosk", "phone", "api").
 			Default("web").

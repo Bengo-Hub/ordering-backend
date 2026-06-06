@@ -6163,6 +6163,10 @@ const docTemplate = `{
                 "placedAt": {
                     "type": "string"
                 },
+                "podCode": {
+                    "description": "PODCode is the 6-digit proof-of-delivery confirmation code, set only for delivery-fulfilment orders.",
+                    "type": "string"
+                },
                 "promoCodeId": {
                     "type": "string"
                 },
