@@ -386,10 +386,10 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		fulfillmentType = FulfillmentTypeDelivery
 	}
 
-	// Cash on delivery is not available for pickup orders
-	if fulfillmentType == FulfillmentTypePickup && req.PaymentMethod == "cod" {
-		return nil, ErrCashNotAvailableForPickup
-	}
+	// Pickup orders support cash-on-pickup (pay at the counter on collection),
+	// interpreted via payment_method == "cod" the same way delivery uses cash-on-delivery.
+	// No fulfillment-specific block: a cod/cash pickup order is placed as cod_pending and
+	// settled when the order is marked completed (collected). See settleCODIfApplicable.
 
 	// Validate scheduled orders
 	if fulfillmentType == FulfillmentTypeScheduled {
@@ -1052,6 +1052,41 @@ func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, or
 	go s.processStockConsumption(context.Background(), order)
 }
 
+// settleCODIfApplicable marks an offline-cash (COD) order as paid and triggers the
+// treasury settlement when the order reaches its terminal/collected state. It is the
+// single implementation shared by both terminal transitions:
+//   - DELIVERY orders settle cash-on-delivery when marked "delivered".
+//   - PICKUP/dine-in orders settle cash-on-pickup (pay-at-counter) when marked "completed".
+//
+// It is a no-op for non-COD orders and is guarded against double-settle: if the payment
+// is already PAID (e.g. an order that was settled then revisited) it skips entirely.
+func (s *OrderService) settleCODIfApplicable(ctx context.Context, tenantID uuid.UUID, order *Order) {
+	if order.PaymentMethod != PaymentMethodCOD || order.PaymentStatus == PaymentStatusPaid {
+		return
+	}
+	order.PaymentStatus = PaymentStatusPaid
+	if s.treasuryClient == nil {
+		return
+	}
+	go func(tid, oid uuid.UUID, amount float64, currency string) {
+		settleCtx := context.Background()
+		_, err := s.treasuryClient.SettleCODPayment(settleCtx, treasury.SettleCODPaymentRequest{
+			TenantID:   tid,
+			OrderID:    oid.String(),
+			AmountPaid: amount,
+			Currency:   currency,
+		})
+		if err != nil {
+			s.logger.Error("failed to settle COD payment intent on collection/delivery",
+				zap.Error(err),
+				zap.String("order_id", oid.String()))
+		} else {
+			s.logger.Info("COD payment intent settled on collection/delivery confirmation",
+				zap.String("order_id", oid.String()))
+		}
+	}(tenantID, order.ID, order.GrandTotal, order.Currency)
+}
+
 // UpdateOrderStatus transitions an order to a new status.
 func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus OrderStatus, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
@@ -1079,30 +1114,9 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		order.ReadyAt = &now
 	case OrderStatusDelivered:
 		order.DeliveredAt = &now
-		// For COD orders: mark payment as paid and trigger treasury settlement.
+		// For COD (cash-on-delivery) orders: mark payment paid and trigger treasury settlement.
 		// This handles admin/manual delivery confirmation as well as rider-confirmed delivery.
-		if order.PaymentMethod == PaymentMethodCOD && order.PaymentStatus != PaymentStatusPaid {
-			order.PaymentStatus = PaymentStatusPaid
-			if s.treasuryClient != nil {
-				go func(tid, oid uuid.UUID, amount float64, currency string) {
-					settleCtx := context.Background()
-					_, err := s.treasuryClient.SettleCODPayment(settleCtx, treasury.SettleCODPaymentRequest{
-						TenantID:   tid,
-						OrderID:    oid.String(),
-						AmountPaid: amount,
-						Currency:   currency,
-					})
-					if err != nil {
-						s.logger.Error("failed to settle COD payment intent on delivery",
-							zap.Error(err),
-							zap.String("order_id", oid.String()))
-					} else {
-						s.logger.Info("COD payment intent settled on delivery confirmation",
-							zap.String("order_id", oid.String()))
-					}
-				}(tenantID, orderID, order.GrandTotal, order.Currency)
-			}
-		}
+		s.settleCODIfApplicable(ctx, tenantID, order)
 		// DELIVERY orders terminate at "delivered" (they never reach "completed"), so run
 		// the same terminal finalization here as the completed case: award loyalty points,
 		// finalize the inventory reservation (otherwise reserved stock leaks — held forever),
@@ -1110,6 +1124,9 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
 	case OrderStatusCompleted:
 		order.CompletedAt = &now
+		// For COD (cash-on-pickup / pay-at-counter) orders the terminal state is "completed"
+		// (collected). Mirror the delivery COD flow: mark paid and settle via treasury.
+		s.settleCODIfApplicable(ctx, tenantID, order)
 		// Pickup/dine-in orders terminate at "completed": run terminal finalization
 		// (loyalty points, inventory reservation consumption, recipe stock consumption).
 		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)

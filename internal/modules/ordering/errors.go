@@ -59,7 +59,6 @@ var (
 	ErrCheckoutFailed              = errors.New("checkout failed")
 	ErrInvalidDeliveryAddress      = errors.New("invalid delivery address")
 	ErrDeliveryNotAvailable        = errors.New("delivery is not available to this address")
-	ErrCashNotAvailableForPickup   = errors.New("cash on delivery is not available for pickup orders")
 
 	// Rating errors
 	ErrOrderNotRatable  = errors.New("order cannot be rated: must be delivered or completed")
