@@ -760,6 +760,18 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		}
 	}
 
+	// Determine payment method + status from the request (mirrors Checkout/CreateOrderFromItems).
+	// Without this, guest orders fell back to the ent default (mpesa) regardless of the
+	// customer's selection, so COD / M-Pesa-on-delivery never stuck on the guest path.
+	paymentMethod := PaymentMethod(req.PaymentMethod)
+	if paymentMethod == "" {
+		paymentMethod = PaymentMethodMpesa
+	}
+	paymentStatus := PaymentStatusPending
+	if paymentMethod == PaymentMethodCOD {
+		paymentStatus = "cod_pending"
+	}
+
 	now := time.Now()
 	order := &Order{
 		TenantID:              req.TenantID,
@@ -768,7 +780,8 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		CartID:                cartID,
 		OrderNumber:           orderNumber,
 		Status:                OrderStatusPending,
-		PaymentStatus:         PaymentStatusPending,
+		PaymentStatus:         paymentStatus,
+		PaymentMethod:         paymentMethod,
 		FulfillmentType:       fulfillmentType,
 		Currency:              "KES",
 		Subtotal:              subtotal,
