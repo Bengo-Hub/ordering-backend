@@ -2036,10 +2036,19 @@ func (s *OrderService) consumeOrderReservation(ctx context.Context, order *Order
 		return
 	}
 	if consumeErr := s.inventoryClient.ConsumeReservation(ctx, tenant.Slug, *order.ReservationID); consumeErr != nil {
-		s.logger.Warn("failed to consume inventory reservation",
-			zap.Error(consumeErr),
-			zap.String("reservationID", order.ReservationID.String()),
-			zap.String("orderID", order.ID.String()))
+		// Benign case: for recipe orders the BOM consumption (RecordConsumption, keyed by order ID)
+		// already finalizes the reservation server-side, so this call sees it already consumed. Stock
+		// is still deducted exactly once — log at info, not warn, to avoid false alarms.
+		if msg := strings.ToLower(consumeErr.Error()); strings.Contains(msg, "already consumed") || strings.Contains(msg, "not found") {
+			s.logger.Info("inventory reservation already finalized (consumed via recipe BOM consumption)",
+				zap.String("reservationID", order.ReservationID.String()),
+				zap.String("orderID", order.ID.String()))
+		} else {
+			s.logger.Warn("failed to consume inventory reservation",
+				zap.Error(consumeErr),
+				zap.String("reservationID", order.ReservationID.String()),
+				zap.String("orderID", order.ID.String()))
+		}
 	} else {
 		s.logger.Info("inventory reservation consumed",
 			zap.String("reservationID", order.ReservationID.String()),
