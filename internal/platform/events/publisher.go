@@ -358,6 +358,43 @@ func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUI
 	return p.Publish(ctx, "ordering.order.completed", event)
 }
 
+// OrderDeliveredData represents data for the ordering.order.delivered event.
+// Delivery orders terminate at "delivered" (never "completed"), so this event
+// carries full customer contact info for the review/rating notification email.
+type OrderDeliveredData struct {
+	OrderID       uuid.UUID `json:"order_id"`
+	OrderNumber   string    `json:"order_number"`
+	CustomerID    uuid.UUID `json:"customer_id"`
+	CustomerEmail string    `json:"customer_email,omitempty"`
+	CustomerName  string    `json:"customer_name,omitempty"`
+	CustomerPhone string    `json:"customer_phone,omitempty"`
+	TotalAmount   float64   `json:"total_amount"`
+	Currency      string    `json:"currency"`
+	DeliveredAt   time.Time `json:"delivered_at"`
+}
+
+// PublishOrderDelivered publishes an ordering.order.delivered event.
+func (p *Publisher) PublishOrderDelivered(ctx context.Context, tenantID uuid.UUID, data OrderDeliveredData) error {
+	event := NewEvent("ordering.order.delivered", tenantID, map[string]interface{}{
+		"order_id":       data.OrderID.String(),
+		"order_number":   data.OrderNumber,
+		"customer_id":    data.CustomerID.String(),
+		"customer_email": data.CustomerEmail,
+		"customer_name":  data.CustomerName,
+		"customer_phone": data.CustomerPhone,
+		"total_amount":   data.TotalAmount,
+		"currency":       data.Currency,
+		"delivered_at":   data.DeliveredAt.Format(time.RFC3339),
+		"notification": map[string]interface{}{
+			"target":          "customer",
+			"recipient_email": data.CustomerEmail,
+			"recipient_phone": data.CustomerPhone,
+		},
+	})
+
+	return p.Publish(ctx, "ordering.order.delivered", event)
+}
+
 // OrderPaymentConfirmedLine is a single paid line item (for downstream ticket issuance etc.).
 type OrderPaymentConfirmedLine struct {
 	SKU       string                 `json:"sku"`
