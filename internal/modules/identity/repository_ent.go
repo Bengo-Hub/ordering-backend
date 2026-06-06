@@ -193,6 +193,47 @@ func (r *EntRepository) ListUsers(ctx context.Context) ([]*User, error) {
 	return out, nil
 }
 
+// defaultTenantUsersLimit caps the number of users returned by ListTenantUsers
+// when the caller does not supply a positive limit.
+const defaultTenantUsersLimit = 50
+
+// ListTenantUsers returns the users belonging to a tenant, optionally filtered by
+// a case-insensitive name/email substring, ordered by name and capped by limit.
+func (r *EntRepository) ListTenantUsers(ctx context.Context, tenantID uuid.UUID, q string, limit int) ([]*User, error) {
+	if limit <= 0 {
+		limit = defaultTenantUsersLimit
+	}
+
+	query := r.client.User.
+		Query().
+		Where(user.TenantIDEQ(tenantID)).
+		WithTenant().
+		WithRoles(func(rq *ent.RoleQuery) { rq.WithLegacyPermissions() }).
+		WithPreferences().
+		WithProfile()
+
+	if q = strings.TrimSpace(q); q != "" {
+		query = query.Where(user.Or(
+			user.FullNameContainsFold(q),
+			user.EmailContainsFold(q),
+		))
+	}
+
+	records, err := query.
+		Order(ent.Asc(user.FieldFullName)).
+		Limit(limit).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("identity: list tenant users: %w", err)
+	}
+
+	out := make([]*User, 0, len(records))
+	for _, u := range records {
+		out = append(out, mapEntUser(u))
+	}
+	return out, nil
+}
+
 // FindTenantBySlug finds a tenant by its slug.
 func (r *EntRepository) FindTenantBySlug(ctx context.Context, slug string) (*Tenant, error) {
 	tenantEntity, err := r.client.Tenant.Query().

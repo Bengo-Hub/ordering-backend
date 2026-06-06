@@ -1074,6 +1074,24 @@ definitions:
       updated_at:
         type: string
     type: object
+  internal_http_handlers.ErrorResponse:
+    properties:
+      error:
+        example: Unauthorized
+        type: string
+      message:
+        example: invalid credentials
+        type: string
+    type: object
+  internal_http_handlers.TenantUserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   internal_http_handlers.livenessResponse:
     properties:
       service:
@@ -1933,6 +1951,50 @@ info:
   title: Ordering Service API
   version: 0.1.0
 paths:
+  /{tenant}/admin/users:
+    get:
+      description: Returns the calling tenant's synced ordering users as a lightweight
+        {id,name,email} list, intended to back searchable user pickers (e.g. role
+        assignment). Supports an optional case-insensitive name/email filter and a
+        result cap.
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Case-insensitive name/email search filter
+        in: query
+        name: q
+        type: string
+      - description: Maximum number of users to return (default 50, max 200)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/internal_http_handlers.TenantUserResponse'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_http_handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_http_handlers.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: List tenant users
+      tags:
+      - RBAC
   /addresses:
     get:
       description: Lists all delivery addresses for the current user
@@ -2422,7 +2484,7 @@ paths:
       consumes:
       - application/json
       description: 'Triggers payment (e.g. M-Pesa STK push) on the order''s existing
-        payment intent. Body is optional: paymentMethod defaults to "mpesa", phoneNumber
+        payment intent. Body is optional: paymentMethod defaults to "paystack", phoneNumber
         defaults to the order''s customer phone.'
       parameters:
       - description: Bearer token

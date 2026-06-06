@@ -794,7 +794,7 @@
         },
         "/admin/orders/{orderId}/payment/initiate": {
             "post": {
-                "description": "Triggers payment (e.g. M-Pesa STK push) on the order's existing payment intent. Body is optional: paymentMethod defaults to \"mpesa\", phoneNumber defaults to the order's customer phone.",
+                "description": "Triggers payment (e.g. M-Pesa STK push) on the order's existing payment intent. Body is optional: paymentMethod defaults to \"paystack\", phoneNumber defaults to the order's customer phone.",
                 "consumes": [
                     "application/json"
                 ],
@@ -4928,6 +4928,70 @@
                     }
                 }
             }
+        },
+        "/{tenant}/admin/users": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Returns the calling tenant's synced ordering users as a lightweight {id,name,email} list, intended to back searchable user pickers (e.g. role assignment). Supports an optional case-insensitive name/email filter and a result cap.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RBAC"
+                ],
+                "summary": "List tenant users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Case-insensitive name/email search filter",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of users to return (default 50, max 200)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/internal_http_handlers.TenantUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -6413,6 +6477,33 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid credentials"
+                }
+            }
+        },
+        "internal_http_handlers.TenantUserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

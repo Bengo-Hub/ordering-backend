@@ -141,6 +141,37 @@ func (r *MemoryRepository) ListUsers(_ context.Context) ([]*User, error) {
 	return result, nil
 }
 
+// ListTenantUsers returns the tenant's users, optionally filtered by a
+// case-insensitive name/email substring, capped by limit (default 50).
+func (r *MemoryRepository) ListTenantUsers(_ context.Context, tenantID uuid.UUID, q string, limit int) ([]*User, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	if limit <= 0 {
+		limit = 50
+	}
+	q = strings.ToLower(strings.TrimSpace(q))
+	tenant := tenantID.String()
+
+	result := make([]*User, 0)
+	for _, user := range r.users {
+		if user.TenantID != tenant {
+			continue
+		}
+		if q != "" &&
+			!strings.Contains(strings.ToLower(user.FullName), q) &&
+			!strings.Contains(strings.ToLower(user.Email), q) {
+			continue
+		}
+		cpy := *user
+		result = append(result, &cpy)
+		if len(result) >= limit {
+			break
+		}
+	}
+	return result, nil
+}
+
 // ListOrdersByUser returns order summaries for a user.
 func (r *MemoryRepository) ListOrdersByUser(_ context.Context, userID uuid.UUID) ([]*OrderSummary, error) {
 	r.mu.RLock()
