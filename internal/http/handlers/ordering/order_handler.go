@@ -1934,6 +1934,7 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 		Instructions:  order.Instructions,
 		ItemCount:     len(order.Items),
 		PODCode:       order.PODCode,
+		DeliveryFee:   order.DeliveryFee,
 	}
 
 	if order.DeliveryAddress != nil {
