@@ -48,7 +48,7 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 
 	for _, s := range subs {
 		s := s
-		_, err := js.Subscribe(s.subject, func(msg *nats.Msg) {
+		sharedevents.SubscribeWithRebind(h.logger, js, s.subject, func(msg *nats.Msg) {
 			evt, parseErr := sharedevents.FromJSON(msg.Data)
 			if parseErr != nil {
 				h.logger.Error("failed to parse stock event envelope",
@@ -72,9 +72,6 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 			nats.MaxDeliver(5),
 			nats.BindStream(inventoryStreamName),
 		)
-		if err != nil {
-			return fmt.Errorf("catalog: subscribe to %s: %w", s.subject, err)
-		}
 	}
 
 	h.logger.Info("stock event subscriptions active (JetStream)",

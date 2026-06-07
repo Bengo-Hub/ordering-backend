@@ -60,7 +60,7 @@ func (h *EventHandler) subscribeAuthDurable(
 ) error {
 	cfg := durableConsumerConfig(subject, durable)
 
-	sub, err := js.Subscribe(subject, func(msg *nats.Msg) {
+	sharedevents.SubscribeWithRebind(h.logger, js, subject, func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("failed to parse shared-events envelope",
@@ -89,10 +89,6 @@ func (h *EventHandler) subscribeAuthDurable(
 		nats.MaxDeliver(cfg.MaxDeliver),
 		nats.BindStream(authStreamName),
 	)
-	if err != nil {
-		return fmt.Errorf("identity: subscribe %s (durable=%s): %w", subject, durable, err)
-	}
-	_ = sub
 	return nil
 }
 

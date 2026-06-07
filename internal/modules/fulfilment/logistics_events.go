@@ -79,7 +79,7 @@ func (h *LogisticsEventHandler) subscribeLogisticsDurable(
 	durable string,
 	handler func(context.Context, *sharedevents.Event) error,
 ) error {
-	sub, err := js.Subscribe(subject, func(msg *nats.Msg) {
+	sharedevents.SubscribeWithRebind(h.logger, js, subject, func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("failed to parse logistics event envelope",
@@ -105,10 +105,6 @@ func (h *LogisticsEventHandler) subscribeLogisticsDurable(
 		nats.MaxDeliver(5),
 		nats.BindStream(logisticsStreamName),
 	)
-	if err != nil {
-		return fmt.Errorf("subscribe to %s (durable=%s): %w", subject, durable, err)
-	}
-	_ = sub
 	return nil
 }
 
