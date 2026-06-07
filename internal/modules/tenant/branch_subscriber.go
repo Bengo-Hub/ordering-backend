@@ -100,9 +100,15 @@ func (s *BranchSubscriber) Start(nc *nats.Conn) error {
 				_ = msg.Nak()
 				return
 			}
-			if err := cfg.handler(context.Background(), evt); err != nil {
+			// Bound the handler so a slow/hung downstream (e.g. auth-api S2S) can't
+			// block this consumer goroutine forever; context.Background() here had
+			// no deadline and no cancellation.
+			hctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+			herr := cfg.handler(hctx, evt)
+			cancel()
+			if herr != nil {
 				s.logger.Error("failed to handle outlet event",
-					zap.String("subject", cfg.subject), zap.Error(err))
+					zap.String("subject", cfg.subject), zap.Error(herr))
 				_ = msg.Nak()
 				return
 			}
