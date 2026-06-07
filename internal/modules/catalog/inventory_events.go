@@ -59,7 +59,7 @@ func (h *InventoryEventHandler) SubscribeToInventoryEvents(js nats.JetStreamCont
 		return fmt.Errorf("catalog: ensure inventory stream: %w", err)
 	}
 
-	sub, err := js.Subscribe("inventory.item.created", func(msg *nats.Msg) {
+	sharedevents.SubscribeWithRebind(h.logger, js, "inventory.item.created", func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("failed to parse inventory.item.created envelope", zap.Error(parseErr))
@@ -82,10 +82,6 @@ func (h *InventoryEventHandler) SubscribeToInventoryEvents(js nats.JetStreamCont
 		nats.MaxDeliver(5),
 		nats.BindStream(inventoryStreamName),
 	)
-	if err != nil {
-		return fmt.Errorf("catalog: subscribe to inventory.item.created: %w", err)
-	}
-	_ = sub
 
 	h.logger.Info("inventory event subscriptions active (JetStream)",
 		zap.String("subject", "inventory.item.created"),

@@ -92,7 +92,7 @@ func (s *BranchSubscriber) Start(nc *nats.Conn) error {
 
 	for _, cfg := range subs {
 		cfg := cfg
-		if _, subErr := js.Subscribe(cfg.subject, func(msg *nats.Msg) {
+		sharedevents.SubscribeWithRebind(s.logger, js, cfg.subject, func(msg *nats.Msg) {
 			evt, err := sharedevents.FromJSON(msg.Data)
 			if err != nil {
 				s.logger.Error("failed to unmarshal outlet event",
@@ -119,10 +119,7 @@ func (s *BranchSubscriber) Start(nc *nats.Conn) error {
 			nats.AckWait(30*time.Second),
 			nats.MaxDeliver(5),
 			nats.DeliverAll(),
-		); subErr != nil {
-			s.logger.Warn("outlet events: subscribe failed",
-				zap.String("subject", cfg.subject), zap.Error(subErr))
-		}
+		)
 	}
 
 	s.logger.Info("outlet event subscriptions active",
