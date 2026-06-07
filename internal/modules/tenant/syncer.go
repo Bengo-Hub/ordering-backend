@@ -39,6 +39,11 @@ type authAPITenantResponse struct {
 	UseCase string `json:"use_case"`
 }
 
+// s2sHTTPClient is used for all auth-api S2S calls. The Timeout bounds every
+// request so a slow/hung auth-api cannot block the caller (incl. NATS event
+// handlers and JIT-provisioning paths) indefinitely.
+var s2sHTTPClient = &http.Client{Timeout: 15 * time.Second}
+
 // SyncTenant fetches the tenant record from auth-api and persists the minimal
 // reference in the local DB with the same UUID as auth-api. Used for JIT provisioning.
 func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error) {
@@ -55,7 +60,14 @@ func (s *Syncer) SyncTenant(ctx context.Context, slug string) (uuid.UUID, error)
 	endpoint := strings.TrimRight(authAPIURL, "/") + "/api/v1/tenants/by-slug/" + slug
 
 	log.Printf("  [tenant-sync] dynamically fetching %s from %s", slug, endpoint)
-	resp, err := http.Get(endpoint) //nolint:noctx
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("tenant.Syncer: build request: %w", err)
+	}
+	if svcKey := os.Getenv("INTERNAL_SERVICE_KEY"); svcKey != "" {
+		req.Header.Set("X-API-Key", svcKey)
+	}
+	resp, err := s2sHTTPClient.Do(req)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("tenant.Syncer: GET %s: %w", endpoint, err)
 	}
@@ -174,7 +186,7 @@ func (s *Syncer) BootstrapOutlets(ctx context.Context, tenantSlug string, tenant
 		req.Header.Set("X-API-Key", svcKey)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s2sHTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("outlet bootstrap: GET %s: %w", endpoint, err)
 	}
