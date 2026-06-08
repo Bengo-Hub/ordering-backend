@@ -83,6 +83,44 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 	return nil
 }
 
+// setSkuAvailability toggles catalog availability for a SKU. When the event
+// carries an outlet_id it UPSERTS the (tenant, outlet, sku) override row, so a
+// default-available item that has no override row yet is still toggled — the old
+// UPDATE-only path silently affected 0 rows for such items, leaving sold-out
+// recipes orderable. Only is_available is written; base_price stays 0, which the
+// catalog merge treats as "no price override" (same as handleItemCreated). When
+// no outlet_id is present (shared/HQ warehouse or legacy events) it falls back to
+// updating every existing override for the SKU.
+func (h *StockEventHandler) setSkuAvailability(ctx context.Context, tenantID uuid.UUID, outletRaw, sku string, available bool) (int, error) {
+	if outletID, err := uuid.Parse(outletRaw); outletRaw != "" && err == nil {
+		if uerr := h.db.CatalogOverride.Create().
+			SetTenantID(tenantID).
+			SetOutletID(outletID).
+			SetInventorySku(sku).
+			SetIsAvailable(available).
+			OnConflictColumns(
+				catalogoverride.FieldTenantID,
+				catalogoverride.FieldOutletID,
+				catalogoverride.FieldInventorySku,
+			).
+			Update(func(u *ent.CatalogOverrideUpsert) {
+				u.SetIsAvailable(available)
+				u.SetUpdatedAt(time.Now())
+			}).
+			Exec(ctx); uerr != nil {
+			return 0, uerr
+		}
+		return 1, nil
+	}
+	return h.db.CatalogOverride.Update().
+		Where(
+			catalogoverride.TenantID(tenantID),
+			catalogoverride.InventorySku(sku),
+		).
+		SetIsAvailable(available).
+		Save(ctx)
+}
+
 // handleStockOut marks catalog items unavailable when stock runs out.
 func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *sharedevents.Event) error {
 	tenantID := evt.TenantID
@@ -95,13 +133,8 @@ func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *sharedevent
 		return fmt.Errorf("no sku in stock-out event payload")
 	}
 
-	count, err := h.db.CatalogOverride.Update().
-		Where(
-			catalogoverride.TenantID(tenantID),
-			catalogoverride.InventorySku(sku),
-		).
-		SetIsAvailable(false).
-		Save(ctx)
+	outletRaw, _ := evt.Payload["outlet_id"].(string)
+	count, err := h.setSkuAvailability(ctx, tenantID, outletRaw, sku, false)
 	if err != nil {
 		return fmt.Errorf("mark item unavailable: %w", err)
 	}
@@ -126,15 +159,10 @@ func (h *StockEventHandler) handleStockIn(ctx context.Context, evt *sharedevents
 		return fmt.Errorf("no sku in stock-in event payload")
 	}
 
-	// Only re-enable overrides that were blocked by a stock-out cascade (not manually disabled).
-	// We re-enable ALL overrides for this SKU — manual disabling is handled via item.updated events.
-	count, err := h.db.CatalogOverride.Update().
-		Where(
-			catalogoverride.TenantID(tenantID),
-			catalogoverride.InventorySku(sku),
-		).
-		SetIsAvailable(true).
-		Save(ctx)
+	// Re-enable the (outlet, sku) override the stock-out cascade disabled. Manual
+	// disabling is handled separately via item.updated events.
+	outletRaw, _ := evt.Payload["outlet_id"].(string)
+	count, err := h.setSkuAvailability(ctx, tenantID, outletRaw, sku, true)
 	if err != nil {
 		return fmt.Errorf("re-enable item after restock: %w", err)
 	}
@@ -166,13 +194,8 @@ func (h *StockEventHandler) handleItemUpdated(ctx context.Context, evt *sharedev
 	}
 
 	if !isActive {
-		count, err := h.db.CatalogOverride.Update().
-			Where(
-				catalogoverride.TenantID(tenantID),
-				catalogoverride.InventorySku(sku),
-			).
-			SetIsAvailable(false).
-			Save(ctx)
+		outletRaw, _ := evt.Payload["outlet_id"].(string)
+		count, err := h.setSkuAvailability(ctx, tenantID, outletRaw, sku, false)
 		if err != nil {
 			return fmt.Errorf("mark item unavailable on deactivation: %w", err)
 		}
