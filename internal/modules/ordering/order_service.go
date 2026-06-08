@@ -1909,22 +1909,21 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 		return nil, nil
 	}
 
-	// Check for partial reservations. Consistent with the "catalog isAvailable is
-	// authoritative — never block" design above (and the reservation-error soft-fail
-	// path), a stock shortfall must NOT hard-fail order creation: inventory stock can
-	// lag or use BOM/raw-material (recipe) expansion the ordering layer doesn't
-	// control, so a food order whose ingredients momentarily read low would otherwise
-	// be wrongly rejected. Release the partial hold and proceed without a reservation;
-	// the catalog override isAvailable flag (driven by inventory stock.out events) is
-	// the customer-facing gate that prevents overselling.
+	// Check for partial reservations. The catalog override isAvailable flag — now
+	// driven by inventory's per-outlet stock.out cascade (upserted, so default-
+	// available items are toggled too) — is the primary gate that hides sold-out
+	// items, so this order-time block only fires in the narrow race where an
+	// ingredient depletes between add-to-cart and checkout. In that case the item
+	// genuinely cannot be produced, so fail with a clear error rather than oversell.
 	for _, ri := range reservation.Items {
 		if !ri.IsFullyReserved {
-			s.logger.Warn("partial reservation detected; releasing and proceeding (catalog availability is authoritative)",
+			s.logger.Warn("partial reservation detected, releasing",
 				zap.String("sku", ri.SKU),
 				zap.Float64("requested", ri.RequestedQty),
 				zap.Float64("reserved", ri.ReservedQty))
-			_ = s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, reservation.ID, "partial_reservation_soft_fail")
-			return nil, nil
+			_ = s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, reservation.ID, "partial_reservation_rejected")
+			return nil, fmt.Errorf("%w: item %s only has %g available (requested %g)",
+				ErrStockNotAvailable, ri.SKU, ri.AvailableQty, ri.RequestedQty)
 		}
 	}
 
