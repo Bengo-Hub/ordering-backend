@@ -102,11 +102,14 @@ type RecipeResponse struct {
 
 // RecipeIngredient represents an ingredient in a recipe.
 type RecipeIngredient struct {
-	ItemID        uuid.UUID `json:"item_id"`
-	SKU           string    `json:"sku"`
-	Name          string    `json:"name"`
-	Quantity      float64   `json:"quantity"`
-	UnitOfMeasure string    `json:"unit_of_measure"`
+	ItemID uuid.UUID `json:"item_id"`
+	// inventory-api serializes the ingredient SKU/name as item_sku/item_name (not
+	// sku/name); reading the wrong tag left SKU empty, so the BOM stock-consumption
+	// path sent blank-SKU items and inventory rejected them ("item not found: sku=").
+	SKU           string  `json:"item_sku"`
+	Name          string  `json:"item_name"`
+	Quantity      float64 `json:"quantity"`
+	UnitOfMeasure string  `json:"unit_of_measure"`
 }
 
 // ConsumptionRequest represents a request to record stock consumption.
