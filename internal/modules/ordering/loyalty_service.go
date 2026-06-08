@@ -6,12 +6,22 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
 )
 
 // LoyaltyService provides loyalty program business logic.
+//
+// SOURCE OF TRUTH: pos-api is the authoritative loyalty balance store (keyed on
+// tenant + customer_phone). This service's local LoyaltyAccount (keyed on user_id) is a LEGACY
+// MIRROR kept for backward compatibility during the transition; EarnPoints/RedeemPoints write
+// locally AND mirror to pos-api over S2S (best-effort). Once all readers consume pos-api directly,
+// the local entity + writes can be removed (full cutover). Do not add new readers of the local
+// balance.
 type LoyaltyService struct {
-	repo   Repository
-	logger *zap.Logger
+	repo      Repository
+	logger    *zap.Logger
+	posClient *posloyalty.Client
 }
 
 // NewLoyaltyService creates a new loyalty service.
@@ -19,6 +29,35 @@ func NewLoyaltyService(repo Repository, logger *zap.Logger) *LoyaltyService {
 	return &LoyaltyService{
 		repo:   repo,
 		logger: logger,
+	}
+}
+
+// SetPOSLoyaltyClient wires the pos-api loyalty S2S client. pos-api is the loyalty source of
+// truth; once set, earn/redeem are mirrored to it (best-effort). When nil (or the client is
+// disabled), only the legacy local balance is written.
+func (s *LoyaltyService) SetPOSLoyaltyClient(c *posloyalty.Client) {
+	s.posClient = c
+}
+
+// mirrorEarnToPOS forwards an earn to pos-api (the loyalty SoT). Best-effort: errors are logged and
+// swallowed so a pos-api outage never fails the order. Requires the customer's phone (pos-api keys
+// loyalty on phone); when phone is empty the mirror is skipped and only the local balance applies.
+func (s *LoyaltyService) mirrorEarnToPOS(ctx context.Context, tenantID uuid.UUID, phone, name string, points int, orderID *uuid.UUID) {
+	if s.posClient == nil || !s.posClient.Enabled() {
+		return
+	}
+	if err := s.posClient.Earn(ctx, tenantID, phone, name, points, orderID); err != nil {
+		s.logger.Warn("loyalty: pos-api earn mirror failed (continuing; pos-api is SoT, local is legacy mirror)", zap.Error(err))
+	}
+}
+
+// mirrorRedeemToPOS forwards a redeem to pos-api (the loyalty SoT). Best-effort (see mirrorEarnToPOS).
+func (s *LoyaltyService) mirrorRedeemToPOS(ctx context.Context, tenantID uuid.UUID, phone string, points int, orderID *uuid.UUID) {
+	if s.posClient == nil || !s.posClient.Enabled() {
+		return
+	}
+	if err := s.posClient.Redeem(ctx, tenantID, phone, points, orderID); err != nil {
+		s.logger.Warn("loyalty: pos-api redeem mirror failed (continuing; pos-api is SoT, local is legacy mirror)", zap.Error(err))
 	}
 }
 
@@ -65,10 +104,17 @@ func (s *LoyaltyService) GetBalance(ctx context.Context, tenantID, userID uuid.U
 }
 
 // EarnPoints adds points to a user's loyalty account.
-func (s *LoyaltyService) EarnPoints(ctx context.Context, tenantID, userID uuid.UUID, points int, orderID *uuid.UUID, description string) error {
+//
+// customerPhone/customerName let the change be mirrored to pos-api, the loyalty source of truth
+// (pos-api keys loyalty on phone). The local write below is the LEGACY MIRROR kept for backward
+// compatibility; the pos-api mirror is best-effort and never fails the caller.
+func (s *LoyaltyService) EarnPoints(ctx context.Context, tenantID, userID uuid.UUID, points int, orderID *uuid.UUID, description, customerPhone, customerName string) error {
 	if points <= 0 {
 		return ErrInvalidLoyaltyPoints
 	}
+
+	// Mirror to pos-api (loyalty SoT) first — best-effort, does not block the local write.
+	s.mirrorEarnToPOS(ctx, tenantID, customerPhone, customerName, points, orderID)
 
 	account, err := s.GetOrCreateAccount(ctx, tenantID, userID)
 	if err != nil {
@@ -112,10 +158,17 @@ func (s *LoyaltyService) EarnPoints(ctx context.Context, tenantID, userID uuid.U
 }
 
 // RedeemPoints deducts points from a user's loyalty account.
-func (s *LoyaltyService) RedeemPoints(ctx context.Context, tenantID, userID uuid.UUID, points int, orderID *uuid.UUID, description string) error {
+//
+// customerPhone lets the change be mirrored to pos-api, the loyalty source of truth. The local
+// write below is the LEGACY MIRROR kept for backward compatibility; the pos-api mirror is
+// best-effort and never fails the caller.
+func (s *LoyaltyService) RedeemPoints(ctx context.Context, tenantID, userID uuid.UUID, points int, orderID *uuid.UUID, description, customerPhone string) error {
 	if points <= 0 {
 		return ErrInvalidLoyaltyPoints
 	}
+
+	// Mirror to pos-api (loyalty SoT) — best-effort, does not block the local write.
+	s.mirrorRedeemToPOS(ctx, tenantID, customerPhone, points, orderID)
 
 	account, err := s.repo.GetLoyaltyAccountByUser(ctx, tenantID, userID)
 	if err != nil {

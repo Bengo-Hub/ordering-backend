@@ -56,6 +56,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
+	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
@@ -239,6 +240,15 @@ func New(ctx context.Context) (*App, error) {
 	cartSvc := ordering.NewCartService(orderingRepo, catalogProxySvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
+	// pos-api is the loyalty source of truth (balances keyed on tenant + customer_phone). Mirror
+	// earn/redeem to it over S2S (best-effort); the local LoyaltyAccount remains a legacy fallback.
+	posLoyaltyClient := posloyalty.NewClient(cfg.POS.ServiceURL, cfg.POS.APIKey, log)
+	loyaltySvc.SetPOSLoyaltyClient(posLoyaltyClient)
+	if posLoyaltyClient.Enabled() {
+		log.Info("app: pos-api loyalty mirror enabled (pos-api is loyalty SoT)")
+	} else {
+		log.Info("app: pos-api loyalty mirror disabled (INTERNAL_SERVICE_KEY unset); using local balance only")
+	}
 	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
 	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, log)
