@@ -1047,9 +1047,15 @@ func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, or
 		}
 	}
 	// Consume (finalize) the inventory reservation so reserved stock is deducted.
-	go s.consumeOrderReservation(context.Background(), order)
+	// Use WithoutCancel so the async call keeps the request's tenant/auth context
+	// (so inventory's S2S tenant resolution matches the reservation's tenant) while
+	// surviving the HTTP request's completion. With a bare context.Background() the
+	// tenant was lost → inventory consume resolved the wrong tenant → "reservation
+	// not found" → stock was never deducted and reservations leaked.
+	finalizeCtx := context.WithoutCancel(ctx)
+	go s.consumeOrderReservation(finalizeCtx, order)
 	// Process stock consumption based on recipes (BOM).
-	go s.processStockConsumption(context.Background(), order)
+	go s.processStockConsumption(finalizeCtx, order)
 }
 
 // settleCODIfApplicable marks an offline-cash (COD) order as paid and triggers the
@@ -1132,8 +1138,10 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
 	case OrderStatusCancelled:
 		order.CancelledAt = &now
-		// Release inventory reservation on cancellation via status update
-		go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
+		// Release inventory reservation on cancellation via status update. WithoutCancel
+		// keeps the tenant/auth context (see finalizeOrder) so inventory's S2S tenant
+		// resolution matches; a bare context.Background() would fail to release the hold.
+		go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
 	}
 
 	if err := s.repo.UpdateOrder(ctx, order); err != nil {
