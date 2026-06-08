@@ -1059,9 +1059,18 @@ func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, or
 	// tenant was lost → inventory consume resolved the wrong tenant → "reservation
 	// not found" → stock was never deducted and reservations leaked.
 	finalizeCtx := context.WithoutCancel(ctx)
-	go s.consumeOrderReservation(finalizeCtx, order)
-	// Process stock consumption based on recipes (BOM).
-	go s.processStockConsumption(finalizeCtx, order)
+	// Deduct stock via EXACTLY ONE path. consumeOrderReservation and
+	// processStockConsumption each deduct on_hand independently (RecordConsumption does
+	// not finalize the reservation), so running both double-deducts. When the order has
+	// a reservation (the normal recipe path), consuming it deducts the reserved BOM;
+	// otherwise (reservation soft-failed / non-recipe goods) fall back to direct BOM
+	// consumption. The previous "run both" only deducted once because the BOM path was
+	// a silent no-op from a blank-SKU bug.
+	if order.ReservationID != nil {
+		go s.consumeOrderReservation(finalizeCtx, order)
+	} else {
+		go s.processStockConsumption(finalizeCtx, order)
+	}
 }
 
 // settleCODIfApplicable marks an offline-cash (COD) order as paid and triggers the
