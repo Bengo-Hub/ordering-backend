@@ -32,6 +32,7 @@ type Config struct {
 	Notifications NotificationsConfig `envconfig:""`
 	Subscriptions SubscriptionsConfig `envconfig:""`
 	Marketflow    MarketflowConfig    `envconfig:""`
+	POS           POSConfig           `envconfig:""`
 	Superset      SupersetConfig      `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
 	Media         MediaConfig         `envconfig:""`
@@ -191,6 +192,14 @@ type MarketflowConfig struct {
 	APIKey     string `envconfig:"INTERNAL_SERVICE_KEY"`
 }
 
+// POSConfig holds configuration for the pos-api loyalty S2S client. pos-api is the source of
+// truth for loyalty balances (keyed on tenant + customer_phone); ordering mirrors earn/redeem to
+// it. APIKey is the shared INTERNAL_SERVICE_KEY; when empty the client is disabled (no-op).
+type POSConfig struct {
+	ServiceURL string `envconfig:"POS_API_URL" default:"https://posapi.codevertexitsolutions.com"`
+	APIKey     string `envconfig:"INTERNAL_SERVICE_KEY"`
+}
+
 type SupersetConfig struct {
 	// Superset service URL
 	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.com"`
@@ -278,6 +287,9 @@ func Load() (*Config, error) {
 	}
 	if err := envconfig.Process(namespace, &cfg.Marketflow); err != nil {
 		return nil, fmt.Errorf("config: failed to load marketflow config: %w", err)
+	}
+	if err := envconfig.Process(namespace, &cfg.POS); err != nil {
+		return nil, fmt.Errorf("config: failed to load pos config: %w", err)
 	}
 	if err := envconfig.Process(namespace, &cfg.Superset); err != nil {
 		return nil, fmt.Errorf("config: failed to load superset config: %w", err)

@@ -336,9 +336,11 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		}
 	}
 
-	// Deduct loyalty points if redeemed
+	// Deduct loyalty points if redeemed. Resolve the customer phone so the redeem can be mirrored
+	// to pos-api (loyalty source of truth, keyed on phone).
 	if loyaltyPointsRedeemed > 0 {
-		if err := s.loyaltySvc.RedeemPoints(ctx, req.TenantID, req.UserID, loyaltyPointsRedeemed, &order.ID, "Points redeemed for order "+orderNumber); err != nil {
+		ci := s.orderContactInfo(ctx, order)
+		if err := s.loyaltySvc.RedeemPoints(ctx, req.TenantID, req.UserID, loyaltyPointsRedeemed, &order.ID, "Points redeemed for order "+orderNumber, ci.Phone); err != nil {
 			s.logger.Error("failed to deduct loyalty points", zap.Error(err))
 		}
 	}
@@ -1046,9 +1048,11 @@ func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, or
 		return
 	}
 
-	// Award loyalty points (guests have no CustomerID and are skipped).
+	// Award loyalty points (guests have no CustomerID and are skipped). Resolve the customer phone
+	// so the earn can be mirrored to pos-api (loyalty source of truth, keyed on phone).
 	if order.CustomerID != nil {
-		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber); err != nil {
+		ci := s.orderContactInfo(ctx, order)
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber, ci.Phone, ci.Name); err != nil {
 			s.logger.Error("failed to award loyalty points", zap.Error(err))
 		}
 	}
@@ -1202,9 +1206,11 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	// Release inventory reservation if one exists
 	go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
 
-	// Refund loyalty points if they were redeemed
+	// Refund loyalty points if they were redeemed. Resolve the customer phone so the refund (an
+	// earn) can be mirrored to pos-api (loyalty source of truth, keyed on phone).
 	if order.LoyaltyPointsRedeemed > 0 && order.CustomerID != nil {
-		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsRedeemed, &order.ID, "Points refunded for cancelled order "+order.OrderNumber); err != nil {
+		ci := s.orderContactInfo(ctx, order)
+		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsRedeemed, &order.ID, "Points refunded for cancelled order "+order.OrderNumber, ci.Phone, ci.Name); err != nil {
 			s.logger.Error("failed to refund loyalty points", zap.Error(err))
 		}
 	}
