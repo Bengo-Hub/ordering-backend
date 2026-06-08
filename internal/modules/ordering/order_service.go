@@ -864,6 +864,12 @@ func (s *OrderService) processStockConsumption(ctx context.Context, order *Order
 		return
 	}
 
+	// Inject the tenant into ctx so the inventory S2S client propagates X-Tenant-ID/Slug.
+	// This path runs from NATS consumers (e.g. logistics delivery events) on a bare
+	// context.Background() with no tenant, which made inventory resolve the wrong tenant
+	// ("no default warehouse for tenant") and silently skip stock deduction.
+	ctx = httpware.WithTenantSlug(httpware.WithTenantID(ctx, order.TenantID.String()), tenant.Slug)
+
 	// Fetch order items if not loaded
 	if len(order.Items) == 0 {
 		items, err := s.repo.ListOrderItems(ctx, order.ID)
@@ -2064,6 +2070,10 @@ func (s *OrderService) consumeOrderReservation(ctx context.Context, order *Order
 		s.logger.Error("failed to get tenant for reservation consumption", zap.Error(err))
 		return
 	}
+	// Inject tenant into ctx so the inventory S2S client propagates X-Tenant-ID/Slug — this
+	// runs from NATS consumers (logistics delivery events) on a tenant-less context.Background(),
+	// which otherwise made inventory resolve the wrong tenant and the consume "not found".
+	ctx = httpware.WithTenantSlug(httpware.WithTenantID(ctx, order.TenantID.String()), tenant.Slug)
 	if consumeErr := s.inventoryClient.ConsumeReservation(ctx, tenant.Slug, *order.ReservationID); consumeErr != nil {
 		// Benign case: for recipe orders the BOM consumption (RecordConsumption, keyed by order ID)
 		// already finalizes the reservation server-side, so this call sees it already consumed. Stock
