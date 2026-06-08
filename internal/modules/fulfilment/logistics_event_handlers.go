@@ -3,6 +3,7 @@ package fulfilment
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	sharedevents "github.com/Bengo-Hub/shared-events"
@@ -13,6 +14,18 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
+
+// stripRefPrefix removes a "<kind>:" prefix from a logistics task reference.
+// Ordering dispatches delivery tasks with external_reference="order:<uuid>", and
+// logistics echoes that back verbatim as external_reference/order_id on its task
+// events — so the value must have its "order:" prefix stripped before it parses
+// as a UUID. A bare UUID (no ":") is returned unchanged.
+func stripRefPrefix(s string) string {
+	if i := strings.LastIndex(s, ":"); i >= 0 {
+		return s[i+1:]
+	}
+	return s
+}
 
 // uuidPtrString returns the string representation of a *uuid.UUID, or uuid.Nil's string for nil.
 func uuidPtrString(u *uuid.UUID) string {
@@ -34,7 +47,7 @@ func (h *LogisticsEventHandler) orderRefFromEvent(evt *sharedevents.Event) (uuid
 	if orderIDStr == "" {
 		return uuid.Nil, uuid.Nil, false
 	}
-	orderID, err := uuid.Parse(orderIDStr)
+	orderID, err := uuid.Parse(stripRefPrefix(orderIDStr))
 	if err != nil {
 		return uuid.Nil, uuid.Nil, false
 	}
@@ -126,23 +139,9 @@ func (h *LogisticsEventHandler) handleTaskDelivered(ctx context.Context, evt *sh
 // handleTaskCompleted auto-completes an order when a logistics task is completed.
 func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sharedevents.Event) error {
 	data := evt.Payload
-
-	orderIDStr, _ := data["external_reference"].(string)
-	if orderIDStr == "" {
-		orderIDStr, _ = data["order_id"].(string)
-	}
-	if orderIDStr == "" {
-		return fmt.Errorf("no external_reference or order_id in task.completed event")
-	}
-
-	orderID, err := uuid.Parse(orderIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid order_id %q: %w", orderIDStr, err)
-	}
-
-	tenantID := evt.TenantID
-	if tenantID == uuid.Nil {
-		return fmt.Errorf("invalid tenant_id in task.completed event")
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		return fmt.Errorf("no usable order reference / tenant in task.completed event")
 	}
 
 	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
