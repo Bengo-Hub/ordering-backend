@@ -103,6 +103,35 @@ func (s *LoyaltyService) GetBalance(ctx context.Context, tenantID, userID uuid.U
 	return account.BalancePoints, nil
 }
 
+// GetBalancePreferPOS returns the AUTHORITATIVE pos-api balance for the customer's phone (pos-api is
+// the loyalty source of truth — it also reflects points earned/redeemed at the POS terminal, which the
+// local mirror never sees). It falls back to the local balance whenever pos-api is disabled, the phone
+// is unknown, the account doesn't exist on pos-api, or the call errors — so it is always safe.
+func (s *LoyaltyService) GetBalancePreferPOS(ctx context.Context, tenantID, userID uuid.UUID, phone string) (int, error) {
+	if s.posClient != nil && s.posClient.Enabled() && phone != "" {
+		if points, exists, err := s.posClient.Balance(ctx, tenantID, phone); err == nil && exists {
+			return points, nil
+		}
+	}
+	return s.GetBalance(ctx, tenantID, userID)
+}
+
+// GetAccountPreferPOS returns the local account with its BalancePoints overridden by the authoritative
+// pos-api balance when available; tier/lifetime stay local. Falls back fully to local on any pos-api
+// issue (see GetBalancePreferPOS).
+func (s *LoyaltyService) GetAccountPreferPOS(ctx context.Context, tenantID, userID uuid.UUID, phone string) (*LoyaltyAccount, error) {
+	account, err := s.GetOrCreateAccount(ctx, tenantID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if s.posClient != nil && s.posClient.Enabled() && phone != "" {
+		if points, exists, balErr := s.posClient.Balance(ctx, tenantID, phone); balErr == nil && exists {
+			account.BalancePoints = points
+		}
+	}
+	return account, nil
+}
+
 // EarnPoints adds points to a user's loyalty account.
 //
 // customerPhone/customerName let the change be mirrored to pos-api, the loyalty source of truth
