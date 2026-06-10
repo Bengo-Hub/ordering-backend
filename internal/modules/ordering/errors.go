@@ -81,6 +81,8 @@ var (
 
 	// Subscription errors
 	ErrSubscriptionRequired = errors.New("active subscription required to place orders")
+	// ErrOrderLimitReached is returned (as a *SubscriptionLimitError) when the tenant has
+	// reached its metered order limit and has not opted in to extra usage.
 
 	// Group order errors
 	ErrGroupOrderNotFound     = errors.New("group order not found")
@@ -98,3 +100,12 @@ var (
 	ErrUnauthorized    = errors.New("unauthorized access")
 	ErrInternalError   = errors.New("internal server error")
 )
+
+// SubscriptionLimitError signals a metered plan limit was reached. It carries the structured
+// limit-reached body (metric, limit, used, overage_eligible, …) so the HTTP handler can
+// surface a 402 the storefront limit-reached modal understands.
+type SubscriptionLimitError struct {
+	Body map[string]any
+}
+
+func (e *SubscriptionLimitError) Error() string { return "plan order limit reached" }

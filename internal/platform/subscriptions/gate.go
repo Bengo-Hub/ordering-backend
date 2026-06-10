@@ -120,25 +120,40 @@ func CheckLimit(r *http.Request, limitKey string, currentValue int) bool {
 	if !ok {
 		return true
 	}
+	if claims.IsPlatformOwner || claims.IsSuperuser() || claims.IsDemo || claims.BillingMode == "service_charge" {
+		return true
+	}
 	limit := claims.GetLimit(limitKey)
-	if limit == 0 {
+	if limit <= 0 { // 0 = absent/unlimited, -1 = explicit unlimited
 		return true
 	}
 	return currentValue < limit
 }
 
-// AssertLimit writes a 402 response if currentValue has reached or exceeded the limit
-// for limitKey. Returns true when the limit is exceeded (caller should stop processing).
-func AssertLimit(w http.ResponseWriter, r *http.Request, limitKey string, currentValue int) bool {
+// AssertLimit writes a structured 402 response if currentValue has reached or exceeded the
+// plan limit for limitKey. Returns true when the limit is exceeded (caller stops). The
+// `metric` is the UI-facing name (e.g. "orders"); the body matches the shared limit-reached
+// modal contract.
+func AssertLimit(w http.ResponseWriter, r *http.Request, metric, limitKey string, currentValue int) bool {
 	if CheckLimit(r, limitKey, currentValue) {
 		return false
+	}
+	limit := 0
+	if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
+		limit = claims.GetLimit(limitKey)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusPaymentRequired)
 	_ = json.NewEncoder(w).Encode(map[string]any{
-		"error":       "limit_exceeded",
-		"limit_key":   limitKey,
-		"upgrade_url": upgradeURL,
+		"code":             "usage_limit_exceeded",
+		"error":            "usage_limit_exceeded",
+		"message":          "You've reached your plan's " + metric + " limit.",
+		"metric":           metric,
+		"limit":            limit,
+		"used":             currentValue,
+		"overage_eligible": false,
+		"limit_key":        limitKey,
+		"upgrade_url":      upgradeURL,
 	})
 	return true
 }

@@ -1,6 +1,7 @@
 package subscriptions
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -108,4 +109,50 @@ func (c *Client) IsSubscriptionActive(ctx context.Context, tenantID uuid.UUID, b
 		return false // no subscription record
 	}
 	return sub.IsActive()
+}
+
+// UsageDecision is the outcome of reporting a metered usage event.
+type UsageDecision struct {
+	// Allowed is true when within limit OR soft-capped (tenant opted in to overage).
+	Allowed bool
+	// Status is the raw HTTP status (402 when hard-blocked).
+	Status int
+	// Body carries the structured limit-reached fields when Allowed is false.
+	Body map[string]any
+}
+
+// ReportUsage records a metered usage event (e.g. metric="orders") and returns the limit
+// decision. subscriptions-api atomically increments the tenant's counter and either allows
+// the event (within limit or opted-in overage) or returns 402 with the structured limit body.
+// Fails OPEN (Allowed=true) on any network/parse error so subscriptions-api downtime never
+// blocks customer checkouts. Tenant is resolved by subscriptions-api from X-Tenant-ID.
+func (c *Client) ReportUsage(ctx context.Context, tenantID uuid.UUID, metric string, value float64) UsageDecision {
+	if c.baseURL == "" || c.apiKey == "" {
+		return UsageDecision{Allowed: true}
+	}
+	payload, _ := json.Marshal(map[string]any{
+		"metric_type":  metric,
+		"service_name": "ordering-service",
+		"value":        value,
+	})
+	url := fmt.Sprintf("%s/api/v1/usage/report", c.baseURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+	if err != nil {
+		return UsageDecision{Allowed: true}
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", c.apiKey)
+	req.Header.Set("X-Tenant-ID", tenantID.String())
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return UsageDecision{Allowed: true}
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusPaymentRequired || resp.StatusCode == http.StatusTooManyRequests {
+		var body map[string]any
+		_ = json.NewDecoder(resp.Body).Decode(&body)
+		return UsageDecision{Allowed: false, Status: resp.StatusCode, Body: body}
+	}
+	return UsageDecision{Allowed: true, Status: resp.StatusCode}
 }

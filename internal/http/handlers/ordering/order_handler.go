@@ -1,6 +1,7 @@
 package orderinghandler
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -293,6 +294,20 @@ func toAdminOrderSummary(o ordering.Order) AdminOrderSummary {
 // --- Helper Functions ---
 
 func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
+	// Metered plan-limit reached — return the structured 402 body the storefront
+	// limit-reached modal consumes (metric, limit, used, overage_eligible, …).
+	var limitErr *ordering.SubscriptionLimitError
+	if errors.As(err, &limitErr) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusPaymentRequired)
+		body := limitErr.Body
+		if body == nil {
+			body = map[string]any{"code": "usage_limit_exceeded", "metric": "orders"}
+		}
+		_ = json.NewEncoder(w).Encode(body)
+		return
+	}
+
 	switch {
 	case errors.Is(err, ordering.ErrSubscriptionRequired):
 		handlers.RespondError(w, http.StatusPaymentRequired, err.Error())
