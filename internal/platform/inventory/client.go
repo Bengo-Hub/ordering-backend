@@ -459,7 +459,7 @@ func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateIt
 // typeFilter: comma-separated types (e.g. "SERVICE", "GOODS,RECIPE"). Defaults to "GOODS,RECIPE".
 // limit: page size; uses inventory-api default (20) when <= 0.
 // page: 1-based page number; defaults to 1 when <= 0.
-func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int) ([]ItemResponse, int, error) {
+func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int, categoryID *uuid.UUID) ([]ItemResponse, int, error) {
 	if typeFilter == "" {
 		typeFilter = "GOODS,RECIPE"
 	}
@@ -469,7 +469,13 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter st
 	if page <= 0 {
 		page = 1
 	}
-	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&limit=%d&page=%d", tenantSlug, typeFilter, limit, page)
+	// Only finished, sellable, in-stock items belong on the storefront. category_id is applied
+	// SERVER-SIDE so a selected category returns its items (and the correct total) instead of the
+	// previous client-side post-pagination filter that returned an empty/null page.
+	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&status=active&limit=%d&page=%d", tenantSlug, typeFilter, limit, page)
+	if categoryID != nil {
+		path += "&category_id=" + categoryID.String()
+	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, 0, fmt.Errorf("execute request: %w", err)
