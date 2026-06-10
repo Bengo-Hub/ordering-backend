@@ -57,7 +57,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	if filter.Offset > 0 {
 		page = (filter.Offset / limit) + 1
 	}
-	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page)
+	// Apply the category filter SERVER-SIDE so a selected category returns its items + the correct
+	// total (the old client-side filter ran after pagination → empty/null page for any category).
+	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
@@ -92,8 +94,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 	}
 
-	// 4. Merge — all inventory items appear; override enriches them when present
-	var merged []MergedCatalogItem
+	// 4. Merge — all inventory items appear; override enriches them when present.
+	// Initialise non-nil so an empty result serializes as [] (not null → "couldn't load catalog").
+	merged := make([]MergedCatalogItem, 0, len(invItems))
 	for _, inv := range invItems {
 		override := overrideMap[inv.SKU] // nil when no override exists — mergeItem handles it
 		item := mergeItem(inv, override, favSet)
@@ -148,7 +151,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 // GetItem fetches a single item from inventory-api by SKU, merges with override.
 func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*MergedCatalogItem, error) {
 	// Fetch all orderable types to locate the item by SKU (single-item lookup, no pagination).
-	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1)
+	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
@@ -199,18 +202,43 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([
 		return nil, fmt.Errorf("catalog: list categories: %w", err)
 	}
 
-	result := make([]InventoryCategory, len(cats))
-	for i, c := range cats {
-		result[i] = InventoryCategory{
+	result := make([]InventoryCategory, 0, len(cats))
+	for _, c := range cats {
+		// Only finished, sellable categories belong on the storefront — hide component/service
+		// categories (raw ingredients, modifiers, add-ons, conference/room/facility/salon).
+		if !isStorefrontSellableCategory(c.Name) {
+			continue
+		}
+		result = append(result, InventoryCategory{
 			ID:          c.ID,
 			Name:        c.Name,
 			Code:        c.Code,
 			Description: c.Description,
 			Icon:        c.Icon,
 			IsActive:    c.IsActive,
-		}
+		})
 	}
 	return result, nil
+}
+
+// isStorefrontSellableCategory reports whether a category should appear on the customer storefront.
+// Excludes recipe/modifier components and service-booking categories that are never directly orderable
+// online (raw ingredients, modifiers, add-ons, conference/room/facility/salon). Accompaniments (ugali,
+// sides) ARE kept — they are real menu items.
+func isStorefrontSellableCategory(name string) bool {
+	c := strings.ToLower(strings.TrimSpace(name))
+	if c == "" {
+		return true
+	}
+	for _, bad := range []string{
+		"raw ingredient", "raw material", "ingredient", "modifier", "add-on", "add on",
+		"conference", "meeting", "facility", "amenity", "room rate", "room type", "salon", "massage",
+	} {
+		if strings.Contains(c, bad) {
+			return false
+		}
+	}
+	return true
 }
 
 // ---------- Overrides ----------
