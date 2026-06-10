@@ -36,6 +36,10 @@ func (h *LoyaltyHandler) Register(r chi.Router, auth *identityhandler.Authentica
 
 		loyaltyRouter.Get("/balance", h.GetBalance)
 		loyaltyRouter.Get("/account", h.GetAccount)
+		// POST /account is an idempotent "register": GetAccount is get-or-create, so the storefront's
+		// registerLoyaltyAccount() (POST /loyalty/account) resolves — and creates on first call — the
+		// account instead of 404ing.
+		loyaltyRouter.Post("/account", h.GetAccount)
 		loyaltyRouter.Get("/transactions", h.GetTransactions)
 		loyaltyRouter.Get("/tier-benefits", h.GetTierBenefits)
 	})
@@ -134,7 +138,7 @@ func (h *LoyaltyHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	balance, err := h.loyaltySvc.GetBalance(r.Context(), tenantID, user.ID)
+	balance, err := h.loyaltySvc.GetBalancePreferPOS(r.Context(), tenantID, user.ID, user.Phone)
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -171,7 +175,7 @@ func (h *LoyaltyHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account, err := h.loyaltySvc.GetOrCreateAccount(r.Context(), tenantID, user.ID)
+	account, err := h.loyaltySvc.GetAccountPreferPOS(r.Context(), tenantID, user.ID, user.Phone)
 	if err != nil {
 		h.handleError(w, err)
 		return
