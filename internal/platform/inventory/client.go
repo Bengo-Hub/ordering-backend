@@ -411,6 +411,9 @@ type ItemResponse struct {
 	ImageURL       string         `json:"image_url,omitempty"`
 	CategoryID     *uuid.UUID     `json:"category_id,omitempty"`
 	CategoryName   string         `json:"category_name,omitempty"`
+	BrandID        *uuid.UUID     `json:"brand_id,omitempty"`
+	BrandName      string         `json:"brand_name,omitempty"`
+	BrandCode      string         `json:"brand_code,omitempty"`
 	UnitID         *uuid.UUID     `json:"unit_id,omitempty"`
 	Tags           []string       `json:"tags,omitempty"`
 	Metadata       map[string]any `json:"metadata,omitempty"`
@@ -555,6 +558,44 @@ func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]Categ
 			return nil, fmt.Errorf("decode response: %w", err2)
 		}
 		return categories, nil
+	}
+	return wrapper.Data, nil
+}
+
+// BrandResponse represents an item brand from inventory-api.
+type BrandResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	LogoURL     string `json:"logo_url"`
+	IsActive    bool   `json:"is_active"`
+	SortOrder   int    `json:"sort_order"`
+}
+
+// ListBrands returns item brands from inventory-api.
+// inventory-api returns paginated: {"data": [...], "total": N}
+func (c *Client) ListBrands(ctx context.Context, tenantSlug string) ([]BrandResponse, error) {
+	path := fmt.Sprintf("/v1/%s/inventory/brands", tenantSlug)
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+	// inventory-api wraps results in {"data": [...], "total": N}
+	var wrapper struct {
+		Data  []BrandResponse `json:"data"`
+		Total int             `json:"total"`
+	}
+	if err := resp.DecodeJSON(&wrapper); err != nil {
+		// Fallback: try direct array decode for backward compatibility
+		var brands []BrandResponse
+		if err2 := resp.DecodeJSON(&brands); err2 != nil {
+			return nil, fmt.Errorf("decode response: %w", err2)
+		}
+		return brands, nil
 	}
 	return wrapper.Data, nil
 }
