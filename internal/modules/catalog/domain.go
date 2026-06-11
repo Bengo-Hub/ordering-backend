@@ -21,6 +21,9 @@ type MergedCatalogItem struct {
 	ImageURL     string     `json:"imageUrl,omitempty"`
 	CategoryID   *uuid.UUID `json:"categoryId,omitempty"`
 	CategoryName string     `json:"categoryName,omitempty"`
+	BrandID      *uuid.UUID `json:"brandId,omitempty"`
+	BrandName    string     `json:"brandName,omitempty"`
+	BrandCode    string     `json:"brandCode,omitempty"`
 	Tags         []string   `json:"tags,omitempty"`
 	Metadata     map[string]any `json:"metadata,omitempty"`
 
@@ -71,6 +74,16 @@ type InventoryCategory struct {
 	Description string `json:"description,omitempty"`
 	Icon        string `json:"icon,omitempty"`
 	IsActive    bool   `json:"isActive"`
+}
+
+// InventoryBrand represents an item brand from inventory-api.
+type InventoryBrand struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Code      string `json:"code"`
+	LogoURL   string `json:"logoUrl,omitempty"`
+	IsActive  bool   `json:"isActive"`
+	SortOrder int    `json:"sortOrder"`
 }
 
 // OutletSummary represents an outlet for public display.
