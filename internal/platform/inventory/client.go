@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/google/uuid"
 	serviceclient "github.com/Bengo-Hub/shared-service-client"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
@@ -40,14 +40,14 @@ func NewClient(cfg config.InventoryConfig, logger *zap.Logger) *Client {
 
 // StockAvailability represents stock availability for an item.
 type StockAvailability struct {
-	ItemID      uuid.UUID `json:"item_id"`
-	SKU         string    `json:"sku"`
-	WarehouseID uuid.UUID `json:"warehouse_id"`
-	OnHand      float64   `json:"on_hand"`
-	Available   float64   `json:"available"`
-	Reserved    float64   `json:"reserved"`
-	UnitOfMeasure string  `json:"unit_of_measure"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ItemID        uuid.UUID `json:"item_id"`
+	SKU           string    `json:"sku"`
+	WarehouseID   uuid.UUID `json:"warehouse_id"`
+	OnHand        float64   `json:"on_hand"`
+	Available     float64   `json:"available"`
+	Reserved      float64   `json:"reserved"`
+	UnitOfMeasure string    `json:"unit_of_measure"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // ReservationRequest represents a request to reserve stock.
@@ -68,36 +68,36 @@ type ReservationItem struct {
 
 // ReservationResponse represents a stock reservation response.
 type ReservationResponse struct {
-	ID              uuid.UUID           `json:"id"`
-	TenantID        uuid.UUID           `json:"tenant_id"`
-	OrderID         uuid.UUID           `json:"order_id"`
-	Status          string              `json:"status"` // pending, confirmed, released, consumed
-	Items           []ReservedItem      `json:"items"`
-	ExpiresAt       *time.Time          `json:"expires_at,omitempty"`
-	ConfirmedAt     *time.Time          `json:"confirmed_at,omitempty"`
-	CreatedAt       time.Time           `json:"created_at"`
+	ID          uuid.UUID      `json:"id"`
+	TenantID    uuid.UUID      `json:"tenant_id"`
+	OrderID     uuid.UUID      `json:"order_id"`
+	Status      string         `json:"status"` // pending, confirmed, released, consumed
+	Items       []ReservedItem `json:"items"`
+	ExpiresAt   *time.Time     `json:"expires_at,omitempty"`
+	ConfirmedAt *time.Time     `json:"confirmed_at,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 // ReservedItem represents a reserved item.
 type ReservedItem struct {
-	SKU              string  `json:"sku"`
-	RequestedQty     float64 `json:"requested_qty"`
-	ReservedQty      float64 `json:"reserved_qty"`
-	AvailableQty     float64 `json:"available_qty"`
-	IsFullyReserved  bool    `json:"is_fully_reserved"`
+	SKU             string  `json:"sku"`
+	RequestedQty    float64 `json:"requested_qty"`
+	ReservedQty     float64 `json:"reserved_qty"`
+	AvailableQty    float64 `json:"available_qty"`
+	IsFullyReserved bool    `json:"is_fully_reserved"`
 }
 
 // RecipeResponse represents a recipe/BOM from inventory.
 type RecipeResponse struct {
-	ID          uuid.UUID         `json:"id"`
-	TenantID    uuid.UUID         `json:"tenant_id"`
-	Name        string            `json:"name"`
-	SKU         string            `json:"sku"`
-	OutputQty   float64           `json:"output_qty"`
+	ID          uuid.UUID          `json:"id"`
+	TenantID    uuid.UUID          `json:"tenant_id"`
+	Name        string             `json:"name"`
+	SKU         string             `json:"sku"`
+	OutputQty   float64            `json:"output_qty"`
 	Ingredients []RecipeIngredient `json:"ingredients"`
-	IsActive    bool              `json:"is_active"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	IsActive    bool               `json:"is_active"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // RecipeIngredient represents an ingredient in a recipe.
@@ -114,12 +114,12 @@ type RecipeIngredient struct {
 
 // ConsumptionRequest represents a request to record stock consumption.
 type ConsumptionRequest struct {
-	TenantID       uuid.UUID          `json:"tenant_id"`
-	OrderID        uuid.UUID          `json:"order_id"`
-	WarehouseID    uuid.UUID          `json:"warehouse_id,omitempty"`
-	Items          []ConsumptionItem  `json:"items"`
-	Reason         string             `json:"reason,omitempty"` // sale, waste, adjustment
-	IdempotencyKey string             `json:"idempotency_key,omitempty"`
+	TenantID       uuid.UUID         `json:"tenant_id"`
+	OrderID        uuid.UUID         `json:"order_id"`
+	WarehouseID    uuid.UUID         `json:"warehouse_id,omitempty"`
+	Items          []ConsumptionItem `json:"items"`
+	Reason         string            `json:"reason,omitempty"` // sale, waste, adjustment
+	IdempotencyKey string            `json:"idempotency_key,omitempty"`
 }
 
 // ConsumptionItem represents an item to consume.
@@ -393,7 +393,7 @@ type CreateItemRequest struct {
 	SKU          string         `json:"sku"`
 	Name         string         `json:"name"`
 	Description  string         `json:"description,omitempty"`
-	Type         string         `json:"type"`          // GOODS, SERVICE, RECIPE, INGREDIENT
+	Type         string         `json:"type"`                    // GOODS, SERVICE, RECIPE, INGREDIENT
 	CategorySlug string         `json:"category_slug,omitempty"` // inventory category
 	UnitName     string         `json:"unit_name,omitempty"`     // e.g., CUP, PIECE
 	ImageURL     string         `json:"image_url,omitempty"`
@@ -401,24 +401,39 @@ type CreateItemRequest struct {
 }
 
 // ItemResponse represents an item returned from inventory-api.
+// ItemVariantResponse is an item variation surfaced by inventory-api.
+type ItemVariantResponse struct {
+	ID         uuid.UUID         `json:"id"`
+	SKU        string            `json:"sku"`
+	Name       string            `json:"name"`
+	Price      float64           `json:"price"`
+	Attributes map[string]string `json:"attributes,omitempty"`
+	Barcode    string            `json:"barcode,omitempty"`
+	IsActive   bool              `json:"is_active"`
+}
+
 type ItemResponse struct {
-	ID             uuid.UUID      `json:"id"`
-	SKU            string         `json:"sku"`
-	Name           string         `json:"name"`
-	Description    string         `json:"description,omitempty"`
-	Type           string         `json:"type"`
-	IsActive       bool           `json:"is_active"`
-	ImageURL       string         `json:"image_url,omitempty"`
-	CategoryID     *uuid.UUID     `json:"category_id,omitempty"`
-	CategoryName   string         `json:"category_name,omitempty"`
-	BrandID        *uuid.UUID     `json:"brand_id,omitempty"`
-	BrandName      string         `json:"brand_name,omitempty"`
-	BrandCode      string         `json:"brand_code,omitempty"`
-	UnitID         *uuid.UUID     `json:"unit_id,omitempty"`
-	Tags           []string       `json:"tags,omitempty"`
-	Metadata       map[string]any `json:"metadata,omitempty"`
-	CostPrice      *float64 `json:"cost_price,omitempty"`
-	SuggestedPrice *float64 `json:"suggested_price,omitempty"`
+	ID             uuid.UUID             `json:"id"`
+	SKU            string                `json:"sku"`
+	Name           string                `json:"name"`
+	Description    string                `json:"description,omitempty"`
+	Type           string                `json:"type"`
+	IsActive       bool                  `json:"is_active"`
+	ImageURL       string                `json:"image_url,omitempty"`
+	CategoryID     *uuid.UUID            `json:"category_id,omitempty"`
+	CategoryName   string                `json:"category_name,omitempty"`
+	BrandID        *uuid.UUID            `json:"brand_id,omitempty"`
+	BrandName      string                `json:"brand_name,omitempty"`
+	BrandCode      string                `json:"brand_code,omitempty"`
+	Manufacturer   string                `json:"manufacturer,omitempty"`
+	Model          string                `json:"model,omitempty"`
+	HasVariants    bool                  `json:"has_variants,omitempty"`
+	Variants       []ItemVariantResponse `json:"variants,omitempty"`
+	UnitID         *uuid.UUID            `json:"unit_id,omitempty"`
+	Tags           []string              `json:"tags,omitempty"`
+	Metadata       map[string]any        `json:"metadata,omitempty"`
+	CostPrice      *float64              `json:"cost_price,omitempty"`
+	SuggestedPrice *float64              `json:"suggested_price,omitempty"`
 	// Recipe-costing fields (added 2026-06-01)
 	SellingPrice   *float64 `json:"selling_price,omitempty"`
 	FoodCostPct    *float64 `json:"food_cost_pct,omitempty"`
@@ -475,7 +490,8 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter st
 	// Only finished, sellable, in-stock items belong on the storefront. category_id is applied
 	// SERVER-SIDE so a selected category returns its items (and the correct total) instead of the
 	// previous client-side post-pagination filter that returned an empty/null page.
-	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&status=active&limit=%d&page=%d", tenantSlug, typeFilter, limit, page)
+	// include=variants so merged catalog items carry their sellable variations.
+	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&status=active&limit=%d&page=%d&include=variants", tenantSlug, typeFilter, limit, page)
 	if categoryID != nil {
 		path += "&category_id=" + categoryID.String()
 	}
@@ -609,17 +625,17 @@ func (c *Client) ServiceClient() *serviceclient.Client {
 
 // EventResponse is an event Item (type=SERVICE) as needed for the public event page.
 type EventResponse struct {
-	ID            uuid.UUID      `json:"id"`
-	SKU           string         `json:"sku"`
-	Name          string         `json:"name"`
-	Description   string         `json:"description,omitempty"`
-	ImageURL      string         `json:"image_url,omitempty"`
-	EventStartAt  *time.Time     `json:"event_start_at,omitempty"`
-	EventEndAt    *time.Time     `json:"event_end_at,omitempty"`
-	EventVenue    *string        `json:"event_venue,omitempty"`
-	TotalCapacity *int           `json:"total_capacity,omitempty"`
-	BookedCapacity *int          `json:"booked_capacity,omitempty"`
-	Metadata      map[string]any `json:"metadata,omitempty"`
+	ID             uuid.UUID      `json:"id"`
+	SKU            string         `json:"sku"`
+	Name           string         `json:"name"`
+	Description    string         `json:"description,omitempty"`
+	ImageURL       string         `json:"image_url,omitempty"`
+	EventStartAt   *time.Time     `json:"event_start_at,omitempty"`
+	EventEndAt     *time.Time     `json:"event_end_at,omitempty"`
+	EventVenue     *string        `json:"event_venue,omitempty"`
+	TotalCapacity  *int           `json:"total_capacity,omitempty"`
+	BookedCapacity *int           `json:"booked_capacity,omitempty"`
+	Metadata       map[string]any `json:"metadata,omitempty"`
 }
 
 // EventTierAvailability mirrors inventory tickets.TierAvailability.
