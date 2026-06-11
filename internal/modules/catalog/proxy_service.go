@@ -509,6 +509,9 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		BrandID:       inv.BrandID,
 		BrandName:     inv.BrandName,
 		BrandCode:     inv.BrandCode,
+		Manufacturer:  inv.Manufacturer,
+		Model:         inv.Model,
+		HasVariants:   inv.HasVariants,
 		Tags:          inv.Tags,
 		Metadata:      inv.Metadata,
 		TotalCapacity: inv.TotalCapacity,
@@ -519,18 +522,35 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		IsAvailable:   inv.IsActive,
 	}
 
+	// Surface sellable product variations from inventory.
+	if len(inv.Variants) > 0 {
+		item.Variants = make([]CatalogVariant, 0, len(inv.Variants))
+		for _, v := range inv.Variants {
+			item.Variants = append(item.Variants, CatalogVariant{
+				ID:         v.ID,
+				SKU:        v.SKU,
+				Name:       v.Name,
+				Price:      v.Price,
+				Attributes: v.Attributes,
+				Barcode:    v.Barcode,
+				IsActive:   v.IsActive,
+			})
+		}
+		item.HasVariants = true
+	}
+
 	// Propagate new costing fields from inventory.
-	item.CostPrice      = inv.CostPrice
+	item.CostPrice = inv.CostPrice
 	item.SuggestedPrice = inv.SuggestedPrice
-	item.SellingPrice   = inv.SellingPrice
-	item.FoodCostPct    = inv.FoodCostPct
+	item.SellingPrice = inv.SellingPrice
+	item.FoodCostPct = inv.FoodCostPct
 	item.FoodCostStatus = inv.FoodCostStatus
 	// Tax (enriched by inventory-api from treasury-api).
-	item.TaxCodeID    = inv.TaxCodeID
+	item.TaxCodeID = inv.TaxCodeID
 	item.TaxInclusive = inv.TaxInclusive
-	item.TaxRate      = inv.TaxRate
-	item.NetPrice     = inv.NetPrice
-	item.TaxAmount    = inv.TaxAmount
+	item.TaxRate = inv.TaxRate
+	item.NetPrice = inv.NetPrice
+	item.TaxAmount = inv.TaxAmount
 
 	// Seed price from inventory: selling_price > suggested_price > cost_price fallback.
 	if inv.SellingPrice != nil && *inv.SellingPrice > 0 {
