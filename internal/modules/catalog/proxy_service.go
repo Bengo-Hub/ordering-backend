@@ -221,6 +221,32 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([
 	return result, nil
 }
 
+// ---------- Brands ----------
+
+// ListBrands proxies to inventory-api brands so the storefront can offer a Brands tab / filter.
+func (s *ProxyService) ListBrands(ctx context.Context, tenantSlug string) ([]InventoryBrand, error) {
+	brands, err := s.inventoryClient.ListBrands(ctx, tenantSlug)
+	if err != nil {
+		return nil, fmt.Errorf("catalog: list brands: %w", err)
+	}
+
+	result := make([]InventoryBrand, 0, len(brands))
+	for _, b := range brands {
+		if !b.IsActive {
+			continue
+		}
+		result = append(result, InventoryBrand{
+			ID:        b.ID,
+			Name:      b.Name,
+			Code:      b.Code,
+			LogoURL:   b.LogoURL,
+			IsActive:  b.IsActive,
+			SortOrder: b.SortOrder,
+		})
+	}
+	return result, nil
+}
+
 // isStorefrontSellableCategory reports whether a category should appear on the customer storefront.
 // Excludes recipe/modifier components and service-booking categories that are never directly orderable
 // online (raw ingredients, modifiers, add-ons, conference/room/facility/salon). Accompaniments (ugali,
@@ -480,6 +506,9 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		ImageURL:      inv.ImageURL,
 		CategoryID:    inv.CategoryID,
 		CategoryName:  inv.CategoryName,
+		BrandID:       inv.BrandID,
+		BrandName:     inv.BrandName,
+		BrandCode:     inv.BrandCode,
 		Tags:          inv.Tags,
 		Metadata:      inv.Metadata,
 		TotalCapacity: inv.TotalCapacity,
