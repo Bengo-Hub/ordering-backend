@@ -45,6 +45,7 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/catalog", func(catalogRouter chi.Router) {
 		// Public read-only endpoints
 		catalogRouter.Get("/categories", h.ListPublicCategories)
+		catalogRouter.Get("/brands", h.ListPublicBrands)
 		catalogRouter.Get("/items", h.ListPublicItems)
 		catalogRouter.Get("/items/{sku}", h.GetPublicItem)
 
@@ -234,6 +235,25 @@ func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, categories)
+}
+
+// ListPublicBrands lists item brands from inventory-api (no auth required) so the storefront
+// can offer a Brands tab / filter.
+func (h *Handler) ListPublicBrands(w http.ResponseWriter, r *http.Request) {
+	_, tenantSlug, err := h.resolveTenant(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	brands, err := h.service.ListBrands(r.Context(), tenantSlug)
+	if err != nil {
+		h.log.Error("list brands failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, brands)
 }
 
 // GetItemImages returns the multi-image gallery for a catalog item by SKU.
