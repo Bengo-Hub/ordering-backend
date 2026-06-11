@@ -57,9 +57,20 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	if filter.Offset > 0 {
 		page = (filter.Offset / limit) + 1
 	}
+	// The "featured" flag lives on local CatalogOverride rows, NOT on inventory items, so it
+	// cannot be pushed into the paginated inventory fetch. Featured items are scattered across
+	// the whole catalog; fetching only the first `limit` inventory rows and THEN filtering by
+	// featured (below) surfaces just the handful of featured items that happen to land on the
+	// first page. When a featured listing is requested, scan the full catalog up-front and
+	// re-apply the caller's limit to the filtered result before returning.
+	fetchLimit, fetchPage := limit, page
+	featuredListing := filter.IsFeatured != nil && *filter.IsFeatured
+	if featuredListing {
+		fetchLimit, fetchPage = 500, 1
+	}
 	// Apply the category filter SERVER-SIDE so a selected category returns its items + the correct
 	// total (the old client-side filter ran after pagination → empty/null page for any category).
-	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID)
+	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, fetchLimit, fetchPage, filter.CategoryID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
@@ -143,6 +154,16 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 
 		merged = append(merged, item)
+	}
+
+	// Featured listings over-fetched the whole catalog to find scattered featured items; report
+	// the true featured count and honour the caller's requested page size on the filtered result.
+	if featuredListing {
+		total := len(merged)
+		if len(merged) > limit {
+			merged = merged[:limit]
+		}
+		return merged, total, nil
 	}
 
 	return merged, invTotal, nil
