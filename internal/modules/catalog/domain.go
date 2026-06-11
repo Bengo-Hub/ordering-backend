@@ -9,23 +9,38 @@ import (
 // DefaultCurrency is the default currency for catalog items.
 const DefaultCurrency = "KES"
 
+// CatalogVariant is a sellable product variation surfaced from inventory-api.
+type CatalogVariant struct {
+	ID         uuid.UUID         `json:"id"`
+	SKU        string            `json:"sku"`
+	Name       string            `json:"name"`
+	Price      float64           `json:"price"`
+	Attributes map[string]string `json:"attributes,omitempty"`
+	Barcode    string            `json:"barcode,omitempty"`
+	IsActive   bool              `json:"isActive"`
+}
+
 // MergedCatalogItem is the merged view of inventory master data + local CatalogOverride.
 type MergedCatalogItem struct {
 	// Inventory fields
-	InventorySKU string     `json:"sku"`
-	InventoryID  uuid.UUID  `json:"inventoryId,omitempty"`
-	Name         string     `json:"name"`
-	Description  string     `json:"description,omitempty"`
-	Type         string     `json:"type,omitempty"`
-	IsActive     bool       `json:"isActive"`
-	ImageURL     string     `json:"imageUrl,omitempty"`
-	CategoryID   *uuid.UUID `json:"categoryId,omitempty"`
-	CategoryName string     `json:"categoryName,omitempty"`
-	BrandID      *uuid.UUID `json:"brandId,omitempty"`
-	BrandName    string     `json:"brandName,omitempty"`
-	BrandCode    string     `json:"brandCode,omitempty"`
-	Tags         []string   `json:"tags,omitempty"`
-	Metadata     map[string]any `json:"metadata,omitempty"`
+	InventorySKU string           `json:"sku"`
+	InventoryID  uuid.UUID        `json:"inventoryId,omitempty"`
+	Name         string           `json:"name"`
+	Description  string           `json:"description,omitempty"`
+	Type         string           `json:"type,omitempty"`
+	IsActive     bool             `json:"isActive"`
+	ImageURL     string           `json:"imageUrl,omitempty"`
+	CategoryID   *uuid.UUID       `json:"categoryId,omitempty"`
+	CategoryName string           `json:"categoryName,omitempty"`
+	BrandID      *uuid.UUID       `json:"brandId,omitempty"`
+	BrandName    string           `json:"brandName,omitempty"`
+	BrandCode    string           `json:"brandCode,omitempty"`
+	Manufacturer string           `json:"manufacturer,omitempty"` // retail/pharmacy
+	Model        string           `json:"model,omitempty"`        // retail only
+	HasVariants  bool             `json:"hasVariants,omitempty"`
+	Variants     []CatalogVariant `json:"variants,omitempty"`
+	Tags         []string         `json:"tags,omitempty"`
+	Metadata     map[string]any   `json:"metadata,omitempty"`
 
 	// Event fields (SERVICE type only) — sourced from inventory
 	TotalCapacity *int       `json:"totalCapacity,omitempty"`
@@ -107,10 +122,10 @@ type OutletSummary struct {
 
 // CatalogFilter defines filter options for listing merged catalog items.
 type CatalogFilter struct {
-	TenantID   uuid.UUID
-	OutletID   *uuid.UUID
-	CategoryID *uuid.UUID
-	Search     string
+	TenantID    uuid.UUID
+	OutletID    *uuid.UUID
+	CategoryID  *uuid.UUID
+	Search      string
 	IsFeatured  *bool
 	IsAvailable *bool
 	Section     string
