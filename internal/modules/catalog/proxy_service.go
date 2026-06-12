@@ -586,11 +586,17 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		item.BasePrice = math.Ceil(item.BasePrice)
 	}
 
-	// Items with no price cannot be ordered online regardless of override.
-	// A price must be set in inventory (cost_price/suggested_price/selling_price)
-	// OR in a catalog override before the item appears in the public catalog.
+	// Zero-price gate, with an exception for COMPLIMENTARY accompaniments. By default a no-price item
+	// cannot be ordered online. BUT a price-0 item explicitly enabled via a catalog override
+	// (override.IsAvailable) is treated as a no-charge accompaniment: it stays orderable, is flagged
+	// so the app shows "Free", and is not billed — while its recipe/BOM stock is still deducted on
+	// fulfilment (the inventory consumer deducts by recipe/modifier SKU regardless of price).
 	if item.BasePrice == 0 {
-		item.IsAvailable = false
+		if override != nil && override.IsAvailable {
+			item.IsComplimentary = true
+		} else {
+			item.IsAvailable = false
+		}
 	}
 
 	_, item.IsFavorite = favSet[inv.SKU]

@@ -52,6 +52,9 @@ type MergedCatalogItem struct {
 	BasePrice         float64 `json:"basePrice"`
 	Currency          string  `json:"currency"`
 	IsAvailable       bool    `json:"isAvailable"`
+	// IsComplimentary marks a no-charge accompaniment: price 0 but explicitly enabled via override,
+	// shown as "Free" and not billed, while its recipe/BOM stock is still deducted on sale.
+	IsComplimentary   bool    `json:"isComplimentary"`
 	IsFeatured        bool    `json:"isFeatured"`
 	LeadTimeMinutes   *int    `json:"leadTimeMinutes,omitempty"`
 	DisplayOrder      int     `json:"displayOrder"`
