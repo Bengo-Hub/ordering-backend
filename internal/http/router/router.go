@@ -72,6 +72,7 @@ func New(
 	serviceConfigHandler *confighandler.ServiceConfigHandler,
 	useCaseHandler *confighandler.UseCaseHandler,
 	googleBusinessHandler *googlebusinesshandler.Handler,
+	backupsHandler *handlers.BackupsHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -361,6 +362,14 @@ func New(
 				if useCaseHandler != nil && authenticator != nil {
 					tenant.With(authenticator.RequirePermissions(identity.Permission("ordering.config.view"))).
 						Get("/admin/use-case", useCaseHandler.GetUseCaseConfig)
+				}
+
+				// Tenant-scoped backups (this tenant's data only) — admin/config-gated.
+				if backupsHandler != nil && authenticator != nil {
+					tenant.Group(func(bg chi.Router) {
+						bg.Use(authenticator.RequirePermissions(identity.Permission("ordering.config.view")))
+						backupsHandler.Register(bg)
+					})
 				}
 
 				// Google Business Profile integration (admin connect/reviews + public callback).

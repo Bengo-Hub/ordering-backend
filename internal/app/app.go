@@ -37,6 +37,7 @@ import (
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
+	backupmod "github.com/bengobox/ordering-backend/internal/modules/backup"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
@@ -468,7 +469,16 @@ func New(ctx context.Context) (*App, error) {
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
 	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo, identityRepo)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler)
+	// Tenant-scoped backups + daily 02:00 auto-backup scheduler + retention churn.
+	backupSvc := backupmod.NewService(sqlDB, ormClient, cfg.Backup.Dir, log)
+	backupsHandler := handlers.NewBackupsHandler(log, backupSvc, cfg.Backup.RetentionDays)
+	backupmod.NewScheduler(backupSvc, backupmod.SchedulerConfig{
+		Enabled:       cfg.Backup.ScheduleEnabled,
+		Hour:          cfg.Backup.ScheduleHour,
+		RetentionDays: cfg.Backup.RetentionDays,
+	}, log).Start(ctx)
+
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
