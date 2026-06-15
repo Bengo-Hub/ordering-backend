@@ -9,6 +9,9 @@ import (
 // AuditLog is the predicate function for auditlog builders.
 type AuditLog func(*sql.Selector)
 
+// Backup is the predicate function for backup builders.
+type Backup func(*sql.Selector)
+
 // Cart is the predicate function for cart builders.
 type Cart func(*sql.Selector)
 

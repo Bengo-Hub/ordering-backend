@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/bengobox/ordering-backend/internal/ent/auditlog"
+	"github.com/bengobox/ordering-backend/internal/ent/backup"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
@@ -113,6 +114,7 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			auditlog.Table:                 auditlog.ValidColumn,
+			backup.Table:                   backup.ValidColumn,
 			cart.Table:                     cart.ValidColumn,
 			cartitem.Table:                 cartitem.ValidColumn,
 			catalogoverride.Table:          catalogoverride.ValidColumn,
