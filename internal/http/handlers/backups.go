@@ -40,7 +40,48 @@ func (h *BackupsHandler) Register(r chi.Router) {
 		br.Post("/churn", h.Churn)
 		br.Get("/{name}/download", h.Download)
 		br.Delete("/{name}", h.Delete)
+		br.Get("/settings", h.GetSettings)
+		br.Put("/settings", h.UpdateSettings)
 	})
+}
+
+// GetSettings returns the tenant's auto-backup settings (off by default — auto-backup is
+// OPT-IN and runs only when the tenant has activated it).
+func (h *BackupsHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
+	tenantID, ok := resolveTenant(r)
+	if !ok {
+		RespondError(w, http.StatusBadRequest, "tenant context required")
+		return
+	}
+	settings, err := h.svc.GetSettings(r.Context(), tenantID)
+	if err != nil {
+		h.log.Error("get backup settings", zap.Error(err))
+		RespondError(w, http.StatusInternalServerError, "failed to load backup settings")
+		return
+	}
+	RespondJSON(w, http.StatusOK, settings)
+}
+
+// UpdateSettings activates/deactivates auto-backup and updates the schedule/retention for the
+// tenant. Auto-backup remains OPT-IN — it runs only while auto_enabled is true.
+func (h *BackupsHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+	tenantID, ok := resolveTenant(r)
+	if !ok {
+		RespondError(w, http.StatusBadRequest, "tenant context required")
+		return
+	}
+	var in backup.Settings
+	if err := DecodeJSON(r, &in); err != nil {
+		RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	settings, err := h.svc.UpsertSettings(r.Context(), tenantID, in)
+	if err != nil {
+		h.log.Error("update backup settings", zap.Error(err))
+		RespondError(w, http.StatusInternalServerError, "failed to save backup settings")
+		return
+	}
+	RespondJSON(w, http.StatusOK, settings)
 }
 
 // resolveTenant extracts the tenant UUID from context (TenantV2 / JIT-sync backfill), with
