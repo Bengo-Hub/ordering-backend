@@ -13,7 +13,9 @@ RUN GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/orde
     GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-seed ./cmd/seed
 
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata && addgroup -S app && adduser -S app -G app
+# rclone: powers pluggable backup-destination mirroring off the local PVC
+# (S3/OneDrive/GDrive/WebDAV/SFTP/SMB). ca-certificates: TLS trust for HTTPS remotes.
+RUN apk add --no-cache ca-certificates tzdata rclone && addgroup -S app && adduser -S app -G app
 WORKDIR /app
 # Copy all binaries to well-known locations
 COPY --from=builder /bin/ordering-backend /usr/local/bin/ordering-backend
