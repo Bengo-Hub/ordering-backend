@@ -372,8 +372,16 @@ func New(ctx context.Context) (*App, error) {
 				log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
 			}
 
+			// consumerFeatureGate restricts cross-service data sync (catalog projection,
+			// treasury payment confirmation) to entitled tenants, mirroring HTTP-layer gating.
+			// Cached per tenant; fails open on subscriptions-api outage.
+			consumerFeatureGate := func(ctx context.Context, tenantID, feature string) bool {
+				return subscriptionsClient.ConsumerHasFeature(ctx, tenantID, feature)
+			}
+
 			// Subscribe to inventory events for catalog projection sync
 			inventoryEventHandler := catalog.NewInventoryEventHandler(ormClient, log)
+			inventoryEventHandler.SetFeatureGate(consumerFeatureGate)
 			if err := inventoryEventHandler.SubscribeToInventoryEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
 			}
@@ -395,6 +403,7 @@ func New(ctx context.Context) (*App, error) {
 			// Subscribe to treasury.payment.succeeded for INSTANT, event-driven order confirmation
 			// (replaces reliance on the 5-minute poller; poller stays as a durable fallback).
 			treasuryPaymentConsumer := payments.NewTreasuryPaymentConsumer(log, onPaymentSuccess)
+			treasuryPaymentConsumer.SetFeatureGate(consumerFeatureGate)
 			go func() {
 				if err := treasuryPaymentConsumer.Start(ctx, js); err != nil {
 					log.Error("app: treasury payment consumer stopped", zap.Error(err))
