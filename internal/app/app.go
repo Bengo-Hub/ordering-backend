@@ -215,8 +215,15 @@ func New(ctx context.Context) (*App, error) {
 		cfg.Google.OAuthClientSecret,
 		cfg.Google.OAuthRedirectURL,
 	)
-	googleBusinessSvc := googlebusiness.NewService(ormClient, googleOAuthCfg, cfg.Google.FrontendIntegrationsURL, log)
+	// Shared credential-encryption KeyProvider (DB-first, env-fallback, dev-last).
+	// The same instance backs token encryption-at-rest and the platform encryption-key
+	// endpoints so a key rotation invalidates a single cache.
+	encryptionKeyProvider := googlebusiness.NewKeyProvider(ormClient)
+	googleBusinessSvc := googlebusiness.NewService(ormClient, googleOAuthCfg, cfg.Google.FrontendIntegrationsURL, log, encryptionKeyProvider)
 	googleBusinessHandler := googlebusinesshandler.NewHandler(log, googleBusinessSvc)
+
+	// Platform-owner credential-encryption key management (GET/PUT /admin/encryption-key).
+	encryptionKeyHandler := confighandler.NewEncryptionKeyHandler(ormClient, encryptionKeyProvider, log)
 	if googleOAuthCfg.IsConfigured() {
 		log.Info("app: Google Business Profile integration enabled")
 	} else {
@@ -478,7 +485,7 @@ func New(ctx context.Context) (*App, error) {
 		RetentionDays: cfg.Backup.RetentionDays,
 	}, log).Start(ctx)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, encryptionKeyHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
