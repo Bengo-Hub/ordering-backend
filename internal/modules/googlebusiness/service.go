@@ -40,19 +40,31 @@ type Service struct {
 	client      *ent.Client
 	oauth       OAuthConfig
 	logger      *zap.Logger
-	frontendURL string // where the callback redirects after storing tokens
+	frontendURL string       // where the callback redirects after storing tokens
+	keys        *KeyProvider // resolves AES keys (DB-first) for token encryption at rest
 }
 
 // NewService constructs the GBP service. It never fails: when OAuth env is unset the
 // service simply reports IsConfigured()==false and every method returns ErrNotConfigured.
-func NewService(client *ent.Client, oauth OAuthConfig, frontendURL string, logger *zap.Logger) *Service {
+//
+// keys carries the credential-encryption KeyProvider. When nil, a provider bound to the
+// same ent client is created so token encrypt/decrypt still works.
+func NewService(client *ent.Client, oauth OAuthConfig, frontendURL string, logger *zap.Logger, keys *KeyProvider) *Service {
+	if keys == nil {
+		keys = NewKeyProvider(client)
+	}
 	return &Service{
 		client:      client,
 		oauth:       oauth,
 		logger:      logger.Named("googlebusiness"),
 		frontendURL: strings.TrimRight(frontendURL, "/"),
+		keys:        keys,
 	}
 }
+
+// Keys exposes the credential-encryption KeyProvider so platform handlers can read
+// status/fingerprint and invalidate the cache after a key rotation.
+func (s *Service) Keys() *KeyProvider { return s.keys }
 
 // IsConfigured reports whether the OAuth client credentials are present.
 func (s *Service) IsConfigured() bool { return s.oauth.IsConfigured() }
@@ -125,7 +137,8 @@ func (s *Service) VerifyState(state string) (statePayload, error) {
 }
 
 func (s *Service) signBytes(b []byte) string {
-	mac := hmac.New(sha256.New, loadEncryptionKey())
+	key, _ := s.keys.PrimaryKey(context.Background())
+	mac := hmac.New(sha256.New, key)
 	mac.Write(b)
 	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 }
@@ -332,7 +345,7 @@ func (s *Service) validToken(ctx context.Context, tenantID uuid.UUID, outletID *
 	if err != nil || conn == nil {
 		return nil, nil, errors.New("not connected")
 	}
-	token, err := s.decodeToken(conn.EncryptedTokens)
+	token, err := s.decodeToken(ctx, conn.EncryptedTokens)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -351,11 +364,11 @@ func (s *Service) validToken(ctx context.Context, tenantID uuid.UUID, outletID *
 	return saved, refreshed, nil
 }
 
-func (s *Service) decodeToken(encrypted string) (*Token, error) {
+func (s *Service) decodeToken(ctx context.Context, encrypted string) (*Token, error) {
 	if encrypted == "" {
 		return nil, errors.New("no stored token")
 	}
-	plain, err := decrypt(encrypted)
+	plain, err := s.keys.Decrypt(ctx, encrypted)
 	if err != nil {
 		return nil, fmt.Errorf("decrypt token: %w", err)
 	}
@@ -372,7 +385,7 @@ func (s *Service) upsertTokens(ctx context.Context, tenantID uuid.UUID, outletID
 	if err != nil {
 		return nil, fmt.Errorf("marshal token: %w", err)
 	}
-	enc, err := encrypt(string(raw))
+	enc, err := s.keys.Encrypt(ctx, string(raw))
 	if err != nil {
 		return nil, fmt.Errorf("encrypt token: %w", err)
 	}

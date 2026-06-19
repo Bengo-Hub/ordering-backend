@@ -73,6 +73,7 @@ func New(
 	useCaseHandler *confighandler.UseCaseHandler,
 	googleBusinessHandler *googlebusinesshandler.Handler,
 	backupsHandler *handlers.BackupsHandler,
+	encryptionKeyHandler *confighandler.EncryptionKeyHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -349,6 +350,17 @@ func New(
 						adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)
 						adminCfg.Put("/{key}", serviceConfigHandler.UpsertPlatformSetting)
 					})
+
+					// PLATFORM credential-encryption key management (platform-owner ONLY).
+					// GET reports status/fingerprint; PUT rotates the DB key. The raw key
+					// is never returned. Same RequirePlatformOwner gate as service-config.
+					if encryptionKeyHandler != nil {
+						tenant.Route("/admin/encryption-key", func(keyCfg chi.Router) {
+							keyCfg.Use(authenticator.RequirePlatformOwner)
+							keyCfg.Get("/", encryptionKeyHandler.GetEncryptionKey)
+							keyCfg.Put("/", encryptionKeyHandler.PutEncryptionKey)
+						})
+					}
 					// Tenant-scoped config (fee-config save path). GET stays read-only;
 					// PUT requires config.manage (admin/superuser bypass so tenant admins can save).
 					tenant.Route("/settings/service-config", func(settingsCfg chi.Router) {
