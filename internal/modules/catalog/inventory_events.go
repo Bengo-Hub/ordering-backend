@@ -43,6 +43,9 @@ func ensureInventoryStream(js nats.JetStreamContext) error {
 type InventoryEventHandler struct {
 	db     *ent.Client
 	logger *zap.Logger
+	// hasFeature gates inventory→catalog sync by subscription entitlement. When set, catalog
+	// overrides are only created for tenants entitled to basic_inventory_access. Nil → fail open.
+	hasFeature func(ctx context.Context, tenantID, feature string) bool
 }
 
 // NewInventoryEventHandler creates a new inventory event handler.
@@ -51,6 +54,11 @@ func NewInventoryEventHandler(db *ent.Client, logger *zap.Logger) *InventoryEven
 		db:     db,
 		logger: logger.Named("catalog.inventory_events"),
 	}
+}
+
+// SetFeatureGate wires the subscription entitlement check used to gate catalog sync.
+func (h *InventoryEventHandler) SetFeatureGate(fn func(ctx context.Context, tenantID, feature string) bool) {
+	h.hasFeature = fn
 }
 
 // SubscribeToInventoryEvents subscribes to inventory-service events via JetStream durable consumers.
@@ -99,6 +107,14 @@ func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *shar
 	sku, _ := evt.Payload["sku"].(string)
 	if sku == "" {
 		return fmt.Errorf("no sku in event payload")
+	}
+
+	// Gate inventory→catalog sync: only tenants entitled to basic_inventory_access get
+	// inventory items projected into their ordering catalog. Fails open if no gate wired.
+	if h.hasFeature != nil && !h.hasFeature(ctx, tenantID.String(), "basic_inventory_access") {
+		h.logger.Debug("inventory.item.created: tenant lacks basic_inventory_access — skipping catalog sync",
+			zap.String("tenant_id", tenantID.String()))
+		return nil
 	}
 
 	isActive, _ := evt.Payload["is_active"].(bool)

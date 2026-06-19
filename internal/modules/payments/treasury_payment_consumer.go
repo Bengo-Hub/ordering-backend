@@ -31,6 +31,8 @@ const (
 type TreasuryPaymentConsumer struct {
 	log              *zap.Logger
 	onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error
+	// hasFeature gates treasury→ordering payment sync by subscription entitlement. Nil → fail open.
+	hasFeature func(ctx context.Context, tenantID, feature string) bool
 }
 
 // NewTreasuryPaymentConsumer constructs the consumer. onPaymentSuccess is the same idempotent
@@ -40,6 +42,11 @@ func NewTreasuryPaymentConsumer(log *zap.Logger, onPaymentSuccess func(ctx conte
 		log:              log.Named("consumers.treasury_payment"),
 		onPaymentSuccess: onPaymentSuccess,
 	}
+}
+
+// SetFeatureGate wires the subscription entitlement check used to gate payment sync.
+func (c *TreasuryPaymentConsumer) SetFeatureGate(fn func(ctx context.Context, tenantID, feature string) bool) {
+	c.hasFeature = fn
 }
 
 // Start ensures the treasury stream exists then pulls treasury.payment.succeeded in a loop until ctx
@@ -125,6 +132,16 @@ func (c *TreasuryPaymentConsumer) handleMessage(ctx context.Context, msg *nats.M
 	if terr != nil || oerr != nil {
 		c.log.Warn("treasury payment: bad tenant/order id",
 			zap.String("tenant_id", env.TenantID), zap.String("reference_id", refID))
+		_ = msg.Ack()
+		return
+	}
+
+	// Gate treasury→ordering payment sync by entitlement. basic_treasury_access is auto-injected
+	// into every ordering plan, so this only blocks tenants with no ordering/treasury entitlement.
+	// Fails open on lookup failure so a real payment is never stranded by subscriptions-api downtime.
+	if c.hasFeature != nil && !c.hasFeature(ctx, tenantID.String(), "basic_treasury_access") {
+		c.log.Debug("treasury payment: tenant lacks basic_treasury_access — skipping order sync",
+			zap.String("tenant_id", tenantID.String()))
 		_ = msg.Ack()
 		return
 	}
