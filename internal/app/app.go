@@ -420,6 +420,18 @@ func New(ctx context.Context) (*App, error) {
 			} else {
 				log.Info("app: pos event consumer started (pos.kds.order.ready, pos.online_order.collected)")
 			}
+
+			// Subscribe to tenant.purge (subscriptions-api, "tenant" aggregate): on a
+			// platform-owner-confirmed dormancy purge, IRREVERSIBLY delete all of the tenant's
+			// ordering-backend data. The consumer is defensive: it acts only on a confirmed
+			// dormancy event and scopes every delete strictly by tenant_id.
+			tenantPurgeConsumer := tenant.NewPurgeConsumer(ormClient, log)
+			go func() {
+				if err := tenantPurgeConsumer.Start(ctx, js); err != nil {
+					log.Error("app: tenant purge consumer stopped", zap.Error(err))
+				}
+			}()
+			log.Info("app: tenant purge consumer started (tenant.purge)")
 		}
 
 		// Initialize outbox background publisher (Transactional Outbox Pattern)
