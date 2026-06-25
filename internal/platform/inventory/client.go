@@ -567,8 +567,12 @@ type CategoryResponse struct {
 
 // ListCategories returns categories from inventory-api.
 // inventory-api returns paginated: {"data": [...], "total": N}
-func (c *Client) ListCategories(ctx context.Context, tenantSlug string) ([]CategoryResponse, error) {
+// When hasItems is true, only categories with at least one item linked are returned.
+func (c *Client) ListCategories(ctx context.Context, tenantSlug string, hasItems bool) ([]CategoryResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/categories", tenantSlug)
+	if hasItems {
+		path += "?has_items=true"
+	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
