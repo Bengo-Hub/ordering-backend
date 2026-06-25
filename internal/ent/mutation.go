@@ -5493,6 +5493,8 @@ type CatalogOverrideMutation struct {
 	addbase_price             *float64
 	currency                  *string
 	is_available              *bool
+	available_quantity        *float64
+	addavailable_quantity     *float64
 	is_featured               *bool
 	lead_time_minutes         *int
 	addlead_time_minutes      *int
@@ -5853,6 +5855,76 @@ func (m *CatalogOverrideMutation) OldIsAvailable(ctx context.Context) (v bool, e
 // ResetIsAvailable resets all changes to the "is_available" field.
 func (m *CatalogOverrideMutation) ResetIsAvailable() {
 	m.is_available = nil
+}
+
+// SetAvailableQuantity sets the "available_quantity" field.
+func (m *CatalogOverrideMutation) SetAvailableQuantity(f float64) {
+	m.available_quantity = &f
+	m.addavailable_quantity = nil
+}
+
+// AvailableQuantity returns the value of the "available_quantity" field in the mutation.
+func (m *CatalogOverrideMutation) AvailableQuantity() (r float64, exists bool) {
+	v := m.available_quantity
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAvailableQuantity returns the old "available_quantity" field's value of the CatalogOverride entity.
+// If the CatalogOverride object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CatalogOverrideMutation) OldAvailableQuantity(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAvailableQuantity is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAvailableQuantity requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvailableQuantity: %w", err)
+	}
+	return oldValue.AvailableQuantity, nil
+}
+
+// AddAvailableQuantity adds f to the "available_quantity" field.
+func (m *CatalogOverrideMutation) AddAvailableQuantity(f float64) {
+	if m.addavailable_quantity != nil {
+		*m.addavailable_quantity += f
+	} else {
+		m.addavailable_quantity = &f
+	}
+}
+
+// AddedAvailableQuantity returns the value that was added to the "available_quantity" field in this mutation.
+func (m *CatalogOverrideMutation) AddedAvailableQuantity() (r float64, exists bool) {
+	v := m.addavailable_quantity
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (m *CatalogOverrideMutation) ClearAvailableQuantity() {
+	m.available_quantity = nil
+	m.addavailable_quantity = nil
+	m.clearedFields[catalogoverride.FieldAvailableQuantity] = struct{}{}
+}
+
+// AvailableQuantityCleared returns if the "available_quantity" field was cleared in this mutation.
+func (m *CatalogOverrideMutation) AvailableQuantityCleared() bool {
+	_, ok := m.clearedFields[catalogoverride.FieldAvailableQuantity]
+	return ok
+}
+
+// ResetAvailableQuantity resets all changes to the "available_quantity" field.
+func (m *CatalogOverrideMutation) ResetAvailableQuantity() {
+	m.available_quantity = nil
+	m.addavailable_quantity = nil
+	delete(m.clearedFields, catalogoverride.FieldAvailableQuantity)
 }
 
 // SetIsFeatured sets the "is_featured" field.
@@ -6454,7 +6526,7 @@ func (m *CatalogOverrideMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CatalogOverrideMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 19)
 	if m.tenant_id != nil {
 		fields = append(fields, catalogoverride.FieldTenantID)
 	}
@@ -6472,6 +6544,9 @@ func (m *CatalogOverrideMutation) Fields() []string {
 	}
 	if m.is_available != nil {
 		fields = append(fields, catalogoverride.FieldIsAvailable)
+	}
+	if m.available_quantity != nil {
+		fields = append(fields, catalogoverride.FieldAvailableQuantity)
 	}
 	if m.is_featured != nil {
 		fields = append(fields, catalogoverride.FieldIsFeatured)
@@ -6529,6 +6604,8 @@ func (m *CatalogOverrideMutation) Field(name string) (ent.Value, bool) {
 		return m.Currency()
 	case catalogoverride.FieldIsAvailable:
 		return m.IsAvailable()
+	case catalogoverride.FieldAvailableQuantity:
+		return m.AvailableQuantity()
 	case catalogoverride.FieldIsFeatured:
 		return m.IsFeatured()
 	case catalogoverride.FieldLeadTimeMinutes:
@@ -6574,6 +6651,8 @@ func (m *CatalogOverrideMutation) OldField(ctx context.Context, name string) (en
 		return m.OldCurrency(ctx)
 	case catalogoverride.FieldIsAvailable:
 		return m.OldIsAvailable(ctx)
+	case catalogoverride.FieldAvailableQuantity:
+		return m.OldAvailableQuantity(ctx)
 	case catalogoverride.FieldIsFeatured:
 		return m.OldIsFeatured(ctx)
 	case catalogoverride.FieldLeadTimeMinutes:
@@ -6648,6 +6727,13 @@ func (m *CatalogOverrideMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsAvailable(v)
+		return nil
+	case catalogoverride.FieldAvailableQuantity:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvailableQuantity(v)
 		return nil
 	case catalogoverride.FieldIsFeatured:
 		v, ok := value.(bool)
@@ -6744,6 +6830,9 @@ func (m *CatalogOverrideMutation) AddedFields() []string {
 	if m.addbase_price != nil {
 		fields = append(fields, catalogoverride.FieldBasePrice)
 	}
+	if m.addavailable_quantity != nil {
+		fields = append(fields, catalogoverride.FieldAvailableQuantity)
+	}
 	if m.addlead_time_minutes != nil {
 		fields = append(fields, catalogoverride.FieldLeadTimeMinutes)
 	}
@@ -6766,6 +6855,8 @@ func (m *CatalogOverrideMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case catalogoverride.FieldBasePrice:
 		return m.AddedBasePrice()
+	case catalogoverride.FieldAvailableQuantity:
+		return m.AddedAvailableQuantity()
 	case catalogoverride.FieldLeadTimeMinutes:
 		return m.AddedLeadTimeMinutes()
 	case catalogoverride.FieldDisplayOrder:
@@ -6789,6 +6880,13 @@ func (m *CatalogOverrideMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddBasePrice(v)
+		return nil
+	case catalogoverride.FieldAvailableQuantity:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAvailableQuantity(v)
 		return nil
 	case catalogoverride.FieldLeadTimeMinutes:
 		v, ok := value.(int)
@@ -6826,6 +6924,9 @@ func (m *CatalogOverrideMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *CatalogOverrideMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(catalogoverride.FieldAvailableQuantity) {
+		fields = append(fields, catalogoverride.FieldAvailableQuantity)
+	}
 	if m.FieldCleared(catalogoverride.FieldLeadTimeMinutes) {
 		fields = append(fields, catalogoverride.FieldLeadTimeMinutes)
 	}
@@ -6852,6 +6953,9 @@ func (m *CatalogOverrideMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *CatalogOverrideMutation) ClearField(name string) error {
 	switch name {
+	case catalogoverride.FieldAvailableQuantity:
+		m.ClearAvailableQuantity()
+		return nil
 	case catalogoverride.FieldLeadTimeMinutes:
 		m.ClearLeadTimeMinutes()
 		return nil
@@ -6889,6 +6993,9 @@ func (m *CatalogOverrideMutation) ResetField(name string) error {
 		return nil
 	case catalogoverride.FieldIsAvailable:
 		m.ResetIsAvailable()
+		return nil
+	case catalogoverride.FieldAvailableQuantity:
+		m.ResetAvailableQuantity()
 		return nil
 	case catalogoverride.FieldIsFeatured:
 		m.ResetIsFeatured()

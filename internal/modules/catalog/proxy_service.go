@@ -588,6 +588,7 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		}
 		item.Currency = override.Currency
 		item.IsAvailable = override.IsAvailable
+		item.AvailableQuantity = override.AvailableQuantity
 		item.IsFeatured = override.IsFeatured
 		item.LeadTimeMinutes = override.LeadTimeMinutes
 		item.DisplayOrder = override.DisplayOrder

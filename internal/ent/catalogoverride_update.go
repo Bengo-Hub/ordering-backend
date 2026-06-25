@@ -120,6 +120,33 @@ func (_u *CatalogOverrideUpdate) SetNillableIsAvailable(v *bool) *CatalogOverrid
 	return _u
 }
 
+// SetAvailableQuantity sets the "available_quantity" field.
+func (_u *CatalogOverrideUpdate) SetAvailableQuantity(v float64) *CatalogOverrideUpdate {
+	_u.mutation.ResetAvailableQuantity()
+	_u.mutation.SetAvailableQuantity(v)
+	return _u
+}
+
+// SetNillableAvailableQuantity sets the "available_quantity" field if the given value is not nil.
+func (_u *CatalogOverrideUpdate) SetNillableAvailableQuantity(v *float64) *CatalogOverrideUpdate {
+	if v != nil {
+		_u.SetAvailableQuantity(*v)
+	}
+	return _u
+}
+
+// AddAvailableQuantity adds value to the "available_quantity" field.
+func (_u *CatalogOverrideUpdate) AddAvailableQuantity(v float64) *CatalogOverrideUpdate {
+	_u.mutation.AddAvailableQuantity(v)
+	return _u
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (_u *CatalogOverrideUpdate) ClearAvailableQuantity() *CatalogOverrideUpdate {
+	_u.mutation.ClearAvailableQuantity()
+	return _u
+}
+
 // SetIsFeatured sets the "is_featured" field.
 func (_u *CatalogOverrideUpdate) SetIsFeatured(v bool) *CatalogOverrideUpdate {
 	_u.mutation.SetIsFeatured(v)
@@ -409,6 +436,15 @@ func (_u *CatalogOverrideUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if value, ok := _u.mutation.IsAvailable(); ok {
 		_spec.SetField(catalogoverride.FieldIsAvailable, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.AvailableQuantity(); ok {
+		_spec.SetField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedAvailableQuantity(); ok {
+		_spec.AddField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64, value)
+	}
+	if _u.mutation.AvailableQuantityCleared() {
+		_spec.ClearField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64)
+	}
 	if value, ok := _u.mutation.IsFeatured(); ok {
 		_spec.SetField(catalogoverride.FieldIsFeatured, field.TypeBool, value)
 	}
@@ -574,6 +610,33 @@ func (_u *CatalogOverrideUpdateOne) SetNillableIsAvailable(v *bool) *CatalogOver
 	if v != nil {
 		_u.SetIsAvailable(*v)
 	}
+	return _u
+}
+
+// SetAvailableQuantity sets the "available_quantity" field.
+func (_u *CatalogOverrideUpdateOne) SetAvailableQuantity(v float64) *CatalogOverrideUpdateOne {
+	_u.mutation.ResetAvailableQuantity()
+	_u.mutation.SetAvailableQuantity(v)
+	return _u
+}
+
+// SetNillableAvailableQuantity sets the "available_quantity" field if the given value is not nil.
+func (_u *CatalogOverrideUpdateOne) SetNillableAvailableQuantity(v *float64) *CatalogOverrideUpdateOne {
+	if v != nil {
+		_u.SetAvailableQuantity(*v)
+	}
+	return _u
+}
+
+// AddAvailableQuantity adds value to the "available_quantity" field.
+func (_u *CatalogOverrideUpdateOne) AddAvailableQuantity(v float64) *CatalogOverrideUpdateOne {
+	_u.mutation.AddAvailableQuantity(v)
+	return _u
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (_u *CatalogOverrideUpdateOne) ClearAvailableQuantity() *CatalogOverrideUpdateOne {
+	_u.mutation.ClearAvailableQuantity()
 	return _u
 }
 
@@ -895,6 +958,15 @@ func (_u *CatalogOverrideUpdateOne) sqlSave(ctx context.Context) (_node *Catalog
 	}
 	if value, ok := _u.mutation.IsAvailable(); ok {
 		_spec.SetField(catalogoverride.FieldIsAvailable, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.AvailableQuantity(); ok {
+		_spec.SetField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedAvailableQuantity(); ok {
+		_spec.AddField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64, value)
+	}
+	if _u.mutation.AvailableQuantityCleared() {
+		_spec.ClearField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.IsFeatured(); ok {
 		_spec.SetField(catalogoverride.FieldIsFeatured, field.TypeBool, value)

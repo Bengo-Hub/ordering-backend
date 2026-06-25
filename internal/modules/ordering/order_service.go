@@ -1879,6 +1879,27 @@ func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, 
 
 // --- Inventory Reservation Helpers ---
 
+// modifierLinesForCartItem maps a cart line's selected modifier options to the inventory
+// reservation/consumption modifier contract. Each option carries its inventory modifier-option
+// id (OptionID); inventory resolves it to the consumable SKU and explodes/deducts it. This is
+// how ordering sales deduct modifier stock (e.g. "Extra Cheese") the same way POS sales do.
+func modifierLinesForCartItem(ci CartItem) []inventory.ModifierLine {
+	if len(ci.Modifiers) == 0 {
+		return nil
+	}
+	lines := make([]inventory.ModifierLine, 0, len(ci.Modifiers))
+	for _, m := range ci.Modifiers {
+		if m.OptionID == uuid.Nil {
+			continue
+		}
+		lines = append(lines, inventory.ModifierLine{
+			InventoryModifierOptionID: m.OptionID.String(),
+			Quantity:                  1, // one application per sold unit; inventory scales by line qty
+		})
+	}
+	return lines
+}
+
 // reserveStockForItems checks availability and creates an inventory reservation
 // for a set of cart items (or order items). Returns the reservation ID on success,
 // or a wrapped ErrStockNotAvailable on failure.
@@ -1903,8 +1924,9 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 			continue
 		}
 		reservationItems = append(reservationItems, inventory.ReservationItem{
-			SKU:      ci.InventorySKU,
-			Quantity: ci.Quantity,
+			SKU:       ci.InventorySKU,
+			Quantity:  ci.Quantity,
+			Modifiers: modifierLinesForCartItem(ci),
 		})
 	}
 	// Soft pre-check ticket capacity so a buyer isn't charged for a sold-out event. Best-effort:

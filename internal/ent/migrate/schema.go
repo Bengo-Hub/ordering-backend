@@ -212,6 +212,7 @@ var (
 		{Name: "base_price", Type: field.TypeFloat64, Default: 0},
 		{Name: "currency", Type: field.TypeString, Size: 3, Default: "KES"},
 		{Name: "is_available", Type: field.TypeBool, Default: true},
+		{Name: "available_quantity", Type: field.TypeFloat64, Nullable: true},
 		{Name: "is_featured", Type: field.TypeBool, Default: false},
 		{Name: "lead_time_minutes", Type: field.TypeInt, Nullable: true},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
@@ -249,7 +250,7 @@ var (
 			{
 				Name:    "catalogoverride_tenant_id_display_section",
 				Unique:  false,
-				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[10]},
+				Columns: []*schema.Column{CatalogOverridesColumns[1], CatalogOverridesColumns[11]},
 			},
 			{
 				Name:    "catalogoverride_inventory_sku",

@@ -26,6 +26,8 @@ const (
 	FieldCurrency = "currency"
 	// FieldIsAvailable holds the string denoting the is_available field in the database.
 	FieldIsAvailable = "is_available"
+	// FieldAvailableQuantity holds the string denoting the available_quantity field in the database.
+	FieldAvailableQuantity = "available_quantity"
 	// FieldIsFeatured holds the string denoting the is_featured field in the database.
 	FieldIsFeatured = "is_featured"
 	// FieldLeadTimeMinutes holds the string denoting the lead_time_minutes field in the database.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldBasePrice,
 	FieldCurrency,
 	FieldIsAvailable,
+	FieldAvailableQuantity,
 	FieldIsFeatured,
 	FieldLeadTimeMinutes,
 	FieldDisplayOrder,
@@ -160,6 +163,11 @@ func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
 // ByIsAvailable orders the results by the is_available field.
 func ByIsAvailable(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsAvailable, opts...).ToFunc()
+}
+
+// ByAvailableQuantity orders the results by the available_quantity field.
+func ByAvailableQuantity(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvailableQuantity, opts...).ToFunc()
 }
 
 // ByIsFeatured orders the results by the is_featured field.
