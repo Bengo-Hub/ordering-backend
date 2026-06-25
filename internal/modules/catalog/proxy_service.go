@@ -216,9 +216,13 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 
 // ---------- Categories ----------
 
-// ListCategories proxies to inventory-api categories.
-func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([]InventoryCategory, error) {
-	cats, err := s.inventoryClient.ListCategories(ctx, tenantSlug)
+// ListCategories proxies to inventory-api categories. Only categories that (a) have
+// at least one item linked (has_items=true at source — never sync empty categories),
+// (b) are finished/sellable on a storefront, and (c) match the outlet use case when
+// one is supplied are returned. useCase may be "" (no outlet selected → all sellable
+// categories with items).
+func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug, useCase string) ([]InventoryCategory, error) {
+	cats, err := s.inventoryClient.ListCategories(ctx, tenantSlug, true /* hasItems */)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list categories: %w", err)
 	}
@@ -228,6 +232,11 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([
 		// Only finished, sellable categories belong on the storefront — hide component/service
 		// categories (raw ingredients, modifiers, add-ons, conference/room/facility/salon).
 		if !isStorefrontSellableCategory(c.Name) {
+			continue
+		}
+		// Outlet use-case gating: a hardware/electronics store must never list food/pizza
+		// categories, a restaurant must never list detergents, etc. Skipped when useCase=="".
+		if !categoryAllowedForUseCase(c.Name, useCase) {
 			continue
 		}
 		result = append(result, InventoryCategory{
@@ -240,6 +249,49 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug string) ([
 		})
 	}
 	return result, nil
+}
+
+// categoryAllowedForUseCase reports whether a category name is appropriate for the
+// given outlet use case. Case-insensitive substring matching keeps minor name
+// variations from breaking the filter. An empty useCase (no outlet selected) or an
+// empty category name is always allowed. Mirrors the proven pos-api logic so the
+// storefront and the POS terminal agree on which categories belong to which vertical.
+func categoryAllowedForUseCase(categoryName, useCase string) bool {
+	cat := strings.ToLower(strings.TrimSpace(categoryName))
+	if cat == "" || useCase == "" {
+		return true
+	}
+	contains := func(needles ...string) bool {
+		for _, n := range needles {
+			if strings.Contains(cat, n) {
+				return true
+			}
+		}
+		return false
+	}
+	isPharmacy := contains("pharmacy", "chemist", "drug", "medicine", "pharmaceutical")
+	isFood := contains("breakfast", "beverage", "pastry", "pastries", "bakery", "pizza",
+		"salad", "sandwich", "wrap", "main course", "light bite", "dessert",
+		"hot beverage", "cold beverage", "starter", "appetiz", "grill", "drink")
+	isServices := contains("beauty", "spa", "event", "experience", "wellness", "conference",
+		"meeting", "facility", "amenity", "salon", "massage", "room rate", "room type")
+	isRetail := contains("retail")
+	isRetailMerchandise := contains("detergent", "cleaning", "cleaner", "household", "home care",
+		"homeware", "kitchenware", "hardware", "electronic", "appliance", "apparel", "clothing",
+		"fashion", "footwear", "cosmetic", "toiletr", "stationery", "personal care", "furniture", "grocery")
+
+	switch strings.ToLower(strings.TrimSpace(useCase)) {
+	case "retail":
+		return !isPharmacy && !isFood && !isServices
+	case "pharmacy":
+		return isPharmacy
+	case "hospitality", "quick_service", "food", "food_delivery", "restaurant", "bar", "cafe":
+		return !isPharmacy && !isRetail && !isRetailMerchandise && !isServices
+	case "services", "salon", "spa", "beauty", "wellness":
+		return !isPharmacy && !isFood && !isRetail && !isRetailMerchandise
+	default:
+		return true
+	}
 }
 
 // ---------- Brands ----------

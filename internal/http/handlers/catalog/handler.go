@@ -227,7 +227,10 @@ func (h *Handler) ListPublicCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categories, err := h.service.ListCategories(r.Context(), tenantSlug)
+	// Optional outlet use-case gating so e.g. a hardware storefront never lists food
+	// categories. The frontend passes the selected outlet's use_case; absent → all
+	// sellable categories (with items) are returned.
+	categories, err := h.service.ListCategories(r.Context(), tenantSlug, r.URL.Query().Get("use_case"))
 	if err != nil {
 		h.log.Error("list categories failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
@@ -481,7 +484,7 @@ func (h *Handler) AdminListCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categories, err := h.service.ListCategories(r.Context(), tenantSlug)
+	categories, err := h.service.ListCategories(r.Context(), tenantSlug, r.URL.Query().Get("use_case"))
 	if err != nil {
 		h.log.Error("admin list categories failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
