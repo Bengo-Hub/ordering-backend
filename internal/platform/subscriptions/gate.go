@@ -17,12 +17,16 @@ const (
 // SubscriptionGate returns middleware that enforces subscription status on every request.
 //
 // Pass-through conditions (in priority order):
-//   - Platform owner (is_platform_owner) → always allowed
+//   - Gating-exempt (platform owner, subscription-exempt tenant, demo, service-charge) → allowed
 //   - ACTIVE or TRIAL → allowed
 //   - EXPIRED within gracePeriodDays → allowed, sets X-Sub-Grace-Days-Left header
 //
 // Blocked: EXPIRED beyond grace, CANCELLED, SUSPENDED → 402.
 // Routes without JWT claims (public routes) pass through unchanged.
+//
+// SEC-3 (auth-client v0.10.0): a tenant superuser is NOT exempt — only IsPlatformOwner,
+// explicitly subscription-exempt tenants, demo and service-charge tenants bypass, all of
+// which funnel through claims.IsGatingExempt().
 func SubscriptionGate() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +36,7 @@ func SubscriptionGate() func(http.Handler) http.Handler {
 				return
 			}
 
-			if claims.IsPlatformOwner || claims.IsSuperuser() {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			// Service-charge tenants pay per transaction; demo tenants bypass for demos.
-			if claims.BillingMode == "service_charge" || claims.IsDemo {
+			if claims.IsGatingExempt() {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -72,7 +70,8 @@ func SubscriptionGate() func(http.Handler) http.Handler {
 }
 
 // RequireFeature returns middleware that blocks requests when the subscription does not
-// include featureCode. Platform owners and superusers bypass the check.
+// include featureCode. Gating-exempt tokens (platform owner, subscription-exempt tenant,
+// demo, service-charge) bypass; a tenant superuser does NOT (SEC-3 / auth-client v0.10.0).
 // Returns 403 with a structured JSON body on failure.
 func RequireFeature(featureCode string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -83,13 +82,7 @@ func RequireFeature(featureCode string) func(http.Handler) http.Handler {
 				return
 			}
 
-			if claims.IsPlatformOwner || claims.IsSuperuser() {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			// Demo and service-charge tenants get all features.
-			if claims.IsDemo || claims.BillingMode == "service_charge" {
+			if claims.IsGatingExempt() {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -120,7 +113,7 @@ func CheckLimit(r *http.Request, limitKey string, currentValue int) bool {
 	if !ok {
 		return true
 	}
-	if claims.IsPlatformOwner || claims.IsSuperuser() || claims.IsDemo || claims.BillingMode == "service_charge" {
+	if claims.IsGatingExempt() { // SEC-3: superuser is NOT exempt; platform owner / exempt / demo / service-charge are
 		return true
 	}
 	limit := claims.GetLimit(limitKey)
