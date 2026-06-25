@@ -31,6 +31,8 @@ type CatalogOverride struct {
 	Currency string `json:"currency,omitempty"`
 	// Available for online ordering
 	IsAvailable bool `json:"is_available,omitempty"`
+	// Quantity-aware projection (STK-5): last on-hand/available qty seen from inventory stock events. Nil = unknown (no stock event observed yet); the boolean is_available remains the authoritative orderable gate.
+	AvailableQuantity *float64 `json:"available_quantity,omitempty"`
 	// Highlighted on the online storefront
 	IsFeatured bool `json:"is_featured,omitempty"`
 	// Preparation time in minutes
@@ -67,7 +69,7 @@ func (*CatalogOverride) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case catalogoverride.FieldIsAvailable, catalogoverride.FieldIsFeatured, catalogoverride.FieldRequiresAgeVerification:
 			values[i] = new(sql.NullBool)
-		case catalogoverride.FieldBasePrice, catalogoverride.FieldPackagingFee, catalogoverride.FieldServiceFeePercent:
+		case catalogoverride.FieldBasePrice, catalogoverride.FieldAvailableQuantity, catalogoverride.FieldPackagingFee, catalogoverride.FieldServiceFeePercent:
 			values[i] = new(sql.NullFloat64)
 		case catalogoverride.FieldLeadTimeMinutes, catalogoverride.FieldDisplayOrder:
 			values[i] = new(sql.NullInt64)
@@ -133,6 +135,13 @@ func (_m *CatalogOverride) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_available", values[i])
 			} else if value.Valid {
 				_m.IsAvailable = value.Bool
+			}
+		case catalogoverride.FieldAvailableQuantity:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field available_quantity", values[i])
+			} else if value.Valid {
+				_m.AvailableQuantity = new(float64)
+				*_m.AvailableQuantity = value.Float64
 			}
 		case catalogoverride.FieldIsFeatured:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -262,6 +271,11 @@ func (_m *CatalogOverride) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_available=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsAvailable))
+	builder.WriteString(", ")
+	if v := _m.AvailableQuantity; v != nil {
+		builder.WriteString("available_quantity=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("is_featured=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsFeatured))

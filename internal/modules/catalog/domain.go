@@ -52,6 +52,11 @@ type MergedCatalogItem struct {
 	BasePrice         float64 `json:"basePrice"`
 	Currency          string  `json:"currency"`
 	IsAvailable       bool    `json:"isAvailable"`
+	// AvailableQuantity is the quantity-aware availability projection (STK-5): the last
+	// on-hand/producible quantity seen from inventory stock events. Nil = unknown (no stock
+	// event observed yet). Lets the storefront show real stock levels ("3 left") rather than
+	// only a sold-out boolean. is_available remains the authoritative orderable gate.
+	AvailableQuantity *float64 `json:"availableQuantity,omitempty"`
 	// IsComplimentary marks a no-charge accompaniment: price 0 but explicitly enabled via override,
 	// shown as "Free" and not billed, while its recipe/BOM stock is still deducted on sale.
 	IsComplimentary   bool    `json:"isComplimentary"`

@@ -263,41 +263,41 @@ func init() {
 	// catalogoverride.DefaultIsAvailable holds the default value on creation for the is_available field.
 	catalogoverride.DefaultIsAvailable = catalogoverrideDescIsAvailable.Default.(bool)
 	// catalogoverrideDescIsFeatured is the schema descriptor for is_featured field.
-	catalogoverrideDescIsFeatured := catalogoverrideFields[7].Descriptor()
+	catalogoverrideDescIsFeatured := catalogoverrideFields[8].Descriptor()
 	// catalogoverride.DefaultIsFeatured holds the default value on creation for the is_featured field.
 	catalogoverride.DefaultIsFeatured = catalogoverrideDescIsFeatured.Default.(bool)
 	// catalogoverrideDescDisplayOrder is the schema descriptor for display_order field.
-	catalogoverrideDescDisplayOrder := catalogoverrideFields[9].Descriptor()
+	catalogoverrideDescDisplayOrder := catalogoverrideFields[10].Descriptor()
 	// catalogoverride.DefaultDisplayOrder holds the default value on creation for the display_order field.
 	catalogoverride.DefaultDisplayOrder = catalogoverrideDescDisplayOrder.Default.(int)
 	// catalogoverrideDescDisplaySection is the schema descriptor for display_section field.
-	catalogoverrideDescDisplaySection := catalogoverrideFields[10].Descriptor()
+	catalogoverrideDescDisplaySection := catalogoverrideFields[11].Descriptor()
 	// catalogoverride.DefaultDisplaySection holds the default value on creation for the display_section field.
 	catalogoverride.DefaultDisplaySection = catalogoverrideDescDisplaySection.Default.(string)
 	// catalogoverride.DisplaySectionValidator is a validator for the "display_section" field. It is called by the builders before save.
 	catalogoverride.DisplaySectionValidator = catalogoverrideDescDisplaySection.Validators[0].(func(string) error)
 	// catalogoverrideDescPackagingFee is the schema descriptor for packaging_fee field.
-	catalogoverrideDescPackagingFee := catalogoverrideFields[11].Descriptor()
+	catalogoverrideDescPackagingFee := catalogoverrideFields[12].Descriptor()
 	// catalogoverride.DefaultPackagingFee holds the default value on creation for the packaging_fee field.
 	catalogoverride.DefaultPackagingFee = catalogoverrideDescPackagingFee.Default.(float64)
 	// catalogoverrideDescServiceFeePercent is the schema descriptor for service_fee_percent field.
-	catalogoverrideDescServiceFeePercent := catalogoverrideFields[12].Descriptor()
+	catalogoverrideDescServiceFeePercent := catalogoverrideFields[13].Descriptor()
 	// catalogoverride.DefaultServiceFeePercent holds the default value on creation for the service_fee_percent field.
 	catalogoverride.DefaultServiceFeePercent = catalogoverrideDescServiceFeePercent.Default.(float64)
 	// catalogoverrideDescRequiresAgeVerification is the schema descriptor for requires_age_verification field.
-	catalogoverrideDescRequiresAgeVerification := catalogoverrideFields[13].Descriptor()
+	catalogoverrideDescRequiresAgeVerification := catalogoverrideFields[14].Descriptor()
 	// catalogoverride.DefaultRequiresAgeVerification holds the default value on creation for the requires_age_verification field.
 	catalogoverride.DefaultRequiresAgeVerification = catalogoverrideDescRequiresAgeVerification.Default.(bool)
 	// catalogoverrideDescImageURLOverride is the schema descriptor for image_url_override field.
-	catalogoverrideDescImageURLOverride := catalogoverrideFields[16].Descriptor()
+	catalogoverrideDescImageURLOverride := catalogoverrideFields[17].Descriptor()
 	// catalogoverride.ImageURLOverrideValidator is a validator for the "image_url_override" field. It is called by the builders before save.
 	catalogoverride.ImageURLOverrideValidator = catalogoverrideDescImageURLOverride.Validators[0].(func(string) error)
 	// catalogoverrideDescCreatedAt is the schema descriptor for created_at field.
-	catalogoverrideDescCreatedAt := catalogoverrideFields[17].Descriptor()
+	catalogoverrideDescCreatedAt := catalogoverrideFields[18].Descriptor()
 	// catalogoverride.DefaultCreatedAt holds the default value on creation for the created_at field.
 	catalogoverride.DefaultCreatedAt = catalogoverrideDescCreatedAt.Default.(func() time.Time)
 	// catalogoverrideDescUpdatedAt is the schema descriptor for updated_at field.
-	catalogoverrideDescUpdatedAt := catalogoverrideFields[18].Descriptor()
+	catalogoverrideDescUpdatedAt := catalogoverrideFields[19].Descriptor()
 	// catalogoverride.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	catalogoverride.DefaultUpdatedAt = catalogoverrideDescUpdatedAt.Default.(func() time.Time)
 	// catalogoverride.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

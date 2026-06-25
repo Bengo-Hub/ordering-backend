@@ -85,6 +85,11 @@ func IsAvailable(v bool) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldEQ(FieldIsAvailable, v))
 }
 
+// AvailableQuantity applies equality check predicate on the "available_quantity" field. It's identical to AvailableQuantityEQ.
+func AvailableQuantity(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldAvailableQuantity, v))
+}
+
 // IsFeatured applies equality check predicate on the "is_featured" field. It's identical to IsFeaturedEQ.
 func IsFeatured(v bool) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldEQ(FieldIsFeatured, v))
@@ -398,6 +403,56 @@ func IsAvailableEQ(v bool) predicate.CatalogOverride {
 // IsAvailableNEQ applies the NEQ predicate on the "is_available" field.
 func IsAvailableNEQ(v bool) predicate.CatalogOverride {
 	return predicate.CatalogOverride(sql.FieldNEQ(FieldIsAvailable, v))
+}
+
+// AvailableQuantityEQ applies the EQ predicate on the "available_quantity" field.
+func AvailableQuantityEQ(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldEQ(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityNEQ applies the NEQ predicate on the "available_quantity" field.
+func AvailableQuantityNEQ(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNEQ(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityIn applies the In predicate on the "available_quantity" field.
+func AvailableQuantityIn(vs ...float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldIn(FieldAvailableQuantity, vs...))
+}
+
+// AvailableQuantityNotIn applies the NotIn predicate on the "available_quantity" field.
+func AvailableQuantityNotIn(vs ...float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNotIn(FieldAvailableQuantity, vs...))
+}
+
+// AvailableQuantityGT applies the GT predicate on the "available_quantity" field.
+func AvailableQuantityGT(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldGT(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityGTE applies the GTE predicate on the "available_quantity" field.
+func AvailableQuantityGTE(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldGTE(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityLT applies the LT predicate on the "available_quantity" field.
+func AvailableQuantityLT(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldLT(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityLTE applies the LTE predicate on the "available_quantity" field.
+func AvailableQuantityLTE(v float64) predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldLTE(FieldAvailableQuantity, v))
+}
+
+// AvailableQuantityIsNil applies the IsNil predicate on the "available_quantity" field.
+func AvailableQuantityIsNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldIsNull(FieldAvailableQuantity))
+}
+
+// AvailableQuantityNotNil applies the NotNil predicate on the "available_quantity" field.
+func AvailableQuantityNotNil() predicate.CatalogOverride {
+	return predicate.CatalogOverride(sql.FieldNotNull(FieldAvailableQuantity))
 }
 
 // IsFeaturedEQ applies the EQ predicate on the "is_featured" field.

@@ -84,6 +84,20 @@ func (_c *CatalogOverrideCreate) SetNillableIsAvailable(v *bool) *CatalogOverrid
 	return _c
 }
 
+// SetAvailableQuantity sets the "available_quantity" field.
+func (_c *CatalogOverrideCreate) SetAvailableQuantity(v float64) *CatalogOverrideCreate {
+	_c.mutation.SetAvailableQuantity(v)
+	return _c
+}
+
+// SetNillableAvailableQuantity sets the "available_quantity" field if the given value is not nil.
+func (_c *CatalogOverrideCreate) SetNillableAvailableQuantity(v *float64) *CatalogOverrideCreate {
+	if v != nil {
+		_c.SetAvailableQuantity(*v)
+	}
+	return _c
+}
+
 // SetIsFeatured sets the "is_featured" field.
 func (_c *CatalogOverrideCreate) SetIsFeatured(v bool) *CatalogOverrideCreate {
 	_c.mutation.SetIsFeatured(v)
@@ -467,6 +481,10 @@ func (_c *CatalogOverrideCreate) createSpec() (*CatalogOverride, *sqlgraph.Creat
 		_spec.SetField(catalogoverride.FieldIsAvailable, field.TypeBool, value)
 		_node.IsAvailable = value
 	}
+	if value, ok := _c.mutation.AvailableQuantity(); ok {
+		_spec.SetField(catalogoverride.FieldAvailableQuantity, field.TypeFloat64, value)
+		_node.AvailableQuantity = &value
+	}
 	if value, ok := _c.mutation.IsFeatured(); ok {
 		_spec.SetField(catalogoverride.FieldIsFeatured, field.TypeBool, value)
 		_node.IsFeatured = value
@@ -642,6 +660,30 @@ func (u *CatalogOverrideUpsert) SetIsAvailable(v bool) *CatalogOverrideUpsert {
 // UpdateIsAvailable sets the "is_available" field to the value that was provided on create.
 func (u *CatalogOverrideUpsert) UpdateIsAvailable() *CatalogOverrideUpsert {
 	u.SetExcluded(catalogoverride.FieldIsAvailable)
+	return u
+}
+
+// SetAvailableQuantity sets the "available_quantity" field.
+func (u *CatalogOverrideUpsert) SetAvailableQuantity(v float64) *CatalogOverrideUpsert {
+	u.Set(catalogoverride.FieldAvailableQuantity, v)
+	return u
+}
+
+// UpdateAvailableQuantity sets the "available_quantity" field to the value that was provided on create.
+func (u *CatalogOverrideUpsert) UpdateAvailableQuantity() *CatalogOverrideUpsert {
+	u.SetExcluded(catalogoverride.FieldAvailableQuantity)
+	return u
+}
+
+// AddAvailableQuantity adds v to the "available_quantity" field.
+func (u *CatalogOverrideUpsert) AddAvailableQuantity(v float64) *CatalogOverrideUpsert {
+	u.Add(catalogoverride.FieldAvailableQuantity, v)
+	return u
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (u *CatalogOverrideUpsert) ClearAvailableQuantity() *CatalogOverrideUpsert {
+	u.SetNull(catalogoverride.FieldAvailableQuantity)
 	return u
 }
 
@@ -964,6 +1006,34 @@ func (u *CatalogOverrideUpsertOne) SetIsAvailable(v bool) *CatalogOverrideUpsert
 func (u *CatalogOverrideUpsertOne) UpdateIsAvailable() *CatalogOverrideUpsertOne {
 	return u.Update(func(s *CatalogOverrideUpsert) {
 		s.UpdateIsAvailable()
+	})
+}
+
+// SetAvailableQuantity sets the "available_quantity" field.
+func (u *CatalogOverrideUpsertOne) SetAvailableQuantity(v float64) *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetAvailableQuantity(v)
+	})
+}
+
+// AddAvailableQuantity adds v to the "available_quantity" field.
+func (u *CatalogOverrideUpsertOne) AddAvailableQuantity(v float64) *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.AddAvailableQuantity(v)
+	})
+}
+
+// UpdateAvailableQuantity sets the "available_quantity" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertOne) UpdateAvailableQuantity() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateAvailableQuantity()
+	})
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (u *CatalogOverrideUpsertOne) ClearAvailableQuantity() *CatalogOverrideUpsertOne {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearAvailableQuantity()
 	})
 }
 
@@ -1483,6 +1553,34 @@ func (u *CatalogOverrideUpsertBulk) SetIsAvailable(v bool) *CatalogOverrideUpser
 func (u *CatalogOverrideUpsertBulk) UpdateIsAvailable() *CatalogOverrideUpsertBulk {
 	return u.Update(func(s *CatalogOverrideUpsert) {
 		s.UpdateIsAvailable()
+	})
+}
+
+// SetAvailableQuantity sets the "available_quantity" field.
+func (u *CatalogOverrideUpsertBulk) SetAvailableQuantity(v float64) *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.SetAvailableQuantity(v)
+	})
+}
+
+// AddAvailableQuantity adds v to the "available_quantity" field.
+func (u *CatalogOverrideUpsertBulk) AddAvailableQuantity(v float64) *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.AddAvailableQuantity(v)
+	})
+}
+
+// UpdateAvailableQuantity sets the "available_quantity" field to the value that was provided on create.
+func (u *CatalogOverrideUpsertBulk) UpdateAvailableQuantity() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.UpdateAvailableQuantity()
+	})
+}
+
+// ClearAvailableQuantity clears the value of the "available_quantity" field.
+func (u *CatalogOverrideUpsertBulk) ClearAvailableQuantity() *CatalogOverrideUpsertBulk {
+	return u.Update(func(s *CatalogOverrideUpsert) {
+		s.ClearAvailableQuantity()
 	})
 }
 

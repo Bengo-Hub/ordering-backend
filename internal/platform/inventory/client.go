@@ -64,6 +64,18 @@ type ReservationRequest struct {
 type ReservationItem struct {
 	SKU      string `json:"sku"`
 	Quantity int    `json:"quantity"`
+	// Modifiers are selected modifier options on this line whose stock must also be
+	// reserved (e.g. "Extra Cheese"). inventory-api resolves the option id → consumable
+	// SKU and explodes/deducts it, mirroring the pos.sale.finalized modifiers contract.
+	Modifiers []ModifierLine `json:"modifiers,omitempty"`
+}
+
+// ModifierLine is a selected modifier option carried on a reservation/consumption line.
+// We send the inventory modifier-option id; inventory owns the option→SKU mapping.
+type ModifierLine struct {
+	InventoryModifierOptionID string  `json:"inventory_modifier_option_id,omitempty"`
+	SKU                       string  `json:"sku,omitempty"`
+	Quantity                  float64 `json:"quantity,omitempty"`
 }
 
 // ReservationResponse represents a stock reservation response.
@@ -126,6 +138,8 @@ type ConsumptionRequest struct {
 type ConsumptionItem struct {
 	SKU      string  `json:"sku"`
 	Quantity float64 `json:"quantity"`
+	// Modifiers are selected modifier options whose stock must also be consumed.
+	Modifiers []ModifierLine `json:"modifiers,omitempty"`
 }
 
 // ConsumptionResponse represents a consumption response.

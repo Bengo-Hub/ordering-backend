@@ -39,6 +39,12 @@ func (CatalogOverride) Fields() []ent.Field {
 		field.Bool("is_available").
 			Default(true).
 			Comment("Available for online ordering"),
+		field.Float("available_quantity").
+			Optional().
+			Nillable().
+			Comment("Quantity-aware projection (STK-5): last on-hand/available qty seen from " +
+				"inventory stock events. Nil = unknown (no stock event observed yet); the boolean " +
+				"is_available remains the authoritative orderable gate."),
 		field.Bool("is_featured").
 			Default(false).
 			Comment("Highlighted on the online storefront"),
