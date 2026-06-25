@@ -343,9 +343,10 @@ func New(
 					// No auth (covered by the public-skip list above) — a plain config read.
 					tenant.Get("/integrations/google/review-url", serviceConfigHandler.GetGoogleReviewURL)
 
-					// PLATFORM defaults + UNMASKED secrets: superuser / platform-owner ONLY.
-					// RequirePermissions would let tenant admins bypass, so use RequirePlatformOwner
-					// which honors claims.IsSuperuser() OR claims.IsPlatformOwner and does NOT honor IsAdmin.
+					// PLATFORM defaults + UNMASKED secrets: platform-owner ONLY.
+					// RequirePermissions would let tenant admins bypass, so use RequirePlatformOwner.
+					// SEC-3 (auth-client v0.10.0): RequirePlatformOwner honors only claims.IsPlatformOwner
+					// — a tenant superuser is NOT a platform owner and no longer reaches these routes.
 					tenant.Route("/admin/service-config", func(adminCfg chi.Router) {
 						adminCfg.Use(authenticator.RequirePlatformOwner)
 						adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)

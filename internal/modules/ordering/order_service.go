@@ -105,18 +105,16 @@ func (s *OrderService) SetCrmClient(client *marketflow.Client) {
 }
 
 // loyaltyEarnEnabled reports whether the requesting tenant may earn loyalty points, gating on the
-// "loyalty_program" subscription feature. Mirrors subscriptions.RequireFeature: platform owners,
-// superusers, demo and service-charge tenants are always allowed; guests (no claims) get nothing
-// (they have no loyalty account anyway).
+// "loyalty_program" subscription feature. Mirrors subscriptions.RequireFeature: gating-exempt
+// tokens (platform owner, subscription-exempt, demo, service-charge) are always allowed; a tenant
+// superuser is NOT exempt (SEC-3 / auth-client v0.10.0); guests (no claims) get nothing (they have
+// no loyalty account anyway).
 func (s *OrderService) loyaltyEarnEnabled(ctx context.Context) bool {
 	claims, ok := authclient.ClaimsFromContext(ctx)
 	if !ok {
 		return false
 	}
-	if claims.IsPlatformOwner || claims.IsSuperuser() {
-		return true
-	}
-	if claims.IsDemo || claims.BillingMode == "service_charge" {
+	if claims.IsGatingExempt() {
 		return true
 	}
 	return claims.HasFeature("loyalty_program")
@@ -153,7 +151,7 @@ func (s *OrderService) checkOrderLimit(ctx context.Context, tenantID uuid.UUID) 
 		return nil
 	}
 	if claims, ok := authclient.ClaimsFromContext(ctx); ok {
-		if claims.IsPlatformOwner || claims.IsSuperuser() || claims.IsDemo || claims.BillingMode == "service_charge" {
+		if claims.IsGatingExempt() { // SEC-3: superuser is NOT exempt
 			return nil
 		}
 	}
