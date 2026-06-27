@@ -49,7 +49,7 @@ func (s *Subscriber) Subscribe(subject string, handler EventHandler) error {
 			s.logger.Error("failed to handle event",
 				zap.Error(err),
 				zap.String("subject", subject),
-				zap.String("event_id", event.ID))
+				zap.String("event_id", event.ID.String()))
 		}
 	})
 
@@ -86,7 +86,7 @@ func (s *Subscriber) QueueSubscribe(subject string, queue string, handler EventH
 			s.logger.Error("failed to handle event",
 				zap.Error(err),
 				zap.String("subject", subject),
-				zap.String("event_id", event.ID))
+				zap.String("event_id", event.ID.String()))
 		}
 	})
 
