@@ -29,8 +29,10 @@ func NewCacheSubscriber(redisClient *redis.Client, namespace string, logger *zap
 }
 
 // Start subscribes to tenant.subscription.updated on the provided NATS connection.
+// Uses a queue group so only one replica invalidates the cache per event (multi-replica
+// safe), consistent with the shared-events QueueSubscribe idiom used across the fleet.
 func (s *CacheSubscriber) Start(conn *nats.Conn) error {
-	sub, err := conn.Subscribe("tenant.subscription.updated", s.handle)
+	sub, err := conn.QueueSubscribe("tenant.subscription.updated", "ordering-subscription-cache", s.handle)
 	if err != nil {
 		return err
 	}
