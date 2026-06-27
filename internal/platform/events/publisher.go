@@ -2,10 +2,11 @@ package events
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
+	eventslib "github.com/Bengo-Hub/shared-events"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
@@ -25,65 +26,60 @@ func NewPublisher(js nats.JetStreamContext, logger *zap.Logger) *Publisher {
 	}
 }
 
-// Event represents a CloudEvents-compatible event envelope.
-type Event struct {
-	ID              string                 `json:"id"`
-	Source          string                 `json:"source"`
-	SpecVersion     string                 `json:"specversion"`
-	Type            string                 `json:"type"`
-	DataContentType string                 `json:"datacontenttype"`
-	Time            string                 `json:"time"`
-	TenantID        string                 `json:"tenantId,omitempty"`
-	TenantSlug      string                 `json:"tenant_slug,omitempty"`
-	Data            map[string]interface{} `json:"data"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+// Event is the canonical shared-events envelope. Ordering previously published a bespoke
+// CloudEvents shape (type/data/tenantId); it now emits the fleet-uniform shared-events
+// envelope (event_type/payload/aggregate_type/tenant_id) so every consumer decodes it with
+// sharedevents.FromJSON, consistent with pos/treasury/inventory/auth.
+type Event = eventslib.Event
+
+// splitSubject splits a canonical NATS subject "{aggregate_type}.{event_type}" into its
+// aggregate and event-type parts (e.g. "ordering.order.created" -> "ordering","order.created";
+// "cafe.payment.initiated" -> "cafe","payment.initiated"), per the shared-events convention.
+func splitSubject(full string) (aggregate, eventType string) {
+	if idx := strings.Index(full, "."); idx >= 0 {
+		return full[:idx], full[idx+1:]
+	}
+	return full, full
 }
 
-// NewEvent creates a new event with the given type and data.
-func NewEvent(eventType string, tenantID uuid.UUID, data map[string]interface{}) Event {
-	return Event{
-		ID:              uuid.New().String(),
-		Source:          "ordering-service",
-		SpecVersion:     "1.0",
-		Type:            eventType,
-		DataContentType: "application/json",
-		Time:            time.Now().UTC().Format(time.RFC3339),
-		TenantID:        tenantID.String(),
-		Data:            data,
-		Metadata: map[string]interface{}{
-			"correlation_id": uuid.New().String(),
-			"source":         "ordering-service",
-		},
-	}
+// NewEvent builds a shared-events envelope. fullType is the canonical subject
+// ({aggregate_type}.{event_type}); it is decomposed per the shared-events subject convention.
+func NewEvent(fullType string, tenantID uuid.UUID, data map[string]interface{}) *Event {
+	aggregate, eventType := splitSubject(fullType)
+	evt := eventslib.NewEvent(eventType, aggregate, uuid.New(), tenantID, data)
+	evt.Metadata["source"] = "ordering-service"
+	evt.Metadata["correlation_id"] = uuid.New().String()
+	return evt
 }
 
 // NewEventWithSlug creates a new event including tenant_slug.
-func NewEventWithSlug(eventType string, tenantID uuid.UUID, tenantSlug string, data map[string]interface{}) Event {
-	e := NewEvent(eventType, tenantID, data)
-	e.TenantSlug = tenantSlug
+func NewEventWithSlug(fullType string, tenantID uuid.UUID, tenantSlug string, data map[string]interface{}) *Event {
+	e := NewEvent(fullType, tenantID, data)
+	e.WithTenantSlug(tenantSlug)
 	return e
 }
 
 // Publish publishes an event to the specified subject via JetStream.
-func (p *Publisher) Publish(ctx context.Context, subject string, event Event) error {
+func (p *Publisher) Publish(ctx context.Context, subject string, event *Event) error {
+	_ = ctx
 	if p.js == nil {
 		p.logger.Warn("JetStream not available, skipping event publish",
 			zap.String("subject", subject),
-			zap.String("event_type", event.Type))
+			zap.String("event_type", event.EventType))
 		return nil
 	}
 
-	data, err := json.Marshal(event)
+	data, err := event.ToJSON()
 	if err != nil {
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	// Build message with headers for traceability
+	// Build message with headers for traceability; event-id drives consumer idempotency.
 	headers := make(nats.Header)
-	headers.Set("event-id", event.ID)
-	headers.Set("event-type", event.Type)
-	if event.TenantID != "" {
-		headers.Set("tenant-id", event.TenantID)
+	headers.Set("event-id", event.ID.String())
+	headers.Set("event-type", event.EventType)
+	if event.TenantID != uuid.Nil {
+		headers.Set("tenant-id", event.TenantID.String())
 	}
 
 	msg := nats.NewMsg(subject)
@@ -94,14 +90,14 @@ func (p *Publisher) Publish(ctx context.Context, subject string, event Event) er
 		p.logger.Error("failed to publish event to JetStream",
 			zap.Error(err),
 			zap.String("subject", subject),
-			zap.String("event_id", event.ID))
+			zap.String("event_id", event.ID.String()))
 		return fmt.Errorf("publish event: %w", err)
 	}
 
 	p.logger.Debug("event published to JetStream",
 		zap.String("subject", subject),
-		zap.String("event_type", event.Type),
-		zap.String("event_id", event.ID))
+		zap.String("event_type", event.EventType),
+		zap.String("event_id", event.ID.String()))
 
 	return nil
 }
