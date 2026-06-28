@@ -69,7 +69,7 @@ func (h *EventHandler) SubscribeToOrderEvents(js nats.JetStreamContext) error {
 		return fmt.Errorf("fulfilment: ensure ordering stream: %w", err)
 	}
 
-	sharedevents.SubscribeWithRebind(h.logger, js, "ordering.order.ready", func(msg *nats.Msg) {
+	sharedevents.SubscribeQueueWithRebind(h.logger, js, orderingStreamName, "ordering.order.ready", "ord-fulfilment-order-ready", func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("Failed to parse ordering.order.ready envelope", zap.Error(parseErr))
