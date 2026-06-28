@@ -351,9 +351,18 @@ func New(ctx context.Context) (*App, error) {
 			log.Warn("app: failed to init JetStream context", zap.Error(jsErr))
 		}
 
+		// Transactional outbox repo (shared-events, fleet-uniform). When enabled, the publisher
+		// writes order events to outbox_events and the background poller (below) drains them to
+		// JetStream — durable + retried. When disabled, the publisher falls back to a direct
+		// JetStream publish. Same envelope/subjects either way.
+		var outboxRepo eventslib.OutboxRepository
+		if cfg.Events.OutboxEnabled && js != nil {
+			outboxRepo = eventslib.NewSQLOutboxRepository(sqlDB)
+		}
+
 		if js != nil {
-			eventPublisher = events.NewPublisher(js, log)
-			log.Info("app: JetStream event publisher initialized")
+			eventPublisher = events.NewPublisher(js, outboxRepo, log)
+			log.Info("app: event publisher initialized", zap.Bool("outbox", outboxRepo != nil))
 		}
 
 		// Wire event publisher to order service for publishing order events
@@ -434,9 +443,9 @@ func New(ctx context.Context) (*App, error) {
 			log.Info("app: tenant purge consumer started (tenant.purge)")
 		}
 
-		// Initialize outbox background publisher (Transactional Outbox Pattern)
-		if cfg.Events.OutboxEnabled && js != nil {
-			outboxRepo := eventslib.NewSQLOutboxRepository(sqlDB)
+		// Initialize outbox background publisher (Transactional Outbox Pattern). Reuses the
+		// same outboxRepo the event publisher writes to, so written events are drained here.
+		if outboxRepo != nil {
 			outboxJSPublisher := eventslib.NewJetStreamAdapter(js, log)
 			outboxConfig := eventslib.PollerConfig{
 				BatchSize:  cfg.Events.OutboxBatchSize,

@@ -12,18 +12,46 @@ import (
 	"go.uber.org/zap"
 )
 
-// Publisher handles publishing events to NATS JetStream.
+// Publisher publishes events using the fleet-uniform shared-events transactional outbox.
+// When repo is wired, events are written to the outbox_events table and the background
+// outbox poller publishes them to JetStream (durable + retried) — the same path pos /
+// treasury / inventory / projects use. When repo is nil (outbox disabled), it falls back to
+// publishing directly to JetStream. Either way the wire envelope and subjects are identical.
 type Publisher struct {
 	js     nats.JetStreamContext
+	repo   eventslib.OutboxRepository
 	logger *zap.Logger
 }
 
-// NewPublisher creates a new event publisher using JetStream for durability.
-func NewPublisher(js nats.JetStreamContext, logger *zap.Logger) *Publisher {
+// NewPublisher creates an event publisher. Pass a non-nil repo to use the transactional
+// outbox; pass nil to publish directly to JetStream (fallback).
+func NewPublisher(js nats.JetStreamContext, repo eventslib.OutboxRepository, logger *zap.Logger) *Publisher {
 	return &Publisher{
 		js:     js,
+		repo:   repo,
 		logger: logger.Named("events.publisher"),
 	}
+}
+
+// publishViaOutbox writes the event to the shared-events outbox in its own transaction; the
+// background poller drains outbox_events to JetStream. Subject is derived from the event
+// ({aggregate_type}.{event_type}) by the poller, identical to a direct publish.
+func (p *Publisher) publishViaOutbox(ctx context.Context, event *Event) error {
+	tx, err := p.repo.BeginTx(ctx)
+	if err != nil {
+		return fmt.Errorf("outbox begin tx: %w", err)
+	}
+	if err := eventslib.CreateOutboxRecordInTx(ctx, tx, p.repo, event); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("write outbox: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("outbox commit: %w", err)
+	}
+	p.logger.Debug("event written to outbox",
+		zap.String("event_type", event.EventType),
+		zap.String("event_id", event.ID.String()))
+	return nil
 }
 
 // Event is the canonical shared-events envelope. Ordering previously published a bespoke
@@ -59,9 +87,13 @@ func NewEventWithSlug(fullType string, tenantID uuid.UUID, tenantSlug string, da
 	return e
 }
 
-// Publish publishes an event to the specified subject via JetStream.
+// Publish publishes an event. Prefers the transactional outbox (durable, retried); falls
+// back to a direct JetStream publish when no outbox repo is wired. The subject argument is
+// retained for the direct path and call-site clarity; the outbox derives it from the event.
 func (p *Publisher) Publish(ctx context.Context, subject string, event *Event) error {
-	_ = ctx
+	if p.repo != nil {
+		return p.publishViaOutbox(ctx, event)
+	}
 	if p.js == nil {
 		p.logger.Warn("JetStream not available, skipping event publish",
 			zap.String("subject", subject),
