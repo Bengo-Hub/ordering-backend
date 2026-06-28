@@ -49,7 +49,7 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 
 	for _, s := range subs {
 		s := s
-		sharedevents.SubscribeWithRebind(h.logger, js, s.subject, func(msg *nats.Msg) {
+		sharedevents.SubscribeQueueWithRebind(h.logger, js, inventoryStreamName, s.subject, s.durable, func(msg *nats.Msg) {
 			evt, parseErr := sharedevents.FromJSON(msg.Data)
 			if parseErr != nil {
 				h.logger.Error("failed to parse stock event envelope",

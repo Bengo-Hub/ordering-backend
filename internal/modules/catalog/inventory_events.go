@@ -67,7 +67,7 @@ func (h *InventoryEventHandler) SubscribeToInventoryEvents(js nats.JetStreamCont
 		return fmt.Errorf("catalog: ensure inventory stream: %w", err)
 	}
 
-	sharedevents.SubscribeWithRebind(h.logger, js, "inventory.item.created", func(msg *nats.Msg) {
+	sharedevents.SubscribeQueueWithRebind(h.logger, js, inventoryStreamName, "inventory.item.created", "ord-inventory-item-created", func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("failed to parse inventory.item.created envelope", zap.Error(parseErr))

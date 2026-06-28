@@ -60,7 +60,7 @@ func (h *EventHandler) subscribeAuthDurable(
 ) error {
 	cfg := durableConsumerConfig(subject, durable)
 
-	sharedevents.SubscribeWithRebind(h.logger, js, subject, func(msg *nats.Msg) {
+	sharedevents.SubscribeQueueWithRebind(h.logger, js, authStreamName, subject, cfg.Durable, func(msg *nats.Msg) {
 		evt, parseErr := sharedevents.FromJSON(msg.Data)
 		if parseErr != nil {
 			h.logger.Error("failed to parse shared-events envelope",
