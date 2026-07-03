@@ -127,11 +127,18 @@ func (c *TreasuryPaymentConsumer) handleMessage(ctx context.Context, msg *nats.M
 		return
 	}
 
+	// The order UUID now travels in entity_id — reference_id is a prefixed ORD-{slug}-{hex} string.
+	// Fall back to reference_id for legacy intents created before the reference redesign.
+	orderRef, _ := env.Payload["entity_id"].(string)
+	if orderRef == "" {
+		orderRef = refID
+	}
+
 	tenantID, terr := uuid.Parse(env.TenantID)
-	orderID, oerr := uuid.Parse(refID)
+	orderID, oerr := uuid.Parse(orderRef)
 	if terr != nil || oerr != nil {
 		c.log.Warn("treasury payment: bad tenant/order id",
-			zap.String("tenant_id", env.TenantID), zap.String("reference_id", refID))
+			zap.String("tenant_id", env.TenantID), zap.String("order_ref", orderRef))
 		_ = msg.Ack()
 		return
 	}

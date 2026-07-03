@@ -16,6 +16,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
+	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
@@ -613,7 +614,7 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 
 		intentReq := treasury.PaymentIntentRequest{
 			TenantID:      order.TenantID,
-			ReferenceID:   order.ID.String(),
+			ReferenceID:   payref.Build("ORD", "", order.TenantID, order.ID),
 			ReferenceType: "order",
 			OrderID:       order.ID,
 			Amount:        order.GrandTotal,
@@ -625,6 +626,8 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			CustomerPhone: customerPhone,
 			CrmContactId:  order.CrmContactID,
 			Metadata: map[string]interface{}{
+				"service":        "ordering",
+				"entity_id":      order.ID.String(),
 				"line_items":     lineItemsForMeta,
 				"order_number":   order.OrderNumber,
 				"customer_email": customerEmail,
