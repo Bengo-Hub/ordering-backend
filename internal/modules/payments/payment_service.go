@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
+	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
@@ -168,11 +169,13 @@ func (s *PaymentService) CreatePaymentIntent(ctx context.Context, req CreatePaym
 		return nil, ErrInvalidAmount
 	}
 
-	// Create intent in treasury service
+	// Create intent in treasury service. reference_id is a service-identifiable ORD-{slug}-{hex}
+	// (see internal/payref) so it's recognisable on the Paystack dashboard; the order UUID travels
+	// in metadata.entity_id (and the OrderID field) so the payment consumer can still reconcile.
 	treasuryReq := treasury.PaymentIntentRequest{
 		TenantID:       req.TenantID,
 		OrderID:        req.OrderID,
-		ReferenceID:    req.OrderID.String(),
+		ReferenceID:    payref.Build("ORD", "", req.TenantID, req.OrderID),
 		ReferenceType:  "order",
 		SourceService:  "ordering",
 		Amount:         req.Amount,
@@ -183,6 +186,7 @@ func (s *PaymentService) CreatePaymentIntent(ctx context.Context, req CreatePaym
 		IdempotencyKey: req.IdempotencyKey,
 		CustomerEmail:  req.CustomerEmail,
 		CustomerPhone:  req.CustomerPhone,
+		Metadata:       map[string]interface{}{"service": "ordering", "entity_id": req.OrderID.String()},
 	}
 
 	treasuryResp, err := s.treasuryClient.CreatePaymentIntent(ctx, treasuryReq)
