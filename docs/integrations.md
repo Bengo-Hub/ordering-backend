@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal BengoBox microservices and external third-party services.
+This document provides detailed integration information for all external services and systems integrated with the Ordering backend, including internal Codevertex microservices and external third-party services.
 
 **Last Updated**: March 2026
 
@@ -69,7 +69,7 @@ This document provides detailed integration information for all external service
 ## Table of Contents
 
 1. [Implementation Status Summary](#implementation-status-summary)
-2. [Internal BengoBox Service Integrations](#internal-bengobox-service-integrations)
+2. [Internal Codevertex Service Integrations](#internal-bengobox-service-integrations)
 3. [External Third-Party Integrations](#external-third-party-integrations)
 4. [Integration Patterns](#integration-patterns)
 5. [Two-Tier Configuration Management](#two-tier-configuration-management)
@@ -99,7 +99,7 @@ This document provides detailed integration information for all external service
 
 ---
 
-## Internal BengoBox Service Integrations
+## Internal Codevertex Service Integrations
 
 ### Auth Service
 

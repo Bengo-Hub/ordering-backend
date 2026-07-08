@@ -64,7 +64,7 @@ make run # go run ./cmd/api
 
 > **Windows without GNU Make:** From PowerShell, you can run the same steps manually:
 > ```powershell
-> cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+> cd D:\Projects\Codevertex\FoodDelivery\food-delivery-backend
 > go mod tidy
 > go run ./cmd/api
 > ```
@@ -79,14 +79,14 @@ make run # go run ./cmd/api
 - Swagger UI: http://localhost:4000/swagger/index.html
 - Regenerate the OpenAPI spec after updating handler annotations:
   ```powershell
-  cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+  cd D:\Projects\Codevertex\FoodDelivery\food-delivery-backend
   swag init -g cmd/api/main.go -o internal/http/docs
   ```
 
 ### Database Migrations & Seeding
 
 ```powershell
-cd D:\Projects\BengoBox\FoodDelivery\food-delivery-backend
+cd D:\Projects\Codevertex\FoodDelivery\food-delivery-backend
 
 # Apply schema migrations (Ent-managed)
 go run ./cmd/migrate
@@ -97,7 +97,7 @@ go run ./cmd/seed
 
 > macOS/Linux equivalent:
 > ```bash
-> cd ~/Projects/BengoBox/FoodDelivery/food-delivery-backend
+> cd ~/Projects/Codevertex/FoodDelivery/food-delivery-backend
 > go run ./cmd/migrate
 > go run ./cmd/seed
 > ```

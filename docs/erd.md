@@ -1,6 +1,6 @@
 # Ordering Service – Entity Relationship Overview
 
-This document provides a textual ERD for the BengoBox Ordering Service (online delivery/shipping orders only).
+This document provides a textual ERD for the Codevertex Ordering Service (online delivery/shipping orders only).
 The schema supports **all business types** — food/hospitality, retail, grocery, pharmacy, electronics, e-commerce, etc. — through a flexible catalog projection model backed by `inventory-api` as the single source of truth for item master data.
 The database structure is defined via Ent schemas — the Go source of truth that powers code generation and migrations.
 

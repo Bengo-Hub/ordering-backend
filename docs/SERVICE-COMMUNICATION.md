@@ -2,7 +2,7 @@
 
 **Date**: January 2026
 **Version**: 1.0
-**Purpose**: Define service-to-service communication patterns, integration points, and architectural decisions for the Ordering Service within the BengoBox microservices ecosystem.
+**Purpose**: Define service-to-service communication patterns, integration points, and architectural decisions for the Ordering Service within the Codevertex microservices ecosystem.
 
 ---
 

@@ -1950,7 +1950,7 @@ definitions:
     type: object
 info:
   contact: {}
-  description: HTTP API for the BengoBox ordering service - online delivery/shipping
+  description: HTTP API for the Codevertex ordering service - online delivery/shipping
     orders only.
   title: Ordering Service API
   version: 0.1.0
