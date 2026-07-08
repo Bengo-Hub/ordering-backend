@@ -1,9 +1,9 @@
 """
-E2E Test Configuration for BengoBox MVP Production Testing
+E2E Test Configuration for Codevertex MVP Production Testing
 ==========================================================
 
 This module contains configuration and base classes for E2E testing
-the BengoBox microservices ecosystem.
+the Codevertex microservices ecosystem.
 
 Production Domains (from devops-k8s values.yaml audit):
 - Auth API: sso.codevertexitsolutions.com

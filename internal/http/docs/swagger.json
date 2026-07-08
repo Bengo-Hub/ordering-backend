@@ -5,7 +5,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "HTTP API for the BengoBox ordering service - online delivery/shipping orders only.",
+        "description": "HTTP API for the Codevertex ordering service - online delivery/shipping orders only.",
         "title": "Ordering Service API",
         "contact": {},
         "version": "0.1.0"

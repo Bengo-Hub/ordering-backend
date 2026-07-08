@@ -13,7 +13,7 @@ import (
 
 // @title Ordering Service API
 // @version 0.1.0
-// @description HTTP API for the BengoBox ordering service - online delivery/shipping orders only.
+// @description HTTP API for the Codevertex ordering service - online delivery/shipping orders only.
 // @BasePath /api/v1
 // @schemes http https
 // @securityDefinitions.apikey bearerAuth
