@@ -483,8 +483,14 @@ func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 		return enqueueTenantSyncEvents(ctx, tx, tenantEntity.ID, tenantID)
 	}
 
-	// Tenant doesn't exist, create it
+	// Tenant doesn't exist — reuse the canonical auth tenant id when the caller passed a
+	// UUID (the common path: JWT / auth.tenant.created carry the real tenant_id). Only
+	// mint a new id as a last resort when we were given a slug and auth hasn't synced the
+	// tenant yet; that random id is reconciled when auth.tenant.created lands (SetID).
 	id := uuid.New()
+	if parsed, perr := uuid.Parse(tenantID); perr == nil {
+		id = parsed
+	}
 	err = tx.Tenant.
 		Create().
 		SetID(id).
@@ -540,7 +546,16 @@ func upsertUser(ctx context.Context, client *ent.Client, usr *User) error {
 		return errors.New("identity: nil user upsert")
 	}
 	if usr.ID == uuid.Nil {
-		usr.ID = uuid.New()
+		// Pin the local PK to the auth-service user id so RBAC grants and cross-service
+		// joins resolve (orders store customer_id = auth id from the JWT). Minting a
+		// random PK here silently detaches the user from its role grants and orders —
+		// the same class of bug fixed in erp-api (SetID pinned to external_id). Only
+		// fall back to a random id when we genuinely have no auth id.
+		if usr.AuthServiceUserID != nil && *usr.AuthServiceUserID != uuid.Nil {
+			usr.ID = *usr.AuthServiceUserID
+		} else {
+			usr.ID = uuid.New()
+		}
 	}
 
 	tenantUUID, err := uuid.Parse(usr.TenantID)
