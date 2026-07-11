@@ -3,6 +3,7 @@ package fulfilment
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -192,7 +193,18 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, evt *sharedevents.E
 }
 
 // getPickupAddress gets the pickup address from event payload or returns default.
+// PublishOrderReady emits the pickup point under `outlet_location` (name/latitude/
+// longitude); older/other producers used `cafe_info`/`pickup_address`. Read outlet_location
+// first so auto-created delivery tasks actually carry a pickup point.
 func getPickupAddress(data map[string]interface{}) string {
+	if loc, ok := data["outlet_location"].(map[string]interface{}); ok {
+		if addr, ok := loc["address"].(string); ok && addr != "" {
+			return addr
+		}
+		if name, ok := loc["name"].(string); ok && name != "" {
+			return name
+		}
+	}
 	if cafeInfo, ok := data["cafe_info"].(map[string]interface{}); ok {
 		if addr, ok := cafeInfo["address"].(string); ok {
 			return addr
@@ -206,19 +218,41 @@ func getPickupAddress(data map[string]interface{}) string {
 
 // getPickupCoordinates gets the pickup coordinates from event payload.
 func getPickupCoordinates(data map[string]interface{}) (float64, float64) {
-	if cafeInfo, ok := data["cafe_info"].(map[string]interface{}); ok {
-		lat, latOk := cafeInfo["latitude"].(float64)
-		lng, lngOk := cafeInfo["longitude"].(float64)
+	if loc, ok := data["outlet_location"].(map[string]interface{}); ok {
+		lat, latOk := toFloat(loc["latitude"])
+		lng, lngOk := toFloat(loc["longitude"])
 		if latOk && lngOk {
 			return lat, lng
 		}
 	}
-	if lat, ok := data["pickup_latitude"].(float64); ok {
-		if lng, ok := data["pickup_longitude"].(float64); ok {
+	if cafeInfo, ok := data["cafe_info"].(map[string]interface{}); ok {
+		lat, latOk := toFloat(cafeInfo["latitude"])
+		lng, lngOk := toFloat(cafeInfo["longitude"])
+		if latOk && lngOk {
 			return lat, lng
 		}
 	}
+	lat, latOk := toFloat(data["pickup_latitude"])
+	lng, lngOk := toFloat(data["pickup_longitude"])
+	if latOk && lngOk {
+		return lat, lng
+	}
 	return 0, 0
+}
+
+// toFloat coerces a JSON number (float64) or numeric string into a float64.
+func toFloat(v interface{}) (float64, bool) {
+	switch n := v.(type) {
+	case float64:
+		return n, true
+	case int:
+		return float64(n), true
+	case string:
+		if f, err := strconv.ParseFloat(n, 64); err == nil {
+			return f, true
+		}
+	}
+	return 0, false
 }
 
 // formatAddress formats a CustomerAddress into a single string.
