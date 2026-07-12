@@ -129,8 +129,10 @@ func writeSubscriptionError(w http.ResponseWriter, gracePeriodEnded bool) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusPaymentRequired)
 	_ = json.NewEncoder(w).Encode(map[string]any{
+		"code":               "subscription_expired", // canonical discriminator read by frontends
 		"error":              "subscription_expired",
 		"grace_period_ended": gracePeriodEnded,
+		"upgrade":            true,
 		"upgrade_url":        upgradeURL,
 	})
 }
