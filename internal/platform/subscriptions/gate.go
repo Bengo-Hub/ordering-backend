@@ -91,8 +91,10 @@ func RequireFeature(featureCode string) func(http.Handler) http.Handler {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusForbidden)
 				_ = json.NewEncoder(w).Encode(map[string]any{
+					"code":             "feature_not_available", // canonical discriminator read by frontends
 					"error":            "feature_not_available",
 					"required_feature": featureCode,
+					"upgrade":          true,
 					"upgrade_url":      upgradeURL,
 				})
 				return
