@@ -59,6 +59,10 @@ func (Outlet) Fields() []ent.Field {
 		field.Bool("supports_pickup").
 			Default(false).
 			Comment("Whether the outlet supports customer pickup"),
+		field.Int("booking_deposit_percent").
+			Default(0).
+			Range(0, 100).
+			Comment("Deposit % charged now for booking checkouts (event tickets / service appointments); the balance is collected at the appointment. 0 = pay in full at booking."),
 		field.String("status").
 			Default("active").
 			Comment("active | inactive | closed"),

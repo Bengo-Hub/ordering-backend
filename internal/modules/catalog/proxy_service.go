@@ -562,9 +562,10 @@ func entOutletToSummary(o *ent.Outlet) OutletSummary {
 		Longitude:    o.Longitude,
 		OpeningHours: o.OpeningHours,
 		ImageURL:     o.ImageURL,
-		Status:       o.Status,
-		UseCase:      o.UseCase,
-		IsOpen:       IsOutletOpen(o.OpeningHours),
+		Status:                o.Status,
+		UseCase:               o.UseCase,
+		IsOpen:                IsOutletOpen(o.OpeningHours),
+		BookingDepositPercent: o.BookingDepositPercent,
 	}
 }
 

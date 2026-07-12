@@ -104,9 +104,22 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Post("/{orderId}/payment/initiate", h.AdminInitiateOrderPayment)
 		adminRouter.Delete("/{orderId}", h.DeleteOrder)
 	})
+
+	// Admin outlet storefront settings (ordering-owned; not projected from upstream).
+	r.Route("/admin/outlets", func(adminOutlets chi.Router) {
+		adminOutlets.Use(auth.RequireAuth)
+		adminOutlets.Use(auth.RequirePermissions(identity.PermissionOrdersManage))
+		// Set the booking deposit % for event-ticket / service-appointment checkouts.
+		adminOutlets.Put("/{outletId}/booking-deposit", h.SetOutletBookingDeposit)
+	})
 }
 
 // --- Request/Response Types ---
+
+// SetBookingDepositRequest sets an outlet's booking deposit percent (0-100).
+type SetBookingDepositRequest struct {
+	Percent int `json:"percent"`
+}
 
 // CheckoutRequestDTO represents a checkout request.
 // Supports two modes: cart-based (cartId) or items-based (outletId + items).
@@ -1116,6 +1129,49 @@ func (h *OrderHandler) GetOutletRating(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, rating)
+}
+
+// SetOutletBookingDeposit sets an outlet's booking deposit % (0-100) for event-ticket /
+// service-appointment checkouts. Admin only (orders.manage).
+// @Summary      Set outlet booking deposit percent
+// @Tags         outlets
+// @Accept       json
+// @Produce      json
+// @Param        tenant   path string true "Tenant slug"
+// @Param        outletId path string true "Outlet ID"
+// @Param        body     body SetBookingDepositRequest true "Deposit percent"
+// @Success      200 {object} map[string]any
+// @Failure      400 {object} map[string]string
+// @Security     BearerAuth
+// @Router       /admin/outlets/{outletId}/booking-deposit [put]
+func (h *OrderHandler) SetOutletBookingDeposit(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	outletID, err := uuid.Parse(chi.URLParam(r, "outletId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
+		return
+	}
+	var req SetBookingDepositRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if req.Percent < 0 || req.Percent > 100 {
+		handlers.RespondError(w, http.StatusBadRequest, "deposit percent must be between 0 and 100")
+		return
+	}
+	if err := h.orderService.SetOutletBookingDepositPercent(r.Context(), tenantID, outletID, req.Percent); err != nil {
+		h.handleError(w, err)
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{
+		"outletId":              outletID,
+		"bookingDepositPercent": req.Percent,
+	})
 }
 
 // --- Admin Handlers ---

@@ -30443,36 +30443,38 @@ func (m *OutboxEventMutation) ResetEdge(name string) error {
 // OutletMutation represents an operation that mutates the Outlet nodes in the graph.
 type OutletMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *uuid.UUID
-	name            *string
-	slug            *string
-	description     *string
-	address         *string
-	phone           *string
-	email           *string
-	location        *string
-	latitude        *float64
-	addlatitude     *float64
-	longitude       *float64
-	addlongitude    *float64
-	opening_hours   *map[string]interface{}
-	image_url       *string
-	use_case        *string
-	supports_pickup *bool
-	status          *string
-	created_at      *time.Time
-	updated_at      *time.Time
-	clearedFields   map[string]struct{}
-	tenant          *uuid.UUID
-	clearedtenant   bool
-	orders          map[uuid.UUID]struct{}
-	removedorders   map[uuid.UUID]struct{}
-	clearedorders   bool
-	done            bool
-	oldValue        func(context.Context) (*Outlet, error)
-	predicates      []predicate.Outlet
+	op                         Op
+	typ                        string
+	id                         *uuid.UUID
+	name                       *string
+	slug                       *string
+	description                *string
+	address                    *string
+	phone                      *string
+	email                      *string
+	location                   *string
+	latitude                   *float64
+	addlatitude                *float64
+	longitude                  *float64
+	addlongitude               *float64
+	opening_hours              *map[string]interface{}
+	image_url                  *string
+	use_case                   *string
+	supports_pickup            *bool
+	booking_deposit_percent    *int
+	addbooking_deposit_percent *int
+	status                     *string
+	created_at                 *time.Time
+	updated_at                 *time.Time
+	clearedFields              map[string]struct{}
+	tenant                     *uuid.UUID
+	clearedtenant              bool
+	orders                     map[uuid.UUID]struct{}
+	removedorders              map[uuid.UUID]struct{}
+	clearedorders              bool
+	done                       bool
+	oldValue                   func(context.Context) (*Outlet, error)
+	predicates                 []predicate.Outlet
 }
 
 var _ ent.Mutation = (*OutletMutation)(nil)
@@ -31255,6 +31257,62 @@ func (m *OutletMutation) ResetSupportsPickup() {
 	m.supports_pickup = nil
 }
 
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (m *OutletMutation) SetBookingDepositPercent(i int) {
+	m.booking_deposit_percent = &i
+	m.addbooking_deposit_percent = nil
+}
+
+// BookingDepositPercent returns the value of the "booking_deposit_percent" field in the mutation.
+func (m *OutletMutation) BookingDepositPercent() (r int, exists bool) {
+	v := m.booking_deposit_percent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBookingDepositPercent returns the old "booking_deposit_percent" field's value of the Outlet entity.
+// If the Outlet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OutletMutation) OldBookingDepositPercent(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBookingDepositPercent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBookingDepositPercent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBookingDepositPercent: %w", err)
+	}
+	return oldValue.BookingDepositPercent, nil
+}
+
+// AddBookingDepositPercent adds i to the "booking_deposit_percent" field.
+func (m *OutletMutation) AddBookingDepositPercent(i int) {
+	if m.addbooking_deposit_percent != nil {
+		*m.addbooking_deposit_percent += i
+	} else {
+		m.addbooking_deposit_percent = &i
+	}
+}
+
+// AddedBookingDepositPercent returns the value that was added to the "booking_deposit_percent" field in this mutation.
+func (m *OutletMutation) AddedBookingDepositPercent() (r int, exists bool) {
+	v := m.addbooking_deposit_percent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetBookingDepositPercent resets all changes to the "booking_deposit_percent" field.
+func (m *OutletMutation) ResetBookingDepositPercent() {
+	m.booking_deposit_percent = nil
+	m.addbooking_deposit_percent = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *OutletMutation) SetStatus(s string) {
 	m.status = &s
@@ -31478,7 +31536,7 @@ func (m *OutletMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OutletMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.tenant != nil {
 		fields = append(fields, outlet.FieldTenantID)
 	}
@@ -31520,6 +31578,9 @@ func (m *OutletMutation) Fields() []string {
 	}
 	if m.supports_pickup != nil {
 		fields = append(fields, outlet.FieldSupportsPickup)
+	}
+	if m.booking_deposit_percent != nil {
+		fields = append(fields, outlet.FieldBookingDepositPercent)
 	}
 	if m.status != nil {
 		fields = append(fields, outlet.FieldStatus)
@@ -31566,6 +31627,8 @@ func (m *OutletMutation) Field(name string) (ent.Value, bool) {
 		return m.UseCase()
 	case outlet.FieldSupportsPickup:
 		return m.SupportsPickup()
+	case outlet.FieldBookingDepositPercent:
+		return m.BookingDepositPercent()
 	case outlet.FieldStatus:
 		return m.Status()
 	case outlet.FieldCreatedAt:
@@ -31609,6 +31672,8 @@ func (m *OutletMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldUseCase(ctx)
 	case outlet.FieldSupportsPickup:
 		return m.OldSupportsPickup(ctx)
+	case outlet.FieldBookingDepositPercent:
+		return m.OldBookingDepositPercent(ctx)
 	case outlet.FieldStatus:
 		return m.OldStatus(ctx)
 	case outlet.FieldCreatedAt:
@@ -31722,6 +31787,13 @@ func (m *OutletMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSupportsPickup(v)
 		return nil
+	case outlet.FieldBookingDepositPercent:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBookingDepositPercent(v)
+		return nil
 	case outlet.FieldStatus:
 		v, ok := value.(string)
 		if !ok {
@@ -31757,6 +31829,9 @@ func (m *OutletMutation) AddedFields() []string {
 	if m.addlongitude != nil {
 		fields = append(fields, outlet.FieldLongitude)
 	}
+	if m.addbooking_deposit_percent != nil {
+		fields = append(fields, outlet.FieldBookingDepositPercent)
+	}
 	return fields
 }
 
@@ -31769,6 +31844,8 @@ func (m *OutletMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedLatitude()
 	case outlet.FieldLongitude:
 		return m.AddedLongitude()
+	case outlet.FieldBookingDepositPercent:
+		return m.AddedBookingDepositPercent()
 	}
 	return nil, false
 }
@@ -31791,6 +31868,13 @@ func (m *OutletMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddLongitude(v)
+		return nil
+	case outlet.FieldBookingDepositPercent:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddBookingDepositPercent(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Outlet numeric field %s", name)
@@ -31923,6 +32007,9 @@ func (m *OutletMutation) ResetField(name string) error {
 		return nil
 	case outlet.FieldSupportsPickup:
 		m.ResetSupportsPickup()
+		return nil
+	case outlet.FieldBookingDepositPercent:
+		m.ResetBookingDepositPercent()
 		return nil
 	case outlet.FieldStatus:
 		m.ResetStatus()

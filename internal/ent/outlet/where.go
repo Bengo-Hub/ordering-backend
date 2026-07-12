@@ -121,6 +121,11 @@ func SupportsPickup(v bool) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldSupportsPickup, v))
 }
 
+// BookingDepositPercent applies equality check predicate on the "booking_deposit_percent" field. It's identical to BookingDepositPercentEQ.
+func BookingDepositPercent(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldBookingDepositPercent, v))
+}
+
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.Outlet {
 	return predicate.Outlet(sql.FieldEQ(FieldStatus, v))
@@ -929,6 +934,46 @@ func SupportsPickupEQ(v bool) predicate.Outlet {
 // SupportsPickupNEQ applies the NEQ predicate on the "supports_pickup" field.
 func SupportsPickupNEQ(v bool) predicate.Outlet {
 	return predicate.Outlet(sql.FieldNEQ(FieldSupportsPickup, v))
+}
+
+// BookingDepositPercentEQ applies the EQ predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentEQ(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldEQ(FieldBookingDepositPercent, v))
+}
+
+// BookingDepositPercentNEQ applies the NEQ predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentNEQ(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldNEQ(FieldBookingDepositPercent, v))
+}
+
+// BookingDepositPercentIn applies the In predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentIn(vs ...int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldIn(FieldBookingDepositPercent, vs...))
+}
+
+// BookingDepositPercentNotIn applies the NotIn predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentNotIn(vs ...int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldNotIn(FieldBookingDepositPercent, vs...))
+}
+
+// BookingDepositPercentGT applies the GT predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentGT(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldGT(FieldBookingDepositPercent, v))
+}
+
+// BookingDepositPercentGTE applies the GTE predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentGTE(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldGTE(FieldBookingDepositPercent, v))
+}
+
+// BookingDepositPercentLT applies the LT predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentLT(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldLT(FieldBookingDepositPercent, v))
+}
+
+// BookingDepositPercentLTE applies the LTE predicate on the "booking_deposit_percent" field.
+func BookingDepositPercentLTE(v int) predicate.Outlet {
+	return predicate.Outlet(sql.FieldLTE(FieldBookingDepositPercent, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

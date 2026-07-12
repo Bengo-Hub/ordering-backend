@@ -1630,6 +1630,11 @@ definitions:
       cartId:
         type: string
     type: object
+  internal_http_handlers_ordering.SetBookingDepositRequest:
+    properties:
+      percent:
+        type: integer
+    type: object
   internal_http_handlers_ordering.TransactionsResponse:
     properties:
       data:
@@ -2701,6 +2706,46 @@ paths:
       summary: Get analytics summary (admin)
       tags:
       - Admin Orders
+  /admin/outlets/{outletId}/booking-deposit:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Outlet ID
+        in: path
+        name: outletId
+        required: true
+        type: string
+      - description: Deposit percent
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http_handlers_ordering.SetBookingDepositRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Set outlet booking deposit percent
+      tags:
+      - outlets
   /admin/refunds:
     get:
       parameters:

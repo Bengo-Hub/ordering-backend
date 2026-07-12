@@ -914,16 +914,22 @@ func init() {
 	outletDescSupportsPickup := outletFields[14].Descriptor()
 	// outlet.DefaultSupportsPickup holds the default value on creation for the supports_pickup field.
 	outlet.DefaultSupportsPickup = outletDescSupportsPickup.Default.(bool)
+	// outletDescBookingDepositPercent is the schema descriptor for booking_deposit_percent field.
+	outletDescBookingDepositPercent := outletFields[15].Descriptor()
+	// outlet.DefaultBookingDepositPercent holds the default value on creation for the booking_deposit_percent field.
+	outlet.DefaultBookingDepositPercent = outletDescBookingDepositPercent.Default.(int)
+	// outlet.BookingDepositPercentValidator is a validator for the "booking_deposit_percent" field. It is called by the builders before save.
+	outlet.BookingDepositPercentValidator = outletDescBookingDepositPercent.Validators[0].(func(int) error)
 	// outletDescStatus is the schema descriptor for status field.
-	outletDescStatus := outletFields[15].Descriptor()
+	outletDescStatus := outletFields[16].Descriptor()
 	// outlet.DefaultStatus holds the default value on creation for the status field.
 	outlet.DefaultStatus = outletDescStatus.Default.(string)
 	// outletDescCreatedAt is the schema descriptor for created_at field.
-	outletDescCreatedAt := outletFields[16].Descriptor()
+	outletDescCreatedAt := outletFields[17].Descriptor()
 	// outlet.DefaultCreatedAt holds the default value on creation for the created_at field.
 	outlet.DefaultCreatedAt = outletDescCreatedAt.Default.(func() time.Time)
 	// outletDescUpdatedAt is the schema descriptor for updated_at field.
-	outletDescUpdatedAt := outletFields[17].Descriptor()
+	outletDescUpdatedAt := outletFields[18].Descriptor()
 	// outlet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	outlet.DefaultUpdatedAt = outletDescUpdatedAt.Default.(func() time.Time)
 	// outlet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

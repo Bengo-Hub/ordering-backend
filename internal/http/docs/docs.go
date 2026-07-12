@@ -1055,6 +1055,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/outlets/{outletId}/booking-deposit": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "outlets"
+                ],
+                "summary": "Set outlet booking deposit percent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Outlet ID",
+                        "name": "outletId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Deposit percent",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http_handlers_ordering.SetBookingDepositRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/admin/refunds": {
             "get": {
                 "produces": [
@@ -7324,6 +7386,14 @@ const docTemplate = `{
             "properties": {
                 "cartId": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_http_handlers_ordering.SetBookingDepositRequest": {
+            "type": "object",
+            "properties": {
+                "percent": {
+                    "type": "integer"
                 }
             }
         },

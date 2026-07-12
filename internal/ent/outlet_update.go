@@ -293,6 +293,27 @@ func (_u *OutletUpdate) SetNillableSupportsPickup(v *bool) *OutletUpdate {
 	return _u
 }
 
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (_u *OutletUpdate) SetBookingDepositPercent(v int) *OutletUpdate {
+	_u.mutation.ResetBookingDepositPercent()
+	_u.mutation.SetBookingDepositPercent(v)
+	return _u
+}
+
+// SetNillableBookingDepositPercent sets the "booking_deposit_percent" field if the given value is not nil.
+func (_u *OutletUpdate) SetNillableBookingDepositPercent(v *int) *OutletUpdate {
+	if v != nil {
+		_u.SetBookingDepositPercent(*v)
+	}
+	return _u
+}
+
+// AddBookingDepositPercent adds value to the "booking_deposit_percent" field.
+func (_u *OutletUpdate) AddBookingDepositPercent(v int) *OutletUpdate {
+	_u.mutation.AddBookingDepositPercent(v)
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *OutletUpdate) SetStatus(v string) *OutletUpdate {
 	_u.mutation.SetStatus(v)
@@ -413,6 +434,11 @@ func (_u *OutletUpdate) check() error {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.BookingDepositPercent(); ok {
+		if err := outlet.BookingDepositPercentValidator(v); err != nil {
+			return &ValidationError{Name: "booking_deposit_percent", err: fmt.Errorf(`ent: validator failed for field "Outlet.booking_deposit_percent": %w`, err)}
+		}
+	}
 	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Outlet.tenant"`)
 	}
@@ -505,6 +531,12 @@ func (_u *OutletUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.SupportsPickup(); ok {
 		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.BookingDepositPercent(); ok {
+		_spec.SetField(outlet.FieldBookingDepositPercent, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedBookingDepositPercent(); ok {
+		_spec.AddField(outlet.FieldBookingDepositPercent, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
@@ -868,6 +900,27 @@ func (_u *OutletUpdateOne) SetNillableSupportsPickup(v *bool) *OutletUpdateOne {
 	return _u
 }
 
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (_u *OutletUpdateOne) SetBookingDepositPercent(v int) *OutletUpdateOne {
+	_u.mutation.ResetBookingDepositPercent()
+	_u.mutation.SetBookingDepositPercent(v)
+	return _u
+}
+
+// SetNillableBookingDepositPercent sets the "booking_deposit_percent" field if the given value is not nil.
+func (_u *OutletUpdateOne) SetNillableBookingDepositPercent(v *int) *OutletUpdateOne {
+	if v != nil {
+		_u.SetBookingDepositPercent(*v)
+	}
+	return _u
+}
+
+// AddBookingDepositPercent adds value to the "booking_deposit_percent" field.
+func (_u *OutletUpdateOne) AddBookingDepositPercent(v int) *OutletUpdateOne {
+	_u.mutation.AddBookingDepositPercent(v)
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *OutletUpdateOne) SetStatus(v string) *OutletUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -1001,6 +1054,11 @@ func (_u *OutletUpdateOne) check() error {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Outlet.slug": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.BookingDepositPercent(); ok {
+		if err := outlet.BookingDepositPercentValidator(v); err != nil {
+			return &ValidationError{Name: "booking_deposit_percent", err: fmt.Errorf(`ent: validator failed for field "Outlet.booking_deposit_percent": %w`, err)}
+		}
+	}
 	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Outlet.tenant"`)
 	}
@@ -1110,6 +1168,12 @@ func (_u *OutletUpdateOne) sqlSave(ctx context.Context) (_node *Outlet, err erro
 	}
 	if value, ok := _u.mutation.SupportsPickup(); ok {
 		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.BookingDepositPercent(); ok {
+		_spec.SetField(outlet.FieldBookingDepositPercent, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedBookingDepositPercent(); ok {
+		_spec.AddField(outlet.FieldBookingDepositPercent, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)

@@ -190,6 +190,20 @@ func (_c *OutletCreate) SetNillableSupportsPickup(v *bool) *OutletCreate {
 	return _c
 }
 
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (_c *OutletCreate) SetBookingDepositPercent(v int) *OutletCreate {
+	_c.mutation.SetBookingDepositPercent(v)
+	return _c
+}
+
+// SetNillableBookingDepositPercent sets the "booking_deposit_percent" field if the given value is not nil.
+func (_c *OutletCreate) SetNillableBookingDepositPercent(v *int) *OutletCreate {
+	if v != nil {
+		_c.SetBookingDepositPercent(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *OutletCreate) SetStatus(v string) *OutletCreate {
 	_c.mutation.SetStatus(v)
@@ -309,6 +323,10 @@ func (_c *OutletCreate) defaults() {
 		v := outlet.DefaultSupportsPickup
 		_c.mutation.SetSupportsPickup(v)
 	}
+	if _, ok := _c.mutation.BookingDepositPercent(); !ok {
+		v := outlet.DefaultBookingDepositPercent
+		_c.mutation.SetBookingDepositPercent(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := outlet.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -350,6 +368,14 @@ func (_c *OutletCreate) check() error {
 	}
 	if _, ok := _c.mutation.SupportsPickup(); !ok {
 		return &ValidationError{Name: "supports_pickup", err: errors.New(`ent: missing required field "Outlet.supports_pickup"`)}
+	}
+	if _, ok := _c.mutation.BookingDepositPercent(); !ok {
+		return &ValidationError{Name: "booking_deposit_percent", err: errors.New(`ent: missing required field "Outlet.booking_deposit_percent"`)}
+	}
+	if v, ok := _c.mutation.BookingDepositPercent(); ok {
+		if err := outlet.BookingDepositPercentValidator(v); err != nil {
+			return &ValidationError{Name: "booking_deposit_percent", err: fmt.Errorf(`ent: validator failed for field "Outlet.booking_deposit_percent": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Outlet.status"`)}
@@ -450,6 +476,10 @@ func (_c *OutletCreate) createSpec() (*Outlet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.SupportsPickup(); ok {
 		_spec.SetField(outlet.FieldSupportsPickup, field.TypeBool, value)
 		_node.SupportsPickup = value
+	}
+	if value, ok := _c.mutation.BookingDepositPercent(); ok {
+		_spec.SetField(outlet.FieldBookingDepositPercent, field.TypeInt, value)
+		_node.BookingDepositPercent = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(outlet.FieldStatus, field.TypeString, value)
@@ -785,6 +815,24 @@ func (u *OutletUpsert) SetSupportsPickup(v bool) *OutletUpsert {
 // UpdateSupportsPickup sets the "supports_pickup" field to the value that was provided on create.
 func (u *OutletUpsert) UpdateSupportsPickup() *OutletUpsert {
 	u.SetExcluded(outlet.FieldSupportsPickup)
+	return u
+}
+
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (u *OutletUpsert) SetBookingDepositPercent(v int) *OutletUpsert {
+	u.Set(outlet.FieldBookingDepositPercent, v)
+	return u
+}
+
+// UpdateBookingDepositPercent sets the "booking_deposit_percent" field to the value that was provided on create.
+func (u *OutletUpsert) UpdateBookingDepositPercent() *OutletUpsert {
+	u.SetExcluded(outlet.FieldBookingDepositPercent)
+	return u
+}
+
+// AddBookingDepositPercent adds v to the "booking_deposit_percent" field.
+func (u *OutletUpsert) AddBookingDepositPercent(v int) *OutletUpsert {
+	u.Add(outlet.FieldBookingDepositPercent, v)
 	return u
 }
 
@@ -1140,6 +1188,27 @@ func (u *OutletUpsertOne) SetSupportsPickup(v bool) *OutletUpsertOne {
 func (u *OutletUpsertOne) UpdateSupportsPickup() *OutletUpsertOne {
 	return u.Update(func(s *OutletUpsert) {
 		s.UpdateSupportsPickup()
+	})
+}
+
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (u *OutletUpsertOne) SetBookingDepositPercent(v int) *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetBookingDepositPercent(v)
+	})
+}
+
+// AddBookingDepositPercent adds v to the "booking_deposit_percent" field.
+func (u *OutletUpsertOne) AddBookingDepositPercent(v int) *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.AddBookingDepositPercent(v)
+	})
+}
+
+// UpdateBookingDepositPercent sets the "booking_deposit_percent" field to the value that was provided on create.
+func (u *OutletUpsertOne) UpdateBookingDepositPercent() *OutletUpsertOne {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateBookingDepositPercent()
 	})
 }
 
@@ -1666,6 +1735,27 @@ func (u *OutletUpsertBulk) SetSupportsPickup(v bool) *OutletUpsertBulk {
 func (u *OutletUpsertBulk) UpdateSupportsPickup() *OutletUpsertBulk {
 	return u.Update(func(s *OutletUpsert) {
 		s.UpdateSupportsPickup()
+	})
+}
+
+// SetBookingDepositPercent sets the "booking_deposit_percent" field.
+func (u *OutletUpsertBulk) SetBookingDepositPercent(v int) *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.SetBookingDepositPercent(v)
+	})
+}
+
+// AddBookingDepositPercent adds v to the "booking_deposit_percent" field.
+func (u *OutletUpsertBulk) AddBookingDepositPercent(v int) *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.AddBookingDepositPercent(v)
+	})
+}
+
+// UpdateBookingDepositPercent sets the "booking_deposit_percent" field to the value that was provided on create.
+func (u *OutletUpsertBulk) UpdateBookingDepositPercent() *OutletUpsertBulk {
+	return u.Update(func(s *OutletUpsert) {
+		s.UpdateBookingDepositPercent()
 	})
 }
 

@@ -566,6 +566,75 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	return order, nil
 }
 
+// orderHasBooking reports whether the order contains any event-ticket or service-appointment
+// line (flagged by the storefront via per-line metadata is_ticket / is_service). Loads the
+// order's items if they aren't already populated.
+func (s *OrderService) orderHasBooking(ctx context.Context, order *Order) bool {
+	items := order.Items
+	if len(items) == 0 {
+		if loaded, err := s.repo.ListOrderItems(ctx, order.ID); err == nil {
+			items = loaded
+			order.Items = loaded
+		}
+	}
+	for _, it := range items {
+		if it.Metadata == nil {
+			continue
+		}
+		if b, _ := it.Metadata["is_ticket"].(bool); b {
+			return true
+		}
+		if b, _ := it.Metadata["is_service"].(bool); b {
+			return true
+		}
+	}
+	return false
+}
+
+// applyBookingDeposit returns the amount payable NOW. For a booking cart (event ticket / service
+// appointment) at an outlet with a configured deposit % > 0, that is the deposit
+// (round2(grand_total * pct/100)); the remaining balance is collected at the appointment. The
+// deposit/balance/full-amount and percent are stamped into order.metadata (and persisted) so the
+// storefront can show the split and downstream systems can reconcile. Any error or non-booking /
+// zero-deposit case falls through to the full grand total, so deposits never block a checkout.
+func (s *OrderService) applyBookingDeposit(ctx context.Context, order *Order) float64 {
+	full := order.GrandTotal
+	if full <= 0 || !s.orderHasBooking(ctx, order) {
+		return full
+	}
+	pct, err := s.repo.GetOutletBookingDepositPercent(ctx, order.TenantID, order.OutletID)
+	if err != nil {
+		s.logger.Warn("booking deposit: failed to read outlet deposit percent, charging full",
+			zap.String("order_id", order.ID.String()), zap.Error(err))
+		return full
+	}
+	if pct <= 0 || pct >= 100 {
+		return full // 0 = pay in full; >=100 is effectively full up front
+	}
+	deposit := round2(full * float64(pct) / 100.0)
+	if deposit <= 0 || deposit >= full {
+		return full
+	}
+	balance := round2(full - deposit)
+	if order.Metadata == nil {
+		order.Metadata = map[string]interface{}{}
+	}
+	order.Metadata["deposit_percent"] = pct
+	order.Metadata["deposit_amount"] = deposit
+	order.Metadata["balance_due"] = balance
+	order.Metadata["full_amount"] = full
+	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+		s.logger.Warn("booking deposit: failed to persist deposit metadata on order",
+			zap.String("order_id", order.ID.String()), zap.Error(err))
+	}
+	s.logger.Info("booking deposit applied",
+		zap.String("order_id", order.ID.String()),
+		zap.Int("deposit_percent", pct),
+		zap.Float64("deposit", deposit),
+		zap.Float64("balance_due", balance))
+	return deposit
+}
+
 // buildCheckoutResult creates a payment intent in treasury and returns a CheckoutResult.
 func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, customerEmail, customerPhone string) *CheckoutResult {
 	// Build line item breakdown (subtotal + fees + discounts = grand total)
@@ -590,18 +659,24 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 		}
 	}
 
+	// Booking deposits: for event-ticket / service-appointment carts the outlet may collect
+	// only a deposit % up front (the balance is settled at the appointment). payableAmount is
+	// the deposit when applicable, else the full grand total; deposit_amount/balance_due are
+	// stamped into order.metadata for the storefront + downstream reporting.
+	payableAmount := s.applyBookingDeposit(ctx, order)
+
 	result := &CheckoutResult{
 		OrderID:       order.ID,
 		OrderNumber:   order.OrderNumber,
-		Amount:        order.GrandTotal,
+		Amount:        payableAmount,
 		Currency:      order.Currency,
 		Status:        string(order.Status),
 		PaymentMethod: string(order.PaymentMethod),
 		LineItems:     lineItems,
 	}
 
-	// Create payment intent in treasury if the order has a non-zero total
-	if s.treasuryClient != nil && order.GrandTotal > 0 {
+	// Create payment intent in treasury if the payable amount is non-zero
+	if s.treasuryClient != nil && payableAmount > 0 {
 		// Pass line items as metadata for treasury invoicing and analytics
 		lineItemsForMeta := make([]map[string]interface{}, 0, len(lineItems))
 		for _, li := range lineItems {
@@ -617,7 +692,7 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 			ReferenceID:   payref.Build("ORD", "", order.TenantID, order.ID),
 			ReferenceType: "order",
 			OrderID:       order.ID,
-			Amount:        order.GrandTotal,
+			Amount:        payableAmount,
 			Currency:      order.Currency,
 			PaymentMethod: "pending",
 			SourceService: "ordering",
@@ -1415,6 +1490,11 @@ func (s *OrderService) updateOutletRating(ctx context.Context, tenantID, outletI
 // GetOutletRating retrieves the materialized rating aggregate for an outlet.
 func (s *OrderService) GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error) {
 	return s.repo.GetOutletRating(ctx, tenantID, outletID)
+}
+
+// SetOutletBookingDepositPercent sets the outlet's booking deposit % (caller validates 0-100).
+func (s *OrderService) SetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID, percent int) error {
+	return s.repo.SetOutletBookingDepositPercent(ctx, tenantID, outletID, percent)
 }
 
 // RefundOrder processes a full refund for an order.
