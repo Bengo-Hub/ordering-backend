@@ -43,6 +43,8 @@ const (
 	FieldUseCase = "use_case"
 	// FieldSupportsPickup holds the string denoting the supports_pickup field in the database.
 	FieldSupportsPickup = "supports_pickup"
+	// FieldBookingDepositPercent holds the string denoting the booking_deposit_percent field in the database.
+	FieldBookingDepositPercent = "booking_deposit_percent"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -88,6 +90,7 @@ var Columns = []string{
 	FieldImageURL,
 	FieldUseCase,
 	FieldSupportsPickup,
+	FieldBookingDepositPercent,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -112,6 +115,10 @@ var (
 	DefaultImageURL string
 	// DefaultSupportsPickup holds the default value on creation for the "supports_pickup" field.
 	DefaultSupportsPickup bool
+	// DefaultBookingDepositPercent holds the default value on creation for the "booking_deposit_percent" field.
+	DefaultBookingDepositPercent int
+	// BookingDepositPercentValidator is a validator for the "booking_deposit_percent" field. It is called by the builders before save.
+	BookingDepositPercentValidator func(int) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -195,6 +202,11 @@ func ByUseCase(opts ...sql.OrderTermOption) OrderOption {
 // BySupportsPickup orders the results by the supports_pickup field.
 func BySupportsPickup(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSupportsPickup, opts...).ToFunc()
+}
+
+// ByBookingDepositPercent orders the results by the booking_deposit_percent field.
+func ByBookingDepositPercent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBookingDepositPercent, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

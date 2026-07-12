@@ -48,6 +48,8 @@ type Outlet struct {
 	UseCase string `json:"use_case,omitempty"`
 	// Whether the outlet supports customer pickup
 	SupportsPickup bool `json:"supports_pickup,omitempty"`
+	// Deposit % charged now for booking checkouts (event tickets / service appointments); the balance is collected at the appointment. 0 = pay in full at booking.
+	BookingDepositPercent int `json:"booking_deposit_percent,omitempty"`
 	// active | inactive | closed
 	Status string `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -102,6 +104,8 @@ func (*Outlet) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case outlet.FieldLatitude, outlet.FieldLongitude:
 			values[i] = new(sql.NullFloat64)
+		case outlet.FieldBookingDepositPercent:
+			values[i] = new(sql.NullInt64)
 		case outlet.FieldName, outlet.FieldSlug, outlet.FieldDescription, outlet.FieldAddress, outlet.FieldPhone, outlet.FieldEmail, outlet.FieldLocation, outlet.FieldImageURL, outlet.FieldUseCase, outlet.FieldStatus:
 			values[i] = new(sql.NullString)
 		case outlet.FieldCreatedAt, outlet.FieldUpdatedAt:
@@ -217,6 +221,12 @@ func (_m *Outlet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.SupportsPickup = value.Bool
 			}
+		case outlet.FieldBookingDepositPercent:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field booking_deposit_percent", values[i])
+			} else if value.Valid {
+				_m.BookingDepositPercent = int(value.Int64)
+			}
 		case outlet.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -326,6 +336,9 @@ func (_m *Outlet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("supports_pickup=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SupportsPickup))
+	builder.WriteString(", ")
+	builder.WriteString("booking_deposit_percent=")
+	builder.WriteString(fmt.Sprintf("%v", _m.BookingDepositPercent))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

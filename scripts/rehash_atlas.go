@@ -1,60 +1,33 @@
 //go:build ignore
 
-// rehash_atlas.go recomputes atlas.sum for the migrations directory.
+// rehash_atlas.go recomputes atlas.sum for the migrations directory using atlas's
+// OWN canonical checksum algorithm (via the ariga.io/atlas library that is already a
+// project dependency). The previous hand-rolled sha256 implementation computed the
+// directory-total hash differently from atlas, so `atlas migrate` / the ent migrate
+// tool rejected the resulting atlas.sum with "checksum mismatch". Using the library
+// guarantees the sum matches what atlas validates against.
+//
 // Run from ordering-backend root: go run ./scripts/rehash_atlas.go
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
+
+	"ariga.io/atlas/sql/migrate"
 )
 
 func main() {
-	dir := "internal/ent/migrate/migrations"
-
-	entries, err := os.ReadDir(dir)
+	const dir = "internal/ent/migrate/migrations"
+	d, err := migrate.NewLocalDir(dir)
 	if err != nil {
-		fmt.Println("Error reading dir:", err)
-		os.Exit(1)
+		panic(err)
 	}
-
-	var lines []string
-	var fileHashes []string
-
-	// Sort entries by name (deterministic order)
-	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
-
-	for _, e := range entries {
-		if e.IsDir() || e.Name() == "atlas.sum" {
-			continue
-		}
-		data, err := os.ReadFile(filepath.Join(dir, e.Name()))
-		if err != nil {
-			fmt.Printf("Error reading %s: %v\n", e.Name(), err)
-			os.Exit(1)
-		}
-		h := sha256.Sum256(data)
-		hash := "h1:" + base64.StdEncoding.EncodeToString(h[:])
-		lines = append(lines, e.Name()+" "+hash)
-		fileHashes = append(fileHashes, hash)
-	}
-
-	// Compute overall hash (hash of all file hashes)
-	allHashes := strings.Join(fileHashes, "\n") + "\n"
-	overall := sha256.Sum256([]byte(allHashes))
-	overallHash := "h1:" + base64.StdEncoding.EncodeToString(overall[:])
-
-	// Write atlas.sum
-	content := overallHash + "\n" + strings.Join(lines, "\n") + "\n"
-	err = os.WriteFile(filepath.Join(dir, "atlas.sum"), []byte(content), 0644)
+	sum, err := d.Checksum()
 	if err != nil {
-		fmt.Println("Error writing atlas.sum:", err)
-		os.Exit(1)
+		panic(err)
 	}
-	fmt.Printf("atlas.sum written with %d migration files\n", len(lines))
+	if err := migrate.WriteSumFile(d, sum); err != nil {
+		panic(err)
+	}
+	fmt.Printf("atlas.sum rehashed (%d files) via atlas lib\n", len(sum))
 }

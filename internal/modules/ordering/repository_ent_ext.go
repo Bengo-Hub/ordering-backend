@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
@@ -30,6 +31,37 @@ func (r *EntRepository) GetOutletLocation(ctx context.Context, tenantID, outletI
 		return "", nil, nil, err
 	}
 	return o.Name, o.Latitude, o.Longitude, nil
+}
+
+// GetOutletBookingDepositPercent returns the outlet's booking deposit % (0 when the outlet
+// isn't found, so a missing outlet degrades to pay-in-full rather than erroring checkout).
+func (r *EntRepository) GetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID) (int, error) {
+	o, err := r.client.Outlet.Query().
+		Where(outlet.ID(outletID), outlet.TenantID(tenantID)).
+		Select(outlet.FieldBookingDepositPercent).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return o.BookingDepositPercent, nil
+}
+
+// SetOutletBookingDepositPercent updates the outlet's booking deposit % (0-100; caller validates).
+func (r *EntRepository) SetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID, percent int) error {
+	n, err := r.client.Outlet.Update().
+		Where(outlet.ID(outletID), outlet.TenantID(tenantID)).
+		SetBookingDepositPercent(percent).
+		Save(ctx)
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("outlet %s not found for tenant %s", outletID, tenantID)
+	}
+	return nil
 }
 
 // --- CustomerAddress Methods ---

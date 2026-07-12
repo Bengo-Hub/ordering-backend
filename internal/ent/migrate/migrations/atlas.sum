@@ -1,4 +1,4 @@
-h1:q/Dnq8MGDJ1QBLblJZvTqc/yxFDwKbeCj2BXDcoB3X8=
+h1:pnC62uL72gVETBlBmGJhWM2DnRx9bDuxQErubWZR0zw=
 00000000000000_placeholder.sql h1:eAvsggBsq1ssn/mrZysNWxXQEDwl2gD4K3Hjqr4EKxM=
 20260324210144_initial_schema.sql h1:9lcTtD9yAENqk9VVGJ9DlurXhqs0rxcNYwVSQrB45vc=
 20260330120000_add_payment_method_to_orders.sql h1:P9MOt4ruS1+lGgcvZz/BDrdE3a+s9GNPwtodOxpKhmo=
@@ -10,3 +10,4 @@ h1:q/Dnq8MGDJ1QBLblJZvTqc/yxFDwKbeCj2BXDcoB3X8=
 20260606130000_add_order_pod_code.sql h1:jhtJ9LRuaLQUGW37g4fKtk0RbF906mAni+9z9j64Q7E=
 20260615224014_add_backup_tracking.sql h1:+RQDNG//FTierMUTIVKcBcbcjJ7YA8XhxfIDrqVdRNM=
 20260616084501_add_backup_setting.sql h1:FEYFBL7KqXE5JEhJwVAA0lAlqUYp4r7sLULEOexRtEE=
+20260712132302_add_outlet_booking_deposit_percent.sql h1:bjRF0w3aClhJFGd//hqRUMJDDDnCJoWuir5R8Hahewk=

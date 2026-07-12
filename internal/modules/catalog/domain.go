@@ -126,6 +126,9 @@ type OutletSummary struct {
 	Status       string         `json:"status,omitempty"`
 	UseCase      string         `json:"useCase,omitempty"`
 	IsOpen       bool           `json:"isOpen"`
+	// BookingDepositPercent is the deposit % charged up front for event-ticket / service-
+	// appointment checkouts (0 = pay in full). The storefront uses it to show the deposit split.
+	BookingDepositPercent int `json:"bookingDepositPercent"`
 }
 
 // CatalogFilter defines filter options for listing merged catalog items.

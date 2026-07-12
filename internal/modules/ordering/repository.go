@@ -99,6 +99,10 @@ type Repository interface {
 
 	// Outlet operations
 	GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error)
+	// GetOutletBookingDepositPercent returns the outlet's booking deposit % (0-100, 0 when unset).
+	GetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID) (int, error)
+	// SetOutletBookingDepositPercent updates the outlet's booking deposit % (caller validates 0-100).
+	SetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID, percent int) error
 
 	// OutletRating operations
 	GetOutletRating(ctx context.Context, tenantID, outletID uuid.UUID) (*OutletRatingData, error)
