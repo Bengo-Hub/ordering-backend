@@ -74,35 +74,7 @@ func SubscriptionGate() func(http.Handler) http.Handler {
 // demo, service-charge) bypass; a tenant superuser does NOT (SEC-3 / auth-client v0.10.0).
 // Returns 403 with a structured JSON body on failure.
 func RequireFeature(featureCode string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := authclient.ClaimsFromContext(r.Context())
-			if !ok {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			if claims.IsGatingExempt() {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			if !claims.HasFeature(featureCode) {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusForbidden)
-				_ = json.NewEncoder(w).Encode(map[string]any{
-					"code":             "feature_not_available", // canonical discriminator read by frontends
-					"error":            "feature_not_available",
-					"required_feature": featureCode,
-					"upgrade":          true,
-					"upgrade_url":      upgradeURL,
-				})
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		})
-	}
+	return authclient.RequireFeatureCode(featureCode)
 }
 
 // CheckLimit returns true when currentValue is within the limit set for limitKey in the
