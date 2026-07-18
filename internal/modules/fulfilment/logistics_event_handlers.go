@@ -223,7 +223,7 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sh
 		deliveredData["amount_collected"] = amountCollected
 	}
 	if h.eventPublisher != nil {
-		deliveredEvent := events.NewEvent("ordering.order.delivered", tenantID, deliveredData)
+		deliveredEvent := events.NewEvent("ordering.order.delivered", orderID, tenantID, deliveredData)
 		_ = h.eventPublisher.Publish(ctx, "ordering.order.delivered", deliveredEvent)
 	}
 
@@ -386,7 +386,13 @@ func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *share
 	}
 
 	if h.eventPublisher != nil {
-		failedEvent := events.NewEvent("ordering.order.delivery_failed", tenantID, map[string]interface{}{
+		// Natural aggregate id: the order id when the reference parses, else a stable
+		// tenant-namespaced SHA1 of the raw reference.
+		aggID, aggErr := uuid.Parse(stripRefPrefix(orderIDStr))
+		if aggErr != nil {
+			aggID = uuid.NewSHA1(tenantID, []byte(orderIDStr))
+		}
+		failedEvent := events.NewEvent("ordering.order.delivery_failed", aggID, tenantID, map[string]interface{}{
 			"order_id":       orderIDStr,
 			"task_id":        taskIDStr,
 			"failure_reason": failureReason,

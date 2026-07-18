@@ -138,8 +138,22 @@ func (h *EventHandler) handleOrderReady(ctx context.Context, evt *sharedevents.E
 		return fmt.Errorf("failed to get delivery address: %w", err)
 	}
 
+	// Tenant slug: payload → envelope → local tenant projection. NEVER silently
+	// substitute the tenant UUID — a bogus slug propagated into the logistics task
+	// breaks downstream tenant resolution (the "stock not deducted" bug class).
 	tenantSlug, _ := evt.Payload["tenant_slug"].(string)
 	if tenantSlug == "" {
+		tenantSlug = evt.TenantSlug
+	}
+	if tenantSlug == "" {
+		if tenant, tErr := h.orderingRepo.GetTenantByID(ctx, tenantID); tErr == nil && tenant != nil {
+			tenantSlug = tenant.Slug
+		}
+	}
+	if tenantSlug == "" {
+		h.logger.Error("order.ready event carries no resolvable tenant slug; falling back to tenant id",
+			zap.String("tenant_id", tenantID.String()),
+			zap.String("order_id", orderID.String()))
 		tenantSlug = tenantID.String()
 	}
 

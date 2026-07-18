@@ -1405,7 +1405,7 @@ func (s *OrderService) applyRating(ctx context.Context, tenantID uuid.UUID, orde
 
 	// Publish order.rated event
 	if s.eventPublisher != nil {
-		evt := events.NewEvent("ordering.order.rated", tenantID, map[string]interface{}{
+		evt := events.NewEvent("ordering.order.rated", order.ID, tenantID, map[string]interface{}{
 			"order_id":     order.ID.String(),
 			"order_number": order.OrderNumber,
 			"customer_id":  customerID.String(),
@@ -2512,6 +2512,15 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 	// For COD orders, set the cash collection amount
 	if order.PaymentMethod == PaymentMethodCOD {
 		data.CashOnDelivery = order.GrandTotal
+	}
+
+	// Resolve the tenant slug (ctx first, local tenant projection as fallback) so the
+	// fulfilment consumer never has to substitute the tenant UUID for the slug when
+	// dispatching to logistics ("stock not deducted" / bad-slug bug class).
+	if slug := httpware.GetTenantSlug(ctx); slug != "" {
+		data.TenantSlug = slug
+	} else if tenant, tErr := s.repo.GetTenantByID(ctx, order.TenantID); tErr == nil && tenant != nil {
+		data.TenantSlug = tenant.Slug
 	}
 
 	// Add delivery address if available

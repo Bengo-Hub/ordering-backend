@@ -61,8 +61,8 @@ func (p *Publisher) publishViaOutbox(ctx context.Context, event *Event) error {
 type Event = eventslib.Event
 
 // splitSubject splits a canonical NATS subject "{aggregate_type}.{event_type}" into its
-// aggregate and event-type parts (e.g. "ordering.order.created" -> "ordering","order.created";
-// "cafe.payment.initiated" -> "cafe","payment.initiated"), per the shared-events convention.
+// aggregate and event-type parts (e.g. "ordering.order.created" -> "ordering","order.created"),
+// per the shared-events convention.
 func splitSubject(full string) (aggregate, eventType string) {
 	if idx := strings.Index(full, "."); idx >= 0 {
 		return full[:idx], full[idx+1:]
@@ -72,17 +72,19 @@ func splitSubject(full string) (aggregate, eventType string) {
 
 // NewEvent builds a shared-events envelope. fullType is the canonical subject
 // ({aggregate_type}.{event_type}); it is decomposed per the shared-events subject convention.
-func NewEvent(fullType string, tenantID uuid.UUID, data map[string]interface{}) *Event {
+// aggregateID is the event's NATURAL aggregate id (order id / payment-intent id / entity id)
+// — never a random UUID, so every event for the same aggregate correlates.
+func NewEvent(fullType string, aggregateID, tenantID uuid.UUID, data map[string]interface{}) *Event {
 	aggregate, eventType := splitSubject(fullType)
-	evt := eventslib.NewEvent(eventType, aggregate, uuid.New(), tenantID, data)
+	evt := eventslib.NewEvent(eventType, aggregate, aggregateID, tenantID, data)
 	evt.Metadata["source"] = "ordering-service"
 	evt.Metadata["correlation_id"] = uuid.New().String()
 	return evt
 }
 
 // NewEventWithSlug creates a new event including tenant_slug.
-func NewEventWithSlug(fullType string, tenantID uuid.UUID, tenantSlug string, data map[string]interface{}) *Event {
-	e := NewEvent(fullType, tenantID, data)
+func NewEventWithSlug(fullType string, aggregateID, tenantID uuid.UUID, tenantSlug string, data map[string]interface{}) *Event {
+	e := NewEvent(fullType, aggregateID, tenantID, data)
 	e.WithTenantSlug(tenantSlug)
 	return e
 }
@@ -154,7 +156,7 @@ type OrderCreatedData struct {
 
 // PublishOrderCreated publishes an order.created event.
 func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID, data OrderCreatedData) error {
-	event := NewEvent("ordering.order.created", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.created", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -191,7 +193,7 @@ type OrderStatusChangedData struct {
 
 // PublishOrderStatusChanged publishes an order.status.changed event.
 func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid.UUID, data OrderStatusChangedData) error {
-	event := NewEvent("ordering.order.status.changed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.status.changed", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":        data.OrderID.String(),
 		"order_number":    data.OrderNumber,
 		"customer_id":     data.CustomerID.String(),
@@ -229,6 +231,9 @@ type OrderReadyData struct {
 	CustomerPhone   string                   `json:"customer_phone,omitempty"`
 	Instructions    string                   `json:"instructions,omitempty"`
 	FulfillmentType string                   `json:"fulfillment_type,omitempty"`
+	// TenantSlug rides in the envelope + payload so event-driven consumers (fulfilment →
+	// logistics dispatch) never have to guess the slug from the tenant UUID.
+	TenantSlug string `json:"tenant_slug,omitempty"`
 }
 
 // PublishOrderReady publishes an order.ready event.
@@ -279,7 +284,12 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 		eventData["fulfillment_type"] = data.FulfillmentType
 	}
 
-	event := NewEvent("ordering.order.ready", tenantID, eventData)
+	// Carry the tenant slug (envelope + payload) — the fulfilment consumer needs it for
+	// logistics task creation, and event contexts can't resolve it from the request.
+	if data.TenantSlug != "" {
+		eventData["tenant_slug"] = data.TenantSlug
+	}
+	event := NewEventWithSlug("ordering.order.ready", data.OrderID, tenantID, data.TenantSlug, eventData)
 	return p.Publish(ctx, "ordering.order.ready", event)
 }
 
@@ -298,10 +308,10 @@ type OrderConfirmedData struct {
 	Items           []map[string]interface{} `json:"items"`
 }
 
-// PublishOrderConfirmed publishes an ordering.order.confirmed event. It keeps ordering's own
-// CloudEvents envelope (type/data), consistent with ordering.order.created.
+// PublishOrderConfirmed publishes an ordering.order.confirmed event (shared-events
+// envelope, consistent with ordering.order.created).
 func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUID, data OrderConfirmedData) error {
-	event := NewEvent("ordering.order.confirmed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.confirmed", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
 		"tenant_id":        tenantID.String(),
@@ -331,7 +341,7 @@ type OrderCancelledData struct {
 
 // PublishOrderCancelled publishes an order.cancelled event.
 func (p *Publisher) PublishOrderCancelled(ctx context.Context, tenantID uuid.UUID, data OrderCancelledData) error {
-	event := NewEvent("ordering.order.cancelled", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.cancelled", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -366,7 +376,7 @@ type OrderCompletedData struct {
 
 // PublishOrderCompleted publishes an order.completed event.
 func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUID, data OrderCompletedData) error {
-	event := NewEvent("ordering.order.completed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.completed", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -403,7 +413,7 @@ type OrderDeliveredData struct {
 
 // PublishOrderDelivered publishes an ordering.order.delivered event.
 func (p *Publisher) PublishOrderDelivered(ctx context.Context, tenantID uuid.UUID, data OrderDeliveredData) error {
-	event := NewEvent("ordering.order.delivered", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.delivered", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -456,7 +466,7 @@ func (p *Publisher) PublishOrderPaymentConfirmed(ctx context.Context, tenantID u
 			"metadata":   l.Metadata,
 		})
 	}
-	event := NewEvent("ordering.order.payment_confirmed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.payment_confirmed", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID,
@@ -484,7 +494,7 @@ type OrderRefundedData struct {
 
 // PublishOrderRefunded publishes an order.refunded event.
 func (p *Publisher) PublishOrderRefunded(ctx context.Context, tenantID uuid.UUID, data OrderRefundedData) error {
-	event := NewEvent("ordering.order.refunded", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.refunded", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -516,9 +526,11 @@ type PaymentInitiatedData struct {
 	Provider        string    `json:"provider"`
 }
 
-// PublishPaymentInitiated publishes a payment.initiated event.
+// PublishPaymentInitiated publishes a payment.initiated event. Aggregate is "ordering"
+// (subject ordering.payment.initiated): the legacy "cafe" aggregate had zero consumers
+// and fragmented the service's subject space.
 func (p *Publisher) PublishPaymentInitiated(ctx context.Context, tenantID uuid.UUID, data PaymentInitiatedData) error {
-	event := NewEvent("cafe.payment.initiated", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.payment.initiated", data.PaymentIntentID, tenantID, map[string]interface{}{
 		"payment_intent_id": data.PaymentIntentID.String(),
 		"order_id":          data.OrderID.String(),
 		"amount":            data.Amount,
@@ -526,7 +538,7 @@ func (p *Publisher) PublishPaymentInitiated(ctx context.Context, tenantID uuid.U
 		"provider":          data.Provider,
 	})
 
-	return p.Publish(ctx, "cafe.payment.initiated", event)
+	return p.Publish(ctx, "ordering.payment.initiated", event)
 }
 
 // PaymentCompletedData represents data for payment.completed event.
@@ -540,7 +552,7 @@ type PaymentCompletedData struct {
 
 // PublishPaymentCompleted publishes a payment.completed event.
 func (p *Publisher) PublishPaymentCompleted(ctx context.Context, tenantID uuid.UUID, data PaymentCompletedData) error {
-	event := NewEvent("cafe.payment.completed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.payment.completed", data.PaymentID, tenantID, map[string]interface{}{
 		"payment_id":         data.PaymentID.String(),
 		"order_id":           data.OrderID.String(),
 		"amount":             data.Amount,
@@ -548,7 +560,7 @@ func (p *Publisher) PublishPaymentCompleted(ctx context.Context, tenantID uuid.U
 		"provider_reference": data.ProviderReference,
 	})
 
-	return p.Publish(ctx, "cafe.payment.completed", event)
+	return p.Publish(ctx, "ordering.payment.completed", event)
 }
 
 // PaymentFailedData represents data for payment.failed event.
@@ -561,14 +573,14 @@ type PaymentFailedData struct {
 
 // PublishPaymentFailed publishes a payment.failed event.
 func (p *Publisher) PublishPaymentFailed(ctx context.Context, tenantID uuid.UUID, data PaymentFailedData) error {
-	event := NewEvent("cafe.payment.failed", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.payment.failed", data.PaymentIntentID, tenantID, map[string]interface{}{
 		"payment_intent_id": data.PaymentIntentID.String(),
 		"order_id":          data.OrderID.String(),
 		"error_code":        data.ErrorCode,
 		"error_message":     data.ErrorMessage,
 	})
 
-	return p.Publish(ctx, "cafe.payment.failed", event)
+	return p.Publish(ctx, "ordering.payment.failed", event)
 }
 
 // --- Loyalty Events ---
@@ -584,7 +596,7 @@ type LoyaltyPointsAwardedData struct {
 
 // PublishLoyaltyPointsAwarded publishes a loyalty.points_awarded event.
 func (p *Publisher) PublishLoyaltyPointsAwarded(ctx context.Context, tenantID uuid.UUID, data LoyaltyPointsAwardedData) error {
-	event := NewEvent("cafe.loyalty.points_awarded", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.loyalty.points_awarded", data.OrderID, tenantID, map[string]interface{}{
 		"user_id":      data.UserID.String(),
 		"order_id":     data.OrderID.String(),
 		"points":       data.Points,
@@ -592,7 +604,7 @@ func (p *Publisher) PublishLoyaltyPointsAwarded(ctx context.Context, tenantID uu
 		"reason":       data.Reason,
 	})
 
-	return p.Publish(ctx, "cafe.loyalty.points_awarded", event)
+	return p.Publish(ctx, "ordering.loyalty.points_awarded", event)
 }
 
 // --- Scheduled Order Events ---
@@ -613,7 +625,7 @@ type OrderScheduledData struct {
 
 // PublishOrderScheduled publishes an order.scheduled event (for logistics planning).
 func (p *Publisher) PublishOrderScheduled(ctx context.Context, tenantID uuid.UUID, data OrderScheduledData) error {
-	event := NewEvent("ordering.order.scheduled", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.order.scheduled", data.OrderID, tenantID, map[string]interface{}{
 		"order_id":       data.OrderID.String(),
 		"order_number":   data.OrderNumber,
 		"customer_id":    data.CustomerID.String(),
@@ -647,7 +659,7 @@ type CatalogUpdatedData struct {
 
 // PublishCatalogUpdated publishes a catalog.updated event (for POS sync).
 func (p *Publisher) PublishCatalogUpdated(ctx context.Context, tenantID uuid.UUID, data CatalogUpdatedData) error {
-	event := NewEvent("ordering.catalog.updated", tenantID, map[string]interface{}{
+	event := NewEvent("ordering.catalog.updated", data.EntityID, tenantID, map[string]interface{}{
 		"change_type": data.ChangeType,
 		"entity_type": data.EntityType,
 		"entity_id":   data.EntityID.String(),
@@ -704,7 +716,7 @@ func (p *Publisher) PublishOrderOutForDelivery(ctx context.Context, tenantID uui
 			"recipient_phone": data.CustomerPhone,
 		},
 	}
-	event := NewEvent("ordering.order.out_for_delivery", tenantID, eventData)
+	event := NewEvent("ordering.order.out_for_delivery", data.OrderID, tenantID, eventData)
 	return p.Publish(ctx, "ordering.order.out_for_delivery", event)
 }
 
@@ -733,7 +745,7 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 		"recipient_phone": data.CustomerPhone,
 	}
 
-	event := NewEvent("ordering.order.for_pickup", tenantID, eventData)
+	event := NewEvent("ordering.order.for_pickup", data.OrderID, tenantID, eventData)
 
 	return p.Publish(ctx, "ordering.order.for_pickup", event)
 }
