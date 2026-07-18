@@ -162,8 +162,11 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("inventory API error: %s - %s", e.Code, e.Message)
 }
 
-// headers returns common headers for requests.
-func (c *Client) headers(idempotencyKey string) map[string]string {
+// headers returns common headers for requests. tenantRef (slug or UUID) is sent as an
+// explicit tenant header: event-consumer call paths carry no tenant in the request
+// context, so the serviceclient's context propagation is inert there and inventory-api
+// must get the tenant from the header/path ("stock not deducted" bug class).
+func (c *Client) headers(tenantRef, idempotencyKey string) map[string]string {
 	h := map[string]string{
 		"Content-Type": "application/json",
 		"Accept":       "application/json",
@@ -171,6 +174,14 @@ func (c *Client) headers(idempotencyKey string) map[string]string {
 
 	if c.apiKey != "" {
 		h["X-API-Key"] = c.apiKey
+	}
+
+	if tenantRef != "" {
+		if _, err := uuid.Parse(tenantRef); err == nil {
+			h["X-Tenant-ID"] = tenantRef
+		} else {
+			h["X-Tenant-Slug"] = tenantRef
+		}
 	}
 
 	if idempotencyKey != "" {
@@ -193,7 +204,7 @@ func (c *Client) parseError(resp *serviceclient.Response) error {
 func (c *Client) GetStockAvailability(ctx context.Context, tenantSlug string, sku string) (*StockAvailability, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/items/%s", tenantSlug, url.PathEscape(sku))
 
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -218,7 +229,7 @@ func (c *Client) CheckBulkAvailability(ctx context.Context, tenantSlug string, s
 		"skus": skus,
 	}
 
-	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -239,7 +250,7 @@ func (c *Client) CheckBulkAvailability(ctx context.Context, tenantSlug string, s
 func (c *Client) CreateReservation(ctx context.Context, tenantSlug string, req ReservationRequest) (*ReservationResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/reservations", tenantSlug)
 
-	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(req.IdempotencyKey))
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(tenantSlug, req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -260,7 +271,7 @@ func (c *Client) CreateReservation(ctx context.Context, tenantSlug string, req R
 func (c *Client) GetReservation(ctx context.Context, tenantSlug string, reservationID uuid.UUID) (*ReservationResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/reservations/%s", tenantSlug, reservationID.String())
 
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -281,7 +292,7 @@ func (c *Client) GetReservation(ctx context.Context, tenantSlug string, reservat
 func (c *Client) GetReservationByOrderID(ctx context.Context, tenantSlug string, orderID uuid.UUID) (*ReservationResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/reservations?order_id=%s", tenantSlug, orderID.String())
 
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -307,7 +318,7 @@ func (c *Client) ReleaseReservation(ctx context.Context, tenantSlug string, rese
 	path := fmt.Sprintf("/v1/%s/inventory/reservations/%s/release", tenantSlug, reservationID.String())
 	reqBody := map[string]interface{}{"reason": reason}
 
-	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
+	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(tenantSlug, ""))
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
@@ -323,7 +334,7 @@ func (c *Client) ReleaseReservation(ctx context.Context, tenantSlug string, rese
 func (c *Client) ConsumeReservation(ctx context.Context, tenantSlug string, reservationID uuid.UUID) error {
 	path := fmt.Sprintf("/v1/%s/inventory/reservations/%s/consume", tenantSlug, reservationID.String())
 
-	resp, err := c.serviceClient.Post(ctx, path, nil, c.headers(""))
+	resp, err := c.serviceClient.Post(ctx, path, nil, c.headers(tenantSlug, ""))
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)
 	}
@@ -339,7 +350,7 @@ func (c *Client) ConsumeReservation(ctx context.Context, tenantSlug string, rese
 func (c *Client) RecordConsumption(ctx context.Context, tenantSlug string, req ConsumptionRequest) (*ConsumptionResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/consumption", tenantSlug)
 
-	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(req.IdempotencyKey))
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(tenantSlug, req.IdempotencyKey))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -360,7 +371,7 @@ func (c *Client) RecordConsumption(ctx context.Context, tenantSlug string, req C
 func (c *Client) GetRecipe(ctx context.Context, tenantSlug string, recipeID uuid.UUID) (*RecipeResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/recipes/%s", tenantSlug, recipeID.String())
 
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -381,7 +392,7 @@ func (c *Client) GetRecipe(ctx context.Context, tenantSlug string, recipeID uuid
 func (c *Client) GetRecipeBySKU(ctx context.Context, tenantSlug string, sku string) (*RecipeResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/recipes?sku=%s", tenantSlug, url.QueryEscape(sku))
 
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -473,7 +484,7 @@ type ItemResponse struct {
 // CreateItem creates a new item in inventory-api.
 func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateItemRequest) (*ItemResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/items", tenantSlug)
-	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(""))
+	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -509,7 +520,7 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter st
 	if categoryID != nil {
 		path += "&category_id=" + categoryID.String()
 	}
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, 0, fmt.Errorf("execute request: %w", err)
 	}
@@ -573,7 +584,7 @@ func (c *Client) ListCategories(ctx context.Context, tenantSlug string, hasItems
 	if hasItems {
 		path += "?has_items=true"
 	}
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -611,7 +622,7 @@ type BrandResponse struct {
 // inventory-api returns paginated: {"data": [...], "total": N}
 func (c *Client) ListBrands(ctx context.Context, tenantSlug string) ([]BrandResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/brands", tenantSlug)
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
@@ -684,7 +695,7 @@ func (c *Client) ListEvents(ctx context.Context, tenantSlug string, limit, page 
 		page = 1
 	}
 	path := fmt.Sprintf("/v1/%s/inventory/events?limit=%d&page=%d", tenantSlug, limit, page)
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, 0, fmt.Errorf("execute request: %w", err)
 	}
@@ -704,7 +715,7 @@ func (c *Client) ListEvents(ctx context.Context, tenantSlug string, limit, page 
 // GetEventAvailability fetches per-tier + total availability for an event.
 func (c *Client) GetEventAvailability(ctx context.Context, tenantSlug, eventID string) (*EventAvailability, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/events/%s/availability", tenantSlug, url.PathEscape(eventID))
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}

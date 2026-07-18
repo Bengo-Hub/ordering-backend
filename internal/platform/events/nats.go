@@ -41,10 +41,13 @@ func EnsureStream(ctx context.Context, nc *nats.Conn, cfg config.EventsConfig) e
 		return nil // stream exists
 	}
 
-	// Create stream with subjects matching all ordering event types
+	// Create stream with subjects matching all ordering event types. The legacy "cafe.>"
+	// binding was dropped: the cafe.* aggregate was renamed to ordering.* (zero consumers
+	// existed). The prod stream may still carry the extra binding harmlessly until a
+	// one-time `nats stream edit ordering`.
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:     cfg.StreamName, // "ordering"
-		Subjects: []string{"ordering.>", "cafe.>"},
+		Subjects: []string{"ordering.>"},
 		Replicas: 1,
 	})
 	if err != nil {
