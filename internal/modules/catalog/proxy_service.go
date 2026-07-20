@@ -109,6 +109,10 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	// Initialise non-nil so an empty result serializes as [] (not null → "couldn't load catalog").
 	merged := make([]MergedCatalogItem, 0, len(invItems))
 	for _, inv := range invItems {
+		// not_for_sale = purchasable-only stock (e.g. ingredients): never listed on the storefront.
+		if inv.NotForSale {
+			continue
+		}
 		override := overrideMap[inv.SKU] // nil when no override exists — mergeItem handles it
 		item := mergeItem(inv, override, favSet)
 
@@ -185,6 +189,12 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 		}
 	}
 	if invItem == nil {
+		return nil, ErrItemNotFound
+	}
+	// not_for_sale = purchasable-only stock (e.g. ingredients): hidden from the item detail
+	// AND from checkout — the cart service resolves items through this lookup, so a
+	// not-for-sale SKU can never be added to a cart either.
+	if invItem.NotForSale {
 		return nil, ErrItemNotFound
 	}
 
@@ -672,6 +682,15 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		} else {
 			item.IsAvailable = false
 		}
+	}
+
+	// Defence in depth: not_for_sale marks purchasable-only stock (e.g. ingredients).
+	// The list/detail paths already exclude such items entirely; if a merged item is
+	// ever built for one anyway, no override (not even a complimentary price-0 enable)
+	// may make it orderable.
+	if inv.NotForSale {
+		item.IsAvailable = false
+		item.IsComplimentary = false
 	}
 
 	_, item.IsFavorite = favSet[inv.SKU]

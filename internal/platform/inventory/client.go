@@ -444,6 +444,9 @@ type ItemResponse struct {
 	Description    string                `json:"description,omitempty"`
 	Type           string                `json:"type"`
 	IsActive       bool                  `json:"is_active"`
+	// NotForSale marks purchasable-only stock (e.g. ingredients bought for production):
+	// such items must NEVER surface on any sales/storefront surface.
+	NotForSale bool `json:"not_for_sale"`
 	ImageURL       string                `json:"image_url,omitempty"`
 	CategoryID     *uuid.UUID            `json:"category_id,omitempty"`
 	CategoryName   string                `json:"category_name,omitempty"`
