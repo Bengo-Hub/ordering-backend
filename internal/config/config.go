@@ -58,10 +58,10 @@ type GoogleConfig struct {
 	OAuthClientID     string `envconfig:"GOOGLE_OAUTH_CLIENT_ID"`
 	OAuthClientSecret string `envconfig:"GOOGLE_OAUTH_CLIENT_SECRET"`
 	// OAuthRedirectURL must exactly match a redirect URI registered on the OAuth client,
-	// e.g. https://orderingapi.codevertexitsolutions.com/api/v1/{tenant}/integrations/google/callback
+	// e.g. https://orderingapi.codevertexafrica.com/api/v1/{tenant}/integrations/google/callback
 	OAuthRedirectURL string `envconfig:"GOOGLE_OAUTH_REDIRECT_URL"`
 	// FrontendIntegrationsURL is where the callback redirects after storing tokens.
-	FrontendIntegrationsURL string `envconfig:"GOOGLE_FRONTEND_INTEGRATIONS_URL" default:"https://ordersapp.codevertexitsolutions.com/admin/integrations"`
+	FrontendIntegrationsURL string `envconfig:"GOOGLE_FRONTEND_INTEGRATIONS_URL" default:"https://ordering.codevertexafrica.com/admin/integrations"`
 	// TokenEncryptionKey documents the env var used to encrypt OAuth tokens at rest.
 	// The key is read directly in the googlebusiness module (GOOGLE_TOKEN_ENCRYPTION_KEY);
 	// this field is informational so it appears in config dumps.
@@ -73,7 +73,7 @@ type GoogleConfig struct {
 type MediaConfig struct {
 	// Root is the filesystem path for uploaded and local media (menu images, avatars). Empty disables local file serving.
 	Root string `envconfig:"MEDIA_ROOT" default:"./media"`
-	// URLBase is the base URL for serving media (e.g. https://orderingapi.codevertexitsolutions.com/media). Empty means relative /media.
+	// URLBase is the base URL for serving media (e.g. https://orderingapi.codevertexafrica.com/media). Empty means relative /media.
 	URLBase string `envconfig:"MEDIA_URL_BASE"`
 }
 
@@ -90,7 +90,7 @@ type HTTPConfig struct {
 	WriteTimeout time.Duration `envconfig:"HTTP_WRITE_TIMEOUT" default:"15s"`
 	IdleTimeout  time.Duration `envconfig:"HTTP_IDLE_TIMEOUT" default:"60s"`
 	// Browser origins that may call this API (frontends). Not the API host itself.
-	AllowedOrigins []string `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordersapp.codevertexitsolutions.com,https://theurbanloftcafe.com,https://pos.codevertexitsolutions.com,https://accounts.codevertexitsolutions.com,https://notifications.codevertexitsolutions.com,http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"`
+	AllowedOrigins []string `envconfig:"HTTP_ALLOWED_ORIGINS" default:"https://ordering.codevertexafrica.com,https://theurbanloftcafe.com,https://pos.codevertexafrica.com,https://accounts.codevertexafrica.com,https://notifications.codevertexafrica.com,http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"`
 }
 
 type PostgresConfig struct {
@@ -127,11 +127,11 @@ type TelemetryConfig struct {
 }
 
 type AuthConfig struct {
-	// Auth-service SSO integration (Production: https://sso.codevertexitsolutions.com/)
-	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://sso.codevertexitsolutions.com"`
-	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://sso.codevertexitsolutions.com"`
+	// Auth-service SSO integration (Production: https://sso.codevertexafrica.com/)
+	ServiceURL          string        `envconfig:"AUTH_SERVICE_URL" default:"https://sso.codevertexafrica.com"`
+	Issuer              string        `envconfig:"AUTH_ISSUER" default:"https://sso.codevertexafrica.com"`
 	Audience            string        `envconfig:"AUTH_AUDIENCE" default:"codevertex"`
-	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"`
+	JWKSUrl             string        `envconfig:"AUTH_JWKS_URL" default:"https://sso.codevertexafrica.com/api/v1/.well-known/jwks.json"`
 	JWKSCacheTTL        time.Duration `envconfig:"AUTH_JWKS_CACHE_TTL" default:"3600s"`
 	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
 	EnableAPIKeyAuth    bool          `envconfig:"AUTH_ENABLE_API_KEY_AUTH" default:"true"`
@@ -144,7 +144,7 @@ type AuthConfig struct {
 	RefreshTokenTTL    time.Duration `envconfig:"AUTH_REFRESH_TOKEN_TTL" default:"720h"`
 	GoogleClientID     string        `envconfig:"AUTH_GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string        `envconfig:"AUTH_GOOGLE_CLIENT_SECRET"`
-	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"https://ordersapp.codevertexitsolutions.com/auth/callback"`
+	GoogleRedirectBase string        `envconfig:"AUTH_GOOGLE_REDIRECT_BASE" default:"https://ordering.codevertexafrica.com/auth/callback"`
 	TwoFactorIssuer    string        `envconfig:"AUTH_TWO_FACTOR_ISSUER" default:"Ordering Platform"`
 }
 
@@ -206,13 +206,13 @@ type MarketflowConfig struct {
 // truth for loyalty balances (keyed on tenant + customer_phone); ordering mirrors earn/redeem to
 // it. APIKey is the shared INTERNAL_SERVICE_KEY; when empty the client is disabled (no-op).
 type POSConfig struct {
-	ServiceURL string `envconfig:"POS_API_URL" default:"https://posapi.codevertexitsolutions.com"`
+	ServiceURL string `envconfig:"POS_API_URL" default:"https://posapi.codevertexafrica.com"`
 	APIKey     string `envconfig:"INTERNAL_SERVICE_KEY"`
 }
 
 type SupersetConfig struct {
 	// Superset service URL
-	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexitsolutions.com"`
+	BaseURL        string        `envconfig:"SUPERSET_BASE_URL" default:"https://superset.codevertexafrica.com"`
 	AdminUsername  string        `envconfig:"SUPERSET_ADMIN_USERNAME" default:"admin"`
 	AdminPassword  string        `envconfig:"SUPERSET_ADMIN_PASSWORD"`
 	APIVersion     string        `envconfig:"SUPERSET_API_VERSION" default:"v1"`

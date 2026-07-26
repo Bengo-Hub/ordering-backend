@@ -6,23 +6,23 @@ This module contains configuration and base classes for E2E testing
 the Codevertex microservices ecosystem.
 
 Production Domains (from devops-k8s values.yaml audit):
-- Auth API: sso.codevertexitsolutions.com
-- Auth UI: accounts.codevertexitsolutions.com
-- Ordering API: orderingapi.codevertexitsolutions.com
-- Ordering UI: ordersapp.codevertexitsolutions.com (also ordersapp.codevertexitsolutions.com)
-- Treasury API: booksapi.codevertexitsolutions.com
-- Treasury UI: books.codevertexitsolutions.com
-- Subscription API: pricingapi.codevertexitsolutions.com
-- Subscription UI: subscriptions.codevertexitsolutions.com
-- Logistics API: logisticsapi.codevertexitsolutions.com
-- Logistics UI: logistics.codevertexitsolutions.com
-- Rider App: riderapp.codevertexitsolutions.com
-- Inventory API: inventoryapi.codevertexitsolutions.com
-- Inventory UI: inventory.codevertexitsolutions.com
-- POS API: posapi.codevertexitsolutions.com
-- POS UI: pos.codevertexitsolutions.com
-- Notifications API: notificationsapi.codevertexitsolutions.com
-- Notifications UI: notifications.codevertexitsolutions.com
+- Auth API: sso.codevertexafrica.com
+- Auth UI: accounts.codevertexafrica.com
+- Ordering API: orderingapi.codevertexafrica.com
+- Ordering UI: ordering.codevertexafrica.com (also ordering.codevertexafrica.com)
+- Treasury API: booksapi.codevertexafrica.com
+- Treasury UI: books.codevertexafrica.com
+- Subscription API: pricingapi.codevertexafrica.com
+- Subscription UI: subscriptions.codevertexafrica.com
+- Logistics API: logisticsapi.codevertexafrica.com
+- Logistics UI: logistics.codevertexafrica.com
+- Rider App: riderapp.codevertexafrica.com
+- Inventory API: inventoryapi.codevertexafrica.com
+- Inventory UI: inventory.codevertexafrica.com
+- POS API: posapi.codevertexafrica.com
+- POS UI: pos.codevertexafrica.com
+- Notifications API: notificationsapi.codevertexafrica.com
+- Notifications UI: notifications.codevertexafrica.com
 - Cafe Website: theurbanloftcafe.com
 
 Usage:
@@ -86,38 +86,38 @@ class ServiceEndpoints:
         """Get base URLs for all services."""
         return {
             # Auth Service
-            "auth_api": "https://sso.codevertexitsolutions.com",
-            "auth_ui": "https://accounts.codevertexitsolutions.com",
+            "auth_api": "https://sso.codevertexafrica.com",
+            "auth_ui": "https://accounts.codevertexafrica.com",
             
             # Ordering Service
-            "ordering_api": "https://orderingapi.codevertexitsolutions.com",
-            "ordering_ui": "https://ordersapp.codevertexitsolutions.com",
+            "ordering_api": "https://orderingapi.codevertexafrica.com",
+            "ordering_ui": "https://ordering.codevertexafrica.com",
             
             # Treasury Service
-            "treasury_api": "https://booksapi.codevertexitsolutions.com",
-            "treasury_ui": "https://books.codevertexitsolutions.com",
+            "treasury_api": "https://booksapi.codevertexafrica.com",
+            "treasury_ui": "https://books.codevertexafrica.com",
             
             # Subscription Service
-            "subscription_api": "https://pricingapi.codevertexitsolutions.com",
-            "subscription_ui": "https://subscriptions.codevertexitsolutions.com",
+            "subscription_api": "https://pricingapi.codevertexafrica.com",
+            "subscription_ui": "https://subscriptions.codevertexafrica.com",
             
             # Logistics Service
-            "logistics_api": "https://logisticsapi.codevertexitsolutions.com",
-            "logistics_ui": "https://logistics.codevertexitsolutions.com",
+            "logistics_api": "https://logisticsapi.codevertexafrica.com",
+            "logistics_ui": "https://logistics.codevertexafrica.com",
             # Rider App
-            "rider_app": "https://riderapp.codevertexitsolutions.com",
+            "rider_app": "https://riderapp.codevertexafrica.com",
             
             # Inventory Service
-            "inventory_api": "https://inventoryapi.codevertexitsolutions.com",
-            "inventory_ui": "https://inventory.codevertexitsolutions.com",
+            "inventory_api": "https://inventoryapi.codevertexafrica.com",
+            "inventory_ui": "https://inventory.codevertexafrica.com",
             
             # POS Service
-            "pos_api": "https://posapi.codevertexitsolutions.com",
-            "pos_ui": "https://pos.codevertexitsolutions.com",
+            "pos_api": "https://posapi.codevertexafrica.com",
+            "pos_ui": "https://pos.codevertexafrica.com",
             
             # Notifications Service
-            "notifications_api": "https://notificationsapi.codevertexitsolutions.com",
-            "notifications_ui": "https://notifications.codevertexitsolutions.com",
+            "notifications_api": "https://notificationsapi.codevertexafrica.com",
+            "notifications_ui": "https://notifications.codevertexafrica.com",
             
             # Cafe Website
             "cafe_website": "https://theurbanloftcafe.com",
