@@ -104,7 +104,7 @@ func TestService_SyncUserFromAuthService(t *testing.T) {
 			logger := zap.NewNop()
 
 			authCfg := config.AuthConfig{
-				ServiceURL:        "https://sso.codevertexitsolutions.com",
+				ServiceURL:        "https://sso.codevertexafrica.com",
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
 			}
 

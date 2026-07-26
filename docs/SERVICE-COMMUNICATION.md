@@ -683,7 +683,7 @@ NOTIFICATIONS_SERVICE_URL=http://notifications-service.notifications.svc.cluster
 EVENTS_NATS_URL=nats://nats.messaging.svc.cluster.local:4222
 
 # External URLs (public)
-AUTH_SERVICE_PUBLIC_URL=https://sso.codevertexitsolutions.com
+AUTH_SERVICE_PUBLIC_URL=https://sso.codevertexafrica.com
 ```
 
 ### Health Checks

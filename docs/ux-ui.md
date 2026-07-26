@@ -2,7 +2,7 @@
 
 **Last Updated**: March 6, 2026
 
-This document defines the API patterns that frontend consumers (ordering-frontend, cafe-website, POS) must follow when integrating with `orderingapi.codevertexitsolutions.com`.
+This document defines the API patterns that frontend consumers (ordering-frontend, cafe-website, POS) must follow when integrating with `orderingapi.codevertexafrica.com`.
 
 ---
 
@@ -26,9 +26,9 @@ The default tenant slug for MVP is `urban-loft`. Frontends must read the slug fr
 All auth operations proxy through the ordering backend to auth-service:
 
 ```
-POST /v1/{tenant}/auth/login    → proxies to sso.codevertexitsolutions.com
-POST /v1/{tenant}/auth/register → proxies to sso.codevertexitsolutions.com
-POST /v1/{tenant}/auth/refresh  → proxies to sso.codevertexitsolutions.com
+POST /v1/{tenant}/auth/login    → proxies to sso.codevertexafrica.com
+POST /v1/{tenant}/auth/register → proxies to sso.codevertexafrica.com
+POST /v1/{tenant}/auth/refresh  → proxies to sso.codevertexafrica.com
 ```
 
 Frontends receive `{ access_token, refresh_token, session_id, tenant, user }` and must:

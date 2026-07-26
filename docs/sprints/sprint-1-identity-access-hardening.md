@@ -48,7 +48,7 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 **Acceptance Criteria**:
 - [x] User entities persisted via Ent repositories
-- [x] **Auth-Service Integration**: All login/registration requests proxy to auth-service (`https://sso.codevertexitsolutions.com/`)
+- [x] **Auth-Service Integration**: All login/registration requests proxy to auth-service (`https://sso.codevertexafrica.com/`)
 - [x] **User Sync**: `auth_service_user_id` field added to user schema, user sync via events (`internal/modules/identity/events.go`)
 - [x] **Superuser Handling**: Superuser detection from JWT claims with RBAC bypass
 - [x] Session data managed by auth-service (no local session tables)
@@ -231,7 +231,7 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 - **Event**: `cafe.invitation.accepted` - Notify inviter
 
 ### Auth Service
-- **Production URL**: `https://sso.codevertexitsolutions.com/`
+- **Production URL**: `https://sso.codevertexafrica.com/`
 - **Login Proxy**: All login requests proxy to `POST /api/v1/auth/login` with `{email, password, tenant_slug}`
 - **Registration Proxy**: All registration requests proxy to `POST /api/v1/auth/register` with `{email, password, tenant_slug, profile}`
 - **User Sync**: Consume `auth.user.created`, `auth.user.updated`, `auth.user.deactivated` events
@@ -271,7 +271,7 @@ Sprint 1 focuses on hardening identity and access management by persisting ident
 
 **Completed:**
 - User and session persistence via Ent ORM
-- ✅ **Auth-Service Login Integration**: Login/registration proxies to auth-service (`https://sso.codevertexitsolutions.com/`)
+- ✅ **Auth-Service Login Integration**: Login/registration proxies to auth-service (`https://sso.codevertexafrica.com/`)
 - ✅ **JWT Token Validation**: Token validation via auth-service JWKS using `shared/auth-client` library
 - ✅ **User Synchronization**: `auth_service_user_id` field added to user schema, user sync on login implemented
 - ✅ **Tenant Slug Handling**: Login/registration requires `tenant_slug` parameter

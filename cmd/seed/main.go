@@ -550,7 +550,7 @@ func seedPlatformAdminForCodevertex(ctx context.Context, client *ent.Client, cod
 	}
 	email := os.Getenv("SEED_PLATFORM_ADMIN_EMAIL")
 	if email == "" {
-		email = "admin@codevertexitsolutions.com"
+		email = "admin@codevertexafrica.com"
 	}
 
 	tx, err := client.Tx(ctx)

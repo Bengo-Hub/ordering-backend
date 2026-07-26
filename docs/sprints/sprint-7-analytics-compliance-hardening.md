@@ -21,7 +21,7 @@
 | Performance optimization | ✅ Complete | Database indexes, connection pooling, Redis caching service |
 | Security hardening | ✅ Complete | Rate limiting, security headers, input validation middleware |
 | Superset integration tests | ✅ Complete | Comprehensive unit tests for client and service |
-| Superset URL configuration | ✅ Complete | Updated to production URL (https://superset.codevertexitsolutions.com) |
+| Superset URL configuration | ✅ Complete | Updated to production URL (https://superset.codevertexafrica.com) |
 
 ---
 
@@ -329,7 +329,7 @@ Sprint 7 focuses on building analytics and reporting capabilities, implementing 
   - [x] Request size limiting
   - [x] Tenant ID format validation
 - [x] Superset integration tests (unit tests for client and service with 100% coverage)
-- [x] Superset production URL configuration (https://superset.codevertexitsolutions.com)
+- [x] Superset production URL configuration (https://superset.codevertexafrica.com)
 - [ ] Subscription invoicing hardening
 - [ ] Penetration testing report
 - [ ] Integration tests (compliance workflow E2E tests)
