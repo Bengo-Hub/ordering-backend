@@ -43,10 +43,10 @@ Sprint 8 focuses on production deployment, chaos engineering drills, documentati
 - [x] `internal/http/router/router.go` - Uses configurable AllowedOrigins from config
 
 **Production Origins Configured**:
-- `https://ordersapp.codevertexitsolutions.com`
+- `https://ordering.codevertexafrica.com`
 - `https://theurbanloftcafe.com`
-- `https://pos.codevertexitsolutions.com`
-- `https://accounts.codevertexitsolutions.com`
+- `https://pos.codevertexafrica.com`
+- `https://accounts.codevertexafrica.com`
 
 ### CRITICAL-3: Implement Subscription Feature Gating
 **Priority**: HIGH - Premium features not protected

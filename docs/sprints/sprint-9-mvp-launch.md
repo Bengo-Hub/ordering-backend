@@ -12,7 +12,7 @@
 
 ## Hard Deadline Constraints
 
-- **March 27**: Public launch of `ordersapp.codevertexitsolutions.com` and `orderingapi.codevertexitsolutions.com`
+- **March 27**: Public launch of `ordering.codevertexafrica.com` and `orderingapi.codevertexafrica.com`
 - **Tenant**: `urban-loft` only
 - **Outlet**: Busia only (remove or deactivate all mock outlets including Kiambu)
 - **Scope**: Customer ordering flow only. Admin/staff dashboards are best-effort.
@@ -113,7 +113,7 @@ Specific backend tasks:
 **Priority**: P1  
 **Owner**: Backend
 
-- [x] Verify CORS allows `https://ordersapp.codevertexitsolutions.com`
+- [x] Verify CORS allows `https://ordering.codevertexafrica.com`
 - [x] Verify CORS allows `https://theurbanloftcafe.com`
 - [ ] Test preflight requests from browser (OPTIONS)
 - [ ] Verify `X-Request-ID` propagation through all handlers

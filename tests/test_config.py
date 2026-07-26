@@ -13,14 +13,14 @@ class TestConfig:
     """Configuration for ordering service E2E tests."""
     
     # Production API URLs (with /api/v1 path prefix for ordering-backend)
-    API_BASE_URL: str = "https://orderingapi.codevertexitsolutions.com/api/v1"
-    AUTH_API_URL: str = "https://sso.codevertexitsolutions.com"
-    TREASURY_API_URL: str = "https://booksapi.codevertexitsolutions.com"
-    LOGISTICS_API_URL: str = "https://logisticsapi.codevertexitsolutions.com"
-    INVENTORY_API_URL: str = "https://inventoryapi.codevertexitsolutions.com"
+    API_BASE_URL: str = "https://orderingapi.codevertexafrica.com/api/v1"
+    AUTH_API_URL: str = "https://sso.codevertexafrica.com"
+    TREASURY_API_URL: str = "https://booksapi.codevertexafrica.com"
+    LOGISTICS_API_URL: str = "https://logisticsapi.codevertexafrica.com"
+    INVENTORY_API_URL: str = "https://inventoryapi.codevertexafrica.com"
     
     # Frontend URL
-    FRONTEND_URL: str = "https://ordersapp.codevertexitsolutions.com"
+    FRONTEND_URL: str = "https://ordering.codevertexafrica.com"
     
     # Test tenant
     TENANT_SLUG: str = "urban-loft"
@@ -46,10 +46,10 @@ class TestConfig:
     PAYMENT_MAX_POLL_ATTEMPTS: int = 40
     
     # Auth endpoints
-    AUTH_TOKEN_URL: str = "https://sso.codevertexitsolutions.com/api/v1/token"
-    AUTH_ME_URL: str = "https://sso.codevertexitsolutions.com/api/v1/auth/me"
-    AUTH_JWKS_URL: str = "https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json"
-    AUTH_LOGIN_URL: str = "https://sso.codevertexitsolutions.com/api/v1/auth/login"
+    AUTH_TOKEN_URL: str = "https://sso.codevertexafrica.com/api/v1/token"
+    AUTH_ME_URL: str = "https://sso.codevertexafrica.com/api/v1/auth/me"
+    AUTH_JWKS_URL: str = "https://sso.codevertexafrica.com/api/v1/.well-known/jwks.json"
+    AUTH_LOGIN_URL: str = "https://sso.codevertexafrica.com/api/v1/auth/login"
     
     # Ordering API endpoints (from internal/http/handlers/catalog/handler.go)
     # Public menu endpoints (no auth required)
