@@ -20,7 +20,7 @@ import (
 )
 
 // DefaultBaseURL is the production pos-api host, used when POS_API_URL is unset.
-const DefaultBaseURL = "https://posapi.codevertexitsolutions.com"
+const DefaultBaseURL = "https://posapi.codevertexafrica.com"
 
 // Client calls pos-api's /api/v1/s2s/{tenant}/loyalty/* endpoints with the shared
 // INTERNAL_SERVICE_KEY sent as the X-API-Key header.

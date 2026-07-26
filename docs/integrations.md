@@ -89,7 +89,7 @@ This document provides detailed integration information for all external service
 **Production (Kubernetes)**
 - Set `ORDERING_MEDIA_ROOT=/media` and mount a PVC at `/media` (see devops-k8s `persistence` in ordering-backend values).
 - Init container creates `.../menu`, `.../products`, etc., and sets permissions to 775; app runs as UID 1000 with `fsGroup: 1000` so the process can read/write the volume.
-- Uploaded menu images or assets can be stored under `/media/menu` and referenced by full URL (e.g. `https://orderingapi.codevertexitsolutions.com/media/menu/xyz.jpg`) or set `ORDERING_MEDIA_URL_BASE` for absolute URLs in API responses.
+- Uploaded menu images or assets can be stored under `/media/menu` and referenced by full URL (e.g. `https://orderingapi.codevertexafrica.com/media/menu/xyz.jpg`) or set `ORDERING_MEDIA_URL_BASE` for absolute URLs in API responses.
 
 **Ingress**
 - Ensure ingress allows `proxy-body-size` and routing for `/media/*` so uploads and static media are served correctly.
@@ -105,7 +105,7 @@ This document provides detailed integration information for all external service
 
 **Integration Type**: OAuth2/OIDC + Events + REST + Service-to-Service Auth
 
-**Production URL**: `https://sso.codevertexitsolutions.com/`
+**Production URL**: `https://sso.codevertexafrica.com/`
 
 **Default Tenant**: The ordering service uses `urban-cafe` as the default tenant slug. All users created without a custom `tenant_slug` will be assigned to the `urban-cafe` tenant. The tenant is created with slug `urban-cafe` during seeding.
 
@@ -120,11 +120,11 @@ This document provides detailed integration information for all external service
 
 **Architecture**:
 - **Authentication Flow**: All login/registration requests proxy to auth-service endpoints
-  - Login: `POST https://sso.codevertexitsolutions.com/api/v1/auth/login` with `{email, password, tenant_slug}`
-  - Registration: `POST https://sso.codevertexitsolutions.com/api/v1/auth/register` with `{email, password, tenant_slug, profile}`
+  - Login: `POST https://sso.codevertexafrica.com/api/v1/auth/login` with `{email, password, tenant_slug}`
+  - Registration: `POST https://sso.codevertexafrica.com/api/v1/auth/register` with `{email, password, tenant_slug, profile}`
   - Returns: `{access_token, refresh_token, session_id, tenant, user}` from auth-service
 - **JWT Validation**: Uses `shared/auth-client` library for token validation
-  - JWKS endpoint: `https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json`
+  - JWKS endpoint: `https://sso.codevertexafrica.com/api/v1/.well-known/jwks.json`
   - JWKS cache with configurable TTL and refresh interval
   - All protected `/api/v1` routes require valid Bearer tokens from auth-service
 - **User Sync**: Local user table stores `auth_service_user_id` reference
@@ -154,8 +154,8 @@ This document provides detailed integration information for all external service
 **Events Published**: None (auth-service is publisher)
 
 **Configuration**:
-- Auth-service base URL: `AUTH_SERVICE_URL=https://sso.codevertexitsolutions.com` (environment variable)
-- JWKS endpoint: `https://sso.codevertexitsolutions.com/api/v1/.well-known/jwks.json`
+- Auth-service base URL: `AUTH_SERVICE_URL=https://sso.codevertexafrica.com` (environment variable)
+- JWKS endpoint: `https://sso.codevertexafrica.com/api/v1/.well-known/jwks.json`
 - Issuer: `https://auth.bengobox.local` (from JWT claims, may need update)
 - Audience: `codevertex` (from JWT claims)
 - JWKS cache TTL: `AUTH_JWKS_CACHE_TTL=3600s` (default)
@@ -321,7 +321,7 @@ This document provides detailed integration information for all external service
        - Logistics-service creates rider user in auth-service (if not exists) and stores rider profile
        - Returns `rider_id` which ordering-backend stores as reference in `order_assignments`
      - **Option B - UI Redirect**: Redirect user to logistics-service UI for self-onboarding:
-       - Redirect to: `https://logistics.codevertexitsolutions.com/{tenant_slug}/riders/onboard?return_url={cafe_url}`
+       - Redirect to: `https://logistics.codevertexafrica.com/{tenant_slug}/riders/onboard?return_url={cafe_url}`
        - User authenticates with existing auth-service credentials (SSO)
        - User completes rider onboarding in logistics-service UI
        - Logistics-service redirects back to cafe service with `rider_id` in query params
@@ -478,8 +478,8 @@ When a hospitality order (dine-in or pickup) placed via ordering-backend transit
 **Purpose**: Geocoding, distance matrix, route ETA, map tile rendering
 
 **Architecture**: All mapping and routing is handled by the self-hosted stack, replacing Google Maps / Mapbox:
-- **Routing engine**: Valhalla at `https://routing.codevertexitsolutions.com` (internal: `http://valhalla.logistics.svc.cluster.local:8002`)
-- **Map tiles**: TileServer-GL at `https://tiles.codevertexitsolutions.com` (internal: `http://tileserver.logistics.svc.cluster.local:8080`)
+- **Routing engine**: Valhalla at `https://routing.codevertexafrica.com` (internal: `http://valhalla.logistics.svc.cluster.local:8002`)
+- **Map tiles**: TileServer-GL at `https://tiles.codevertexafrica.com` (internal: `http://tileserver.logistics.svc.cluster.local:8080`)
 - **Frontend library**: `@bengo-hub/maps` (MapLibre GL JS wrapper, shared NPM package)
 - **Data source**: OpenStreetMap Kenya extract from Geofabrik, auto-refreshed weekly
 

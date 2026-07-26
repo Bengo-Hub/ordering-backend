@@ -105,7 +105,7 @@
 **Default Tenant**: The cafe service uses `urban-cafe` as the default tenant slug. All users created without a custom tenant_slug will be assigned to the `urban-cafe` tenant. The tenant is created with slug `urban-cafe` during seeding.
 
 **Integration Points**:
-- **auth-service** (Production: `https://sso.codevertexitsolutions.com/`):
+- **auth-service** (Production: `https://sso.codevertexafrica.com/`):
   - **Authentication**: All login/registration requests proxy to auth-service `/api/v1/auth/login` and `/api/v1/auth/register`
   - **Default Tenant**: If `tenant_slug` is not provided in login/registration requests, defaults to `urban-cafe`
   - **JWT Validation**: Token validation via JWKS (`/api/v1/.well-known/jwks.json`) using `shared/auth-client` library
@@ -332,7 +332,7 @@
 - TLS everywhere
 - Secrets via Vault/Parameter Store
 - Rate limiting & anomaly detection middleware
-- **Authentication**: All authentication delegated to auth-service (`https://sso.codevertexitsolutions.com/`)
+- **Authentication**: All authentication delegated to auth-service (`https://sso.codevertexafrica.com/`)
   - Login/registration proxy to auth-service endpoints
   - JWT validation via JWKS using `shared/auth-client` library
   - Superuser detection from JWT claims with RBAC bypass
@@ -496,7 +496,7 @@ See `docs/sprints/` folder for detailed sprint plans:
 **Current Sprint (Sprint 7 - Analytics, Compliance & Hardening):**
 - ✅ Analytics dashboard integration (Superset embed URLs with RLS)
 - ✅ Superset integration tests (comprehensive unit tests with mocking)
-- ✅ Superset production URL configuration (https://superset.codevertexitsolutions.com)
+- ✅ Superset production URL configuration (https://superset.codevertexafrica.com)
 - ✅ Data export/delete tooling (GDPR/DPA compliance)
 - ✅ Performance optimization (database indexes, connection pooling, caching)
 - ✅ Security hardening (rate limiting, headers, input validation, audit logging)

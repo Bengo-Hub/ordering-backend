@@ -80,7 +80,7 @@ func TestEventHandler_HandleAuthUserCreated(t *testing.T) {
 			logger := zap.NewNop()
 
 			authCfg := config.AuthConfig{
-				ServiceURL:        "https://sso.codevertexitsolutions.com",
+				ServiceURL:        "https://sso.codevertexafrica.com",
 				Issuer:            "https://auth.bengobox.local",
 				Audience:          "urban-cafe",
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
@@ -167,7 +167,7 @@ func TestEventHandler_HandleAuthUserUpdated(t *testing.T) {
 			logger := zap.NewNop()
 
 			authCfg := config.AuthConfig{
-				ServiceURL:        "https://sso.codevertexitsolutions.com",
+				ServiceURL:        "https://sso.codevertexafrica.com",
 				Issuer:            "https://auth.bengobox.local",
 				Audience:          "urban-cafe",
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
@@ -249,7 +249,7 @@ func TestEventHandler_HandleAuthUserDeactivated(t *testing.T) {
 			logger := zap.NewNop()
 
 			authCfg := config.AuthConfig{
-				ServiceURL:        "https://sso.codevertexitsolutions.com",
+				ServiceURL:        "https://sso.codevertexafrica.com",
 				Issuer:            "https://auth.bengobox.local",
 				Audience:          "urban-cafe",
 				AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",

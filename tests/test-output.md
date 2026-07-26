@@ -60,8 +60,8 @@
 
 ## API Endpoints Tested
 
-- **Auth API:** https://sso.codevertexitsolutions.com
-- **Ordering API:** https://orderingapi.codevertexitsolutions.com/api/v1
+- **Auth API:** https://sso.codevertexafrica.com
+- **Ordering API:** https://orderingapi.codevertexafrica.com/api/v1
 - **Menu Categories:** /menu/categories
 - **Menu Items:** /menu/items
 - **Cafes/Outlets:** /cafes

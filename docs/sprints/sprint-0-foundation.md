@@ -155,7 +155,7 @@ ordering-backend/
 **Acceptance Criteria**:
 - [x] OAuth2 initiation endpoint (legacy - still uses local OAuth, needs migration to auth-service)
 - [x] OAuth2 callback handler (legacy - still uses local OAuth, needs migration to auth-service)
-- [x] **JWT token issuance**: ✅ Implemented via auth-service (`https://sso.codevertexitsolutions.com/`). Login/registration proxy to auth-service and return tokens from auth-service.
+- [x] **JWT token issuance**: ✅ Implemented via auth-service (`https://sso.codevertexafrica.com/`). Login/registration proxy to auth-service and return tokens from auth-service.
 - [x] **Session management**: ✅ Sessions managed by auth-service. Local session table deprecated. JWT tokens validated via JWKS from auth-service.
 - [ ] **Token refresh**: Should proxy to auth-service, currently using local refresh (needs migration)
 
@@ -190,7 +190,7 @@ ordering-backend/
 
 **POST /api/v1/auth/login** (Should proxy to auth-service)
 - Request: `{ "email": "user@example.com", "password": "password", "tenant_slug": "urban-cafe" }` (tenant_slug defaults to "urban-cafe" if omitted)
-- Proxies to: `POST https://sso.codevertexitsolutions.com/api/v1/auth/login`
+- Proxies to: `POST https://sso.codevertexafrica.com/api/v1/auth/login`
 - Response: `{ "access_token": "...", "refresh_token": "...", "session_id": "...", "tenant": {...}, "user": {...}, "expires_in": 899 }`
 
 **POST /api/v1/auth/oauth/{provider}**
