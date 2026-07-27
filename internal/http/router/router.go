@@ -25,6 +25,7 @@ import (
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
+	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	ordermw "github.com/bengobox/ordering-backend/internal/http/middleware"
@@ -75,6 +76,7 @@ func New(
 	backupsHandler *handlers.BackupsHandler,
 	backupDestHandler *handlers.BackupDestinationHandler,
 	encryptionKeyHandler *confighandler.EncryptionKeyHandler,
+	bannerHandler *promobannerhandler.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -230,6 +232,7 @@ func New(
 								strings.Contains(path, "/integrations/google/review-url")
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
+								strings.Contains(path, "/promotions/banners") ||
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
@@ -257,6 +260,12 @@ func New(
 				// Public tenant/brand config (no auth)
 				if configHandler != nil {
 					tenant.Get("/config", configHandler.GetConfig)
+				}
+
+				// Public storefront promotions banners (no auth) — thin read-through
+				// proxy over pos-api's Promotion source of truth.
+				if bannerHandler != nil {
+					tenant.Get("/promotions/banners", bannerHandler.ListBanners)
 				}
 
 				// Register identity routes (auth endpoints are public)

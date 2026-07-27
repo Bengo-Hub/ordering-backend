@@ -32,6 +32,7 @@ import (
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
+	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
 	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
@@ -57,6 +58,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
+	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
 	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
@@ -256,6 +258,16 @@ func New(ctx context.Context) (*App, error) {
 		log.Info("app: pos-api loyalty mirror enabled (pos-api is loyalty SoT)")
 	} else {
 		log.Info("app: pos-api loyalty mirror disabled (INTERNAL_SERVICE_KEY unset); using local balance only")
+	}
+
+	// Storefront promotions banner — thin read-through proxy over pos-api's Promotion
+	// records (reuses the same POS S2S config as the loyalty client above).
+	posDiscountsClient := posdiscounts.NewClient(cfg.POS.ServiceURL, cfg.POS.APIKey, log)
+	bannerHandler := promobannerhandler.New(log, ormClient, posDiscountsClient, cacheSvc)
+	if posDiscountsClient.Enabled() {
+		log.Info("app: pos-api storefront promotions banner proxy enabled")
+	} else {
+		log.Info("app: pos-api storefront promotions banner proxy disabled (INTERNAL_SERVICE_KEY unset)")
 	}
 	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
@@ -522,7 +534,7 @@ func New(ctx context.Context) (*App, error) {
 		RetentionDays: cfg.Backup.RetentionDays,
 	}, log).Start(ctx)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
