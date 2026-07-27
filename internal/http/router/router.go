@@ -23,6 +23,7 @@ import (
 	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
+	marketplacehandler "github.com/bengobox/ordering-backend/internal/http/handlers/marketplace"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
@@ -77,6 +78,7 @@ func New(
 	backupDestHandler *handlers.BackupDestinationHandler,
 	encryptionKeyHandler *confighandler.EncryptionKeyHandler,
 	bannerHandler *promobannerhandler.Handler,
+	marketplaceHandler *marketplacehandler.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -180,6 +182,14 @@ func New(
 			// Serve OpenAPI spec (public, no auth required, outside tenant scope)
 			v1.Get("/openapi.json", handlers.OpenAPIJSON)
 			v1.Get("/status", healthHandler.Status)
+
+			// Platform-level marketplace directory (no tenant slug — lists ACROSS
+			// tenants for the root landing page). Deliberately outside /{tenant} so it
+			// bypasses TenantV2/tenant-sync/auth-skip-wrapper/SubscriptionGate, none of
+			// which make sense for a route with no single tenant in scope.
+			if marketplaceHandler != nil {
+				v1.Get("/marketplace/tenants", marketplaceHandler.ListTenants)
+			}
 
 			// Tenant-scoped routes
 			v1.Route("/{tenant}", func(tenant chi.Router) {
