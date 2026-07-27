@@ -30,6 +30,7 @@ import (
 	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
+	marketplacehandler "github.com/bengobox/ordering-backend/internal/http/handlers/marketplace"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
@@ -57,6 +58,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
 	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
+	"github.com/bengobox/ordering-backend/internal/platform/marketplace"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
 	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
@@ -269,6 +271,11 @@ func New(ctx context.Context) (*App, error) {
 	} else {
 		log.Info("app: pos-api storefront promotions banner proxy disabled (INTERNAL_SERVICE_KEY unset)")
 	}
+
+	// Platform marketplace directory (no tenant slug — the root landing page) — thin
+	// read-through proxy over auth-api's public tenant directory.
+	marketplaceClient := marketplace.NewClient(cfg.Auth.ServiceURL, cfg.Auth.AuthServiceAPIKey, log)
+	marketplaceHandler := marketplacehandler.New(log, marketplaceClient, cacheSvc)
 	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
 	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, log)
@@ -534,7 +541,7 @@ func New(ctx context.Context) (*App, error) {
 		RetentionDays: cfg.Backup.RetentionDays,
 	}, log).Start(ctx)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
