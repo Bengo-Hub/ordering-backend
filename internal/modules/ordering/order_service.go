@@ -1723,6 +1723,19 @@ func toFloat64(v interface{}) (float64, bool) {
 }
 
 // UpdatePaymentStatus updates the payment status of an order.
+//
+// The read-decide-write sequence below is guarded by UpdatePaymentStatusAtomic, which constrains
+// its write to WHERE payment_status = oldStatus (the value just read) and reports whether it
+// actually applied. This closes a real race: this function has MULTIPLE legitimate concurrent
+// callers for the same order (the treasury.payment.succeeded NATS consumer, the payment-status
+// HTTP poller fallback, and a COD/webhook path — see TreasuryPaymentConsumer's own doc comment,
+// which already claimed re-confirmation was "safe" without anything actually enforcing it). Two
+// of those racing for the same order could both read payment_status=pending, both decide
+// justConfirmed=true and oldStatus!=paid, and both go on to publish order.payment_confirmed /
+// order.confirmed — double fulfillment (e.g. two KDS tickets, two event tickets issued) even
+// though the underlying payment itself only happened once. If the atomic update reports it did
+// NOT apply, another request already won this exact transition, so this call skips the one-time
+// side effects entirely rather than re-running them.
 func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus PaymentStatus, payload map[string]interface{}) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
@@ -1741,8 +1754,16 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 		justConfirmed = true
 	}
 
-	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+	applied, err := s.repo.UpdatePaymentStatusAtomic(ctx, tenantID, orderID, oldStatus, order)
+	if err != nil {
 		return nil, err
+	}
+	if !applied {
+		// Another concurrent/racing call already transitioned payment_status away from oldStatus —
+		// re-fetch the current state and return it without re-running event publishing below.
+		s.logger.Info("payment status already transitioned by a concurrent request — skipping duplicate side effects",
+			zap.String("id", orderID.String()), zap.String("attempted_status", string(newStatus)))
+		return s.repo.GetOrder(ctx, tenantID, orderID)
 	}
 
 	// Create order event

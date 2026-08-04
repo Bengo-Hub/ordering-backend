@@ -537,6 +537,27 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 	return nil
 }
 
+// UpdatePaymentStatusAtomic is UpdateOrder's race-safe counterpart for payment-status transitions:
+// it constrains the WHERE clause to payment_status = fromStatus (the value the caller's read
+// observed), using the bulk Update().Save() affected-row count as the single-winner claim. See
+// the Repository interface doc for why this exists — OrderService.UpdatePaymentStatus used to read
+// the order, decide status/confirmed_at/justConfirmed from that read, then call plain UpdateOrder
+// with no guard tying the write back to the read it was based on.
+func (r *EntRepository) UpdatePaymentStatusAtomic(ctx context.Context, tenantID, orderID uuid.UUID, fromStatus PaymentStatus, o *Order) (bool, error) {
+	builder := r.client.Order.Update().
+		Where(order.ID(orderID), order.TenantID(tenantID), order.PaymentStatusEQ(order.PaymentStatus(fromStatus))).
+		SetStatus(order.Status(o.Status)).
+		SetPaymentStatus(order.PaymentStatus(o.PaymentStatus))
+	if o.ConfirmedAt != nil {
+		builder = builder.SetConfirmedAt(*o.ConfirmedAt)
+	}
+	n, err := builder.Save(ctx)
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 func (r *EntRepository) DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error {
 	// Delete related records first (order_items, order_events, order_assignments)
 	_, _ = r.client.OrderItem.Delete().Where(orderitem.OrderID(orderID)).Exec(ctx)
