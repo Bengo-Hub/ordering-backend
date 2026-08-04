@@ -34,6 +34,14 @@ type Repository interface {
 	GetOrderByNumber(ctx context.Context, tenantID uuid.UUID, orderNumber string) (*Order, error)
 	GetOrderByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*Order, error)
 	UpdateOrder(ctx context.Context, order *Order) error
+	// UpdatePaymentStatusAtomic applies order's status/payment_status/confirmed_at fields via a
+	// single UPDATE ... WHERE payment_status = fromStatus, so a caller can safely compute the new
+	// order state from a payment_status value it read moments earlier and know the write only
+	// takes effect if nothing else changed that field in between. Returns applied=false (not an
+	// error) when another request already transitioned payment_status first -- the caller should
+	// treat that as "already handled" and skip any one-time side effects (event publishing, etc.)
+	// rather than re-running them.
+	UpdatePaymentStatusAtomic(ctx context.Context, tenantID, orderID uuid.UUID, fromStatus PaymentStatus, order *Order) (applied bool, err error)
 	DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
 	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
