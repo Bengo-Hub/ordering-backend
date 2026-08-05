@@ -394,11 +394,12 @@ func New(ctx context.Context) (*App, error) {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}
 
-			// Subscribe to order events for automatic delivery task creation
-			fulfilmentEventHandler := fulfilment.NewEventHandler(taskSvc, orderSvc, orderingRepo, log)
-			if err := fulfilmentEventHandler.SubscribeToOrderEvents(js); err != nil {
-				log.Warn("app: failed to subscribe to order events for fulfilment", zap.Error(err))
-			}
+			// NOTE: ordering-backend no longer runs its own "ordering.order.ready" → CreateDeliveryTask
+			// subscription here. logistics-api's own OrderReadyConsumer already subscribes to the same
+			// event and owns delivery-task creation + auto-dispatch end-to-end (with the real COD amount
+			// and a consistent "order:<id>" external_reference) — the two independent consumers were
+			// racing to create two Task rows per online delivery order. ordering-backend now tracks the
+			// resulting assignment reactively via logistics.task.created/assigned (see logistics_events.go).
 
 			// consumerFeatureGate restricts cross-service data sync (catalog projection,
 			// treasury payment confirmation) to entitled tenants, mirroring HTTP-layer gating.

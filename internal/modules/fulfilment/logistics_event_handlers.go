@@ -57,6 +57,46 @@ func (h *LogisticsEventHandler) orderRefFromEvent(evt *sharedevents.Event) (uuid
 	return orderID, evt.TenantID, true
 }
 
+// handleTaskCreated records the OrderAssignment as soon as logistics-api creates the delivery
+// task (before a rider is assigned) — logistics-api's own OrderReadyConsumer owns task creation
+// end-to-end for "ordering.order.ready"; this handler only tracks that outcome locally. It is
+// idempotent: if an assignment already exists for the order (e.g. handleTaskAssigned's own
+// create-if-missing fallback already ran first), it is left untouched.
+func (h *LogisticsEventHandler) handleTaskCreated(ctx context.Context, evt *sharedevents.Event) error {
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		// Not every logistics task originates from an ordering order (e.g. manual fleet
+		// tasks) — nothing to track locally, not an error.
+		return nil
+	}
+
+	data := evt.Payload
+	taskIDStr, _ := data["task_id"].(string)
+	if taskIDStr == "" {
+		return nil
+	}
+
+	if _, err := h.repo.GetAssignmentByOrderID(ctx, tenantID, orderID); err == nil {
+		return nil // already tracked (e.g. race with handleTaskAssigned's fallback create)
+	}
+
+	newAssignment := &OrderAssignment{
+		TenantID:        tenantID,
+		OrderID:         orderID,
+		LogisticsTaskID: taskIDStr,
+		Status:          AssignmentStatusPending,
+		Priority:        PriorityNormal,
+	}
+	if createErr := h.repo.CreateAssignment(ctx, newAssignment); createErr != nil {
+		h.logger.Error("failed to create assignment from task.created event",
+			zap.Error(createErr),
+			zap.String("task_id", taskIDStr),
+			zap.String("order_id", orderID.String()))
+		return fmt.Errorf("create assignment from task.created: %w", createErr)
+	}
+	return nil
+}
+
 // handleTaskAccepted updates the assignment to "accepted" and transitions the order to
 // out_for_delivery when a rider accepts the task. Mirrors handleTaskAssigned's order transition so
 // orders that go straight from assigned→accepted (skipping a separate en_route signal) still move.
