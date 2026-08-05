@@ -2,17 +2,25 @@ package ordering
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
 )
 
 // PromoService provides promo code business logic.
 type PromoService struct {
 	repo   Repository
 	logger *zap.Logger
+	// discountsClient evaluates promo codes against pos-api's Promotion+PromotionRule SoT (the
+	// SAME schedule/meal_period/scope/BOGO evaluator the POS terminal uses) instead of the local
+	// PromoCode model below, which has none of that logic. Nil/disabled (INTERNAL_SERVICE_KEY
+	// unset) falls back to the local model — see SetDiscountsClient.
+	discountsClient *posdiscounts.Client
 }
 
 // NewPromoService creates a new promo service.
@@ -23,8 +31,15 @@ func NewPromoService(repo Repository, logger *zap.Logger) *PromoService {
 	}
 }
 
-// ValidatePromoCode validates a promo code for the given cart.
-func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID uuid.UUID, code string, subtotal float64, userID *uuid.UUID) (*PromoValidationResult, error) {
+// SetDiscountsClient wires the pos-api discount-evaluation S2S client (mirrors LoyaltyService.
+// SetPOSLoyaltyClient's pattern) — set once at startup in app.go, after the client itself is
+// constructed.
+func (s *PromoService) SetDiscountsClient(c *posdiscounts.Client) { s.discountsClient = c }
+
+// ValidatePromoCode validates a promo code against the cart's REAL items. items is used both to
+// compute the subtotal (min-subtotal gate, legacy-path discount calc) and — when the pos-api
+// discounts client is configured — as the cart lines the SoT evaluator scopes/schedules against.
+func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID uuid.UUID, code string, items []CartItem, userID *uuid.UUID) (*PromoValidationResult, error) {
 	code = strings.ToUpper(strings.TrimSpace(code))
 	if code == "" {
 		return &PromoValidationResult{
@@ -33,6 +48,49 @@ func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID
 		}, nil
 	}
 
+	var subtotal float64
+	for _, it := range items {
+		subtotal += it.TotalPrice
+	}
+
+	// pos-api Promotion+PromotionRule is the platform discount source of truth — prefer it so a
+	// code is scoped/scheduled identically everywhere (POS terminal, Add Sale, storefront). Falls
+	// back to the local PromoCode model only when the S2S client isn't configured for this
+	// environment. A CONFIGURED client that fails (timeout/5xx) fails CLOSED with a clear message
+	// rather than silently falling back — a transient pos-api outage must never look like "code
+	// not found" or, worse, quietly resolve against stale/duplicate local data.
+	if s.discountsClient != nil && s.discountsClient.Enabled() {
+		var outletPtr *uuid.UUID
+		if outletID != uuid.Nil {
+			outletPtr = &outletID
+		}
+		lines := make([]posdiscounts.ApplyLine, 0, len(items))
+		for _, it := range items {
+			lines = append(lines, posdiscounts.ApplyLine{SKU: it.InventorySKU, Quantity: float64(it.Quantity), UnitPrice: it.UnitPrice})
+		}
+		res, err := s.discountsClient.ApplyDiscount(ctx, tenantID, outletPtr, code, lines)
+		if err != nil {
+			s.logger.Error("pos-api discount evaluation failed", zap.Error(err))
+			return &PromoValidationResult{Valid: false, ErrorMessage: "unable to validate promo code right now — please try again"}, nil
+		}
+		if !res.Valid {
+			return &PromoValidationResult{Valid: false, ErrorMessage: res.Reason}, nil
+		}
+		amt, _ := strconv.ParseFloat(res.DiscountAmount, 64)
+		var promoID *uuid.UUID
+		if pid, perr := uuid.Parse(res.PromoID); perr == nil {
+			promoID = &pid
+		}
+		return &PromoValidationResult{
+			Valid:          true,
+			PromoCodeID:    promoID,
+			DiscountType:   PromoCodeTypeFixedAmount, // already a resolved KES amount, not a %/rate
+			DiscountValue:  amt,
+			DiscountAmount: amt,
+		}, nil
+	}
+
+	// Legacy local-model path (no schedule/meal_period/scope logic) — transitional fallback only.
 	// Get promo code
 	promo, err := s.repo.GetPromoCodeByCode(ctx, tenantID, code)
 	if err != nil {
@@ -161,14 +219,8 @@ func (s *PromoService) ApplyPromoToCart(ctx context.Context, tenantID, cartID uu
 		return nil, err
 	}
 
-	// Calculate subtotal from items
-	var subtotal float64
-	for _, item := range items {
-		subtotal += item.TotalPrice
-	}
-
-	// Validate promo code
-	result, err := s.ValidatePromoCode(ctx, tenantID, cart.OutletID, code, subtotal, userID)
+	// Validate promo code against the cart's real items
+	result, err := s.ValidatePromoCode(ctx, tenantID, cart.OutletID, code, items, userID)
 	if err != nil {
 		return nil, err
 	}

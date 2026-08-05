@@ -231,7 +231,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	var promoCodeID *uuid.UUID
 	var discountTotal float64 = cart.DiscountTotal
 	if req.PromoCode != "" {
-		result, err := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, cart.OutletID, req.PromoCode, cart.Subtotal, &req.UserID)
+		result, err := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, cart.OutletID, req.PromoCode, cart.Items, &req.UserID)
 		if err != nil || !result.Valid {
 			return nil, ErrPromoCodeNotFound
 		}
