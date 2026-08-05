@@ -125,8 +125,12 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		Search:   r.URL.Query().Get("search"),
 		Section:  r.URL.Query().Get("section"),
 		ItemType: strings.ToUpper(r.URL.Query().Get("item_type")),
-		Limit:    limit,
-		Offset:   offset,
+		// Only "newest" is recognized today (powers the storefront's New Arrivals
+		// section) — any other value is silently ignored, same "unknown sort keeps
+		// default order" posture as inventory-api's own ?sort= whitelist.
+		Sort:   r.URL.Query().Get("sort"),
+		Limit:  limit,
+		Offset: offset,
 	}
 
 	if tagsParam := r.URL.Query().Get("tags"); tagsParam != "" {

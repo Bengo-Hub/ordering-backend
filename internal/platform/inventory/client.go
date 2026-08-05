@@ -505,7 +505,19 @@ func (c *Client) CreateItem(ctx context.Context, tenantSlug string, req CreateIt
 // typeFilter: comma-separated types (e.g. "SERVICE", "GOODS,RECIPE"). Defaults to "GOODS,RECIPE".
 // limit: page size; uses inventory-api default (20) when <= 0.
 // page: 1-based page number; defaults to 1 when <= 0.
-func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int, categoryID *uuid.UUID) ([]ItemResponse, int, error) {
+// sortParam is an opaque storefront sort key ("newest") mapped to inventory-api's own
+// whitelisted ?sort=<column>&dir=asc|desc columns — kept as a translation choke point here
+// so the storefront-facing API never has to know inventory-api's raw column names.
+func sortParam(sort string) string {
+	switch sort {
+	case "newest":
+		return "&sort=created_at&dir=desc"
+	default:
+		return ""
+	}
+}
+
+func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int, categoryID *uuid.UUID, sort string) ([]ItemResponse, int, error) {
 	if typeFilter == "" {
 		typeFilter = "GOODS,RECIPE"
 	}
@@ -523,6 +535,7 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter st
 	if categoryID != nil {
 		path += "&category_id=" + categoryID.String()
 	}
+	path += sortParam(sort)
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {
 		return nil, 0, fmt.Errorf("execute request: %w", err)
