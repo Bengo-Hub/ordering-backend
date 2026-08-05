@@ -266,6 +266,10 @@ func New(ctx context.Context) (*App, error) {
 	// records (reuses the same POS S2S config as the loyalty client above).
 	posDiscountsClient := posdiscounts.NewClient(cfg.POS.ServiceURL, cfg.POS.APIKey, log)
 	bannerHandler := promobannerhandler.New(log, ormClient, posDiscountsClient, cacheSvc)
+	// Same client also evaluates promo codes against pos-api's discount SoT (schedule/meal_period/
+	// scope/BOGO) — see PromoService.ValidatePromoCode's doc comment for the fallback behavior
+	// when this is disabled.
+	promoSvc.SetDiscountsClient(posDiscountsClient)
 	if posDiscountsClient.Enabled() {
 		log.Info("app: pos-api storefront promotions banner proxy enabled")
 	} else {

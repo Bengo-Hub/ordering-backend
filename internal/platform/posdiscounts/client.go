@@ -7,8 +7,10 @@
 package posdiscounts
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,6 +20,10 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
+
+// ErrDiscountsClientDisabled is returned by ApplyDiscount when INTERNAL_SERVICE_KEY is unset —
+// callers use this to fall back to a legacy path, distinct from a real evaluation failure.
+var ErrDiscountsClientDisabled = errors.New("posdiscounts: client disabled (no API key configured)")
 
 // DefaultBaseURL is the production pos-api host, used when POS_API_URL is unset.
 const DefaultBaseURL = "https://posapi.codevertexafrica.com"
@@ -169,4 +175,73 @@ func (c *Client) ListDeals(ctx context.Context, tenantID uuid.UUID) []Discount {
 		out = append(out, d)
 	}
 	return out
+}
+
+// ApplyLine is one cart line sent to ApplyDiscount — mirrors pos-api's applyPromoLineInput.
+// Category is best-effort: ordering-backend's CartItem does not currently snapshot a category
+// at add-time, so category-scoped discounts won't match at checkout until that's added (a
+// separate follow-up) — item-scoped and storewide discounts are unaffected.
+type ApplyLine struct {
+	SKU       string  `json:"sku"`
+	Category  string  `json:"category,omitempty"`
+	Quantity  float64 `json:"quantity"`
+	UnitPrice float64 `json:"unit_price"`
+}
+
+// ApplyResult is pos-api's response from POST /api/v1/s2s/{tenant}/discounts/apply — the same
+// rule-based evaluation (schedule/meal_period/scope/BOGO) the POS terminal uses.
+type ApplyResult struct {
+	Valid          bool                       `json:"valid"`
+	PromoCode      string                     `json:"promoCode"`
+	PromoID        string                     `json:"promoId"`
+	DiscountAmount string                     `json:"discountAmount"`
+	PerSKU         map[string]json.RawMessage `json:"perSku,omitempty"`
+	Reason         string                     `json:"reason,omitempty"`
+}
+
+// ApplyDiscount validates promoCode against the caller's REAL cart lines through pos-api's
+// discount source-of-truth evaluator — the SAME schedule/meal_period/item-or-category scope/BOGO
+// logic the POS terminal and Add Sale use, so a code behaves identically no matter which service
+// applies it. Unlike ListBanners/ListDeals (best-effort, cosmetic), this is a real monetary
+// decision: returns ErrDiscountsClientDisabled when unconfigured (caller's choice how to handle),
+// and a real error on any transport/decode failure — NEVER a silently-zeroed discount, since that
+// would be indistinguishable from a legitimately-invalid code.
+func (c *Client) ApplyDiscount(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, code string, lines []ApplyLine) (*ApplyResult, error) {
+	if !c.Enabled() {
+		return nil, ErrDiscountsClientDisabled
+	}
+	body := struct {
+		PromoCode string      `json:"promoCode"`
+		OutletID  string      `json:"outlet_id,omitempty"`
+		Lines     []ApplyLine `json:"lines"`
+	}{PromoCode: code, Lines: lines}
+	if outletID != nil {
+		body.OutletID = outletID.String()
+	}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("posdiscounts: encode apply request: %w", err)
+	}
+
+	u := fmt.Sprintf("%s/api/v1/s2s/%s/discounts/apply", c.baseURL, tenantID.String())
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, bytes.NewReader(payload))
+	if err != nil {
+		return nil, fmt.Errorf("posdiscounts: build apply request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", c.apiKey)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("posdiscounts: apply request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("posdiscounts: apply unexpected status %d", resp.StatusCode)
+	}
+	var out ApplyResult
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, fmt.Errorf("posdiscounts: decode apply response: %w", err)
+	}
+	return &out, nil
 }

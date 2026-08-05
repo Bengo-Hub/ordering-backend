@@ -48,10 +48,23 @@ func (h *PromoHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 
 // --- Request/Response Types ---
 
+// ValidatePromoLineRequest is one cart line the storefront sends so a code can be evaluated
+// against the SAME schedule/meal_period/item-or-category scope/BOGO rules the POS terminal uses,
+// instead of a flat subtotal.
+type ValidatePromoLineRequest struct {
+	SKU       string  `json:"sku"`
+	Category  string  `json:"category,omitempty"`
+	Quantity  float64 `json:"quantity"`
+	UnitPrice float64 `json:"unitPrice"`
+}
+
 // ValidatePromoRequest represents a request to validate a promo code.
 type ValidatePromoRequest struct {
-	Code     string  `json:"code"`
-	CafeID   string  `json:"cafeId"`
+	Code   string                      `json:"code"`
+	CafeID string                      `json:"cafeId"`
+	Items  []ValidatePromoLineRequest `json:"items"`
+	// Subtotal is kept for backward compatibility with any caller that hasn't been updated to
+	// send real items yet; when Items is non-empty it's ignored (recomputed from Items instead).
 	Subtotal float64 `json:"subtotal"`
 }
 
@@ -141,7 +154,23 @@ func (h *PromoHandler) ValidatePromoCode(w http.ResponseWriter, r *http.Request)
 		userID = &user.ID
 	}
 
-	result, err := h.promoSvc.ValidatePromoCode(r.Context(), tenantID, cafeID, req.Code, req.Subtotal, userID)
+	// Real cart lines let the SoT evaluator (pos-api) enforce scope/schedule/BOGO; a caller that
+	// hasn't been updated yet (or a guest with an empty cart) falls back to a single synthetic
+	// storewide line built from req.Subtotal so min-subtotal/percentage-off codes still resolve.
+	items := make([]ordering.CartItem, 0, len(req.Items))
+	for _, l := range req.Items {
+		items = append(items, ordering.CartItem{
+			InventorySKU: l.SKU,
+			Quantity:     int(l.Quantity),
+			UnitPrice:    l.UnitPrice,
+			TotalPrice:   l.UnitPrice * l.Quantity,
+		})
+	}
+	if len(items) == 0 && req.Subtotal > 0 {
+		items = append(items, ordering.CartItem{Quantity: 1, UnitPrice: req.Subtotal, TotalPrice: req.Subtotal})
+	}
+
+	result, err := h.promoSvc.ValidatePromoCode(r.Context(), tenantID, cafeID, req.Code, items, userID)
 	if err != nil {
 		h.handleError(w, err)
 		return
