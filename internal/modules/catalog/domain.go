@@ -153,6 +153,9 @@ type CatalogFilter struct {
 	Offset      int
 	ItemType    string   // e.g. "SERVICE", "GOODS", "RECIPE" — empty means all
 	Tags        []string // items must have ALL of these tags
+	// Sort is an opaque, whitelisted sort key for the storefront (not inventory-api's raw
+	// column name) — currently only "newest" is recognized. Empty means default order.
+	Sort string
 }
 
 // OverrideUpsertRequest is the request payload for creating/updating a CatalogOverride.

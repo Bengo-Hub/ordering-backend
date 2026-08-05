@@ -70,7 +70,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	}
 	// Apply the category filter SERVER-SIDE so a selected category returns its items + the correct
 	// total (the old client-side filter ran after pagination → empty/null page for any category).
-	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, fetchLimit, fetchPage, filter.CategoryID)
+	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, fetchLimit, fetchPage, filter.CategoryID, filter.Sort)
 	if err != nil {
 		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
@@ -176,7 +176,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 // GetItem fetches a single item from inventory-api by SKU, merges with override.
 func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*MergedCatalogItem, error) {
 	// Fetch all orderable types to locate the item by SKU (single-item lookup, no pagination).
-	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil)
+	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil, "")
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}

@@ -66,7 +66,12 @@ func NewTaskService(
 
 // CreateDeliveryTask creates a delivery task for an order.
 func (s *TaskService) CreateDeliveryTask(ctx context.Context, req CreateDeliveryTaskRequest) (*OrderAssignment, error) {
-	// Check if assignment already exists
+	// Check if assignment already exists. This is also what stops the manual
+	// "arrange delivery" HTTP route (task_handler.go) from double-creating against
+	// an order logistics-api already auto-dispatched via its own order.ready
+	// consumer: handleTaskCreated (logistics_event_handlers.go) creates this local
+	// row reactively as soon as logistics-api's task exists, well before a merchant
+	// could click the manual button.
 	existing, err := s.repo.GetAssignmentByOrderID(ctx, req.OrderInfo.TenantID, req.OrderInfo.ID)
 	if err == nil && existing != nil {
 		// Already has an active assignment
