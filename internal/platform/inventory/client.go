@@ -577,6 +577,15 @@ type CategoryResponse struct {
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
 	IsActive    bool   `json:"is_active"`
+	// ParentID/Depth/Path/SortOrder mirror inventory-api's CategoryDTO materialized-path
+	// hierarchy fields — inventory-api already populates these (its own doc comment names
+	// this exact "Shop by Category" storefront flyout use case), ordering-backend just
+	// never forwarded them until now.
+	ParentID   *string `json:"parent_id,omitempty"`
+	ParentName string  `json:"parent_name,omitempty"`
+	Depth      int     `json:"depth"`
+	Path       string  `json:"path,omitempty"`
+	SortOrder  int     `json:"sort_order,omitempty"`
 }
 
 // ListCategories returns categories from inventory-api.
