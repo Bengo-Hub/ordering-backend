@@ -121,6 +121,7 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamCont
 		durable string
 		handler func(context.Context, *sharedevents.Event) error
 	}{
+		{"logistics.task.created", "ord-logistics-task-created", h.handleTaskCreated},
 		{"logistics.task.completed", "ord-logistics-task-completed", h.handleTaskCompleted},
 		{"logistics.task.assigned", "ord-logistics-task-assigned", h.handleTaskAssigned},
 		{"logistics.task.accepted", "ord-logistics-task-accepted", h.handleTaskAccepted},
@@ -139,7 +140,7 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamCont
 
 	h.logger.Info("logistics event subscriptions active (JetStream)",
 		zap.Strings("subjects", []string{
-			"logistics.task.completed", "logistics.task.assigned",
+			"logistics.task.created", "logistics.task.completed", "logistics.task.assigned",
 			"logistics.task.accepted", "logistics.task.en_route",
 			"logistics.task.delivered", "logistics.task.failed",
 		}))
