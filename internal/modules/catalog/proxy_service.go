@@ -232,6 +232,41 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 // one is supplied are returned. useCase may be "" (no outlet selected → all sellable
 // categories with items).
 func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug, useCase string) ([]InventoryCategory, error) {
+	// Cached WITHOUT the use_case filter (mirrors inventory-api's own ListCategories handler
+	// comment: "applied post-cache so the cached list stays use-case-agnostic") so every outlet
+	// on a tenant shares one cache entry instead of one per use_case.
+	var sellable []InventoryCategory
+	var err error
+	if s.cache != nil {
+		key := fmt.Sprintf("categories:%s", tenantSlug)
+		err = s.cache.GetOrSet(ctx, key, &sellable, cacheTTLReference, func() (interface{}, error) {
+			return s.listSellableCategoriesFromSource(ctx, tenantSlug)
+		})
+	} else {
+		sellable, err = s.listSellableCategoriesFromSource(ctx, tenantSlug)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if useCase == "" {
+		return sellable, nil
+	}
+	result := make([]InventoryCategory, 0, len(sellable))
+	for _, c := range sellable {
+		// Outlet use-case gating: a hardware/electronics store must never list food/pizza
+		// categories, a restaurant must never list detergents, etc.
+		if categoryAllowedForUseCase(c.Name, useCase) {
+			result = append(result, c)
+		}
+	}
+	return result, nil
+}
+
+// listSellableCategoriesFromSource fetches categories from inventory-api and keeps only
+// finished/sellable ones (hides component/service categories — raw ingredients, modifiers,
+// add-ons, conference/room/facility/salon). Not use-case-filtered — see ListCategories.
+func (s *ProxyService) listSellableCategoriesFromSource(ctx context.Context, tenantSlug string) ([]InventoryCategory, error) {
 	cats, err := s.inventoryClient.ListCategories(ctx, tenantSlug, true /* hasItems */)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list categories: %w", err)
@@ -239,14 +274,7 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug, useCase s
 
 	result := make([]InventoryCategory, 0, len(cats))
 	for _, c := range cats {
-		// Only finished, sellable categories belong on the storefront — hide component/service
-		// categories (raw ingredients, modifiers, add-ons, conference/room/facility/salon).
 		if !isStorefrontSellableCategory(c.Name) {
-			continue
-		}
-		// Outlet use-case gating: a hardware/electronics store must never list food/pizza
-		// categories, a restaurant must never list detergents, etc. Skipped when useCase=="".
-		if !categoryAllowedForUseCase(c.Name, useCase) {
 			continue
 		}
 		result = append(result, InventoryCategory{
@@ -256,6 +284,11 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug, useCase s
 			Description: c.Description,
 			Icon:        c.Icon,
 			IsActive:    c.IsActive,
+			ParentID:    c.ParentID,
+			ParentName:  c.ParentName,
+			Depth:       c.Depth,
+			Path:        c.Path,
+			SortOrder:   c.SortOrder,
 		})
 	}
 	return result, nil

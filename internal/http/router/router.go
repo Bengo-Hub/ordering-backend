@@ -243,6 +243,7 @@ func New(
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/promotions/banners") ||
+								strings.Contains(path, "/promotions/deals") ||
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
@@ -276,6 +277,7 @@ func New(
 				// proxy over pos-api's Promotion source of truth.
 				if bannerHandler != nil {
 					tenant.Get("/promotions/banners", bannerHandler.ListBanners)
+					tenant.Get("/promotions/deals", bannerHandler.ListDeals)
 				}
 
 				// Register identity routes (auth endpoints are public)

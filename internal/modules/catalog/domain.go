@@ -97,6 +97,14 @@ type InventoryCategory struct {
 	Description string `json:"description,omitempty"`
 	Icon        string `json:"icon,omitempty"`
 	IsActive    bool   `json:"isActive"`
+	// ParentID/ParentName/Depth/Path/SortOrder let the storefront build a real
+	// parent→children category tree (the "Shop by Category" sidebar/flyout for
+	// retail/pharmacy/wholesale tenants) instead of a flat list.
+	ParentID   *string `json:"parentId,omitempty"`
+	ParentName string  `json:"parentName,omitempty"`
+	Depth      int     `json:"depth"`
+	Path       string  `json:"path,omitempty"`
+	SortOrder  int     `json:"sortOrder,omitempty"`
 }
 
 // InventoryBrand represents an item brand from inventory-api.

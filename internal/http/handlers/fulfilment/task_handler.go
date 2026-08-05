@@ -45,8 +45,16 @@ func NewTaskHandler(logger *zap.Logger, taskSvc *fulfilment.TaskService, orderSv
 func (h *TaskHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/orders/{orderId}/delivery", func(delivery chi.Router) {
 		delivery.Use(auth.RequireAuth)
-		// Delivery tasks only apply to outlet types that handle physical delivery
-		delivery.With(subscriptions.RequireUseCase("hospitality", "quick_service", "food_delivery")).Post("/create-task", h.CreateDeliveryTask)
+		// Any outlet type that ships a physical good/meal can request rider delivery — this
+		// previously excluded retail/pharmacy/wholesale even though the automatic order.ready
+		// dispatch path (fulfilment package) applies no such restriction, so a retail tenant's
+		// manual "arrange delivery" action 403'd while the same order auto-dispatched fine on
+		// its own. Kept deliberately permissive (deny-list of verticals that have no physical
+		// delivery concept, not an allow-list) so new verticals aren't silently locked out again.
+		delivery.With(subscriptions.RequireUseCase(
+			"hospitality", "quick_service", "food_delivery",
+			"retail", "pharmacy", "wholesale",
+		)).Post("/create-task", h.CreateDeliveryTask)
 		delivery.Get("/task", h.GetDeliveryTask)
 		delivery.Post("/cancel-task", h.CancelDeliveryTask)
 		delivery.Get("/tracking", h.GetTracking)

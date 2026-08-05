@@ -89,3 +89,54 @@ func (h *Handler) ListBanners(w http.ResponseWriter, r *http.Request) {
 	}
 	handlers.RespondJSON(w, http.StatusOK, banners)
 }
+
+// dealsCacheTTL matches bannerCacheTTL — same class of public, high-traffic, edit-should-show-up
+// -quickly endpoint.
+const dealsCacheTTL = bannerCacheTTL
+
+// ListDeals returns active, currently-in-window discounts for the tenant's "Top Deals" storefront
+// grid. Always 200s with a (possibly empty) array, same posture as ListBanners.
+// @Summary List storefront "Top Deals"
+// @Description Active, in-window discounts for the ordering storefront's Top Deals grid
+// @Tags Promotions
+// @Produce json
+// @Param tenant path string true "Tenant slug"
+// @Success 200 {array} posdiscounts.Discount
+// @Router /{tenant}/promotions/deals [get]
+func (h *Handler) ListDeals(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "tenant")
+	if slug == "" {
+		handlers.RespondError(w, http.StatusBadRequest, "tenant slug required")
+		return
+	}
+	ctx := r.Context()
+
+	t, err := h.db.Tenant.Query().Where(tenant.SlugEQ(slug)).Only(ctx)
+	if err != nil {
+		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Discount{})
+		return
+	}
+
+	if !h.client.Enabled() {
+		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Discount{})
+		return
+	}
+
+	cacheKey := "promo-deals:" + t.ID.String()
+	var deals []posdiscounts.Discount
+	fetch := func() (interface{}, error) {
+		return h.client.ListDeals(context.WithoutCancel(ctx), t.ID), nil
+	}
+	if h.cache != nil {
+		if err := h.cache.GetOrSet(ctx, cacheKey, &deals, dealsCacheTTL, fetch); err != nil {
+			h.log.Warn("promobanner: deals cache/fetch failed, falling back to direct call", zap.Error(err))
+			deals = h.client.ListDeals(ctx, t.ID)
+		}
+	} else {
+		deals = h.client.ListDeals(ctx, t.ID)
+	}
+	if deals == nil {
+		deals = []posdiscounts.Discount{}
+	}
+	handlers.RespondJSON(w, http.StatusOK, deals)
+}
