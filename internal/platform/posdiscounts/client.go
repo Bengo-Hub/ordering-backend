@@ -178,9 +178,9 @@ func (c *Client) ListDeals(ctx context.Context, tenantID uuid.UUID) []Discount {
 }
 
 // ApplyLine is one cart line sent to ApplyDiscount — mirrors pos-api's applyPromoLineInput.
-// Category is best-effort: ordering-backend's CartItem does not currently snapshot a category
-// at add-time, so category-scoped discounts won't match at checkout until that's added (a
-// separate follow-up) — item-scoped and storewide discounts are unaffected.
+// Category is populated from CartItem.Metadata["category"], snapshotted at add-to-cart time
+// (cart_service.go) from the catalog item's category name — same string pos-api's category-scope
+// matching compares against.
 type ApplyLine struct {
 	SKU       string  `json:"sku"`
 	Category  string  `json:"category,omitempty"`
