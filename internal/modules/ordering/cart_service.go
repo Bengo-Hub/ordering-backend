@@ -189,6 +189,12 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		if catalogItem.TaxCodeID != "" {
 			meta["tax_code_id"] = catalogItem.TaxCodeID
 		}
+		// Category snapshot (additive metadata key, no schema change) — lets promo-code
+		// validation evaluate category-scoped discounts against the SAME category the item
+		// actually belonged to at add-time, matching pos-api's category-scope matching.
+		if catalogItem.CategoryName != "" {
+			meta["category"] = catalogItem.CategoryName
+		}
 		item := &CartItem{
 			CartID:        cart.ID,
 			InventorySKU:  req.InventorySKU,

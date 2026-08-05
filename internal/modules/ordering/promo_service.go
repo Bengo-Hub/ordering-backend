@@ -66,7 +66,13 @@ func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID
 		}
 		lines := make([]posdiscounts.ApplyLine, 0, len(items))
 		for _, it := range items {
-			lines = append(lines, posdiscounts.ApplyLine{SKU: it.InventorySKU, Quantity: float64(it.Quantity), UnitPrice: it.UnitPrice})
+			line := posdiscounts.ApplyLine{SKU: it.InventorySKU, Quantity: float64(it.Quantity), UnitPrice: it.UnitPrice}
+			// Category snapshot, taken at add-to-cart time (cart_service.go) — lets category-
+			// scoped discounts match here the same way they do on the POS terminal.
+			if cat, ok := it.Metadata["category"].(string); ok {
+				line.Category = cat
+			}
+			lines = append(lines, line)
 		}
 		res, err := s.discountsClient.ApplyDiscount(ctx, tenantID, outletPtr, code, lines)
 		if err != nil {
