@@ -197,6 +197,10 @@ type ApplyResult struct {
 	DiscountAmount string                     `json:"discountAmount"`
 	PerSKU         map[string]json.RawMessage `json:"perSku,omitempty"`
 	Reason         string                     `json:"reason,omitempty"`
+	// DiscountType mirrors pos-api's winning rule discount_type (e.g. "free_delivery") — pos-api
+	// has no delivery fee of its own, so this is the only way the caller learns a code means
+	// "zero the delivery fee" rather than a resolved KES amount.
+	DiscountType string `json:"discount_type,omitempty"`
 }
 
 // ApplyDiscount validates promoCode against the caller's REAL cart lines through pos-api's
