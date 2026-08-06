@@ -7,6 +7,7 @@ package marketplace
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,6 +16,35 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/marketplace"
 )
+
+// storefrontEligibleUseCases mirrors ordering-frontend's normalizeOrderingUseCase (the set of
+// raw use_case values that resolve to a real per-vertical homepage) — a tenant whose use_case is
+// empty, "other", or anything unrecognized has no real customer-facing storefront experience and
+// must not appear on the platform's public marketplace landing page (e.g. a government body or an
+// individual/professional-services tenant registered for back-office use only).
+var storefrontEligibleUseCases = map[string]bool{
+	"hospitality": true, "restaurant": true, "cafe": true, "bar": true, "food": true, "food_delivery": true,
+	"quick_service": true, "qsr": true, "fast_food": true,
+	"pharmacy": true, "chemist": true,
+	"retail": true, "e_commerce": true, "ecommerce": true, "electronics": true, "hardware": true,
+	"services": true, "salon": true, "spa": true, "wellness": true, "beauty": true,
+	"ticketing": true, "events": true, "event": true,
+	"warehousing": true, "warehouse": true, "wholesale": true, "manufacturing": true,
+}
+
+// isStorefrontEligible reports whether a tenant's use_case (or any of its use_cases) resolves to
+// a real storefront profile.
+func isStorefrontEligible(t marketplace.TenantSummary) bool {
+	if storefrontEligibleUseCases[strings.ToLower(strings.TrimSpace(t.UseCase))] {
+		return true
+	}
+	for _, uc := range t.UseCases {
+		if storefrontEligibleUseCases[strings.ToLower(strings.TrimSpace(uc))] {
+			return true
+		}
+	}
+	return false
+}
 
 // listCacheTTL is short — this is public, anonymous, potentially very high-traffic (it's the
 // platform's front door), and must never hammer auth-api on every page load, while still
@@ -62,21 +92,42 @@ func (h *Handler) ListTenants(w http.ResponseWriter, r *http.Request) {
 		limit = 50
 	}
 
-	cacheKey := "marketplace-tenants:" + useCase + ":" + strconv.Itoa(page) + ":" + strconv.Itoa(limit)
-	var tenants []marketplace.TenantSummary
+	// Storefront eligibility is filtered here (not passed to auth-api), so it must happen
+	// BEFORE this handler's own pagination — filtering an already-paginated page would starve
+	// page 2+ of eligible tenants sitting behind ineligible ones on page 1 (the exact
+	// "client-side filter ran after pagination → empty page" bug class already fixed once in
+	// this codebase's catalog proxy). So: fetch a large-enough pool from auth-api unpaginated,
+	// filter, then paginate the filtered set ourselves.
+	const fetchPoolLimit = 200
+	cacheKey := "marketplace-tenants:" + useCase + ":pool"
+	var pool []marketplace.TenantSummary
 	fetch := func() (interface{}, error) {
-		return h.client.ListTenants(ctx, useCase, page, limit), nil
+		return h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit), nil
 	}
 	if h.cache != nil {
-		if err := h.cache.GetOrSet(ctx, cacheKey, &tenants, listCacheTTL, fetch); err != nil {
+		if err := h.cache.GetOrSet(ctx, cacheKey, &pool, listCacheTTL, fetch); err != nil {
 			h.log.Warn("marketplace: cache/fetch failed, falling back to direct call", zap.Error(err))
-			tenants = h.client.ListTenants(ctx, useCase, page, limit)
+			pool = h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit)
 		}
 	} else {
-		tenants = h.client.ListTenants(ctx, useCase, page, limit)
+		pool = h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit)
 	}
-	if tenants == nil {
-		tenants = []marketplace.TenantSummary{}
+
+	eligible := make([]marketplace.TenantSummary, 0, len(pool))
+	for _, t := range pool {
+		if isStorefrontEligible(t) {
+			eligible = append(eligible, t)
+		}
+	}
+
+	start := (page - 1) * limit
+	tenants := []marketplace.TenantSummary{}
+	if start < len(eligible) {
+		end := start + limit
+		if end > len(eligible) {
+			end = len(eligible)
+		}
+		tenants = eligible[start:end]
 	}
 	handlers.RespondJSON(w, http.StatusOK, ListTenantsResponse{Data: tenants})
 }
