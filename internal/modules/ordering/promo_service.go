@@ -87,10 +87,16 @@ func (s *PromoService) ValidatePromoCode(ctx context.Context, tenantID, outletID
 		if pid, perr := uuid.Parse(res.PromoID); perr == nil {
 			promoID = &pid
 		}
+		// free_delivery carries no monetary amount at all — everything else pos-api returns is
+		// already a resolved KES amount, not a %/rate, so it maps onto the fixed-amount type.
+		discountType := PromoCodeTypeFixedAmount
+		if PromoCodeType(res.DiscountType) == PromoCodeTypeFreeDelivery {
+			discountType = PromoCodeTypeFreeDelivery
+		}
 		return &PromoValidationResult{
 			Valid:          true,
 			PromoCodeID:    promoID,
-			DiscountType:   PromoCodeTypeFixedAmount, // already a resolved KES amount, not a %/rate
+			DiscountType:   discountType,
 			DiscountValue:  amt,
 			DiscountAmount: amt,
 		}, nil
