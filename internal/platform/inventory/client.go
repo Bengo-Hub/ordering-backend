@@ -455,6 +455,7 @@ type ItemResponse struct {
 	BrandCode      string                `json:"brand_code,omitempty"`
 	Manufacturer   string                `json:"manufacturer,omitempty"`
 	Model          string                `json:"model,omitempty"`
+	Condition      string                `json:"condition,omitempty"` // NEW | REFURBISHED | USED | OPEN_BOX
 	HasVariants    bool                  `json:"has_variants,omitempty"`
 	Variants       []ItemVariantResponse `json:"variants,omitempty"`
 	UnitID         *uuid.UUID            `json:"unit_id,omitempty"`

@@ -37,6 +37,7 @@ type MergedCatalogItem struct {
 	BrandCode    string           `json:"brandCode,omitempty"`
 	Manufacturer string           `json:"manufacturer,omitempty"` // retail/pharmacy
 	Model        string           `json:"model,omitempty"`        // retail only
+	Condition    string           `json:"condition,omitempty"`    // NEW | REFURBISHED | USED | OPEN_BOX
 	HasVariants  bool             `json:"hasVariants,omitempty"`
 	Variants     []CatalogVariant `json:"variants,omitempty"`
 	Tags         []string         `json:"tags,omitempty"`
