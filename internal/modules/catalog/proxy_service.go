@@ -628,6 +628,7 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		BrandCode:     inv.BrandCode,
 		Manufacturer:  inv.Manufacturer,
 		Model:         inv.Model,
+		Condition:     inv.Condition,
 		HasVariants:   inv.HasVariants,
 		Tags:          inv.Tags,
 		Metadata:      inv.Metadata,
