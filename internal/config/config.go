@@ -190,7 +190,7 @@ type NotificationsConfig struct {
 
 type SubscriptionsConfig struct {
 	// Subscriptions service URL
-	ServiceURL     string        `envconfig:"SUBSCRIPTIONS_SERVICE_URL" default:"http://localhost:4008"`
+	ServiceURL     string        `envconfig:"SUBSCRIPTION_BASE_URL" default:"http://localhost:4008"`
 	APIKey         string        `envconfig:"INTERNAL_SERVICE_KEY"`
 	RequestTimeout time.Duration `envconfig:"SUBSCRIPTIONS_REQUEST_TIMEOUT" default:"10s"`
 }
