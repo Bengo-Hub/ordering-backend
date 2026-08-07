@@ -63,16 +63,27 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	// featured (below) surfaces just the handful of featured items that happen to land on the
 	// first page. When a featured listing is requested, scan the full catalog up-front and
 	// re-apply the caller's limit to the filtered result before returning.
-	fetchLimit, fetchPage := limit, page
+	var invItems []inventory.ItemResponse
+	var invTotal int
+	var err error
 	featuredListing := filter.IsFeatured != nil && *filter.IsFeatured
 	if featuredListing {
-		fetchLimit, fetchPage = 500, 1
-	}
-	// Apply the category filter SERVER-SIDE so a selected category returns its items + the correct
-	// total (the old client-side filter ran after pagination → empty/null page for any category).
-	invItems, invTotal, err := s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, fetchLimit, fetchPage, filter.CategoryID, filter.Sort)
-	if err != nil {
-		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
+		// inventory-api clamps any requested limit to its shared pagination cap (100), so a
+		// single large-limit request silently truncates the catalog past the first ~100 items —
+		// must page through all of it, not request one oversized page.
+		invItems, err = s.fetchAllInventoryItems(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort)
+		if err != nil {
+			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
+		}
+		invTotal = len(invItems)
+	} else {
+		// Apply the category filter SERVER-SIDE so a selected category returns its items + the
+		// correct total (the old client-side filter ran after pagination → empty/null page for
+		// any category).
+		invItems, invTotal, err = s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID, filter.Sort)
+		if err != nil {
+			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
+		}
 	}
 
 	// 2. Load all overrides for this tenant (optionally scoped to outlet)
@@ -171,6 +182,29 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	}
 
 	return merged, invTotal, nil
+}
+
+// inventoryPageSize matches inventory-api's shared pagination.MaxLimit. Any larger requested
+// limit is silently clamped server-side, so paging must use exactly this size.
+const inventoryPageSize = 100
+
+// fetchAllInventoryItems pages through inventory-api's item listing until every row is retrieved.
+// A single request with a large limit is silently truncated to inventoryPageSize server-side —
+// callers that need the full catalog (e.g. scanning for featured items scattered across it) must
+// page through it explicitly.
+func (s *ProxyService) fetchAllInventoryItems(ctx context.Context, tenantSlug, itemType string, categoryID *uuid.UUID, sort string) ([]inventory.ItemResponse, error) {
+	items := make([]inventory.ItemResponse, 0, 2*inventoryPageSize)
+	for page := 1; page <= 50; page++ { // runaway guard: 50 pages = 5k items
+		pageItems, total, err := s.inventoryClient.ListItems(ctx, tenantSlug, itemType, inventoryPageSize, page, categoryID, sort)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, pageItems...)
+		if len(pageItems) < inventoryPageSize || len(items) >= total {
+			break
+		}
+	}
+	return items, nil
 }
 
 // GetItem fetches a single item from inventory-api by SKU, merges with override.

@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 )
 
 // PublicEventTier is a sellable ticket tier with live remaining availability.
@@ -73,7 +75,10 @@ func (s *ProxyService) GetEventDetail(ctx context.Context, tenantSlug, eventID s
 	if err != nil {
 		return nil, fmt.Errorf("catalog: invalid event id")
 	}
-	evs, _, err := s.inventoryClient.ListEvents(ctx, tenantSlug, 500, 1)
+	// inventory-api clamps any requested limit to its shared pagination cap (100), so a single
+	// large-limit request silently truncates the list past the first ~100 events — page through
+	// all of it, or an event beyond page 1 would incorrectly 404 here.
+	evs, err := s.fetchAllEvents(ctx, tenantSlug)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: load events: %w", err)
 	}
@@ -126,6 +131,23 @@ func (s *ProxyService) GetEventDetail(ctx context.Context, tenantSlug, eventID s
 		s.logger.Warn("catalog: event availability fetch failed", zap.String("event_id", eventID), zap.Error(aerr))
 	}
 	return found, nil
+}
+
+// fetchAllEvents pages through inventory-api's events listing until every row is retrieved.
+// See fetchAllInventoryItems (proxy_service.go) for why a single large-limit request is unsafe.
+func (s *ProxyService) fetchAllEvents(ctx context.Context, tenantSlug string) ([]inventory.EventResponse, error) {
+	events := make([]inventory.EventResponse, 0, 2*inventoryPageSize)
+	for page := 1; page <= 50; page++ { // runaway guard: 50 pages = 5k events
+		pageEvents, total, err := s.inventoryClient.ListEvents(ctx, tenantSlug, inventoryPageSize, page)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, pageEvents...)
+		if len(pageEvents) < inventoryPageSize || len(events) >= total {
+			break
+		}
+	}
+	return events, nil
 }
 
 func capacity(total, booked *int) (int, int) {
