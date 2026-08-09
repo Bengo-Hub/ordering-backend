@@ -86,11 +86,23 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 	}
 
-	// 2. Load all overrides for this tenant (optionally scoped to outlet)
+	// 2. Load overrides for this tenant, scoped to a real outlet — NEVER unscoped. A historical
+	// bug let this query load every outlet_id ever recorded against the tenant with no ordering,
+	// so when a SKU had override rows under more than one outlet_id (including, for at least one
+	// tenant, a stale/orphaned ID that happened to collide with a DIFFERENT tenant's outlet UUID),
+	// whichever row Postgres returned last silently won in the per-SKU map below — non-deterministic
+	// and, in that collision case, actively wrong data. Always constrain to the tenant's own real
+	// outlets (or the single one the caller asked for) instead.
+	realOutletIDs, err := s.tenantOutletIDs(ctx, tenantID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("catalog: load outlets: %w", err)
+	}
 	overrideQuery := s.db.CatalogOverride.Query().
 		Where(catalogoverride.TenantID(tenantID))
 	if filter.OutletID != nil {
 		overrideQuery = overrideQuery.Where(catalogoverride.OutletID(*filter.OutletID))
+	} else if len(realOutletIDs) > 0 {
+		overrideQuery = overrideQuery.Where(catalogoverride.OutletIDIn(realOutletIDs...))
 	}
 	overrides, err := overrideQuery.All(ctx)
 	if err != nil {
@@ -232,13 +244,22 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 		return nil, ErrItemNotFound
 	}
 
-	// Load override
-	override, _ := s.db.CatalogOverride.Query().
+	// Load override — scoped to a real outlet of this tenant, same reasoning as ListItems above:
+	// an unscoped .First() would return whichever of possibly several outlet-keyed rows Postgres
+	// happens to return first, not necessarily the one belonging to this tenant.
+	overrideOutletIDs, err := s.tenantOutletIDs(ctx, tenantID)
+	if err != nil {
+		return nil, fmt.Errorf("catalog: load outlets: %w", err)
+	}
+	overrideQuery := s.db.CatalogOverride.Query().
 		Where(
 			catalogoverride.TenantID(tenantID),
 			catalogoverride.InventorySku(sku),
-		).
-		First(ctx)
+		)
+	if len(overrideOutletIDs) > 0 {
+		overrideQuery = overrideQuery.Where(catalogoverride.OutletIDIn(overrideOutletIDs...))
+	}
+	override, _ := overrideQuery.First(ctx)
 
 	// Load favorite
 	favSet := make(map[string]struct{})
@@ -567,6 +588,21 @@ func (s *ProxyService) listOutletsFromDB(ctx context.Context, tenantID uuid.UUID
 		result[i] = entOutletToSummary(o)
 	}
 	return result, nil
+}
+
+// tenantOutletIDs returns every outlet ID actually belonging to this tenant (cached via
+// ListOutlets), used to scope catalog-override lookups so a stale/foreign outlet_id on an
+// override row can never be read as if it were one of this tenant's own outlets.
+func (s *ProxyService) tenantOutletIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
+	outlets, err := s.ListOutlets(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]uuid.UUID, len(outlets))
+	for i, o := range outlets {
+		ids[i] = o.ID
+	}
+	return ids, nil
 }
 
 // GetOutlet retrieves a single outlet by ID.
