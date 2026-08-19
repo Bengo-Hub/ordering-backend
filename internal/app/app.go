@@ -29,8 +29,8 @@ import (
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
-	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	marketplacehandler "github.com/bengobox/ordering-backend/internal/http/handlers/marketplace"
+	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
@@ -282,7 +282,7 @@ func New(ctx context.Context) (*App, error) {
 	marketplaceHandler := marketplacehandler.New(log, marketplaceClient, cacheSvc)
 	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
-	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, log)
+	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, catalogProxySvc, log)
 
 	// Start order scheduler for scheduled delivery flow
 	orderScheduler := ordering.NewOrderScheduler(log, orderSvc)
