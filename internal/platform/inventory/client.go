@@ -437,16 +437,35 @@ type ItemVariantResponse struct {
 	IsActive   bool              `json:"is_active"`
 }
 
+// ItemModifierOptionResponse mirrors inventory-api's items.ItemModifierOption.
+type ItemModifierOptionResponse struct {
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	SKU             string  `json:"sku,omitempty"`
+	PriceAdjustment float64 `json:"price_adjustment"`
+	IsDefault       bool    `json:"is_default"`
+}
+
+// ItemModifierGroupResponse mirrors inventory-api's items.ItemModifierGroup.
+type ItemModifierGroupResponse struct {
+	ID            string                       `json:"id"`
+	Name          string                       `json:"name"`
+	IsRequired    bool                         `json:"is_required"`
+	MinSelections int                          `json:"min_selections"`
+	MaxSelections int                          `json:"max_selections"`
+	Options       []ItemModifierOptionResponse `json:"options"`
+}
+
 type ItemResponse struct {
-	ID             uuid.UUID             `json:"id"`
-	SKU            string                `json:"sku"`
-	Name           string                `json:"name"`
-	Description    string                `json:"description,omitempty"`
-	Type           string                `json:"type"`
-	IsActive       bool                  `json:"is_active"`
+	ID          uuid.UUID `json:"id"`
+	SKU         string    `json:"sku"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Type        string    `json:"type"`
+	IsActive    bool      `json:"is_active"`
 	// NotForSale marks purchasable-only stock (e.g. ingredients bought for production):
 	// such items must NEVER surface on any sales/storefront surface.
-	NotForSale bool `json:"not_for_sale"`
+	NotForSale     bool                  `json:"not_for_sale"`
 	ImageURL       string                `json:"image_url,omitempty"`
 	CategoryID     *uuid.UUID            `json:"category_id,omitempty"`
 	CategoryName   string                `json:"category_name,omitempty"`
@@ -483,6 +502,9 @@ type ItemResponse struct {
 	EventStartAt  *time.Time `json:"event_start_at,omitempty"`
 	EventEndAt    *time.Time `json:"event_end_at,omitempty"`
 	EventVenue    string     `json:"event_venue,omitempty"`
+	// ModifierGroups: this item's selectable modifiers (e.g. "Pick your topping"),
+	// enriched unconditionally by inventory-api's ListItems/GetItem.
+	ModifierGroups []ItemModifierGroupResponse `json:"modifier_groups,omitempty"`
 }
 
 // CreateItem creates a new item in inventory-api.

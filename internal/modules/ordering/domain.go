@@ -43,7 +43,7 @@ type CartItemModifier struct {
 	GroupName       string    `json:"group_name"`
 	OptionID        uuid.UUID `json:"option_id"`
 	OptionName      string    `json:"option_name"`
-	PriceAdjustment float64  `json:"price_adjustment"`
+	PriceAdjustment float64   `json:"price_adjustment"`
 }
 
 // CartItem represents an item in a shopping cart.
@@ -75,9 +75,9 @@ const (
 	OrderStatusOutForDelivery OrderStatus = "out_for_delivery"
 	OrderStatusDelivered      OrderStatus = "delivered"
 	OrderStatusCompleted      OrderStatus = "completed"
-	OrderStatusCancelled       OrderStatus = "cancelled"
-	OrderStatusRefunded        OrderStatus = "refunded"
-	OrderStatusPaymentTimeout  OrderStatus = "payment_timeout"
+	OrderStatusCancelled      OrderStatus = "cancelled"
+	OrderStatusRefunded       OrderStatus = "refunded"
+	OrderStatusPaymentTimeout OrderStatus = "payment_timeout"
 )
 
 // PaymentStatus represents the payment status of an order.
@@ -117,70 +117,70 @@ const (
 type PaymentMethod string
 
 const (
-	PaymentMethodMpesa   PaymentMethod = "mpesa"
+	PaymentMethodMpesa    PaymentMethod = "mpesa"
 	PaymentMethodPaystack PaymentMethod = "paystack"
-	PaymentMethodStripe  PaymentMethod = "stripe"
-	PaymentMethodCOD     PaymentMethod = "cod"
-	PaymentMethodWallet  PaymentMethod = "wallet"
-	PaymentMethodLoyalty PaymentMethod = "loyalty"
+	PaymentMethodStripe   PaymentMethod = "stripe"
+	PaymentMethodCOD      PaymentMethod = "cod"
+	PaymentMethodWallet   PaymentMethod = "wallet"
+	PaymentMethodLoyalty  PaymentMethod = "loyalty"
 )
 
 // Order represents a customer order.
 type Order struct {
-	ID                    uuid.UUID              `json:"id"`
-	TenantID              uuid.UUID              `json:"tenantId"`
-	OutletID              uuid.UUID              `json:"outletId"`
-	CustomerID            *uuid.UUID             `json:"customerId,omitempty"`
-	CrmContactID          *uuid.UUID             `json:"crmContactId,omitempty"`
-	CartID                *uuid.UUID             `json:"cartId,omitempty"`
-	OrderNumber           string                 `json:"orderNumber"`
-	Status                OrderStatus            `json:"status"`
-	PaymentStatus         PaymentStatus          `json:"paymentStatus"`
-	PaymentMethod         PaymentMethod          `json:"paymentMethod"`
-	FulfillmentType       FulfillmentType        `json:"fulfillmentType"`
-	ScheduledFor          *time.Time             `json:"scheduledFor,omitempty"`
-	Currency              string                 `json:"currency"`
-	Subtotal              float64                `json:"subtotal"`
-	DiscountTotal         float64                `json:"discountTotal"`
-	TaxTotal              float64                `json:"taxTotal"`
-	DeliveryFee           float64                `json:"deliveryFee"`
-	PackagingFee          float64                `json:"packagingFee"`
-	ServiceFee            float64                `json:"serviceFee"`
-	SmallOrderFee         float64                `json:"smallOrderFee"`
-	TipTotal              float64                `json:"tipTotal"`
-	GrandTotal            float64                `json:"grandTotal"`
-	ReservationID         *uuid.UUID             `json:"reservationId,omitempty"`
-	PaymentIntentID       *uuid.UUID             `json:"paymentIntentId,omitempty"`
-	LoyaltyPointsEarned   int                    `json:"loyaltyPointsEarned"`
-	LoyaltyPointsRedeemed int                    `json:"loyaltyPointsRedeemed"`
-	DeliveryAddressID     *uuid.UUID             `json:"deliveryAddressId,omitempty"`
-	PromoCodeID           *uuid.UUID             `json:"promoCodeId,omitempty"`
-	Instructions          string                 `json:"instructions,omitempty"`
-	Channel               OrderChannel           `json:"channel"`
-	Source                string                 `json:"source,omitempty"`
+	ID                    uuid.UUID       `json:"id"`
+	TenantID              uuid.UUID       `json:"tenantId"`
+	OutletID              uuid.UUID       `json:"outletId"`
+	CustomerID            *uuid.UUID      `json:"customerId,omitempty"`
+	CrmContactID          *uuid.UUID      `json:"crmContactId,omitempty"`
+	CartID                *uuid.UUID      `json:"cartId,omitempty"`
+	OrderNumber           string          `json:"orderNumber"`
+	Status                OrderStatus     `json:"status"`
+	PaymentStatus         PaymentStatus   `json:"paymentStatus"`
+	PaymentMethod         PaymentMethod   `json:"paymentMethod"`
+	FulfillmentType       FulfillmentType `json:"fulfillmentType"`
+	ScheduledFor          *time.Time      `json:"scheduledFor,omitempty"`
+	Currency              string          `json:"currency"`
+	Subtotal              float64         `json:"subtotal"`
+	DiscountTotal         float64         `json:"discountTotal"`
+	TaxTotal              float64         `json:"taxTotal"`
+	DeliveryFee           float64         `json:"deliveryFee"`
+	PackagingFee          float64         `json:"packagingFee"`
+	ServiceFee            float64         `json:"serviceFee"`
+	SmallOrderFee         float64         `json:"smallOrderFee"`
+	TipTotal              float64         `json:"tipTotal"`
+	GrandTotal            float64         `json:"grandTotal"`
+	ReservationID         *uuid.UUID      `json:"reservationId,omitempty"`
+	PaymentIntentID       *uuid.UUID      `json:"paymentIntentId,omitempty"`
+	LoyaltyPointsEarned   int             `json:"loyaltyPointsEarned"`
+	LoyaltyPointsRedeemed int             `json:"loyaltyPointsRedeemed"`
+	DeliveryAddressID     *uuid.UUID      `json:"deliveryAddressId,omitempty"`
+	PromoCodeID           *uuid.UUID      `json:"promoCodeId,omitempty"`
+	Instructions          string          `json:"instructions,omitempty"`
+	Channel               OrderChannel    `json:"channel"`
+	Source                string          `json:"source,omitempty"`
 	// PODCode is the 6-digit proof-of-delivery confirmation code, set only for delivery-fulfilment orders.
-	PODCode               string                 `json:"podCode,omitempty"`
+	PODCode string `json:"podCode,omitempty"`
 	// Resolved customer contact info (from metadata for guests, from user for authenticated)
-	CustomerName          string                 `json:"customerName,omitempty"`
-	CustomerEmail         string                 `json:"customerEmail,omitempty"`
-	CustomerPhone         string                 `json:"customerPhone,omitempty"`
-	IdempotencyKey        string                 `json:"idempotencyKey,omitempty"`
-	Items                 []OrderItem            `json:"items,omitempty"`
-	Events                []OrderEvent           `json:"events,omitempty"`
-	DeliveryAddress       *CustomerAddress       `json:"deliveryAddress,omitempty"`
-	PlacedAt              *time.Time             `json:"placedAt,omitempty"`
-	ConfirmedAt           *time.Time             `json:"confirmedAt,omitempty"`
-	ReadyAt               *time.Time             `json:"readyAt,omitempty"`
-	DeliveredAt           *time.Time             `json:"deliveredAt,omitempty"`
-	CompletedAt           *time.Time             `json:"completedAt,omitempty"`
-	CancelledAt           *time.Time             `json:"cancelledAt,omitempty"`
-	CancellationReason    string                 `json:"cancellationReason,omitempty"`
-	Rating                *int                   `json:"rating,omitempty"`
-	RatingComment         string                 `json:"ratingComment,omitempty"`
-	RatedAt               *time.Time             `json:"ratedAt,omitempty"`
-	Metadata              map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt             time.Time              `json:"createdAt"`
-	UpdatedAt             time.Time              `json:"updatedAt"`
+	CustomerName       string                 `json:"customerName,omitempty"`
+	CustomerEmail      string                 `json:"customerEmail,omitempty"`
+	CustomerPhone      string                 `json:"customerPhone,omitempty"`
+	IdempotencyKey     string                 `json:"idempotencyKey,omitempty"`
+	Items              []OrderItem            `json:"items,omitempty"`
+	Events             []OrderEvent           `json:"events,omitempty"`
+	DeliveryAddress    *CustomerAddress       `json:"deliveryAddress,omitempty"`
+	PlacedAt           *time.Time             `json:"placedAt,omitempty"`
+	ConfirmedAt        *time.Time             `json:"confirmedAt,omitempty"`
+	ReadyAt            *time.Time             `json:"readyAt,omitempty"`
+	DeliveredAt        *time.Time             `json:"deliveredAt,omitempty"`
+	CompletedAt        *time.Time             `json:"completedAt,omitempty"`
+	CancelledAt        *time.Time             `json:"cancelledAt,omitempty"`
+	CancellationReason string                 `json:"cancellationReason,omitempty"`
+	Rating             *int                   `json:"rating,omitempty"`
+	RatingComment      string                 `json:"ratingComment,omitempty"`
+	RatedAt            *time.Time             `json:"ratedAt,omitempty"`
+	Metadata           map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
 }
 
 // LineItem is a single component of the order total (delivery fee, packaging, taxes, etc.).
@@ -258,9 +258,9 @@ type CustomerAddress struct {
 	ContactPhone string    `json:"contactPhone,omitempty"`
 	Instructions string    `json:"instructions,omitempty"`
 	IsVerified   bool      `json:"isVerified"`
-	IsDefault          bool       `json:"isDefault"`
-	CreatedAt          time.Time  `json:"createdAt"`
-	UpdatedAt          time.Time  `json:"updatedAt"`
+	IsDefault    bool      `json:"isDefault"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 // Tenant represents a minimalist view of a tenant.
@@ -282,28 +282,28 @@ const (
 
 // PromoCode represents a promotional discount code.
 type PromoCode struct {
-	ID               uuid.UUID              `json:"id"`
-	TenantID         uuid.UUID              `json:"tenantId"`
-	OutletID         *uuid.UUID             `json:"outletId,omitempty"`
-	Code             string                 `json:"code"`
-	Name             string                 `json:"name"`
-	Description      string                 `json:"description,omitempty"`
-	DiscountType     PromoCodeType          `json:"discountType"`
-	DiscountValue    float64                `json:"discountValue"`
-	MaxDiscountAmount *float64              `json:"maxDiscountAmount,omitempty"`
-	MinSubtotal      float64                `json:"minSubtotal"`
-	MaxUses          *int                   `json:"maxUses,omitempty"`
-	MaxUsesPerUser   *int                   `json:"maxUsesPerUser,omitempty"`
-	UsageCount       int                    `json:"usageCount"`
-	IsActive         bool                   `json:"isActive"`
-	FirstOrderOnly   bool                   `json:"firstOrderOnly"`
-	StartsAt         *time.Time             `json:"startsAt,omitempty"`
-	EndsAt           *time.Time             `json:"endsAt,omitempty"`
-	EligibleCategories []uuid.UUID          `json:"eligibleCategories,omitempty"`
-	EligibleItems    []uuid.UUID            `json:"eligibleItems,omitempty"`
-	Metadata         map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt        time.Time              `json:"createdAt"`
-	UpdatedAt        time.Time              `json:"updatedAt"`
+	ID                 uuid.UUID              `json:"id"`
+	TenantID           uuid.UUID              `json:"tenantId"`
+	OutletID           *uuid.UUID             `json:"outletId,omitempty"`
+	Code               string                 `json:"code"`
+	Name               string                 `json:"name"`
+	Description        string                 `json:"description,omitempty"`
+	DiscountType       PromoCodeType          `json:"discountType"`
+	DiscountValue      float64                `json:"discountValue"`
+	MaxDiscountAmount  *float64               `json:"maxDiscountAmount,omitempty"`
+	MinSubtotal        float64                `json:"minSubtotal"`
+	MaxUses            *int                   `json:"maxUses,omitempty"`
+	MaxUsesPerUser     *int                   `json:"maxUsesPerUser,omitempty"`
+	UsageCount         int                    `json:"usageCount"`
+	IsActive           bool                   `json:"isActive"`
+	FirstOrderOnly     bool                   `json:"firstOrderOnly"`
+	StartsAt           *time.Time             `json:"startsAt,omitempty"`
+	EndsAt             *time.Time             `json:"endsAt,omitempty"`
+	EligibleCategories []uuid.UUID            `json:"eligibleCategories,omitempty"`
+	EligibleItems      []uuid.UUID            `json:"eligibleItems,omitempty"`
+	Metadata           map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
 }
 
 // PromoRedemption represents the redemption of a promo code.
@@ -418,7 +418,7 @@ type GroupOrder struct {
 	InviteCode      string             `json:"inviteCode"`
 	Status          GroupOrderStatus   `json:"status"`
 	MaxParticipants int                `json:"maxParticipants"`
-	Participants    []GroupParticipant  `json:"participants,omitempty"`
+	Participants    []GroupParticipant `json:"participants,omitempty"`
 	ExpiresAt       time.Time          `json:"expiresAt"`
 	CreatedAt       time.Time          `json:"createdAt"`
 	UpdatedAt       time.Time          `json:"updatedAt"`
@@ -563,6 +563,10 @@ type CreateOrderItemInput struct {
 	UnitPrice    float64
 	TotalPrice   float64
 	Metadata     map[string]interface{} // per-line metadata (e.g. event ticket tier_id/is_ticket)
+	// Modifiers are the customer's selected modifier options (e.g. "Extra Cheese") for this
+	// line — snapshotted into the persisted order item's metadata for display/receipts, and
+	// fed into stock reservation so modifier ingredient stock deducts the same way POS sales do.
+	Modifiers []CartItemModifier
 }
 
 // GuestCheckoutRequest represents a request for guest checkout (no auth required).
@@ -617,7 +621,7 @@ type CartSummary struct {
 type AnalyticsSummary struct {
 	TotalRevenue      float64            `json:"totalRevenue"`
 	TotalOrders       int                `json:"totalOrders"`
-	CancelledOrders    int                `json:"cancelledOrders"`
+	CancelledOrders   int                `json:"cancelledOrders"`
 	OrdersByStatus    map[string]int     `json:"ordersByStatus"`
 	RevenueByCurrency map[string]float64 `json:"revenueByCurrency"`
 	TopSellingItems   []ItemSalesSummary `json:"topSellingItems"`

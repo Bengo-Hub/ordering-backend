@@ -20,6 +20,28 @@ type CatalogVariant struct {
 	IsActive   bool              `json:"isActive"`
 }
 
+// CatalogModifierOption is one selectable option within a CatalogModifierGroup
+// (e.g. "Extra cheese", "+Ksh 50"), surfaced from inventory-api unchanged.
+type CatalogModifierOption struct {
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	SKU             string  `json:"sku,omitempty"`
+	PriceAdjustment float64 `json:"price_adjustment"`
+	IsDefault       bool    `json:"is_default"`
+}
+
+// CatalogModifierGroup is a group of selectable modifiers for a catalog item
+// (e.g. "Pick your topping", required, choose 1-2), surfaced from inventory-api
+// unchanged so the storefront's add-to-cart modal can render checkboxes/radios.
+type CatalogModifierGroup struct {
+	ID            string                  `json:"id"`
+	Name          string                  `json:"name"`
+	IsRequired    bool                    `json:"is_required"`
+	MinSelections int                     `json:"min_selections"`
+	MaxSelections int                     `json:"max_selections"`
+	Options       []CatalogModifierOption `json:"options"`
+}
+
 // MergedCatalogItem is the merged view of inventory master data + local CatalogOverride.
 type MergedCatalogItem struct {
 	// Inventory fields
@@ -40,8 +62,11 @@ type MergedCatalogItem struct {
 	Condition    string           `json:"condition,omitempty"`    // NEW | REFURBISHED | USED | OPEN_BOX
 	HasVariants  bool             `json:"hasVariants,omitempty"`
 	Variants     []CatalogVariant `json:"variants,omitempty"`
-	Tags         []string         `json:"tags,omitempty"`
-	Metadata     map[string]any   `json:"metadata,omitempty"`
+	// ModifierGroups: this item's selectable modifiers (checkboxes/radios shown in the
+	// add-to-cart modal), passed through unchanged from inventory-api.
+	ModifierGroups []CatalogModifierGroup `json:"modifierGroups,omitempty"`
+	Tags           []string               `json:"tags,omitempty"`
+	Metadata       map[string]any         `json:"metadata,omitempty"`
 
 	// Event fields (SERVICE type only) — sourced from inventory
 	TotalCapacity *int       `json:"totalCapacity,omitempty"`
@@ -50,9 +75,9 @@ type MergedCatalogItem struct {
 	EventVenue    string     `json:"eventVenue,omitempty"`
 
 	// Override fields (from CatalogOverride)
-	BasePrice         float64 `json:"basePrice"`
-	Currency          string  `json:"currency"`
-	IsAvailable       bool    `json:"isAvailable"`
+	BasePrice   float64 `json:"basePrice"`
+	Currency    string  `json:"currency"`
+	IsAvailable bool    `json:"isAvailable"`
 	// AvailableQuantity is the quantity-aware availability projection (STK-5): the last
 	// on-hand/producible quantity seen from inventory stock events. Nil = unknown (no stock
 	// event observed yet). Lets the storefront show real stock levels ("3 left") rather than
