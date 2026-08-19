@@ -28,17 +28,26 @@ func New(log *zap.Logger, db *ent.Client, c *cache.Aside, authURL string) *Handl
 }
 
 // PublicConfigResponse is the public tenant/brand config returned by GET /config.
+// This is the single source of truth ordering-frontend uses for ALL tenant display
+// concerns (name, logo, colors, and use_case-driven layout selection) — see
+// useOrderingConfig/useBrandConfig, which replaced a second, independently-broken
+// tenant fetch (shared-ui-lib's TenantBrandingProvider, mounted above the org-slug
+// route segment so its slug context was permanently empty).
 type PublicConfigResponse struct {
-	Name          string            `json:"name"`
-	ShortName     string            `json:"short_name"`
-	LogoURL       string            `json:"logo_url,omitempty"`
-	PrimaryColor  string            `json:"primary_color,omitempty"`
-	SecondaryColor string           `json:"secondary_color,omitempty"`
-	SupportEmail  string            `json:"support_email,omitempty"`
-	SupportPhone  string            `json:"support_phone,omitempty"`
-	Tagline       string            `json:"tagline,omitempty"`
-	BrandPalette  map[string]string `json:"brand_palette,omitempty"`
-	Features      map[string]bool   `json:"features,omitempty"`
+	Name           string            `json:"name"`
+	ShortName      string            `json:"short_name"`
+	LogoURL        string            `json:"logo_url,omitempty"`
+	PrimaryColor   string            `json:"primary_color,omitempty"`
+	SecondaryColor string            `json:"secondary_color,omitempty"`
+	SupportEmail   string            `json:"support_email,omitempty"`
+	SupportPhone   string            `json:"support_phone,omitempty"`
+	Tagline        string            `json:"tagline,omitempty"`
+	BrandPalette   map[string]string `json:"brand_palette,omitempty"`
+	Features       map[string]bool   `json:"features,omitempty"`
+	// UseCase/UseCases drive the storefront's per-vertical layout (hospitality vs
+	// retail vs services, etc.) — see normalizeOrderingUseCase on the frontend.
+	UseCase  string   `json:"use_case,omitempty"`
+	UseCases []string `json:"use_cases,omitempty"`
 }
 
 // GetConfig returns public tenant display name and brand (logo, colors) for the tenant in the URL.
@@ -99,6 +108,8 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 			if branding.Name != "" {
 				resp.Name = branding.Name
 			}
+			resp.UseCase = details.UseCase
+			resp.UseCases = details.UseCases
 			// Populate brand_palette from all brand colors
 			if details.BrandColors != nil {
 				resp.BrandPalette = make(map[string]string)
