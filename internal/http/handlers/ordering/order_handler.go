@@ -409,7 +409,8 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrPromoCodeMaxUses),
 		errors.Is(err, ordering.ErrInsufficientLoyaltyPoints),
 		errors.Is(err, ordering.ErrScheduledForRequired),
-		errors.Is(err, ordering.ErrScheduledForTooSoon):
+		errors.Is(err, ordering.ErrScheduledForTooSoon),
+		errors.Is(err, ordering.ErrCatalogItemUnavailable):
 		handlers.RespondError(w, http.StatusBadRequest, err.Error())
 
 	case errors.Is(err, ordering.ErrUnauthorized):

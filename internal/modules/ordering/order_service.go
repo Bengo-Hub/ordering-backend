@@ -13,6 +13,7 @@ import (
 
 	"github.com/Bengo-Hub/httpware"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
@@ -56,6 +57,7 @@ type OrderService struct {
 	subscriptionsClient *subscriptions.Client
 	logisticsClient     *logistics.Client
 	crmClient           *marketflow.Client
+	catalogSvc          *catalog.ProxyService
 	logger              *zap.Logger
 }
 
@@ -68,6 +70,7 @@ func NewOrderService(
 	feeSvc *FeeService,
 	inventoryClient *inventory.Client,
 	subscriptionsClient *subscriptions.Client,
+	catalogSvc *catalog.ProxyService,
 	logger *zap.Logger,
 ) *OrderService {
 	return &OrderService{
@@ -78,6 +81,7 @@ func NewOrderService(
 		feeSvc:              feeSvc,
 		inventoryClient:     inventoryClient,
 		subscriptionsClient: subscriptionsClient,
+		catalogSvc:          catalogSvc,
 		stateMachine:        NewOrderStateMachine(),
 		logger:              logger,
 	}
@@ -430,6 +434,16 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		if req.ScheduledFor.Before(time.Now().Add(ScheduledMinLeadTime)) {
 			return nil, ErrScheduledForTooSoon
 		}
+	}
+
+	// Never trust client-submitted unit prices / modifier prices — re-derive every line's
+	// authoritative price from the catalog before it's charged or persisted.
+	if tenant, tErr := s.repo.GetTenantByID(ctx, req.TenantID); tErr == nil {
+		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, req.Items)
+		if priceErr != nil {
+			return nil, priceErr
+		}
+		req.Items = validated
 	}
 
 	var subtotal float64
@@ -822,6 +836,16 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 
 	if len(orderItems) == 0 {
 		return nil, ErrCartEmpty
+	}
+
+	// Never trust client-submitted unit prices / modifier prices — re-derive every line's
+	// authoritative price from the catalog before it's charged or persisted.
+	if tenant, tErr := s.repo.GetTenantByID(ctx, req.TenantID); tErr == nil {
+		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, orderItems)
+		if priceErr != nil {
+			return nil, priceErr
+		}
+		orderItems = validated
 	}
 
 	// Calculate totals from items
