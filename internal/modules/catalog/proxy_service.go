@@ -663,18 +663,18 @@ func (s *ProxyService) GetItemImages(ctx context.Context, tenantSlug, sku string
 
 func entOutletToSummary(o *ent.Outlet) OutletSummary {
 	return OutletSummary{
-		ID:           o.ID,
-		Name:         o.Name,
-		Slug:         o.Slug,
-		Description:  o.Description,
-		Address:      o.Address,
-		Phone:        o.Phone,
-		Email:        o.Email,
-		Location:     o.Location,
-		Latitude:     o.Latitude,
-		Longitude:    o.Longitude,
-		OpeningHours: o.OpeningHours,
-		ImageURL:     o.ImageURL,
+		ID:                    o.ID,
+		Name:                  o.Name,
+		Slug:                  o.Slug,
+		Description:           o.Description,
+		Address:               o.Address,
+		Phone:                 o.Phone,
+		Email:                 o.Email,
+		Location:              o.Location,
+		Latitude:              o.Latitude,
+		Longitude:             o.Longitude,
+		OpeningHours:          o.OpeningHours,
+		ImageURL:              o.ImageURL,
 		Status:                o.Status,
 		UseCase:               o.UseCase,
 		IsOpen:                IsOutletOpen(o.OpeningHours),
@@ -725,6 +725,31 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 			})
 		}
 		item.HasVariants = true
+	}
+
+	// Surface selectable modifier groups (checkboxes/radios) from inventory.
+	if len(inv.ModifierGroups) > 0 {
+		item.ModifierGroups = make([]CatalogModifierGroup, 0, len(inv.ModifierGroups))
+		for _, g := range inv.ModifierGroups {
+			options := make([]CatalogModifierOption, 0, len(g.Options))
+			for _, o := range g.Options {
+				options = append(options, CatalogModifierOption{
+					ID:              o.ID,
+					Name:            o.Name,
+					SKU:             o.SKU,
+					PriceAdjustment: o.PriceAdjustment,
+					IsDefault:       o.IsDefault,
+				})
+			}
+			item.ModifierGroups = append(item.ModifierGroups, CatalogModifierGroup{
+				ID:            g.ID,
+				Name:          g.Name,
+				IsRequired:    g.IsRequired,
+				MinSelections: g.MinSelections,
+				MaxSelections: g.MaxSelections,
+				Options:       options,
+			})
+		}
 	}
 
 	// Propagate new costing fields from inventory.

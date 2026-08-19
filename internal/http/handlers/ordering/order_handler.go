@@ -199,6 +199,58 @@ type OrderItemDTO struct {
 	UnitPrice    float64                `json:"unitPrice"`
 	TotalPrice   float64                `json:"totalPrice"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	// Modifiers are the customer's selected modifier options for this line (e.g. size/topping
+	// picked in the storefront's add-to-cart modal). Reuses the same wire shape as the
+	// persisted-cart AddItemRequest.Modifiers (CartItemModifierDTO) so there is one modifier
+	// contract across both checkout entry points.
+	Modifiers []CartItemModifierDTO `json:"modifiers,omitempty"`
+}
+
+// toCreateOrderItemInputs converts checkout-request DTO items to the domain input shape,
+// shared by Checkout, GuestCheckout, and CreateOrder so the mapping (including modifier
+// parsing) lives in exactly one place instead of three copies drifting independently.
+func toCreateOrderItemInputs(items []OrderItemDTO) []ordering.CreateOrderItemInput {
+	out := make([]ordering.CreateOrderItemInput, 0, len(items))
+	for _, it := range items {
+		out = append(out, ordering.CreateOrderItemInput{
+			InventorySKU: it.InventorySKU,
+			Name:         it.Name,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
+			Metadata:     it.Metadata,
+			Modifiers:    toCartItemModifiers(it.Modifiers),
+		})
+	}
+	return out
+}
+
+// toCartItemModifiers parses the wire modifier DTOs into the domain shape, silently skipping
+// any entry with a malformed group/option id rather than failing the whole checkout over a
+// single bad selection.
+func toCartItemModifiers(dtos []CartItemModifierDTO) []ordering.CartItemModifier {
+	if len(dtos) == 0 {
+		return nil
+	}
+	out := make([]ordering.CartItemModifier, 0, len(dtos))
+	for _, d := range dtos {
+		groupID, err := uuid.Parse(d.GroupID)
+		if err != nil {
+			continue
+		}
+		optionID, err := uuid.Parse(d.OptionID)
+		if err != nil {
+			continue
+		}
+		out = append(out, ordering.CartItemModifier{
+			GroupID:         groupID,
+			GroupName:       d.GroupName,
+			OptionID:        optionID,
+			OptionName:      d.OptionName,
+			PriceAdjustment: d.PriceAdjustment,
+		})
+	}
+	return out
 }
 
 // ListOrdersResponse represents the paginated order list response.
@@ -477,17 +529,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
-		for _, it := range req.Items {
-			items = append(items, ordering.CreateOrderItemInput{
-				InventorySKU: it.InventorySKU,
-				Name:         it.Name,
-				Quantity:     it.Quantity,
-				UnitPrice:    it.UnitPrice,
-				TotalPrice:   it.TotalPrice,
-				Metadata:     it.Metadata,
-			})
-		}
+		items := toCreateOrderItemInputs(req.Items)
 
 		// Resolve delivery address: prefer explicit address string, fall back to
 		// looking up the addressId via the repo if only an ID was provided.
@@ -700,21 +742,13 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items := make([]ordering.CreateOrderItemInput, 0, len(req.Items))
 	for _, it := range req.Items {
 		if it.InventorySKU == "" {
 			handlers.RespondError(w, http.StatusBadRequest, "inventorySku is required for each item")
 			return
 		}
-		items = append(items, ordering.CreateOrderItemInput{
-			InventorySKU: it.InventorySKU,
-			Name:         it.Name,
-			Quantity:     it.Quantity,
-			UnitPrice:    it.UnitPrice,
-			TotalPrice:   it.TotalPrice,
-			Metadata:     it.Metadata,
-		})
 	}
+	items := toCreateOrderItemInputs(req.Items)
 
 	channel := ordering.OrderChannelWeb
 	if r.Header.Get("X-Order-Channel") != "" {
@@ -1686,17 +1720,7 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert DTO items to domain items
-	var items []ordering.CreateOrderItemInput
-	for _, it := range req.Items {
-		items = append(items, ordering.CreateOrderItemInput{
-			InventorySKU: it.InventorySKU,
-			Name:         it.Name,
-			Quantity:     it.Quantity,
-			UnitPrice:    it.UnitPrice,
-			TotalPrice:   it.TotalPrice,
-			Metadata:     it.Metadata,
-		})
-	}
+	items := toCreateOrderItemInputs(req.Items)
 
 	order, err := h.orderService.GuestCheckout(r.Context(), ordering.GuestCheckoutRequest{
 		TenantID:        tenantID,

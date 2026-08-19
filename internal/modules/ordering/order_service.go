@@ -13,10 +13,10 @@ import (
 
 	"github.com/Bengo-Hub/httpware"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
-	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/marketflow"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
@@ -543,6 +543,10 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
+			// Metadata was previously dropped here (unlike the cart-based and guest-checkout
+			// paths, which both persist it) — fixed so ticket/service/category/modifier
+			// snapshots survive on authenticated items-based checkout too.
+			Metadata: withModifiersMetadata(it.Metadata, it.Modifiers),
 		}
 		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
 			s.logger.Error("failed to create order item", zap.Error(err))
@@ -937,7 +941,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
-			Metadata:     it.Metadata,
+			Metadata:     withModifiersMetadata(it.Metadata, it.Modifiers),
 		}
 		if err := s.repo.CreateOrderItem(ctx, orderItem); err != nil {
 			s.logger.Error("failed to create guest order item", zap.Error(err))
@@ -1981,6 +1985,33 @@ func (s *OrderService) createOrderEvent(ctx context.Context, orderID uuid.UUID, 
 
 // --- Inventory Reservation Helpers ---
 
+// withModifiersMetadata returns a copy of metadata with the selected modifiers snapshotted
+// under the "modifiers" key (never mutates the caller's map), so the order line's existing
+// generic metadata JSON column carries the customer's selections through to order-detail/
+// receipt display with no schema change. No-op (returns metadata unchanged) when there are no
+// modifiers to add.
+func withModifiersMetadata(metadata map[string]interface{}, modifiers []CartItemModifier) map[string]interface{} {
+	if len(modifiers) == 0 {
+		return metadata
+	}
+	out := make(map[string]interface{}, len(metadata)+1)
+	for k, v := range metadata {
+		out[k] = v
+	}
+	snapshot := make([]map[string]interface{}, 0, len(modifiers))
+	for _, m := range modifiers {
+		snapshot = append(snapshot, map[string]interface{}{
+			"group_id":         m.GroupID.String(),
+			"group_name":       m.GroupName,
+			"option_id":        m.OptionID.String(),
+			"option_name":      m.OptionName,
+			"price_adjustment": m.PriceAdjustment,
+		})
+	}
+	out["modifiers"] = snapshot
+	return out
+}
+
 // modifierLinesForCartItem maps a cart line's selected modifier options to the inventory
 // reservation/consumption modifier contract. Each option carries its inventory modifier-option
 // id (OptionID); inventory resolves it to the consumable SKU and explodes/deducts it. This is
@@ -2123,6 +2154,7 @@ func (s *OrderService) reserveStockForOrderItems(ctx context.Context, tenantID, 
 				InventorySKU: it.InventorySKU,
 				Quantity:     it.Quantity,
 				Metadata:     it.Metadata, // preserve so ticket lines can be excluded from reservation
+				Modifiers:    it.Modifiers,
 			})
 		}
 	}
