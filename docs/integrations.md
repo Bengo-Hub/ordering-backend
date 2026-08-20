@@ -69,7 +69,7 @@ This document provides detailed integration information for all external service
 ## Table of Contents
 
 1. [Implementation Status Summary](#implementation-status-summary)
-2. [Internal Codevertex Service Integrations](#internal-bengobox-service-integrations)
+2. [Internal Codevertex Service Integrations](#internal-codevertex-service-integrations)
 3. [External Third-Party Integrations](#external-third-party-integrations)
 4. [Integration Patterns](#integration-patterns)
 5. [Two-Tier Configuration Management](#two-tier-configuration-management)
@@ -156,7 +156,7 @@ This document provides detailed integration information for all external service
 **Configuration**:
 - Auth-service base URL: `AUTH_SERVICE_URL=https://sso.codevertexafrica.com` (environment variable)
 - JWKS endpoint: `https://sso.codevertexafrica.com/api/v1/.well-known/jwks.json`
-- Issuer: `https://auth.bengobox.local` (from JWT claims, may need update)
+- Issuer: `https://sso.codevertexafrica.com` (from JWT claims)
 - Audience: `codevertex` (from JWT claims)
 - JWKS cache TTL: `AUTH_JWKS_CACHE_TTL=3600s` (default)
 - JWKS refresh interval: `AUTH_JWKS_REFRESH_INTERVAL=300s` (default)
