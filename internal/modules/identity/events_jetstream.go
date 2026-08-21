@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/nats-io/nats.go"
 	sharedevents "github.com/Bengo-Hub/shared-events"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 )
 
@@ -106,6 +106,7 @@ func (h *EventHandler) SubscribeToAuthEvents(js nats.JetStreamContext) error {
 		{"auth.user.created", "ord-auth-user-created", h.HandleAuthUserCreated},
 		{"auth.user.updated", "ord-auth-user-updated", h.HandleAuthUserUpdated},
 		{"auth.user.deactivated", "ord-auth-user-deactivated", h.HandleAuthUserDeactivated},
+		{"auth.user.deleted", "ord-auth-user-deleted", h.HandleAuthUserDeleted},
 		{"auth.tenant.created", "ord-auth-tenant-created", h.HandleAuthTenantCreated},
 		{"auth.tenant.updated", "ord-auth-tenant-updated", h.HandleAuthTenantUpdated},
 	}
@@ -118,7 +119,7 @@ func (h *EventHandler) SubscribeToAuthEvents(js nats.JetStreamContext) error {
 
 	h.logger.Info("Subscribed to auth-service events via JetStream durable consumers",
 		zap.Strings("subjects", []string{
-			"auth.user.created", "auth.user.updated", "auth.user.deactivated",
+			"auth.user.created", "auth.user.updated", "auth.user.deactivated", "auth.user.deleted",
 			"auth.tenant.created", "auth.tenant.updated",
 		}))
 	return nil

@@ -44,7 +44,6 @@ func (r *MemoryRepository) Seed(_ context.Context, users []*User, orders []*Orde
 		}
 	}
 
-
 	for _, order := range orders {
 		o := *order
 		userOrders := r.orders[o.UserID]
@@ -188,6 +187,23 @@ func (r *MemoryRepository) ListOrdersByUser(_ context.Context, userID uuid.UUID)
 		result = append(result, &cpy)
 	}
 	return result, nil
+}
+
+// HardDeleteUser removes the user from every in-memory index. No child tables exist
+// in this test double, so there is nothing else to clean up.
+func (r *MemoryRepository) HardDeleteUser(_ context.Context, authServiceUserID uuid.UUID) (bool, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	user, ok := r.usersByAuthServiceID[authServiceUserID]
+	if !ok {
+		return false, nil
+	}
+	delete(r.users, user.ID)
+	delete(r.usersByEmail, normalizeEmail(user.Email))
+	delete(r.usersByAuthServiceID, authServiceUserID)
+	delete(r.orders, user.ID)
+	return true, nil
 }
 
 // FindTenantBySlug finds a tenant by its slug.

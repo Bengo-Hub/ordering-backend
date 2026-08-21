@@ -54,6 +54,13 @@ func (s *Service) SyncUserFromAuthService(ctx context.Context, authServiceUserID
 	return s.syncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, accessToken)
 }
 
+// HardDeleteUser reacts to auth-api's real hard-delete (AdminPurgeUser, published as
+// auth.user.deleted) of a platform user. See EntRepository.HardDeleteUser's doc comment
+// for the full per-table policy.
+func (s *Service) HardDeleteUser(ctx context.Context, authServiceUserID uuid.UUID) (bool, error) {
+	return s.repo.HardDeleteUser(ctx, authServiceUserID)
+}
+
 // EnsureUserFromToken (JIT provisioning): returns the local user for the given auth-service user ID,
 // creating a minimal user from token claims if not found. Used when a valid JWT is presented but
 // the user does not yet exist locally (e.g. NATS sync delayed). tenantIDOrSlug is either a tenant UUID
@@ -226,7 +233,7 @@ func (s *Service) createUserFromAuthService(ctx context.Context, authServiceUser
 	if len(roles) == 0 {
 		roles = []Role{RoleCustomer}
 	}
-	
+
 	permissionsFromAuth := extractPermissionsFromAuthServiceUser(authUserData)
 	var permissions []Permission
 	if len(permissionsFromAuth) > 0 {
@@ -333,15 +340,15 @@ func extractRolesFromAuthServiceUser(authUserData map[string]interface{}, email 
 // permission that implies staff-level access (not customer own-only access).
 func hasOrderingStaffPermissions(authUserData map[string]interface{}) bool {
 	staffPerms := map[string]bool{
-		"ordering.orders.manage":      true,
-		"ordering.orders.add":         true,
-		"ordering.orders.read":        true,
-		"ordering.orders.change":      true,
-		"ordering.catalog.manage":     true,
-		"ordering.catalog.change":     true,
-		"ordering.catalog.add":        true,
-		"ordering.operations.manage":  true,
-		"ordering.operations.read":    true,
+		"ordering.orders.manage":     true,
+		"ordering.orders.add":        true,
+		"ordering.orders.read":       true,
+		"ordering.orders.change":     true,
+		"ordering.catalog.manage":    true,
+		"ordering.catalog.change":    true,
+		"ordering.catalog.add":       true,
+		"ordering.operations.manage": true,
+		"ordering.operations.read":   true,
 	}
 	check := func(p string) bool { return staffPerms[p] }
 
@@ -424,7 +431,6 @@ func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*User, error) {
 	return s.repo.FindUserByID(ctx, id)
 }
 
-
 // GetOrders returns order summaries.
 func (s *Service) GetOrders(ctx context.Context, userID uuid.UUID) ([]*OrderSummary, error) {
 	return s.repo.ListOrdersByUser(ctx, userID)
@@ -481,7 +487,6 @@ func (s *Service) UpdatePreferences(ctx context.Context, id uuid.UUID, input Pre
 	return user, nil
 }
 
-
 // RequestMeta captures HTTP metadata for session logging.
 type RequestMeta struct {
 	UserAgent string
@@ -501,4 +506,3 @@ type PreferencesUpdateInput struct {
 	Language      *string
 	Notifications *NotificationPreferences
 }
-
