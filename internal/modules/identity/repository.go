@@ -33,4 +33,12 @@ type Repository interface {
 
 	ListOrdersByUser(ctx context.Context, userID uuid.UUID) ([]*OrderSummary, error)
 	Seed(ctx context.Context, users []*User, _ []*OrderSummary) error
+
+	// HardDeleteUser reacts to auth-api's real hard-delete (AdminPurgeUser, published
+	// as auth.user.deleted) of a platform user. Returns false (no error) when the user
+	// was never synced locally. See EntRepository.HardDeleteUser's doc comment for the
+	// full per-table policy (identity data hard-deleted; Order/OrderItem/OrderEvent/
+	// OrderAssignment preserved with their customer_id/delivery_address_id auto-nulled
+	// by the DB's ON DELETE SET NULL).
+	HardDeleteUser(ctx context.Context, authServiceUserID uuid.UUID) (bool, error)
 }

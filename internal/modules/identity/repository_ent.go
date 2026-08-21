@@ -11,11 +11,17 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/cart"
+	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
+	"github.com/bengobox/ordering-backend/internal/ent/customeraddress"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltyaccount"
+	"github.com/bengobox/ordering-backend/internal/ent/loyaltytransaction"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/ent/tenantsyncevent"
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/ent/userroleassignment"
 )
 
 // EntRepository implements the Repository interface using Ent as the persistence layer.
@@ -304,6 +310,92 @@ func (r *EntRepository) UpsertTenant(ctx context.Context, t *Tenant) error {
 	return nil
 }
 
+// HardDeleteUser reacts to auth-api's real hard-delete (AdminPurgeUser, published as
+// auth.user.deleted) of a platform user. Two kinds of local rows reference this user:
+//
+//   - Pure identity/account data — CustomerAddress, LoyaltyAccount(+LoyaltyTransaction
+//     child), Cart(+CartItem child), UserPreference, UserProfile, UserRoleAssignment —
+//     hard-deleted here, child rows first (their FKs are all ON DELETE NO ACTION at the
+//     DB level, so the DB would otherwise reject the parent delete). The `roles` M2M
+//     join table (user_roles) is ON DELETE CASCADE and needs no explicit handling.
+//   - Order(+OrderItem/OrderEvent/OrderAssignment) — real sales/fulfilment records with
+//     compliance weight (this fleet's KRA/eTIMS emphasis). Left in place: orders.customer_id
+//     and orders.delivery_address_id are both ON DELETE SET NULL, so deleting the
+//     CustomerAddress rows and finally the User row itself automatically severs (not
+//     deletes) any orders that referenced them — no explicit action needed here.
+//
+// Returns false (no error) when the user was never synced locally.
+func (r *EntRepository) HardDeleteUser(ctx context.Context, authServiceUserID uuid.UUID) (bool, error) {
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return false, fmt.Errorf("identity: hard-delete: begin tx: %w", err)
+	}
+
+	u, err := tx.User.Query().Where(user.AuthServiceUserIDEQ(authServiceUserID)).Only(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		if ent.IsNotFound(err) {
+			return false, nil // never synced locally — nothing to do
+		}
+		return false, fmt.Errorf("identity: hard-delete: find user: %w", err)
+	}
+
+	if _, err := tx.LoyaltyTransaction.Delete().
+		Where(loyaltytransaction.HasAccountWith(loyaltyaccount.UserID(u.ID))).
+		Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete loyalty transactions: %w", err)
+	}
+	if _, err := tx.LoyaltyAccount.Delete().Where(loyaltyaccount.UserID(u.ID)).Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete loyalty account: %w", err)
+	}
+
+	if _, err := tx.CartItem.Delete().
+		Where(cartitem.HasCartWith(cart.UserID(u.ID))).
+		Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete cart items: %w", err)
+	}
+	if _, err := tx.Cart.Delete().Where(cart.UserID(u.ID)).Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete carts: %w", err)
+	}
+
+	if _, err := tx.UserPreference.Delete().
+		Where(userpreference.HasUserWith(user.IDEQ(u.ID))).
+		Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete user preferences: %w", err)
+	}
+	if _, err := tx.UserProfile.Delete().
+		Where(userprofile.HasUserWith(user.IDEQ(u.ID))).
+		Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete user profile: %w", err)
+	}
+
+	if _, err := tx.CustomerAddress.Delete().Where(customeraddress.UserID(u.ID)).Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete customer addresses: %w", err)
+	}
+
+	if _, err := tx.UserRoleAssignment.Delete().Where(userroleassignment.UserID(u.ID)).Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete role assignments: %w", err)
+	}
+
+	if err := tx.User.DeleteOneID(u.ID).Exec(ctx); err != nil {
+		_ = tx.Rollback()
+		return false, fmt.Errorf("identity: hard-delete: delete user: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, fmt.Errorf("identity: hard-delete: commit: %w", err)
+	}
+	return true, nil
+}
+
 // ListOrdersByUser returns order summaries. Orders are fetched via the ordering module's
 // ListOrders API; this stub satisfies the identity.Repository interface for profile data.
 func (r *EntRepository) ListOrdersByUser(context.Context, uuid.UUID) ([]*OrderSummary, error) {
@@ -423,7 +515,7 @@ func mapEntUser(u *ent.User) *User {
 	if profile := u.Edges.Profile; profile != nil {
 		avatarURL = profile.AvatarURL
 	}
- 
+
 	// Use direct field access from regenerated Ent code
 	var authServiceUserID *uuid.UUID
 	if u.AuthServiceUserID != uuid.Nil {
@@ -458,7 +550,6 @@ func mapEntUser(u *ent.User) *User {
 		Metadata:             u.Metadata,
 	}
 }
- 
 
 func upsertTenant(ctx context.Context, tx *ent.Tx, tenantID string) error {
 	// Use default tenant slug if not provided

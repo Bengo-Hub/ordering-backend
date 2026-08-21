@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	sharedevents "github.com/Bengo-Hub/shared-events"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -165,6 +165,28 @@ func (h *EventHandler) HandleAuthUserDeactivated(ctx context.Context, evt *share
 
 	h.logger.Info("User deactivated from auth.user.deactivated event",
 		zap.String("user_id", userID))
+	return nil
+}
+
+// HandleAuthUserDeleted handles auth.user.deleted events — auth-api's real hard-delete
+// (AdminPurgeUser). Delegates to Service.HardDeleteUser; see that method's doc comment
+// (and EntRepository.HardDeleteUser's) for the full per-table hard-delete-vs-sever policy.
+func (h *EventHandler) HandleAuthUserDeleted(ctx context.Context, evt *sharedevents.Event) error {
+	userID := strFromPayload(evt.Payload, "user_id")
+	authServiceUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("identity: invalid user_id in event: %w", err)
+	}
+
+	deleted, err := h.service.HardDeleteUser(ctx, authServiceUserID)
+	if err != nil {
+		h.logger.Error("Failed to hard-delete user from auth.user.deleted event",
+			zap.String("user_id", userID), zap.Error(err))
+		return fmt.Errorf("identity: hard-delete user from event: %w", err)
+	}
+	if deleted {
+		h.logger.Info("User hard-deleted from auth.user.deleted event", zap.String("user_id", userID))
+	}
 	return nil
 }
 
