@@ -91,9 +91,37 @@ func (h *InventoryEventHandler) SubscribeToInventoryEvents(js nats.JetStreamCont
 		nats.BindStream(inventoryStreamName),
 	)
 
+	// A tenant deleted an outlet-scoped inventory price (Catalog item detail page's per-outlet
+	// pricing "Delete" action) — cascade by clearing THIS outlet's own CatalogOverride.base_price
+	// too, so the storefront actually reverts to charging the standard price rather than being
+	// silently shadowed by a now-stale ordering-layer override. See handleOutletPricingRemoved.
+	sharedevents.SubscribeQueueWithRebind(h.logger, js, inventoryStreamName, "inventory.item.outlet_pricing_removed", "ord-inventory-outlet-pricing-removed", func(msg *nats.Msg) {
+		evt, parseErr := sharedevents.FromJSON(msg.Data)
+		if parseErr != nil {
+			h.logger.Error("failed to parse inventory.item.outlet_pricing_removed envelope", zap.Error(parseErr))
+			_ = msg.Ack()
+			return
+		}
+
+		ctx := context.Background()
+		if err := h.handleOutletPricingRemoved(ctx, evt); err != nil {
+			h.logger.Error("failed to handle inventory.item.outlet_pricing_removed event", zap.Error(err))
+			_ = msg.Nak()
+			return
+		}
+		_ = msg.Ack()
+	},
+		nats.Durable("ord-inventory-outlet-pricing-removed"),
+		nats.DeliverAll(),
+		nats.AckExplicit(),
+		nats.AckWait(30*time.Second),
+		nats.MaxDeliver(5),
+		nats.BindStream(inventoryStreamName),
+	)
+
 	h.logger.Info("inventory event subscriptions active (JetStream)",
-		zap.String("subject", "inventory.item.created"),
-		zap.String("durable", "ord-inventory-item-created"))
+		zap.String("subject", "inventory.item.created, inventory.item.outlet_pricing_removed"),
+		zap.String("durable", "ord-inventory-item-created, ord-inventory-outlet-pricing-removed"))
 	return nil
 }
 
@@ -154,5 +182,45 @@ func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *shar
 
 	h.logger.Info("catalog override created from inventory event",
 		zap.String("sku", sku))
+	return nil
+}
+
+// handleOutletPricingRemoved reacts to inventory.item.outlet_pricing_removed — published only
+// when a tenant deletes an outlet-scoped inventory price (never by a plain price edit). Clears
+// THIS OUTLET's own CatalogOverride.base_price back to 0 (this table's "no override, defer to
+// inventory" sentinel — base_price is a plain, non-nillable float, not Nillable like pos-api's
+// selling_price), so the storefront actually reverts to the standard price the tenant expects
+// instead of continuing to charge a now-stale ordering-layer override — CatalogOverride.base_price
+// is an INDEPENDENT per-outlet price set at this layer, not a cache of inventory's price, so
+// deleting only the inventory row would otherwise leave checkout unaffected.
+func (h *InventoryEventHandler) handleOutletPricingRemoved(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID := evt.TenantID
+	if tenantID == uuid.Nil {
+		return fmt.Errorf("invalid or missing tenant_id in event")
+	}
+	sku, _ := evt.Payload["sku"].(string)
+	if sku == "" {
+		return fmt.Errorf("no sku in event payload")
+	}
+	outletID, err := uuid.Parse(getString(evt.Payload, "outlet_id"))
+	if err != nil {
+		return nil
+	}
+
+	existing, err := h.db.CatalogOverride.Query().
+		Where(catalogoverride.TenantID(tenantID), catalogoverride.InventorySku(sku), catalogoverride.OutletID(outletID)).
+		Only(ctx)
+	if err != nil {
+		// No ordering-layer override for this outlet — nothing to cascade, not an error.
+		return nil
+	}
+	if existing.BasePrice == 0 {
+		return nil
+	}
+	if _, err := existing.Update().SetBasePrice(0).Save(ctx); err != nil {
+		return fmt.Errorf("clear outlet base_price override: %w", err)
+	}
+	h.logger.Info("ordering catalog outlet base_price override cleared (cascaded from inventory delete)",
+		zap.String("sku", sku), zap.String("outlet_id", outletID.String()))
 	return nil
 }
