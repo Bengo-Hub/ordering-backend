@@ -64,6 +64,34 @@ type Discount struct {
 		DiscountValue float64  `json:"discount_value"`
 		MaxDiscount   float64  `json:"max_discount"`
 	} `json:"rule"`
+	// IsFlashSale lets the storefront's "Top Deals" grid give flash-sale items distinct
+	// countdown treatment (not just the separate banner carousel, which already reads its own
+	// copy of this flag). Sourced from Promotion.metadata["banner"]["is_flash_sale"] via
+	// UnmarshalJSON below rather than a top-level API field — metadata is a loosely-typed blob
+	// pos-api's own discount-calc code also stores unrelated keys in, so this stays scoped to
+	// just the one nested value the storefront needs.
+	IsFlashSale bool `json:"-"`
+}
+
+// UnmarshalJSON decodes the standard Discount fields, then best-effort extracts
+// metadata.banner.is_flash_sale from the same payload. A malformed/absent metadata blob leaves
+// IsFlashSale at its zero value (false) rather than failing the whole decode.
+func (d *Discount) UnmarshalJSON(data []byte) error {
+	type alias Discount
+	var withMeta struct {
+		alias
+		Metadata struct {
+			Banner struct {
+				IsFlashSale bool `json:"is_flash_sale"`
+			} `json:"banner"`
+		} `json:"metadata"`
+	}
+	if err := json.Unmarshal(data, &withMeta); err != nil {
+		return err
+	}
+	*d = Discount(withMeta.alias)
+	d.IsFlashSale = withMeta.Metadata.Banner.IsFlashSale
+	return nil
 }
 
 // Client calls pos-api's /api/v1/s2s/{tenant}/discounts/* endpoints with the shared
