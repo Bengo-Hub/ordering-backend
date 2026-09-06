@@ -231,6 +231,53 @@ type ApplyResult struct {
 	DiscountType string `json:"discount_type,omitempty"`
 }
 
+// ReserveRedemption checks and reserves one unit-quantity of promotionID's usage_limit/
+// max_units_per_customer caps for a REAL (about-to-be-created) order — the online-checkout half
+// of the 2026-09-06/07 redemption-cap work; pos-api's own order creation calls the equivalent
+// Service.ReserveRedemption directly (same binary there). Idempotent on
+// (tenant, promotion, channel="ordering", orderID): safe to retry with the same orderID.
+// Best-effort posture matches ListDeals/ListBanners: on any transport/decode failure this
+// returns reserved=false with an error, and the caller decides how to fail safe (validateAndPriceItems
+// falls the line back to the regular price rather than either double-booking or blocking checkout).
+func (c *Client) ReserveRedemption(ctx context.Context, tenantID uuid.UUID, promotionID, customerKey, orderID string, quantity float64) (reserved bool, reason string, err error) {
+	if !c.Enabled() {
+		return false, "", ErrDiscountsClientDisabled
+	}
+	body := struct {
+		CustomerKey string  `json:"customer_key,omitempty"`
+		OrderID     string  `json:"order_id"`
+		Quantity    float64 `json:"quantity"`
+	}{CustomerKey: customerKey, OrderID: orderID, Quantity: quantity}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return false, "", fmt.Errorf("posdiscounts: encode reserve request: %w", err)
+	}
+	u := fmt.Sprintf("%s/api/v1/s2s/%s/discounts/%s/reserve", c.baseURL, tenantID.String(), promotionID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, bytes.NewReader(payload))
+	if err != nil {
+		return false, "", fmt.Errorf("posdiscounts: build reserve request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", c.apiKey)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return false, "", fmt.Errorf("posdiscounts: reserve request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return false, "", fmt.Errorf("posdiscounts: reserve unexpected status %d", resp.StatusCode)
+	}
+	var out struct {
+		Reserved bool   `json:"reserved"`
+		Reason   string `json:"reason,omitempty"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return false, "", fmt.Errorf("posdiscounts: decode reserve response: %w", err)
+	}
+	return out.Reserved, out.Reason, nil
+}
+
 // ApplyDiscount validates promoCode against the caller's REAL cart lines through pos-api's
 // discount source-of-truth evaluator — the SAME schedule/meal_period/item-or-category scope/BOGO
 // logic the POS terminal and Add Sale use, so a code behaves identically no matter which service

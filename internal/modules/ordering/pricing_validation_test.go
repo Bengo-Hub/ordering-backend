@@ -58,7 +58,7 @@ func TestValidateAndPriceItems_NoCatalogService(t *testing.T) {
 	items := []CreateOrderItemInput{
 		{InventorySKU: "SKU-1", UnitPrice: 999, TotalPrice: 999, Quantity: 1},
 	}
-	got, err := s.validateAndPriceItems(context.Background(), "tenant-slug", uuid.New(), items)
+	got, err := s.validateAndPriceItems(context.Background(), "tenant-slug", uuid.New(), items, "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -32,11 +33,17 @@ import (
 // so this doesn't introduce a new availability dependency. The deal lookup itself is best-effort
 // (same posture as ListDeals/ListBanners elsewhere in this package) — a promotions-service
 // hiccup falls back to the plain catalog price rather than blocking checkout.
-func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, items []CreateOrderItemInput) ([]CreateOrderItemInput, error) {
+func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, items []CreateOrderItemInput, customerKey string) ([]CreateOrderItemInput, error) {
 	if s.catalogSvc == nil {
 		return items, nil
 	}
 	deals := s.activeDeals(ctx, tenantID)
+	// One reservation-batch anchor per checkout attempt: distinct deals within the SAME checkout
+	// each get their own idempotency key (promotion+lineIndex) so a retried checkout doesn't
+	// double-reserve, but two DIFFERENT checkout attempts (a genuine retry) each mint a fresh
+	// anchor — a documented, accepted trade-off (see ReserveRedemption's doc comment) rather than
+	// threading a caller-supplied idempotency key through every checkout entry point.
+	batchID := uuid.NewString()
 	out := make([]CreateOrderItemInput, len(items))
 	for i, it := range items {
 		out[i] = it
@@ -69,12 +76,41 @@ func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug str
 			modifierTotal += option.PriceAdjustment
 		}
 
-		basePrice := applyActiveDealDiscount(item, deals)
+		basePrice, dealID := applyActiveDealDiscount(item, deals)
+		if dealID != "" {
+			// Real, order-creation-time cap enforcement: a deal with usage_limit/
+			// max_units_per_customer configured can reject this reservation once sold out or
+			// once this customer has already redeemed their share — falls back to the regular
+			// (undiscounted) price for just this line rather than blocking the whole checkout.
+			orderID := fmt.Sprintf("%s:%d", batchID, i)
+			reserved, _, rErr := s.reserveDealRedemption(ctx, tenantID, dealID, customerKey, orderID, float64(it.Quantity))
+			if rErr != nil {
+				s.logger.Warn("price validation: deal reservation check failed, honoring discount best-effort",
+					zap.String("sku", it.InventorySKU), zap.String("dealId", dealID), zap.Error(rErr))
+			} else if !reserved {
+				basePrice = item.BasePrice
+			}
+		}
 		out[i].Modifiers = validatedModifiers
 		out[i].UnitPrice = basePrice + modifierTotal
 		out[i].TotalPrice = out[i].UnitPrice * float64(it.Quantity)
 	}
 	return out, nil
+}
+
+// reserveDealRedemption calls pos-api's S2S reserve endpoint for one matched deal. Best-effort:
+// a lookup/transport failure returns reserved=true (fail OPEN, same posture as ConsumerHasFeature
+// elsewhere in this codebase) so a promotions-service hiccup never blocks or silently overcharges
+// a real checkout — the cap is a nice-to-have integrity guard, not a hard dependency.
+func (s *OrderService) reserveDealRedemption(ctx context.Context, tenantID uuid.UUID, dealID, customerKey, orderID string, quantity float64) (bool, string, error) {
+	if s.promoSvc == nil || s.promoSvc.discountsClient == nil {
+		return true, "", nil
+	}
+	reserved, reason, err := s.promoSvc.discountsClient.ReserveRedemption(ctx, tenantID, dealID, customerKey, orderID, quantity)
+	if err != nil {
+		return true, "", err
+	}
+	return reserved, reason, nil
 }
 
 // activeDeals fetches the tenant's active, in-window pos-api deals for checkout-time discount
@@ -88,13 +124,15 @@ func (s *OrderService) activeDeals(ctx context.Context, tenantID uuid.UUID) []po
 }
 
 // applyActiveDealDiscount returns item's checkout-time base price after applying the best
-// matching active deal, or item.BasePrice unchanged if none match. This is the server-side
-// mirror of ordering-frontend's promo-deals.ts (resolveDealItems + applyDeal) — kept in lockstep
-// deliberately so the price shown on the storefront's deals grid is EXACTLY what checkout
-// charges. BOGO and "all"-scope deals are skipped, same as the frontend: BOGO doesn't reduce to
-// a single per-unit price, and "all"-scope deals are banner-appropriate, not a per-item concern.
-func applyActiveDealDiscount(item *catalog.MergedCatalogItem, deals []posdiscounts.Discount) float64 {
-	price := item.BasePrice
+// matching active deal (plus that deal's promotion id, "" if none matched), or item.BasePrice
+// unchanged if none match. This is the server-side mirror of ordering-frontend's promo-deals.ts
+// (resolveDealItems + applyDeal) — kept in lockstep deliberately so the price shown on the
+// storefront's deals grid is EXACTLY what checkout charges. BOGO and "all"-scope deals are
+// skipped, same as the frontend: BOGO doesn't reduce to a single per-unit price, and "all"-scope
+// deals are banner-appropriate, not a per-item concern. The returned dealID lets the caller
+// enforce that deal's usage_limit/max_units_per_customer cap (see reserveDealRedemption).
+func applyActiveDealDiscount(item *catalog.MergedCatalogItem, deals []posdiscounts.Discount) (price float64, dealID string) {
+	price = item.BasePrice
 	for _, deal := range deals {
 		rule := deal.Rule
 		if rule == nil || rule.ScopeType == "all" || rule.DiscountType == "bogo" {
@@ -135,9 +173,10 @@ func applyActiveDealDiscount(item *catalog.MergedCatalogItem, deals []posdiscoun
 		if price < 0 {
 			price = 0
 		}
+		dealID = deal.ID
 		break // first matching deal wins, same as the frontend (one badge per item)
 	}
-	return price
+	return price, dealID
 }
 
 // findModifierOption looks up a submitted (groupID, optionID) pair against an item's real

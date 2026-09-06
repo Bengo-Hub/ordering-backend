@@ -439,7 +439,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	// Never trust client-submitted unit prices / modifier prices — re-derive every line's
 	// authoritative price from the catalog before it's charged or persisted.
 	if tenant, tErr := s.repo.GetTenantByID(ctx, req.TenantID); tErr == nil {
-		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, req.Items)
+		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, req.Items, req.UserID.String())
 		if priceErr != nil {
 			return nil, priceErr
 		}
@@ -841,7 +841,14 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	// Never trust client-submitted unit prices / modifier prices — re-derive every line's
 	// authoritative price from the catalog before it's charged or persisted.
 	if tenant, tErr := s.repo.GetTenantByID(ctx, req.TenantID); tErr == nil {
-		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, orderItems)
+		// A guest has no user id — the contact phone (falling back to the anonymous cart's
+		// session id) is the closest stand-in for "which customer" a per-customer redemption cap
+		// should track; an empty key would just exempt every guest from that cap entirely.
+		customerKey := req.ContactPhone
+		if customerKey == "" {
+			customerKey = req.SessionID
+		}
+		validated, priceErr := s.validateAndPriceItems(ctx, tenant.Slug, req.TenantID, orderItems, customerKey)
 		if priceErr != nil {
 			return nil, priceErr
 		}
