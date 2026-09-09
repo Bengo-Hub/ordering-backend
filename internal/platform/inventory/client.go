@@ -630,7 +630,13 @@ type CategoryResponse struct {
 func (c *Client) ListCategories(ctx context.Context, tenantSlug string, hasItems bool) ([]CategoryResponse, error) {
 	path := fmt.Sprintf("/v1/%s/inventory/categories", tenantSlug)
 	if hasItems {
-		path += "?has_items=true"
+		// sellable_only excludes categories whose only items are not_for_sale (raw
+		// ingredients, internal supplies) — plain has_items alone would still surface
+		// e.g. a "Raw Ingredients" category as non-empty once staff correctly flag its
+		// items not_for_sale, leaving the storefront with a nav entry that opens to
+		// nothing. The ordering storefront is a sales surface, so it always wants the
+		// stricter mode when it's asking for has_items at all.
+		path += "?has_items=true&sellable_only=true"
 	}
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))
 	if err != nil {

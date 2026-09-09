@@ -136,6 +136,17 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		if inv.NotForSale {
 			continue
 		}
+		// Defense in depth against mistyped/mistagged raw materials: not_for_sale is the
+		// authoritative flag, but staff sometimes create recipe-input items as GOODS
+		// instead of INGREDIENT (e.g. a "Raw Ingredients"-category item never flagged
+		// not_for_sale) — the inventory-api type filter alone won't catch that. This
+		// mirrors pos-api's per-item categoryAllowedForUseCase gate and, unlike the
+		// ListCategories nav filter alone, also protects the general item browse/search
+		// listing (a customer could otherwise still find "Cabbage" via search even
+		// though its category never appears in the category nav).
+		if !isStorefrontSellableCategory(inv.CategoryName) {
+			continue
+		}
 		override := overrideMap[inv.SKU] // nil when no override exists — mergeItem handles it
 		item := mergeItem(inv, override, favSet)
 
@@ -241,6 +252,12 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 	// AND from checkout — the cart service resolves items through this lookup, so a
 	// not-for-sale SKU can never be added to a cart either.
 	if invItem.NotForSale {
+		return nil, ErrItemNotFound
+	}
+	// Same defense-in-depth as ListItems: a mistyped/mistagged raw-material item sitting
+	// in a component category (e.g. "Raw Ingredients") must not be directly reachable by
+	// SKU either, even if a customer guesses/deep-links its product-detail URL.
+	if !isStorefrontSellableCategory(invItem.CategoryName) {
 		return nil, ErrItemNotFound
 	}
 
