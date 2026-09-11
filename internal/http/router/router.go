@@ -285,157 +285,170 @@ func New(
 					identityHandler.Register(tenant, authenticator)
 				}
 
-				// Register catalog routes (public catalog + admin catalog)
-				if catalogHandler != nil && authenticator != nil {
-					catalogHandler.Register(tenant, authenticator)
-				}
+				// Module gate: block the WHOLE ordering module (reads and writes alike) for a
+				// tenant whose plan never included it (e.g. a standalone Inventory/Treasury-only
+				// tenant). Distinct from SubscriptionGate above (subscription STATUS, not module
+				// membership). Kept OUTSIDE this group: auth/me (registered above, on `tenant`
+				// directly) so a non-entitled tenant's frontend can still bootstrap identity, and
+				// every genuinely public/guest route (no claims — the auth-skip wrapper above
+				// never even runs RequireAuth for these, so RequireServiceAccess passes through
+				// unaffected regardless of where it's applied; the explicit exclusion here is only
+				// about not gating an authenticated bootstrap call).
+				tenant.Group(func(ord chi.Router) {
+					ord.Use(authclient.RequireServiceAccess("ordering"))
 
-				// Register ordering routes (cart, orders, checkout, promo, loyalty, addresses)
-				if authenticator != nil {
-					if cartHandler != nil {
-						cartHandler.Register(tenant, authenticator)
-					}
-					if orderHandler != nil {
-						orderHandler.Register(tenant, authenticator)
-					}
-					if promoHandler != nil {
-						promoHandler.Register(tenant, authenticator)
-					}
-					if loyaltyHandler != nil {
-						loyaltyHandler.Register(tenant, authenticator)
-					}
-					if addressHandler != nil {
-						addressHandler.Register(tenant, authenticator)
-					}
-					if groupOrderHandler != nil {
-						groupOrderHandler.Register(tenant, authenticator)
+					// Register catalog routes (public catalog + admin catalog)
+					if catalogHandler != nil && authenticator != nil {
+						catalogHandler.Register(ord, authenticator)
 					}
 
-					// Register delivery zones
-					if zonesHandler != nil {
-						zonesHandler.Register(tenant, authenticator)
-					}
-
-					// Register payment routes
-					if paymentHandler != nil {
-						paymentHandler.Register(tenant, authenticator)
-					}
-					if paymentMethodHandler != nil {
-						paymentMethodHandler.Register(tenant, authenticator)
-						// Tenant gateway-management proxy routes (/payments/gateways/*)
-						// that proxy to treasury-api's S2S gateway routes.
-						paymentMethodHandler.RegisterGateways(tenant, authenticator)
-					}
-				}
-
-				// Register fulfilment routes (delivery tasks, tracking)
-				if fulfilmentTaskHandler != nil {
-					fulfilmentTaskHandler.Register(tenant, authenticator)
-				}
-
-				// Register notifications routes
-				if notificationsHandler != nil {
-					notificationsHandler.Register(tenant, authenticator)
-				}
-
-				// Register SLA routes
-				if slaHandler != nil {
-					slaHandler.Register(tenant, authenticator)
-				}
-
-				// Register analytics routes
-				if analyticsHandler != nil {
-					analyticsHandler.Register(tenant, authenticator)
-				}
-
-				// Register compliance routes
-				if complianceHandler != nil {
-					complianceHandler.Register(tenant, authenticator)
-				}
-
-				// Register RBAC routes (role/permission management)
-				if rbacHandler != nil {
-					rbacHandler.RegisterRoutes(tenant, authenticator)
-				}
-
-				// Admin service config routes (platform owner / tenant-scoped settings)
-				if serviceConfigHandler != nil {
-					// PUBLIC: "Review us on Google" deep link for the guest post-rating CTA.
-					// No auth (covered by the public-skip list above) — a plain config read.
-					tenant.Get("/integrations/google/review-url", serviceConfigHandler.GetGoogleReviewURL)
-
-					// PLATFORM defaults + UNMASKED secrets: platform-owner ONLY.
-					// RequirePermissions would let tenant admins bypass, so use RequirePlatformOwner.
-					// SEC-3 (auth-client v0.10.0): RequirePlatformOwner honors only claims.IsPlatformOwner
-					// — a tenant superuser is NOT a platform owner and no longer reaches these routes.
-					tenant.Route("/admin/service-config", func(adminCfg chi.Router) {
-						adminCfg.Use(authenticator.RequirePlatformOwner)
-						adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)
-						adminCfg.Put("/{key}", serviceConfigHandler.UpsertPlatformSetting)
-					})
-
-					// PLATFORM credential-encryption key management (platform-owner ONLY).
-					// GET reports status/fingerprint; PUT rotates the DB key. The raw key
-					// is never returned. Same RequirePlatformOwner gate as service-config.
-					if encryptionKeyHandler != nil {
-						tenant.Route("/admin/encryption-key", func(keyCfg chi.Router) {
-							keyCfg.Use(authenticator.RequirePlatformOwner)
-							keyCfg.Get("/", encryptionKeyHandler.GetEncryptionKey)
-							keyCfg.Put("/", encryptionKeyHandler.PutEncryptionKey)
-						})
-					}
-
-					// PLATFORM-default backup destination (rclone) management (platform-owner
-					// ONLY). Mounts /admin/backups/destination GET/PUT/POST(test). Secret
-					// params are encrypted at rest and masked in responses. Same
-					// RequirePlatformOwner gate as encryption-key / service-config.
-					if backupDestHandler != nil && authenticator != nil {
-						tenant.Route("/admin", func(adminBkp chi.Router) {
-							adminBkp.Use(authenticator.RequirePlatformOwner)
-							backupDestHandler.RegisterPlatformRoutes(adminBkp)
-						})
-					}
-					// Tenant-scoped config (fee-config save path). GET stays read-only;
-					// PUT requires config.manage (admin/superuser bypass so tenant admins can save).
-					tenant.Route("/settings/service-config", func(settingsCfg chi.Router) {
-						settingsCfg.Get("/", serviceConfigHandler.ListTenantSettings)
-						settingsCfg.With(authenticator.RequirePermissions(identity.PermissionAdminManage)).
-							Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
-					})
-				}
-
-				// Read-only use-case configuration (tenant + per-outlet use_case).
-				if useCaseHandler != nil && authenticator != nil {
-					tenant.With(authenticator.RequirePermissions(identity.Permission("ordering.config.view"))).
-						Get("/admin/use-case", useCaseHandler.GetUseCaseConfig)
-				}
-
-				// Tenant-scoped backups (this tenant's data only) — admin/config-gated.
-				// The per-tenant backup-destination override mounts alongside under the
-				// SAME permission gate (/backups/destination GET/PUT/POST(test)).
-				if backupsHandler != nil && authenticator != nil {
-					tenant.Group(func(bg chi.Router) {
-						bg.Use(authenticator.RequirePermissions(identity.Permission("ordering.config.view")))
-						backupsHandler.Register(bg)
-						if backupDestHandler != nil {
-							backupDestHandler.RegisterRoutes(bg)
+					// Register ordering routes (cart, orders, checkout, promo, loyalty, addresses)
+					if authenticator != nil {
+						if cartHandler != nil {
+							cartHandler.Register(ord, authenticator)
 						}
-					})
-				}
+						if orderHandler != nil {
+							orderHandler.Register(ord, authenticator)
+						}
+						if promoHandler != nil {
+							promoHandler.Register(ord, authenticator)
+						}
+						if loyaltyHandler != nil {
+							loyaltyHandler.Register(ord, authenticator)
+						}
+						if addressHandler != nil {
+							addressHandler.Register(ord, authenticator)
+						}
+						if groupOrderHandler != nil {
+							groupOrderHandler.Register(ord, authenticator)
+						}
 
-				// Google Business Profile integration (admin connect/reviews + public callback).
-				// Safe when OAuth env is unset: endpoints return 503 "not configured".
-				if googleBusinessHandler != nil && authenticator != nil {
-					googleBusinessHandler.Register(tenant, authenticator)
-				}
+						// Register delivery zones
+						if zonesHandler != nil {
+							zonesHandler.Register(ord, authenticator)
+						}
 
-				// Webhook routes (no auth required - use signature verification)
-				if paymentWebhookHandler != nil {
-					paymentWebhookHandler.Register(tenant)
-				}
-				if fulfilmentWebhookHandler != nil {
-					fulfilmentWebhookHandler.Register(tenant)
-				}
+						// Register payment routes
+						if paymentHandler != nil {
+							paymentHandler.Register(ord, authenticator)
+						}
+						if paymentMethodHandler != nil {
+							paymentMethodHandler.Register(ord, authenticator)
+							// Tenant gateway-management proxy routes (/payments/gateways/*)
+							// that proxy to treasury-api's S2S gateway routes.
+							paymentMethodHandler.RegisterGateways(ord, authenticator)
+						}
+					}
+
+					// Register fulfilment routes (delivery tasks, tracking)
+					if fulfilmentTaskHandler != nil {
+						fulfilmentTaskHandler.Register(ord, authenticator)
+					}
+
+					// Register notifications routes
+					if notificationsHandler != nil {
+						notificationsHandler.Register(ord, authenticator)
+					}
+
+					// Register SLA routes
+					if slaHandler != nil {
+						slaHandler.Register(ord, authenticator)
+					}
+
+					// Register analytics routes
+					if analyticsHandler != nil {
+						analyticsHandler.Register(ord, authenticator)
+					}
+
+					// Register compliance routes
+					if complianceHandler != nil {
+						complianceHandler.Register(ord, authenticator)
+					}
+
+					// Register RBAC routes (role/permission management)
+					if rbacHandler != nil {
+						rbacHandler.RegisterRoutes(ord, authenticator)
+					}
+
+					// Admin service config routes (platform owner / tenant-scoped settings)
+					if serviceConfigHandler != nil {
+						// PUBLIC: "Review us on Google" deep link for the guest post-rating CTA.
+						// No auth (covered by the public-skip list above) — a plain config read.
+						ord.Get("/integrations/google/review-url", serviceConfigHandler.GetGoogleReviewURL)
+
+						// PLATFORM defaults + UNMASKED secrets: platform-owner ONLY.
+						// RequirePermissions would let tenant admins bypass, so use RequirePlatformOwner.
+						// SEC-3 (auth-client v0.10.0): RequirePlatformOwner honors only claims.IsPlatformOwner
+						// — a tenant superuser is NOT a platform owner and no longer reaches these routes.
+						ord.Route("/admin/service-config", func(adminCfg chi.Router) {
+							adminCfg.Use(authenticator.RequirePlatformOwner)
+							adminCfg.Get("/", serviceConfigHandler.ListPlatformSettings)
+							adminCfg.Put("/{key}", serviceConfigHandler.UpsertPlatformSetting)
+						})
+
+						// PLATFORM credential-encryption key management (platform-owner ONLY).
+						// GET reports status/fingerprint; PUT rotates the DB key. The raw key
+						// is never returned. Same RequirePlatformOwner gate as service-config.
+						if encryptionKeyHandler != nil {
+							ord.Route("/admin/encryption-key", func(keyCfg chi.Router) {
+								keyCfg.Use(authenticator.RequirePlatformOwner)
+								keyCfg.Get("/", encryptionKeyHandler.GetEncryptionKey)
+								keyCfg.Put("/", encryptionKeyHandler.PutEncryptionKey)
+							})
+						}
+
+						// PLATFORM-default backup destination (rclone) management (platform-owner
+						// ONLY). Mounts /admin/backups/destination GET/PUT/POST(test). Secret
+						// params are encrypted at rest and masked in responses. Same
+						// RequirePlatformOwner gate as encryption-key / service-config.
+						if backupDestHandler != nil && authenticator != nil {
+							ord.Route("/admin", func(adminBkp chi.Router) {
+								adminBkp.Use(authenticator.RequirePlatformOwner)
+								backupDestHandler.RegisterPlatformRoutes(adminBkp)
+							})
+						}
+						// Tenant-scoped config (fee-config save path). GET stays read-only;
+						// PUT requires config.manage (admin/superuser bypass so tenant admins can save).
+						ord.Route("/settings/service-config", func(settingsCfg chi.Router) {
+							settingsCfg.Get("/", serviceConfigHandler.ListTenantSettings)
+							settingsCfg.With(authenticator.RequirePermissions(identity.PermissionAdminManage)).
+								Put("/{key}", serviceConfigHandler.UpsertTenantSetting)
+						})
+					}
+
+					// Read-only use-case configuration (tenant + per-outlet use_case).
+					if useCaseHandler != nil && authenticator != nil {
+						ord.With(authenticator.RequirePermissions(identity.Permission("ordering.config.view"))).
+							Get("/admin/use-case", useCaseHandler.GetUseCaseConfig)
+					}
+
+					// Tenant-scoped backups (this tenant's data only) — admin/config-gated.
+					// The per-tenant backup-destination override mounts alongside under the
+					// SAME permission gate (/backups/destination GET/PUT/POST(test)).
+					if backupsHandler != nil && authenticator != nil {
+						ord.Group(func(bg chi.Router) {
+							bg.Use(authenticator.RequirePermissions(identity.Permission("ordering.config.view")))
+							backupsHandler.Register(bg)
+							if backupDestHandler != nil {
+								backupDestHandler.RegisterRoutes(bg)
+							}
+						})
+					}
+
+					// Google Business Profile integration (admin connect/reviews + public callback).
+					// Safe when OAuth env is unset: endpoints return 503 "not configured".
+					if googleBusinessHandler != nil && authenticator != nil {
+						googleBusinessHandler.Register(ord, authenticator)
+					}
+
+					// Webhook routes (no auth required - use signature verification)
+					if paymentWebhookHandler != nil {
+						paymentWebhookHandler.Register(ord)
+					}
+					if fulfilmentWebhookHandler != nil {
+						fulfilmentWebhookHandler.Register(ord)
+					}
+				})
 			})
 		})
 	})
