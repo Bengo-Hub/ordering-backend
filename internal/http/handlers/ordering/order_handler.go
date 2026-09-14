@@ -60,6 +60,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Post("/{orderId}/cancel", h.CancelOrder)
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
 		orderRouter.Post("/{orderId}/reorder", h.Reorder)
+		orderRouter.Post("/{orderId}/pay/wallet", h.PayWithWallet)
 
 		// Live order tracking (SSE)
 		orderRouter.Get("/{orderId}/track", h.TrackOrder)
@@ -79,12 +80,6 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 			authedCheckout.Post("/", h.Checkout)
 			authedCheckout.Post("/validate", h.ValidateCheckout)
 		})
-	})
-
-	// Wallet payment — authenticated users can pay for their own orders via wallet
-	r.Route("/orders/{orderId}", func(orderDetailRouter chi.Router) {
-		orderDetailRouter.Use(auth.RequireAuth)
-		orderDetailRouter.Post("/pay/wallet", h.PayWithWallet)
 	})
 
 	// Admin order management routes

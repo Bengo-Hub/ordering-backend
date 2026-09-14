@@ -64,10 +64,12 @@ func (s *AddressService) CreateAddress(ctx context.Context, req CreateAddressReq
 		return nil, ErrMaxAddressesReached
 	}
 
-	// Set default country
+	// Set default country. CustomerAddress.country is an ISO 3166-1 alpha-2 code
+	// (MaxLen 2 in the ent schema) — writing the full country name here 500s the
+	// validator on every address created without an explicit country override.
 	country := req.Country
 	if country == "" {
-		country = "Kenya"
+		country = "KE"
 	}
 
 	address := &CustomerAddress{
