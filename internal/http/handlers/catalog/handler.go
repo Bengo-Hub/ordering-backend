@@ -155,6 +155,13 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if brandIDStr := r.URL.Query().Get("brand_id"); brandIDStr != "" {
+		brandID, err := uuid.Parse(brandIDStr)
+		if err == nil {
+			filter.BrandID = &brandID
+		}
+	}
+
 	if f := r.URL.Query().Get("featured"); f == "true" || f == "false" {
 		v := f == "true"
 		filter.IsFeatured = &v

@@ -170,6 +170,7 @@ type CatalogFilter struct {
 	TenantID    uuid.UUID
 	OutletID    *uuid.UUID
 	CategoryID  *uuid.UUID
+	BrandID     *uuid.UUID
 	Search      string
 	IsFeatured  *bool
 	IsAvailable *bool

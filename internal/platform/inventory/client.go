@@ -540,7 +540,7 @@ func sortParam(sort string) string {
 	}
 }
 
-func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int, categoryID *uuid.UUID, sort string) ([]ItemResponse, int, error) {
+func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter string, limit, page int, categoryID *uuid.UUID, sort string, brandID *uuid.UUID) ([]ItemResponse, int, error) {
 	if typeFilter == "" {
 		typeFilter = "GOODS,RECIPE"
 	}
@@ -550,13 +550,17 @@ func (c *Client) ListItems(ctx context.Context, tenantSlug string, typeFilter st
 	if page <= 0 {
 		page = 1
 	}
-	// Only finished, sellable, in-stock items belong on the storefront. category_id is applied
-	// SERVER-SIDE so a selected category returns its items (and the correct total) instead of the
-	// previous client-side post-pagination filter that returned an empty/null page.
+	// Only finished, sellable, in-stock items belong on the storefront. category_id/brand_id are
+	// applied SERVER-SIDE (inventory-api's items handler already whitelists both — see
+	// items.WithBrandFilter) so a selected category/brand returns its items (and the correct
+	// total) instead of a client-side post-pagination filter that would return an empty/null page.
 	// include=variants so merged catalog items carry their sellable variations.
 	path := fmt.Sprintf("/v1/%s/inventory/items?type=%s&status=active&limit=%d&page=%d&include=variants", tenantSlug, typeFilter, limit, page)
 	if categoryID != nil {
 		path += "&category_id=" + categoryID.String()
+	}
+	if brandID != nil {
+		path += "&brand_id=" + brandID.String()
 	}
 	path += sortParam(sort)
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(tenantSlug, ""))

@@ -71,7 +71,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		// inventory-api clamps any requested limit to its shared pagination cap (100), so a
 		// single large-limit request silently truncates the catalog past the first ~100 items —
 		// must page through all of it, not request one oversized page.
-		invItems, err = s.fetchAllInventoryItems(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort)
+		invItems, err = s.fetchAllInventoryItems(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort, filter.BrandID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 		}
@@ -80,7 +80,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		// Apply the category filter SERVER-SIDE so a selected category returns its items + the
 		// correct total (the old client-side filter ran after pagination → empty/null page for
 		// any category).
-		invItems, invTotal, err = s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID, filter.Sort)
+		invItems, invTotal, err = s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID, filter.Sort, filter.BrandID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 		}
@@ -190,6 +190,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		if filter.CategoryID != nil && (item.CategoryID == nil || *item.CategoryID != *filter.CategoryID) {
 			continue
 		}
+		if filter.BrandID != nil && (item.BrandID == nil || *item.BrandID != *filter.BrandID) {
+			continue
+		}
 
 		merged = append(merged, item)
 	}
@@ -215,10 +218,10 @@ const inventoryPageSize = 100
 // A single request with a large limit is silently truncated to inventoryPageSize server-side —
 // callers that need the full catalog (e.g. scanning for featured items scattered across it) must
 // page through it explicitly.
-func (s *ProxyService) fetchAllInventoryItems(ctx context.Context, tenantSlug, itemType string, categoryID *uuid.UUID, sort string) ([]inventory.ItemResponse, error) {
+func (s *ProxyService) fetchAllInventoryItems(ctx context.Context, tenantSlug, itemType string, categoryID *uuid.UUID, sort string, brandID *uuid.UUID) ([]inventory.ItemResponse, error) {
 	items := make([]inventory.ItemResponse, 0, 2*inventoryPageSize)
 	for page := 1; page <= 50; page++ { // runaway guard: 50 pages = 5k items
-		pageItems, total, err := s.inventoryClient.ListItems(ctx, tenantSlug, itemType, inventoryPageSize, page, categoryID, sort)
+		pageItems, total, err := s.inventoryClient.ListItems(ctx, tenantSlug, itemType, inventoryPageSize, page, categoryID, sort, brandID)
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +236,7 @@ func (s *ProxyService) fetchAllInventoryItems(ctx context.Context, tenantSlug, i
 // GetItem fetches a single item from inventory-api by SKU, merges with override.
 func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*MergedCatalogItem, error) {
 	// Fetch all orderable types to locate the item by SKU (single-item lookup, no pagination).
-	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil, "")
+	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
