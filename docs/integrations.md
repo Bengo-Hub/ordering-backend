@@ -451,6 +451,26 @@ When a hospitality order (dine-in or pickup) placed via ordering-backend transit
 
 ---
 
+#### Storefront promotions/reports S2S proxies (public, read-only)
+
+ordering-backend never owns discount or sales data — it thin-proxies pos-api's own S2S endpoints
+so the public storefront homepage/catalog can render Flash Sales, Top Deals, and a Brands row
+without a browser ever calling pos-api directly.
+
+| ordering-backend route (public, no auth) | Proxies | Client | Used for |
+|---|---|---|---|
+| `GET /{tenant}/promotions/banners?use_case=` | `GET /api/v1/s2s/{tenant}/discounts/banners` | `internal/platform/posdiscounts` | Hero marketing banner carousel |
+| `GET /{tenant}/promotions/deals` | `GET /api/v1/s2s/{tenant}/discounts?status=active` | `internal/platform/posdiscounts` | Flash Sales rail (discount-driven; falls back to any item with a discount price set when nothing is flagged `is_flash_sale`) |
+| `GET /{tenant}/promotions/top-sellers` | `GET /api/v1/s2s/{tenant}/pos/sales/by-sku?from=&to=` | `internal/platform/posreports` (new, 2026-09-14) | Top Deals rail (real best-sellers by units sold, trailing 90 days — inventory-api's menu-engineering/variance reports already consume the same pos-api endpoint the same way) |
+
+All three: `X-API-Key: {INTERNAL_SERVICE_KEY}` header, best-effort (return an empty array on any
+pos-api failure — a promotions/reporting hiccup must never break the storefront homepage), and
+cached 2 minutes via `internal/platform/cache` (`promobanner.Handler`, one struct backing all
+three routes). `GET /{tenant}/catalog/brands` (`ProxyService.ListBrands`) is the equivalent proxy
+over inventory-api's `ItemBrand` master data, for the Top Brands row — no pos-api involved there.
+
+---
+
 ## External Third-Party Integrations
 
 ### M-Pesa (via Treasury App)

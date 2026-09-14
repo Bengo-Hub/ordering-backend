@@ -61,6 +61,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/marketplace"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
+	"github.com/bengobox/ordering-backend/internal/platform/posreports"
 	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
@@ -265,7 +266,10 @@ func New(ctx context.Context) (*App, error) {
 	// Storefront promotions banner — thin read-through proxy over pos-api's Promotion
 	// records (reuses the same POS S2S config as the loyalty client above).
 	posDiscountsClient := posdiscounts.NewClient(cfg.POS.ServiceURL, cfg.POS.APIKey, log)
-	bannerHandler := promobannerhandler.New(log, ormClient, posDiscountsClient, cacheSvc)
+	// Storefront "Top Deals" (real best-sellers, not discounts) — thin read-through proxy over
+	// pos-api's own sales-by-sku aggregate, same POS S2S config.
+	posReportsClient := posreports.NewClient(cfg.POS.ServiceURL, cfg.POS.APIKey, log)
+	bannerHandler := promobannerhandler.New(log, ormClient, posDiscountsClient, posReportsClient, cacheSvc)
 	// Same client also evaluates promo codes against pos-api's discount SoT (schedule/meal_period/
 	// scope/BOGO) — see PromoService.ValidatePromoCode's doc comment for the fallback behavior
 	// when this is disabled.

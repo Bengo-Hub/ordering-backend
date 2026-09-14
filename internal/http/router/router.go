@@ -244,6 +244,7 @@ func New(
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/promotions/banners") ||
 								strings.Contains(path, "/promotions/deals") ||
+								strings.Contains(path, "/promotions/top-sellers") ||
 								strings.Contains(path, "/cart/guest") ||
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
@@ -278,6 +279,7 @@ func New(
 				if bannerHandler != nil {
 					tenant.Get("/promotions/banners", bannerHandler.ListBanners)
 					tenant.Get("/promotions/deals", bannerHandler.ListDeals)
+					tenant.Get("/promotions/top-sellers", bannerHandler.ListTopSellers)
 				}
 
 				// Register identity routes (auth endpoints are public)
