@@ -1314,6 +1314,20 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	// Publish order.status.changed event to NATS
 	s.publishOrderStatusChanged(ctx, order, oldStatus, newStatus)
 
+	// A pending->confirmed transition reached through this generic status-update path
+	// (staff/admin manual confirm, or any COD order — COD never flips payment_status to
+	// "paid" until delivery/collection, so UpdatePaymentStatus's own justConfirmed branch
+	// never fires for it) must ALSO emit ordering.order.confirmed, the one event pos-api's
+	// ConfirmedOrderConsumer listens for to create the online order's POS/KDS record.
+	// Without this, every COD pickup/delivery order was silently invisible to POS staff.
+	// ConfirmedOrderConsumer is idempotent on OrderLink.external_order_id, so a duplicate
+	// emission from the payment-driven path (which sets status via UpdatePaymentStatusAtomic
+	// directly, not through this function) is harmless if it ever overlaps.
+	if oldStatus == OrderStatusPending && newStatus == OrderStatusConfirmed &&
+		(order.FulfillmentType == FulfillmentTypePickup || order.FulfillmentType == FulfillmentTypeDelivery) {
+		s.publishOrderConfirmed(ctx, order)
+	}
+
 	s.logger.Info("order status updated",
 		zap.String("id", order.ID.String()),
 		zap.String("from", string(oldStatus)),
