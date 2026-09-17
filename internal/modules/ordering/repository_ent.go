@@ -558,6 +558,43 @@ func (r *EntRepository) UpdatePaymentStatusAtomic(ctx context.Context, tenantID,
 	return n > 0, nil
 }
 
+// UpdateOrderStatusAtomic is UpdateOrder's race-safe counterpart for plain lifecycle-status
+// transitions (UpdateOrderStatus), constraining the WHERE clause to status = fromStatus exactly
+// like UpdatePaymentStatusAtomic does for payment_status. See the Repository interface doc.
+func (r *EntRepository) UpdateOrderStatusAtomic(ctx context.Context, tenantID, orderID uuid.UUID, fromStatus OrderStatus, o *Order) (bool, error) {
+	builder := r.client.Order.Update().
+		Where(order.ID(orderID), order.TenantID(tenantID), order.StatusEQ(order.Status(fromStatus))).
+		SetStatus(order.Status(o.Status))
+
+	if o.ConfirmedAt != nil {
+		builder = builder.SetConfirmedAt(*o.ConfirmedAt)
+	}
+	if o.ReadyAt != nil {
+		builder = builder.SetReadyAt(*o.ReadyAt)
+	}
+	if o.DeliveredAt != nil {
+		builder = builder.SetDeliveredAt(*o.DeliveredAt)
+	}
+	if o.CompletedAt != nil {
+		builder = builder.SetCompletedAt(*o.CompletedAt)
+	}
+	if o.CancelledAt != nil {
+		builder = builder.SetCancelledAt(*o.CancelledAt)
+	}
+	if o.CancellationReason != "" {
+		builder = builder.SetCancellationReason(o.CancellationReason)
+	}
+	if o.PaymentStatus != "" {
+		builder = builder.SetPaymentStatus(order.PaymentStatus(o.PaymentStatus))
+	}
+
+	n, err := builder.Save(ctx)
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 func (r *EntRepository) DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error {
 	// Delete related records first (order_items, order_events, order_assignments)
 	_, _ = r.client.OrderItem.Delete().Where(orderitem.OrderID(orderID)).Exec(ctx)

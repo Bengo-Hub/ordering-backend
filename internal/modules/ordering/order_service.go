@@ -1326,8 +1326,20 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
 	}
 
-	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+	applied, err := s.repo.UpdateOrderStatusAtomic(ctx, tenantID, orderID, oldStatus, order)
+	if err != nil {
 		return nil, err
+	}
+	if !applied {
+		// Another concurrent request already moved this order off oldStatus first (e.g. a
+		// redelivered NATS task.completed event racing itself — see UpdateOrderStatusAtomic's
+		// doc). The finalize side effects above (settleCODIfApplicable, finalizeOrder) already
+		// ran against our in-memory copy and are individually idempotency-guarded, but this
+		// write itself lost the race, so skip the event/publish below and return current state
+		// rather than persist a status column that's now stale relative to the winner's write.
+		s.logger.Info("order status update lost a concurrent race — skipping duplicate side effects",
+			zap.String("id", orderID.String()), zap.String("attempted_status", string(newStatus)))
+		return s.repo.GetOrder(ctx, tenantID, orderID)
 	}
 
 	// Create order event
