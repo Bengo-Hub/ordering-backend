@@ -204,6 +204,16 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sh
 	if err != nil {
 		return fmt.Errorf("transition order to delivered: %w", err)
 	}
+	// UpdateOrderStatus just persisted status="delivered" against its own internal copy of
+	// the order -- our local `order` (read at the top of this function, before that call)
+	// still has status="out_for_delivery" in memory. UpdateOrder below writes status
+	// unconditionally from whatever's on the struct it's given (it has no partial-update
+	// mode), so without this it would silently revert the column we just correctly set,
+	// even though only PaymentStatus was actually meant to change here. Live-confirmed
+	// against codevertex-demo: an order's deliveredAt/paymentStatus landed correctly but
+	// its status column stayed stuck on "out_for_delivery" indefinitely because of exactly
+	// this clobber.
+	order.Status = ordering.OrderStatusDelivered
 
 	cashCollected, _ := data["cash_collected"].(bool)
 	if order.PaymentMethod == ordering.PaymentMethodCOD && cashCollected {
