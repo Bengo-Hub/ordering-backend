@@ -530,6 +530,15 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		Instructions:        instructions,
 		Channel:             req.Channel,
 		ReservationID:       reservationID,
+		// DeliveryAddressID was previously never set here even when the checkout request
+		// resolved a real saved address -- req.DeliveryLat/Lng were used only transiently
+		// for the delivery-fee calc above and then discarded, so the order's own dropoff
+		// coordinates could never be recovered again after creation. Every downstream
+		// consumer that reads them back via order.DeliveryAddress (publishOrderReady's
+		// payload to logistics-api/rider-app, the order/tracking API response, etc.)
+		// silently got nothing. See CreateAddressRequestDTO/CustomerAddress for the
+		// actual lat/lng source of truth this now lets those reads resolve.
+		DeliveryAddressID: req.DeliveryAddressID,
 		PlacedAt:            &now,
 		CreatedAt:           now,
 		UpdatedAt:           now,

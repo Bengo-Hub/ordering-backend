@@ -531,14 +531,18 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		// looking up the addressId via the repo if only an ID was provided.
 		deliveryAddress := req.DeliveryAddress
 		var deliveryLat, deliveryLng *float64
-		if deliveryAddress == "" && req.DeliveryAddressID != nil && *req.DeliveryAddressID != "" {
+		var deliveryAddressID *uuid.UUID
+		if req.DeliveryAddressID != nil && *req.DeliveryAddressID != "" {
 			addrID, parseErr := uuid.Parse(*req.DeliveryAddressID)
 			if parseErr == nil {
 				addr, addrErr := h.orderService.GetCustomerAddress(r.Context(), tenantID, addrID)
 				if addrErr == nil && addr != nil {
-					deliveryAddress = addr.AddressLine1
-					if addr.AddressLine2 != "" {
-						deliveryAddress += ", " + addr.AddressLine2
+					deliveryAddressID = &addrID
+					if deliveryAddress == "" {
+						deliveryAddress = addr.AddressLine1
+						if addr.AddressLine2 != "" {
+							deliveryAddress += ", " + addr.AddressLine2
+						}
 					}
 					deliveryLat = addr.Latitude
 					deliveryLng = addr.Longitude
@@ -552,19 +556,20 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		}
 
 		order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
-			TenantID:        tenantID,
-			OutletID:        outletID,
-			UserID:          user.ID,
-			Items:           items,
-			DeliveryAddress: deliveryAddress,
-			DeliveryLat:     deliveryLat,
-			DeliveryLng:     deliveryLng,
-			DeliveryNotes:   req.DeliveryNotes,
-			PromoCode:       req.PromoCode,
-			Channel:         channel,
-			FulfillmentType: fulfillmentType,
-			ScheduledFor:    scheduledFor,
-			PaymentMethod:   req.PaymentMethod,
+			TenantID:          tenantID,
+			OutletID:          outletID,
+			UserID:            user.ID,
+			Items:             items,
+			DeliveryAddress:   deliveryAddress,
+			DeliveryAddressID: deliveryAddressID,
+			DeliveryLat:       deliveryLat,
+			DeliveryLng:       deliveryLng,
+			DeliveryNotes:     req.DeliveryNotes,
+			PromoCode:         req.PromoCode,
+			Channel:           channel,
+			FulfillmentType:   fulfillmentType,
+			ScheduledFor:      scheduledFor,
+			PaymentMethod:     req.PaymentMethod,
 		})
 		if err != nil {
 			h.handleError(w, err)
