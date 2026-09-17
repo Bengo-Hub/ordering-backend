@@ -1260,6 +1260,19 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		return nil, err
 	}
 
+	// repo.GetOrder (unlike the OrderService.GetOrder read path) does not hydrate
+	// DeliveryAddress. publishOrderReady/publishOrderOutForDelivery/publishOrderDelivered
+	// below all guard on order.DeliveryAddress != nil to attach dropoff lat/lng to the
+	// logistics/rider event payload — without this, every delivery order that reaches
+	// "ready" through this path (which includes every COD order, since COD never goes
+	// through the payment-driven confirm path) publishes with no delivery coordinates at
+	// all, so the rider app's map/Google-Maps-link has nothing to point at.
+	if order.DeliveryAddressID != nil && order.DeliveryAddress == nil {
+		if addr, aErr := s.repo.GetAddress(ctx, tenantID, *order.DeliveryAddressID); aErr == nil {
+			order.DeliveryAddress = addr
+		}
+	}
+
 	// Validate transition
 	if !s.stateMachine.CanTransition(order.Status, newStatus) {
 		return nil, ErrInvalidStatusTransition
