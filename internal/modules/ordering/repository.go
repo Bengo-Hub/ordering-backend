@@ -42,6 +42,19 @@ type Repository interface {
 	// treat that as "already handled" and skip any one-time side effects (event publishing, etc.)
 	// rather than re-running them.
 	UpdatePaymentStatusAtomic(ctx context.Context, tenantID, orderID uuid.UUID, fromStatus PaymentStatus, order *Order) (applied bool, err error)
+	// UpdateOrderStatusAtomic is UpdatePaymentStatusAtomic's counterpart for the order's own
+	// lifecycle status -- a single UPDATE ... WHERE status = fromStatus, guarding against the
+	// same class of race UpdateOrderStatus's caller can hit: e.g. logistics-api redelivering
+	// the same NATS task.completed message (at-least-once delivery, no idempotency layer on
+	// this particular consumer) triggers two concurrent handlers that both read the order at
+	// "out_for_delivery" and both compute "delivered" as the next status. Without this guard
+	// both writes "succeed" (each logs its own status_changed event), but only one of the two
+	// full-row order.Update() calls actually lands last, and the fields it carries are frozen
+	// at ITS OWN stale read -- live-reproduced against codevertex-demo: the order's finalize
+	// side effects (COD settlement, inventory consumption) correctly ran exactly once each
+	// (their own idempotency guards caught the duplicate), but the order's status column
+	// itself ended up back at "out_for_delivery" instead of "delivered".
+	UpdateOrderStatusAtomic(ctx context.Context, tenantID, orderID uuid.UUID, fromStatus OrderStatus, order *Order) (applied bool, err error)
 	DeleteOrder(ctx context.Context, tenantID, orderID uuid.UUID) error
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
 	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
