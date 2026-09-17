@@ -543,11 +543,12 @@ type CreateOrderFromItemsRequest struct {
 	TenantID        uuid.UUID
 	OutletID        uuid.UUID
 	UserID          uuid.UUID
-	Items           []CreateOrderItemInput
-	DeliveryAddress string
-	DeliveryLat     *float64
-	DeliveryLng     *float64
-	DeliveryNotes   string
+	Items             []CreateOrderItemInput
+	DeliveryAddress   string
+	DeliveryAddressID *uuid.UUID
+	DeliveryLat       *float64
+	DeliveryLng       *float64
+	DeliveryNotes     string
 	PaymentMethod   string // "mpesa" | "cod"
 	PromoCode       string
 	Channel         OrderChannel
