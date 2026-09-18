@@ -17,17 +17,22 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	tenantpredicate "github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/modules/documents"
 	"github.com/google/uuid"
 )
 
 // EntRepository implements Repository using Ent ORM.
 type EntRepository struct {
 	client *ent.Client
+	seq    *documents.SequenceService
 }
 
-// NewEntRepository creates a new Ent-based ordering repository.
+// NewEntRepository creates a new Ent-based ordering repository. It owns its own
+// documents.SequenceService (same client, same platform-wide document-numbering pattern pos-api/
+// inventory-api/treasury-api use) rather than requiring a separate wiring step — GenerateOrderNumber
+// mints numbers through it directly.
 func NewEntRepository(client *ent.Client) *EntRepository {
-	return &EntRepository{client: client}
+	return &EntRepository{client: client, seq: documents.NewSequenceService(client)}
 }
 
 // --- Cart Methods ---
@@ -668,7 +673,6 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 	return result, total, nil
 }
 
-
 // --- Scheduled Orders ---
 
 // GetStalePaymentOrders returns orders with payment_status=pending that are older than olderThan, across all tenants.
@@ -690,8 +694,8 @@ func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan tim
 	result := make([]StalePaymentOrder, 0, len(ents))
 	for _, o := range ents {
 		s := StalePaymentOrder{
-			ID:            o.ID,
-			TenantID:      o.TenantID,
+			ID:              o.ID,
+			TenantID:        o.TenantID,
 			PaymentIntentID: o.PaymentIntentID,
 		}
 		ps := PaymentStatus(o.PaymentStatus)
@@ -809,11 +813,24 @@ func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.U
 	return summary, nil
 }
 
+// GenerateOrderNumber mints the next order number via the shared documents.SequenceService (the
+// same platform-wide document-numbering mechanism pos-api uses for POS order/receipt numbers) —
+// an atomic, per-tenant, CAS-guarded counter on the document_sequences table. Platform default is
+// PURE NUMERIC (e.g. "000001"), matching pos-api's own DocTypeOrder default; tenants can opt into
+// a prefixed/dated style later via Settings, same as every other service on this pattern.
+// outletID is accepted only to satisfy the Repository interface (order numbers are tenant-scoped,
+// not outlet-scoped — this was already true of the legacy YYYYMMDD-NNNN scheme this replaces,
+// which never incorporated outletID into its own prefix either).
+//
+// Falls back to the legacy YYYYMMDD-NNNN per-tenant-per-day scheme only if the sequence service
+// itself is unset (defensive; NewEntRepository always sets it) or errors, so a sequence-table
+// outage degrades order creation rather than blocking it outright.
 func (r *EntRepository) GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error) {
-	// Format: YYYYMMDD-NNNN per tenant per day (e.g. 20260117-0001). order_number is unique PER
-	// TENANT (composite index), so scope generation to the tenant. Use the highest existing suffix
-	// + 1 (gap-safe — count() would collide after a rolled-back order). The zero-padded suffix makes
-	// lexical desc == numeric desc up to 9999/day.
+	if r.seq != nil {
+		if num, err := r.seq.GenerateNumber(ctx, tenantID, documents.DocTypeOrder); err == nil {
+			return num, nil
+		}
+	}
 	prefix := time.Now().Format("20060102") + "-"
 	latest, err := r.client.Order.Query().
 		Where(
@@ -1121,7 +1138,6 @@ func entOrderToDomain(o *ent.Order) *Order {
 
 	return ord
 }
-
 
 func entOrderItemToDomain(item *ent.OrderItem) *OrderItem {
 	oi := &OrderItem{

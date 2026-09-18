@@ -28,6 +28,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
 	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
+	"github.com/bengobox/ordering-backend/internal/ent/documentsequence"
 	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
 	"github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
@@ -89,6 +90,8 @@ type Client struct {
 	DeliveryWindow *DeliveryWindowClient
 	// DeliveryZone is the client for interacting with the DeliveryZone builders.
 	DeliveryZone *DeliveryZoneClient
+	// DocumentSequence is the client for interacting with the DocumentSequence builders.
+	DocumentSequence *DocumentSequenceClient
 	// GoogleBusinessConnection is the client for interacting with the GoogleBusinessConnection builders.
 	GoogleBusinessConnection *GoogleBusinessConnectionClient
 	// GroupOrder is the client for interacting with the GroupOrder builders.
@@ -172,6 +175,7 @@ func (c *Client) init() {
 	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
 	c.DeliveryZone = NewDeliveryZoneClient(c.config)
+	c.DocumentSequence = NewDocumentSequenceClient(c.config)
 	c.GoogleBusinessConnection = NewGoogleBusinessConnectionClient(c.config)
 	c.GroupOrder = NewGroupOrderClient(c.config)
 	c.GroupParticipant = NewGroupParticipantClient(c.config)
@@ -306,6 +310,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
 		DeliveryZone:             NewDeliveryZoneClient(cfg),
+		DocumentSequence:         NewDocumentSequenceClient(cfg),
 		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
 		GroupOrder:               NewGroupOrderClient(cfg),
 		GroupParticipant:         NewGroupParticipantClient(cfg),
@@ -367,6 +372,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
 		DeliveryZone:             NewDeliveryZoneClient(cfg),
+		DocumentSequence:         NewDocumentSequenceClient(cfg),
 		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
 		GroupOrder:               NewGroupOrderClient(cfg),
 		GroupParticipant:         NewGroupParticipantClient(cfg),
@@ -428,13 +434,14 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AuditLog, c.Backup, c.BackupSetting, c.Cart, c.CartItem, c.CatalogOverride,
 		c.CustomerAddress, c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest,
-		c.DeliveryWindow, c.DeliveryZone, c.GoogleBusinessConnection, c.GroupOrder,
-		c.GroupParticipant, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
-		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.DeliveryWindow, c.DeliveryZone, c.DocumentSequence,
+		c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
+		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
+		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
+		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
+		c.UserRoleAssignment,
 	} {
 		n.Use(hooks...)
 	}
@@ -446,13 +453,14 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AuditLog, c.Backup, c.BackupSetting, c.Cart, c.CartItem, c.CatalogOverride,
 		c.CustomerAddress, c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest,
-		c.DeliveryWindow, c.DeliveryZone, c.GoogleBusinessConnection, c.GroupOrder,
-		c.GroupParticipant, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
-		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
-		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
-		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
-		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
-		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
+		c.DeliveryWindow, c.DeliveryZone, c.DocumentSequence,
+		c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
+		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
+		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
+		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
+		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
+		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
+		c.UserRoleAssignment,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -485,6 +493,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DeliveryWindow.mutate(ctx, m)
 	case *DeliveryZoneMutation:
 		return c.DeliveryZone.mutate(ctx, m)
+	case *DocumentSequenceMutation:
+		return c.DocumentSequence.mutate(ctx, m)
 	case *GoogleBusinessConnectionMutation:
 		return c.GoogleBusinessConnection.mutate(ctx, m)
 	case *GroupOrderMutation:
@@ -2239,6 +2249,139 @@ func (c *DeliveryZoneClient) mutate(ctx context.Context, m *DeliveryZoneMutation
 		return (&DeliveryZoneDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DeliveryZone mutation op: %q", m.Op())
+	}
+}
+
+// DocumentSequenceClient is a client for the DocumentSequence schema.
+type DocumentSequenceClient struct {
+	config
+}
+
+// NewDocumentSequenceClient returns a client for the DocumentSequence from the given config.
+func NewDocumentSequenceClient(c config) *DocumentSequenceClient {
+	return &DocumentSequenceClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `documentsequence.Hooks(f(g(h())))`.
+func (c *DocumentSequenceClient) Use(hooks ...Hook) {
+	c.hooks.DocumentSequence = append(c.hooks.DocumentSequence, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `documentsequence.Intercept(f(g(h())))`.
+func (c *DocumentSequenceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DocumentSequence = append(c.inters.DocumentSequence, interceptors...)
+}
+
+// Create returns a builder for creating a DocumentSequence entity.
+func (c *DocumentSequenceClient) Create() *DocumentSequenceCreate {
+	mutation := newDocumentSequenceMutation(c.config, OpCreate)
+	return &DocumentSequenceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DocumentSequence entities.
+func (c *DocumentSequenceClient) CreateBulk(builders ...*DocumentSequenceCreate) *DocumentSequenceCreateBulk {
+	return &DocumentSequenceCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DocumentSequenceClient) MapCreateBulk(slice any, setFunc func(*DocumentSequenceCreate, int)) *DocumentSequenceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DocumentSequenceCreateBulk{err: fmt.Errorf("calling to DocumentSequenceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DocumentSequenceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DocumentSequenceCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DocumentSequence.
+func (c *DocumentSequenceClient) Update() *DocumentSequenceUpdate {
+	mutation := newDocumentSequenceMutation(c.config, OpUpdate)
+	return &DocumentSequenceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DocumentSequenceClient) UpdateOne(_m *DocumentSequence) *DocumentSequenceUpdateOne {
+	mutation := newDocumentSequenceMutation(c.config, OpUpdateOne, withDocumentSequence(_m))
+	return &DocumentSequenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DocumentSequenceClient) UpdateOneID(id uuid.UUID) *DocumentSequenceUpdateOne {
+	mutation := newDocumentSequenceMutation(c.config, OpUpdateOne, withDocumentSequenceID(id))
+	return &DocumentSequenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DocumentSequence.
+func (c *DocumentSequenceClient) Delete() *DocumentSequenceDelete {
+	mutation := newDocumentSequenceMutation(c.config, OpDelete)
+	return &DocumentSequenceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DocumentSequenceClient) DeleteOne(_m *DocumentSequence) *DocumentSequenceDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DocumentSequenceClient) DeleteOneID(id uuid.UUID) *DocumentSequenceDeleteOne {
+	builder := c.Delete().Where(documentsequence.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DocumentSequenceDeleteOne{builder}
+}
+
+// Query returns a query builder for DocumentSequence.
+func (c *DocumentSequenceClient) Query() *DocumentSequenceQuery {
+	return &DocumentSequenceQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDocumentSequence},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DocumentSequence entity by its id.
+func (c *DocumentSequenceClient) Get(ctx context.Context, id uuid.UUID) (*DocumentSequence, error) {
+	return c.Query().Where(documentsequence.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DocumentSequenceClient) GetX(ctx context.Context, id uuid.UUID) *DocumentSequence {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DocumentSequenceClient) Hooks() []Hook {
+	return c.hooks.DocumentSequence
+}
+
+// Interceptors returns the client interceptors.
+func (c *DocumentSequenceClient) Interceptors() []Interceptor {
+	return c.inters.DocumentSequence
+}
+
+func (c *DocumentSequenceClient) mutate(ctx context.Context, m *DocumentSequenceMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DocumentSequenceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DocumentSequenceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DocumentSequenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DocumentSequenceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DocumentSequence mutation op: %q", m.Op())
 	}
 }
 
@@ -6989,23 +7132,23 @@ type (
 	hooks struct {
 		AuditLog, Backup, BackupSetting, Cart, CartItem, CatalogOverride,
 		CustomerAddress, DataDeletionJob, DataExportJob, DataSubjectRequest,
-		DeliveryWindow, DeliveryZone, GoogleBusinessConnection, GroupOrder,
-		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
-		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
-		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
-		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
-		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
-		UserRoleAssignment []ent.Hook
+		DeliveryWindow, DeliveryZone, DocumentSequence, GoogleBusinessConnection,
+		GroupOrder, GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order,
+		OrderAssignment, OrderEvent, OrderItem, OrderingPermission, OrderingRole,
+		OutboxEvent, Outlet, OutletRating, Permission, PromoCode, PromoRedemption,
+		RateLimitConfig, Role, RolePermission, SLAMetric, ServiceConfig, Tenant,
+		TenantSetting, TenantSyncEvent, User, UserFavorite, UserPreference,
+		UserProfile, UserRoleAssignment []ent.Hook
 	}
 	inters struct {
 		AuditLog, Backup, BackupSetting, Cart, CartItem, CatalogOverride,
 		CustomerAddress, DataDeletionJob, DataExportJob, DataSubjectRequest,
-		DeliveryWindow, DeliveryZone, GoogleBusinessConnection, GroupOrder,
-		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
-		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
-		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
-		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
-		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
-		UserRoleAssignment []ent.Interceptor
+		DeliveryWindow, DeliveryZone, DocumentSequence, GoogleBusinessConnection,
+		GroupOrder, GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order,
+		OrderAssignment, OrderEvent, OrderItem, OrderingPermission, OrderingRole,
+		OutboxEvent, Outlet, OutletRating, Permission, PromoCode, PromoRedemption,
+		RateLimitConfig, Role, RolePermission, SLAMetric, ServiceConfig, Tenant,
+		TenantSetting, TenantSyncEvent, User, UserFavorite, UserPreference,
+		UserProfile, UserRoleAssignment []ent.Interceptor
 	}
 )
