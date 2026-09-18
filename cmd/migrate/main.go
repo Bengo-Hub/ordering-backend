@@ -43,9 +43,32 @@ func main() {
 	if err != nil {
 		log.Fatalf("open ent driver: %v", err)
 	}
-	db.SetMaxIdleConns(dbCfg.MaxIdleConns)
-	db.SetMaxOpenConns(dbCfg.MaxOpenConns)
-	db.SetConnMaxIdleTime(5 * time.Minute)
+
+	// Every replica runs this binary on startup (see scripts/entrypoint.sh) — without
+	// coordination, N pods launching together each run their own Schema.Create concurrently
+	// against the same tables. This exact class of bug took down pos-api in production on
+	// 2026-07-26 (concurrent migrate attempts from multiple starting replicas corrupted a
+	// nullable-then-backfill migration on the live pos_orders table; see
+	// .claude/memory/feedback_ent_atlas_migrations.md). A single physical connection
+	// (MaxOpenConns=1) + a session-level Postgres advisory lock ensures only ONE pod across the
+	// whole cluster ever executes the migration at a time; the rest block here until it
+	// finishes, then find nothing pending and return immediately. Lock key 727271005 is
+	// ordering-backend's own — distinct from pos-api's 727271001, inventory-api's 727271002,
+	// treasury-api's 727271003, and hospital-api's 727271004 (all share one physical Postgres
+	// instance, so reusing a key would make unrelated services block on each other for no reason).
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	const migrationLockKey = 727271005
+	if _, err := db.ExecContext(ctx, "SELECT pg_advisory_lock($1)", migrationLockKey); err != nil {
+		log.Fatalf("acquire migration lock: %v", err)
+	}
+	defer func() {
+		if _, err := db.ExecContext(context.Background(), "SELECT pg_advisory_unlock($1)", migrationLockKey); err != nil {
+			log.Printf("release migration lock: %v", err)
+		}
+	}()
 
 	drv := entsql.OpenDB(dialect.Postgres, db)
 	client := ent.NewClient(ent.Driver(drv))
