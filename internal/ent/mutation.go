@@ -20449,6 +20449,10 @@ type OrderMutation struct {
 	addloyalty_points_earned   *int
 	loyalty_points_redeemed    *int
 	addloyalty_points_redeemed *int
+	delivery_latitude          *float64
+	adddelivery_latitude       *float64
+	delivery_longitude         *float64
+	adddelivery_longitude      *float64
 	promo_code_id              *uuid.UUID
 	instructions               *string
 	pod_code                   *string
@@ -21988,6 +21992,146 @@ func (m *OrderMutation) ResetDeliveryAddressID() {
 	delete(m.clearedFields, order.FieldDeliveryAddressID)
 }
 
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (m *OrderMutation) SetDeliveryLatitude(f float64) {
+	m.delivery_latitude = &f
+	m.adddelivery_latitude = nil
+}
+
+// DeliveryLatitude returns the value of the "delivery_latitude" field in the mutation.
+func (m *OrderMutation) DeliveryLatitude() (r float64, exists bool) {
+	v := m.delivery_latitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeliveryLatitude returns the old "delivery_latitude" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldDeliveryLatitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeliveryLatitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeliveryLatitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeliveryLatitude: %w", err)
+	}
+	return oldValue.DeliveryLatitude, nil
+}
+
+// AddDeliveryLatitude adds f to the "delivery_latitude" field.
+func (m *OrderMutation) AddDeliveryLatitude(f float64) {
+	if m.adddelivery_latitude != nil {
+		*m.adddelivery_latitude += f
+	} else {
+		m.adddelivery_latitude = &f
+	}
+}
+
+// AddedDeliveryLatitude returns the value that was added to the "delivery_latitude" field in this mutation.
+func (m *OrderMutation) AddedDeliveryLatitude() (r float64, exists bool) {
+	v := m.adddelivery_latitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (m *OrderMutation) ClearDeliveryLatitude() {
+	m.delivery_latitude = nil
+	m.adddelivery_latitude = nil
+	m.clearedFields[order.FieldDeliveryLatitude] = struct{}{}
+}
+
+// DeliveryLatitudeCleared returns if the "delivery_latitude" field was cleared in this mutation.
+func (m *OrderMutation) DeliveryLatitudeCleared() bool {
+	_, ok := m.clearedFields[order.FieldDeliveryLatitude]
+	return ok
+}
+
+// ResetDeliveryLatitude resets all changes to the "delivery_latitude" field.
+func (m *OrderMutation) ResetDeliveryLatitude() {
+	m.delivery_latitude = nil
+	m.adddelivery_latitude = nil
+	delete(m.clearedFields, order.FieldDeliveryLatitude)
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (m *OrderMutation) SetDeliveryLongitude(f float64) {
+	m.delivery_longitude = &f
+	m.adddelivery_longitude = nil
+}
+
+// DeliveryLongitude returns the value of the "delivery_longitude" field in the mutation.
+func (m *OrderMutation) DeliveryLongitude() (r float64, exists bool) {
+	v := m.delivery_longitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeliveryLongitude returns the old "delivery_longitude" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldDeliveryLongitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeliveryLongitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeliveryLongitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeliveryLongitude: %w", err)
+	}
+	return oldValue.DeliveryLongitude, nil
+}
+
+// AddDeliveryLongitude adds f to the "delivery_longitude" field.
+func (m *OrderMutation) AddDeliveryLongitude(f float64) {
+	if m.adddelivery_longitude != nil {
+		*m.adddelivery_longitude += f
+	} else {
+		m.adddelivery_longitude = &f
+	}
+}
+
+// AddedDeliveryLongitude returns the value that was added to the "delivery_longitude" field in this mutation.
+func (m *OrderMutation) AddedDeliveryLongitude() (r float64, exists bool) {
+	v := m.adddelivery_longitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (m *OrderMutation) ClearDeliveryLongitude() {
+	m.delivery_longitude = nil
+	m.adddelivery_longitude = nil
+	m.clearedFields[order.FieldDeliveryLongitude] = struct{}{}
+}
+
+// DeliveryLongitudeCleared returns if the "delivery_longitude" field was cleared in this mutation.
+func (m *OrderMutation) DeliveryLongitudeCleared() bool {
+	_, ok := m.clearedFields[order.FieldDeliveryLongitude]
+	return ok
+}
+
+// ResetDeliveryLongitude resets all changes to the "delivery_longitude" field.
+func (m *OrderMutation) ResetDeliveryLongitude() {
+	m.delivery_longitude = nil
+	m.adddelivery_longitude = nil
+	delete(m.clearedFields, order.FieldDeliveryLongitude)
+}
+
 // SetPromoCodeID sets the "promo_code_id" field.
 func (m *OrderMutation) SetPromoCodeID(u uuid.UUID) {
 	m.promo_code_id = &u
@@ -23178,7 +23322,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 48)
+	fields := make([]string, 0, 50)
 	if m.tenant_id != nil {
 		fields = append(fields, order.FieldTenantID)
 	}
@@ -23265,6 +23409,12 @@ func (m *OrderMutation) Fields() []string {
 	}
 	if m.delivery_address != nil {
 		fields = append(fields, order.FieldDeliveryAddressID)
+	}
+	if m.delivery_latitude != nil {
+		fields = append(fields, order.FieldDeliveryLatitude)
+	}
+	if m.delivery_longitude != nil {
+		fields = append(fields, order.FieldDeliveryLongitude)
 	}
 	if m.promo_code_id != nil {
 		fields = append(fields, order.FieldPromoCodeID)
@@ -23389,6 +23539,10 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.LoyaltyPointsRedeemed()
 	case order.FieldDeliveryAddressID:
 		return m.DeliveryAddressID()
+	case order.FieldDeliveryLatitude:
+		return m.DeliveryLatitude()
+	case order.FieldDeliveryLongitude:
+		return m.DeliveryLongitude()
 	case order.FieldPromoCodeID:
 		return m.PromoCodeID()
 	case order.FieldInstructions:
@@ -23494,6 +23648,10 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldLoyaltyPointsRedeemed(ctx)
 	case order.FieldDeliveryAddressID:
 		return m.OldDeliveryAddressID(ctx)
+	case order.FieldDeliveryLatitude:
+		return m.OldDeliveryLatitude(ctx)
+	case order.FieldDeliveryLongitude:
+		return m.OldDeliveryLongitude(ctx)
 	case order.FieldPromoCodeID:
 		return m.OldPromoCodeID(ctx)
 	case order.FieldInstructions:
@@ -23744,6 +23902,20 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeliveryAddressID(v)
 		return nil
+	case order.FieldDeliveryLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeliveryLatitude(v)
+		return nil
+	case order.FieldDeliveryLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeliveryLongitude(v)
+		return nil
 	case order.FieldPromoCodeID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -23918,6 +24090,12 @@ func (m *OrderMutation) AddedFields() []string {
 	if m.addloyalty_points_redeemed != nil {
 		fields = append(fields, order.FieldLoyaltyPointsRedeemed)
 	}
+	if m.adddelivery_latitude != nil {
+		fields = append(fields, order.FieldDeliveryLatitude)
+	}
+	if m.adddelivery_longitude != nil {
+		fields = append(fields, order.FieldDeliveryLongitude)
+	}
 	if m.addrating != nil {
 		fields = append(fields, order.FieldRating)
 	}
@@ -23951,6 +24129,10 @@ func (m *OrderMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedLoyaltyPointsEarned()
 	case order.FieldLoyaltyPointsRedeemed:
 		return m.AddedLoyaltyPointsRedeemed()
+	case order.FieldDeliveryLatitude:
+		return m.AddedDeliveryLatitude()
+	case order.FieldDeliveryLongitude:
+		return m.AddedDeliveryLongitude()
 	case order.FieldRating:
 		return m.AddedRating()
 	}
@@ -24039,6 +24221,20 @@ func (m *OrderMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddLoyaltyPointsRedeemed(v)
 		return nil
+	case order.FieldDeliveryLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeliveryLatitude(v)
+		return nil
+	case order.FieldDeliveryLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeliveryLongitude(v)
+		return nil
 	case order.FieldRating:
 		v, ok := value.(int)
 		if !ok {
@@ -24083,6 +24279,12 @@ func (m *OrderMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(order.FieldDeliveryAddressID) {
 		fields = append(fields, order.FieldDeliveryAddressID)
+	}
+	if m.FieldCleared(order.FieldDeliveryLatitude) {
+		fields = append(fields, order.FieldDeliveryLatitude)
+	}
+	if m.FieldCleared(order.FieldDeliveryLongitude) {
+		fields = append(fields, order.FieldDeliveryLongitude)
 	}
 	if m.FieldCleared(order.FieldPromoCodeID) {
 		fields = append(fields, order.FieldPromoCodeID)
@@ -24175,6 +24377,12 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldDeliveryAddressID:
 		m.ClearDeliveryAddressID()
+		return nil
+	case order.FieldDeliveryLatitude:
+		m.ClearDeliveryLatitude()
+		return nil
+	case order.FieldDeliveryLongitude:
+		m.ClearDeliveryLongitude()
 		return nil
 	case order.FieldPromoCodeID:
 		m.ClearPromoCodeID()
@@ -24318,6 +24526,12 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldDeliveryAddressID:
 		m.ResetDeliveryAddressID()
+		return nil
+	case order.FieldDeliveryLatitude:
+		m.ResetDeliveryLatitude()
+		return nil
+	case order.FieldDeliveryLongitude:
+		m.ResetDeliveryLongitude()
 		return nil
 	case order.FieldPromoCodeID:
 		m.ResetPromoCodeID()

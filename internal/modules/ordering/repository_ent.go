@@ -392,6 +392,12 @@ func (r *EntRepository) CreateOrder(ctx context.Context, o *Order) error {
 	if o.DeliveryAddressID != nil {
 		builder.SetDeliveryAddressID(*o.DeliveryAddressID)
 	}
+	if o.DeliveryLatitude != nil {
+		builder.SetDeliveryLatitude(*o.DeliveryLatitude)
+	}
+	if o.DeliveryLongitude != nil {
+		builder.SetDeliveryLongitude(*o.DeliveryLongitude)
+	}
 	if o.PromoCodeID != nil {
 		builder.SetPromoCodeID(*o.PromoCodeID)
 	}
@@ -1092,6 +1098,12 @@ func entOrderToDomain(o *ent.Order) *Order {
 	}
 	if o.DeliveryAddressID != nil {
 		ord.DeliveryAddressID = o.DeliveryAddressID
+	}
+	if o.DeliveryLatitude != nil {
+		ord.DeliveryLatitude = o.DeliveryLatitude
+	}
+	if o.DeliveryLongitude != nil {
+		ord.DeliveryLongitude = o.DeliveryLongitude
 	}
 	if o.PromoCodeID != nil {
 		ord.PromoCodeID = o.PromoCodeID

@@ -578,6 +578,60 @@ func (_u *OrderUpdate) ClearDeliveryAddressID() *OrderUpdate {
 	return _u
 }
 
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (_u *OrderUpdate) SetDeliveryLatitude(v float64) *OrderUpdate {
+	_u.mutation.ResetDeliveryLatitude()
+	_u.mutation.SetDeliveryLatitude(v)
+	return _u
+}
+
+// SetNillableDeliveryLatitude sets the "delivery_latitude" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableDeliveryLatitude(v *float64) *OrderUpdate {
+	if v != nil {
+		_u.SetDeliveryLatitude(*v)
+	}
+	return _u
+}
+
+// AddDeliveryLatitude adds value to the "delivery_latitude" field.
+func (_u *OrderUpdate) AddDeliveryLatitude(v float64) *OrderUpdate {
+	_u.mutation.AddDeliveryLatitude(v)
+	return _u
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (_u *OrderUpdate) ClearDeliveryLatitude() *OrderUpdate {
+	_u.mutation.ClearDeliveryLatitude()
+	return _u
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (_u *OrderUpdate) SetDeliveryLongitude(v float64) *OrderUpdate {
+	_u.mutation.ResetDeliveryLongitude()
+	_u.mutation.SetDeliveryLongitude(v)
+	return _u
+}
+
+// SetNillableDeliveryLongitude sets the "delivery_longitude" field if the given value is not nil.
+func (_u *OrderUpdate) SetNillableDeliveryLongitude(v *float64) *OrderUpdate {
+	if v != nil {
+		_u.SetDeliveryLongitude(*v)
+	}
+	return _u
+}
+
+// AddDeliveryLongitude adds value to the "delivery_longitude" field.
+func (_u *OrderUpdate) AddDeliveryLongitude(v float64) *OrderUpdate {
+	_u.mutation.AddDeliveryLongitude(v)
+	return _u
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (_u *OrderUpdate) ClearDeliveryLongitude() *OrderUpdate {
+	_u.mutation.ClearDeliveryLongitude()
+	return _u
+}
+
 // SetPromoCodeID sets the "promo_code_id" field.
 func (_u *OrderUpdate) SetPromoCodeID(v uuid.UUID) *OrderUpdate {
 	_u.mutation.SetPromoCodeID(v)
@@ -1308,6 +1362,24 @@ func (_u *OrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedLoyaltyPointsRedeemed(); ok {
 		_spec.AddField(order.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.DeliveryLatitude(); ok {
+		_spec.SetField(order.FieldDeliveryLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDeliveryLatitude(); ok {
+		_spec.AddField(order.FieldDeliveryLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.DeliveryLatitudeCleared() {
+		_spec.ClearField(order.FieldDeliveryLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.DeliveryLongitude(); ok {
+		_spec.SetField(order.FieldDeliveryLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDeliveryLongitude(); ok {
+		_spec.AddField(order.FieldDeliveryLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.DeliveryLongitudeCleared() {
+		_spec.ClearField(order.FieldDeliveryLongitude, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.PromoCodeID(); ok {
 		_spec.SetField(order.FieldPromoCodeID, field.TypeUUID, value)
@@ -2199,6 +2271,60 @@ func (_u *OrderUpdateOne) ClearDeliveryAddressID() *OrderUpdateOne {
 	return _u
 }
 
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (_u *OrderUpdateOne) SetDeliveryLatitude(v float64) *OrderUpdateOne {
+	_u.mutation.ResetDeliveryLatitude()
+	_u.mutation.SetDeliveryLatitude(v)
+	return _u
+}
+
+// SetNillableDeliveryLatitude sets the "delivery_latitude" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableDeliveryLatitude(v *float64) *OrderUpdateOne {
+	if v != nil {
+		_u.SetDeliveryLatitude(*v)
+	}
+	return _u
+}
+
+// AddDeliveryLatitude adds value to the "delivery_latitude" field.
+func (_u *OrderUpdateOne) AddDeliveryLatitude(v float64) *OrderUpdateOne {
+	_u.mutation.AddDeliveryLatitude(v)
+	return _u
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (_u *OrderUpdateOne) ClearDeliveryLatitude() *OrderUpdateOne {
+	_u.mutation.ClearDeliveryLatitude()
+	return _u
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (_u *OrderUpdateOne) SetDeliveryLongitude(v float64) *OrderUpdateOne {
+	_u.mutation.ResetDeliveryLongitude()
+	_u.mutation.SetDeliveryLongitude(v)
+	return _u
+}
+
+// SetNillableDeliveryLongitude sets the "delivery_longitude" field if the given value is not nil.
+func (_u *OrderUpdateOne) SetNillableDeliveryLongitude(v *float64) *OrderUpdateOne {
+	if v != nil {
+		_u.SetDeliveryLongitude(*v)
+	}
+	return _u
+}
+
+// AddDeliveryLongitude adds value to the "delivery_longitude" field.
+func (_u *OrderUpdateOne) AddDeliveryLongitude(v float64) *OrderUpdateOne {
+	_u.mutation.AddDeliveryLongitude(v)
+	return _u
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (_u *OrderUpdateOne) ClearDeliveryLongitude() *OrderUpdateOne {
+	_u.mutation.ClearDeliveryLongitude()
+	return _u
+}
+
 // SetPromoCodeID sets the "promo_code_id" field.
 func (_u *OrderUpdateOne) SetPromoCodeID(v uuid.UUID) *OrderUpdateOne {
 	_u.mutation.SetPromoCodeID(v)
@@ -2959,6 +3085,24 @@ func (_u *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error)
 	}
 	if value, ok := _u.mutation.AddedLoyaltyPointsRedeemed(); ok {
 		_spec.AddField(order.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.DeliveryLatitude(); ok {
+		_spec.SetField(order.FieldDeliveryLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDeliveryLatitude(); ok {
+		_spec.AddField(order.FieldDeliveryLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.DeliveryLatitudeCleared() {
+		_spec.ClearField(order.FieldDeliveryLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.DeliveryLongitude(); ok {
+		_spec.SetField(order.FieldDeliveryLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDeliveryLongitude(); ok {
+		_spec.AddField(order.FieldDeliveryLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.DeliveryLongitudeCleared() {
+		_spec.ClearField(order.FieldDeliveryLongitude, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.PromoCodeID(); ok {
 		_spec.SetField(order.FieldPromoCodeID, field.TypeUUID, value)

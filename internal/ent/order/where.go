@@ -181,6 +181,16 @@ func DeliveryAddressID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldDeliveryAddressID, v))
 }
 
+// DeliveryLatitude applies equality check predicate on the "delivery_latitude" field. It's identical to DeliveryLatitudeEQ.
+func DeliveryLatitude(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLongitude applies equality check predicate on the "delivery_longitude" field. It's identical to DeliveryLongitudeEQ.
+func DeliveryLongitude(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldDeliveryLongitude, v))
+}
+
 // PromoCodeID applies equality check predicate on the "promo_code_id" field. It's identical to PromoCodeIDEQ.
 func PromoCodeID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldPromoCodeID, v))
@@ -1459,6 +1469,106 @@ func DeliveryAddressIDIsNil() predicate.Order {
 // DeliveryAddressIDNotNil applies the NotNil predicate on the "delivery_address_id" field.
 func DeliveryAddressIDNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldDeliveryAddressID))
+}
+
+// DeliveryLatitudeEQ applies the EQ predicate on the "delivery_latitude" field.
+func DeliveryLatitudeEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeNEQ applies the NEQ predicate on the "delivery_latitude" field.
+func DeliveryLatitudeNEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeIn applies the In predicate on the "delivery_latitude" field.
+func DeliveryLatitudeIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldDeliveryLatitude, vs...))
+}
+
+// DeliveryLatitudeNotIn applies the NotIn predicate on the "delivery_latitude" field.
+func DeliveryLatitudeNotIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldDeliveryLatitude, vs...))
+}
+
+// DeliveryLatitudeGT applies the GT predicate on the "delivery_latitude" field.
+func DeliveryLatitudeGT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeGTE applies the GTE predicate on the "delivery_latitude" field.
+func DeliveryLatitudeGTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeLT applies the LT predicate on the "delivery_latitude" field.
+func DeliveryLatitudeLT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeLTE applies the LTE predicate on the "delivery_latitude" field.
+func DeliveryLatitudeLTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldDeliveryLatitude, v))
+}
+
+// DeliveryLatitudeIsNil applies the IsNil predicate on the "delivery_latitude" field.
+func DeliveryLatitudeIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldDeliveryLatitude))
+}
+
+// DeliveryLatitudeNotNil applies the NotNil predicate on the "delivery_latitude" field.
+func DeliveryLatitudeNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldDeliveryLatitude))
+}
+
+// DeliveryLongitudeEQ applies the EQ predicate on the "delivery_longitude" field.
+func DeliveryLongitudeEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeNEQ applies the NEQ predicate on the "delivery_longitude" field.
+func DeliveryLongitudeNEQ(v float64) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeIn applies the In predicate on the "delivery_longitude" field.
+func DeliveryLongitudeIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldDeliveryLongitude, vs...))
+}
+
+// DeliveryLongitudeNotIn applies the NotIn predicate on the "delivery_longitude" field.
+func DeliveryLongitudeNotIn(vs ...float64) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldDeliveryLongitude, vs...))
+}
+
+// DeliveryLongitudeGT applies the GT predicate on the "delivery_longitude" field.
+func DeliveryLongitudeGT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeGTE applies the GTE predicate on the "delivery_longitude" field.
+func DeliveryLongitudeGTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeLT applies the LT predicate on the "delivery_longitude" field.
+func DeliveryLongitudeLT(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeLTE applies the LTE predicate on the "delivery_longitude" field.
+func DeliveryLongitudeLTE(v float64) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldDeliveryLongitude, v))
+}
+
+// DeliveryLongitudeIsNil applies the IsNil predicate on the "delivery_longitude" field.
+func DeliveryLongitudeIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldDeliveryLongitude))
+}
+
+// DeliveryLongitudeNotNil applies the NotNil predicate on the "delivery_longitude" field.
+func DeliveryLongitudeNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldDeliveryLongitude))
 }
 
 // PromoCodeIDEQ applies the EQ predicate on the "promo_code_id" field.

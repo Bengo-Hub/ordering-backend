@@ -80,6 +80,10 @@ type Order struct {
 	LoyaltyPointsRedeemed int `json:"loyalty_points_redeemed,omitempty"`
 	// Reference to delivery address
 	DeliveryAddressID *uuid.UUID `json:"delivery_address_id,omitempty"`
+	// Dropoff latitude for guest-checkout delivery orders, which have no CustomerAddress row to resolve coordinates from (delivery_address_id is nil for every guest order). Authenticated checkout resolves coordinates via delivery_address_id -> CustomerAddress instead; this column is the guest-only fallback publishOrderReady reads when that edge is absent.
+	DeliveryLatitude *float64 `json:"delivery_latitude,omitempty"`
+	// Dropoff longitude — see delivery_latitude.
+	DeliveryLongitude *float64 `json:"delivery_longitude,omitempty"`
 	// Applied promo code
 	PromoCodeID *uuid.UUID `json:"promo_code_id,omitempty"`
 	// Delivery/order instructions
@@ -212,7 +216,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case order.FieldMetadata:
 			values[i] = new([]byte)
-		case order.FieldSubtotal, order.FieldDiscountTotal, order.FieldTaxTotal, order.FieldDeliveryFee, order.FieldPackagingFee, order.FieldServiceFee, order.FieldSmallOrderFee, order.FieldTipTotal, order.FieldGrandTotal:
+		case order.FieldSubtotal, order.FieldDiscountTotal, order.FieldTaxTotal, order.FieldDeliveryFee, order.FieldPackagingFee, order.FieldServiceFee, order.FieldSmallOrderFee, order.FieldTipTotal, order.FieldGrandTotal, order.FieldDeliveryLatitude, order.FieldDeliveryLongitude:
 			values[i] = new(sql.NullFloat64)
 		case order.FieldLoyaltyPointsEarned, order.FieldLoyaltyPointsRedeemed, order.FieldRating:
 			values[i] = new(sql.NullInt64)
@@ -425,6 +429,20 @@ func (_m *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeliveryAddressID = new(uuid.UUID)
 				*_m.DeliveryAddressID = *value.S.(*uuid.UUID)
+			}
+		case order.FieldDeliveryLatitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field delivery_latitude", values[i])
+			} else if value.Valid {
+				_m.DeliveryLatitude = new(float64)
+				*_m.DeliveryLatitude = value.Float64
+			}
+		case order.FieldDeliveryLongitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field delivery_longitude", values[i])
+			} else if value.Valid {
+				_m.DeliveryLongitude = new(float64)
+				*_m.DeliveryLongitude = value.Float64
 			}
 		case order.FieldPromoCodeID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -720,6 +738,16 @@ func (_m *Order) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeliveryAddressID; v != nil {
 		builder.WriteString("delivery_address_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DeliveryLatitude; v != nil {
+		builder.WriteString("delivery_latitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DeliveryLongitude; v != nil {
+		builder.WriteString("delivery_longitude=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

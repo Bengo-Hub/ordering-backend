@@ -74,6 +74,10 @@ const (
 	FieldLoyaltyPointsRedeemed = "loyalty_points_redeemed"
 	// FieldDeliveryAddressID holds the string denoting the delivery_address_id field in the database.
 	FieldDeliveryAddressID = "delivery_address_id"
+	// FieldDeliveryLatitude holds the string denoting the delivery_latitude field in the database.
+	FieldDeliveryLatitude = "delivery_latitude"
+	// FieldDeliveryLongitude holds the string denoting the delivery_longitude field in the database.
+	FieldDeliveryLongitude = "delivery_longitude"
 	// FieldPromoCodeID holds the string denoting the promo_code_id field in the database.
 	FieldPromoCodeID = "promo_code_id"
 	// FieldInstructions holds the string denoting the instructions field in the database.
@@ -202,6 +206,8 @@ var Columns = []string{
 	FieldLoyaltyPointsEarned,
 	FieldLoyaltyPointsRedeemed,
 	FieldDeliveryAddressID,
+	FieldDeliveryLatitude,
+	FieldDeliveryLongitude,
 	FieldPromoCodeID,
 	FieldInstructions,
 	FieldPodCode,
@@ -580,6 +586,16 @@ func ByLoyaltyPointsRedeemed(opts ...sql.OrderTermOption) OrderOption {
 // ByDeliveryAddressID orders the results by the delivery_address_id field.
 func ByDeliveryAddressID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeliveryAddressID, opts...).ToFunc()
+}
+
+// ByDeliveryLatitude orders the results by the delivery_latitude field.
+func ByDeliveryLatitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeliveryLatitude, opts...).ToFunc()
+}
+
+// ByDeliveryLongitude orders the results by the delivery_longitude field.
+func ByDeliveryLongitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeliveryLongitude, opts...).ToFunc()
 }
 
 // ByPromoCodeID orders the results by the promo_code_id field.
