@@ -94,6 +94,14 @@ func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug str
 		out[i].Modifiers = validatedModifiers
 		out[i].UnitPrice = basePrice + modifierTotal
 		out[i].TotalPrice = out[i].UnitPrice * float64(it.Quantity)
+		// Server-authoritative name, same posture as price: a client that omits it (or sends a
+		// stale one from before a menu rename) previously left OrderItem.NameSnapshot empty.
+		// That alone is a data-quality problem (an order/receipt showing a blank line item), but
+		// it also broke a downstream consumer outright — pos-api's ConfirmedOrderConsumer copies
+		// this name straight into POSOrderLine.name, which has its own NotEmpty validator, so an
+		// order with an unnamed item permanently failed to create its POS record (retried via
+		// NATS redelivery, never succeeded) and never reached the online-order queue at all.
+		out[i].Name = item.Name
 	}
 	return out, nil
 }
