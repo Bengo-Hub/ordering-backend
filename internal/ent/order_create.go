@@ -396,6 +396,34 @@ func (_c *OrderCreate) SetNillableDeliveryAddressID(v *uuid.UUID) *OrderCreate {
 	return _c
 }
 
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (_c *OrderCreate) SetDeliveryLatitude(v float64) *OrderCreate {
+	_c.mutation.SetDeliveryLatitude(v)
+	return _c
+}
+
+// SetNillableDeliveryLatitude sets the "delivery_latitude" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableDeliveryLatitude(v *float64) *OrderCreate {
+	if v != nil {
+		_c.SetDeliveryLatitude(*v)
+	}
+	return _c
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (_c *OrderCreate) SetDeliveryLongitude(v float64) *OrderCreate {
+	_c.mutation.SetDeliveryLongitude(v)
+	return _c
+}
+
+// SetNillableDeliveryLongitude sets the "delivery_longitude" field if the given value is not nil.
+func (_c *OrderCreate) SetNillableDeliveryLongitude(v *float64) *OrderCreate {
+	if v != nil {
+		_c.SetDeliveryLongitude(*v)
+	}
+	return _c
+}
+
 // SetPromoCodeID sets the "promo_code_id" field.
 func (_c *OrderCreate) SetPromoCodeID(v uuid.UUID) *OrderCreate {
 	_c.mutation.SetPromoCodeID(v)
@@ -1103,6 +1131,14 @@ func (_c *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldLoyaltyPointsRedeemed, field.TypeInt, value)
 		_node.LoyaltyPointsRedeemed = value
 	}
+	if value, ok := _c.mutation.DeliveryLatitude(); ok {
+		_spec.SetField(order.FieldDeliveryLatitude, field.TypeFloat64, value)
+		_node.DeliveryLatitude = &value
+	}
+	if value, ok := _c.mutation.DeliveryLongitude(); ok {
+		_spec.SetField(order.FieldDeliveryLongitude, field.TypeFloat64, value)
+		_node.DeliveryLongitude = &value
+	}
 	if value, ok := _c.mutation.PromoCodeID(); ok {
 		_spec.SetField(order.FieldPromoCodeID, field.TypeUUID, value)
 		_node.PromoCodeID = &value
@@ -1801,6 +1837,54 @@ func (u *OrderUpsert) UpdateDeliveryAddressID() *OrderUpsert {
 // ClearDeliveryAddressID clears the value of the "delivery_address_id" field.
 func (u *OrderUpsert) ClearDeliveryAddressID() *OrderUpsert {
 	u.SetNull(order.FieldDeliveryAddressID)
+	return u
+}
+
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (u *OrderUpsert) SetDeliveryLatitude(v float64) *OrderUpsert {
+	u.Set(order.FieldDeliveryLatitude, v)
+	return u
+}
+
+// UpdateDeliveryLatitude sets the "delivery_latitude" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateDeliveryLatitude() *OrderUpsert {
+	u.SetExcluded(order.FieldDeliveryLatitude)
+	return u
+}
+
+// AddDeliveryLatitude adds v to the "delivery_latitude" field.
+func (u *OrderUpsert) AddDeliveryLatitude(v float64) *OrderUpsert {
+	u.Add(order.FieldDeliveryLatitude, v)
+	return u
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (u *OrderUpsert) ClearDeliveryLatitude() *OrderUpsert {
+	u.SetNull(order.FieldDeliveryLatitude)
+	return u
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (u *OrderUpsert) SetDeliveryLongitude(v float64) *OrderUpsert {
+	u.Set(order.FieldDeliveryLongitude, v)
+	return u
+}
+
+// UpdateDeliveryLongitude sets the "delivery_longitude" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateDeliveryLongitude() *OrderUpsert {
+	u.SetExcluded(order.FieldDeliveryLongitude)
+	return u
+}
+
+// AddDeliveryLongitude adds v to the "delivery_longitude" field.
+func (u *OrderUpsert) AddDeliveryLongitude(v float64) *OrderUpsert {
+	u.Add(order.FieldDeliveryLongitude, v)
+	return u
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (u *OrderUpsert) ClearDeliveryLongitude() *OrderUpsert {
+	u.SetNull(order.FieldDeliveryLongitude)
 	return u
 }
 
@@ -2723,6 +2807,62 @@ func (u *OrderUpsertOne) UpdateDeliveryAddressID() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearDeliveryAddressID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearDeliveryAddressID()
+	})
+}
+
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (u *OrderUpsertOne) SetDeliveryLatitude(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetDeliveryLatitude(v)
+	})
+}
+
+// AddDeliveryLatitude adds v to the "delivery_latitude" field.
+func (u *OrderUpsertOne) AddDeliveryLatitude(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddDeliveryLatitude(v)
+	})
+}
+
+// UpdateDeliveryLatitude sets the "delivery_latitude" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateDeliveryLatitude() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateDeliveryLatitude()
+	})
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (u *OrderUpsertOne) ClearDeliveryLatitude() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearDeliveryLatitude()
+	})
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (u *OrderUpsertOne) SetDeliveryLongitude(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetDeliveryLongitude(v)
+	})
+}
+
+// AddDeliveryLongitude adds v to the "delivery_longitude" field.
+func (u *OrderUpsertOne) AddDeliveryLongitude(v float64) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddDeliveryLongitude(v)
+	})
+}
+
+// UpdateDeliveryLongitude sets the "delivery_longitude" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateDeliveryLongitude() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateDeliveryLongitude()
+	})
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (u *OrderUpsertOne) ClearDeliveryLongitude() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearDeliveryLongitude()
 	})
 }
 
@@ -3865,6 +4005,62 @@ func (u *OrderUpsertBulk) UpdateDeliveryAddressID() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearDeliveryAddressID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearDeliveryAddressID()
+	})
+}
+
+// SetDeliveryLatitude sets the "delivery_latitude" field.
+func (u *OrderUpsertBulk) SetDeliveryLatitude(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetDeliveryLatitude(v)
+	})
+}
+
+// AddDeliveryLatitude adds v to the "delivery_latitude" field.
+func (u *OrderUpsertBulk) AddDeliveryLatitude(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddDeliveryLatitude(v)
+	})
+}
+
+// UpdateDeliveryLatitude sets the "delivery_latitude" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateDeliveryLatitude() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateDeliveryLatitude()
+	})
+}
+
+// ClearDeliveryLatitude clears the value of the "delivery_latitude" field.
+func (u *OrderUpsertBulk) ClearDeliveryLatitude() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearDeliveryLatitude()
+	})
+}
+
+// SetDeliveryLongitude sets the "delivery_longitude" field.
+func (u *OrderUpsertBulk) SetDeliveryLongitude(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetDeliveryLongitude(v)
+	})
+}
+
+// AddDeliveryLongitude adds v to the "delivery_longitude" field.
+func (u *OrderUpsertBulk) AddDeliveryLongitude(v float64) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.AddDeliveryLongitude(v)
+	})
+}
+
+// UpdateDeliveryLongitude sets the "delivery_longitude" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateDeliveryLongitude() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateDeliveryLongitude()
+	})
+}
+
+// ClearDeliveryLongitude clears the value of the "delivery_longitude" field.
+func (u *OrderUpsertBulk) ClearDeliveryLongitude() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearDeliveryLongitude()
 	})
 }
 

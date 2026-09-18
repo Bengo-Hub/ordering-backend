@@ -115,6 +115,14 @@ func (Order) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("Reference to delivery address"),
+		field.Float("delivery_latitude").
+			Optional().
+			Nillable().
+			Comment("Dropoff latitude for guest-checkout delivery orders, which have no CustomerAddress row to resolve coordinates from (delivery_address_id is nil for every guest order). Authenticated checkout resolves coordinates via delivery_address_id -> CustomerAddress instead; this column is the guest-only fallback publishOrderReady reads when that edge is absent."),
+		field.Float("delivery_longitude").
+			Optional().
+			Nillable().
+			Comment("Dropoff longitude — see delivery_latitude."),
 		field.UUID("promo_code_id", uuid.UUID{}).
 			Optional().
 			Nillable().

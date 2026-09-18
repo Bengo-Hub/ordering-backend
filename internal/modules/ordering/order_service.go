@@ -539,9 +539,9 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		// silently got nothing. See CreateAddressRequestDTO/CustomerAddress for the
 		// actual lat/lng source of truth this now lets those reads resolve.
 		DeliveryAddressID: req.DeliveryAddressID,
-		PlacedAt:            &now,
-		CreatedAt:           now,
-		UpdatedAt:           now,
+		PlacedAt:          &now,
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 
 	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
@@ -926,21 +926,27 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 
 	now := time.Now()
 	order := &Order{
-		TenantID:              req.TenantID,
-		OutletID:              req.OutletID,
-		CustomerID:            nil, // guest orders have no customer
-		CartID:                cartID,
-		OrderNumber:           orderNumber,
-		Status:                OrderStatusPending,
-		PaymentStatus:         paymentStatus,
-		PaymentMethod:         paymentMethod,
-		FulfillmentType:       fulfillmentType,
-		Currency:              "KES",
-		Subtotal:              subtotal,
-		DiscountTotal:         0,
-		TaxTotal:              0,
-		DeliveryFee:           deliveryFee,
-		GrandTotal:            grandTotal,
+		TenantID:        req.TenantID,
+		OutletID:        req.OutletID,
+		CustomerID:      nil, // guest orders have no customer
+		CartID:          cartID,
+		OrderNumber:     orderNumber,
+		Status:          OrderStatusPending,
+		PaymentStatus:   paymentStatus,
+		PaymentMethod:   paymentMethod,
+		FulfillmentType: fulfillmentType,
+		Currency:        "KES",
+		Subtotal:        subtotal,
+		DiscountTotal:   0,
+		TaxTotal:        0,
+		DeliveryFee:     deliveryFee,
+		GrandTotal:      grandTotal,
+		// Guest orders have no CustomerID/CustomerAddress row, so DeliveryAddressID can never
+		// resolve dropoff coordinates the way authenticated checkout does — persist the raw
+		// lat/lng the client sent (already used transiently above for the delivery-fee zone
+		// calc) so publishOrderReady can still hand the rider real coordinates instead of none.
+		DeliveryLatitude:      req.DeliveryLat,
+		DeliveryLongitude:     req.DeliveryLng,
 		LoyaltyPointsEarned:   0,
 		LoyaltyPointsRedeemed: 0,
 		Instructions:          instructions,
@@ -2676,6 +2682,19 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		}
 		if order.DeliveryAddress.ContactPhone != "" {
 			data.CustomerPhone = order.DeliveryAddress.ContactPhone
+		}
+	} else if order.DeliveryLatitude != nil && order.DeliveryLongitude != nil {
+		// Guest checkout: no CustomerAddress row to read from (DeliveryAddressID is always nil
+		// for guest orders), so fall back to the scalar coordinates GuestCheckout persisted
+		// directly on the order. order.Instructions already holds the guest's typed delivery
+		// address (GuestCheckout builds it from the same DeliveryAddress request field before
+		// appending notes), so it doubles as address_line1 here.
+		data.DeliveryAddress = map[string]interface{}{
+			"address_line1": order.Instructions,
+			"latitude":      *order.DeliveryLatitude,
+			"longitude":     *order.DeliveryLongitude,
+			"contact_name":  ci.Name,
+			"contact_phone": ci.Phone,
 		}
 	}
 

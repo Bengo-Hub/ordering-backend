@@ -154,10 +154,15 @@ type Order struct {
 	LoyaltyPointsEarned   int             `json:"loyaltyPointsEarned"`
 	LoyaltyPointsRedeemed int             `json:"loyaltyPointsRedeemed"`
 	DeliveryAddressID     *uuid.UUID      `json:"deliveryAddressId,omitempty"`
-	PromoCodeID           *uuid.UUID      `json:"promoCodeId,omitempty"`
-	Instructions          string          `json:"instructions,omitempty"`
-	Channel               OrderChannel    `json:"channel"`
-	Source                string          `json:"source,omitempty"`
+	// DeliveryLatitude/DeliveryLongitude are the guest-checkout dropoff coordinate fallback —
+	// see the ent schema field comment. Authenticated orders resolve coordinates via
+	// DeliveryAddressID -> DeliveryAddress instead and leave these nil.
+	DeliveryLatitude  *float64     `json:"deliveryLatitude,omitempty"`
+	DeliveryLongitude *float64     `json:"deliveryLongitude,omitempty"`
+	PromoCodeID       *uuid.UUID   `json:"promoCodeId,omitempty"`
+	Instructions      string       `json:"instructions,omitempty"`
+	Channel           OrderChannel `json:"channel"`
+	Source            string       `json:"source,omitempty"`
 	// PODCode is the 6-digit proof-of-delivery confirmation code, set only for delivery-fulfilment orders.
 	PODCode string `json:"podCode,omitempty"`
 	// Resolved customer contact info (from metadata for guests, from user for authenticated)
@@ -540,20 +545,20 @@ type CheckoutRequest struct {
 
 // CreateOrderFromItemsRequest is the request to create an order directly from a list of items (frontend contract).
 type CreateOrderFromItemsRequest struct {
-	TenantID        uuid.UUID
-	OutletID        uuid.UUID
-	UserID          uuid.UUID
+	TenantID          uuid.UUID
+	OutletID          uuid.UUID
+	UserID            uuid.UUID
 	Items             []CreateOrderItemInput
 	DeliveryAddress   string
 	DeliveryAddressID *uuid.UUID
 	DeliveryLat       *float64
 	DeliveryLng       *float64
 	DeliveryNotes     string
-	PaymentMethod   string // "mpesa" | "cod"
-	PromoCode       string
-	Channel         OrderChannel
-	FulfillmentType FulfillmentType
-	ScheduledFor    *time.Time
+	PaymentMethod     string // "mpesa" | "cod"
+	PromoCode         string
+	Channel           OrderChannel
+	FulfillmentType   FulfillmentType
+	ScheduledFor      *time.Time
 }
 
 // CreateOrderItemInput is a single line item when creating an order from items.
