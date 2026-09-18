@@ -3,6 +3,7 @@ package orderinghandler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -201,9 +202,31 @@ type OrderItemDTO struct {
 	Modifiers []CartItemModifierDTO `json:"modifiers,omitempty"`
 }
 
+// validOrderItemDTOs rejects a checkout request whose items would silently fail to persist
+// downstream. Previously an item with a missing/blank inventorySku (e.g. a caller mistakenly
+// sending "sku" instead of the real field name "inventorySku") sailed through checkout as a
+// normal 201 response — the order was created, but CreateOrderItem then failed ent's
+// "inventory_sku" NotEmpty validator for every such line, an error that was only ever logged,
+// never surfaced. The customer ended up with a real, confirmed, $0-subtotal order with zero
+// items on it, and the tracking page crashed rendering it (order.items was empty, not present in
+// the JSON at all — omitempty on a nil slice). Failing fast here with a real 400 is strictly
+// better than a 201 that quietly produces a broken order.
+func validOrderItemDTOs(items []OrderItemDTO) error {
+	for i, it := range items {
+		if strings.TrimSpace(it.InventorySKU) == "" {
+			return fmt.Errorf("item %d: inventorySku is required", i)
+		}
+		if it.Quantity <= 0 {
+			return fmt.Errorf("item %d: quantity must be positive", i)
+		}
+	}
+	return nil
+}
+
 // toCreateOrderItemInputs converts checkout-request DTO items to the domain input shape,
 // shared by Checkout, GuestCheckout, and CreateOrder so the mapping (including modifier
-// parsing) lives in exactly one place instead of three copies drifting independently.
+// parsing) lives in exactly one place instead of three copies drifting independently. Callers
+// must validate with validOrderItemDTOs first.
 func toCreateOrderItemInputs(items []OrderItemDTO) []ordering.CreateOrderItemInput {
 	out := make([]ordering.CreateOrderItemInput, 0, len(items))
 	for _, it := range items {
@@ -524,6 +547,10 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
 			return
 		}
+		if err := validOrderItemDTOs(req.Items); err != nil {
+			handlers.RespondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
 
 		items := toCreateOrderItemInputs(req.Items)
 
@@ -743,11 +770,9 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, it := range req.Items {
-		if it.InventorySKU == "" {
-			handlers.RespondError(w, http.StatusBadRequest, "inventorySku is required for each item")
-			return
-		}
+	if err := validOrderItemDTOs(req.Items); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 	items := toCreateOrderItemInputs(req.Items)
 
@@ -1717,6 +1742,10 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 	outletID, err := uuid.Parse(req.OutletID)
 	if err != nil {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid outletId")
+		return
+	}
+	if err := validOrderItemDTOs(req.Items); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
