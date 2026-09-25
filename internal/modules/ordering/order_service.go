@@ -2759,15 +2759,20 @@ func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Or
 		CustomerEmail: ci.Email,
 		CustomerName:  ci.Name,
 		CustomerPhone: ci.Phone,
+		PODCode:       order.PODCode,
+		// The rider's name is stamped on the order when logistics assigns them (task.assigned).
+		RiderName: stringMeta(order.Metadata, "rider_name"),
 	}
 
 	// Resolve the assigned rider's display name from logistics so consumers/templates can show it.
 	// The logistics delivery task is keyed by the order ID (its external reference). If logistics is
 	// unavailable or the task carries no rider yet, rider_name is simply left empty.
-	if s.logisticsClient != nil {
+	if s.logisticsClient != nil && data.RiderName == "" {
 		if tenant, tErr := s.repo.GetTenantByID(ctx, order.TenantID); tErr == nil {
 			if task, taskErr := s.logisticsClient.GetTaskByExternalRef(ctx, tenant.Slug, order.ID.String()); taskErr == nil && task != nil {
-				data.RiderName = task.RiderName
+				if task.RiderName != "" {
+					data.RiderName = task.RiderName
+				}
 				data.RiderPhone = task.RiderPhone
 			} else if taskErr != nil {
 				s.logger.Warn("failed to resolve rider name for out_for_delivery event",

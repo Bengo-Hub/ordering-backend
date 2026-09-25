@@ -734,6 +734,9 @@ type OrderOutForDeliveryData struct {
 	CustomerPhone string    `json:"customer_phone"`
 	RiderName     string    `json:"rider_name,omitempty"`
 	RiderPhone    string    `json:"rider_phone,omitempty"`
+	// PODCode is the customer's delivery code, repeated in the "on its way" message so a customer
+	// who ordered by phone number only still has it when the rider arrives.
+	PODCode string `json:"pod_code,omitempty"`
 }
 
 // PublishOrderOutForDelivery publishes an ordering.order.out_for_delivery event.
@@ -747,6 +750,7 @@ func (p *Publisher) PublishOrderOutForDelivery(ctx context.Context, tenantID uui
 		"customer_phone": data.CustomerPhone,
 		"rider_name":     data.RiderName,
 		"rider_phone":    data.RiderPhone,
+		"pod_code":       data.PODCode,
 		"notification": map[string]interface{}{
 			"target":          "customer",
 			"recipient_email": data.CustomerEmail,
