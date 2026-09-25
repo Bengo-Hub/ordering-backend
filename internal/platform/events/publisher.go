@@ -151,23 +151,26 @@ type OrderCreatedData struct {
 	Currency      string    `json:"currency"`
 	ItemCount     int       `json:"item_count"`
 	// PODCode is the 6-digit proof-of-delivery confirmation code; empty for non-delivery orders.
-	PODCode       string    `json:"pod_code"`
+	PODCode string `json:"pod_code"`
+	// CollectionCode is the 6-digit code a pickup customer shows at the counter; empty otherwise.
+	CollectionCode string `json:"collection_code,omitempty"`
 }
 
 // PublishOrderCreated publishes an order.created event.
 func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID, data OrderCreatedData) error {
 	event := NewEvent("ordering.order.created", data.OrderID, tenantID, map[string]interface{}{
-		"order_id":       data.OrderID.String(),
-		"order_number":   data.OrderNumber,
-		"customer_id":    data.CustomerID.String(),
-		"customer_email": data.CustomerEmail,
-		"customer_name":  data.CustomerName,
-		"customer_phone": data.CustomerPhone,
-		"outlet_id":      data.OutletID.String(),
-		"total_amount":   data.TotalAmount,
-		"currency":       data.Currency,
-		"item_count":     data.ItemCount,
-		"pod_code":       data.PODCode,
+		"order_id":        data.OrderID.String(),
+		"order_number":    data.OrderNumber,
+		"customer_id":     data.CustomerID.String(),
+		"customer_email":  data.CustomerEmail,
+		"customer_name":   data.CustomerName,
+		"customer_phone":  data.CustomerPhone,
+		"outlet_id":       data.OutletID.String(),
+		"total_amount":    data.TotalAmount,
+		"currency":        data.Currency,
+		"item_count":      data.ItemCount,
+		"pod_code":        data.PODCode,
+		"collection_code": data.CollectionCode,
 		"notification": map[string]interface{}{
 			"target":          "customer",
 			"recipient_email": data.CustomerEmail,
@@ -329,6 +332,9 @@ type OrderConfirmedData struct {
 	// in MpesaCode; the outlet verifies that code before handing the order over.
 	PaymentChannel string `json:"payment_channel,omitempty"`
 	MpesaCode      string `json:"mpesa_code,omitempty"`
+	// CollectionCode is the pickup customer's counter code. The POS keeps it hidden and checks
+	// what the customer shows against it at handover.
+	CollectionCode string `json:"collection_code,omitempty"`
 }
 
 // PublishOrderConfirmed publishes an ordering.order.confirmed event (shared-events
@@ -366,6 +372,7 @@ func (p *Publisher) publishOrderHandoff(ctx context.Context, tenantID uuid.UUID,
 		"tenant_slug":      data.TenantSlug,
 		"payment_channel":  data.PaymentChannel,
 		"mpesa_code":       data.MpesaCode,
+		"collection_code":  data.CollectionCode,
 	}
 	if data.ScheduledFor != nil {
 		payload["scheduled_for"] = data.ScheduledFor.UTC().Format(time.RFC3339)
@@ -733,6 +740,9 @@ type OrderForPickupData struct {
 	Items         []map[string]interface{} `json:"items"`
 	PickupTime    *time.Time               `json:"pickup_time,omitempty"`
 	Notes         string                   `json:"notes,omitempty"`
+	// OutletName is where to collect; CollectionCode is what the customer shows at the counter.
+	OutletName     string `json:"outlet_name,omitempty"`
+	CollectionCode string `json:"collection_code,omitempty"`
 }
 
 // OrderOutForDeliveryData represents data for order.out_for_delivery event.
@@ -785,6 +795,9 @@ func (p *Publisher) PublishOrderForPickup(ctx context.Context, tenantID uuid.UUI
 		"outlet_id":      data.OutletID.String(),
 		"items":          data.Items,
 		"notes":          data.Notes,
+		"outlet_name":    data.OutletName,
+		// collection_code, not pod_code: messages must never tell a pickup customer to give it to a rider.
+		"collection_code": data.CollectionCode,
 	}
 
 	if data.PickupTime != nil {

@@ -53,6 +53,65 @@ func isDeliveryFulfilment(ft FulfillmentType) bool {
 // IsDeliveryFulfilment is the exported form of isDeliveryFulfilment for handlers.
 func IsDeliveryFulfilment(ft FulfillmentType) bool { return isDeliveryFulfilment(ft) }
 
+// needsHandoverCode reports whether the order gets a 6-digit hand-over code (stored in PODCode):
+// delivery orders give it to the rider as proof of delivery, pickup orders show it at the counter
+// so staff hand the bag to the right person. A pickup made only of bookings (a haircut, an event
+// ticket) has nothing to collect, so it gets no code.
+func needsHandoverCode(ft FulfillmentType, lineMetadata []map[string]interface{}) bool {
+	if isDeliveryFulfilment(ft) {
+		return true
+	}
+	return ft == FulfillmentTypePickup && !bookingOnly(lineMetadata)
+}
+
+// bookingOnly reports whether every line is a service appointment or event ticket.
+func bookingOnly(lineMetadata []map[string]interface{}) bool {
+	if len(lineMetadata) == 0 {
+		return false
+	}
+	for _, meta := range lineMetadata {
+		service, _ := meta["is_service"].(bool)
+		ticket, _ := meta["is_ticket"].(bool)
+		if !service && !ticket {
+			return false
+		}
+	}
+	return true
+}
+
+func cartLineMetadata(items []CartItem) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0, len(items))
+	for _, it := range items {
+		out = append(out, it.Metadata)
+	}
+	return out
+}
+
+func inputLineMetadata(items []CreateOrderItemInput) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0, len(items))
+	for _, it := range items {
+		out = append(out, it.Metadata)
+	}
+	return out
+}
+
+// deliveryCode is the rider proof-of-delivery code; empty for pickup orders so messages that
+// say "give this code to the rider" never carry a counter collection code.
+func deliveryCode(order *Order) string {
+	if order == nil || !isDeliveryFulfilment(order.FulfillmentType) {
+		return ""
+	}
+	return order.PODCode
+}
+
+// collectionCode is the code a pickup customer shows at the counter; empty for other orders.
+func collectionCode(order *Order) string {
+	if order == nil || order.FulfillmentType != FulfillmentTypePickup {
+		return ""
+	}
+	return order.PODCode
+}
+
 // validateFulfilmentTransition rejects status moves that make no sense for the order's fulfilment
 // type: a pickup order is never handed to a rider, and a delivery order is only complete once the
 // rider has delivered it (ready -> completed would skip the drop-off, the COD collection on the
