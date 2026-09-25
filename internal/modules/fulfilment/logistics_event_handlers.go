@@ -283,6 +283,12 @@ func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sh
 		return fmt.Errorf("no usable order reference / tenant in task.completed event")
 	}
 	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusCompleted)
+	// How the rider was paid at the door: cash, or M-Pesa to the business with the code the rider
+	// keyed in. The delivered transition settles treasury with that tender.
+	if method, _ := evt.Payload["collection_method"].(string); method != "" {
+		ref, _ := evt.Payload["collection_reference"].(string)
+		h.orderingSvc.RecordCODCollection(ctx, tenantID, orderID, method, ref)
+	}
 	if collected, _ := evt.Payload["cash_collected"].(bool); collected {
 		amount, _ := evt.Payload["amount_collected"].(float64)
 		if err := h.orderingRepo.MergeOrderMetadata(ctx, tenantID, orderID, map[string]interface{}{

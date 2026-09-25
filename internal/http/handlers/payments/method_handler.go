@@ -13,6 +13,7 @@ import (
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
+	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
@@ -21,7 +22,11 @@ type PaymentMethodHandler struct {
 	log      *zap.Logger
 	service  *payments.PaymentMethodService
 	treasury *treasury.Client
+	pos      *posdiscounts.Client // outlet M-Pesa details for the manual M-Pesa option (optional)
 }
+
+// SetPOSClient wires the pos-api S2S client used to read an outlet's own M-Pesa Till/Paybill.
+func (h *PaymentMethodHandler) SetPOSClient(c *posdiscounts.Client) { h.pos = c }
 
 // NewPaymentMethodHandler constructs a PaymentMethodHandler instance.
 // treasuryClient is used by the checkout payment-methods aggregate to fetch the
@@ -90,6 +95,12 @@ type PaymentGatewayResponse struct {
 	Icon    string `json:"icon"`
 	Enabled bool   `json:"enabled"`
 	Reason  string `json:"reason,omitempty"`
+	// Description is a one-line explanation shown under the option.
+	Description string `json:"description,omitempty"`
+	// Instructions carries what the customer needs for a manual M-Pesa payment (till, paybill,
+	// account reference, pochi) so the checkout can show "Pay KES X to Till 123456, then enter the
+	// code".
+	Instructions map[string]string `json:"instructions,omitempty"`
 }
 
 // WalletSummaryResponse is the checkout wallet summary; nil when the request is a guest or
@@ -246,6 +257,19 @@ func (h *PaymentMethodHandler) ListPaymentMethods(w http.ResponseWriter, r *http
 			h.log.Warn("failed to list enabled gateways", zap.Error(gwErr), zap.String("tenant_id", tenantID.String()))
 		} else {
 			resp.Gateways = mapEnabledGateways(gateways)
+		}
+	}
+
+	applyCheckoutPolicy(&resp, r.URL.Query().Get("fulfillment_type"))
+
+	// Manual M-Pesa: offered when the outlet has its own Till/Paybill/Pochi configured in POS and
+	// has not switched it off. The customer pays from their phone and keys the code in; the
+	// outlet verifies it before handing the order over.
+	if h.pos != nil {
+		if outletID, perr := uuid.Parse(r.URL.Query().Get("outlet_id")); perr == nil {
+			if d := h.pos.OutletPaymentDetails(ctx, tenantID, outletID); d != nil && d.ManualMpesaOnline {
+				resp.Gateways = append(resp.Gateways, manualMpesaGateway(d))
+			}
 		}
 	}
 
@@ -464,4 +488,46 @@ func (h *PaymentMethodHandler) DeletePaymentMethod(w http.ResponseWriter, r *htt
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// applyCheckoutPolicy words the cash option for how the order is fulfilled: paid at the counter
+// on collection, or to the rider on delivery, in cash or by M-Pesa either way.
+func applyCheckoutPolicy(resp *PaymentMethodsAggregateResponse, fulfillmentType string) {
+	for i := range resp.Gateways {
+		if resp.Gateways[i].Type != "cod" {
+			continue
+		}
+		if fulfillmentType == "pickup" {
+			resp.Gateways[i].Name = "Pay at the counter"
+			resp.Gateways[i].Description = "Pay in cash or M-Pesa when you collect your order."
+		} else {
+			resp.Gateways[i].Name = "Pay on delivery"
+			resp.Gateways[i].Description = "Pay the rider in cash or M-Pesa when your order arrives."
+		}
+	}
+}
+
+// manualMpesaGateway builds the manual M-Pesa option from the outlet's own collection numbers.
+func manualMpesaGateway(d *posdiscounts.OutletPaymentDetails) PaymentGatewayResponse {
+	instr := map[string]string{}
+	if d.MpesaTill != "" {
+		instr["till"] = d.MpesaTill
+	}
+	if d.MpesaPaybill != "" {
+		instr["paybill"] = d.MpesaPaybill
+		if d.MpesaAccountRef != "" {
+			instr["account_reference"] = d.MpesaAccountRef
+		}
+	}
+	if d.MpesaPochi != "" {
+		instr["pochi"] = d.MpesaPochi
+	}
+	return PaymentGatewayResponse{
+		Type:         "mpesa_manual",
+		Name:         "M-Pesa (pay to our number)",
+		Icon:         "mpesa",
+		Enabled:      true,
+		Description:  "Pay from your phone, then enter the M-Pesa code. We confirm it before handing over your order.",
+		Instructions: instr,
+	}
 }

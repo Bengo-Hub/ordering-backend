@@ -343,6 +343,7 @@ func New(ctx context.Context) (*App, error) {
 	// Create payment handlers
 	paymentHandler := paymentshandler.NewPaymentHandler(log, paymentSvc)
 	paymentMethodHandler := paymentshandler.NewPaymentMethodHandler(log, paymentMethodSvc, treasuryClient)
+	paymentMethodHandler.SetPOSClient(posDiscountsClient)
 	paymentWebhookHandler := paymentshandler.NewWebhookHandler(log, paymentWebhookSvc)
 
 	// Initialize fulfilment module

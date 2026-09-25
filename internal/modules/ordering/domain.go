@@ -561,6 +561,7 @@ type CreateOrderFromItemsRequest struct {
 	ScheduledFor      *time.Time
 	OrderNotes        string // customer's notes for the kitchen/outlet ("no onions", "ring the bell")
 	RequestUtensils   bool
+	MpesaCode         string // manual M-Pesa: confirmation code of the customer's payment to the Till/Paybill
 }
 
 // OutletLocation is the pickup point a rider is sent to: where the outlet is and how to reach it.
@@ -606,6 +607,7 @@ type GuestCheckoutRequest struct {
 	ScheduledFor    *time.Time
 	OrderNotes      string
 	RequestUtensils bool
+	MpesaCode       string
 }
 
 // RefundOrderRequest represents a request to refund an order.

@@ -103,7 +103,7 @@ func alreadyHandedOff(order *Order) bool {
 // and was invisible to the POS queue and the kitchen in the meantime. Outlet staff can still
 // reject it from the POS online orders queue, which cancels it here and notifies the customer.
 func (s *OrderService) autoAcceptCOD(ctx context.Context, order *Order) {
-	if order == nil || order.PaymentMethod != PaymentMethodCOD || order.Status != OrderStatusPending {
+	if order == nil || !isOfflinePayment(order) || order.Status != OrderStatusPending {
 		return
 	}
 	updated, err := s.UpdateOrderStatus(ctx, order.TenantID, order.ID, OrderStatusConfirmed, nil, "system", "")
