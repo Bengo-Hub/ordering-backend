@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"crypto/subtle"
 	"net/http"
 	"strings"
 	"time"
@@ -28,6 +29,28 @@ type OrderHandler struct {
 	log          *zap.Logger
 	orderService *ordering.OrderService
 	taskService  *fulfilment.TaskService
+	// serviceKey is the shared INTERNAL_SERVICE_KEY accepted on /s2s/orders routes.
+	serviceKey string
+}
+
+// SetServiceKey sets the key other platform services present in X-API-Key on /s2s/orders.
+func (h *OrderHandler) SetServiceKey(key string) {
+	h.serviceKey = key
+}
+
+// requireServiceKey admits a request only with the exact service key (constant-time compare). An
+// empty configured key refuses everything rather than admitting everyone.
+func requireServiceKey(expected string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			provided := r.Header.Get("X-API-Key")
+			if expected == "" || provided == "" || subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) != 1 {
+				handlers.RespondError(w, http.StatusUnauthorized, "invalid or missing service key")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // NewOrderHandler constructs an OrderHandler instance.
@@ -81,6 +104,20 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 			authedCheckout.Post("/", h.Checkout)
 			authedCheckout.Post("/validate", h.ValidateCheckout)
 		})
+	})
+
+	// Service-to-service order actions for the outlet (pos-api's online orders queue): accept /
+	// status, reject, confirm a manual M-Pesa code, assign a rider. Guarded by the shared
+	// INTERNAL_SERVICE_KEY only; the handlers attribute these changes to the outlet. The
+	// /admin/orders routes need a signed-in user with orders.manage, so the POS's key-only calls
+	// were refused there (401 "missing authorization header") and no online order could be
+	// accepted, rejected or verified from the POS.
+	r.Route("/s2s/orders", func(s2s chi.Router) {
+		s2s.Use(requireServiceKey(h.serviceKey))
+		s2s.Put("/{orderId}/status", h.UpdateOrderStatus)
+		s2s.Put("/{orderId}/rider", h.AdminAssignRider)
+		s2s.Post("/{orderId}/cancel", h.AdminCancelOrder)
+		s2s.Post("/{orderId}/payment/verify", h.AdminVerifyPayment)
 	})
 
 	// Admin order management routes

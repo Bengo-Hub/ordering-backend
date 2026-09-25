@@ -352,6 +352,7 @@ func New(ctx context.Context) (*App, error) {
 	fulfilmentRepo := fulfilment.NewEntRepository(ormClient)
 	taskSvc := fulfilment.NewTaskService(fulfilmentRepo, logisticsClient, log)
 	orderHandler.SetTaskService(taskSvc)
+	orderHandler.SetServiceKey(cfg.Auth.AuthServiceAPIKey)
 	fulfilmentWebhookSvc := fulfilment.NewWebhookService(fulfilmentRepo, cfg.Logistics.WebhookSecret, log)
 
 	// Create fulfilment handlers
