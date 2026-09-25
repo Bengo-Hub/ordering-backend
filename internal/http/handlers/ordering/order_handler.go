@@ -1426,10 +1426,13 @@ func (h *OrderHandler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	user, err := getUserFromContext(r)
-	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
-		return
+	// The POS online-orders queue accepts orders with the internal service key (no end user); the
+	// change is then attributed to the outlet.
+	var actorID *uuid.UUID
+	actorType := "outlet"
+	if user, uErr := getUserFromContext(r); uErr == nil && user != nil {
+		actorID = &user.ID
+		actorType = "staff"
 	}
 
 	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
@@ -1450,7 +1453,7 @@ func (h *OrderHandler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	order, err := h.orderService.UpdateOrderStatus(r.Context(), tenantID, orderID, newStatus, &user.ID, "staff", getClientIP(r))
+	order, err := h.orderService.UpdateOrderStatus(r.Context(), tenantID, orderID, newStatus, actorID, actorType, getClientIP(r))
 	if err != nil {
 		h.handleError(w, err)
 		return
