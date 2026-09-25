@@ -236,6 +236,12 @@ func (c *POSEventConsumer) handleOnlineOrderCollected(ctx context.Context, evt *
 		return nil
 	}
 
+	// Record how a pay-on-collection order was paid at the counter before the completed
+	// transition settles it (cash, or M-Pesa with its code).
+	if method, _ := evt.Payload["payment_method"].(string); method != "" {
+		ref, _ := evt.Payload["reference"].(string)
+		c.orderSvc.RecordCODCollection(ctx, tenantID, orderID, method, ref)
+	}
 	if err := c.advanceOrderTo(ctx, tenantID, orderID, OrderStatusCompleted); err != nil {
 		return fmt.Errorf("pos.online_order.collected: complete order %s: %w", orderID, err)
 	}
@@ -262,6 +268,10 @@ func (c *POSEventConsumer) handleOnlineOrderDelivered(ctx context.Context, evt *
 	switch order.Status {
 	case OrderStatusDelivered, OrderStatusCompleted, OrderStatusCancelled, OrderStatusRefunded:
 		return nil
+	}
+	if method, _ := evt.Payload["payment_method"].(string); method != "" {
+		ref, _ := evt.Payload["reference"].(string)
+		c.orderSvc.RecordCODCollection(ctx, tenantID, orderID, method, ref)
 	}
 	if err := c.advanceOrderTo(ctx, tenantID, orderID, OrderStatusDelivered); err != nil {
 		return fmt.Errorf("pos.online_order.delivered: advance order %s: %w", orderID, err)

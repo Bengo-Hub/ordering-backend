@@ -325,6 +325,10 @@ type OrderConfirmedData struct {
 	DeliveryAddress string     `json:"delivery_address,omitempty"`
 	ScheduledFor    *time.Time `json:"scheduled_for,omitempty"`
 	TenantSlug      string     `json:"tenant_slug,omitempty"`
+	// PaymentChannel is "mpesa_manual" when the customer paid the business Till/Paybill and keyed
+	// in MpesaCode; the outlet verifies that code before handing the order over.
+	PaymentChannel string `json:"payment_channel,omitempty"`
+	MpesaCode      string `json:"mpesa_code,omitempty"`
 }
 
 // PublishOrderConfirmed publishes an ordering.order.confirmed event (shared-events
@@ -349,6 +353,8 @@ func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUI
 		"instructions":     data.Instructions,
 		"delivery_address": data.DeliveryAddress,
 		"tenant_slug":      data.TenantSlug,
+		"payment_channel":  data.PaymentChannel,
+		"mpesa_code":       data.MpesaCode,
 	}
 	if data.ScheduledFor != nil {
 		payload["scheduled_for"] = data.ScheduledFor.UTC().Format(time.RFC3339)

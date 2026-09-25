@@ -682,6 +682,10 @@ type SettleCODPaymentRequest struct {
 	OrderID     string    `json:"order_id"`
 	AmountPaid  float64   `json:"amount_paid"`
 	Currency    string    `json:"currency"`
+	// PaymentMethod is the tender actually taken: "" / "cod" for cash, "mpesa_manual" for M-Pesa
+	// paid to the business's own Till/Paybill. Reference carries that M-Pesa code.
+	PaymentMethod string `json:"payment_method,omitempty"`
+	Reference     string `json:"reference,omitempty"`
 }
 
 // SettleCODPaymentResponse is returned after COD settlement.

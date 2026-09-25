@@ -492,13 +492,14 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		instructions = instructions + "\n" + req.DeliveryNotes
 	}
 
-	paymentMethod := PaymentMethod(req.PaymentMethod)
-	if paymentMethod == "" {
-		paymentMethod = PaymentMethodMpesa
+	paymentMethod, paymentStatus, paymentMeta, pmErr := resolvePaymentMethod(req.PaymentMethod, req.MpesaCode)
+	if pmErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, pmErr
 	}
-	paymentStatus := PaymentStatusPending
-	if paymentMethod == PaymentMethodCOD {
-		paymentStatus = "cod_pending"
+	if dupErr := s.ensureMpesaCodeUnused(ctx, req.TenantID, paymentMeta); dupErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, dupErr
 	}
 
 	now := time.Now()
@@ -524,7 +525,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		Channel:             req.Channel,
 		ReservationID:       reservationID,
 		PromoCodeID:         promoCodeID,
-		Metadata:            orderNotesMetadata(nil, req.OrderNotes, req.RequestUtensils),
+		Metadata:            mergeMetadata(orderNotesMetadata(nil, req.OrderNotes, req.RequestUtensils), paymentMeta),
 		// DeliveryAddressID was previously never set here even when the checkout request
 		// resolved a real saved address -- req.DeliveryLat/Lng were used only transiently
 		// for the delivery-fee calc above and then discarded, so the order's own dropoff
@@ -715,6 +716,9 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 		Status:        string(order.Status),
 		PaymentMethod: string(order.PaymentMethod),
 		LineItems:     lineItems,
+	}
+	if ch := PaymentChannelOf(order); ch != "" {
+		result.PaymentMethod = ch // the storefront shows "we are confirming your M-Pesa payment", no STK push
 	}
 
 	// Create payment intent in treasury if the payable amount is non-zero
@@ -931,13 +935,14 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	// Determine payment method + status from the request (mirrors Checkout/CreateOrderFromItems).
 	// Without this, guest orders fell back to the ent default (mpesa) regardless of the
 	// customer's selection, so COD / M-Pesa-on-delivery never stuck on the guest path.
-	paymentMethod := PaymentMethod(req.PaymentMethod)
-	if paymentMethod == "" {
-		paymentMethod = PaymentMethodMpesa
+	paymentMethod, paymentStatus, paymentMeta, pmErr := resolvePaymentMethod(req.PaymentMethod, req.MpesaCode)
+	if pmErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, pmErr
 	}
-	paymentStatus := PaymentStatusPending
-	if paymentMethod == PaymentMethodCOD {
-		paymentStatus = "cod_pending"
+	if dupErr := s.ensureMpesaCodeUnused(ctx, req.TenantID, paymentMeta); dupErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, dupErr
 	}
 
 	now := time.Now()
@@ -981,6 +986,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 			"sessionId":    req.SessionID,
 		}, req.OrderNotes, req.RequestUtensils),
 	}
+	order.Metadata = mergeMetadata(order.Metadata, paymentMeta)
 
 	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
 	if fulfillmentType == FulfillmentTypeDelivery {
@@ -1267,26 +1273,10 @@ func (s *OrderService) settleCODIfApplicable(ctx context.Context, tenantID uuid.
 		return
 	}
 	order.PaymentStatus = PaymentStatusPaid
-	if s.treasuryClient == nil {
-		return
-	}
-	go func(tid, oid uuid.UUID, amount float64, currency string) {
-		settleCtx := context.Background()
-		_, err := s.treasuryClient.SettleCODPayment(settleCtx, treasury.SettleCODPaymentRequest{
-			TenantID:   tid,
-			OrderID:    oid.String(),
-			AmountPaid: amount,
-			Currency:   currency,
-		})
-		if err != nil {
-			s.logger.Error("failed to settle COD payment intent on collection/delivery",
-				zap.Error(err),
-				zap.String("order_id", oid.String()))
-		} else {
-			s.logger.Info("COD payment intent settled on collection/delivery confirmation",
-				zap.String("order_id", oid.String()))
-		}
-	}(tenantID, order.ID, order.GrandTotal, order.Currency)
+	// Book the tender actually taken at the door/counter (cash, or M-Pesa to the business with
+	// its code) rather than always "cash on delivery".
+	method, reference := codSettlement(order)
+	s.settleOfflinePayment(ctx, tenantID, order, method, reference)
 }
 
 // UpdateOrderStatus transitions an order to a new status.
@@ -2085,6 +2075,8 @@ func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) 
 		DeliveryAddress: deliveryAddress,
 		ScheduledFor:    order.ScheduledFor,
 		TenantSlug:      tenantSlug,
+		PaymentChannel:  PaymentChannelOf(order),
+		MpesaCode:       stringMeta(order.Metadata, metaMpesaCode),
 	}); err != nil {
 		s.logger.Warn("publish ordering.order.confirmed failed",
 			zap.String("order_id", order.ID.String()), zap.Error(err))

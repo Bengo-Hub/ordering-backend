@@ -96,6 +96,8 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Put("/{orderId}/status", h.UpdateOrderStatus)
 		adminRouter.Put("/{orderId}/rider", h.AdminAssignRider)
 		adminRouter.Post("/{orderId}/cancel", h.AdminCancelOrder)
+		// The outlet confirms a manual M-Pesa payment (code matched on its M-Pesa statement).
+		adminRouter.Post("/{orderId}/payment/verify", h.AdminVerifyPayment)
 		adminRouter.Post("/{orderId}/refund", h.RefundOrder)
 		adminRouter.Post("/{orderId}/payment/initiate", h.AdminInitiateOrderPayment)
 		adminRouter.Delete("/{orderId}", h.DeleteOrder)
@@ -136,6 +138,9 @@ type CheckoutRequestDTO struct {
 	PaymentMethod         string         `json:"paymentMethod,omitempty"` // "mpesa" | "cod"
 	OrderNotes            string         `json:"orderNotes,omitempty"`
 	RequestUtensils       bool           `json:"requestUtensils,omitempty"`
+	// MpesaCode is the confirmation code of the customer's M-Pesa payment to the business
+	// Till/Paybill when paymentMethod is "mpesa_manual".
+	MpesaCode string `json:"mpesaCode,omitempty"`
 }
 
 // UpdateStatusRequest represents a request to update order status.
@@ -175,6 +180,7 @@ type GuestCheckoutRequestDTO struct {
 	ScheduledAt     string         `json:"scheduledAt,omitempty"`
 	OrderNotes      string         `json:"orderNotes,omitempty"`
 	RequestUtensils bool           `json:"requestUtensils,omitempty"`
+	MpesaCode       string         `json:"mpesaCode,omitempty"`
 }
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
@@ -432,8 +438,14 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrInsufficientLoyaltyPoints),
 		errors.Is(err, ordering.ErrScheduledForRequired),
 		errors.Is(err, ordering.ErrScheduledForTooSoon),
-		errors.Is(err, ordering.ErrCatalogItemUnavailable):
+		errors.Is(err, ordering.ErrCatalogItemUnavailable),
+		errors.Is(err, ordering.ErrMpesaCodeRequired),
+		errors.Is(err, ordering.ErrMpesaCodeInvalid),
+		errors.Is(err, ordering.ErrNotManualPayment):
 		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+
+	case errors.Is(err, ordering.ErrMpesaCodeUsed):
+		handlers.RespondError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ordering.ErrUnauthorized):
 		handlers.RespondError(w, http.StatusForbidden, err.Error())
@@ -603,6 +615,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			PaymentMethod:     req.PaymentMethod,
 			OrderNotes:        req.OrderNotes,
 			RequestUtensils:   req.RequestUtensils,
+			MpesaCode:         req.MpesaCode,
 		})
 		if err != nil {
 			h.handleError(w, err)
@@ -1466,10 +1479,13 @@ func (h *OrderHandler) AdminCancelOrder(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := getUserFromContext(r)
-	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
-		return
+	// A POS outlet rejecting an order calls this with the internal service key, so there may be no
+	// end user on the request; the cancellation is then attributed to the outlet.
+	var actorID *uuid.UUID
+	actorType := "outlet"
+	if user, uErr := getUserFromContext(r); uErr == nil && user != nil {
+		actorID = &user.ID
+		actorType = "staff"
 	}
 
 	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
@@ -1484,7 +1500,7 @@ func (h *OrderHandler) AdminCancelOrder(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	order, err := h.orderService.CancelOrder(r.Context(), tenantID, orderID, req.Reason, &user.ID, "staff", getClientIP(r))
+	order, err := h.orderService.CancelOrder(r.Context(), tenantID, orderID, req.Reason, actorID, actorType, getClientIP(r))
 	if err != nil {
 		h.handleError(w, err)
 		return
@@ -1787,6 +1803,7 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		ScheduledFor:    scheduledFor,
 		OrderNotes:      req.OrderNotes,
 		RequestUtensils: req.RequestUtensils,
+		MpesaCode:       req.MpesaCode,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -2112,4 +2129,44 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 	}
 
 	return info
+}
+
+// verifyPaymentRequest is the body of POST /admin/orders/{orderId}/payment/verify.
+type verifyPaymentRequest struct {
+	Reference string `json:"reference"`
+}
+
+// AdminVerifyPayment confirms a manual M-Pesa payment: the outlet matched the customer's code
+// against its own M-Pesa statement. The order is marked paid and treasury records the payment
+// under that code. Called by the ordering dashboard and by the POS online-orders queue.
+// @Summary Verify a manual M-Pesa payment
+// @Tags Admin Orders
+// @Accept json
+// @Produce json
+// @Param orderId path string true "Order ID"
+// @Success 200 {object} ordering.Order
+// @Router /admin/orders/{orderId}/payment/verify [post]
+func (h *OrderHandler) AdminVerifyPayment(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+	var req verifyPaymentRequest
+	_ = decodeJSON(r, &req)
+	var actorID *uuid.UUID
+	if user, uErr := getUserFromContext(r); uErr == nil && user != nil {
+		actorID = &user.ID
+	}
+	order, err := h.orderService.VerifyManualPayment(r.Context(), tenantID, orderID, req.Reference, actorID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, order)
 }

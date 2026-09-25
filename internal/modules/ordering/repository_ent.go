@@ -7,6 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
+
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
@@ -546,6 +549,18 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 
 	o.UpdatedAt = updated.UpdatedAt
 	return nil
+}
+
+// MpesaCodeUsed reports whether any order of the tenant already carries this manual M-Pesa code.
+func (r *EntRepository) MpesaCodeUsed(ctx context.Context, tenantID uuid.UUID, code string) (bool, error) {
+	return r.client.Order.Query().
+		Where(
+			order.TenantID(tenantID),
+			func(s *sql.Selector) {
+				s.Where(sqljson.ValueEQ(order.FieldMetadata, code, sqljson.Path("mpesa_code")))
+			},
+		).
+		Exist(ctx)
 }
 
 // MergeOrderMetadata merges patch into the order's metadata and writes only that column.
