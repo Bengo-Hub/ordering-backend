@@ -252,6 +252,9 @@ func New(
 								isPublicGoogle ||
 								strings.Contains(path, "/zones") ||
 								strings.Contains(path, "/ratings") ||
+								// Service-to-service routes carry no user JWT; they are guarded by the
+								// internal service key on the route itself (OrderHandler /s2s/orders).
+								strings.Contains(path, "/s2s/") ||
 								isPublicCatalog {
 								next.ServeHTTP(w, r)
 								return
