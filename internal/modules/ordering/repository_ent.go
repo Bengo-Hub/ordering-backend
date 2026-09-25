@@ -548,6 +548,25 @@ func (r *EntRepository) UpdateOrder(ctx context.Context, o *Order) error {
 	return nil
 }
 
+// MergeOrderMetadata merges patch into the order's metadata and writes only that column.
+func (r *EntRepository) MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error {
+	o, err := r.client.Order.Query().
+		Where(order.ID(orderID), order.TenantID(tenantID)).
+		Select(order.FieldMetadata).
+		Only(ctx)
+	if err != nil {
+		return err
+	}
+	merged := make(map[string]interface{}, len(o.Metadata)+len(patch))
+	for k, v := range o.Metadata {
+		merged[k] = v
+	}
+	for k, v := range patch {
+		merged[k] = v
+	}
+	return r.client.Order.UpdateOneID(orderID).SetMetadata(merged).Exec(ctx)
+}
+
 // UpdatePaymentStatusAtomic is UpdateOrder's race-safe counterpart for payment-status transitions:
 // it constrains the WHERE clause to payment_status = fromStatus (the value the caller's read
 // observed), using the bulk Update().Save() affected-row count as the single-winner claim. See
@@ -716,7 +735,9 @@ func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer t
 	cutoff := time.Now().Add(prepBuffer)
 	ents, err := r.client.Order.Query().
 		Where(
-			order.FulfillmentTypeEQ(order.FulfillmentTypeScheduled),
+			// Any fulfilment type: a scheduled order is a delivery or pickup with scheduled_for set
+			// (legacy rows carry fulfillment_type "scheduled"). Only orders still waiting for the
+			// kitchen qualify; the caller skips ones already handed to the outlet.
 			order.StatusEQ(order.StatusConfirmed),
 			order.ScheduledForNotNil(),
 			order.ScheduledForLTE(cutoff),

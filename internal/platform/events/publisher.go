@@ -231,6 +231,9 @@ type OrderReadyData struct {
 	CustomerPhone   string                   `json:"customer_phone,omitempty"`
 	Instructions    string                   `json:"instructions,omitempty"`
 	FulfillmentType string                   `json:"fulfillment_type,omitempty"`
+	// PODCode is the customer's proof-of-delivery code. logistics-api keeps it server-side to
+	// verify the code the rider enters at the door; it is never shown to the rider.
+	PODCode string `json:"pod_code,omitempty"`
 	// TenantSlug rides in the envelope + payload so event-driven consumers (fulfilment →
 	// logistics dispatch) never have to guess the slug from the tenant UUID.
 	TenantSlug string `json:"tenant_slug,omitempty"`
@@ -253,6 +256,9 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 
 	if data.PaymentMethod != "" {
 		eventData["payment_method"] = data.PaymentMethod
+	}
+	if data.PODCode != "" {
+		eventData["pod_code"] = data.PODCode
 	}
 	if data.CashOnDelivery > 0 {
 		eventData["cash_on_delivery"] = data.CashOnDelivery
@@ -306,12 +312,25 @@ type OrderConfirmedData struct {
 	CustomerEmail   string                   `json:"customer_email,omitempty"`
 	CustomerPhone   string                   `json:"customer_phone,omitempty"`
 	Items           []map[string]interface{} `json:"items"`
+	// Payment + fulfilment context the outlet needs to hand the order over correctly: whether
+	// it was prepaid online or is cash on collection/delivery (and how much to collect), the
+	// delivery destination, the customer's notes and, for scheduled orders, the promised time.
+	PaymentMethod   string     `json:"payment_method,omitempty"`
+	PaymentStatus   string     `json:"payment_status,omitempty"`
+	GrandTotal      float64    `json:"grand_total"`
+	DeliveryFee     float64    `json:"delivery_fee"`
+	DiscountTotal   float64    `json:"discount_total"`
+	Currency        string     `json:"currency,omitempty"`
+	Instructions    string     `json:"instructions,omitempty"`
+	DeliveryAddress string     `json:"delivery_address,omitempty"`
+	ScheduledFor    *time.Time `json:"scheduled_for,omitempty"`
+	TenantSlug      string     `json:"tenant_slug,omitempty"`
 }
 
 // PublishOrderConfirmed publishes an ordering.order.confirmed event (shared-events
 // envelope, consistent with ordering.order.created).
 func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUID, data OrderConfirmedData) error {
-	event := NewEvent("ordering.order.confirmed", data.OrderID, tenantID, map[string]interface{}{
+	payload := map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
 		"tenant_id":        tenantID.String(),
@@ -321,7 +340,20 @@ func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUI
 		"customer_email":   data.CustomerEmail,
 		"customer_phone":   data.CustomerPhone,
 		"items":            data.Items,
-	})
+		"payment_method":   data.PaymentMethod,
+		"payment_status":   data.PaymentStatus,
+		"grand_total":      data.GrandTotal,
+		"delivery_fee":     data.DeliveryFee,
+		"discount_total":   data.DiscountTotal,
+		"currency":         data.Currency,
+		"instructions":     data.Instructions,
+		"delivery_address": data.DeliveryAddress,
+		"tenant_slug":      data.TenantSlug,
+	}
+	if data.ScheduledFor != nil {
+		payload["scheduled_for"] = data.ScheduledFor.UTC().Format(time.RFC3339)
+	}
+	event := NewEvent("ordering.order.confirmed", data.OrderID, tenantID, payload)
 
 	return p.Publish(ctx, "ordering.order.confirmed", event)
 }

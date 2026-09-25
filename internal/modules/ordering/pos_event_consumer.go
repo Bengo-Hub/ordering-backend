@@ -24,6 +24,7 @@ const (
 
 	posKDSReadyDurable    = "ordering-pos-kds-ready"
 	posCollectedDurable   = "ordering-pos-online-collected"
+	posPreparingDurable   = "ordering-pos-online-preparing"
 	posConsumerAckWait    = 30 * time.Second
 	posConsumerMaxDeliver = 8
 	posConsumerFetchBatch = 10
@@ -32,8 +33,11 @@ const (
 
 // POSEventConsumer reacts to pos-api lifecycle events (published via shared-events on the "pos"
 // JetStream stream, wire envelope = event_type + payload):
+//   - pos.online_order.preparing -> advance the matching online order to "preparing" (kitchen
+//     started it, so the customer's tracker moves on from "confirmed")
 //   - pos.kds.order.ready        -> advance the matching online order to "ready"
-//   - pos.online_order.collected -> mark the matching online order "completed"
+//   - pos.online_order.collected -> mark the matching PICKUP order "completed" (delivery orders
+//     complete through the rider's drop-off, never the counter)
 //
 // It reuses OrderService.UpdateOrderStatus (the same method the admin status-update path uses) so the
 // existing order.ready / order.for_pickup / order.completed customer notifications fire automatically.
@@ -64,6 +68,7 @@ func (c *POSEventConsumer) Start(ctx context.Context, js nats.JetStreamContext) 
 		durable string
 		handler func(context.Context, *sharedevents.Event) error
 	}{
+		{"pos.online_order.preparing", posPreparingDurable, c.handleOnlineOrderPreparing},
 		{"pos.kds.order.ready", posKDSReadyDurable, c.handleKDSOrderReady},
 		{"pos.online_order.collected", posCollectedDurable, c.handleOnlineOrderCollected},
 	}
@@ -179,6 +184,26 @@ func (c *POSEventConsumer) handleKDSOrderReady(ctx context.Context, evt *sharede
 	return nil
 }
 
+// handleOnlineOrderPreparing advances the online order to "preparing" when the outlet starts it.
+func (c *POSEventConsumer) handleOnlineOrderPreparing(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID, orderID, ok := posOrderRef(evt)
+	if !ok {
+		return nil
+	}
+	order, err := c.orderingRepo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return fmt.Errorf("pos.online_order.preparing: get order %s: %w", orderID, err)
+	}
+	// Only a confirmed order moves; anything further along (or still unpaid) is left alone.
+	if order.Status != OrderStatusConfirmed {
+		return nil
+	}
+	if err := c.advanceOrderTo(ctx, tenantID, orderID, OrderStatusPreparing); err != nil {
+		return fmt.Errorf("pos.online_order.preparing: advance order %s: %w", orderID, err)
+	}
+	return nil
+}
+
 // handleOnlineOrderCollected marks the online order referenced by external_order_id as completed.
 func (c *POSEventConsumer) handleOnlineOrderCollected(ctx context.Context, evt *sharedevents.Event) error {
 	tenantID, orderID, ok := posOrderRef(evt)
@@ -196,6 +221,14 @@ func (c *POSEventConsumer) handleOnlineOrderCollected(ctx context.Context, evt *
 	case OrderStatusCompleted, OrderStatusCancelled, OrderStatusRefunded:
 		c.log.Info("pos.online_order.collected: order already terminal, skipping",
 			zap.String("order_id", orderID.String()), zap.String("status", string(order.Status)))
+		return nil
+	}
+	// A delivery order is finished by the rider's drop-off (logistics task delivered), which also
+	// collects cash on delivery and consumes stock. A counter "collected" for it is ignored rather
+	// than jumping ready -> completed and skipping the delivery entirely.
+	if isDeliveryFulfilment(order.FulfillmentType) {
+		c.log.Info("pos.online_order.collected: delivery order completes via the rider, skipping",
+			zap.String("order_id", orderID.String()))
 		return nil
 	}
 

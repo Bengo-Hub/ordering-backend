@@ -12,7 +12,6 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
-	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
 // stripRefPrefix removes a "<kind>:" prefix from a logistics task reference.
@@ -97,232 +96,83 @@ func (h *LogisticsEventHandler) handleTaskCreated(ctx context.Context, evt *shar
 	return nil
 }
 
-// handleTaskAccepted updates the assignment to "accepted" and transitions the order to
-// out_for_delivery when a rider accepts the task. Mirrors handleTaskAssigned's order transition so
-// orders that go straight from assigned→accepted (skipping a separate en_route signal) still move.
-func (h *LogisticsEventHandler) handleTaskAccepted(ctx context.Context, evt *sharedevents.Event) error {
+// updateAssignmentFromEvent moves the local OrderAssignment for the event's task to status (and
+// records the rider when the event carries one). Best-effort: a missing assignment is not an error.
+func (h *LogisticsEventHandler) updateAssignmentFromEvent(ctx context.Context, evt *sharedevents.Event, status AssignmentStatus) {
 	data := evt.Payload
 	taskIDStr, _ := data["task_id"].(string)
-	if taskIDStr != "" {
-		if assignment, aerr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr); aerr == nil && assignment != nil {
-			now := time.Now()
-			assignment.Status = AssignmentStatusAccepted
-			assignment.AcceptedAt = &now
-			if fleetMemberID, _ := data["fleet_member_id"].(string); fleetMemberID != "" {
-				assignment.RiderID = fleetMemberID
-			}
-			if uerr := h.repo.UpdateAssignment(ctx, assignment); uerr != nil {
-				h.logger.Error("failed to update assignment on task.accepted",
-					zap.Error(uerr), zap.String("task_id", taskIDStr))
-			}
-		}
+	if taskIDStr == "" {
+		return
 	}
-
-	orderID, tenantID, ok := h.orderRefFromEvent(evt)
-	if !ok {
-		return nil
+	assignment, err := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
+	if err != nil || assignment == nil {
+		return
 	}
-	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
-	if err != nil {
-		return fmt.Errorf("get order %s: %w", orderID, err)
+	now := time.Now()
+	assignment.Status = status
+	switch status {
+	case AssignmentStatusAccepted:
+		assignment.AcceptedAt = &now
+	case AssignmentStatusCompleted, AssignmentStatusCancelled:
+		assignment.CompletedAt = &now
 	}
-	// Only the ready->out_for_delivery edge is valid; if the order already moved on (e.g. en_route
-	// already fired) this is a no-op.
-	if order.Status == ordering.OrderStatusReady {
-		if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
-			ordering.OrderStatusOutForDelivery, nil, "system", ""); terr != nil {
-			h.logger.Error("failed to transition order to out_for_delivery on task.accepted",
-				zap.Error(terr), zap.String("order_id", orderID.String()))
-		} else {
-			h.logger.Info("order out_for_delivery on rider accept", zap.String("order_id", orderID.String()))
-		}
+	if fleetMemberID, _ := data["fleet_member_id"].(string); fleetMemberID != "" {
+		assignment.RiderID = fleetMemberID
 	}
-	return nil
+	if uerr := h.repo.UpdateAssignment(ctx, assignment); uerr != nil {
+		h.logger.Error("failed to update assignment",
+			zap.Error(uerr), zap.String("task_id", taskIDStr), zap.String("status", string(status)))
+	}
 }
 
-// handleTaskDelivered marks the assignment completed and transitions the order to delivered when the
-// rider reports delivery (the task.delivered status event, distinct from the PoD-driven
-// task.completed). Idempotent via the order-status guard.
-func (h *LogisticsEventHandler) handleTaskDelivered(ctx context.Context, evt *sharedevents.Event) error {
-	data := evt.Payload
-	taskIDStr, _ := data["task_id"].(string)
-	if taskIDStr != "" {
-		if assignment, aerr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr); aerr == nil && assignment != nil {
-			now := time.Now()
-			assignment.Status = AssignmentStatusCompleted
-			assignment.CompletedAt = &now
-			if uerr := h.repo.UpdateAssignment(ctx, assignment); uerr != nil {
-				h.logger.Error("failed to update assignment on task.delivered",
-					zap.Error(uerr), zap.String("task_id", taskIDStr))
-			}
-		}
+// stampDeliveryState records rider-side progress on the order (delivery_status plus the rider's
+// fleet member id and task id) so the storefront tracker, the POS online-orders queue and the
+// ordering staff dashboard can show "Rider assigned", "Rider at the outlet" and so on, without
+// adding statuses to the order state machine.
+func (h *LogisticsEventHandler) stampDeliveryState(ctx context.Context, tenantID, orderID uuid.UUID, evt *sharedevents.Event, state string) {
+	patch := map[string]interface{}{
+		"delivery_status":            state,
+		"delivery_status_updated_at": time.Now().UTC().Format(time.RFC3339),
 	}
-
-	orderID, tenantID, ok := h.orderRefFromEvent(evt)
-	if !ok {
-		return nil
+	if fm, _ := evt.Payload["fleet_member_id"].(string); fm != "" {
+		patch["rider_id"] = fm
 	}
-	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
-	if err != nil {
-		return fmt.Errorf("get order %s: %w", orderID, err)
+	if name, _ := evt.Payload["rider_name"].(string); name != "" {
+		patch["rider_name"] = name
 	}
-	if order.Status == ordering.OrderStatusOutForDelivery {
-		if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
-			ordering.OrderStatusDelivered, nil, "system", ""); terr != nil {
-			return fmt.Errorf("transition order to delivered: %w", terr)
-		}
-		h.logger.Info("order delivered from logistics task.delivered", zap.String("order_id", orderID.String()))
+	if taskID, _ := evt.Payload["task_id"].(string); taskID != "" {
+		patch["logistics_task_id"] = taskID
 	}
-	return nil
+	if err := h.orderingRepo.MergeOrderMetadata(ctx, tenantID, orderID, patch); err != nil {
+		h.logger.Warn("failed to stamp delivery state on order",
+			zap.String("order_id", orderID.String()), zap.String("state", state), zap.Error(err))
+	}
 }
 
-// handleTaskCompleted auto-completes an order when a logistics task is completed.
-func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sharedevents.Event) error {
-	data := evt.Payload
-	orderID, tenantID, ok := h.orderRefFromEvent(evt)
-	if !ok {
-		return fmt.Errorf("no usable order reference / tenant in task.completed event")
-	}
-
-	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
-	if err != nil {
-		return fmt.Errorf("get order %s: %w", orderID, err)
-	}
-
-	if order.Status != ordering.OrderStatusOutForDelivery {
-		h.logger.Info("order not in out_for_delivery status, skipping auto-complete",
-			zap.String("order_id", orderID.String()),
-			zap.String("current_status", string(order.Status)))
-		return nil
-	}
-
-	_, err = h.orderingSvc.UpdateOrderStatus(
-		ctx, tenantID, orderID,
-		ordering.OrderStatusDelivered,
-		nil, "system", "",
-	)
-	if err != nil {
-		return fmt.Errorf("transition order to delivered: %w", err)
-	}
-	// UpdateOrderStatus just persisted status="delivered" against its own internal copy of
-	// the order -- our local `order` (read at the top of this function, before that call)
-	// still has status="out_for_delivery" in memory. UpdateOrder below writes status
-	// unconditionally from whatever's on the struct it's given (it has no partial-update
-	// mode), so without this it would silently revert the column we just correctly set,
-	// even though only PaymentStatus was actually meant to change here. Live-confirmed
-	// against codevertex-demo: an order's deliveredAt/paymentStatus landed correctly but
-	// its status column stayed stuck on "out_for_delivery" indefinitely because of exactly
-	// this clobber.
-	order.Status = ordering.OrderStatusDelivered
-
-	cashCollected, _ := data["cash_collected"].(bool)
-	if order.PaymentMethod == ordering.PaymentMethodCOD && cashCollected {
-		order.PaymentStatus = ordering.PaymentStatusPaid
-		if updateErr := h.orderingRepo.UpdateOrder(ctx, order); updateErr != nil {
-			h.logger.Error("failed to update COD payment status",
-				zap.Error(updateErr),
-				zap.String("order_id", orderID.String()))
-		} else {
-			h.logger.Info("COD payment marked as paid",
-				zap.String("order_id", orderID.String()))
-		}
-
-		if h.treasuryClient != nil {
-			amountCollected, _ := data["amount_collected"].(float64)
-			if amountCollected <= 0 {
-				amountCollected = order.GrandTotal
-			}
-			settleReq := treasury.SettleCODPaymentRequest{
-				TenantID:   tenantID,
-				OrderID:    orderID.String(),
-				AmountPaid: amountCollected,
-				Currency:   order.Currency,
-			}
-			if _, settleErr := h.treasuryClient.SettleCODPayment(ctx, settleReq); settleErr != nil {
-				h.logger.Error("failed to settle COD payment intent in treasury",
-					zap.Error(settleErr),
-					zap.String("order_id", orderID.String()))
-			} else {
-				h.logger.Info("COD payment intent settled in treasury",
-					zap.String("order_id", orderID.String()))
-			}
-		}
-	}
-
-	taskIDStr, _ := data["task_id"].(string)
-	if taskIDStr != "" {
-		assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
-		if assignErr == nil {
-			now := time.Now()
-			assignment.Status = AssignmentStatusCompleted
-			assignment.CompletedAt = &now
-			_ = h.repo.UpdateAssignment(ctx, assignment)
-		}
-	}
-
-	deliveredData := map[string]interface{}{
-		"order_id":     orderID.String(),
-		"order_number": order.OrderNumber,
-		"customer_id":  uuidPtrString(order.CustomerID),
-		"delivered_at": time.Now().UTC().Format(time.RFC3339),
-	}
-	if order.PaymentMethod == ordering.PaymentMethodCOD {
-		amountCollected, _ := data["amount_collected"].(float64)
-		deliveredData["payment_method"] = "cod"
-		deliveredData["cash_collected"] = cashCollected
-		deliveredData["amount_collected"] = amountCollected
-	}
-	if h.eventPublisher != nil {
-		deliveredEvent := events.NewEvent("ordering.order.delivered", orderID, tenantID, deliveredData)
-		_ = h.eventPublisher.Publish(ctx, "ordering.order.delivered", deliveredEvent)
-	}
-
-	h.logger.Info("order auto-completed from logistics task",
-		zap.String("order_id", orderID.String()),
-		zap.String("order_number", order.OrderNumber))
-	return nil
-}
-
-// handleTaskAssigned updates order assignment and transitions order status when a rider is assigned.
+// handleTaskAssigned records the rider assignment. The order itself stays "ready": the food is
+// still at the counter until the rider actually collects it (see handleTaskPickedUp).
 func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *sharedevents.Event) error {
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		// Not an ordering order (manual fleet task) or no tenant: nothing to track.
+		return nil
+	}
 	data := evt.Payload
-
-	orderIDStr, _ := data["external_reference"].(string)
-	if orderIDStr == "" {
-		orderIDStr, _ = data["order_id"].(string)
-	}
-	if orderIDStr == "" {
-		return fmt.Errorf("no external_reference or order_id in task.assigned event")
-	}
-
-	orderID, err := uuid.Parse(orderIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid order_id %q: %w", orderIDStr, err)
-	}
-
-	tenantID := evt.TenantID
-	if tenantID == uuid.Nil {
-		return fmt.Errorf("invalid tenant_id in task.assigned event")
-	}
-
 	fleetMemberID, _ := data["fleet_member_id"].(string)
 	taskIDStr, _ := data["task_id"].(string)
 
 	if taskIDStr != "" {
-		assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
-		if assignErr == nil && assignment != nil {
+		if assignment, assignErr := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr); assignErr == nil && assignment != nil {
 			now := time.Now()
 			assignment.RiderID = fleetMemberID
 			assignment.Status = AssignmentStatusAssigned
 			assignment.AssignedAt = &now
 			if updateErr := h.repo.UpdateAssignment(ctx, assignment); updateErr != nil {
-				h.logger.Error("failed to update assignment",
-					zap.Error(updateErr),
-					zap.String("task_id", taskIDStr))
+				h.logger.Error("failed to update assignment", zap.Error(updateErr), zap.String("task_id", taskIDStr))
 			}
 		} else {
 			now := time.Now()
-			newAssignment := &OrderAssignment{
+			if createErr := h.repo.CreateAssignment(ctx, &OrderAssignment{
 				TenantID:        tenantID,
 				OrderID:         orderID,
 				LogisticsTaskID: taskIDStr,
@@ -330,77 +180,157 @@ func (h *LogisticsEventHandler) handleTaskAssigned(ctx context.Context, evt *sha
 				Status:          AssignmentStatusAssigned,
 				Priority:        PriorityNormal,
 				AssignedAt:      &now,
-			}
-			if createErr := h.repo.CreateAssignment(ctx, newAssignment); createErr != nil {
+			}); createErr != nil {
 				h.logger.Error("failed to create assignment from task.assigned event",
-					zap.Error(createErr),
-					zap.String("task_id", taskIDStr))
+					zap.Error(createErr), zap.String("task_id", taskIDStr))
 			}
 		}
 	}
+	h.stampDeliveryState(ctx, tenantID, orderID, evt, "rider_assigned")
+	return nil
+}
 
+// handleTaskAccepted records that the rider accepted the job. The order stays "ready" until pickup.
+func (h *LogisticsEventHandler) handleTaskAccepted(ctx context.Context, evt *sharedevents.Event) error {
+	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusAccepted)
+	if orderID, tenantID, ok := h.orderRefFromEvent(evt); ok {
+		h.stampDeliveryState(ctx, tenantID, orderID, evt, "rider_accepted")
+	}
+	return nil
+}
+
+// handleTaskLeg records an intermediate rider step (heading to the outlet, at the outlet, heading
+// to or at the customer) on the assignment and the order.
+func (h *LogisticsEventHandler) handleTaskLeg(ctx context.Context, evt *sharedevents.Event, status AssignmentStatus) error {
+	h.updateAssignmentFromEvent(ctx, evt, status)
+	if orderID, tenantID, ok := h.orderRefFromEvent(evt); ok {
+		h.stampDeliveryState(ctx, tenantID, orderID, evt, string(status))
+	}
+	return nil
+}
+
+// handleTaskPickedUp is the moment the order leaves the outlet: it moves ready -> out_for_delivery,
+// which sends the customer the "on its way" notification. The legacy single-leg rider flow's
+// en_route status lands here too.
+func (h *LogisticsEventHandler) handleTaskPickedUp(ctx context.Context, evt *sharedevents.Event) error {
+	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusPickedUp)
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		return nil
+	}
+	h.stampDeliveryState(ctx, tenantID, orderID, evt, "picked_up")
 	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("get order %s: %w", orderID, err)
 	}
-
-	if order.Status == ordering.OrderStatusReady {
-		_, err = h.orderingSvc.UpdateOrderStatus(
-			ctx, tenantID, orderID,
-			ordering.OrderStatusOutForDelivery,
-			nil, "system", "",
-		)
-		if err != nil {
-			h.logger.Error("failed to transition order to out_for_delivery",
-				zap.Error(err),
-				zap.String("order_id", orderID.String()))
-		} else {
-			h.logger.Info("order transitioned to out_for_delivery on rider assignment",
-				zap.String("order_id", orderID.String()),
-				zap.String("rider_id", fleetMemberID))
-		}
+	if order.Status != ordering.OrderStatusReady {
+		// Already on its way (duplicate event) or the kitchen never marked it ready; the delivered
+		// event still closes it out through advanceToDelivered.
+		return nil
 	}
-
+	if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
+		ordering.OrderStatusOutForDelivery, nil, "system", ""); terr != nil {
+		return fmt.Errorf("transition order to out_for_delivery: %w", terr)
+	}
+	h.logger.Info("order out_for_delivery on rider pickup", zap.String("order_id", orderID.String()))
 	return nil
 }
 
-// handleTaskStatusUpdate updates the assignment status when a task transitions (e.g. en_route).
-func (h *LogisticsEventHandler) handleTaskStatusUpdate(ctx context.Context, evt *sharedevents.Event, status string) error {
-	data := evt.Payload
-	taskIDStr, _ := data["task_id"].(string)
-	if taskIDStr == "" {
-		return nil
-	}
-
-	tenantID := evt.TenantID
-
-	assignment, err := h.repo.GetAssignmentByLogisticsTaskID(ctx, taskIDStr)
+// advanceToDelivered walks a delivery order to "delivered" from ready or out_for_delivery. The
+// transition itself (UpdateOrderStatus) settles cash on delivery with treasury, consumes the stock
+// reservation, awards loyalty and publishes ordering.order.delivered exactly once.
+func (h *LogisticsEventHandler) advanceToDelivered(ctx context.Context, tenantID, orderID uuid.UUID) error {
+	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
 	if err != nil {
+		return fmt.Errorf("get order %s: %w", orderID, err)
+	}
+	if order.Status == ordering.OrderStatusReady {
+		if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
+			ordering.OrderStatusOutForDelivery, nil, "system", ""); terr != nil {
+			return fmt.Errorf("transition order to out_for_delivery: %w", terr)
+		}
+		order.Status = ordering.OrderStatusOutForDelivery
+	}
+	if order.Status != ordering.OrderStatusOutForDelivery {
+		h.logger.Info("order not awaiting delivery, skipping",
+			zap.String("order_id", orderID.String()), zap.String("current_status", string(order.Status)))
 		return nil
 	}
-
-	assignment.Status = AssignmentStatus(status)
-	if updateErr := h.repo.UpdateAssignment(ctx, assignment); updateErr != nil {
-		h.logger.Error("failed to update assignment status",
-			zap.Error(updateErr),
-			zap.String("task_id", taskIDStr),
-			zap.String("status", status))
+	if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
+		ordering.OrderStatusDelivered, nil, "system", ""); terr != nil {
+		return fmt.Errorf("transition order to delivered: %w", terr)
 	}
+	return nil
+}
 
-	if status == "en_route" && tenantID != uuid.Nil {
-		order, getErr := h.orderingRepo.GetOrder(ctx, tenantID, assignment.OrderID)
-		if getErr == nil && (order.Status == ordering.OrderStatusReady || order.Status == ordering.OrderStatusConfirmed || order.Status == ordering.OrderStatusPreparing) {
-			if _, transErr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, assignment.OrderID, ordering.OrderStatusOutForDelivery, nil, "system", ""); transErr != nil {
-				h.logger.Error("failed to transition order to out_for_delivery on en_route",
-					zap.Error(transErr),
-					zap.String("order_id", assignment.OrderID.String()))
-			} else {
-				h.logger.Info("order transitioned to out_for_delivery on rider en_route",
-					zap.String("order_id", assignment.OrderID.String()))
-			}
+// handleTaskDelivered closes the order when the rider reports delivery (status event).
+func (h *LogisticsEventHandler) handleTaskDelivered(ctx context.Context, evt *sharedevents.Event) error {
+	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusCompleted)
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		return nil
+	}
+	h.stampDeliveryState(ctx, tenantID, orderID, evt, "delivered")
+	return h.advanceToDelivered(ctx, tenantID, orderID)
+}
+
+// handleTaskCompleted closes the order when the rider submits proof of delivery (task.completed).
+// COD settlement and the delivered notification happen inside the delivered transition; they used
+// to run a second time here (a duplicate treasury settle and a duplicate "delivered" email).
+func (h *LogisticsEventHandler) handleTaskCompleted(ctx context.Context, evt *sharedevents.Event) error {
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		return fmt.Errorf("no usable order reference / tenant in task.completed event")
+	}
+	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusCompleted)
+	if collected, _ := evt.Payload["cash_collected"].(bool); collected {
+		amount, _ := evt.Payload["amount_collected"].(float64)
+		if err := h.orderingRepo.MergeOrderMetadata(ctx, tenantID, orderID, map[string]interface{}{
+			"cod_collected_by_rider": true,
+			"cod_amount_collected":   amount,
+		}); err != nil {
+			h.logger.Warn("failed to record rider COD collection", zap.String("order_id", orderID.String()), zap.Error(err))
 		}
 	}
+	h.stampDeliveryState(ctx, tenantID, orderID, evt, "delivered")
+	if err := h.advanceToDelivered(ctx, tenantID, orderID); err != nil {
+		return err
+	}
+	h.logger.Info("order delivered from logistics proof of delivery", zap.String("order_id", orderID.String()))
+	return nil
+}
 
+// handleTaskCancelled handles a rider or dispatcher cancelling the delivery task. The order is not
+// cancelled (the food is still at the outlet or with the rider); it is flagged as needing a new
+// rider so the outlet and the dispatcher can re-assign, and an admin alert is raised.
+func (h *LogisticsEventHandler) handleTaskCancelled(ctx context.Context, evt *sharedevents.Event) error {
+	h.updateAssignmentFromEvent(ctx, evt, AssignmentStatusCancelled)
+	orderID, tenantID, ok := h.orderRefFromEvent(evt)
+	if !ok {
+		return nil
+	}
+	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return fmt.Errorf("get order %s: %w", orderID, err)
+	}
+	switch order.Status {
+	case ordering.OrderStatusCancelled, ordering.OrderStatusRefunded, ordering.OrderStatusDelivered, ordering.OrderStatusCompleted:
+		return nil // the order itself is finished; nothing to re-dispatch
+	}
+	h.stampDeliveryState(ctx, tenantID, orderID, evt, "needs_rider")
+	if h.eventPublisher != nil {
+		reason, _ := evt.Payload["reason"].(string)
+		alert := events.NewEvent("ordering.order.delivery_failed", orderID, tenantID, map[string]interface{}{
+			"order_id":       orderID.String(),
+			"order_number":   order.OrderNumber,
+			"task_id":        evt.Payload["task_id"],
+			"failure_reason": strings.TrimSpace("Delivery task cancelled. " + reason),
+			"failed_at":      time.Now().UTC().Format(time.RFC3339),
+			"notification":   map[string]interface{}{"target": "admin"},
+		})
+		_ = h.eventPublisher.Publish(ctx, "ordering.order.delivery_failed", alert)
+	}
+	h.logger.Warn("delivery task cancelled; order needs a new rider", zap.String("order_id", orderID.String()))
 	return nil
 }
 

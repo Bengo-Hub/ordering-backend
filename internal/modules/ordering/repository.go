@@ -34,6 +34,9 @@ type Repository interface {
 	GetOrderByNumber(ctx context.Context, tenantID uuid.UUID, orderNumber string) (*Order, error)
 	GetOrderByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*Order, error)
 	UpdateOrder(ctx context.Context, order *Order) error
+	// MergeOrderMetadata sets the given keys on the order's metadata without touching any other
+	// column, so bookkeeping stamps never race a concurrent status/payment write.
+	MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error
 	// UpdatePaymentStatusAtomic applies order's status/payment_status/confirmed_at fields via a
 	// single UPDATE ... WHERE payment_status = fromStatus, so a caller can safely compute the new
 	// order state from a payment_status value it read moments earlier and know the write only
@@ -119,7 +122,7 @@ type Repository interface {
 	FindUserByID(ctx context.Context, userID uuid.UUID) (*UserContactInfo, error)
 
 	// Outlet operations
-	GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error)
+	GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (OutletLocation, error)
 	// GetOutletBookingDepositPercent returns the outlet's booking deposit % (0-100, 0 when unset).
 	GetOutletBookingDepositPercent(ctx context.Context, tenantID, outletID uuid.UUID) (int, error)
 	// SetOutletBookingDepositPercent updates the outlet's booking deposit % (caller validates 0-100).

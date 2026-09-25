@@ -559,6 +559,17 @@ type CreateOrderFromItemsRequest struct {
 	Channel           OrderChannel
 	FulfillmentType   FulfillmentType
 	ScheduledFor      *time.Time
+	OrderNotes        string // customer's notes for the kitchen/outlet ("no onions", "ring the bell")
+	RequestUtensils   bool
+}
+
+// OutletLocation is the pickup point a rider is sent to: where the outlet is and how to reach it.
+type OutletLocation struct {
+	Name      string
+	Address   string
+	Phone     string
+	Latitude  *float64
+	Longitude *float64
 }
 
 // CreateOrderItemInput is a single line item when creating an order from items.
@@ -592,6 +603,9 @@ type GuestCheckoutRequest struct {
 	Instructions    string
 	Channel         OrderChannel
 	FulfillmentType FulfillmentType
+	ScheduledFor    *time.Time
+	OrderNotes      string
+	RequestUtensils bool
 }
 
 // RefundOrderRequest represents a request to refund an order.
