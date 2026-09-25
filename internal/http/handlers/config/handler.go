@@ -48,6 +48,40 @@ type PublicConfigResponse struct {
 	// retail vs services, etc.) — see normalizeOrderingUseCase on the frontend.
 	UseCase  string   `json:"use_case,omitempty"`
 	UseCases []string `json:"use_cases,omitempty"`
+	// App* is the tenant's own name and icon for the ordering app (auth-api
+	// tenant metadata service_branding.ordering), e.g. urban-loft's "Urban
+	// Eats". Name stays the business name shown on the storefront; the app
+	// name drives the browser title, installed PWA label and icon.
+	AppName       string `json:"app_name,omitempty"`
+	AppShortName  string `json:"app_short_name,omitempty"`
+	AppIconURL    string `json:"app_icon_url,omitempty"`
+	AppThemeColor string `json:"app_theme_color,omitempty"`
+}
+
+// serviceBrandingKey is this app's entry in tenant metadata service_branding.
+const serviceBrandingKey = "ordering"
+
+// applyServiceBranding copies the tenant's ordering-app naming onto resp.
+func applyServiceBranding(resp *PublicConfigResponse, metadata map[string]any) {
+	all, ok := metadata["service_branding"].(map[string]any)
+	if !ok {
+		return
+	}
+	entry, ok := all[serviceBrandingKey].(map[string]any)
+	if !ok {
+		return
+	}
+	str := func(key string) string {
+		s, _ := entry[key].(string)
+		return s
+	}
+	resp.AppName = str("name")
+	resp.AppShortName = str("short_name")
+	resp.AppIconURL = str("icon_url")
+	resp.AppThemeColor = str("theme_color")
+	if tagline := str("tagline"); tagline != "" {
+		resp.Tagline = tagline
+	}
 }
 
 // GetConfig returns public tenant display name and brand (logo, colors) for the tenant in the URL.
@@ -110,6 +144,10 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 			}
 			resp.UseCase = details.UseCase
 			resp.UseCases = details.UseCases
+			if tagline, ok := details.Metadata["tagline"].(string); ok {
+				resp.Tagline = tagline
+			}
+			applyServiceBranding(&resp, details.Metadata)
 			// Populate brand_palette from all brand colors
 			if details.BrandColors != nil {
 				resp.BrandPalette = make(map[string]string)
