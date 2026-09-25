@@ -48,6 +48,9 @@ func isDeliveryFulfilment(ft FulfillmentType) bool {
 	return ft == FulfillmentTypeDelivery || ft == FulfillmentTypeScheduled
 }
 
+// IsDeliveryFulfilment is the exported form of isDeliveryFulfilment for handlers.
+func IsDeliveryFulfilment(ft FulfillmentType) bool { return isDeliveryFulfilment(ft) }
+
 // validateFulfilmentTransition rejects status moves that make no sense for the order's fulfilment
 // type: a pickup order is never handed to a rider, and a delivery order is only complete once the
 // rider has delivered it (ready -> completed would skip the drop-off, the COD collection on the
