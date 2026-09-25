@@ -163,7 +163,8 @@ type Order struct {
 	Instructions      string       `json:"instructions,omitempty"`
 	Channel           OrderChannel `json:"channel"`
 	Source            string       `json:"source,omitempty"`
-	// PODCode is the 6-digit proof-of-delivery confirmation code, set only for delivery-fulfilment orders.
+	// PODCode is the 6-digit hand-over code: proof of delivery for delivery orders, the counter
+	// collection code for pickup orders (see needsHandoverCode). Empty for bookings and dine-in.
 	PODCode string `json:"podCode,omitempty"`
 	// Resolved customer contact info (from metadata for guests, from user for authenticated)
 	CustomerName       string                 `json:"customerName,omitempty"`

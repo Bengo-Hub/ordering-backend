@@ -320,8 +320,8 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		ReservationID:         reservationID,
 	}
 
-	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
-	if fulfillmentType == FulfillmentTypeDelivery {
+	// Hand-over code: the rider's proof of delivery, or the code shown at the counter to collect.
+	if needsHandoverCode(fulfillmentType, cartLineMetadata(cart.Items)) {
 		order.PODCode = generatePODCode()
 	}
 
@@ -540,8 +540,8 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		UpdatedAt:         now,
 	}
 
-	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
-	if fulfillmentType == FulfillmentTypeDelivery {
+	// Hand-over code: the rider's proof of delivery, or the code shown at the counter to collect.
+	if needsHandoverCode(fulfillmentType, inputLineMetadata(req.Items)) {
 		order.PODCode = generatePODCode()
 	}
 
@@ -988,8 +988,8 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	}
 	order.Metadata = mergeMetadata(order.Metadata, paymentMeta)
 
-	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
-	if fulfillmentType == FulfillmentTypeDelivery {
+	// Hand-over code: the rider's proof of delivery, or the code shown at the counter to collect.
+	if needsHandoverCode(fulfillmentType, inputLineMetadata(orderItems)) {
 		order.PODCode = generatePODCode()
 	}
 
@@ -2097,6 +2097,7 @@ func (s *OrderService) publishOutletHandoff(ctx context.Context, order *Order, a
 		TenantSlug:      tenantSlug,
 		PaymentChannel:  PaymentChannelOf(order),
 		MpesaCode:       stringMeta(order.Metadata, metaMpesaCode),
+		CollectionCode:  collectionCode(order),
 	}); err != nil {
 		s.logger.Warn("publish outlet hand-off failed",
 			zap.String("order_id", order.ID.String()), zap.Bool("awaiting_acceptance", awaitingAcceptance), zap.Error(err))
@@ -2625,17 +2626,18 @@ func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, it
 
 	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderCreatedData{
-		OrderID:       order.ID,
-		OrderNumber:   order.OrderNumber,
-		CustomerID:    customerIDValue(order.CustomerID),
-		CustomerEmail: ci.Email,
-		CustomerName:  ci.Name,
-		CustomerPhone: ci.Phone,
-		OutletID:      order.OutletID,
-		TotalAmount:   order.GrandTotal,
-		Currency:      order.Currency,
-		ItemCount:     itemCount,
-		PODCode:       order.PODCode,
+		OrderID:        order.ID,
+		OrderNumber:    order.OrderNumber,
+		CustomerID:     customerIDValue(order.CustomerID),
+		CustomerEmail:  ci.Email,
+		CustomerName:   ci.Name,
+		CustomerPhone:  ci.Phone,
+		OutletID:       order.OutletID,
+		TotalAmount:    order.GrandTotal,
+		Currency:       order.Currency,
+		ItemCount:      itemCount,
+		PODCode:        deliveryCode(order),
+		CollectionCode: collectionCode(order),
 	}
 
 	if err := s.eventPublisher.PublishOrderCreated(ctx, order.TenantID, data); err != nil {
@@ -2757,6 +2759,12 @@ func (s *OrderService) publishOrderForPickup(ctx context.Context, order *Order) 
 		CustomerPhone: ci.Phone,
 		OutletID:      order.OutletID,
 		Items:         pickupItems,
+		// The customer shows this at the counter; staff check it before handing the order over.
+		CollectionCode: collectionCode(order),
+	}
+	// Where to collect: the "ready for pickup" messages name the outlet.
+	if loc, lErr := s.repo.GetOutletLocation(ctx, order.TenantID, order.OutletID); lErr == nil {
+		data.OutletName = loc.Name
 	}
 
 	if err := s.eventPublisher.PublishOrderForPickup(ctx, order.TenantID, data); err != nil {
@@ -2779,7 +2787,7 @@ func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Or
 		CustomerEmail: ci.Email,
 		CustomerName:  ci.Name,
 		CustomerPhone: ci.Phone,
-		PODCode:       order.PODCode,
+		PODCode:       deliveryCode(order),
 		// The rider's name is stamped on the order when logistics assigns them (task.assigned).
 		RiderName: stringMeta(order.Metadata, "rider_name"),
 	}
@@ -2829,7 +2837,7 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		GrandTotal:      order.GrandTotal,
 		Instructions:    order.Instructions,
 		FulfillmentType: string(order.FulfillmentType),
-		PODCode:         order.PODCode,
+		PODCode:         deliveryCode(order),
 	}
 	// Line items let the rider check the bag at the counter (name + quantity only).
 	if len(order.Items) == 0 {
