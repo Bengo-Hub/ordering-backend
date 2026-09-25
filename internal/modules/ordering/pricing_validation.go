@@ -102,8 +102,37 @@ func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug str
 		// order with an unnamed item permanently failed to create its POS record (retried via
 		// NATS redelivery, never succeeded) and never reached the online-order queue at all.
 		out[i].Name = item.Name
+		out[i].Metadata = withCatalogSnapshot(it.Metadata, item)
 	}
 	return out, nil
+}
+
+// withCatalogSnapshot copies the line metadata and stamps the catalog facts the outlet needs
+// downstream, taken from the server-side catalog lookup rather than the client: the category
+// (pos-api routes KDS tickets and kitchen chits by it), the inventory item id and type (a SERVICE
+// line becomes a POS appointment instead of a kitchen ticket) and, when the catalog carries one,
+// the service duration. Keys the client already set win for booking fields the storefront owns
+// (appointment date/time/staff), but category and item identity always come from the catalog.
+func withCatalogSnapshot(metadata map[string]interface{}, item *catalog.MergedCatalogItem) map[string]interface{} {
+	out := make(map[string]interface{}, len(metadata)+4)
+	for k, v := range metadata {
+		out[k] = v
+	}
+	if item.CategoryName != "" {
+		out["category"] = item.CategoryName
+	}
+	if item.InventoryID != uuid.Nil {
+		out["inventory_item_id"] = item.InventoryID.String()
+	}
+	if item.Type != "" {
+		out["item_type"] = item.Type
+	}
+	if _, set := out["duration_minutes"]; !set && item.Metadata != nil {
+		if d, ok := item.Metadata["duration_minutes"]; ok {
+			out["duration_minutes"] = d
+		}
+	}
+	return out
 }
 
 // reserveDealRedemption calls pos-api's S2S reserve endpoint for one matched deal. Best-effort:

@@ -125,10 +125,24 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamCont
 		{"logistics.task.completed", "ord-logistics-task-completed", h.handleTaskCompleted},
 		{"logistics.task.assigned", "ord-logistics-task-assigned", h.handleTaskAssigned},
 		{"logistics.task.accepted", "ord-logistics-task-accepted", h.handleTaskAccepted},
-		{"logistics.task.en_route", "ord-logistics-task-en-route", func(ctx context.Context, evt *sharedevents.Event) error {
-			return h.handleTaskStatusUpdate(ctx, evt, "en_route")
+		{"logistics.task.en_route_pickup", "ord-logistics-task-en-route-pickup", func(ctx context.Context, evt *sharedevents.Event) error {
+			return h.handleTaskLeg(ctx, evt, AssignmentStatusEnRoutePickup)
+		}},
+		{"logistics.task.arrived_pickup", "ord-logistics-task-arrived-pickup", func(ctx context.Context, evt *sharedevents.Event) error {
+			return h.handleTaskLeg(ctx, evt, AssignmentStatusArrivedPickup)
+		}},
+		{"logistics.task.picked_up", "ord-logistics-task-picked-up", h.handleTaskPickedUp},
+		// Legacy single-leg rider flow (accepted -> en_route -> delivered): en_route means the rider
+		// left with the order, the same moment as picked_up.
+		{"logistics.task.en_route", "ord-logistics-task-en-route", h.handleTaskPickedUp},
+		{"logistics.task.en_route_dropoff", "ord-logistics-task-en-route-dropoff", func(ctx context.Context, evt *sharedevents.Event) error {
+			return h.handleTaskLeg(ctx, evt, AssignmentStatusEnRouteDropoff)
+		}},
+		{"logistics.task.arrived_dropoff", "ord-logistics-task-arrived-dropoff", func(ctx context.Context, evt *sharedevents.Event) error {
+			return h.handleTaskLeg(ctx, evt, AssignmentStatusArrivedDropoff)
 		}},
 		{"logistics.task.delivered", "ord-logistics-task-delivered", h.handleTaskDelivered},
+		{"logistics.task.cancelled", "ord-logistics-task-cancelled", h.handleTaskCancelled},
 		{"logistics.task.failed", "ord-logistics-task-failed", h.handleTaskFailed},
 	}
 

@@ -201,20 +201,10 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		return nil, ErrCartEmpty
 	}
 
-	// Determine fulfillment type (default to delivery)
-	fulfillmentType := req.FulfillmentType
-	if fulfillmentType == "" {
-		fulfillmentType = FulfillmentTypeDelivery
-	}
-
-	// Validate scheduled orders
-	if fulfillmentType == FulfillmentTypeScheduled {
-		if req.ScheduledFor == nil {
-			return nil, ErrScheduledForRequired
-		}
-		if req.ScheduledFor.Before(time.Now().Add(ScheduledMinLeadTime)) {
-			return nil, ErrScheduledForTooSoon
-		}
+	// Determine fulfillment type (default to delivery; "schedule" = delivery at a chosen time)
+	fulfillmentType, ftErr := resolveFulfillment(req.FulfillmentType, req.ScheduledFor)
+	if ftErr != nil {
+		return nil, ftErr
 	}
 
 	// Validate delivery address if provided (not required for pickup orders)
@@ -387,7 +377,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	s.publishOrderCreated(ctx, order, len(cart.Items))
 
 	// For scheduled orders, publish a scheduling event so logistics can plan ahead
-	if fulfillmentType == FulfillmentTypeScheduled {
+	if order.ScheduledFor != nil {
 		s.publishOrderScheduled(ctx, order)
 	}
 
@@ -415,25 +405,13 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		return nil, ErrCartEmpty
 	}
 
-	// Determine fulfillment type (default to delivery)
-	fulfillmentType := req.FulfillmentType
-	if fulfillmentType == "" {
-		fulfillmentType = FulfillmentTypeDelivery
-	}
-
-	// Pickup orders support cash-on-pickup (pay at the counter on collection),
-	// interpreted via payment_method == "cod" the same way delivery uses cash-on-delivery.
-	// No fulfillment-specific block: a cod/cash pickup order is placed as cod_pending and
-	// settled when the order is marked completed (collected). See settleCODIfApplicable.
-
-	// Validate scheduled orders
-	if fulfillmentType == FulfillmentTypeScheduled {
-		if req.ScheduledFor == nil {
-			return nil, ErrScheduledForRequired
-		}
-		if req.ScheduledFor.Before(time.Now().Add(ScheduledMinLeadTime)) {
-			return nil, ErrScheduledForTooSoon
-		}
+	// Determine fulfillment type (default to delivery; "schedule" = delivery at a chosen time).
+	// Pickup orders support cash-on-pickup (pay at the counter on collection), interpreted via
+	// payment_method == "cod" the same way delivery uses cash-on-delivery: a cod/cash pickup order
+	// is placed as cod_pending and settled when the order is marked completed (collected).
+	fulfillmentType, ftErr := resolveFulfillment(req.FulfillmentType, req.ScheduledFor)
+	if ftErr != nil {
+		return nil, ftErr
 	}
 
 	// Never trust client-submitted unit prices / modifier prices — re-derive every line's
@@ -467,7 +445,22 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 			deliveryFee = DeliveryFeeBase
 		}
 	}
+	// Promo codes were accepted by this (items-based) checkout but never applied: the storefront
+	// showed the discount and the order charged the full price. Validate the code against the same
+	// promo service the cart checkout uses.
 	discountTotal := 0.0
+	var promoCodeID *uuid.UUID
+	if code := strings.TrimSpace(req.PromoCode); code != "" && s.promoSvc != nil {
+		result, pErr := s.promoSvc.ValidatePromoCode(ctx, req.TenantID, req.OutletID, code, cartItemsFromInputs(req.Items), &req.UserID)
+		if pErr != nil || result == nil || !result.Valid {
+			return nil, ErrPromoCodeNotFound
+		}
+		promoCodeID = result.PromoCodeID
+		discountTotal = result.DiscountAmount
+		if discountTotal > subtotal {
+			discountTotal = subtotal
+		}
+	}
 	grandTotal := subtotal - discountTotal + deliveryFee
 
 	// Reserve stock via inventory service (fail fast if stock unavailable)
@@ -530,6 +523,8 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		Instructions:        instructions,
 		Channel:             req.Channel,
 		ReservationID:       reservationID,
+		PromoCodeID:         promoCodeID,
+		Metadata:            orderNotesMetadata(nil, req.OrderNotes, req.RequestUtensils),
 		// DeliveryAddressID was previously never set here even when the checkout request
 		// resolved a real saved address -- req.DeliveryLat/Lng were used only transiently
 		// for the delivery-fee calc above and then discarded, so the order's own dropoff
@@ -580,9 +575,11 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	s.publishOrderCreated(ctx, order, len(req.Items))
 
 	// For scheduled orders, publish a scheduling event so logistics can plan ahead
-	if fulfillmentType == FulfillmentTypeScheduled {
+	if order.ScheduledFor != nil {
 		s.publishOrderScheduled(ctx, order)
 	}
+
+	s.autoAcceptCOD(ctx, order)
 
 	s.logger.Info("order created from items",
 		zap.String("id", order.ID.String()),
@@ -591,6 +588,24 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		zap.Float64("grandTotal", order.GrandTotal))
 
 	return order, nil
+}
+
+// cartItemsFromInputs adapts items-based checkout lines to the CartItem shape the promo service
+// validates against (scope matching by SKU, minimum spend by line totals).
+func cartItemsFromInputs(items []CreateOrderItemInput) []CartItem {
+	out := make([]CartItem, 0, len(items))
+	for _, it := range items {
+		out = append(out, CartItem{
+			InventorySKU: it.InventorySKU,
+			NameSnapshot: it.Name,
+			Quantity:     it.Quantity,
+			UnitPrice:    it.UnitPrice,
+			TotalPrice:   it.TotalPrice,
+			Modifiers:    it.Modifiers,
+			Metadata:     it.Metadata,
+		})
+	}
+	return out
 }
 
 // orderHasBooking reports whether the order contains any event-ticket or service-appointment
@@ -799,10 +814,11 @@ func buildOrderLineItems(order *Order) []LineItem {
 // falls back to looking up a backend cart by session (for backwards compatibility).
 // Guest orders do not earn loyalty points. A nil UUID is used for CustomerID.
 func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutRequest) (*Order, error) {
-	// Determine fulfillment type (default to delivery)
-	fulfillmentType := req.FulfillmentType
-	if fulfillmentType == "" {
-		fulfillmentType = FulfillmentTypeDelivery
+	// Determine fulfillment type (default to delivery; "schedule" = delivery at a chosen time).
+	// Guest checkout used to ignore the requested time entirely.
+	fulfillmentType, ftErr := resolveFulfillment(req.FulfillmentType, req.ScheduledFor)
+	if ftErr != nil {
+		return nil, ftErr
 	}
 
 	// Resolve items: prefer items from request payload, fall back to backend cart
@@ -935,6 +951,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		PaymentStatus:   paymentStatus,
 		PaymentMethod:   paymentMethod,
 		FulfillmentType: fulfillmentType,
+		ScheduledFor:    req.ScheduledFor,
 		Currency:        "KES",
 		Subtotal:        subtotal,
 		DiscountTotal:   0,
@@ -956,13 +973,13 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		PlacedAt:              &now,
 		CreatedAt:             now,
 		UpdatedAt:             now,
-		Metadata: map[string]interface{}{
+		Metadata: orderNotesMetadata(map[string]interface{}{
 			"guest":        true,
 			"contactName":  req.ContactName,
 			"contactEmail": req.ContactEmail,
 			"contactPhone": req.ContactPhone,
 			"sessionId":    req.SessionID,
-		},
+		}, req.OrderNotes, req.RequestUtensils),
 	}
 
 	// Generate a proof-of-delivery confirmation code only for delivery-fulfilment orders.
@@ -996,6 +1013,10 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 
 	s.createOrderEvent(ctx, order.ID, "order_created", "", string(OrderStatusPending), nil, nil, "guest", "")
 	s.publishOrderCreated(ctx, order, len(orderItems))
+	if order.ScheduledFor != nil {
+		s.publishOrderScheduled(ctx, order)
+	}
+	s.autoAcceptCOD(ctx, order)
 
 	s.logger.Info("guest order created",
 		zap.String("id", order.ID.String()),
@@ -1292,6 +1313,9 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	if !s.stateMachine.CanTransition(order.Status, newStatus) {
 		return nil, ErrInvalidStatusTransition
 	}
+	if err := validateFulfilmentTransition(order.FulfillmentType, order.Status, newStatus); err != nil {
+		return nil, err
+	}
 
 	// Update timestamps based on status
 	now := time.Now()
@@ -1326,6 +1350,8 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
 	case OrderStatusCancelled:
 		order.CancelledAt = &now
+		// Staff rejecting a prepaid order through the status path must refund it too.
+		s.refundCancelledPrepaidOrder(ctx, order, "Order rejected by the outlet")
 		// Release inventory reservation on cancellation via status update. WithoutCancel
 		// keeps the tenant/auth context (see finalizeOrder) so inventory's S2S tenant
 		// resolution matches; a bare context.Background() would fail to release the hold.
@@ -1348,6 +1374,12 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 		return s.repo.GetOrder(ctx, tenantID, orderID)
 	}
 
+	if rs, _ := order.Metadata["refund_status"].(string); newStatus == OrderStatusCancelled && rs != "" {
+		if mErr := s.repo.MergeOrderMetadata(ctx, tenantID, orderID, map[string]interface{}{"refund_status": rs}); mErr != nil {
+			s.logger.Warn("failed to record refund status", zap.String("order_id", orderID.String()), zap.Error(mErr))
+		}
+	}
+
 	// Create order event
 	s.createOrderEvent(ctx, order.ID, "status_changed", string(oldStatus), string(newStatus), nil, actorID, actorType, ipAddress)
 
@@ -1363,9 +1395,8 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	// ConfirmedOrderConsumer is idempotent on OrderLink.external_order_id, so a duplicate
 	// emission from the payment-driven path (which sets status via UpdatePaymentStatusAtomic
 	// directly, not through this function) is harmless if it ever overlaps.
-	if oldStatus == OrderStatusPending && newStatus == OrderStatusConfirmed &&
-		(order.FulfillmentType == FulfillmentTypePickup || order.FulfillmentType == FulfillmentTypeDelivery) {
-		s.publishOrderConfirmed(ctx, order)
+	if oldStatus == OrderStatusPending && newStatus == OrderStatusConfirmed {
+		s.handOffToOutlet(ctx, order)
 	}
 
 	s.logger.Info("order status updated",
@@ -1394,12 +1425,18 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	order.CancelledAt = &now
 	order.CancellationReason = reason
 
+	// A prepaid order the outlet rejects (out of stock, closing early) must give the customer's
+	// money back, not just stop the kitchen. Request the refund through treasury; the outcome is
+	// recorded on the order so staff can follow up a failed one manually.
+	s.refundCancelledPrepaidOrder(ctx, order, reason)
+
 	if err := s.repo.UpdateOrder(ctx, order); err != nil {
 		return nil, err
 	}
 
-	// Release inventory reservation if one exists
-	go s.releaseOrderReservation(context.Background(), order, "order_cancelled")
+	// Release inventory reservation if one exists. WithoutCancel keeps the tenant/auth context
+	// (see finalizeOrder); a bare context.Background() lost the tenant and the hold leaked.
+	go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
 
 	// Refund loyalty points if they were redeemed. Resolve the customer phone so the refund (an
 	// earn) can be mirrored to pos-api (loyalty source of truth, keyed on phone).
@@ -1422,6 +1459,49 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 		zap.String("reason", reason))
 
 	return order, nil
+}
+
+// refundCancelledPrepaidOrder requests a treasury refund for a cancelled order that was already
+// paid online (never for COD, which collected nothing). Best-effort: the result is stamped into
+// order.metadata (refund_status requested/failed) and payment_status flips to refunded only when
+// treasury accepted the refund.
+func (s *OrderService) refundCancelledPrepaidOrder(ctx context.Context, order *Order, reason string) {
+	if order.PaymentStatus != PaymentStatusPaid || order.PaymentMethod == PaymentMethodCOD || order.GrandTotal <= 0 {
+		return
+	}
+	if order.Metadata == nil {
+		order.Metadata = map[string]interface{}{}
+	}
+	var paymentID uuid.UUID
+	if pidStr, ok := order.Metadata["payment_intent_id"].(string); ok {
+		paymentID, _ = uuid.Parse(pidStr)
+	}
+	if paymentID == uuid.Nil && order.PaymentIntentID != nil {
+		paymentID = *order.PaymentIntentID
+	}
+	if s.treasuryClient == nil || paymentID == uuid.Nil {
+		order.Metadata["refund_status"] = "manual_required"
+		s.logger.Warn("cancelled prepaid order has no payment reference; refund must be done manually",
+			zap.String("order_id", order.ID.String()))
+		return
+	}
+	if reason == "" {
+		reason = "Order cancelled"
+	}
+	if _, err := s.treasuryClient.CreateRefund(ctx, treasury.RefundRequest{
+		TenantID:       order.TenantID,
+		PaymentID:      paymentID,
+		Amount:         order.GrandTotal,
+		Reason:         reason,
+		IdempotencyKey: fmt.Sprintf("refund-%s", order.ID.String()),
+	}); err != nil {
+		order.Metadata["refund_status"] = "failed"
+		s.logger.Error("refund for cancelled prepaid order failed",
+			zap.String("order_id", order.ID.String()), zap.Error(err))
+		return
+	}
+	order.Metadata["refund_status"] = "requested"
+	order.PaymentStatus = PaymentStatusRefunded
 }
 
 // RateOrder submits a customer rating (1-5 stars) for a delivered/completed order.
@@ -1877,9 +1957,8 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	// carrying the line items so downstream services (pos-api KDS handoff, etc.) can react. Scheduled
 	// and ticket-only (dine_in) fulfilment are intentionally skipped per the cross-service contract.
 	// Best-effort — never blocks checkout/payment.
-	if justConfirmed && !terminal &&
-		(order.FulfillmentType == FulfillmentTypePickup || order.FulfillmentType == FulfillmentTypeDelivery) {
-		s.publishOrderConfirmed(ctx, order)
+	if justConfirmed && !terminal {
+		s.handOffToOutlet(ctx, order)
 	}
 
 	s.logger.Info("order payment status updated",
@@ -1934,9 +2013,13 @@ func (s *OrderService) publishPaymentConfirmed(ctx context.Context, order *Order
 	}
 }
 
-// publishOrderConfirmed emits ordering.order.confirmed for a pickup/delivery order that has just been
-// confirmed after payment. It loads the line items the same way publishOrderReady/publishOrderForpickup
-// do so downstream consumers receive the priced lines. Best-effort; never blocks payment.
+// publishOrderConfirmed emits ordering.order.confirmed: the hand-off that makes pos-api create the
+// outlet's POS record (KDS tickets, kitchen chits, pickup queue entry) or, for service lines, a
+// calendar appointment. Everything the outlet needs to prepare and hand the order over travels on
+// the event: each line's category (station routing), modifiers and notes, the booking fields of a
+// service line, whether the customer already paid online or pays on collection/delivery (and the
+// amount to collect), the delivery destination and, for a scheduled order, the promised time.
+// Best-effort; never blocks payment.
 func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) {
 	if s.eventPublisher == nil || order == nil {
 		return
@@ -1949,26 +2032,106 @@ func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) 
 	}
 	items := make([]map[string]interface{}, 0, len(order.Items))
 	for _, it := range order.Items {
-		items = append(items, map[string]interface{}{
-			"sku":        it.InventorySKU,
-			"name":       it.NameSnapshot,
-			"quantity":   it.Quantity,
-			"unit_price": it.UnitPrice,
-		})
+		items = append(items, outletLinePayload(it))
+	}
+
+	deliveryAddress := ""
+	if isDeliveryFulfilment(order.FulfillmentType) {
+		if order.DeliveryAddress == nil && order.DeliveryAddressID != nil {
+			if addr, aErr := s.repo.GetAddress(ctx, order.TenantID, *order.DeliveryAddressID); aErr == nil {
+				order.DeliveryAddress = addr
+			}
+		}
+		if order.DeliveryAddress != nil {
+			deliveryAddress = strings.TrimSpace(strings.Join([]string{
+				order.DeliveryAddress.AddressLine1, order.DeliveryAddress.AddressLine2, order.DeliveryAddress.City,
+			}, " "))
+			if order.DeliveryAddress.Instructions != "" {
+				deliveryAddress += " (" + order.DeliveryAddress.Instructions + ")"
+			}
+		} else {
+			// Guest delivery: GuestCheckout stores the typed address (plus rider notes) here.
+			deliveryAddress = strings.TrimSpace(order.Instructions)
+		}
+	}
+
+	tenantSlug := httpware.GetTenantSlug(ctx)
+	if tenantSlug == "" {
+		if tenant, tErr := s.repo.GetTenantByID(ctx, order.TenantID); tErr == nil && tenant != nil {
+			tenantSlug = tenant.Slug
+		}
+	}
+
+	fulfillment := order.FulfillmentType
+	if fulfillment == FulfillmentTypeScheduled {
+		fulfillment = FulfillmentTypeDelivery // legacy rows: "scheduled" was always a delivery
 	}
 	if err := s.eventPublisher.PublishOrderConfirmed(ctx, order.TenantID, events.OrderConfirmedData{
 		OrderID:         order.ID,
 		OrderNumber:     order.OrderNumber,
 		OutletID:        order.OutletID,
-		FulfillmentType: string(order.FulfillmentType),
+		FulfillmentType: string(fulfillment),
 		CustomerName:    ci.Name,
 		CustomerEmail:   ci.Email,
 		CustomerPhone:   ci.Phone,
 		Items:           items,
+		PaymentMethod:   string(order.PaymentMethod),
+		PaymentStatus:   string(order.PaymentStatus),
+		GrandTotal:      order.GrandTotal,
+		DeliveryFee:     order.DeliveryFee,
+		DiscountTotal:   order.DiscountTotal,
+		Currency:        order.Currency,
+		Instructions:    outletNotes(order),
+		DeliveryAddress: deliveryAddress,
+		ScheduledFor:    order.ScheduledFor,
+		TenantSlug:      tenantSlug,
 	}); err != nil {
 		s.logger.Warn("publish ordering.order.confirmed failed",
 			zap.String("order_id", order.ID.String()), zap.Error(err))
 	}
+}
+
+// outletLineMetadataKeys are the per-line metadata keys the outlet acts on: booking fields for
+// service/ticket lines and the catalog snapshot stamped at checkout.
+var outletLineMetadataKeys = []string{
+	"is_service", "is_ticket", "appointment_date", "appointment_time", "staff_id",
+	"duration_minutes", "inventory_item_id", "item_type", "deposit_percent",
+}
+
+// outletLinePayload renders one order line for the outlet hand-off event.
+func outletLinePayload(it OrderItem) map[string]interface{} {
+	line := map[string]interface{}{
+		"sku":         it.InventorySKU,
+		"name":        it.NameSnapshot,
+		"quantity":    it.Quantity,
+		"unit_price":  it.UnitPrice,
+		"total_price": it.TotalPrice,
+	}
+	if it.Notes != "" {
+		line["notes"] = it.Notes
+	}
+	if it.Metadata == nil {
+		return line
+	}
+	if cat, _ := it.Metadata["category"].(string); cat != "" {
+		line["category"] = cat
+	}
+	if n, _ := it.Metadata["notes"].(string); n != "" && it.Notes == "" {
+		line["notes"] = n
+	}
+	if mods, ok := it.Metadata["modifiers"]; ok {
+		line["modifiers"] = mods
+	}
+	meta := map[string]interface{}{}
+	for _, k := range outletLineMetadataKeys {
+		if v, ok := it.Metadata[k]; ok {
+			meta[k] = v
+		}
+	}
+	if len(meta) > 0 {
+		line["metadata"] = meta
+	}
+	return line
 }
 
 // PayWithWallet debits the user's wallet via treasury S2S and marks the order as paid.
@@ -2498,10 +2661,13 @@ func (s *OrderService) publishOrderStatusChanged(ctx context.Context, order *Ord
 	// Publish specific events for key status changes
 	switch newStatus {
 	case OrderStatusReady:
-		if order.FulfillmentType == FulfillmentTypePickup {
+		switch {
+		case order.FulfillmentType == FulfillmentTypePickup:
 			// Pickup orders: notify customer for pickup instead of logistics dispatch
 			s.publishOrderForPickup(ctx, order)
-		} else {
+		case isDeliveryFulfilment(order.FulfillmentType):
+			// Only a delivery order needs a rider. order.ready is what logistics-api turns into a
+			// delivery task (and auto-dispatches), so dine-in orders must never emit it.
 			s.publishOrderReady(ctx, order)
 		}
 	case OrderStatusOutForDelivery:
@@ -2646,6 +2812,20 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		GrandTotal:      order.GrandTotal,
 		Instructions:    order.Instructions,
 		FulfillmentType: string(order.FulfillmentType),
+		PODCode:         order.PODCode,
+	}
+	// Line items let the rider check the bag at the counter (name + quantity only).
+	if len(order.Items) == 0 {
+		if items, lErr := s.repo.ListOrderItems(ctx, order.ID); lErr == nil {
+			order.Items = items
+		}
+	}
+	for _, it := range order.Items {
+		data.Items = append(data.Items, map[string]interface{}{
+			"sku":      it.InventorySKU,
+			"name":     it.NameSnapshot,
+			"quantity": it.Quantity,
+		})
 	}
 	// For COD orders, set the cash collection amount
 	if order.PaymentMethod == PaymentMethodCOD {
@@ -2698,15 +2878,18 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		}
 	}
 
-	// Add outlet location for logistics pickup coordinates
-	outletName, outletLat, outletLng, err := s.repo.GetOutletLocation(ctx, order.TenantID, order.OutletID)
+	// Add the outlet as the pickup point: coordinates for dispatch/navigation plus the address and
+	// phone the rider needs to find the counter and call ahead.
+	loc, err := s.repo.GetOutletLocation(ctx, order.TenantID, order.OutletID)
 	if err != nil {
 		s.logger.Warn("failed to get outlet location for order.ready event", zap.Error(err))
-	} else if outletLat != nil && outletLng != nil {
+	} else if loc.Latitude != nil && loc.Longitude != nil {
 		data.OutletLocation = map[string]interface{}{
-			"name":      outletName,
-			"latitude":  *outletLat,
-			"longitude": *outletLng,
+			"name":      loc.Name,
+			"address":   loc.Address,
+			"phone":     loc.Phone,
+			"latitude":  *loc.Latitude,
+			"longitude": *loc.Longitude,
 		}
 	}
 

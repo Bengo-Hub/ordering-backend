@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// OrderScheduler periodically checks for scheduled orders that are due to begin
-// preparation and transitions them to the "preparing" status.
+// OrderScheduler periodically checks for scheduled orders whose prep window has opened and hands
+// them to the outlet (see processScheduledOrders).
 type OrderScheduler struct {
 	logger  *zap.Logger
 	service *OrderService
@@ -39,9 +39,11 @@ func (s *OrderScheduler) Start(ctx context.Context) {
 	}
 }
 
-// processScheduledOrders queries confirmed scheduled orders whose scheduled_for
-// time falls within the preparation buffer window, transitions each to "preparing",
-// and publishes the order.ready event.
+// processScheduledOrders hands confirmed scheduled orders to the outlet (POS/KDS/kitchen chit or
+// appointment) once their prep window opens. The kitchen then works the order like any other and
+// its own Start/Ready actions drive the customer-facing status, so nothing is forced to
+// "preparing" here. Orders already handed over are skipped; pos-api is idempotent on the online
+// order id if two replicas race.
 func (s *OrderScheduler) processScheduledOrders(ctx context.Context) {
 	orders, err := s.service.repo.ListScheduledOrdersDue(ctx, ScheduledPrepTimeBuffer)
 	if err != nil {
@@ -49,31 +51,13 @@ func (s *OrderScheduler) processScheduledOrders(ctx context.Context) {
 		return
 	}
 
-	if len(orders) == 0 {
-		return
-	}
-
-	s.logger.Info("processing scheduled orders", zap.Int("count", len(orders)))
-
 	for _, o := range orders {
 		order := o // capture loop variable
-		_, err := s.service.UpdateOrderStatus(
-			ctx,
-			order.TenantID,
-			order.ID,
-			OrderStatusPreparing,
-			nil,
-			"system",
-			"",
-		)
-		if err != nil {
-			s.logger.Error("failed to transition scheduled order to preparing",
-				zap.String("order_id", order.ID.String()),
-				zap.Error(err))
+		if alreadyHandedOff(&order) {
 			continue
 		}
-
-		s.logger.Info("scheduled order moved to preparing",
+		s.service.handOffToOutlet(ctx, &order)
+		s.logger.Info("scheduled order handed to the outlet",
 			zap.String("order_id", order.ID.String()),
 			zap.String("order_number", order.OrderNumber))
 	}

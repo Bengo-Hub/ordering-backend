@@ -16,21 +16,21 @@ import (
 
 // --- Outlet Methods ---
 
-func (r *EntRepository) GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (name string, lat, lng *float64, err error) {
+func (r *EntRepository) GetOutletLocation(ctx context.Context, tenantID, outletID uuid.UUID) (OutletLocation, error) {
 	o, err := r.client.Outlet.Query().
 		Where(
 			outlet.ID(outletID),
 			outlet.TenantID(tenantID),
 		).
-		Select(outlet.FieldName, outlet.FieldLatitude, outlet.FieldLongitude).
+		Select(outlet.FieldName, outlet.FieldLatitude, outlet.FieldLongitude, outlet.FieldAddress, outlet.FieldPhone).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return "", nil, nil, nil
+			return OutletLocation{}, nil
 		}
-		return "", nil, nil, err
+		return OutletLocation{}, err
 	}
-	return o.Name, o.Latitude, o.Longitude, nil
+	return OutletLocation{Name: o.Name, Address: o.Address, Phone: o.Phone, Latitude: o.Latitude, Longitude: o.Longitude}, nil
 }
 
 // GetOutletBookingDepositPercent returns the outlet's booking deposit % (0 when the outlet

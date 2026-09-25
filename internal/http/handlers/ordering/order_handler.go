@@ -134,6 +134,8 @@ type CheckoutRequestDTO struct {
 	FulfillmentType       string         `json:"fulfillmentType,omitempty"`
 	ScheduledAt           string         `json:"scheduledAt,omitempty"`
 	PaymentMethod         string         `json:"paymentMethod,omitempty"` // "mpesa" | "cod"
+	OrderNotes            string         `json:"orderNotes,omitempty"`
+	RequestUtensils       bool           `json:"requestUtensils,omitempty"`
 }
 
 // UpdateStatusRequest represents a request to update order status.
@@ -171,6 +173,8 @@ type GuestCheckoutRequestDTO struct {
 	Channel         string         `json:"channel,omitempty"`
 	IdempotencyKey  string         `json:"idempotencyKey,omitempty"`
 	ScheduledAt     string         `json:"scheduledAt,omitempty"`
+	OrderNotes      string         `json:"orderNotes,omitempty"`
+	RequestUtensils bool           `json:"requestUtensils,omitempty"`
 }
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
@@ -597,6 +601,8 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			FulfillmentType:   fulfillmentType,
 			ScheduledFor:      scheduledFor,
 			PaymentMethod:     req.PaymentMethod,
+			OrderNotes:        req.OrderNotes,
+			RequestUtensils:   req.RequestUtensils,
 		})
 		if err != nil {
 			h.handleError(w, err)
@@ -1752,6 +1758,16 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 	// Convert DTO items to domain items
 	items := toCreateOrderItemInputs(req.Items)
 
+	var scheduledFor *time.Time
+	if req.ScheduledAt != "" {
+		t, perr := time.Parse(time.RFC3339, req.ScheduledAt)
+		if perr != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid scheduledAt format, expected RFC3339")
+			return
+		}
+		scheduledFor = &t
+	}
+
 	order, err := h.orderService.GuestCheckout(r.Context(), ordering.GuestCheckoutRequest{
 		TenantID:        tenantID,
 		OutletID:        outletID,
@@ -1768,6 +1784,9 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		Instructions:    req.Instructions,
 		Channel:         parseOrderChannel(req.Channel),
 		FulfillmentType: ordering.FulfillmentType(req.FulfillmentType),
+		ScheduledFor:    scheduledFor,
+		OrderNotes:      req.OrderNotes,
+		RequestUtensils: req.RequestUtensils,
 	})
 	if err != nil {
 		h.handleError(w, err)
