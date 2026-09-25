@@ -258,8 +258,7 @@ func (s *TaskService) AssignRider(ctx context.Context, tenantSlug string, tenant
 		return nil, fmt.Errorf("invalid logistics task ID: %w", err)
 	}
 
-	taskResp, err := s.logisticsClient.AssignTask(ctx, tenantSlug, taskID, fleetMemberID, orderID.String())
-	if err != nil {
+	if err := s.logisticsClient.AssignTask(ctx, tenantID, taskID, fleetMemberID); err != nil {
 		s.logger.Error("failed to assign rider via logistics",
 			zap.Error(err),
 			zap.String("task_id", assignment.LogisticsTaskID),
@@ -269,7 +268,7 @@ func (s *TaskService) AssignRider(ctx context.Context, tenantSlug string, tenant
 
 	now := time.Now()
 	assignment.RiderID = fleetMemberID
-	assignment.Status = AssignmentStatus(taskResp.Status)
+	assignment.Status = AssignmentStatusAssigned
 	assignment.AssignedAt = &now
 
 	if err := s.repo.UpdateAssignment(ctx, assignment); err != nil {

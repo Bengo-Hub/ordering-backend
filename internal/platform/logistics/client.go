@@ -398,27 +398,22 @@ type AssignTaskRequest struct {
 	ExternalReference string `json:"external_reference,omitempty"` // order_id for logistics-side lookup-or-create
 }
 
-// AssignTask assigns a fleet member (rider) to a pending task.
-// orderID is passed as external_reference so the logistics service can look up or create the task by order ID.
-func (c *Client) AssignTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, fleetMemberID string, orderID string) (*TaskResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s/assign", tenantSlug, taskID.String())
-	reqBody := AssignTaskRequest{FleetMemberID: fleetMemberID, ExternalReference: orderID}
+// AssignTask assigns a fleet member (rider) to a task through logistics-api's service-to-service
+// dispatch route. The tenant user routes (/api/v1/{slug}/tasks/...) authorize a signed-in user and
+// do not accept the internal service key; the /s2s/dispatch routes do (pos-api assigns riders the
+// same way). The tenant is addressed by UUID on this route.
+func (c *Client) AssignTask(ctx context.Context, tenantID uuid.UUID, taskID uuid.UUID, fleetMemberID string) error {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/tasks/%s/assign", tenantID.String(), taskID.String())
+	reqBody := AssignTaskRequest{FleetMemberID: fleetMemberID}
 
 	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
 	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
+		return fmt.Errorf("execute request: %w", err)
 	}
-
 	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
+		return c.parseError(resp)
 	}
-
-	var result TaskResponse
-	if err := resp.DecodeJSON(&result); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
 // RateRiderRequest is the request to rate a rider on a completed task.

@@ -2014,7 +2014,7 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 		handlers.RespondError(w, http.StatusNotFound, "order not found")
 		return
 	}
-	if order.FulfillmentType != ordering.FulfillmentTypeDelivery {
+	if !ordering.IsDeliveryFulfilment(order.FulfillmentType) {
 		handlers.RespondError(w, http.StatusUnprocessableEntity, "order is not a delivery order")
 		return
 	}
@@ -2056,13 +2056,9 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// Auto-transition order status to out_for_delivery.
-	if _, sErr := h.orderService.UpdateOrderStatus(r.Context(), tenantID, orderID,
-		ordering.OrderStatusOutForDelivery, nil, "system", r.RemoteAddr); sErr != nil {
-		h.log.Warn("failed to mark order out_for_delivery after rider assign",
-			zap.Error(sErr), zap.String("order_id", orderID.String()))
-	}
-
+	// The order stays "ready" until the rider actually collects it: logistics publishes
+	// task.picked_up (or en_route) and the fulfilment consumer moves it to out_for_delivery then,
+	// so the customer's "on its way" notice matches reality.
 	handlers.RespondJSON(w, http.StatusOK, assignment)
 }
 
