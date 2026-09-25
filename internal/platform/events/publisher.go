@@ -334,6 +334,17 @@ type OrderConfirmedData struct {
 // PublishOrderConfirmed publishes an ordering.order.confirmed event (shared-events
 // envelope, consistent with ordering.order.created).
 func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUID, data OrderConfirmedData) error {
+	return p.publishOrderHandoff(ctx, tenantID, "ordering.order.confirmed", data)
+}
+
+// PublishOrderAwaitingAcceptance publishes ordering.order.awaiting_acceptance: the order is placed
+// (and paid, or pay-later) and waits for the outlet to accept it. Same payload as confirmed; the
+// POS creates its record on hold (no kitchen tickets yet) with Accept / Reject.
+func (p *Publisher) PublishOrderAwaitingAcceptance(ctx context.Context, tenantID uuid.UUID, data OrderConfirmedData) error {
+	return p.publishOrderHandoff(ctx, tenantID, "ordering.order.awaiting_acceptance", data)
+}
+
+func (p *Publisher) publishOrderHandoff(ctx context.Context, tenantID uuid.UUID, subject string, data OrderConfirmedData) error {
 	payload := map[string]interface{}{
 		"order_id":         data.OrderID.String(),
 		"order_number":     data.OrderNumber,
@@ -359,9 +370,9 @@ func (p *Publisher) PublishOrderConfirmed(ctx context.Context, tenantID uuid.UUI
 	if data.ScheduledFor != nil {
 		payload["scheduled_for"] = data.ScheduledFor.UTC().Format(time.RFC3339)
 	}
-	event := NewEvent("ordering.order.confirmed", data.OrderID, tenantID, payload)
+	event := NewEvent(subject, data.OrderID, tenantID, payload)
 
-	return p.Publish(ctx, "ordering.order.confirmed", event)
+	return p.Publish(ctx, subject, event)
 }
 
 // OrderCancelledData represents data for order.cancelled event.

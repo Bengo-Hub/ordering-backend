@@ -60,6 +60,28 @@ func TestCODSettlement(t *testing.T) {
 	}
 }
 
+func TestReadyForAcceptance(t *testing.T) {
+	cases := []struct {
+		name  string
+		order *Order
+		want  bool
+	}{
+		{"unpaid online payment waits for the customer", &Order{PaymentMethod: PaymentMethodMpesa, PaymentStatus: PaymentStatusPending}, false},
+		{"paid online order can be accepted", &Order{PaymentMethod: PaymentMethodMpesa, PaymentStatus: PaymentStatusPaid}, true},
+		{"pay on delivery can be accepted at once", &Order{PaymentMethod: PaymentMethodCOD, PaymentStatus: "cod_pending"}, true},
+		{"manual M-Pesa can be accepted while the code is checked", &Order{
+			PaymentMethod: PaymentMethodMpesa, PaymentStatus: PaymentStatusPending,
+			Metadata: map[string]interface{}{metaPaymentChannel: PaymentChannelManualMpesa},
+		}, true},
+		{"nil order", nil, false},
+	}
+	for _, tc := range cases {
+		if got := readyForAcceptance(tc.order); got != tc.want {
+			t.Fatalf("%s: got %v", tc.name, got)
+		}
+	}
+}
+
 func TestNormalizeMpesaCode(t *testing.T) {
 	if got := NormalizeMpesaCode(" qwe 123 4567 "); got != "QWE1234567" {
 		t.Fatalf("got %q", got)

@@ -1306,6 +1306,10 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	if err := validateFulfilmentTransition(order.FulfillmentType, order.Status, newStatus); err != nil {
 		return nil, err
 	}
+	// Accepting an order whose online payment has not landed would send unpaid food to the kitchen.
+	if order.Status == OrderStatusPending && newStatus == OrderStatusConfirmed && !readyForAcceptance(order) {
+		return nil, ErrPaymentPending
+	}
 
 	// Update timestamps based on status
 	now := time.Now()
@@ -1904,9 +1908,12 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	oldStatus := order.PaymentStatus
 	order.PaymentStatus = newStatus
 
-	// Auto-confirm order on successful payment
+	// Confirm the order on successful payment only when the tenant accepts orders automatically.
+	// With manual acceptance (the default) the paid order stays pending and is offered to the
+	// outlet below; it is confirmed when staff accept it.
 	justConfirmed := false
-	if newStatus == PaymentStatusPaid && order.Status == OrderStatusPending {
+	autoAccept := s.autoAcceptEnabled(ctx, tenantID)
+	if newStatus == PaymentStatusPaid && order.Status == OrderStatusPending && autoAccept {
 		now := time.Now()
 		order.Status = OrderStatusConfirmed
 		order.ConfirmedAt = &now
@@ -1949,6 +1956,9 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	// Best-effort — never blocks checkout/payment.
 	if justConfirmed && !terminal {
 		s.handOffToOutlet(ctx, order)
+	} else if newStatus == PaymentStatusPaid && order.Status == OrderStatusPending && !terminal {
+		// Manual acceptance: the outlet sees the paid order and accepts or rejects it.
+		s.offerToOutlet(ctx, order)
 	}
 
 	s.logger.Info("order payment status updated",
@@ -2011,6 +2021,12 @@ func (s *OrderService) publishPaymentConfirmed(ctx context.Context, order *Order
 // amount to collect), the delivery destination and, for a scheduled order, the promised time.
 // Best-effort; never blocks payment.
 func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) {
+	s.publishOutletHandoff(ctx, order, false)
+}
+
+// publishOutletHandoff builds the outlet payload and publishes it as ordering.order.confirmed, or,
+// when awaitingAcceptance, as ordering.order.awaiting_acceptance (the outlet must accept first).
+func (s *OrderService) publishOutletHandoff(ctx context.Context, order *Order, awaitingAcceptance bool) {
 	if s.eventPublisher == nil || order == nil {
 		return
 	}
@@ -2056,7 +2072,11 @@ func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) 
 	if fulfillment == FulfillmentTypeScheduled {
 		fulfillment = FulfillmentTypeDelivery // legacy rows: "scheduled" was always a delivery
 	}
-	if err := s.eventPublisher.PublishOrderConfirmed(ctx, order.TenantID, events.OrderConfirmedData{
+	publish := s.eventPublisher.PublishOrderConfirmed
+	if awaitingAcceptance {
+		publish = s.eventPublisher.PublishOrderAwaitingAcceptance
+	}
+	if err := publish(ctx, order.TenantID, events.OrderConfirmedData{
 		OrderID:         order.ID,
 		OrderNumber:     order.OrderNumber,
 		OutletID:        order.OutletID,
@@ -2078,8 +2098,8 @@ func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) 
 		PaymentChannel:  PaymentChannelOf(order),
 		MpesaCode:       stringMeta(order.Metadata, metaMpesaCode),
 	}); err != nil {
-		s.logger.Warn("publish ordering.order.confirmed failed",
-			zap.String("order_id", order.ID.String()), zap.Error(err))
+		s.logger.Warn("publish outlet hand-off failed",
+			zap.String("order_id", order.ID.String()), zap.Bool("awaiting_acceptance", awaitingAcceptance), zap.Error(err))
 	}
 }
 
