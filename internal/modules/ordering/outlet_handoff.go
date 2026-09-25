@@ -143,10 +143,19 @@ func (s *OrderService) handOffToOutlet(ctx context.Context, order *Order) {
 	}
 	s.publishOrderConfirmed(ctx, order)
 	stamp := map[string]interface{}{metaOutletHandoffAt: time.Now().UTC().Format(time.RFC3339)}
-	if err := s.repo.MergeOrderMetadata(ctx, order.TenantID, order.ID, stamp); err != nil {
+	if err := s.stampOrderMetadata(ctx, order, stamp); err != nil {
 		s.logger.Warn("failed to stamp outlet hand-off time",
 			zap.String("order_id", order.ID.String()), zap.Error(err))
 	}
+}
+
+// stampOrderMetadata merges patch into the stored order metadata AND the in-memory order. Stamping
+// only the database lost the stamp whenever the caller later saved the whole order (checkout saves
+// it again to link the CRM contact), which erased outlet_offered_at and let an order be offered to
+// the outlet twice.
+func (s *OrderService) stampOrderMetadata(ctx context.Context, order *Order, patch map[string]interface{}) error {
+	order.Metadata = mergeMetadata(order.Metadata, patch)
+	return s.repo.MergeOrderMetadata(ctx, order.TenantID, order.ID, patch)
 }
 
 // alreadyHandedOff reports whether the outlet already received the order.
@@ -215,7 +224,7 @@ func (s *OrderService) offerToOutlet(ctx context.Context, order *Order) {
 		}
 	}
 	s.publishOutletHandoff(ctx, order, true)
-	if err := s.repo.MergeOrderMetadata(ctx, order.TenantID, order.ID, map[string]interface{}{
+	if err := s.stampOrderMetadata(ctx, order, map[string]interface{}{
 		metaOutletOfferedAt: time.Now().UTC().Format(time.RFC3339),
 	}); err != nil {
 		s.logger.Warn("failed to stamp outlet offer time", zap.String("order_id", order.ID.String()), zap.Error(err))
