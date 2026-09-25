@@ -11,8 +11,28 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
 	"github.com/bengobox/ordering-backend/internal/ent/promoredemption"
+	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	"github.com/google/uuid"
 )
+
+// --- Tenant configuration ---
+
+// GetConfigValue returns the tenant's service-config value for key, falling back to the platform
+// default (tenant_id NULL). found is false when neither exists.
+func (r *EntRepository) GetConfigValue(ctx context.Context, tenantID uuid.UUID, key string) (string, bool) {
+	cfg, err := r.client.ServiceConfig.Query().
+		Where(serviceconfig.ConfigKey(key), serviceconfig.TenantID(tenantID)).
+		First(ctx)
+	if err != nil {
+		cfg, err = r.client.ServiceConfig.Query().
+			Where(serviceconfig.ConfigKey(key), serviceconfig.TenantIDIsNil()).
+			First(ctx)
+	}
+	if err != nil {
+		return "", false
+	}
+	return cfg.ConfigValue, true
+}
 
 // --- Outlet Methods ---
 

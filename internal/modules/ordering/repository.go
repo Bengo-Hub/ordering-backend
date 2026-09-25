@@ -37,6 +37,8 @@ type Repository interface {
 	// MergeOrderMetadata sets the given keys on the order's metadata without touching any other
 	// column, so bookkeeping stamps never race a concurrent status/payment write.
 	MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error
+	// GetConfigValue reads a tenant service-config value (platform default as fallback).
+	GetConfigValue(ctx context.Context, tenantID uuid.UUID, key string) (string, bool)
 	// MpesaCodeUsed reports whether any order of the tenant already carries this manual M-Pesa code.
 	MpesaCodeUsed(ctx context.Context, tenantID uuid.UUID, code string) (bool, error)
 	// UpdatePaymentStatusAtomic applies order's status/payment_status/confirmed_at fields via a

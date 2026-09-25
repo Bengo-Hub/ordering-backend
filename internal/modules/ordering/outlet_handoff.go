@@ -2,9 +2,11 @@ package ordering
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -97,23 +99,74 @@ func alreadyHandedOff(order *Order) bool {
 	return v != ""
 }
 
-// autoAcceptCOD confirms a freshly placed cash-on-delivery / pay-at-counter order straight away.
-// Online-payment orders confirm themselves when the payment lands; a COD order has no such
-// trigger, so without this it sat in "pending" until someone opened the ordering staff dashboard
-// and was invisible to the POS queue and the kitchen in the meantime. Outlet staff can still
-// reject it from the POS online orders queue, which cancels it here and notifies the customer.
+// ConfigKeyAutoAccept is the tenant service-config key that switches order acceptance to automatic.
+// Acceptance is MANUAL unless it is set to true: every order waits for the outlet to accept it.
+const ConfigKeyAutoAccept = "orders.auto_accept"
+
+// metaOutletOfferedAt marks when an order was offered to the outlet for acceptance.
+const metaOutletOfferedAt = "outlet_offered_at"
+
+// autoAcceptEnabled reports whether the tenant accepts orders automatically.
+func (s *OrderService) autoAcceptEnabled(ctx context.Context, tenantID uuid.UUID) bool {
+	v, ok := s.repo.GetConfigValue(ctx, tenantID, ConfigKeyAutoAccept)
+	if !ok {
+		return false
+	}
+	on, err := strconv.ParseBool(strings.Trim(strings.TrimSpace(v), `"`))
+	return err == nil && on
+}
+
+// readyForAcceptance reports whether a pending order may be accepted: it is paid, or it is paid
+// later (cash / M-Pesa on collection or delivery, or a customer-keyed M-Pesa payment the outlet
+// checks). An unpaid online-payment order is not: the customer may still abandon the payment.
+func readyForAcceptance(order *Order) bool {
+	return order != nil && (order.PaymentStatus == PaymentStatusPaid || isOfflinePayment(order))
+}
+
+// acceptOrOffer is called when a pending order becomes acceptable (placed with a pay-later method,
+// or its online payment landed). With automatic acceptance it is confirmed straight away (and
+// handed to the kitchen); otherwise it is offered to the outlet, whose POS queue rings with
+// Accept / Reject, and nothing reaches the kitchen until someone accepts it.
+func (s *OrderService) acceptOrOffer(ctx context.Context, order *Order) {
+	if order == nil || order.Status != OrderStatusPending || !readyForAcceptance(order) {
+		return
+	}
+	if s.autoAcceptEnabled(ctx, order.TenantID) {
+		updated, err := s.UpdateOrderStatus(ctx, order.TenantID, order.ID, OrderStatusConfirmed, nil, "system", "")
+		if err != nil {
+			s.logger.Warn("auto-accept failed; offering the order to the outlet instead",
+				zap.String("order_id", order.ID.String()), zap.Error(err))
+		} else {
+			order.Status = updated.Status
+			order.ConfirmedAt = updated.ConfirmedAt
+			return
+		}
+	}
+	s.offerToOutlet(ctx, order)
+}
+
+// offerToOutlet publishes ordering.order.awaiting_acceptance once per order.
+func (s *OrderService) offerToOutlet(ctx context.Context, order *Order) {
+	if order == nil || !isOutletFulfilled(order.FulfillmentType) {
+		return
+	}
+	if order.Metadata != nil {
+		if v, _ := order.Metadata[metaOutletOfferedAt].(string); v != "" {
+			return
+		}
+	}
+	s.publishOutletHandoff(ctx, order, true)
+	if err := s.repo.MergeOrderMetadata(ctx, order.TenantID, order.ID, map[string]interface{}{
+		metaOutletOfferedAt: time.Now().UTC().Format(time.RFC3339),
+	}); err != nil {
+		s.logger.Warn("failed to stamp outlet offer time", zap.String("order_id", order.ID.String()), zap.Error(err))
+	}
+}
+
+// autoAcceptCOD is kept for the checkout call sites: a pay-later order is acceptable as soon as it
+// is placed, so it is accepted or offered to the outlet according to the tenant's policy.
 func (s *OrderService) autoAcceptCOD(ctx context.Context, order *Order) {
-	if order == nil || !isOfflinePayment(order) || order.Status != OrderStatusPending {
-		return
-	}
-	updated, err := s.UpdateOrderStatus(ctx, order.TenantID, order.ID, OrderStatusConfirmed, nil, "system", "")
-	if err != nil {
-		s.logger.Warn("auto-accept of COD order failed; it stays pending for manual acceptance",
-			zap.String("order_id", order.ID.String()), zap.Error(err))
-		return
-	}
-	order.Status = updated.Status
-	order.ConfirmedAt = updated.ConfirmedAt
+	s.acceptOrOffer(ctx, order)
 }
 
 // orderNotesMetadata folds the customer's kitchen notes and utensils request into order metadata

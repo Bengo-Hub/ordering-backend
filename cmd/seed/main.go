@@ -1124,6 +1124,7 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 		{"ordering.max_delivery_radius_km", "50", "float", "Maximum delivery radius in kilometers", false},
 		{"ordering.enable_guest_checkout", "true", "bool", "Allow checkout without authentication", false},
 		{"ordering.enable_promo_stacking", "false", "bool", "Allow multiple promo codes per order", false},
+		{"orders.auto_accept", "false", "bool", "Accept orders automatically once paid (or placed with pay-on-delivery). Off: staff accept every order in the POS queue before the kitchen gets it", false},
 	}
 
 	for _, c := range configs {

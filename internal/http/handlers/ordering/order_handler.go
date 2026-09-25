@@ -447,6 +447,9 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 	case errors.Is(err, ordering.ErrMpesaCodeUsed):
 		handlers.RespondError(w, http.StatusConflict, err.Error())
 
+	case errors.Is(err, ordering.ErrPaymentPending):
+		handlers.RespondError(w, http.StatusConflict, "the customer has not paid yet; accept the order once the payment lands")
+
 	case errors.Is(err, ordering.ErrUnauthorized):
 		handlers.RespondError(w, http.StatusForbidden, err.Error())
 
