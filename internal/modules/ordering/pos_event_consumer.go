@@ -25,6 +25,7 @@ const (
 	posKDSReadyDurable    = "ordering-pos-kds-ready"
 	posCollectedDurable   = "ordering-pos-online-collected"
 	posPreparingDurable   = "ordering-pos-online-preparing"
+	posDeliveredDurable   = "ordering-pos-online-delivered"
 	posConsumerAckWait    = 30 * time.Second
 	posConsumerMaxDeliver = 8
 	posConsumerFetchBatch = 10
@@ -38,6 +39,8 @@ const (
 //   - pos.kds.order.ready        -> advance the matching online order to "ready"
 //   - pos.online_order.collected -> mark the matching PICKUP order "completed" (delivery orders
 //     complete through the rider's drop-off, never the counter)
+//   - pos.online_order.delivered -> the outlet delivered a DELIVERY order with its own staff; walk
+//     it to "delivered"
 //
 // It reuses OrderService.UpdateOrderStatus (the same method the admin status-update path uses) so the
 // existing order.ready / order.for_pickup / order.completed customer notifications fire automatically.
@@ -71,6 +74,7 @@ func (c *POSEventConsumer) Start(ctx context.Context, js nats.JetStreamContext) 
 		{"pos.online_order.preparing", posPreparingDurable, c.handleOnlineOrderPreparing},
 		{"pos.kds.order.ready", posKDSReadyDurable, c.handleKDSOrderReady},
 		{"pos.online_order.collected", posCollectedDurable, c.handleOnlineOrderCollected},
+		{"pos.online_order.delivered", posDeliveredDurable, c.handleOnlineOrderDelivered},
 	}
 
 	for _, s := range subs {
@@ -236,6 +240,32 @@ func (c *POSEventConsumer) handleOnlineOrderCollected(ctx context.Context, evt *
 		return fmt.Errorf("pos.online_order.collected: complete order %s: %w", orderID, err)
 	}
 	c.log.Info("order completed from pos.online_order.collected", zap.String("order_id", orderID.String()))
+	return nil
+}
+
+// handleOnlineOrderDelivered closes a delivery order the outlet delivered with its own staff
+// (no rider app, so no logistics proof of delivery). The walk passes through out_for_delivery so
+// the customer still gets the "on its way" and "delivered" notices, and the delivered transition
+// settles cash on delivery and consumes the stock reservation.
+func (c *POSEventConsumer) handleOnlineOrderDelivered(ctx context.Context, evt *sharedevents.Event) error {
+	tenantID, orderID, ok := posOrderRef(evt)
+	if !ok {
+		return nil
+	}
+	order, err := c.orderingRepo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return fmt.Errorf("pos.online_order.delivered: get order %s: %w", orderID, err)
+	}
+	if !isDeliveryFulfilment(order.FulfillmentType) {
+		return nil
+	}
+	switch order.Status {
+	case OrderStatusDelivered, OrderStatusCompleted, OrderStatusCancelled, OrderStatusRefunded:
+		return nil
+	}
+	if err := c.advanceOrderTo(ctx, tenantID, orderID, OrderStatusDelivered); err != nil {
+		return fmt.Errorf("pos.online_order.delivered: advance order %s: %w", orderID, err)
+	}
 	return nil
 }
 
