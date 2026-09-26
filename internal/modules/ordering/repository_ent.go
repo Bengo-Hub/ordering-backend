@@ -2,13 +2,13 @@ package ordering
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
@@ -19,6 +19,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	tenantpredicate "github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/modules/documents"
 	"github.com/google/uuid"
@@ -556,30 +557,55 @@ func (r *EntRepository) MpesaCodeUsed(ctx context.Context, tenantID uuid.UUID, c
 	return r.client.Order.Query().
 		Where(
 			order.TenantID(tenantID),
-			func(s *sql.Selector) {
-				s.Where(sqljson.ValueEQ(order.FieldMetadata, code, sqljson.Path("mpesa_code")))
-			},
+			// JSON containment so the GIN index on metadata (order schema) serves it, instead of
+			// a path comparison against every order the tenant ever took.
+			metadataContains(map[string]any{"mpesa_code": code}),
 		).
 		Exist(ctx)
 }
 
-// MergeOrderMetadata merges patch into the order's metadata and writes only that column.
+// metadataContains matches orders whose metadata contains every key/value in want (jsonb @>).
+func metadataContains(want map[string]any) predicate.Order {
+	return func(s *sql.Selector) {
+		raw, _ := json.Marshal(want)
+		s.Where(sql.P(func(b *sql.Builder) {
+			b.WriteString(s.C(order.FieldMetadata)).WriteString(" @> ").Arg(string(raw)).WriteString("::jsonb")
+		}))
+	}
+}
+
+// MergeOrderMetadata merges patch into the order's metadata and writes only that column. The
+// write only lands if the order is unchanged since it was read (updated_at), retrying otherwise,
+// so two concurrent merges (a payment stamp and a rider assignment, say) never drop each other's
+// keys.
 func (r *EntRepository) MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error {
-	o, err := r.client.Order.Query().
-		Where(order.ID(orderID), order.TenantID(tenantID)).
-		Select(order.FieldMetadata).
-		Only(ctx)
-	if err != nil {
-		return err
+	for attempt := 0; attempt < 5; attempt++ {
+		o, err := r.client.Order.Query().
+			Where(order.ID(orderID), order.TenantID(tenantID)).
+			Select(order.FieldMetadata, order.FieldUpdatedAt).
+			Only(ctx)
+		if err != nil {
+			return err
+		}
+		merged := make(map[string]interface{}, len(o.Metadata)+len(patch))
+		for k, v := range o.Metadata {
+			merged[k] = v
+		}
+		for k, v := range patch {
+			merged[k] = v
+		}
+		n, err := r.client.Order.Update().
+			Where(order.ID(orderID), order.TenantID(tenantID), order.UpdatedAt(o.UpdatedAt)).
+			SetMetadata(merged).
+			Save(ctx)
+		if err != nil {
+			return err
+		}
+		if n == 1 {
+			return nil
+		}
 	}
-	merged := make(map[string]interface{}, len(o.Metadata)+len(patch))
-	for k, v := range o.Metadata {
-		merged[k] = v
-	}
-	for k, v := range patch {
-		merged[k] = v
-	}
-	return r.client.Order.UpdateOneID(orderID).SetMetadata(merged).Exec(ctx)
+	return fmt.Errorf("merge order metadata: order %s kept changing, gave up", orderID)
 }
 
 // UpdatePaymentStatusAtomic is UpdateOrder's race-safe counterpart for payment-status transitions:

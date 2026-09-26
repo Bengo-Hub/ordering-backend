@@ -969,6 +969,15 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{OrdersColumns[15]},
 			},
+			{
+				Name:    "order_metadata_gin",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[45]},
+				Annotation: &entsql.IndexAnnotation{
+					OpClass: "jsonb_path_ops",
+					Type:    "GIN",
+				},
+			},
 		},
 	}
 	// OrderAssignmentsColumns holds the columns for the "order_assignments" table.
