@@ -51,8 +51,11 @@ func NewClient(cfg config.TreasuryConfig, logger *zap.Logger) *Client {
 	)
 	scCfg.Timeout = cfg.RequestTimeout
 
+	// The public URL goes to browsers (checkout initiate_url). Never hand out the in-cluster
+	// service address: it leaks internal hostnames and no browser can reach it. Without a
+	// public URL the initiate_url is left empty and the pay page resolves it itself.
 	publicURL := cfg.PublicURL
-	if publicURL == "" {
+	if publicURL == "" && strings.HasPrefix(cfg.ServiceURL, "https://") {
 		publicURL = cfg.ServiceURL
 	}
 
