@@ -765,9 +765,12 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 		} else {
 			intentID := intentResp.ResolvedID()
 			result.PaymentIntentID = intentID.String()
-			// Build the initiate URL for the treasury-ui pay page (public route, no auth required)
-			result.InitiateURL = fmt.Sprintf("%s/api/v1/pay/%s/intents/%s/initiate",
-				s.treasuryClient.PublicBaseURL(), order.TenantID.String(), intentID.String())
+			// Build the initiate URL for the treasury-ui pay page (public route, no auth required).
+			// Left empty when no public treasury URL is configured; the pay page resolves it.
+			if base := s.treasuryClient.PublicBaseURL(); base != "" {
+				result.InitiateURL = fmt.Sprintf("%s/api/v1/pay/%s/intents/%s/initiate",
+					base, order.TenantID.String(), intentID.String())
+			}
 		}
 	}
 
