@@ -259,5 +259,10 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("fulfillment_type"),
 		// Scheduled orders
 		index.Fields("scheduled_for"),
+		// Metadata lookups by containment (@>), e.g. the manual M-Pesa code reuse check
+		// (repository_ent.go metadataContains). jsonb_path_ops keeps it compact.
+		index.Fields("metadata").
+			StorageKey("order_metadata_gin").
+			Annotations(entsql.IndexType("GIN"), entsql.OpClass("jsonb_path_ops")),
 	}
 }
