@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/bengobox/ordering-backend/internal/payref"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
 )
 
@@ -183,17 +184,23 @@ func (s *OrderService) settleOfflinePayment(ctx context.Context, tenantID uuid.U
 		return
 	}
 	go func(oid uuid.UUID, amount float64, currency string) {
-		if _, err := s.treasuryClient.SettleCODPayment(context.WithoutCancel(ctx), treasury.SettleCODPaymentRequest{
-			TenantID:      tenantID,
-			OrderID:       oid.String(),
-			AmountPaid:    amount,
-			Currency:      currency,
-			PaymentMethod: method,
-			Reference:     reference,
-		}); err != nil {
-			s.logger.Error("failed to settle tenant-collected payment in treasury",
-				zap.String("order_id", oid.String()), zap.String("method", method), zap.Error(err))
+		// Treasury finds the intent by the reference it was created with: payref's ORD-... form
+		// (what checkout sends), or the bare order id for intents created before payref.
+		var err error
+		for _, ref := range []string{payref.Build("ORD", "", tenantID, oid), oid.String()} {
+			if _, err = s.treasuryClient.SettleCODPayment(context.WithoutCancel(ctx), treasury.SettleCODPaymentRequest{
+				TenantID:      tenantID,
+				OrderID:       ref,
+				AmountPaid:    amount,
+				Currency:      currency,
+				PaymentMethod: method,
+				Reference:     reference,
+			}); err == nil {
+				return
+			}
 		}
+		s.logger.Error("failed to settle tenant-collected payment in treasury",
+			zap.String("order_id", oid.String()), zap.String("method", method), zap.Error(err))
 	}(order.ID, order.GrandTotal, order.Currency)
 }
 
