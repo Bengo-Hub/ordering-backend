@@ -26,6 +26,9 @@ const (
 	metaPaymentVerification = "payment_verification"
 	metaCODMethod           = "cod_collection_method"
 	metaCODReference        = "cod_collection_reference"
+	// metaPaidAtPOS marks a pay-on-collection order the counter rang through the POS terminal
+	// checkout; its money is in treasury as a POS intent, not ordering's.
+	metaPaidAtPOS = "paid_at_pos"
 )
 
 var (
