@@ -1276,6 +1276,11 @@ func (s *OrderService) settleCODIfApplicable(ctx context.Context, tenantID uuid.
 		return
 	}
 	order.PaymentStatus = PaymentStatusPaid
+	// Paid through the POS terminal: treasury already has the payment as a POS intent. Settling
+	// ordering's intent as well would book the same sale twice.
+	if paid, _ := order.Metadata[metaPaidAtPOS].(bool); paid {
+		return
+	}
 	// Book the tender actually taken at the door/counter (cash, or M-Pesa to the business with
 	// its code) rather than always "cash on delivery".
 	method, reference := codSettlement(order)

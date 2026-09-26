@@ -242,6 +242,13 @@ func (c *POSEventConsumer) handleOnlineOrderCollected(ctx context.Context, evt *
 		ref, _ := evt.Payload["reference"].(string)
 		c.orderSvc.RecordCODCollection(ctx, tenantID, orderID, method, ref)
 	}
+	// Paid through the POS terminal checkout: treasury already holds that payment (a POS intent),
+	// so completing must not settle ordering's own intent too (see settleCODIfApplicable).
+	if paid, _ := evt.Payload["paid_at_terminal"].(bool); paid {
+		if err := c.orderingRepo.MergeOrderMetadata(ctx, tenantID, orderID, map[string]interface{}{metaPaidAtPOS: true}); err != nil {
+			return fmt.Errorf("pos.online_order.collected: record terminal payment %s: %w", orderID, err)
+		}
+	}
 	if err := c.advanceOrderTo(ctx, tenantID, orderID, OrderStatusCompleted); err != nil {
 		return fmt.Errorf("pos.online_order.collected: complete order %s: %w", orderID, err)
 	}
