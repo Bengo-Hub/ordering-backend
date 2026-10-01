@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"time"
 
 	"go.uber.org/zap"
@@ -45,6 +46,10 @@ func (s *OrderScheduler) Start(ctx context.Context) {
 // "preparing" here. Orders already handed over are skipped; pos-api is idempotent on the online
 // order id if two replicas race.
 func (s *OrderScheduler) processScheduledOrders(ctx context.Context) {
+	// Runs on every replica's ticker; only the first replica in each period does the work.
+	if !sharedcache.ClaimPeriod(ctx, "ordering:scheduled-handoff", time.Minute) {
+		return
+	}
 	orders, err := s.service.repo.ListScheduledOrdersDue(ctx, ScheduledPrepTimeBuffer)
 	if err != nil {
 		s.logger.Error("failed to list scheduled orders due", zap.Error(err))

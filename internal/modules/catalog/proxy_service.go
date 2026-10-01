@@ -3,6 +3,7 @@ package catalog
 import (
 	"context"
 	"fmt"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"math"
 	"strings"
 	"time"
@@ -14,7 +15,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/userfavorite"
-	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 )
 
@@ -29,12 +29,12 @@ const (
 type ProxyService struct {
 	db              *ent.Client
 	inventoryClient *inventory.Client
-	cache           *cache.Service
+	cache           *sharedcache.Aside
 	logger          *zap.Logger
 }
 
 // NewProxyService creates a new proxy catalog service.
-func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc *cache.Service, logger *zap.Logger) *ProxyService {
+func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc *sharedcache.Aside, logger *zap.Logger) *ProxyService {
 	return &ProxyService{
 		db:              db,
 		inventoryClient: inventoryClient,
@@ -313,8 +313,8 @@ func (s *ProxyService) ListCategories(ctx context.Context, tenantSlug, useCase s
 	var sellable []InventoryCategory
 	var err error
 	if s.cache != nil {
-		key := fmt.Sprintf("categories:%s", tenantSlug)
-		err = s.cache.GetOrSet(ctx, key, &sellable, cacheTTLReference, func() (interface{}, error) {
+		key := fmt.Sprintf("ordering:categories:%s", tenantSlug)
+		sellable, err = sharedcache.GetOrSet(ctx, s.cache, key, cacheTTLReference, func(ctx context.Context) ([]InventoryCategory, error) {
 			return s.listSellableCategoriesFromSource(ctx, tenantSlug)
 		})
 	} else {
@@ -586,12 +586,10 @@ func (s *ProxyService) ToggleFavorite(ctx context.Context, tenantID, userID uuid
 // ListOutlets returns all active outlets for a tenant (cached).
 func (s *ProxyService) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
 	if s.cache != nil {
-		key := fmt.Sprintf("outlets:%s", tenantID)
-		var result []OutletSummary
-		err := s.cache.GetOrSet(ctx, key, &result, cacheTTLReference, func() (interface{}, error) {
+		key := fmt.Sprintf("ordering:outlets:%s", tenantID)
+		return sharedcache.GetOrSet(ctx, s.cache, key, cacheTTLReference, func(ctx context.Context) ([]OutletSummary, error) {
 			return s.listOutletsFromDB(ctx, tenantID)
 		})
-		return result, err
 	}
 	return s.listOutletsFromDB(ctx, tenantID)
 }

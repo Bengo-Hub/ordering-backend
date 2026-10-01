@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"time"
 
 	"go.uber.org/zap"
@@ -44,6 +45,10 @@ func (j *CartCleanupJob) Start(ctx context.Context) {
 
 // run performs a single cleanup pass across all tenants.
 func (j *CartCleanupJob) run(ctx context.Context) {
+	// Runs on every replica's ticker; only the first replica in each period does the work.
+	if !sharedcache.ClaimPeriod(ctx, "ordering:cart-cleanup", 15*time.Minute) {
+		return
+	}
 	tenantIDs, err := j.repo.ListDistinctCartTenantIDs(ctx)
 	if err != nil {
 		j.logger.Error("failed to list distinct cart tenant IDs", zap.Error(err))

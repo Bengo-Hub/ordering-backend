@@ -5,6 +5,8 @@
 package marketplace
 
 import (
+	"context"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,7 +15,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
-	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/marketplace"
 )
 
@@ -55,12 +56,12 @@ const listCacheTTL = 60 * time.Second
 type Handler struct {
 	log    *zap.Logger
 	client *marketplace.Client
-	cache  *cache.Service
+	cache  *sharedcache.Aside
 }
 
 // New constructs the marketplace handler. cache may be nil (every request then hits auth-api
 // directly — fine for local dev, not recommended in production).
-func New(log *zap.Logger, client *marketplace.Client, c *cache.Service) *Handler {
+func New(log *zap.Logger, client *marketplace.Client, c *sharedcache.Aside) *Handler {
 	return &Handler{log: log.Named("marketplace.Handler"), client: client, cache: c}
 }
 
@@ -99,13 +100,14 @@ func (h *Handler) ListTenants(w http.ResponseWriter, r *http.Request) {
 	// this codebase's catalog proxy). So: fetch a large-enough pool from auth-api unpaginated,
 	// filter, then paginate the filtered set ourselves.
 	const fetchPoolLimit = 200
-	cacheKey := "marketplace-tenants:" + useCase + ":pool"
+	cacheKey := "ordering:marketplace-tenants:" + useCase + ":pool"
 	var pool []marketplace.TenantSummary
-	fetch := func() (interface{}, error) {
-		return h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit), nil
-	}
 	if h.cache != nil {
-		if err := h.cache.GetOrSet(ctx, cacheKey, &pool, listCacheTTL, fetch); err != nil {
+		var err error
+		pool, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, listCacheTTL, func(ctx context.Context) ([]marketplace.TenantSummary, error) {
+			return h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit), nil
+		})
+		if err != nil {
 			h.log.Warn("marketplace: cache/fetch failed, falling back to direct call", zap.Error(err))
 			pool = h.client.ListTenants(ctx, useCase, 1, fetchPoolLimit)
 		}
