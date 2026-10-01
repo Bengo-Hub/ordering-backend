@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"github.com/Bengo-Hub/httpware"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
@@ -65,14 +66,16 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set SSE headers
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	flusher, ok := w.(http.Flusher)
-	if !ok {
+	// SSE headers (incl. X-Accel-Buffering: no, or ingress-nginx holds events in its buffer).
+	// CORS comes from the router's CORS middleware; a hardcoded "*" here clashed with its
+	// credentialed per-origin response.
+	httpware.StreamHeaders(w)
+	// The server WriteTimeout (15s) would cut this long-lived stream; lift it for this response.
+	httpware.ExtendWriteDeadline(w)
+	// ResponseController reaches the real writer through wrappers (logging, compression) that
+	// a bare w.(http.Flusher) assertion cannot see.
+	flusher := http.NewResponseController(w)
+	if err := flusher.Flush(); err != nil {
 		handlers.RespondError(w, http.StatusInternalServerError, "streaming not supported")
 		return
 	}
@@ -91,11 +94,17 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 	defer ticker.Stop()
 
 	lastStatus := order.Status
+	ticks := 0
 	for {
 		select {
 		case <-r.Context().Done():
 			return
 		case <-ticker.C:
+			// SSE comment heartbeat every ~15s keeps proxies from closing an idle stream.
+			if ticks++; ticks%3 == 0 {
+				fmt.Fprint(w, ": ping\n\n")
+				_ = flusher.Flush()
+			}
 			current, err := h.orderService.GetOrder(r.Context(), tenantID, orderID)
 			if err != nil {
 				h.log.Debug("tracking poll error", zap.Error(err))
@@ -117,12 +126,12 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 					tracking, trackErr := h.taskService.GetTracking(r.Context(), tenantSlug, tenantID, orderID)
 					if trackErr == nil && tracking != nil {
 						sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
-							"status":     "out_for_delivery",
-							"rider_id":   tracking.RiderID,
-							"latitude":   tracking.RiderLatitude,
-							"longitude":  tracking.RiderLongitude,
+							"status":      "out_for_delivery",
+							"rider_id":    tracking.RiderID,
+							"latitude":    tracking.RiderLatitude,
+							"longitude":   tracking.RiderLongitude,
 							"eta_minutes": tracking.ETAMinutes,
-							"eta_at":     tracking.ETAAt,
+							"eta_at":      tracking.ETAAt,
 							"distance_km": tracking.DistanceKm,
 						})
 					} else {
@@ -143,10 +152,10 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 // sendSSEEvent writes a single SSE event to the response writer and flushes.
-func sendSSEEvent(w http.ResponseWriter, flusher http.Flusher, event string, data interface{}) {
+func sendSSEEvent(w http.ResponseWriter, flusher *http.ResponseController, event string, data interface{}) {
 	jsonData, _ := json.Marshal(data)
 	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, jsonData)
-	flusher.Flush()
+	_ = flusher.Flush()
 }
 
 // isTerminalStatus returns true if the order status is a terminal state.

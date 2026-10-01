@@ -3,6 +3,7 @@ package payments
 import (
 	"context"
 	"fmt"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"time"
 
 	"github.com/google/uuid"
@@ -80,6 +81,11 @@ func (s *PaymentService) StartPaymentPolling(ctx context.Context) {
 }
 
 func (s *PaymentService) pollPendingPayments(ctx context.Context) {
+	// Every replica runs this ticker; one replica per 2-minute window does the sweep so a
+	// stale order is not cancelled or confirmed by several pods at once.
+	if !sharedcache.ClaimPeriod(ctx, "ordering:payment-poller", 2*time.Minute) {
+		return
+	}
 	cutoff := time.Now().Add(-5 * time.Minute)
 	timeoutCutoff := time.Now().Add(-15 * time.Minute)
 

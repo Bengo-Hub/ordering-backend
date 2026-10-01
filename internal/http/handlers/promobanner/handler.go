@@ -5,6 +5,7 @@ package promobanner
 
 import (
 	"context"
+	sharedcache "github.com/Bengo-Hub/cache"
 	"net/http"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
-	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
 	"github.com/bengobox/ordering-backend/internal/platform/posreports"
 )
@@ -30,12 +30,12 @@ type Handler struct {
 	db      *ent.Client
 	client  *posdiscounts.Client
 	reports *posreports.Client
-	cache   *cache.Service
+	cache   *sharedcache.Aside
 }
 
 // New constructs the promotions banner handler. cache may be nil (caching then no-ops, every
 // request hits pos-api directly). reports may be nil (ListTopSellers then always returns empty).
-func New(log *zap.Logger, db *ent.Client, client *posdiscounts.Client, reports *posreports.Client, c *cache.Service) *Handler {
+func New(log *zap.Logger, db *ent.Client, client *posdiscounts.Client, reports *posreports.Client, c *sharedcache.Aside) *Handler {
 	return &Handler{log: log.Named("promobanner.Handler"), db: db, client: client, reports: reports, cache: c}
 }
 
@@ -73,13 +73,14 @@ func (h *Handler) ListBanners(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := "promo-banners:" + t.ID.String() + ":" + useCase
+	cacheKey := "ordering:promo-banners:" + t.ID.String() + ":" + useCase
 	var banners []posdiscounts.Banner
-	fetch := func() (interface{}, error) {
-		return h.client.ListBanners(context.WithoutCancel(ctx), t.ID, useCase), nil
-	}
 	if h.cache != nil {
-		if err := h.cache.GetOrSet(ctx, cacheKey, &banners, bannerCacheTTL, fetch); err != nil {
+		var err error
+		banners, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, bannerCacheTTL, func(ctx context.Context) ([]posdiscounts.Banner, error) {
+			return h.client.ListBanners(ctx, t.ID, useCase), nil
+		})
+		if err != nil {
 			h.log.Warn("promobanner: cache/fetch failed, falling back to direct call", zap.Error(err))
 			banners = h.client.ListBanners(ctx, t.ID, useCase)
 		}
@@ -124,13 +125,14 @@ func (h *Handler) ListDeals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := "promo-deals:" + t.ID.String()
+	cacheKey := "ordering:promo-deals:" + t.ID.String()
 	var deals []posdiscounts.Discount
-	fetch := func() (interface{}, error) {
-		return h.client.ListDeals(context.WithoutCancel(ctx), t.ID), nil
-	}
 	if h.cache != nil {
-		if err := h.cache.GetOrSet(ctx, cacheKey, &deals, dealsCacheTTL, fetch); err != nil {
+		var err error
+		deals, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, dealsCacheTTL, func(ctx context.Context) ([]posdiscounts.Discount, error) {
+			return h.client.ListDeals(ctx, t.ID), nil
+		})
+		if err != nil {
 			h.log.Warn("promobanner: deals cache/fetch failed, falling back to direct call", zap.Error(err))
 			deals = h.client.ListDeals(ctx, t.ID)
 		}
@@ -188,13 +190,14 @@ func (h *Handler) ListTopSellers(w http.ResponseWriter, r *http.Request) {
 	from := now.AddDate(0, 0, -topSellersWindowDays).Format("2006-01-02")
 	to := now.Format("2006-01-02")
 
-	cacheKey := "promo-top-sellers:" + t.ID.String()
+	cacheKey := "ordering:promo-top-sellers:" + t.ID.String()
 	var rows []posreports.SKURow
-	fetch := func() (interface{}, error) {
-		return h.reports.SalesBySKU(context.WithoutCancel(ctx), t.ID, from, to), nil
-	}
 	if h.cache != nil {
-		if err := h.cache.GetOrSet(ctx, cacheKey, &rows, topSellersCacheTTL, fetch); err != nil {
+		var err error
+		rows, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, topSellersCacheTTL, func(ctx context.Context) ([]posreports.SKURow, error) {
+			return h.reports.SalesBySKU(ctx, t.ID, from, to), nil
+		})
+		if err != nil {
 			h.log.Warn("promobanner: top-sellers cache/fetch failed, falling back to direct call", zap.Error(err))
 			rows = h.reports.SalesBySKU(ctx, t.ID, from, to)
 		}

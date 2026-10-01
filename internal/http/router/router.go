@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	ratelimit "github.com/Bengo-Hub/shared-ratelimit"
 	"net/http"
 	"strings"
 	"time"
@@ -22,8 +23,8 @@ import (
 	fulfilmenthandler "github.com/bengobox/ordering-backend/internal/http/handlers/fulfilment"
 	googlebusinesshandler "github.com/bengobox/ordering-backend/internal/http/handlers/googlebusiness"
 	identityhandler "github.com/bengobox/ordering-backend/internal/http/handlers/identity"
-	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	marketplacehandler "github.com/bengobox/ordering-backend/internal/http/handlers/marketplace"
+	notificationshandler "github.com/bengobox/ordering-backend/internal/http/handlers/notifications"
 	orderinghandler "github.com/bengobox/ordering-backend/internal/http/handlers/ordering"
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
@@ -64,7 +65,7 @@ func New(
 	zonesHandler *zoneshandler.Handler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
-	rateLimiter *security.RateLimiter,
+	rateLimiter *ratelimit.Limiter,
 	auditLogger *audit.Logger,
 	securityConfig config.SecurityConfig,
 	allowedOrigins []string,
@@ -83,7 +84,8 @@ func New(
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
+	// Never chi RealIP: it trusts client-sent True-Client-IP/X-Forwarded-For.
+	r.Use(ratelimit.TrustedRealIP)
 	r.Use(middleware.Heartbeat("/readyz"))
 	r.Use(httpware.RequestID)
 	r.Use(httpware.Logging(log))
@@ -122,7 +124,7 @@ func New(
 
 	// Global rate limiting by IP (if rate limiter is configured)
 	if rateLimiter != nil && securityConfig.RateLimitEnabled {
-		r.Use(rateLimiter.IPRateLimiter(securityConfig.RateLimitRequestsPerMin, time.Minute))
+		r.Use(rateLimiter.MiddlewareWith(ratelimit.IPKey, ratelimit.Options{Name: "ip", Limit: securityConfig.RateLimitRequestsPerMin, Window: time.Minute}))
 	}
 
 	// System endpoints (no tenant, no auth)
@@ -136,7 +138,8 @@ func New(
 
 	// Local media storage: menu images and uploads (ORDERING_MEDIA_ROOT). Production: use persistent volume mount.
 	if mediaRoot != "" {
-		r.Handle("/media/*", http.StripPrefix("/media", http.FileServer(http.Dir(mediaRoot))))
+		// No directory listings; immutable caching for fingerprinted uploads (see httpware.StaticMedia).
+		r.Handle("/media/*", http.StripPrefix("/media", httpware.StaticMedia(mediaRoot, httpware.MediaOptions{})))
 	}
 
 	// Redirect root path to Swagger documentation
@@ -162,16 +165,19 @@ func New(
 		api.Route("/v1", func(v1 chi.Router) {
 			// Apply path-based rate limiting for sensitive endpoints
 			if rateLimiter != nil && securityConfig.RateLimitEnabled {
+				authLimit := rateLimiter.MiddlewareWith(ratelimit.IPKey, ratelimit.Options{Name: "auth", Limit: securityConfig.RateLimitAuthPerMin, Window: time.Minute})
+				paymentLimit := rateLimiter.MiddlewareWith(ratelimit.IPKey, ratelimit.Options{Name: "payments", Limit: securityConfig.RateLimitPaymentPerMin, Window: time.Minute})
 				v1.Use(func(next http.Handler) http.Handler {
+					authNext, paymentNext := authLimit(next), paymentLimit(next)
 					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						// Stricter rate limiting for auth endpoints
 						if strings.HasPrefix(r.URL.Path, "/api/v1/") && strings.Contains(r.URL.Path, "/auth/") {
-							rateLimiter.EndpointRateLimiter("auth", securityConfig.RateLimitAuthPerMin, time.Minute)(next).ServeHTTP(w, r)
+							authNext.ServeHTTP(w, r)
 							return
 						}
 						// Stricter rate limiting for payment endpoints
 						if strings.HasPrefix(r.URL.Path, "/api/v1/") && strings.Contains(r.URL.Path, "/payments/") {
-							rateLimiter.EndpointRateLimiter("payments", securityConfig.RateLimitPaymentPerMin, time.Minute)(next).ServeHTTP(w, r)
+							paymentNext.ServeHTTP(w, r)
 							return
 						}
 						next.ServeHTTP(w, r)

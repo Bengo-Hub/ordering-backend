@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	ratelimit "github.com/Bengo-Hub/shared-ratelimit"
 	"net/http"
 	"time"
 
@@ -49,10 +50,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/payments"
 	"github.com/bengobox/ordering-backend/internal/modules/rbac"
-	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
-	"github.com/bengobox/ordering-backend/internal/platform/cache"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
@@ -61,8 +60,8 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/marketplace"
 	extnotifications "github.com/bengobox/ordering-backend/internal/platform/notifications"
 	"github.com/bengobox/ordering-backend/internal/platform/posdiscounts"
-	"github.com/bengobox/ordering-backend/internal/platform/posreports"
 	"github.com/bengobox/ordering-backend/internal/platform/posloyalty"
+	"github.com/bengobox/ordering-backend/internal/platform/posreports"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
 	"github.com/bengobox/ordering-backend/internal/platform/superset"
 	"github.com/bengobox/ordering-backend/internal/platform/treasury"
@@ -111,11 +110,24 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("app: postgres init: %w", err)
 	}
 
-	redisClient := cache.NewClient(cfg.Redis)
+	redisClient, redisErr := sharedcache.NewRedis(ctx, sharedcache.RedisConfig{
+		Addr: cfg.Redis.Addr, Username: cfg.Redis.Username, Password: cfg.Redis.Password, DB: cfg.Redis.DB,
+	})
+	if redisErr != nil {
+		log.Warn("app: redis not reachable at startup", zap.Error(redisErr))
+	}
+	// Scheduled jobs run once per period fleet-wide (sharedcache.ClaimPeriod).
+	sharedcache.SetLeaseClient(redisClient)
 
 	natsConn, err := events.Connect(cfg.Events)
 	if err != nil {
 		log.Warn("app: nats connect failed", zap.Error(err))
+	}
+	if natsConn != nil {
+		// Drop revoked/rotated API keys from every validator on this pod at once.
+		_ = eventslib.NewBroadcaster(log, natsConn, "auth").Subscribe("apikey.changed", func(m eventslib.BroadcastMessage) {
+			authclient.InvalidateAPIKeyHash(string(m.Data))
+		})
 	}
 
 	healthHandler := handlers.NewHealthHandler(log, dbPool, redisClient, natsConn)
@@ -236,7 +248,8 @@ func New(ctx context.Context) (*App, error) {
 	}
 
 	// Initialize cache service for catalog read caching
-	cacheSvc := cache.NewService(redisClient, cache.DefaultCacheConfig(), log)
+	// Shared cache-aside (single-flight misses, size guard) for catalog/banner/marketplace reads.
+	cacheSvc := sharedcache.New(redisClient, log)
 
 	// Initialize inventory client (for stock availability, reservations, and catalog proxy)
 	inventoryClient := inventory.NewClient(cfg.Inventory, log)
@@ -509,18 +522,12 @@ func New(ctx context.Context) (*App, error) {
 	complianceSvc := compliance.NewService(complianceRepo, log)
 	complianceHandler := compliancehandler.NewHandler(log, complianceSvc)
 
-	// Initialize security module (rate limiting)
-	rateLimitConfig := security.RateLimitConfig{
-		RequestsPerMinute:        cfg.Security.RateLimitRequestsPerMin,
-		RequestsPerHour:          cfg.Security.RateLimitRequestsPerHour,
-		AuthRequestsPerMinute:    cfg.Security.RateLimitAuthPerMin,
-		PaymentRequestsPerMinute: cfg.Security.RateLimitPaymentPerMin,
-		BurstMultiplier:          cfg.Security.RateLimitBurstMultiplier,
-		KeyPrefix:                cfg.Security.RateLimitKeyPrefix,
-		Enabled:                  cfg.Security.RateLimitEnabled,
-	}
-	rateLimiter := security.NewRateLimiter(redisClient, rateLimitConfig, log)
-	log.Info("app: security rate limiter initialized",
+	// Request limits: shared-ratelimit (GCRA in Redis, exact across every replica, per-pod
+	// fallback while Redis is down). Replaces the local sorted-set limiter, whose check and
+	// record were separate calls (parallel requests across pods all passed) and whose tenant
+	// and user keys came from client-sent X-Tenant-ID / X-User-ID headers.
+	rateLimiter := ratelimit.NewLimiter(redisClient, log, "ordering")
+	log.Info("app: rate limiter initialized",
 		zap.Bool("enabled", cfg.Security.RateLimitEnabled),
 		zap.Int("requests_per_min", cfg.Security.RateLimitRequestsPerMin))
 
@@ -550,7 +557,7 @@ func New(ctx context.Context) (*App, error) {
 		Enabled:       cfg.Backup.ScheduleEnabled,
 		Hour:          cfg.Backup.ScheduleHour,
 		RetentionDays: cfg.Backup.RetentionDays,
-	}, log).Start(ctx)
+	}, log).WithRedis(redisClient).Start(ctx)
 
 	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
 

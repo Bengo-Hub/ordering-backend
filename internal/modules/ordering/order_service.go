@@ -1914,6 +1914,12 @@ func (s *OrderService) UpdatePaymentStatus(ctx context.Context, tenantID, orderI
 	}
 
 	oldStatus := order.PaymentStatus
+	if oldStatus == newStatus {
+		// Already in this state (a redelivered treasury event, the poller and the webhook all
+		// confirming the same payment). The CAS below would still match, so without this a
+		// repeat call re-ran the side effects (duplicate order event, re-offer to the outlet).
+		return order, nil
+	}
 	order.PaymentStatus = newStatus
 
 	// Confirm the order on successful payment only when the tenant accepts orders automatically.
