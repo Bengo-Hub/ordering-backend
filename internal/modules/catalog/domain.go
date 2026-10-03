@@ -187,19 +187,21 @@ type CatalogFilter struct {
 
 // OverrideUpsertRequest is the request payload for creating/updating a CatalogOverride.
 type OverrideUpsertRequest struct {
-	TenantID          uuid.UUID `json:"-"`
-	OutletID          uuid.UUID `json:"outletId"`
-	InventorySKU      string    `json:"sku"`
-	BasePrice         float64   `json:"basePrice"`
-	Currency          string    `json:"currency,omitempty"`
-	IsAvailable       *bool     `json:"isAvailable,omitempty"`
-	IsFeatured        *bool     `json:"isFeatured,omitempty"`
-	LeadTimeMinutes   *int      `json:"leadTimeMinutes,omitempty"`
-	DisplayOrder      *int      `json:"displayOrder,omitempty"`
-	DisplaySection    string    `json:"displaySection,omitempty"`
-	PackagingFee      *float64  `json:"packagingFee,omitempty"`
-	ServiceFeePercent *float64  `json:"serviceFeePercent,omitempty"`
-	ImageURLOverride  string    `json:"imageUrlOverride,omitempty"`
+	TenantID     uuid.UUID `json:"-"`
+	OutletID     uuid.UUID `json:"outletId"`
+	InventorySKU string    `json:"sku"`
+	// BasePrice is optional: nil leaves an existing override price untouched (a toggle-only
+	// request must never wipe the price to 0, which makes the item unorderable).
+	BasePrice         *float64 `json:"basePrice,omitempty"`
+	Currency          string   `json:"currency,omitempty"`
+	IsAvailable       *bool    `json:"isAvailable,omitempty"`
+	IsFeatured        *bool    `json:"isFeatured,omitempty"`
+	LeadTimeMinutes   *int     `json:"leadTimeMinutes,omitempty"`
+	DisplayOrder      *int     `json:"displayOrder,omitempty"`
+	DisplaySection    string   `json:"displaySection,omitempty"`
+	PackagingFee      *float64 `json:"packagingFee,omitempty"`
+	ServiceFeePercent *float64 `json:"serviceFeePercent,omitempty"`
+	ImageURLOverride  string   `json:"imageUrlOverride,omitempty"`
 }
 
 // ItemImage represents an image in a multi-image gallery for a catalog item.

@@ -88,6 +88,9 @@ type ReservationResponse struct {
 	ExpiresAt   *time.Time     `json:"expires_at,omitempty"`
 	ConfirmedAt *time.Time     `json:"confirmed_at,omitempty"`
 	CreatedAt   time.Time      `json:"created_at"`
+	// OversellAllowed is true when the tenant's availability is manual-only: inventory held
+	// every line in full (stock may go negative), so a shortfall must never reject the order.
+	OversellAllowed bool `json:"oversell_allowed"`
 }
 
 // ReservedItem represents a reserved item.

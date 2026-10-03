@@ -2398,12 +2398,16 @@ func (s *OrderService) reserveStockForItems(ctx context.Context, tenantID, order
 		return nil, nil
 	}
 
-	// Check for partial reservations. The catalog override isAvailable flag — now
-	// driven by inventory's per-outlet stock.out cascade (upserted, so default-
-	// available items are toggled too) — is the primary gate that hides sold-out
-	// items, so this order-time block only fires in the narrow race where an
-	// ingredient depletes between add-to-cart and checkout. In that case the item
-	// genuinely cannot be produced, so fail with a clear error rather than oversell.
+	// Manual-only availability (the platform default): inventory held every line in full and
+	// the tenant has chosen to sell into negative stock, so never reject for a shortfall.
+	if reservation.OversellAllowed {
+		return &reservation.ID, nil
+	}
+
+	// Check for partial reservations (tenants that auto-hide on stock-out only). The catalog
+	// override isAvailable flag, driven by inventory's per-outlet stock.out cascade, is the
+	// primary gate that hides sold-out items, so this order-time block only fires in the
+	// narrow race where an ingredient depletes between add-to-cart and checkout.
 	for _, ri := range reservation.Items {
 		if !ri.IsFullyReserved {
 			s.logger.Warn("partial reservation detected, releasing",
