@@ -48,42 +48,21 @@ func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc
 // ListItems fetches items from inventory-api, merges with local overrides,
 // and attaches favorite status if userID is provided.
 func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, filter CatalogFilter) ([]MergedCatalogItem, int, error) {
-	// 1. Fetch inventory items with server-side type filter and pagination.
+	// 1. Fetch the full candidate set (type/category/brand/sort applied server-side), then merge,
+	// filter and only THEN paginate. Most storefront filters (not_for_sale, sellable category,
+	// availability, featured, search, tags, section) can only be evaluated after merging with
+	// local overrides, so paginating the inventory fetch first returned short, uneven pages
+	// (urban-loft: 84 of 100 on page 1), a total that counted hidden items, and searches that
+	// only looked at the current page. The candidate set is cached briefly (inventoryCatalog);
+	// availability comes from overrides, which are never cached, so toggles show immediately.
 	limit := filter.Limit
 	if limit <= 0 {
 		limit = 20
 	}
-	page := 1
-	if filter.Offset > 0 {
-		page = (filter.Offset / limit) + 1
-	}
-	// The "featured" flag lives on local CatalogOverride rows, NOT on inventory items, so it
-	// cannot be pushed into the paginated inventory fetch. Featured items are scattered across
-	// the whole catalog; fetching only the first `limit` inventory rows and THEN filtering by
-	// featured (below) surfaces just the handful of featured items that happen to land on the
-	// first page. When a featured listing is requested, scan the full catalog up-front and
-	// re-apply the caller's limit to the filtered result before returning.
-	var invItems []inventory.ItemResponse
-	var invTotal int
-	var err error
-	featuredListing := filter.IsFeatured != nil && *filter.IsFeatured
-	if featuredListing {
-		// inventory-api clamps any requested limit to its shared pagination cap (100), so a
-		// single large-limit request silently truncates the catalog past the first ~100 items —
-		// must page through all of it, not request one oversized page.
-		invItems, err = s.fetchAllInventoryItems(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort, filter.BrandID)
-		if err != nil {
-			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
-		}
-		invTotal = len(invItems)
-	} else {
-		// Apply the category filter SERVER-SIDE so a selected category returns its items + the
-		// correct total (the old client-side filter ran after pagination → empty/null page for
-		// any category).
-		invItems, invTotal, err = s.inventoryClient.ListItems(ctx, tenantSlug, filter.ItemType, limit, page, filter.CategoryID, filter.Sort, filter.BrandID)
-		if err != nil {
-			return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
-		}
+	offset := max(filter.Offset, 0)
+	invItems, err := s.inventoryCatalog(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort, filter.BrandID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
 
 	// 2. Load overrides for this tenant, scoped to a real outlet — NEVER unscoped. A historical
@@ -197,17 +176,44 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		merged = append(merged, item)
 	}
 
-	// Featured listings over-fetched the whole catalog to find scattered featured items; report
-	// the true featured count and honour the caller's requested page size on the filtered result.
-	if featuredListing {
-		total := len(merged)
-		if len(merged) > limit {
-			merged = merged[:limit]
-		}
-		return merged, total, nil
-	}
+	// Paginate the filtered result so every page is full and the total counts only what a
+	// customer can actually see.
+	pageItems, total := pageOf(merged, offset, limit)
+	return pageItems, total, nil
+}
 
-	return merged, invTotal, nil
+// pageOf slices one page out of an already-filtered result and returns it with the full
+// count. Out-of-range offsets yield an empty (non-nil) page so the JSON is [] not null.
+func pageOf(items []MergedCatalogItem, offset, limit int) ([]MergedCatalogItem, int) {
+	total := len(items)
+	if offset < 0 {
+		offset = 0
+	}
+	if limit <= 0 || offset >= total {
+		return []MergedCatalogItem{}, total
+	}
+	return items[offset:min(offset+limit, total)], total
+}
+
+// inventoryCatalog returns every active inventory item for the scope, paging through
+// inventory-api (its limit is capped at inventoryPageSize) and caching the result for
+// cacheTTLModerate so a storefront listing or item lookup doesn't re-fetch the catalog on every
+// request. Only inventory data is cached; overrides (availability, price, featured) are always
+// read live.
+func (s *ProxyService) inventoryCatalog(ctx context.Context, tenantSlug, itemType string, categoryID *uuid.UUID, sort string, brandID *uuid.UUID) ([]inventory.ItemResponse, error) {
+	if s.cache == nil {
+		return s.fetchAllInventoryItems(ctx, tenantSlug, itemType, categoryID, sort, brandID)
+	}
+	idKey := func(id *uuid.UUID) string {
+		if id == nil {
+			return "-"
+		}
+		return id.String()
+	}
+	key := fmt.Sprintf("ordering:invitems:%s:%s:%s:%s:%s", tenantSlug, itemType, idKey(categoryID), idKey(brandID), sort)
+	return sharedcache.GetOrSet(ctx, s.cache, key, cacheTTLModerate, func(ctx context.Context) ([]inventory.ItemResponse, error) {
+		return s.fetchAllInventoryItems(ctx, tenantSlug, itemType, categoryID, sort, brandID)
+	})
 }
 
 // inventoryPageSize matches inventory-api's shared pagination.MaxLimit. Any larger requested
@@ -235,8 +241,11 @@ func (s *ProxyService) fetchAllInventoryItems(ctx context.Context, tenantSlug, i
 
 // GetItem fetches a single item from inventory-api by SKU, merges with override.
 func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*MergedCatalogItem, error) {
-	// Fetch all orderable types to locate the item by SKU (single-item lookup, no pagination).
-	invItems, _, err := s.inventoryClient.ListItems(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", 100, 1, nil, "", nil)
+	// Locate the item by SKU across the WHOLE orderable catalog. This used to read only the
+	// first inventory page (100 rows): on a larger catalog (urban-loft has 400+) every item past
+	// row 100 returned not-found, so its detail page 404'd and add-to-cart failed as
+	// "unavailable". Served from the same short-lived cache as the listing.
+	invItems, err := s.inventoryCatalog(ctx, tenantSlug, "GOODS,RECIPE,SERVICE", nil, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
