@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	sharedevents "github.com/Bengo-Hub/shared-events"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
-	sharedevents "github.com/Bengo-Hub/shared-events"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
@@ -189,7 +189,32 @@ func eventQuantity(payload map[string]interface{}) *float64 {
 	return nil
 }
 
-// handleStockOut marks catalog items unavailable when stock runs out.
+// affectsAvailability reports whether a stock.out/stock.in event may change is_available.
+// inventory-api sets it from the tenant's auto_hide_on_stock_out policy (off by default:
+// availability is manual-only and a stock-out is just an alert). A missing field means an
+// event published before the policy existed, which keeps its original meaning (true).
+func affectsAvailability(payload map[string]interface{}) bool {
+	v, ok := payload["affects_availability"].(bool)
+	return !ok || v
+}
+
+// refreshQuantityOnly records the event's quantity on EXISTING override rows without touching
+// is_available or creating rows. Used for alert-only stock events under manual availability.
+func (h *StockEventHandler) refreshQuantityOnly(ctx context.Context, tenantID uuid.UUID, outletRaw, sku string, qty *float64) (int, error) {
+	if qty == nil {
+		return 0, nil
+	}
+	q := h.db.CatalogOverride.Update().
+		Where(catalogoverride.TenantID(tenantID), catalogoverride.InventorySku(sku))
+	if outletID, err := uuid.Parse(outletRaw); outletRaw != "" && err == nil {
+		q = q.Where(catalogoverride.OutletID(outletID))
+	}
+	return q.SetAvailableQuantity(*qty).Save(ctx)
+}
+
+// handleStockOut marks catalog items unavailable when stock runs out, but only for tenants
+// whose inventory policy auto-hides on stock-out; otherwise it is an alert and the item stays
+// orderable (staff-only availability).
 func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *sharedevents.Event) error {
 	tenantID := evt.TenantID
 	if tenantID == uuid.Nil {
@@ -202,6 +227,12 @@ func (h *StockEventHandler) handleStockOut(ctx context.Context, evt *sharedevent
 	}
 
 	outletRaw, _ := evt.Payload["outlet_id"].(string)
+	if !affectsAvailability(evt.Payload) {
+		if _, err := h.refreshQuantityOnly(ctx, tenantID, outletRaw, sku, eventQuantity(evt.Payload)); err != nil {
+			return fmt.Errorf("refresh quantity on alert-only stock-out: %w", err)
+		}
+		return nil
+	}
 	// stock.out carries available (0 for a depleted item / blocked recipe); persist it so the
 	// projection records a real zero rather than leaving the last-seen quantity stale.
 	count, err := h.setSkuAvailability(ctx, tenantID, outletRaw, sku, false, eventQuantity(evt.Payload))
@@ -229,9 +260,15 @@ func (h *StockEventHandler) handleStockIn(ctx context.Context, evt *sharedevents
 		return fmt.Errorf("no sku in stock-in event payload")
 	}
 
-	// Re-enable the (outlet, sku) override the stock-out cascade disabled. Manual
-	// disabling is handled separately via item.updated events.
+	// Re-enable the (outlet, sku) override the stock-out cascade disabled. Only for tenants
+	// that auto-hide; under manual availability a restock must never undo a staff toggle.
 	outletRaw, _ := evt.Payload["outlet_id"].(string)
+	if !affectsAvailability(evt.Payload) {
+		if _, err := h.refreshQuantityOnly(ctx, tenantID, outletRaw, sku, eventQuantity(evt.Payload)); err != nil {
+			return fmt.Errorf("refresh quantity on alert-only stock-in: %w", err)
+		}
+		return nil
+	}
 	// stock.in now carries the producible/on-hand quantity (STK-5); persist it alongside re-enabling.
 	count, err := h.setSkuAvailability(ctx, tenantID, outletRaw, sku, true, eventQuantity(evt.Payload))
 	if err != nil {

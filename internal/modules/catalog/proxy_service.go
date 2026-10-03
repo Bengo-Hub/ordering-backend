@@ -478,8 +478,10 @@ func (s *ProxyService) UpsertOverride(ctx context.Context, req OverrideUpsertReq
 	if existing != nil {
 		// Update
 		builder := s.db.CatalogOverride.UpdateOneID(existing.ID).
-			SetBasePrice(req.BasePrice).
 			SetCurrency(currency)
+		if req.BasePrice != nil {
+			builder.SetBasePrice(*req.BasePrice)
+		}
 
 		if req.IsAvailable != nil {
 			builder.SetIsAvailable(*req.IsAvailable)
@@ -514,8 +516,10 @@ func (s *ProxyService) UpsertOverride(ctx context.Context, req OverrideUpsertReq
 		SetTenantID(req.TenantID).
 		SetOutletID(req.OutletID).
 		SetInventorySku(req.InventorySKU).
-		SetBasePrice(req.BasePrice).
 		SetCurrency(currency)
+	if req.BasePrice != nil {
+		builder.SetBasePrice(*req.BasePrice) // unset = 0 = "no price override, use inventory's"
+	}
 
 	if req.IsAvailable != nil {
 		builder.SetIsAvailable(*req.IsAvailable)
@@ -606,6 +610,12 @@ func (s *ProxyService) listOutletsFromDB(ctx context.Context, tenantID uuid.UUID
 		result[i] = entOutletToSummary(o)
 	}
 	return result, nil
+}
+
+// TenantOutletIDs exposes tenantOutletIDs to handlers that must apply a tenant-wide override
+// (e.g. a staff availability toggle sent without an outlet).
+func (s *ProxyService) TenantOutletIDs(ctx context.Context, tenantID uuid.UUID) ([]uuid.UUID, error) {
+	return s.tenantOutletIDs(ctx, tenantID)
 }
 
 // tenantOutletIDs returns every outlet ID actually belonging to this tenant (cached via
@@ -811,6 +821,14 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 		if override.ImageURLOverride != "" {
 			item.ImageURL = override.ImageURLOverride
 		}
+	}
+
+	// available_quantity is informational. An item staff left available is orderable even when
+	// the system's stock reads zero or negative (manual-only availability: the gap is a
+	// system/physical mismatch, settled by the next stock receipt or count), so a non-positive
+	// projection is dropped rather than shown as "0 left" or filtered out as out of stock.
+	if item.IsAvailable && item.AvailableQuantity != nil && *item.AvailableQuantity <= 0 {
+		item.AvailableQuantity = nil
 	}
 
 	// Round price up to next whole number — no decimal prices on the ordering app.

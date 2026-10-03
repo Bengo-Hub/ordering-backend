@@ -97,7 +97,7 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 type OverrideRequest struct {
 	OutletID          string   `json:"outletId"`
 	SKU               string   `json:"sku"`
-	BasePrice         float64  `json:"basePrice"`
+	BasePrice         *float64 `json:"basePrice,omitempty"`
 	Currency          string   `json:"currency,omitempty"`
 	IsAvailable       *bool    `json:"isAvailable,omitempty"`
 	IsFeatured        *bool    `json:"isFeatured,omitempty"`
@@ -396,31 +396,47 @@ func (h *Handler) UpdateOverride(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	outletID, err := uuid.Parse(req.OutletID)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
-		return
+	// No outletId: the staff menu toggle is tenant-wide, so apply it to every outlet the tenant
+	// owns (resolved server-side, never trusted from the client). An explicit outletId must be
+	// valid.
+	var outletIDs []uuid.UUID
+	if req.OutletID == "" {
+		outletIDs, err = h.service.TenantOutletIDs(r.Context(), tenantID)
+		if err != nil || len(outletIDs) == 0 {
+			handlers.RespondError(w, http.StatusBadRequest, "no outlet found for tenant; pass outletId")
+			return
+		}
+	} else {
+		outletID, perr := uuid.Parse(req.OutletID)
+		if perr != nil {
+			handlers.RespondError(w, http.StatusBadRequest, "invalid outlet ID")
+			return
+		}
+		outletIDs = []uuid.UUID{outletID}
 	}
 
-	override, err := h.service.UpsertOverride(r.Context(), catalog.OverrideUpsertRequest{
-		TenantID:          tenantID,
-		OutletID:          outletID,
-		InventorySKU:      sku,
-		BasePrice:         req.BasePrice,
-		Currency:          req.Currency,
-		IsAvailable:       req.IsAvailable,
-		IsFeatured:        req.IsFeatured,
-		LeadTimeMinutes:   req.LeadTimeMinutes,
-		DisplayOrder:      req.DisplayOrder,
-		DisplaySection:    req.DisplaySection,
-		PackagingFee:      req.PackagingFee,
-		ServiceFeePercent: req.ServiceFeePercent,
-		ImageURLOverride:  req.ImageURLOverride,
-	})
-	if err != nil {
-		h.log.Error("update override failed", zap.Error(err))
-		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
-		return
+	var override *ent.CatalogOverride
+	for _, outletID := range outletIDs {
+		override, err = h.service.UpsertOverride(r.Context(), catalog.OverrideUpsertRequest{
+			TenantID:          tenantID,
+			OutletID:          outletID,
+			InventorySKU:      sku,
+			BasePrice:         req.BasePrice,
+			Currency:          req.Currency,
+			IsAvailable:       req.IsAvailable,
+			IsFeatured:        req.IsFeatured,
+			LeadTimeMinutes:   req.LeadTimeMinutes,
+			DisplayOrder:      req.DisplayOrder,
+			DisplaySection:    req.DisplaySection,
+			PackagingFee:      req.PackagingFee,
+			ServiceFeePercent: req.ServiceFeePercent,
+			ImageURLOverride:  req.ImageURLOverride,
+		})
+		if err != nil {
+			h.log.Error("update override failed", zap.Error(err))
+			handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, override)
