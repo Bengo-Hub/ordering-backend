@@ -166,9 +166,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		if filter.Section != "" && item.DisplaySection != filter.Section {
 			continue
 		}
-		if filter.CategoryID != nil && (item.CategoryID == nil || *item.CategoryID != *filter.CategoryID) {
-			continue
-		}
+		// No category re-check here: inventory-api already applied filter.CategoryID, including
+		// its sub-categories (a "Wines" section lists Red/White/House Wine items). An exact-match
+		// check would drop every item that lives in a sub-section.
 		if filter.BrandID != nil && (item.BrandID == nil || *item.BrandID != *filter.BrandID) {
 			continue
 		}
