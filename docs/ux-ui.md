@@ -96,7 +96,9 @@ GET /v1/{tenant}/menu-items/{id}
 ### Frontend Expectations
 
 - **Pagination**: List endpoints return `{ data: [], meta: { total, page, per_page } }`. Use cursor or offset pagination as provided.
-- **Availability**: Respect `is_available` field. Grey out unavailable items but keep them visible with "Unavailable" badge.
+- **Availability**: `is_available` is staff-owned. Stock-outs never change it unless the tenant enabled `auto_hide_on_stock_out` in inventory (events carry `affects_availability`). The public storefront lists available items only. `availableQuantity` is informational: it's dropped when it's zero or negative on an available item, so a stock mismatch never shows "0 left".
+- **Catalog layout**: the catalog opens on the menu (no hero). A sticky app bar under the header holds the title, search and the top-level menu sections as chips in menu order, with a second chip row for sub-sections. Filtering by a section includes its sub-sections (inventory-api applies `category_id` with descendants). Food/services render app-style rows; retail keeps product cards.
+- **Pagination**: `GET /catalog/items` pages the filtered result, so pages are full and `total` counts only visible items.
 - **Variants**: `menu_items/{id}` returns `variants[]` with `price_delta`. Display variant selector (size, flavour) before add-to-cart.
 - **Images**: Use `image_url` with CDN prefix. Implement lazy loading and WebP fallback.
 - **Dietary Tags**: Render tag badges (vegan, gluten-free) from `dietary_tags[]`.
