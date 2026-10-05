@@ -125,9 +125,11 @@ var gatewayDisplay = map[string]struct {
 	Icon string
 }{
 	"paystack": {Name: "Card / Paystack", Icon: "paystack"},
-	"mpesa":    {Name: "M-Pesa", Icon: "mpesa"},
-	"wallet":   {Name: "Pay with Wallet", Icon: "wallet"},
-	"cod":      {Name: "Cash on Delivery", Icon: "cash"},
+	// PayHero is its own gateway (treasury 2026-10-05): M-Pesa, Airtel, card and more in its modal.
+	"payhero": {Name: "PayHero", Icon: "payhero"},
+	"mpesa":   {Name: "M-Pesa", Icon: "mpesa"},
+	"wallet":  {Name: "Pay with Wallet", Icon: "wallet"},
+	"cod":     {Name: "Cash on Delivery", Icon: "cash"},
 }
 
 // --- Helper Functions ---
