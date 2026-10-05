@@ -266,7 +266,8 @@ This document provides detailed integration information for all external service
 
 **REST API Usage**:
 - `POST /api/v1/{tenant}/payments/intents` - Create payment intent (use `payment_method: "pending"` for invoice-only; then redirect user to shared pay page). See [payment-workflow.md](../../../shared-docs/payment-workflow.md).
-- `POST /api/v1/{tenant}/payments/intents/{id}/initiate` - Initiate payment for existing intent (paystack, mpesa, cash, manual/till).
+- `POST /api/v1/{tenant}/payments/intents/{id}/initiate` - Initiate payment for existing intent (paystack, mpesa, cash, manual/till). Staff STK at handover sends `mpesa` with no gateway, which treasury resolves to the outlet's Daraja account first, then PayHero.
+- `GET /api/v1/pay/{tenant}/gateways` - Enabled gateways for `GET /payment-methods` (`gatewayDisplay` labels them). Since 2026-10-05 PayHero is listed as `payhero` (its rails in `payhero_methods`) and `mpesa` means the outlet's own Daraja paybill or till. A checkout choice of `payhero` is stored as `payment_method=mpesa` with `metadata.payment_gateway=payhero` (`resolvePaymentMethod`; the enum is unchanged and the order still confirms through the treasury callback).
 - `POST /api/v1/{tenant}/payments/intents/{id}/confirm-manual` - Mark intent paid when user paid at till/agent.
 - Refund/confirm flows as per treasury-api docs.
 - `GET /api/v1/payouts/{id}` - Get payout status
