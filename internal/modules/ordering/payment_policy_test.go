@@ -32,6 +32,15 @@ func TestResolvePaymentMethod(t *testing.T) {
 	if m, _, _, _ := resolvePaymentMethod("paystack", ""); m != PaymentMethodPaystack {
 		t.Fatalf("paystack passthrough wrong: %s", m)
 	}
+	// PayHero stays an integrated online payment (stored mpesa, so the enum and the pending/
+	// callback flow are unchanged) with the gateway in metadata.
+	m, st, meta, err = resolvePaymentMethod("PayHero", "")
+	if err != nil || m != PaymentMethodMpesa || st != PaymentStatusPending || meta[metaPaymentGateway] != metaGatewayPayHero {
+		t.Fatalf("payhero mapping wrong: %s %s %v %v", m, st, meta, err)
+	}
+	if isOfflinePayment(&Order{PaymentMethod: m, Metadata: meta}) {
+		t.Fatal("a PayHero order confirms itself via the callback, it is not offline")
+	}
 }
 
 func TestIsOfflinePayment(t *testing.T) {
