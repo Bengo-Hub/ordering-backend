@@ -29,6 +29,10 @@ const (
 	// metaPaidAtPOS marks a pay-on-collection order the counter rang through the POS terminal
 	// checkout; its money is in treasury as a POS intent, not ordering's.
 	metaPaidAtPOS = "paid_at_pos"
+	// metaPaymentGateway records the gateway the customer chose when the enum method alone does
+	// not say it: "payhero" (stored method mpesa, paid on treasury's PayHero modal).
+	metaPaymentGateway = "payment_gateway"
+	metaGatewayPayHero = "payhero"
 )
 
 var (
@@ -54,6 +58,10 @@ func resolvePaymentMethod(raw, mpesaCode string) (PaymentMethod, PaymentStatus, 
 	switch method {
 	case "", "mpesa":
 		return PaymentMethodMpesa, PaymentStatusPending, nil, nil
+	case metaGatewayPayHero:
+		// PayHero is its own gateway on treasury's pay page (M-Pesa, Airtel, card, ...); the
+		// stored method stays in the enum and the gateway goes in metadata.
+		return PaymentMethodMpesa, PaymentStatusPending, map[string]interface{}{metaPaymentGateway: metaGatewayPayHero}, nil
 	case "cod", "cash":
 		return PaymentMethodCOD, "cod_pending", nil, nil
 	case PaymentChannelManualMpesa, "manual_mpesa":
