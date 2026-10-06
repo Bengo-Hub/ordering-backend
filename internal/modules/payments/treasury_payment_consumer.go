@@ -30,14 +30,14 @@ const (
 // poller remains as a durable fallback for any event missed while the consumer is down.
 type TreasuryPaymentConsumer struct {
 	log              *zap.Logger
-	onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error
+	onPaymentSuccess PaymentSuccessFunc
 	// hasFeature gates treasury→ordering payment sync by subscription entitlement. Nil → fail open.
 	hasFeature func(ctx context.Context, tenantID, feature string) bool
 }
 
 // NewTreasuryPaymentConsumer constructs the consumer. onPaymentSuccess is the same idempotent
 // handler the poller uses (UpdatePaymentStatus -> paid -> publish payment_confirmed).
-func NewTreasuryPaymentConsumer(log *zap.Logger, onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error) *TreasuryPaymentConsumer {
+func NewTreasuryPaymentConsumer(log *zap.Logger, onPaymentSuccess PaymentSuccessFunc) *TreasuryPaymentConsumer {
 	return &TreasuryPaymentConsumer{
 		log:              log.Named("consumers.treasury_payment"),
 		onPaymentSuccess: onPaymentSuccess,
@@ -105,9 +105,24 @@ func (c *TreasuryPaymentConsumer) Start(ctx context.Context, js nats.JetStreamCo
 // sharedEventEnvelope matches the JSON of github.com/Bengo-Hub/shared-events Event (the format
 // treasury publishes): a flat envelope with tenant_id and a payload map.
 type sharedEventEnvelope struct {
-	EventType string                 `json:"event_type"`
-	TenantID  string                 `json:"tenant_id"`
-	Payload   map[string]interface{} `json:"payload"`
+	EventType string `json:"event_type"`
+	TenantID  string `json:"tenant_id"`
+	// AggregateID is the payment intent id (treasury publishes payment events on the intent).
+	AggregateID string                 `json:"aggregate_id"`
+	Payload     map[string]interface{} `json:"payload"`
+}
+
+// paidIntentID is the intent that succeeded: the envelope's aggregate id, else a payload field.
+// uuid.Nil when none parses.
+func paidIntentID(env sharedEventEnvelope) uuid.UUID {
+	for _, v := range []interface{}{env.AggregateID, env.Payload["intent_id"], env.Payload["payment_intent_id"]} {
+		if s, ok := v.(string); ok {
+			if id, err := uuid.Parse(s); err == nil && id != uuid.Nil {
+				return id
+			}
+		}
+	}
+	return uuid.Nil
 }
 
 func (c *TreasuryPaymentConsumer) handleMessage(ctx context.Context, msg *nats.Msg) {
@@ -156,7 +171,7 @@ func (c *TreasuryPaymentConsumer) handleMessage(ctx context.Context, msg *nats.M
 	if c.onPaymentSuccess != nil {
 		// UpdatePaymentStatus is idempotent: re-confirming an already-paid order is a no-op and does
 		// not re-publish payment_confirmed, so duplicate delivery / overlap with the poller is safe.
-		if err := c.onPaymentSuccess(ctx, tenantID, orderID); err != nil {
+		if err := c.onPaymentSuccess(ctx, tenantID, orderID, paidIntentID(env)); err != nil {
 			c.log.Error("treasury payment: confirm order failed (will retry)",
 				zap.String("order_id", orderID.String()), zap.Error(err))
 			_ = msg.Nak()

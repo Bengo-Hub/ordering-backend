@@ -598,10 +598,25 @@ func metadataKeyAbsent(key string) predicate.Order {
 // so two concurrent merges (a payment stamp and a rider assignment, say) never drop each other's
 // keys.
 func (r *EntRepository) MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error {
-	_, err := r.MergeOrderMetadataIf(ctx, tenantID, orderID, func(OrderStatus, map[string]interface{}) map[string]interface{} {
+	_, err := r.MergeOrderMetadataIf(ctx, tenantID, orderID, func(OrderSnapshot) map[string]interface{} {
 		return patch
 	})
 	return err
+}
+
+// SetOrderPaymentIntent writes only the payment_intent_id column.
+func (r *EntRepository) SetOrderPaymentIntent(ctx context.Context, tenantID, orderID, intentID uuid.UUID) error {
+	n, err := r.client.Order.Update().
+		Where(order.ID(orderID), order.TenantID(tenantID)).
+		SetPaymentIntentID(intentID).
+		Save(ctx)
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrOrderNotFound
+	}
+	return nil
 }
 
 // MergeOrderMetadataIf reads the order's status and metadata, asks decide for the patch and writes
@@ -611,12 +626,16 @@ func (r *EntRepository) MergeOrderMetadataIf(ctx context.Context, tenantID, orde
 	for attempt := 0; attempt < 5; attempt++ {
 		o, err := r.client.Order.Query().
 			Where(order.ID(orderID), order.TenantID(tenantID)).
-			Select(order.FieldMetadata, order.FieldStatus, order.FieldUpdatedAt).
+			Select(order.FieldMetadata, order.FieldStatus, order.FieldPaymentStatus, order.FieldUpdatedAt).
 			Only(ctx)
 		if err != nil {
 			return false, err
 		}
-		patch := decide(OrderStatus(o.Status), o.Metadata)
+		patch := decide(OrderSnapshot{
+			Status:        OrderStatus(o.Status),
+			PaymentStatus: PaymentStatus(o.PaymentStatus),
+			Metadata:      o.Metadata,
+		})
 		if patch == nil {
 			return false, nil
 		}
@@ -782,9 +801,13 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 
 // --- Scheduled Orders ---
 
-// GetStalePaymentOrders returns orders with payment_status=pending that are older than olderThan, across all tenants.
-func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]StalePaymentOrder, error) {
-	ents, err := r.client.Order.Query().
+// GetStalePaymentOrders returns one page of orders still waiting for an online payment
+// (status and payment_status pending) placed before olderThan, across all tenants, oldest first.
+// Pages are keyset-paginated on (placed_at, id) after the given cursor (nil for the first page),
+// so orders inside their retry window never stop the poller from reaching older or newer ones,
+// and the partial index order_stale_payment_placed_at serves every page.
+func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan time.Time, after *StalePaymentCursor, limit int) ([]StalePaymentOrder, error) {
+	q := r.client.Order.Query().
 		Where(
 			order.PaymentStatusEQ(order.PaymentStatusPending),
 			order.PlacedAtNotNil(),
@@ -793,9 +816,16 @@ func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan tim
 			// A manual M-Pesa order has no gateway payment to wait for: the outlet checks the code
 			// and accepts it. Timing it out would cancel a paid order the outlet is slow to accept.
 			order.Not(metadataContains(map[string]any{metaPaymentChannel: PaymentChannelManualMpesa})),
-		).
+		)
+	if after != nil {
+		q = q.Where(order.Or(
+			order.PlacedAtGT(after.PlacedAt),
+			order.And(order.PlacedAtEQ(after.PlacedAt), order.IDGT(after.ID)),
+		))
+	}
+	ents, err := q.
 		Limit(limit).
-		Order(ent.Asc(order.FieldPlacedAt)).
+		Order(ent.Asc(order.FieldPlacedAt), ent.Asc(order.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -803,15 +833,15 @@ func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan tim
 
 	result := make([]StalePaymentOrder, 0, len(ents))
 	for _, o := range ents {
-		s := StalePaymentOrder{
+		result = append(result, StalePaymentOrder{
 			ID:              o.ID,
 			TenantID:        o.TenantID,
 			PaymentIntentID: o.PaymentIntentID,
-		}
-		ps := PaymentStatus(o.PaymentStatus)
-		s.PaymentStatus = ps
-		s.PlacedAt = o.PlacedAt
-		result = append(result, s)
+			PaymentStatus:   PaymentStatus(o.PaymentStatus),
+			PlacedAt:        o.PlacedAt,
+			CreatedAt:       o.CreatedAt,
+			Metadata:        o.Metadata,
+		})
 	}
 	return result, nil
 }
@@ -1172,6 +1202,7 @@ func entOrderToDomain(o *ent.Order) *Order {
 	if o.CrmContactID != nil {
 		ord.CrmContactID = o.CrmContactID
 	}
+	ord.PaymentRetry = PaymentRetryInfoFor(ord, time.Now())
 
 	return ord
 }

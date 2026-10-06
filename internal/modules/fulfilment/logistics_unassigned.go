@@ -129,8 +129,8 @@ func (h *LogisticsEventHandler) handleTaskUnassigned(ctx context.Context, evt *s
 	}
 
 	wrote, err := h.orderingRepo.MergeOrderMetadataIf(ctx, tenantID, orderID,
-		func(status ordering.OrderStatus, meta map[string]interface{}) map[string]interface{} {
-			return unassignedOrderPatch(status, meta, eventRider, reason, now)
+		func(cur ordering.OrderSnapshot) map[string]interface{} {
+			return unassignedOrderPatch(cur.Status, cur.Metadata, eventRider, reason, now)
 		})
 	if err != nil {
 		return fmt.Errorf("flag order %s needs_rider: %w", orderID, err)

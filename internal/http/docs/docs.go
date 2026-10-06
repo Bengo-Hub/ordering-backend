@@ -3783,6 +3783,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/guest/{orderId}/payment/retry": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Retry a guest order payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Guest session ID",
+                        "name": "session_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.PaymentRetryResult"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "Gone",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/orders/{orderId}": {
             "get": {
                 "description": "Retrieves an order by its ID",
@@ -3922,6 +3980,59 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{orderId}/payment/retry": {
+            "post": {
+                "description": "While the order's payment retry window is open, returns a payment intent to pay (the current one when it was never completed, else a fresh one) and its treasury initiate URL. Only the order's customer or staff with orders.manage.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Retry an order payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.PaymentRetryResult"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "Gone",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -6847,6 +6958,14 @@ const docTemplate = `{
                 "paymentMethod": {
                     "$ref": "#/definitions/ordering.PaymentMethod"
                 },
+                "paymentRetry": {
+                    "description": "PaymentRetry is set while an online-payment order waits for its money: whether the customer\ncan still retry, until when, and the failed attempts so far. Computed on read.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ordering.PaymentRetryInfo"
+                        }
+                    ]
+                },
                 "paymentStatus": {
                     "$ref": "#/definitions/ordering.PaymentStatus"
                 },
@@ -7085,6 +7204,58 @@ const docTemplate = `{
                 "PaymentMethodWallet",
                 "PaymentMethodLoyalty"
             ]
+        },
+        "ordering.PaymentRetryInfo": {
+            "type": "object",
+            "properties": {
+                "attempts": {
+                    "type": "integer"
+                },
+                "lastAttemptAt": {
+                    "type": "string"
+                },
+                "lastFailureReason": {
+                    "type": "string"
+                },
+                "open": {
+                    "type": "boolean"
+                },
+                "retries": {
+                    "type": "integer"
+                },
+                "until": {
+                    "type": "string"
+                }
+            }
+        },
+        "ordering.PaymentRetryResult": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "initiateUrl": {
+                    "type": "string"
+                },
+                "orderId": {
+                    "type": "string"
+                },
+                "orderNumber": {
+                    "type": "string"
+                },
+                "paymentIntentId": {
+                    "type": "string"
+                },
+                "retryUntil": {
+                    "type": "string"
+                },
+                "reused": {
+                    "type": "boolean"
+                }
+            }
         },
         "ordering.PaymentStatus": {
             "type": "string",

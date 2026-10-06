@@ -341,17 +341,23 @@ func New(ctx context.Context) (*App, error) {
 	paymentSvc.SetOrderingRepo(orderingRepo)
 	// Shared confirmation handler: used by BOTH the event-driven treasury.payment.succeeded consumer
 	// (instant) and the poller fallback. Idempotent (UpdatePaymentStatus no-ops if already paid).
-	onPaymentSuccess := func(ctx context.Context, tenantID, orderID uuid.UUID) error {
+	// A success on any of the order's intents (a retry or an earlier attempt) confirms it once; the
+	// paying intent is recorded first so a later refund is drawn on it.
+	onPaymentSuccess := func(ctx context.Context, tenantID, orderID, intentID uuid.UUID) error {
+		orderSvc.RecordPaidIntent(ctx, tenantID, orderID, intentID)
 		_, err := orderSvc.UpdatePaymentStatus(ctx, tenantID, orderID, ordering.PaymentStatusPaid, nil)
 		return err
 	}
 	paymentSvc.SetPaymentSuccessCallback(onPaymentSuccess)
+	// A failed attempt is recorded and the order stays open for a retry; only a closed retry
+	// window cancels it (releasing the stock hold and telling the customer).
+	paymentSvc.SetAttemptFailedCallback(orderSvc.RecordPaymentAttemptFailure)
 	paymentSvc.SetPaymentFailedCallback(func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error {
-		_, err := orderSvc.CancelOrder(ctx, tenantID, orderID, "payment_failed: "+errMsg, nil, "system", "")
+		_, err := orderSvc.CancelOrder(ctx, tenantID, orderID, errMsg, nil, "system", "")
 		return err
 	})
 	go paymentSvc.StartPaymentPolling(ctx)
-	log.Info("app: payment polling started (2-minute interval, 5-minute staleness cutoff)")
+	log.Info("app: payment polling started (2-minute interval, retry window per order)")
 
 	// Create payment handlers
 	paymentHandler := paymentshandler.NewPaymentHandler(log, paymentSvc)

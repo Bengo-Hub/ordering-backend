@@ -842,12 +842,60 @@ replayed event writes nothing. The next `task.assigned` fills the rider in again
 `latitude` and `longitude` are added only when the outlet has both. Before, an outlet without
 coordinates sent no pickup details at all.
 
+### Online payment retry window (2026-10-06)
+
+An online-payment order (M-Pesa STK, PayHero, Paystack) whose payment is declined, cancelled or
+times out is not cancelled straight away. It stays `pending` with its stock held until its retry
+window closes, and the customer can pay again from the order page.
+
+- Window: tenant service config `orders.payment_retry_window_minutes` (default 30, clamped to
+  5 minutes .. 24 hours), counted from `placed_at`. Checkout stamps the deadline on the order as
+  `metadata.payment_retry_until`, so the poller never reads config per order. Orders without the
+  stamp use `placed_at` + 30 minutes.
+- Each failed, cancelled or expired attempt is recorded once per intent: `payment_attempts`,
+  `payment_last_failure_reason`, `payment_last_attempt_at`, `payment_last_failed_intent`.
+- Every intent created for the order is listed in `metadata.payment_intent_ids`; the current one
+  is also written to the `payment_intent_id` column (it was never persisted before, so the poller
+  could not check treasury and timed orders out on age alone, and staff payment prompts always
+  answered "order has no payment intent").
+- Order reads carry `paymentRetry` (`open`, `until`, `attempts`, `retries`, `lastFailureReason`,
+  `lastAttemptAt`) while an online-payment order is unpaid. Admin list rows carry it too.
+
+Retry endpoints: `POST /{tenant}/orders/{orderId}/payment/retry` (the order's customer, or staff
+with orders.manage) and `POST /{tenant}/orders/guest/{orderId}/payment/retry` (public order page;
+the order id is the capability, a `session_id` query must match when sent). The current intent is
+checked first: succeeded confirms the order through the normal paid path and answers 409; still
+processing answers 409 (a prompt is open); pending (never completed) is returned again; failed,
+cancelled or expired is recorded and a fresh intent is created with its own reference
+(`payref.BuildAttempt`, `ORD-...-R2`), because treasury returns the existing intent for a reused
+reference and refuses to initiate a closed one. A retry slot is claimed in one compare-and-set
+metadata write: at most 5 retries per order, 20 seconds apart (429), only while the window is open
+(410). The response is `{paymentIntentId, initiateUrl, amount, currency, retryUntil, reused}`, the
+same intent and initiate URL checkout returns, and the storefront opens the shared treasury payment
+modal with it.
+
+Payment poller (every 2 minutes, one replica per period via `ClaimPeriod`): keyset pages of 50 on
+`(placed_at, id)` over the partial index `order_stale_payment_placed_at`, at most 10 pages per
+sweep. For each order it checks every intent (current first, at most 6). A success on any intent,
+including an earlier attempt, confirms the order. A failed current intent is recorded. Only when the
+window has closed is the order cancelled (`CancelOrder`: stock hold released with tenant context,
+`ordering.order.cancelled` tells the customer), and never while a status check failed or while the
+last prompt is still processing within 10 minutes past the deadline.
+
+Late and duplicate successes: the treasury consumer resolves the order from `entity_id`, so a
+success on an older intent confirms the order exactly once (`UpdatePaymentStatus` compare-and-set).
+The paying intent is stamped (`payment_paid_intent_id`, and `payment_intent_id` for refunds). A
+second success after the order is already paid is listed in `payment_extra_paid_intents` and logged
+for a refund. A success after the window closed and the order was cancelled is not fulfilled: the
+order stays cancelled, payment_status becomes paid and a "needs reconciliation" warning is logged,
+the existing late-payment handling; the refund is manual.
+
 ### Background jobs and reporting queries
 
 | Job / query | Guard | Bounded by |
 |---|---|---|
 | Scheduled hand-off (1 min) | `ClaimPeriod` | partial index `order_scheduled_handoff_due`, handed-off orders filtered in SQL, batch 200 |
-| Payment poller (2 min) | `ClaimPeriod` | partial index `order_stale_payment_placed_at`, limit 50; manual M-Pesa orders excluded (the outlet confirms them) |
+| Payment poller (2 min) | `ClaimPeriod` | partial index `order_stale_payment_placed_at`, keyset pages of 50, at most 10 pages per sweep; cancels only after the retry window; manual M-Pesa orders excluded (the outlet confirms them) |
 | `GET /admin/orders/summary` | per request | SQL `GROUP BY` (status and currency, day, item); revenue counts paid orders that were not cancelled, refunded or timed out |
 | `GET /admin/orders/counts` | per request | `GROUP BY status` over open statuses, served by the tenant and status indexes |
 | Order lists | per request | page size from the shared pagination lib; items, delivery address and customer loaded per page, not per order |

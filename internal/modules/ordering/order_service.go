@@ -715,60 +715,106 @@ func (s *OrderService) BuildCheckoutResult(ctx context.Context, order *Order, cu
 		result.PaymentMethod = ch // the storefront shows "we are confirming your M-Pesa payment", no STK push
 	}
 
+	// Online-payment orders get a retry window: a declined or abandoned payment leaves the order
+	// pending (stock held) until it closes. See payment_retry.go.
+	if !isOfflinePayment(order) && payableAmount > 0 && stringMeta(order.Metadata, metaPaymentRetryUntil) == "" {
+		base := order.CreatedAt
+		if order.PlacedAt != nil {
+			base = *order.PlacedAt
+		}
+		until := base.Add(s.paymentRetryWindow(ctx, order.TenantID)).UTC().Format(time.RFC3339)
+		if err := s.stampOrderMetadata(ctx, order, map[string]interface{}{metaPaymentRetryUntil: until}); err != nil {
+			s.logger.Warn("could not stamp the payment retry window", zap.String("order_id", order.ID.String()), zap.Error(err))
+		}
+	}
+
 	// Create payment intent in treasury if the payable amount is non-zero
 	if s.treasuryClient != nil && payableAmount > 0 {
-		// Pass line items as metadata for treasury invoicing and analytics
-		lineItemsForMeta := make([]map[string]interface{}, 0, len(lineItems))
-		for _, li := range lineItems {
-			lineItemsForMeta = append(lineItemsForMeta, map[string]interface{}{
-				"label":    li.Label,
-				"amount":   li.Amount,
-				"currency": li.Currency,
-			})
-		}
-
-		intentReq := treasury.PaymentIntentRequest{
-			TenantID:      order.TenantID,
-			ReferenceID:   payref.Build("ORD", "", order.TenantID, order.ID),
-			ReferenceType: "order",
-			OrderID:       order.ID,
-			Amount:        payableAmount,
-			Currency:      order.Currency,
-			PaymentMethod: "pending",
-			SourceService: "ordering",
-			Description:   fmt.Sprintf("Order %s", order.OrderNumber),
-			CustomerEmail: customerEmail,
-			CustomerPhone: customerPhone,
-			CrmContactId:  order.CrmContactID,
-			Metadata: map[string]interface{}{
-				"service":        "ordering",
-				"entity_id":      order.ID.String(),
-				"line_items":     lineItemsForMeta,
-				"order_number":   order.OrderNumber,
-				"customer_email": customerEmail,
-				"customer_phone": customerPhone,
-			},
-		}
-
-		intentResp, err := s.treasuryClient.CreatePaymentIntent(ctx, intentReq)
+		intentID, err := s.createOrderIntent(ctx, order, payableAmount, customerEmail, customerPhone, 1)
 		if err != nil {
 			s.logger.Warn("failed to create payment intent, order created without it",
 				zap.String("order_id", order.ID.String()),
 				zap.Error(err))
 			result.PaymentError = "Payment gateway unavailable. Please retry or contact support."
 		} else {
-			intentID := intentResp.ResolvedID()
 			result.PaymentIntentID = intentID.String()
-			// Build the initiate URL for the treasury-ui pay page (public route, no auth required).
-			// Left empty when no public treasury URL is configured; the pay page resolves it.
-			if base := s.treasuryClient.PublicBaseURL(); base != "" {
-				result.InitiateURL = fmt.Sprintf("%s/api/v1/pay/%s/intents/%s/initiate",
-					base, order.TenantID.String(), intentID.String())
-			}
+			result.InitiateURL = s.initiateURL(order.TenantID, intentID)
 		}
 	}
 
 	return result
+}
+
+// createOrderIntent creates a treasury payment intent for an order and records it on the order
+// (payment_intent_id column, metadata intent list). attempt 1 uses the canonical payref; later
+// attempts get their own reference so treasury creates a new intent.
+func (s *OrderService) createOrderIntent(ctx context.Context, order *Order, amount float64, customerEmail, customerPhone string, attempt int) (uuid.UUID, error) {
+	// Pass line items as metadata for treasury invoicing and analytics
+	lineItems := buildOrderLineItems(order)
+	lineItemsForMeta := make([]map[string]interface{}, 0, len(lineItems))
+	for _, li := range lineItems {
+		lineItemsForMeta = append(lineItemsForMeta, map[string]interface{}{
+			"label":    li.Label,
+			"amount":   li.Amount,
+			"currency": li.Currency,
+		})
+	}
+
+	intentReq := treasury.PaymentIntentRequest{
+		TenantID:      order.TenantID,
+		ReferenceID:   payref.BuildAttempt("ORD", "", order.TenantID, order.ID, attempt),
+		ReferenceType: "order",
+		OrderID:       order.ID,
+		Amount:        amount,
+		Currency:      order.Currency,
+		PaymentMethod: "pending",
+		SourceService: "ordering",
+		Description:   fmt.Sprintf("Order %s", order.OrderNumber),
+		CustomerEmail: customerEmail,
+		CustomerPhone: customerPhone,
+		CrmContactId:  order.CrmContactID,
+		Metadata: map[string]interface{}{
+			"service":        "ordering",
+			"entity_id":      order.ID.String(),
+			"line_items":     lineItemsForMeta,
+			"order_number":   order.OrderNumber,
+			"customer_email": customerEmail,
+			"customer_phone": customerPhone,
+			"attempt":        attempt,
+		},
+	}
+
+	intentResp, err := s.treasuryClient.CreatePaymentIntent(ctx, intentReq)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	intentID := intentResp.ResolvedID()
+	// The poller, staff payment prompts and refunds all need to know the intent. It used to live
+	// only in the checkout response, so the poller never checked treasury and timed paid orders
+	// out on age alone when the success event was missed.
+	if err := s.repo.SetOrderPaymentIntent(ctx, order.TenantID, order.ID, intentID); err != nil {
+		s.logger.Warn("could not record the payment intent on the order", zap.String("order_id", order.ID.String()), zap.Error(err))
+	} else {
+		order.PaymentIntentID = &intentID
+	}
+	if _, err := s.repo.MergeOrderMetadataIf(ctx, order.TenantID, order.ID, func(cur OrderSnapshot) map[string]interface{} {
+		return intentRecordPatch(cur.Metadata, intentID)
+	}); err != nil {
+		s.logger.Warn("could not record the payment intent in metadata", zap.String("order_id", order.ID.String()), zap.Error(err))
+	} else {
+		order.Metadata = mergeMetadata(order.Metadata, intentRecordPatch(order.Metadata, intentID))
+	}
+	return intentID, nil
+}
+
+// initiateURL is the treasury pay page's public initiate route for an intent. Empty when no
+// public treasury URL is configured; the pay page then resolves it itself.
+func (s *OrderService) initiateURL(tenantID, intentID uuid.UUID) string {
+	base := s.treasuryClient.PublicBaseURL()
+	if base == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/api/v1/pay/%s/intents/%s/initiate", base, tenantID.String(), intentID.String())
 }
 
 // buildOrderLineItems constructs a structured fee breakdown from an order's pricing fields.

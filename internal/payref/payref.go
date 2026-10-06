@@ -7,6 +7,7 @@
 package payref
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -16,6 +17,18 @@ import (
 // svc is the short service code (e.g. "ORD"). tenantSlug falls back to the tenant UUID when empty.
 func Build(svc, tenantSlug string, tenantID, entityID uuid.UUID) string {
 	return strings.ToUpper(svc) + "-" + slugSeg(tenantSlug, tenantID) + "-" + entitySeg(entityID)
+}
+
+// BuildAttempt is Build for a repeat payment attempt on the same entity. Treasury returns the
+// existing intent for a reference it already holds, and a failed or expired intent cannot be paid
+// again, so each retry needs its own reference: attempt 2 gives "...-R2". Attempt 0 or 1 is the
+// plain Build reference, so the first attempt keeps the canonical form other callers look up.
+func BuildAttempt(svc, tenantSlug string, tenantID, entityID uuid.UUID, attempt int) string {
+	base := Build(svc, tenantSlug, tenantID, entityID)
+	if attempt <= 1 {
+		return base
+	}
+	return base + "-R" + strconv.Itoa(attempt)
 }
 
 func slugSeg(slug string, tenantID uuid.UUID) string {

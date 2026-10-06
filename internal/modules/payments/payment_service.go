@@ -16,8 +16,12 @@ import (
 
 // OrderingRepository is the minimal interface PaymentService needs for polling stale orders.
 type OrderingRepository interface {
-	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]ordering.StalePaymentOrder, error)
+	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, after *ordering.StalePaymentCursor, limit int) ([]ordering.StalePaymentOrder, error)
 }
+
+// PaymentSuccessFunc confirms an order whose payment succeeded. intentID is the intent that paid
+// (uuid.Nil when unknown).
+type PaymentSuccessFunc func(ctx context.Context, tenantID, orderID, intentID uuid.UUID) error
 
 // PaymentService provides payment business logic.
 type PaymentService struct {
@@ -25,8 +29,11 @@ type PaymentService struct {
 	treasuryClient   *treasury.Client
 	logger           *zap.Logger
 	orderingRepo     OrderingRepository
-	onPaymentSuccess func(ctx context.Context, tenantID, orderID uuid.UUID) error
-	onPaymentFailed  func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error
+	onPaymentSuccess PaymentSuccessFunc
+	// onAttemptFailed records a failed, cancelled or expired attempt; the order stays open.
+	onAttemptFailed func(ctx context.Context, tenantID, orderID, intentID uuid.UUID, reason string) error
+	// onPaymentFailed cancels an order whose retry window closed without a payment.
+	onPaymentFailed func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error
 }
 
 // NewPaymentService creates a new payment service.
@@ -48,17 +55,22 @@ func (s *PaymentService) SetOrderingRepo(repo OrderingRepository) {
 }
 
 // SetPaymentSuccessCallback wires the callback invoked when polling finds a succeeded payment.
-func (s *PaymentService) SetPaymentSuccessCallback(fn func(ctx context.Context, tenantID, orderID uuid.UUID) error) {
+func (s *PaymentService) SetPaymentSuccessCallback(fn PaymentSuccessFunc) {
 	s.onPaymentSuccess = fn
 }
 
-// SetPaymentFailedCallback wires the callback invoked when polling detects a failed/timed-out payment.
+// SetAttemptFailedCallback wires the callback that records a failed payment attempt.
+func (s *PaymentService) SetAttemptFailedCallback(fn func(ctx context.Context, tenantID, orderID, intentID uuid.UUID, reason string) error) {
+	s.onAttemptFailed = fn
+}
+
+// SetPaymentFailedCallback wires the callback invoked when an order's retry window closes unpaid.
 func (s *PaymentService) SetPaymentFailedCallback(fn func(ctx context.Context, tenantID, orderID uuid.UUID, errMsg string) error) {
 	s.onPaymentFailed = fn
 }
 
 // StartPaymentPolling starts a background goroutine that polls for orders stuck in payment_status=pending.
-// Every 2 minutes it checks orders older than 5 minutes. Orders older than 15 minutes are timed out.
+// Every 2 minutes it checks orders placed more than 5 minutes ago (see pollPendingPayments).
 func (s *PaymentService) StartPaymentPolling(ctx context.Context) {
 	if s.orderingRepo == nil {
 		s.logger.Warn("payment poller: ordering repo not set, skipping payment polling")
@@ -86,78 +98,7 @@ func (s *PaymentService) pollPendingPayments(ctx context.Context) {
 	if !sharedcache.ClaimPeriod(ctx, "ordering:payment-poller", 2*time.Minute) {
 		return
 	}
-	cutoff := time.Now().Add(-5 * time.Minute)
-	timeoutCutoff := time.Now().Add(-15 * time.Minute)
-
-	orders, err := s.orderingRepo.GetStalePaymentOrders(ctx, cutoff, 50)
-	if err != nil {
-		s.logger.Error("payment poller: failed to list stale orders", zap.Error(err))
-		return
-	}
-
-	timedOut := func(o ordering.StalePaymentOrder) bool {
-		return o.PlacedAt != nil && o.PlacedAt.Before(timeoutCutoff)
-	}
-	failOrder := func(o ordering.StalePaymentOrder, reason string) {
-		s.logger.Info("payment poller: failing order",
-			zap.String("order_id", o.ID.String()),
-			zap.String("tenant_id", o.TenantID.String()),
-			zap.String("reason", reason))
-		if s.onPaymentFailed != nil {
-			if err := s.onPaymentFailed(ctx, o.TenantID, o.ID, reason); err != nil {
-				s.logger.Error("payment poller: onPaymentFailed callback failed",
-					zap.Error(err), zap.String("order_id", o.ID.String()))
-			}
-		}
-	}
-
-	for _, o := range orders {
-		// No intent to verify — time out only once past the window.
-		if o.PaymentIntentID == nil {
-			if timedOut(o) {
-				failOrder(o, "payment_timeout")
-			}
-			continue
-		}
-
-		status, err := s.treasuryClient.GetPaymentStatus(ctx, o.TenantID, *o.PaymentIntentID)
-		if err != nil {
-			// Warn (not Debug): a persistent failure here silently stops every order from being
-			// confirmed via the poller, so it must be visible in prod logs.
-			// NEVER cancel on a status-check error — the payment may actually have succeeded and the
-			// error is transient (treasury/Redis blip). Cancelling here once burned a PAID order whose
-			// confirmation was delayed by a Redis outage. Retry next tick; only an explicit
-			// still-pending status past the window times an order out (handled below).
-			s.logger.Warn("payment poller: failed to get status from treasury (will retry)",
-				zap.Error(err), zap.String("order_id", o.ID.String()))
-			continue
-		}
-
-		switch status.Status {
-		case "succeeded":
-			// A succeeded payment ALWAYS wins over the age-based timeout: gateways (e.g. Paystack)
-			// can confirm late, so we must never fail an order whose payment actually went through.
-			s.logger.Info("payment poller: payment succeeded, confirming order",
-				zap.String("order_id", o.ID.String()))
-			if s.onPaymentSuccess != nil {
-				if err := s.onPaymentSuccess(ctx, o.TenantID, o.ID); err != nil {
-					s.logger.Error("payment poller: onPaymentSuccess callback failed",
-						zap.Error(err), zap.String("order_id", o.ID.String()))
-				}
-			}
-		case "failed", "cancelled", "expired":
-			errMsg := status.ErrorMessage
-			if errMsg == "" {
-				errMsg = status.Status
-			}
-			failOrder(o, errMsg)
-		default:
-			// Still pending/processing — time out only once past the window.
-			if timedOut(o) {
-				failOrder(o, "payment_timeout")
-			}
-		}
-	}
+	s.sweepPendingPayments(ctx, time.Now())
 }
 
 // CreatePaymentIntent creates a new payment intent.
