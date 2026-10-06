@@ -1698,17 +1698,19 @@ func (s *OrderService) applyRating(ctx context.Context, tenantID uuid.UUID, orde
 	if len(opts) > 0 && opts[0].RiderRating != nil && s.logisticsClient != nil {
 		riderRating := *opts[0].RiderRating
 		if riderRating >= 1 && riderRating <= 5 {
-			// Get tenant slug for the logistics API call
-			tenant, tenantErr := s.repo.GetTenantByID(ctx, tenantID)
-			if tenantErr == nil {
-				// Find the logistics task ID from order assignments
-				// The fulfilment module stores LogisticsTaskID in OrderAssignment
+			// The rating goes to the rider of the order's delivery task (the fulfilment module keeps
+			// the task id on the order's assignment). It used to send the ORDER id as the task id on
+			// a user-only route, so no rider rating ever landed.
+			taskID, taskErr := s.repo.LatestLogisticsTaskID(ctx, order.ID)
+			if taskErr == nil && taskID != uuid.Nil {
+				req := logistics.RateRiderRequest{Rating: riderRating, Comment: opts[0].RiderComment}
+				if order.CustomerID != nil {
+					req.CustomerUserID = order.CustomerID.String()
+				}
 				go func() {
-					rateErr := s.logisticsClient.RateRider(context.Background(), tenant.Slug, order.ID.String(), logistics.RateRiderRequest{
-						Rating:  riderRating,
-						Comment: opts[0].RiderComment,
-					})
-					if rateErr != nil {
+					rateCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+					defer cancel()
+					if rateErr := s.logisticsClient.RateRider(rateCtx, tenantID, taskID, req); rateErr != nil {
 						s.logger.Warn("failed to rate rider via logistics",
 							zap.Error(rateErr),
 							zap.String("order_id", order.ID.String()))
@@ -2924,18 +2926,18 @@ func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Or
 		RiderPhone: stringMeta(order.Metadata, "rider_phone"),
 	}
 
-	// Resolve the assigned rider's display name from logistics so consumers/templates can show it.
-	// The logistics delivery task is keyed by the order ID (its external reference). If logistics is
-	// unavailable or the task carries no rider yet, rider_name is simply left empty.
+	// No rider stamped on the order yet: read it from the task's tracking view over the
+	// service-key route (the slug task list refuses this service's key). Left empty when the
+	// order has no task or logistics is unavailable.
 	if s.logisticsClient != nil && data.RiderName == "" {
-		if tenant, tErr := s.repo.GetTenantByID(ctx, order.TenantID); tErr == nil {
-			if task, taskErr := s.logisticsClient.GetTaskByExternalRef(ctx, tenant.Slug, order.ID.String()); taskErr == nil && task != nil {
-				if task.RiderName != "" {
-					data.RiderName = task.RiderName
+		if taskID, tErr := s.repo.LatestLogisticsTaskID(ctx, order.ID); tErr == nil && taskID != uuid.Nil {
+			if info, taskErr := s.logisticsClient.GetTracking(ctx, order.TenantID, taskID); taskErr == nil && info != nil {
+				data.RiderName = info.RiderName
+				if info.RiderPhone != "" {
+					data.RiderPhone = info.RiderPhone
 				}
-				data.RiderPhone = task.RiderPhone
 			} else if taskErr != nil {
-				s.logger.Warn("failed to resolve rider name for out_for_delivery event",
+				s.logger.Warn("failed to resolve rider for out_for_delivery event",
 					zap.Error(taskErr),
 					zap.String("order_id", order.ID.String()))
 			}

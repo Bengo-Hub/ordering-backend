@@ -178,4 +178,8 @@ type Repository interface {
 
 	// Tenant feature configuration (from TenantSetting.features JSON)
 	GetTenantFeatures(ctx context.Context, tenantID uuid.UUID) (map[string]interface{}, error)
+
+	// LatestLogisticsTaskID returns the logistics task of the order's most recent delivery
+	// assignment (uuid.Nil when the order has none), for service-key calls to logistics-api.
+	LatestLogisticsTaskID(ctx context.Context, orderID uuid.UUID) (uuid.UUID, error)
 }
