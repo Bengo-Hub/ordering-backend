@@ -795,6 +795,33 @@ over inventory-api's `ItemBrand` master data, for the Top Brands row — no pos-
 - Dead letter queue after max retries
 - Manual reconciliation interface
 
+### Status transitions and duplicate events
+
+Every status change (admin, POS S2S, pos.* and logistics.task.* consumers) goes through
+`OrderService.UpdateOrderStatus`, and cancellations through `CancelOrder`. Both decide the
+transition's effects first (`planTransition`: COD paid flag and treasury settlement, loyalty and
+stock consumption, prepaid refund, reservation release), write the status with a compare-and-set
+on the previous status, and run the effects only when that write won. Logistics publishes both
+`task.delivered` and `task.completed` for one drop-off, and JetStream redelivers; only one handler
+ever finalizes the order. A rejection through `PUT /admin/orders/{id}/status` with `cancelled` is
+handled by `CancelOrder`, so it also publishes `ordering.order.cancelled` and returns redeemed points.
+
+Rules enforced on the API:
+- Customers can cancel their own order only while it is `pending` or `confirmed` (409 after the
+  kitchen starts).
+- `DELETE /admin/orders/{id}` works only for finished orders and pending orders never shown to the
+  outlet (409 otherwise; reject the order instead).
+
+### Background jobs and reporting queries
+
+| Job / query | Guard | Bounded by |
+|---|---|---|
+| Scheduled hand-off (1 min) | `ClaimPeriod` | partial index `order_scheduled_handoff_due`, handed-off orders filtered in SQL, batch 200 |
+| Payment poller (2 min) | `ClaimPeriod` | partial index `order_stale_payment_placed_at`, limit 50; manual M-Pesa orders excluded (the outlet confirms them) |
+| `GET /admin/orders/summary` | per request | SQL `GROUP BY` (status and currency, day, item); revenue counts paid orders that were not cancelled, refunded or timed out |
+| `GET /admin/orders/counts` | per request | `GROUP BY status` over open statuses, served by the tenant and status indexes |
+| Order lists | per request | page size from the shared pagination lib; items, delivery address and customer loaded per page, not per order |
+
 ### Monitoring
 
 **Metrics**:

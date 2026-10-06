@@ -187,6 +187,10 @@ type Order struct {
 	Metadata           map[string]interface{} `json:"metadata,omitempty"`
 	CreatedAt          time.Time              `json:"createdAt"`
 	UpdatedAt          time.Time              `json:"updatedAt"`
+
+	// contact is the signed-in customer's profile when the list query loaded it with the order,
+	// so orderContactInfo needs no per-order user lookup.
+	contact *UserContactInfo
 }
 
 // LineItem is a single component of the order total (delivery fee, packaging, taxes, etc.).

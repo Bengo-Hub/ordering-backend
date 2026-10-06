@@ -35,6 +35,8 @@ type OrderInfo struct {
 	// DeliveryFee is the order's numeric delivery fee; surfaced to logistics via
 	// task metadata so it can base the rider earning on the real fee.
 	DeliveryFee     float64
+	// CashOnDelivery is what the rider collects at the door (0 for prepaid orders).
+	CashOnDelivery float64
 }
 
 // CreateDeliveryTaskRequest represents a request to create a delivery task.
@@ -80,7 +82,9 @@ func (s *TaskService) CreateDeliveryTask(ctx context.Context, req CreateDelivery
 
 	// Create task in logistics service
 	logisticsReq := logistics.CreateTaskRequest{
-		ExternalReference: req.OrderInfo.ID.String(),
+		// Same reference logistics-api's own order.ready consumer uses, so both paths name the
+		// order the same way and the task events map back to it.
+		ExternalReference: "order:" + req.OrderInfo.ID.String(),
 		SourceService:     "ordering",
 		TaskType:          "delivery",
 		Priority:          logistics.TaskPriorityToInt(logistics.TaskPriority(req.Priority)),
@@ -102,10 +106,13 @@ func (s *TaskService) CreateDeliveryTask(ctx context.Context, req CreateDelivery
 			"item_count":        req.OrderInfo.ItemCount,
 			"pod_code":          req.OrderInfo.PODCode,
 			"delivery_fee":      req.OrderInfo.DeliveryFee,
+			// logistics-api's plain create has no cash_on_delivery field yet; the amount rides in
+			// metadata so the rider app and the COD ledger can still read it.
+			"cash_on_delivery": req.OrderInfo.CashOnDelivery,
 		},
 	}
 
-	taskResp, err := s.logisticsClient.CreateTask(ctx, req.OrderInfo.TenantSlug, logisticsReq)
+	taskResp, err := s.logisticsClient.CreateTask(ctx, req.OrderInfo.TenantID, logisticsReq)
 	if err != nil {
 		s.logger.Error("failed to create delivery task in logistics",
 			zap.Error(err),

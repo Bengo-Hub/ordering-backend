@@ -970,6 +970,22 @@ var (
 				Columns: []*schema.Column{OrdersColumns[15]},
 			},
 			{
+				Name:    "order_scheduled_handoff_due",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[15]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'confirmed' AND scheduled_for IS NOT NULL",
+				},
+			},
+			{
+				Name:    "order_stale_payment_placed_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[35]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'pending' AND payment_status = 'pending'",
+				},
+			},
+			{
 				Name:    "order_metadata_gin",
 				Unique:  false,
 				Columns: []*schema.Column{OrdersColumns[45]},

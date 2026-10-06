@@ -22,6 +22,7 @@ var (
 	ErrInvalidOrderStatus     = errors.New("invalid order status")
 	ErrInvalidStatusTransition = errors.New("invalid order status transition")
 	ErrOrderCannotBeCancelled = errors.New("order cannot be cancelled in current status")
+	ErrOrderNotDeletable      = errors.New("this order is still in progress; reject it instead of deleting it")
 	ErrInvalidOrderNumber     = errors.New("invalid order number format")
 
 	// Payment errors

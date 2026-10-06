@@ -8,6 +8,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// scheduledHandoffBatch caps how many scheduled orders one scheduler pass hands over.
+const scheduledHandoffBatch = 200
+
 // OrderScheduler periodically checks for scheduled orders whose prep window has opened and hands
 // them to the outlet (see processScheduledOrders).
 type OrderScheduler struct {
@@ -50,7 +53,9 @@ func (s *OrderScheduler) processScheduledOrders(ctx context.Context) {
 	if !sharedcache.ClaimPeriod(ctx, "ordering:scheduled-handoff", time.Minute) {
 		return
 	}
-	orders, err := s.service.repo.ListScheduledOrdersDue(ctx, ScheduledPrepTimeBuffer)
+	// Handed-off orders are excluded in SQL, so each pass sees only orders still owed a hand-off; a
+	// backlog larger than one batch drains over the following minutes.
+	orders, err := s.service.repo.ListScheduledOrdersDue(ctx, ScheduledPrepTimeBuffer, scheduledHandoffBatch)
 	if err != nil {
 		s.logger.Error("failed to list scheduled orders due", zap.Error(err))
 		return

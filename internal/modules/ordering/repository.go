@@ -66,9 +66,13 @@ type Repository interface {
 	ListOrders(ctx context.Context, filter OrderFilter) ([]Order, int, error)
 	GenerateOrderNumber(ctx context.Context, tenantID, outletID uuid.UUID) (string, error)
 	GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error)
+	// StatusCounts counts the tenant's open orders per status (optionally one outlet).
+	StatusCounts(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) (map[string]int, error)
 
 	// Scheduled order operations
-	ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error)
+	// ListScheduledOrdersDue returns confirmed scheduled orders inside their prep window that were
+	// not handed to the outlet yet, oldest first, at most limit.
+	ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration, limit int) ([]Order, error)
 
 	// Cross-tenant query for payment polling fallback
 	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]StalePaymentOrder, error)

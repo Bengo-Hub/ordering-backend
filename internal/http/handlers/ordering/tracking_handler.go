@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Bengo-Hub/httpware"
-	authclient "github.com/Bengo-Hub/shared-auth-client"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 	"github.com/bengobox/ordering-backend/internal/modules/ordering"
@@ -94,6 +93,7 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 	defer ticker.Stop()
 
 	lastStatus := order.Status
+	lastUpdated := order.UpdatedAt
 	ticks := 0
 	for {
 		select {
@@ -111,17 +111,18 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if current.Status != lastStatus {
+			// updated_at also moves on rider progress (delivery_status stamped in metadata), so the
+			// customer sees "rider assigned" or "rider at the outlet" without a status change.
+			if current.Status != lastStatus || !current.UpdatedAt.Equal(lastUpdated) {
 				sendSSEEvent(w, flusher, "order_status", current)
 				lastStatus = current.Status
+				lastUpdated = current.UpdatedAt
 			}
 
-			// If order is out for delivery, fetch real rider location from logistics
-			if current.Status == ordering.OrderStatusOutForDelivery && h.taskService != nil {
-				tenantSlug := ""
-				if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
-					tenantSlug = claims.GetTenantSlug()
-				}
+			// Out for delivery: ask logistics for the rider's position every 30 seconds rather than
+			// on every 5-second poll of every open tracker.
+			if current.Status == ordering.OrderStatusOutForDelivery && h.taskService != nil && ticks%6 == 0 {
+				tenantSlug := requestTenantSlug(r)
 				if tenantSlug != "" {
 					tracking, trackErr := h.taskService.GetTracking(r.Context(), tenantSlug, tenantID, orderID)
 					if trackErr == nil && tracking != nil {
