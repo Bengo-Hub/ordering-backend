@@ -348,6 +348,7 @@ This document provides detailed integration information for all external service
 - `logistics.task.en_route` - Update order status to "en route"
 - `logistics.task.completed` - Mark order as delivered
 - `logistics.task.cancelled` - Handle task cancellation
+- `logistics.task.unassigned` - Rider declined or was taken off before pickup; order flagged `needs_rider`
 - `logistics.route.updated` - Update ETA
 - `logistics.rider.created` - Rider created (if using API push)
 - `logistics.rider.onboarded` - Rider onboarding completed
@@ -811,6 +812,35 @@ Rules enforced on the API:
   kitchen starts).
 - `DELETE /admin/orders/{id}` works only for finished orders and pending orders never shown to the
   outlet (409 otherwise; reject the order instead).
+
+### Logistics calls and task events (2026-10-06)
+
+| Need | How |
+|---|---|
+| Create a task (manual "arrange delivery", rider assign fallback) | `POST /api/v1/s2s/dispatch/{tenant_uuid}/tasks` with `X-API-Key: INTERNAL_SERVICE_KEY` |
+| Assign a rider | `POST /api/v1/s2s/dispatch/{tenant_uuid}/tasks/{id}/assign` (service key) |
+| Live tracking for the customer | `GET /api/v1/s2s/dispatch/{tenant_uuid}/tasks/{id}/tracking` (service key). Returns status, `rider_location`, `rider_name`, `rider_phone`, `eta_minutes`, `eta_at`, `distance_km`. Rider details are only filled while a rider works the task. |
+| Cancel a task | Not called. logistics-api closes the order's task itself when it consumes `ordering.order.cancelled`; dispatchers cancel from the logistics board. The old `POST /orders/{id}/delivery/cancel-task` route was removed. |
+
+`GET /orders/{id}/delivery/tracking` and the `rider_location` event of the order SSE stream
+(`/orders/{id}/track`, every 30 s while out for delivery) carry the rider's position, name, phone,
+ETA and distance. ETA and distance are left out until logistics has computed them. When logistics
+does not answer, the stored assignment is returned instead.
+
+Every `logistics.task.*` consumer skips (acknowledges) events whose `source_service` is set and is
+not `ordering`. POS till deliveries publish `source_service: pos` with a bare POS order id as the
+reference; before this they failed, redelivered and left stray assignment rows.
+
+`logistics.task.unassigned` (durable `ord-logistics-task-unassigned`) arrives when a rider declines
+before pickup or a dispatcher takes the job back. The assignment returns to `pending` with no rider
+and `metadata.needs_rider`, and the order's metadata gets `delivery_status: needs_rider` with
+`rider_id`, `rider_name` and `rider_phone` cleared. Both writes are conditional: a newer rider who
+was already stamped is kept, an order that is out for delivery or finished is left alone, and a
+replayed event writes nothing. The next `task.assigned` fills the rider in again.
+
+`ordering.order.ready` always carries `outlet_location` with the outlet's name, address and phone;
+`latitude` and `longitude` are added only when the outlet has both. Before, an outlet without
+coordinates sent no pickup details at all.
 
 ### Background jobs and reporting queries
 

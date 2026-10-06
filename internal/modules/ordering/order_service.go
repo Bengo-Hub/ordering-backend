@@ -2989,19 +2989,12 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		}
 	}
 
-	// Add the outlet as the pickup point: coordinates for dispatch/navigation plus the address and
-	// phone the rider needs to find the counter and call ahead.
+	// Add the outlet as the pickup point (see outletLocationPayload).
 	loc, err := s.repo.GetOutletLocation(ctx, order.TenantID, order.OutletID)
 	if err != nil {
 		s.logger.Warn("failed to get outlet location for order.ready event", zap.Error(err))
-	} else if loc.Latitude != nil && loc.Longitude != nil {
-		data.OutletLocation = map[string]interface{}{
-			"name":      loc.Name,
-			"address":   loc.Address,
-			"phone":     loc.Phone,
-			"latitude":  *loc.Latitude,
-			"longitude": *loc.Longitude,
-		}
+	} else {
+		data.OutletLocation = outletLocationPayload(loc)
 	}
 
 	if err := s.eventPublisher.PublishOrderReady(ctx, order.TenantID, data); err != nil {

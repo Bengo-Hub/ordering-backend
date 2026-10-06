@@ -14,6 +14,9 @@ type Repository interface {
 	GetAssignmentByOrderID(ctx context.Context, tenantID, orderID uuid.UUID) (*OrderAssignment, error)
 	GetAssignmentByLogisticsTaskID(ctx context.Context, taskID string) (*OrderAssignment, error)
 	UpdateAssignment(ctx context.Context, assignment *OrderAssignment) error
+	// ReleaseAssignmentRider puts the assignment back to pending with no rider, only while riderID
+	// still holds it. It reports whether the row changed.
+	ReleaseAssignmentRider(ctx context.Context, assignmentID uuid.UUID, riderID string, metadata map[string]interface{}) (bool, error)
 	ListAssignments(ctx context.Context, filter AssignmentFilter) ([]OrderAssignment, int, error)
 
 	// Delivery Window operations

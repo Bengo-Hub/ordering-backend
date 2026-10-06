@@ -598,13 +598,27 @@ func metadataKeyAbsent(key string) predicate.Order {
 // so two concurrent merges (a payment stamp and a rider assignment, say) never drop each other's
 // keys.
 func (r *EntRepository) MergeOrderMetadata(ctx context.Context, tenantID, orderID uuid.UUID, patch map[string]interface{}) error {
+	_, err := r.MergeOrderMetadataIf(ctx, tenantID, orderID, func(OrderStatus, map[string]interface{}) map[string]interface{} {
+		return patch
+	})
+	return err
+}
+
+// MergeOrderMetadataIf reads the order's status and metadata, asks decide for the patch and writes
+// it under the same updated_at guard as MergeOrderMetadata. The decision is taken again on every
+// retry, so it always reflects the row it is written over.
+func (r *EntRepository) MergeOrderMetadataIf(ctx context.Context, tenantID, orderID uuid.UUID, decide MetadataPatchFunc) (bool, error) {
 	for attempt := 0; attempt < 5; attempt++ {
 		o, err := r.client.Order.Query().
 			Where(order.ID(orderID), order.TenantID(tenantID)).
-			Select(order.FieldMetadata, order.FieldUpdatedAt).
+			Select(order.FieldMetadata, order.FieldStatus, order.FieldUpdatedAt).
 			Only(ctx)
 		if err != nil {
-			return err
+			return false, err
+		}
+		patch := decide(OrderStatus(o.Status), o.Metadata)
+		if patch == nil {
+			return false, nil
 		}
 		merged := make(map[string]interface{}, len(o.Metadata)+len(patch))
 		for k, v := range o.Metadata {
@@ -618,13 +632,13 @@ func (r *EntRepository) MergeOrderMetadata(ctx context.Context, tenantID, orderI
 			SetMetadata(merged).
 			Save(ctx)
 		if err != nil {
-			return err
+			return false, err
 		}
 		if n == 1 {
-			return nil
+			return true, nil
 		}
 	}
-	return fmt.Errorf("merge order metadata: order %s kept changing, gave up", orderID)
+	return false, fmt.Errorf("merge order metadata: order %s kept changing, gave up", orderID)
 }
 
 // UpdatePaymentStatusAtomic is UpdateOrder's race-safe counterpart for payment-status transitions:
