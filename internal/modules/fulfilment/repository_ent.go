@@ -148,6 +148,26 @@ func (r *EntRepository) UpdateAssignment(ctx context.Context, assignment *OrderA
 	return err
 }
 
+// ReleaseAssignmentRider returns an assignment to pending and clears its rider and the rider's
+// assigned/accepted times. The update is conditional on riderID still holding the assignment, so a
+// newer assignment written by a concurrent task.assigned event is never undone.
+func (r *EntRepository) ReleaseAssignmentRider(ctx context.Context, assignmentID uuid.UUID, riderID string, metadata map[string]interface{}) (bool, error) {
+	update := r.client.OrderAssignment.Update().
+		Where(orderassignment.ID(assignmentID), orderassignment.RiderID(riderID)).
+		SetStatus(orderassignment.StatusPending).
+		ClearRiderID().
+		ClearAssignedAt().
+		ClearAcceptedAt()
+	if metadata != nil {
+		update = update.SetMetadata(metadata)
+	}
+	n, err := update.Save(ctx)
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 // ListAssignments lists assignments with filters.
 func (r *EntRepository) ListAssignments(ctx context.Context, filter AssignmentFilter) ([]OrderAssignment, int, error) {
 	query := r.client.OrderAssignment.Query().

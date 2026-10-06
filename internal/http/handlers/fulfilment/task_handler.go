@@ -56,7 +56,8 @@ func (h *TaskHandler) Register(r chi.Router, auth *identityhandler.Authenticator
 			"retail", "pharmacy", "wholesale",
 		)).Post("/create-task", h.CreateDeliveryTask)
 		delivery.Get("/task", h.GetDeliveryTask)
-		delivery.Post("/cancel-task", h.CancelDeliveryTask)
+		// No cancel-task route: a delivery ends with its order (logistics-api consumes
+		// ordering.order.cancelled) or from the logistics dispatch board.
 		delivery.Get("/tracking", h.GetTracking)
 	})
 
@@ -224,70 +225,7 @@ func (h *TaskHandler) GetDeliveryTask(w http.ResponseWriter, r *http.Request) {
 	handlers.RespondJSON(w, http.StatusOK, assignment)
 }
 
-// CancelDeliveryTaskRequest represents a request to cancel a delivery task.
-type CancelDeliveryTaskRequest struct {
-	Reason string `json:"reason"`
-}
-
-// CancelDeliveryTask cancels the delivery task for an order.
-// @Summary Cancel delivery task
-// @Tags Delivery
-// @Accept json
-// @Produce json
-// @Param tenant path string true "Tenant slug"
-// @Param orderId path string true "Order ID"
-// @Param request body CancelDeliveryTaskRequest true "Cancel request"
-// @Success 200 {object} map[string]string
-// @Router /api/v1/{tenant}/orders/{orderId}/delivery/cancel-task [post]
-func (h *TaskHandler) CancelDeliveryTask(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, tenantID, err := getUserFromContext(r)
-	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	tenantSlug := chi.URLParam(r, "tenant")
-	orderIDStr := chi.URLParam(r, "orderId")
-	orderID, err := uuid.Parse(orderIDStr)
-	if err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
-		return
-	}
-
-	var req CancelDeliveryTaskRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-
-	if req.Reason == "" {
-		handlers.RespondError(w, http.StatusBadRequest, "cancellation reason is required")
-		return
-	}
-
-	if err := h.taskSvc.CancelDeliveryTask(ctx, tenantSlug, tenantID, orderID, req.Reason); err != nil {
-		h.logger.Error("failed to cancel delivery task",
-			zap.Error(err),
-			zap.String("order_id", orderID.String()),
-			zap.String("user_id", user.ID.String()))
-
-		if errors.Is(err, fulfilment.ErrAssignmentNotFound) {
-			handlers.RespondError(w, http.StatusNotFound, "delivery task not found")
-			return
-		}
-		if errors.Is(err, fulfilment.ErrAssignmentNotCancellable) {
-			handlers.RespondError(w, http.StatusBadRequest, "delivery task cannot be cancelled")
-			return
-		}
-		handlers.RespondError(w, http.StatusInternalServerError, "failed to cancel delivery task")
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusOK, map[string]string{"message": "delivery task cancelled"})
-}
-
-// GetTracking retrieves real-time tracking information.
+// GetTracking returns the rider's live position, name, phone and ETA for an order's delivery.
 // @Summary Get tracking info
 // @Tags Delivery
 // @Produce json
@@ -303,7 +241,6 @@ func (h *TaskHandler) GetTracking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tenantSlug := chi.URLParam(r, "tenant")
 	orderIDStr := chi.URLParam(r, "orderId")
 	orderID, err := uuid.Parse(orderIDStr)
 	if err != nil {
@@ -311,7 +248,7 @@ func (h *TaskHandler) GetTracking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracking, err := h.taskSvc.GetTracking(ctx, tenantSlug, tenantID, orderID)
+	tracking, err := h.taskSvc.GetTracking(ctx, tenantID, orderID)
 	if err != nil {
 		if errors.Is(err, fulfilment.ErrAssignmentNotFound) {
 			handlers.RespondError(w, http.StatusNotFound, "delivery task not found")

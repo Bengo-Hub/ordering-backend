@@ -147,33 +147,26 @@ type TaskResponse struct {
 	UpdatedAt          time.Time              `json:"updated_at"`
 }
 
-// CancelTaskRequest represents a request to cancel a task.
-type CancelTaskRequest struct {
-	TenantID uuid.UUID `json:"tenant_id"`
-	Reason   string    `json:"reason"`
-}
-
-// RiderLocation represents real-time rider location.
+// RiderLocation is the rider's last reported position.
 type RiderLocation struct {
 	RiderID   string    `json:"rider_id"`
 	Latitude  float64   `json:"latitude"`
 	Longitude float64   `json:"longitude"`
-	Heading   float64   `json:"heading,omitempty"`
-	Speed     float64   `json:"speed,omitempty"`
-	Accuracy  float64   `json:"accuracy,omitempty"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TrackingInfo represents tracking information for a task.
+// TrackingInfo is logistics-api's live view of one delivery (its TrackingResponse). The rider's
+// name, phone and position are only filled while a rider is working the task.
 type TrackingInfo struct {
-	TaskID         uuid.UUID      `json:"task_id"`
-	Status         TaskStatus     `json:"status"`
-	RiderLocation  *RiderLocation `json:"rider_location,omitempty"`
-	ETAMinutes     int            `json:"eta_minutes,omitempty"`
-	ETAAt          *time.Time     `json:"eta_at,omitempty"`
-	DistanceKm     float64        `json:"distance_km,omitempty"`
-	CurrentAddress string         `json:"current_address,omitempty"`
-	LastUpdatedAt  time.Time      `json:"last_updated_at"`
+	TaskID        uuid.UUID      `json:"task_id"`
+	Status        TaskStatus     `json:"status"`
+	RiderLocation *RiderLocation `json:"rider_location,omitempty"`
+	ETAMinutes    int            `json:"eta_minutes,omitempty"`
+	ETAAt         *time.Time     `json:"eta_at,omitempty"`
+	DistanceKm    float64        `json:"distance_km,omitempty"`
+	RiderName     string         `json:"rider_name,omitempty"`
+	RiderPhone    string         `json:"rider_phone,omitempty"`
+	LastUpdatedAt time.Time      `json:"last_updated_at"`
 }
 
 // FleetMemberResponse represents a fleet member/rider from logistics service.
@@ -330,26 +323,14 @@ func MatchTaskByRef(tasks []TaskResponse, ref string) *TaskResponse {
 	return nil
 }
 
-// CancelTask cancels a pending or assigned task.
-func (c *Client) CancelTask(ctx context.Context, tenantSlug string, taskID uuid.UUID, reason string) error {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s/cancel", tenantSlug, taskID.String())
-	reqBody := CancelTaskRequest{Reason: reason}
-
-	resp, err := c.serviceClient.Post(ctx, path, reqBody, c.headers(""))
-	if err != nil {
-		return fmt.Errorf("execute request: %w", err)
-	}
-
-	if !resp.IsSuccess() {
-		return c.parseError(resp)
-	}
-
-	return nil
-}
-
-// GetTracking retrieves real-time tracking information for a task.
-func (c *Client) GetTracking(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*TrackingInfo, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s/tracking", tenantSlug, taskID.String())
+// GetTracking reads the live tracking view of a task through logistics-api's service-to-service
+// route (tenant by UUID, INTERNAL_SERVICE_KEY). The tenant user route /{slug}/tasks/{id}/tracking
+// needs a signed-in dispatcher or rider and refuses this service's key.
+//
+// There is no cancel call here: logistics-api closes an order's task itself when it consumes
+// ordering.order.cancelled.
+func (c *Client) GetTracking(ctx context.Context, tenantID uuid.UUID, taskID uuid.UUID) (*TrackingInfo, error) {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/tasks/%s/tracking", tenantID.String(), taskID.String())
 
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {

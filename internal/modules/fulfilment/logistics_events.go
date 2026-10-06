@@ -88,6 +88,13 @@ func (h *LogisticsEventHandler) subscribeLogisticsDurable(
 			_ = msg.Ack()
 			return
 		}
+		// Tasks raised by POS or other services share the logistics stream. Their references are
+		// not ordering orders, so they are acknowledged and skipped instead of failing and
+		// redelivering, or leaving stray assignment rows behind.
+		if !isOrderingTaskEvent(evt.Payload) {
+			_ = msg.Ack()
+			return
+		}
 		ctx := context.Background()
 		if err := handler(ctx, evt); err != nil {
 			h.logger.Error("logistics event handler error, will redeliver",
@@ -125,6 +132,7 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamCont
 		{"logistics.task.completed", "ord-logistics-task-completed", h.handleTaskCompleted},
 		{"logistics.task.assigned", "ord-logistics-task-assigned", h.handleTaskAssigned},
 		{"logistics.task.accepted", "ord-logistics-task-accepted", h.handleTaskAccepted},
+		{"logistics.task.unassigned", "ord-logistics-task-unassigned", h.handleTaskUnassigned},
 		{"logistics.task.en_route_pickup", "ord-logistics-task-en-route-pickup", func(ctx context.Context, evt *sharedevents.Event) error {
 			return h.handleTaskLeg(ctx, evt, AssignmentStatusEnRoutePickup)
 		}},
@@ -152,11 +160,10 @@ func (h *LogisticsEventHandler) SubscribeToLogisticsEvents(js nats.JetStreamCont
 		}
 	}
 
-	h.logger.Info("logistics event subscriptions active (JetStream)",
-		zap.Strings("subjects", []string{
-			"logistics.task.created", "logistics.task.completed", "logistics.task.assigned",
-			"logistics.task.accepted", "logistics.task.en_route",
-			"logistics.task.delivered", "logistics.task.failed",
-		}))
+	subjects := make([]string, 0, len(subs))
+	for _, s := range subs {
+		subjects = append(subjects, s.subject)
+	}
+	h.logger.Info("logistics event subscriptions active (JetStream)", zap.Strings("subjects", subjects))
 	return nil
 }

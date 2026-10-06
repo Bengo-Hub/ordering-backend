@@ -180,76 +180,61 @@ func (s *TaskService) ListAssignments(ctx context.Context, filter AssignmentFilt
 	return s.repo.ListAssignments(ctx, filter)
 }
 
-// CancelDeliveryTask cancels a delivery task.
-func (s *TaskService) CancelDeliveryTask(ctx context.Context, tenantSlug string, tenantID, orderID uuid.UUID, reason string) error {
-	assignment, err := s.repo.GetAssignmentByOrderID(ctx, tenantID, orderID)
-	if err != nil {
-		return err
-	}
-
-	// Check if cancellable
-	if !s.isCancellableStatus(assignment.Status) {
-		return ErrAssignmentNotCancellable
-	}
-
-	// Cancel in logistics service
-	taskID, err := uuid.Parse(assignment.LogisticsTaskID)
-	if err == nil {
-		if err := s.logisticsClient.CancelTask(ctx, tenantSlug, taskID, reason); err != nil {
-			s.logger.Warn("failed to cancel task in logistics",
-				zap.Error(err),
-				zap.String("task_id", assignment.LogisticsTaskID))
-		}
-	}
-
-	// Update local status
-	now := time.Now()
-	assignment.Status = AssignmentStatusCancelled
-	assignment.CancellationReason = reason
-	assignment.CancelledAt = &now
-
-	return s.repo.UpdateAssignment(ctx, assignment)
-}
-
-// GetTracking retrieves real-time tracking information.
-func (s *TaskService) GetTracking(ctx context.Context, tenantSlug string, tenantID, orderID uuid.UUID) (*TrackingInfo, error) {
+// GetTracking returns the live position, rider and ETA for an order's delivery. It reads
+// logistics-api's service-to-service tracking route; when logistics cannot answer, the locally
+// stored assignment is returned so the tracker still shows the delivery state.
+func (s *TaskService) GetTracking(ctx context.Context, tenantID, orderID uuid.UUID) (*TrackingInfo, error) {
 	assignment, err := s.repo.GetAssignmentByOrderID(ctx, tenantID, orderID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get tracking from logistics service
 	taskID, err := uuid.Parse(assignment.LogisticsTaskID)
 	if err != nil {
 		return nil, ErrTrackingNotAvailable
 	}
 
-	logisticsTracking, err := s.logisticsClient.GetTracking(ctx, tenantSlug, taskID)
+	logisticsTracking, err := s.logisticsClient.GetTracking(ctx, tenantID, taskID)
 	if err != nil {
 		s.logger.Warn("failed to get tracking from logistics",
 			zap.Error(err),
 			zap.String("task_id", assignment.LogisticsTaskID))
-		// Return cached data if logistics unavailable
 		return s.buildCachedTracking(assignment)
 	}
+	return trackingFromLogistics(assignment, logisticsTracking), nil
+}
 
+// trackingFromLogistics maps logistics-api's tracking view onto the order tracker's shape. ETA and
+// distance are left out until logistics has computed them, so the tracker never shows "0 min".
+// The rider id falls back to the assignment's rider when logistics has no recent GPS fix.
+func trackingFromLogistics(assignment *OrderAssignment, lt *logistics.TrackingInfo) *TrackingInfo {
 	tracking := &TrackingInfo{
 		AssignmentID:  assignment.ID,
-		OrderID:       orderID,
-		Status:        AssignmentStatus(logisticsTracking.Status),
-		ETAMinutes:    &logisticsTracking.ETAMinutes,
-		ETAAt:         logisticsTracking.ETAAt,
-		DistanceKm:    &logisticsTracking.DistanceKm,
-		LastUpdatedAt: logisticsTracking.LastUpdatedAt,
+		OrderID:       assignment.OrderID,
+		Status:        AssignmentStatus(lt.Status),
+		RiderID:       assignment.RiderID,
+		RiderName:     lt.RiderName,
+		RiderPhone:    lt.RiderPhone,
+		ETAAt:         lt.ETAAt,
+		LastUpdatedAt: lt.LastUpdatedAt,
 	}
-
-	if logisticsTracking.RiderLocation != nil {
-		tracking.RiderID = logisticsTracking.RiderLocation.RiderID
-		tracking.RiderLatitude = &logisticsTracking.RiderLocation.Latitude
-		tracking.RiderLongitude = &logisticsTracking.RiderLocation.Longitude
+	if lt.ETAMinutes > 0 {
+		eta := lt.ETAMinutes
+		tracking.ETAMinutes = &eta
 	}
-
-	return tracking, nil
+	if lt.DistanceKm > 0 {
+		dist := lt.DistanceKm
+		tracking.DistanceKm = &dist
+	}
+	if loc := lt.RiderLocation; loc != nil {
+		if loc.RiderID != "" {
+			tracking.RiderID = loc.RiderID
+		}
+		lat, lng := loc.Latitude, loc.Longitude
+		tracking.RiderLatitude = &lat
+		tracking.RiderLongitude = &lng
+	}
+	return tracking
 }
 
 // AssignRider assigns a fleet member (rider) to the delivery task for an order.
@@ -290,17 +275,6 @@ func (s *TaskService) AssignRider(ctx context.Context, tenantSlug string, tenant
 // GetDeliveryWindow retrieves the current delivery window.
 func (s *TaskService) GetDeliveryWindow(ctx context.Context, assignmentID uuid.UUID) (*DeliveryWindow, error) {
 	return s.repo.GetCurrentDeliveryWindow(ctx, assignmentID)
-}
-
-func (s *TaskService) isCancellableStatus(status AssignmentStatus) bool {
-	switch status {
-	case AssignmentStatusPending,
-		AssignmentStatusAssigned,
-		AssignmentStatusAccepted:
-		return true
-	default:
-		return false
-	}
 }
 
 func (s *TaskService) buildCachedTracking(assignment *OrderAssignment) (*TrackingInfo, error) {

@@ -4,10 +4,9 @@ import "errors"
 
 var (
 	// Assignment errors
-	ErrAssignmentNotFound       = errors.New("order assignment not found")
-	ErrAssignmentAlreadyExists  = errors.New("order assignment already exists")
-	ErrAssignmentNotCancellable = errors.New("order assignment cannot be cancelled in current status")
-	ErrInvalidAssignmentStatus  = errors.New("invalid assignment status")
+	ErrAssignmentNotFound      = errors.New("order assignment not found")
+	ErrAssignmentAlreadyExists = errors.New("order assignment already exists")
+	ErrInvalidAssignmentStatus = errors.New("invalid assignment status")
 
 	// Order errors
 	ErrOrderNotFound    = errors.New("order not found")

@@ -122,24 +122,23 @@ func (h *OrderHandler) TrackOrder(w http.ResponseWriter, r *http.Request) {
 			// Out for delivery: ask logistics for the rider's position every 30 seconds rather than
 			// on every 5-second poll of every open tracker.
 			if current.Status == ordering.OrderStatusOutForDelivery && h.taskService != nil && ticks%6 == 0 {
-				tenantSlug := requestTenantSlug(r)
-				if tenantSlug != "" {
-					tracking, trackErr := h.taskService.GetTracking(r.Context(), tenantSlug, tenantID, orderID)
-					if trackErr == nil && tracking != nil {
-						sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
-							"status":      "out_for_delivery",
-							"rider_id":    tracking.RiderID,
-							"latitude":    tracking.RiderLatitude,
-							"longitude":   tracking.RiderLongitude,
-							"eta_minutes": tracking.ETAMinutes,
-							"eta_at":      tracking.ETAAt,
-							"distance_km": tracking.DistanceKm,
-						})
-					} else {
-						sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
-							"status": "out_for_delivery",
-						})
-					}
+				tracking, trackErr := h.taskService.GetTracking(r.Context(), tenantID, orderID)
+				if trackErr == nil && tracking != nil {
+					sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
+						"status":      "out_for_delivery",
+						"rider_id":    tracking.RiderID,
+						"rider_name":  tracking.RiderName,
+						"rider_phone": tracking.RiderPhone,
+						"latitude":    tracking.RiderLatitude,
+						"longitude":   tracking.RiderLongitude,
+						"eta_minutes": tracking.ETAMinutes,
+						"eta_at":      tracking.ETAAt,
+						"distance_km": tracking.DistanceKm,
+					})
+				} else {
+					sendSSEEvent(w, flusher, "rider_location", map[string]interface{}{
+						"status": "out_for_delivery",
+					})
 				}
 			}
 
