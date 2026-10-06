@@ -383,7 +383,8 @@ func (h *LogisticsEventHandler) handleTaskFailed(ctx context.Context, evt *share
 			aggID = uuid.NewSHA1(tenantID, []byte(orderIDStr))
 		}
 		failedEvent := events.NewEvent("ordering.order.delivery_failed", aggID, tenantID, map[string]interface{}{
-			"order_id":       orderIDStr,
+			"order_id":       stripRefPrefix(orderIDStr),
+			"order_number":   data["order_number"],
 			"task_id":        taskIDStr,
 			"failure_reason": failureReason,
 			"failed_at":      time.Now().UTC().Format(time.RFC3339),
