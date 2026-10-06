@@ -3,8 +3,6 @@ package logistics
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -283,46 +281,6 @@ func (c *Client) GetTask(ctx context.Context, tenantSlug string, taskID uuid.UUI
 	return &result, nil
 }
 
-// GetTaskByExternalRef finds the task for an order. logistics-api has no exact external_reference
-// filter; its list endpoint searches tracking code and external reference by substring and answers
-// with the paginated envelope {data: [...]}. The match is then narrowed to the task whose
-// reference is the order id itself or "order:<id>", so a substring hit on another task is never
-// taken for this order's.
-func (c *Client) GetTaskByExternalRef(ctx context.Context, tenantSlug string, externalRef string) (*TaskResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks?search=%s&limit=10", tenantSlug, url.QueryEscape(externalRef))
-
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
-	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
-	}
-
-	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
-	}
-
-	var page struct {
-		Data []TaskResponse `json:"data"`
-	}
-	if err := resp.DecodeJSON(&page); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
-	}
-	if t := MatchTaskByRef(page.Data, externalRef); t != nil {
-		return t, nil
-	}
-	return nil, &APIError{Code: "NOT_FOUND", Message: "task not found"}
-}
-
-// MatchTaskByRef returns the task whose external reference is ref or "<kind>:ref".
-func MatchTaskByRef(tasks []TaskResponse, ref string) *TaskResponse {
-	for i := range tasks {
-		got := tasks[i].ExternalReference
-		if got == ref || strings.HasSuffix(got, ":"+ref) {
-			return &tasks[i]
-		}
-	}
-	return nil
-}
-
 // GetTracking reads the live tracking view of a task through logistics-api's service-to-service
 // route (tenant by UUID, INTERNAL_SERVICE_KEY). The tenant user route /{slug}/tasks/{id}/tracking
 // needs a signed-in dispatcher or rider and refuses this service's key.
@@ -417,23 +375,24 @@ func (c *Client) AssignTask(ctx context.Context, tenantID uuid.UUID, taskID uuid
 
 // RateRiderRequest is the request to rate a rider on a completed task.
 type RateRiderRequest struct {
-	Rating  int    `json:"rating"`
-	Comment string `json:"comment,omitempty"`
+	Rating         int    `json:"rating"`
+	Comment        string `json:"comment,omitempty"`
+	CustomerUserID string `json:"customer_user_id,omitempty"`
 }
 
-// RateRider submits a customer rating for the rider who delivered a task.
-func (c *Client) RateRider(ctx context.Context, tenantSlug, taskID string, req RateRiderRequest) error {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s/rate", tenantSlug, taskID)
+// RateRider submits a customer rating for the rider who delivered a task, through logistics-api's
+// service-to-service route (tenant by UUID). The tenant route /{slug}/tasks/{id}/rate needs a
+// signed-in user and refuses this service's key.
+func (c *Client) RateRider(ctx context.Context, tenantID, taskID uuid.UUID, req RateRiderRequest) error {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/tasks/%s/rate", tenantID.String(), taskID.String())
 
 	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(""))
 	if err != nil {
 		return fmt.Errorf("rate rider request: %w", err)
 	}
-
 	if !resp.IsSuccess() {
-		return fmt.Errorf("rate rider failed: status %d", resp.StatusCode)
+		return c.parseError(resp)
 	}
-
 	return nil
 }
 

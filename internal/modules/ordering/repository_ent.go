@@ -1261,6 +1261,27 @@ func entOrderEventToDomain(e *ent.OrderEvent) *OrderEvent {
 
 // --- Cross-module Lookups ---
 
+// LatestLogisticsTaskID returns the logistics task of the order's newest assignment (uuid.Nil when
+// none). It reads one indexed row by order id.
+func (r *EntRepository) LatestLogisticsTaskID(ctx context.Context, orderID uuid.UUID) (uuid.UUID, error) {
+	a, err := r.client.OrderAssignment.Query().
+		Where(orderassignment.OrderID(orderID), orderassignment.LogisticsTaskIDNEQ("")).
+		Order(ent.Desc(orderassignment.FieldCreatedAt)).
+		Select(orderassignment.FieldLogisticsTaskID).
+		First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return uuid.Nil, nil
+		}
+		return uuid.Nil, err
+	}
+	id, perr := uuid.Parse(a.LogisticsTaskID)
+	if perr != nil {
+		return uuid.Nil, nil
+	}
+	return id, nil
+}
+
 func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error) {
 	t, err := r.client.Tenant.Get(ctx, id)
 	if err != nil {
