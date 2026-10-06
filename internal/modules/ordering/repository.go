@@ -7,9 +7,16 @@ import (
 	"github.com/google/uuid"
 )
 
-// MetadataPatchFunc decides a metadata patch from an order's current status and metadata. It
-// returns nil when nothing should be written.
-type MetadataPatchFunc func(status OrderStatus, metadata map[string]interface{}) map[string]interface{}
+// OrderSnapshot is the part of an order a MetadataPatchFunc decides on.
+type OrderSnapshot struct {
+	Status        OrderStatus
+	PaymentStatus PaymentStatus
+	Metadata      map[string]interface{}
+}
+
+// MetadataPatchFunc decides a metadata patch from an order's current state. It returns nil when
+// nothing should be written.
+type MetadataPatchFunc func(current OrderSnapshot) map[string]interface{}
 
 // Repository defines the interface for ordering data persistence.
 type Repository interface {
@@ -44,6 +51,9 @@ type Repository interface {
 	// MergeOrderMetadataIf is MergeOrderMetadata with the patch decided from the order's current
 	// status and metadata on every attempt; a nil patch writes nothing. It reports whether it wrote.
 	MergeOrderMetadataIf(ctx context.Context, tenantID, orderID uuid.UUID, decide MetadataPatchFunc) (bool, error)
+	// SetOrderPaymentIntent records the order's current treasury payment intent (column
+	// payment_intent_id), which the payment poller and staff payment prompts read.
+	SetOrderPaymentIntent(ctx context.Context, tenantID, orderID, intentID uuid.UUID) error
 	// GetConfigValue reads a tenant service-config value (platform default as fallback).
 	GetConfigValue(ctx context.Context, tenantID uuid.UUID, key string) (string, bool)
 	// MpesaCodeUsed reports whether any order of the tenant already carries this manual M-Pesa code.
@@ -82,7 +92,7 @@ type Repository interface {
 	ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration, limit int) ([]Order, error)
 
 	// Cross-tenant query for payment polling fallback
-	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, limit int) ([]StalePaymentOrder, error)
+	GetStalePaymentOrders(ctx context.Context, olderThan time.Time, after *StalePaymentCursor, limit int) ([]StalePaymentOrder, error)
 
 	// OrderItem operations
 	CreateOrderItem(ctx context.Context, item *OrderItem) error

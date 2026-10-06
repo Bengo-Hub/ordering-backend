@@ -72,6 +72,8 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 	r.Get("/orders/guest/{orderId}", h.GetGuestOrder)
 	// Public order rating from the emailed "Leave Review" link (no auth; the order UUID is the capability).
 	r.Post("/orders/guest/{orderId}/rate", h.RateOrderGuest)
+	// Public payment retry from the order page while the retry window is open.
+	r.Post("/orders/guest/{orderId}/payment/retry", h.RetryGuestOrderPayment)
 
 	// Customer order routes
 	r.Route("/orders", func(orderRouter chi.Router) {
@@ -85,6 +87,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		orderRouter.Post("/{orderId}/rate", h.RateOrder)
 		orderRouter.Post("/{orderId}/reorder", h.Reorder)
 		orderRouter.Post("/{orderId}/pay/wallet", h.PayWithWallet)
+		orderRouter.Post("/{orderId}/payment/retry", h.RetryOrderPayment)
 
 		// Live order tracking (SSE)
 		orderRouter.Get("/{orderId}/track", h.TrackOrder)
@@ -364,6 +367,9 @@ type AdminOrderSummary struct {
 	Items     []AdminOrderItemSummary `json:"items"`
 	PlacedAt  *time.Time              `json:"placedAt,omitempty"`
 	CreatedAt time.Time               `json:"createdAt"`
+	// PaymentRetry: an online-payment order still waiting for its money, and until when the
+	// customer may retry. Staff cannot accept it until it is paid.
+	PaymentRetry *ordering.PaymentRetryInfo `json:"paymentRetry,omitempty"`
 }
 
 // AdminListOrdersResponse is the paginated response for admin order list views.
@@ -422,6 +428,7 @@ func toAdminOrderSummary(o ordering.Order) AdminOrderSummary {
 		Items:           items,
 		PlacedAt:        o.PlacedAt,
 		CreatedAt:       o.CreatedAt,
+		PaymentRetry:    o.PaymentRetry,
 	}
 }
 

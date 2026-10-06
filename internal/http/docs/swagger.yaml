@@ -1163,6 +1163,12 @@ definitions:
         type: string
       paymentMethod:
         $ref: '#/definitions/ordering.PaymentMethod'
+      paymentRetry:
+        allOf:
+        - $ref: '#/definitions/ordering.PaymentRetryInfo'
+        description: |-
+          PaymentRetry is set while an online-payment order waits for its money: whether the customer
+          can still retry, until when, and the failed attempts so far. Computed on read.
       paymentStatus:
         $ref: '#/definitions/ordering.PaymentStatus'
       placedAt:
@@ -1336,6 +1342,40 @@ definitions:
     - PaymentMethodCOD
     - PaymentMethodWallet
     - PaymentMethodLoyalty
+  ordering.PaymentRetryInfo:
+    properties:
+      attempts:
+        type: integer
+      lastAttemptAt:
+        type: string
+      lastFailureReason:
+        type: string
+      open:
+        type: boolean
+      retries:
+        type: integer
+      until:
+        type: string
+    type: object
+  ordering.PaymentRetryResult:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+      initiateUrl:
+        type: string
+      orderId:
+        type: string
+      orderNumber:
+        type: string
+      paymentIntentId:
+        type: string
+      retryUntil:
+        type: string
+      reused:
+        type: boolean
+    type: object
   ordering.PaymentStatus:
     enum:
     - pending
@@ -4822,6 +4862,43 @@ paths:
       summary: Cancel order
       tags:
       - Orders
+  /orders/{orderId}/payment/retry:
+    post:
+      description: While the order's payment retry window is open, returns a payment
+        intent to pay (the current one when it was never completed, else a fresh one)
+        and its treasury initiate URL. Only the order's customer or staff with orders.manage.
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.PaymentRetryResult'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Retry an order payment
+      tags:
+      - Orders
   /orders/{orderId}/rate:
     post:
       consumes:
@@ -4946,6 +5023,44 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get guest order
+      tags:
+      - Orders
+  /orders/guest/{orderId}/payment/retry:
+    post:
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Guest session ID
+        in: query
+        name: session_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.PaymentRetryResult'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Retry a guest order payment
       tags:
       - Orders
   /outlets/{outletId}/rating:

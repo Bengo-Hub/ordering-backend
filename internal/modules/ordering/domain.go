@@ -187,6 +187,9 @@ type Order struct {
 	Metadata           map[string]interface{} `json:"metadata,omitempty"`
 	CreatedAt          time.Time              `json:"createdAt"`
 	UpdatedAt          time.Time              `json:"updatedAt"`
+	// PaymentRetry is set while an online-payment order waits for its money: whether the customer
+	// can still retry, until when, and the failed attempts so far. Computed on read.
+	PaymentRetry *PaymentRetryInfo `json:"paymentRetry,omitempty"`
 
 	// contact is the signed-in customer's profile when the list query loaded it with the order,
 	// so orderContactInfo needs no per-order user lookup.
@@ -494,6 +497,14 @@ type StalePaymentOrder struct {
 	PaymentIntentID *uuid.UUID
 	PaymentStatus   PaymentStatus
 	PlacedAt        *time.Time
+	CreatedAt       time.Time
+	Metadata        map[string]interface{}
+}
+
+// StalePaymentCursor is the keyset position after the last order of a GetStalePaymentOrders page.
+type StalePaymentCursor struct {
+	PlacedAt time.Time
+	ID       uuid.UUID
 }
 
 // OrderFilter defines filter options for listing orders.
