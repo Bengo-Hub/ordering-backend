@@ -31,7 +31,8 @@ func TestResolveFulfillment(t *testing.T) {
 		{"schedule inside the lead time is rejected", "schedule", &tooSoon, "", ErrScheduledForTooSoon},
 		{"a pickup with a time too soon is rejected", "pickup", &tooSoon, "", ErrScheduledForTooSoon},
 		{"scheduled pickup keeps pickup", "pickup", &future, FulfillmentTypePickup, nil},
-		{"dine in", "dine_in", nil, FulfillmentTypeDineIn, nil},
+		{"online dine-in is not offered", "dine_in", nil, "", ErrDineInNotOffered},
+		{"online dine-in is refused case-insensitively", " Dine_In ", nil, "", ErrDineInNotOffered},
 		{"case and space tolerant", "  Schedule ", &future, FulfillmentTypeDelivery, nil},
 	}
 	for _, tc := range cases {

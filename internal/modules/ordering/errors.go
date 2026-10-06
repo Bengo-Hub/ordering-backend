@@ -73,6 +73,7 @@ var (
 
 	// Scheduled order errors
 	ErrScheduledForRequired     = errors.New("scheduled_for is required for scheduled orders")
+	ErrDineInNotOffered         = errors.New("dine-in is not available for online orders; choose pickup or delivery")
 	ErrScheduledForTooSoon      = errors.New("scheduled_for must be at least 30 minutes in the future")
 
 	// Refund errors
