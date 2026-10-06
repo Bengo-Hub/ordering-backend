@@ -140,6 +140,10 @@ func (h *LogisticsEventHandler) stampDeliveryState(ctx context.Context, tenantID
 	if name, _ := evt.Payload["rider_name"].(string); name != "" {
 		patch["rider_name"] = name
 	}
+	// The customer tracker offers "call the rider" once logistics sends the number.
+	if phone, _ := evt.Payload["rider_phone"].(string); phone != "" {
+		patch["rider_phone"] = phone
+	}
 	if taskID, _ := evt.Payload["task_id"].(string); taskID != "" {
 		patch["logistics_task_id"] = taskID
 	}

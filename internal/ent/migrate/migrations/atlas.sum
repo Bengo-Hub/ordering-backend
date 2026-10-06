@@ -1,4 +1,4 @@
-h1:10vtrIEJ7NfRxk74a7ag3qDUNM0fiqUXrEQUy+0rtMU=
+h1:A9ixu3hSG8v0dj+q9xKNwk+9+uWjzjUjIA1ZGi1P/IA=
 00000000000000_placeholder.sql h1:eAvsggBsq1ssn/mrZysNWxXQEDwl2gD4K3Hjqr4EKxM=
 20260324210144_initial_schema.sql h1:9lcTtD9yAENqk9VVGJ9DlurXhqs0rxcNYwVSQrB45vc=
 20260330120000_add_payment_method_to_orders.sql h1:P9MOt4ruS1+lGgcvZz/BDrdE3a+s9GNPwtodOxpKhmo=
@@ -14,3 +14,4 @@ h1:10vtrIEJ7NfRxk74a7ag3qDUNM0fiqUXrEQUy+0rtMU=
 20260918071354_add_document_sequences.sql h1:xTagTHcyjngjN85KZZn7VCBQSY6Uwc6cqpyjEzL8bF4=
 20260918182632_add_order_delivery_coordinates.sql h1:3/7yGNQM64TmuYIVkCHWTKdjSvxmuFz5tyvgnZnyy2g=
 20260926042000_add_order_metadata_gin_index.sql h1:trIOyEwMZwL8fboDacsV/utM2GZ18qnIonNDpIggpYE=
+20261006090000_add_order_job_partial_indexes.sql h1:huAQdY+XSBBHaiNjLUaQesXxiDHwTQqXYkWXNEsa9N4=

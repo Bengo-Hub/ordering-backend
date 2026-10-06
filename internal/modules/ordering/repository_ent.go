@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	stdsql "database/sql"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -29,6 +30,15 @@ import (
 type EntRepository struct {
 	client *ent.Client
 	seq    *documents.SequenceService
+	// db runs the grouped reporting queries ent's builder cannot express (GROUP BY a day).
+	db *stdsql.DB
+}
+
+// WithDB gives the repository the raw connection pool behind its ent client, used for the
+// aggregate reporting queries (see analytics_query.go).
+func (r *EntRepository) WithDB(db *stdsql.DB) *EntRepository {
+	r.db = db
+	return r
 }
 
 // NewEntRepository creates a new Ent-based ordering repository. It owns its own
@@ -574,6 +584,15 @@ func metadataContains(want map[string]any) predicate.Order {
 	}
 }
 
+// metadataKeyAbsent matches orders whose metadata has no value under key (or no metadata).
+func metadataKeyAbsent(key string) predicate.Order {
+	return func(s *sql.Selector) {
+		s.Where(sql.P(func(b *sql.Builder) {
+			b.WriteString("(").WriteString(s.C(order.FieldMetadata)).WriteString(" ->> ").Arg(key).WriteString("::text) IS NULL")
+		}))
+	}
+}
+
 // MergeOrderMetadata merges patch into the order's metadata and writes only that column. The
 // write only lands if the order is unchanged since it was read (updated_at), retrying otherwise,
 // so two concurrent merges (a payment stamp and a rider assignment, say) never drop each other's
@@ -719,7 +738,9 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 		query = query.Offset(filter.Offset)
 	}
 
-	orders, err := query.WithItems().All(ctx)
+	// Items, the delivery address and the customer's contact come in with the page (one query per
+	// edge) instead of a lookup per order afterwards.
+	orders, err := query.WithItems().WithDeliveryAddress().WithCustomer().All(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -727,6 +748,12 @@ func (r *EntRepository) ListOrders(ctx context.Context, filter OrderFilter) ([]O
 	result := make([]Order, len(orders))
 	for i, o := range orders {
 		domainOrder := entOrderToDomain(o)
+		if addr := o.Edges.DeliveryAddress; addr != nil {
+			domainOrder.DeliveryAddress = entAddressToDomain(addr)
+		}
+		if u := o.Edges.Customer; u != nil {
+			domainOrder.contact = &UserContactInfo{Email: u.Email, FullName: u.FullName, Phone: u.Phone}
+		}
 		// Map eager-loaded order items
 		if edges := o.Edges.Items; len(edges) > 0 {
 			domainOrder.Items = make([]OrderItem, len(edges))
@@ -749,6 +776,9 @@ func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan tim
 			order.PlacedAtNotNil(),
 			order.PlacedAtLT(olderThan),
 			order.StatusEQ(order.StatusPending),
+			// A manual M-Pesa order has no gateway payment to wait for: the outlet checks the code
+			// and accepts it. Timing it out would cancel a paid order the outlet is slow to accept.
+			order.Not(metadataContains(map[string]any{metaPaymentChannel: PaymentChannelManualMpesa})),
 		).
 		Limit(limit).
 		Order(ent.Asc(order.FieldPlacedAt)).
@@ -772,17 +802,22 @@ func (r *EntRepository) GetStalePaymentOrders(ctx context.Context, olderThan tim
 	return result, nil
 }
 
-func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration) ([]Order, error) {
+func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer time.Duration, limit int) ([]Order, error) {
 	cutoff := time.Now().Add(prepBuffer)
 	ents, err := r.client.Order.Query().
 		Where(
 			// Any fulfilment type: a scheduled order is a delivery or pickup with scheduled_for set
 			// (legacy rows carry fulfillment_type "scheduled"). Only orders still waiting for the
-			// kitchen qualify; the caller skips ones already handed to the outlet.
+			// kitchen qualify, and ones already handed to the outlet are left out here rather than
+			// re-read every minute until the kitchen starts them. The partial index on scheduled_for
+			// (status confirmed) keeps this to the open working set however much history piles up.
 			order.StatusEQ(order.StatusConfirmed),
 			order.ScheduledForNotNil(),
 			order.ScheduledForLTE(cutoff),
+			metadataKeyAbsent(metaOutletHandoffAt),
 		).
+		Order(ent.Asc(order.FieldScheduledFor)).
+		Limit(limit).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -793,92 +828,6 @@ func (r *EntRepository) ListScheduledOrdersDue(ctx context.Context, prepBuffer t
 		result = append(result, *entOrderToDomain(o))
 	}
 	return result, nil
-}
-
-// --- Analytics ---
-
-func (r *EntRepository) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) (*AnalyticsSummary, error) {
-	orders, err := r.client.Order.Query().
-		Where(
-			order.TenantID(tenantID),
-			order.CreatedAtGTE(dateFrom),
-			order.CreatedAtLTE(dateTo),
-		).
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	summary := &AnalyticsSummary{
-		TotalOrders:       0,
-		TotalRevenue:      0,
-		CancelledOrders:   0,
-		OrdersByStatus:    make(map[string]int),
-		RevenueByCurrency: make(map[string]float64),
-		TopSellingItems:   make([]ItemSalesSummary, 0),
-		Trend:             make([]DailyMetric, 0),
-	}
-
-	trendMap := make(map[string]*DailyMetric)
-	// Pre-fill trend map with all dates in range
-	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
-		dateStr := d.Format("2006-01-02")
-		trendMap[dateStr] = &DailyMetric{Date: dateStr}
-	}
-
-	for _, o := range orders {
-		summary.TotalOrders++
-		summary.TotalRevenue += o.GrandTotal
-		summary.OrdersByStatus[string(o.Status)]++
-		summary.RevenueByCurrency[o.Currency] += o.GrandTotal
-		if o.Status == order.StatusCancelled {
-			summary.CancelledOrders++
-		}
-
-		dateKey := o.CreatedAt.Format("2006-01-02")
-		if m, ok := trendMap[dateKey]; ok {
-			m.Orders++
-			m.Revenue += o.GrandTotal
-		}
-	}
-
-	// Simple aggregation for items
-	orderIDs := make([]uuid.UUID, 0)
-	for _, o := range orders {
-		if o.Status != order.StatusCancelled {
-			orderIDs = append(orderIDs, o.ID)
-		}
-	}
-
-	if len(orderIDs) > 0 {
-		items, err := r.client.OrderItem.Query().
-			Where(orderitem.OrderIDIn(orderIDs...)).
-			All(ctx)
-		if err == nil {
-			itemStats := make(map[string]*ItemSalesSummary)
-			for _, it := range items {
-				if _, ok := itemStats[it.InventorySku]; !ok {
-					itemStats[it.InventorySku] = &ItemSalesSummary{
-						InventorySKU: it.InventorySku,
-						NameSnapshot: it.NameSnapshot,
-					}
-				}
-				itemStats[it.InventorySku].Quantity += it.Quantity
-				itemStats[it.InventorySku].Revenue += it.TotalPrice
-			}
-			for _, stats := range itemStats {
-				summary.TopSellingItems = append(summary.TopSellingItems, *stats)
-			}
-		}
-	}
-
-	// Populate trend from map in chronological order
-	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
-		dateStr := d.Format("2006-01-02")
-		summary.Trend = append(summary.Trend, *trendMap[dateStr])
-	}
-
-	return summary, nil
 }
 
 // GenerateOrderNumber mints the next order number via the shared documents.SequenceService (the

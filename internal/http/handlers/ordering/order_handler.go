@@ -127,6 +127,7 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 
 		adminRouter.Get("/", h.AdminListOrders)
 		adminRouter.Get("/summary", h.GetAnalyticsSummary)
+		adminRouter.Get("/counts", h.GetStatusCounts)
 		adminRouter.Post("/bulk-status", h.BulkUpdateOrderStatus)
 		adminRouter.Get("/{orderId}", h.AdminGetOrder)
 		adminRouter.Get("/{orderId}/events", h.GetOrderEvents)
@@ -393,6 +394,9 @@ func toAdminOrderSummary(o ordering.Order) AdminOrderSummary {
 		if o.DeliveryAddress.AddressLine2 != "" {
 			deliveryAddr += ", " + o.DeliveryAddress.AddressLine2
 		}
+	} else if ordering.IsDeliveryFulfilment(o.FulfillmentType) {
+		// Guest delivery: checkout stores the typed address (plus rider notes) in instructions.
+		deliveryAddr = strings.TrimSpace(o.Instructions)
 	}
 
 	return AdminOrderSummary{
@@ -457,6 +461,7 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 
 	case errors.Is(err, ordering.ErrInvalidStatusTransition),
 		errors.Is(err, ordering.ErrOrderCannotBeCancelled),
+		errors.Is(err, ordering.ErrOrderNotDeletable),
 		errors.Is(err, ordering.ErrOrderNotRefundable),
 		errors.Is(err, ordering.ErrOrderAlreadyRefunded):
 		handlers.RespondError(w, http.StatusConflict, err.Error())
@@ -1092,6 +1097,11 @@ func (h *OrderHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 
 	if existingOrder.CustomerID == nil || *existingOrder.CustomerID != user.ID {
 		handlers.RespondError(w, http.StatusForbidden, "access denied")
+		return
+	}
+	// Once the kitchen has started, only the outlet can call the order off.
+	if !ordering.CustomerMayCancel(existingOrder.Status) {
+		handlers.RespondError(w, http.StatusConflict, "the outlet has already started this order; contact them to cancel it")
 		return
 	}
 
@@ -1764,6 +1774,44 @@ func (h *OrderHandler) GetAnalyticsSummary(w http.ResponseWriter, r *http.Reques
 	handlers.RespondJSON(w, http.StatusOK, summary)
 }
 
+// GetStatusCounts returns the number of open orders in each status, for the staff dashboard cards.
+// @Summary Open order counts per status (admin)
+// @Tags Admin Orders
+// @Produce json
+// @Param outlet_id query string false "Outlet ID"
+// @Success 200 {object} map[string]int
+// @Router /admin/orders/counts [get]
+func (h *OrderHandler) GetStatusCounts(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	var outletID *uuid.UUID
+	if v := r.URL.Query().Get("outlet_id"); v != "" {
+		if id, pErr := uuid.Parse(v); pErr == nil {
+			outletID = &id
+		}
+	}
+	counts, err := h.orderService.StatusCounts(r.Context(), tenantID, outletID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, counts)
+}
+
+// requestTenantSlug resolves the tenant slug from the caller's token, or from the URL for
+// service-key calls (the POS queue assigns riders with no user token).
+func requestTenantSlug(r *http.Request) string {
+	if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
+		if slug := claims.GetTenantSlug(); slug != "" {
+			return slug
+		}
+	}
+	return httpware.GetTenantSlug(r.Context())
+}
+
 // GuestCheckout creates an order from a guest cart without requiring auth.
 // @Summary Guest checkout
 // @Description Creates an order from a guest cart identified by session ID (no auth required)
@@ -2079,10 +2127,7 @@ func (h *OrderHandler) AdminAssignRider(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	tenantSlug := ""
-	if claims, ok := authclient.ClaimsFromContext(r.Context()); ok {
-		tenantSlug = claims.GetTenantSlug()
-	}
+	tenantSlug := requestTenantSlug(r)
 
 	// Attempt assignment; auto-create delivery task if none exists yet.
 	assignment, err := h.taskService.AssignRider(r.Context(), tenantSlug, tenantID, orderID, req.RiderID)
@@ -2136,6 +2181,9 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 		PODCode:       order.PODCode,
 		DeliveryFee:   order.DeliveryFee,
 	}
+	if order.PaymentMethod == ordering.PaymentMethodCOD && order.PaymentStatus != ordering.PaymentStatusPaid {
+		info.CashOnDelivery = order.GrandTotal
+	}
 
 	if order.DeliveryAddress != nil {
 		addr := order.DeliveryAddress
@@ -2159,6 +2207,13 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 		}
 		if addr.ContactPhone != "" {
 			info.CustomerPhone = addr.ContactPhone
+		}
+	} else {
+		// Guest delivery: the typed address is in instructions, coordinates on the order.
+		info.DeliveryAddress = order.Instructions
+		if order.DeliveryLatitude != nil && order.DeliveryLongitude != nil {
+			info.DeliveryLat = *order.DeliveryLatitude
+			info.DeliveryLng = *order.DeliveryLongitude
 		}
 	}
 

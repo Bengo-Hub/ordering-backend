@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -245,9 +246,11 @@ func (c *Client) parseError(resp *serviceclient.Response) error {
 	return &apiErr
 }
 
-// CreateTask creates a delivery task with the logistics service.
-func (c *Client) CreateTask(ctx context.Context, tenantSlug string, req CreateTaskRequest) (*TaskResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks", tenantSlug)
+// CreateTask creates a delivery task through logistics-api's service-to-service dispatch route
+// (tenant by UUID). The tenant user route /{slug}/tasks needs a signed-in user with task-manage
+// permission and refused this service's key.
+func (c *Client) CreateTask(ctx context.Context, tenantID uuid.UUID, req CreateTaskRequest) (*TaskResponse, error) {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/tasks", tenantID.String())
 
 	resp, err := c.serviceClient.Post(ctx, path, req, c.headers(req.IdempotencyKey))
 	if err != nil {
@@ -287,9 +290,13 @@ func (c *Client) GetTask(ctx context.Context, tenantSlug string, taskID uuid.UUI
 	return &result, nil
 }
 
-// GetTaskByExternalRef retrieves a task by external reference (order_id).
+// GetTaskByExternalRef finds the task for an order. logistics-api has no exact external_reference
+// filter; its list endpoint searches tracking code and external reference by substring and answers
+// with the paginated envelope {data: [...]}. The match is then narrowed to the task whose
+// reference is the order id itself or "order:<id>", so a substring hit on another task is never
+// taken for this order's.
 func (c *Client) GetTaskByExternalRef(ctx context.Context, tenantSlug string, externalRef string) (*TaskResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks?external_reference=%s", tenantSlug, url.QueryEscape(externalRef))
+	path := fmt.Sprintf("/api/v1/%s/tasks?search=%s&limit=10", tenantSlug, url.QueryEscape(externalRef))
 
 	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
 	if err != nil {
@@ -300,16 +307,27 @@ func (c *Client) GetTaskByExternalRef(ctx context.Context, tenantSlug string, ex
 		return nil, c.parseError(resp)
 	}
 
-	var tasks []TaskResponse
-	if err := resp.DecodeJSON(&tasks); err != nil {
+	var page struct {
+		Data []TaskResponse `json:"data"`
+	}
+	if err := resp.DecodeJSON(&page); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
-
-	if len(tasks) == 0 {
-		return nil, &APIError{Code: "NOT_FOUND", Message: "task not found"}
+	if t := MatchTaskByRef(page.Data, externalRef); t != nil {
+		return t, nil
 	}
+	return nil, &APIError{Code: "NOT_FOUND", Message: "task not found"}
+}
 
-	return &tasks[0], nil
+// MatchTaskByRef returns the task whose external reference is ref or "<kind>:ref".
+func MatchTaskByRef(tasks []TaskResponse, ref string) *TaskResponse {
+	for i := range tasks {
+		got := tasks[i].ExternalReference
+		if got == ref || strings.HasSuffix(got, ":"+ref) {
+			return &tasks[i]
+		}
+	}
+	return nil
 }
 
 // CancelTask cancels a pending or assigned task.

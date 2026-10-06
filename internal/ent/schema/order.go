@@ -259,6 +259,16 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("fulfillment_type"),
 		// Scheduled orders
 		index.Fields("scheduled_for"),
+		// The scheduler's hand-off scan (ListScheduledOrdersDue): only confirmed scheduled orders,
+		// so the scan stays the size of the open working set as history grows.
+		index.Fields("scheduled_for").
+			StorageKey("order_scheduled_handoff_due").
+			Annotations(entsql.IndexWhere("status = 'confirmed' AND scheduled_for IS NOT NULL")),
+		// The payment poller (GetStalePaymentOrders, all tenants, oldest first): only orders still
+		// waiting for a payment.
+		index.Fields("placed_at").
+			StorageKey("order_stale_payment_placed_at").
+			Annotations(entsql.IndexWhere("status = 'pending' AND payment_status = 'pending'")),
 		// Metadata lookups by containment (@>), e.g. the manual M-Pesa code reuse check
 		// (repository_ent.go metadataContains). jsonb_path_ops keeps it compact.
 		index.Fields("metadata").

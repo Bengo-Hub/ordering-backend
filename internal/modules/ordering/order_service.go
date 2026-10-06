@@ -476,10 +476,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.OutletID)
 	if err != nil {
 		s.logger.Error("failed to generate order number", zap.Error(err))
-		// Release reservation if order number generation fails
-		if reservationID != nil {
-			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
-		}
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, err
 	}
 
@@ -547,10 +544,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create order", zap.Error(err))
-		// Release reservation on order creation failure
-		if reservationID != nil {
-			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
-		}
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, err
 	}
 
@@ -998,9 +992,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 
 	if err := s.createOrderWithRetry(ctx, order); err != nil {
 		s.logger.Error("failed to create guest order", zap.Error(err))
-		if reservationID != nil {
-			go s.releaseOrderReservation(context.Background(), &Order{TenantID: req.TenantID, ReservationID: reservationID}, "order_creation_failed")
-		}
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, err
 	}
 
@@ -1111,6 +1103,8 @@ func (s *OrderService) processStockConsumption(ctx context.Context, order *Order
 		OrderID:  order.ID,
 		Items:    consumptionItems,
 		Reason:   "sale",
+		// One deduction per order even if a retry or a duplicate finalize reaches inventory.
+		IdempotencyKey: "ordering-consume-" + order.ID.String(),
 	}
 
 	resp, err := s.inventoryClient.RecordConsumption(ctx, tenant.Slug, req)
@@ -1163,13 +1157,34 @@ func (s *OrderService) DeleteOrder(ctx context.Context, tenantID, orderID uuid.U
 	if err != nil {
 		return err
 	}
+	if !orderDeletable(order) {
+		return ErrOrderNotDeletable
+	}
 
-	// Release any inventory reservation
-	if order.ReservationID != nil {
-		go s.releaseOrderReservation(context.Background(), order, "order_deleted")
+	// Release any inventory reservation still held (an unpaid order nobody accepted).
+	if order.ReservationID != nil && order.Status == OrderStatusPending {
+		go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_deleted")
 	}
 
 	return s.repo.DeleteOrder(ctx, tenantID, orderID)
+}
+
+// orderDeletable reports whether an order can be removed outright. A live order has a POS record,
+// kitchen tickets, maybe a rider job and a customer waiting; deleting it would leave all of those
+// behind with nothing to close them, so it must be rejected (cancelled) first. Finished orders and
+// pending ones never shown to the outlet can go.
+func orderDeletable(order *Order) bool {
+	if order == nil {
+		return false
+	}
+	switch order.Status {
+	case OrderStatusCancelled, OrderStatusRefunded, OrderStatusPaymentTimeout,
+		OrderStatusCompleted, OrderStatusDelivered:
+		return true
+	case OrderStatusPending:
+		return !alreadyHandedOff(order) && stringMeta(order.Metadata, metaOutletOfferedAt) == ""
+	}
+	return false
 }
 
 // GetOrderEvents retrieves all lifecycle events for an order.
@@ -1217,26 +1232,19 @@ func (s *OrderService) GetAnalyticsSummary(ctx context.Context, tenantID uuid.UU
 	return s.repo.GetAnalyticsSummary(ctx, tenantID, dateFrom, dateTo)
 }
 
-// finalizeOrder runs the one-time terminal finalization for an order: awarding
-// loyalty points, finalizing (consuming) the inventory reservation, and processing
-// recipe-based (BOM) stock consumption.
-//
-// Both terminal transitions funnel through here so there is a single implementation:
-// DELIVERY orders terminate at "delivered", while pickup/dine-in orders terminate at
-// "completed". An order only reaches a terminal state once, so finalization runs once.
-// The alreadyFinalized guard (set when the order already carried a DeliveredAt or
-// CompletedAt timestamp BEFORE this transition) makes it safe against any accidental
-// re-entry, preventing double loyalty awards or double stock deduction.
-func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, order *Order, alreadyFinalized bool) {
-	if alreadyFinalized {
-		s.logger.Info("skipping order finalization: order already finalized",
-			zap.String("order_id", order.ID.String()))
-		return
-	}
+// StatusCounts returns the number of open orders per status for the staff dashboard cards.
+func (s *OrderService) StatusCounts(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) (map[string]int, error) {
+	return s.repo.StatusCounts(ctx, tenantID, outletID)
+}
 
+// finalizeOrder runs the one-time terminal finalization for an order: awarding loyalty points
+// and deducting stock. Delivery orders end at "delivered" and pickup or dine-in orders at
+// "completed"; planTransition decides when it is owed and UpdateOrderStatus only calls it after
+// winning the status write, so it runs once per order.
+func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, order *Order) {
 	// Award loyalty points (guests have no CustomerID and are skipped). Resolve the customer phone
 	// so the earn can be mirrored to pos-api (loyalty source of truth, keyed on phone).
-	if order.CustomerID != nil {
+	if order.CustomerID != nil && order.LoyaltyPointsEarned > 0 {
 		ci := s.orderContactInfo(ctx, order)
 		if err := s.loyaltySvc.EarnPoints(ctx, tenantID, *order.CustomerID, order.LoyaltyPointsEarned, &order.ID, "Points earned for order "+order.OrderNumber, ci.Phone, ci.Name); err != nil {
 			s.logger.Error("failed to award loyalty points", zap.Error(err))
@@ -1263,29 +1271,78 @@ func (s *OrderService) finalizeOrder(ctx context.Context, tenantID uuid.UUID, or
 	}
 }
 
-// settleCODIfApplicable marks an offline-cash (COD) order as paid and triggers the
-// treasury settlement when the order reaches its terminal/collected state. It is the
-// single implementation shared by both terminal transitions:
-//   - DELIVERY orders settle cash-on-delivery when marked "delivered".
-//   - PICKUP/dine-in orders settle cash-on-pickup (pay-at-counter) when marked "completed".
-//
-// It is a no-op for non-COD orders and is guarded against double-settle: if the payment
-// is already PAID (e.g. an order that was settled then revisited) it skips entirely.
-func (s *OrderService) settleCODIfApplicable(ctx context.Context, tenantID uuid.UUID, order *Order) {
-	if order.PaymentMethod != PaymentMethodCOD || order.PaymentStatus == PaymentStatusPaid {
-		return
-	}
-	order.PaymentStatus = PaymentStatusPaid
-	// Paid through the POS terminal: treasury already has the payment as a POS intent. Settling
-	// ordering's intent as well would book the same sale twice.
-	if paid, _ := order.Metadata[metaPaidAtPOS].(bool); paid {
-		return
-	}
-	// Book the tender actually taken at the door/counter (cash, or M-Pesa to the business with
-	// its code) rather than always "cash on delivery".
-	method, reference := codSettlement(order)
-	s.settleOfflinePayment(ctx, tenantID, order, method, reference)
+// transitionEffects are the one-time effects a status change owes other services. They are
+// decided from the order as read (planTransition), and run only by the request whose
+// compare-and-set write won (UpdateOrderStatus, CancelOrder).
+type transitionEffects struct {
+	// markPaid flips a pay-on-collection order to paid as part of the status write.
+	markPaid bool
+	// settleCOD books the tender taken at the door or counter in treasury.
+	settleCOD bool
+	// finalize awards loyalty points and consumes the stock reservation.
+	finalize bool
+	// refund requests a treasury refund for a prepaid order that is being cancelled.
+	refund bool
+	// release frees the stock reservation of a cancelled order.
+	release bool
 }
+
+// planTransition decides the effects of moving order to newStatus. Delivery orders end at
+// "delivered" and pickup or dine-in orders at "completed"; whichever comes first finalizes the
+// order (a delivered order later marked completed is not finalized again). A pay-on-collection
+// order is marked paid at that point and settled in treasury, unless the counter already rang it
+// through the POS terminal (treasury then holds it as a POS intent and settling again would book
+// the sale twice).
+func planTransition(order *Order, newStatus OrderStatus) transitionEffects {
+	var fx transitionEffects
+	if order == nil {
+		return fx
+	}
+	switch newStatus {
+	case OrderStatusDelivered, OrderStatusCompleted:
+		fx.finalize = order.DeliveredAt == nil && order.CompletedAt == nil
+		if order.PaymentMethod == PaymentMethodCOD && order.PaymentStatus != PaymentStatusPaid {
+			fx.markPaid = true
+			paidAtPOS, _ := order.Metadata[metaPaidAtPOS].(bool)
+			fx.settleCOD = !paidAtPOS
+		}
+	case OrderStatusCancelled:
+		fx.refund = order.PaymentStatus == PaymentStatusPaid && order.PaymentMethod != PaymentMethodCOD && order.GrandTotal > 0
+		fx.release = order.ReservationID != nil
+	}
+	return fx
+}
+
+// applyTransition sets the new status, its timestamp and (for pay-on-collection) the paid flag on
+// the in-memory order before it is written.
+func applyTransition(order *Order, newStatus OrderStatus, fx transitionEffects, now time.Time) {
+	order.Status = newStatus
+	switch newStatus {
+	case OrderStatusConfirmed:
+		order.ConfirmedAt = &now
+	case OrderStatusReady:
+		order.ReadyAt = &now
+	case OrderStatusDelivered:
+		order.DeliveredAt = &now
+	case OrderStatusCompleted:
+		order.CompletedAt = &now
+	case OrderStatusCancelled:
+		order.CancelledAt = &now
+	}
+	if fx.markPaid {
+		order.PaymentStatus = PaymentStatusPaid
+	}
+}
+
+// customerMayCancel reports whether a customer can still cancel their own order. Once the kitchen
+// has started (preparing) the food exists and only the outlet decides; before that a cancellation
+// is free.
+func customerMayCancel(status OrderStatus) bool {
+	return status == OrderStatusPending || status == OrderStatusConfirmed
+}
+
+// CustomerMayCancel is the exported form of customerMayCancel for handlers.
+func CustomerMayCancel(status OrderStatus) bool { return customerMayCancel(status) }
 
 // UpdateOrderStatus transitions an order to a new status.
 func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID uuid.UUID, newStatus OrderStatus, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
@@ -1318,68 +1375,36 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	if order.Status == OrderStatusPending && newStatus == OrderStatusConfirmed && !readyForAcceptance(order) {
 		return nil, ErrPaymentPending
 	}
-
-	// Update timestamps based on status
-	now := time.Now()
-	oldStatus := order.Status
-	// Capture terminal-finalization state BEFORE mutating timestamps so the guard
-	// reflects whether the order was already finalized prior to this transition.
-	alreadyFinalized := order.DeliveredAt != nil || order.CompletedAt != nil
-	order.Status = newStatus
-
-	switch newStatus {
-	case OrderStatusConfirmed:
-		order.ConfirmedAt = &now
-	case OrderStatusReady:
-		order.ReadyAt = &now
-	case OrderStatusDelivered:
-		order.DeliveredAt = &now
-		// For COD (cash-on-delivery) orders: mark payment paid and trigger treasury settlement.
-		// This handles admin/manual delivery confirmation as well as rider-confirmed delivery.
-		s.settleCODIfApplicable(ctx, tenantID, order)
-		// DELIVERY orders terminate at "delivered" (they never reach "completed"), so run
-		// the same terminal finalization here as the completed case: award loyalty points,
-		// finalize the inventory reservation (otherwise reserved stock leaks — held forever),
-		// and process recipe (BOM) stock consumption.
-		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
-	case OrderStatusCompleted:
-		order.CompletedAt = &now
-		// For COD (cash-on-pickup / pay-at-counter) orders the terminal state is "completed"
-		// (collected). Mirror the delivery COD flow: mark paid and settle via treasury.
-		s.settleCODIfApplicable(ctx, tenantID, order)
-		// Pickup/dine-in orders terminate at "completed": run terminal finalization
-		// (loyalty points, inventory reservation consumption, recipe stock consumption).
-		s.finalizeOrder(ctx, tenantID, order, alreadyFinalized)
-	case OrderStatusCancelled:
-		order.CancelledAt = &now
-		// Staff rejecting a prepaid order through the status path must refund it too.
-		s.refundCancelledPrepaidOrder(ctx, order, "Order rejected by the outlet")
-		// Release inventory reservation on cancellation via status update. WithoutCancel
-		// keeps the tenant/auth context (see finalizeOrder) so inventory's S2S tenant
-		// resolution matches; a bare context.Background() would fail to release the hold.
-		go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
+	// A rejection through the status endpoint is a cancellation: one implementation, so the customer
+	// is told, redeemed points come back and the outlet and kitchen hear about it the same way.
+	if newStatus == OrderStatusCancelled {
+		return s.CancelOrder(ctx, tenantID, orderID, "Order rejected by the outlet", actorID, actorType, ipAddress)
 	}
 
+	oldStatus := order.Status
+	effects := planTransition(order, newStatus)
+	applyTransition(order, newStatus, effects, time.Now())
+
+	// Single winner: the write only lands if the order is still at oldStatus. Every one-time side
+	// effect (treasury settlement, loyalty, stock) runs after this, so a redelivered or racing
+	// event (logistics publishes task.delivered and task.completed for the same drop-off) can never
+	// award points or deduct stock twice.
 	applied, err := s.repo.UpdateOrderStatusAtomic(ctx, tenantID, orderID, oldStatus, order)
 	if err != nil {
 		return nil, err
 	}
 	if !applied {
-		// Another concurrent request already moved this order off oldStatus first (e.g. a
-		// redelivered NATS task.completed event racing itself — see UpdateOrderStatusAtomic's
-		// doc). The finalize side effects above (settleCODIfApplicable, finalizeOrder) already
-		// ran against our in-memory copy and are individually idempotency-guarded, but this
-		// write itself lost the race, so skip the event/publish below and return current state
-		// rather than persist a status column that's now stale relative to the winner's write.
-		s.logger.Info("order status update lost a concurrent race — skipping duplicate side effects",
+		s.logger.Info("order status update lost a concurrent race, skipping duplicate side effects",
 			zap.String("id", orderID.String()), zap.String("attempted_status", string(newStatus)))
 		return s.repo.GetOrder(ctx, tenantID, orderID)
 	}
 
-	if rs, _ := order.Metadata["refund_status"].(string); newStatus == OrderStatusCancelled && rs != "" {
-		if mErr := s.repo.MergeOrderMetadata(ctx, tenantID, orderID, map[string]interface{}{"refund_status": rs}); mErr != nil {
-			s.logger.Warn("failed to record refund status", zap.String("order_id", orderID.String()), zap.Error(mErr))
-		}
+	if effects.settleCOD {
+		method, reference := codSettlement(order)
+		s.settleOfflinePayment(ctx, tenantID, order, method, reference)
+	}
+	if effects.finalize {
+		s.finalizeOrder(ctx, tenantID, order)
 	}
 
 	// Create order event
@@ -1421,24 +1446,43 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 		return nil, ErrOrderCannotBeCancelled
 	}
 
-	now := time.Now()
 	oldStatus := order.Status
-	order.Status = OrderStatusCancelled
-	order.CancelledAt = &now
+	effects := planTransition(order, OrderStatusCancelled)
+	applyTransition(order, OrderStatusCancelled, effects, time.Now())
 	order.CancellationReason = reason
 
-	// A prepaid order the outlet rejects (out of stock, closing early) must give the customer's
-	// money back, not just stop the kitchen. Request the refund through treasury; the outcome is
-	// recorded on the order so staff can follow up a failed one manually.
-	s.refundCancelledPrepaidOrder(ctx, order, reason)
-
-	if err := s.repo.UpdateOrder(ctx, order); err != nil {
+	// Single winner, as in UpdateOrderStatus: a customer cancel racing the outlet's reject (or the
+	// payment poller) must not refund, release or hand back points twice.
+	applied, err := s.repo.UpdateOrderStatusAtomic(ctx, tenantID, orderID, oldStatus, order)
+	if err != nil {
 		return nil, err
+	}
+	if !applied {
+		s.logger.Info("order cancel lost a concurrent status change, skipping duplicate side effects",
+			zap.String("id", orderID.String()))
+		current, gErr := s.repo.GetOrder(ctx, tenantID, orderID)
+		if gErr != nil {
+			return nil, gErr
+		}
+		if current.Status != OrderStatusCancelled {
+			return nil, ErrOrderCannotBeCancelled
+		}
+		return current, nil
+	}
+
+	// A prepaid order the outlet rejects (out of stock, closing early) must give the customer's
+	// money back, not just stop the kitchen. The outcome is recorded on the order so staff can
+	// follow up a failed refund manually.
+	if effects.refund {
+		s.refundCancelledPrepaidOrder(ctx, order, reason)
+		s.recordRefundOutcome(ctx, order)
 	}
 
 	// Release inventory reservation if one exists. WithoutCancel keeps the tenant/auth context
 	// (see finalizeOrder); a bare context.Background() lost the tenant and the hold leaked.
-	go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
+	if effects.release {
+		go s.releaseOrderReservation(context.WithoutCancel(ctx), order, "order_cancelled")
+	}
 
 	// Refund loyalty points if they were redeemed. Resolve the customer phone so the refund (an
 	// earn) can be mirrored to pos-api (loyalty source of truth, keyed on phone).
@@ -1453,8 +1497,10 @@ func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.U
 	payload := map[string]interface{}{"reason": reason}
 	s.createOrderEvent(ctx, order.ID, "order_cancelled", string(oldStatus), string(OrderStatusCancelled), payload, actorID, actorType, ipAddress)
 
-	// Publish order.cancelled event to NATS
+	// ordering.order.cancelled tells the customer and voids the POS record and its tickets;
+	// status.changed keeps every status-driven consumer in step.
 	s.publishOrderCancelled(ctx, order, reason, actorType)
+	s.publishOrderStatusChanged(ctx, order, oldStatus, OrderStatusCancelled)
 
 	s.logger.Info("order cancelled",
 		zap.String("id", order.ID.String()),
@@ -1504,6 +1550,21 @@ func (s *OrderService) refundCancelledPrepaidOrder(ctx context.Context, order *O
 	}
 	order.Metadata["refund_status"] = "requested"
 	order.PaymentStatus = PaymentStatusRefunded
+}
+
+// recordRefundOutcome persists what refundCancelledPrepaidOrder decided: the refund_status stamp
+// and, when treasury accepted the refund, payment_status refunded.
+func (s *OrderService) recordRefundOutcome(ctx context.Context, order *Order) {
+	if rs := stringMeta(order.Metadata, "refund_status"); rs != "" {
+		if err := s.repo.MergeOrderMetadata(ctx, order.TenantID, order.ID, map[string]interface{}{"refund_status": rs}); err != nil {
+			s.logger.Warn("failed to record refund status", zap.String("order_id", order.ID.String()), zap.Error(err))
+		}
+	}
+	if order.PaymentStatus == PaymentStatusRefunded {
+		if _, err := s.repo.UpdatePaymentStatusAtomic(ctx, order.TenantID, order.ID, PaymentStatusPaid, order); err != nil {
+			s.logger.Warn("failed to record refunded payment status", zap.String("order_id", order.ID.String()), zap.Error(err))
+		}
+	}
 }
 
 // RateOrder submits a customer rating (1-5 stars) for a delivered/completed order.
@@ -2527,7 +2588,10 @@ func (s *OrderService) releaseOrderReservation(ctx context.Context, order *Order
 		s.logger.Error("failed to get tenant for reservation release", zap.Error(err))
 		return
 	}
-	if releaseErr := s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, reason); releaseErr != nil {
+	// Same tenant injection as consumeOrderReservation: callers include NATS consumers and the
+	// payment poller, whose contexts carry no tenant.
+	ctx = httpware.WithTenantSlug(httpware.WithTenantID(ctx, order.TenantID.String()), tenant.Slug)
+	if releaseErr :=s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, reason); releaseErr != nil {
 		s.logger.Warn("failed to release inventory reservation",
 			zap.Error(releaseErr),
 			zap.String("reservationID", order.ReservationID.String()),
@@ -2605,7 +2669,10 @@ func (s *OrderService) orderContactInfo(ctx context.Context, order *Order) conta
 	// Authenticated orders: resolve from the customer edge on the order
 	// (loaded when order is fetched with WithCustomer, or look up from DB)
 	if ci.Email == "" && order.CustomerID != nil {
-		uci, err := s.repo.FindUserByID(ctx, *order.CustomerID)
+		uci, err := order.contact, error(nil)
+		if uci == nil {
+			uci, err = s.repo.FindUserByID(ctx, *order.CustomerID)
+		}
 		if err == nil && uci != nil {
 			if ci.Email == "" {
 				ci.Email = uci.Email
@@ -2807,7 +2874,8 @@ func (s *OrderService) publishOrderOutForDelivery(ctx context.Context, order *Or
 		CustomerPhone: ci.Phone,
 		PODCode:       deliveryCode(order),
 		// The rider's name is stamped on the order when logistics assigns them (task.assigned).
-		RiderName: stringMeta(order.Metadata, "rider_name"),
+		RiderName:  stringMeta(order.Metadata, "rider_name"),
+		RiderPhone: stringMeta(order.Metadata, "rider_phone"),
 	}
 
 	// Resolve the assigned rider's display name from logistics so consumers/templates can show it.

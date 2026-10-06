@@ -262,7 +262,7 @@ func New(ctx context.Context) (*App, error) {
 	subscriptionsClient := subscriptions.NewClient(cfg.Subscriptions, log)
 
 	// Initialize ordering module
-	orderingRepo := ordering.NewEntRepository(ormClient)
+	orderingRepo := ordering.NewEntRepository(ormClient).WithDB(sqlDB)
 	cartSvc := ordering.NewCartService(orderingRepo, catalogProxySvc, log)
 	promoSvc := ordering.NewPromoService(orderingRepo, log)
 	loyaltySvc := ordering.NewLoyaltyService(orderingRepo, log)
