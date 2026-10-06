@@ -487,6 +487,7 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrInsufficientLoyaltyPoints),
 		errors.Is(err, ordering.ErrScheduledForRequired),
 		errors.Is(err, ordering.ErrScheduledForTooSoon),
+		errors.Is(err, ordering.ErrDineInNotOffered),
 		errors.Is(err, ordering.ErrCatalogItemUnavailable),
 		errors.Is(err, ordering.ErrMpesaCodeRequired),
 		errors.Is(err, ordering.ErrMpesaCodeInvalid),

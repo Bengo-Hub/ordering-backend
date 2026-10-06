@@ -33,7 +33,9 @@ func resolveFulfillment(raw FulfillmentType, scheduledFor *time.Time) (Fulfillme
 	case "pickup", "takeaway", "collect", "click_and_collect":
 		return FulfillmentTypePickup, nil
 	case "dine_in":
-		return FulfillmentTypeDineIn, nil
+		// Online dine-in (table QR) is not offered: it is never handed to the outlet's POS/KDS, so
+		// such an order would never reach a kitchen. The enum value stays for historical rows.
+		return "", ErrDineInNotOffered
 	default:
 		return FulfillmentTypeDelivery, nil
 	}
