@@ -21,6 +21,7 @@ import (
 	eventslib "github.com/Bengo-Hub/shared-events"
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/migrate"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
@@ -419,6 +420,11 @@ func New(ctx context.Context) (*App, error) {
 		if js != nil {
 			// Subscribe to auth-service events for user sync (JetStream durable consumers)
 			authEventHandler := identity.NewEventHandler(identitySvc, log)
+			// Only users of ordering's own outlets (or customers and admins) are provisioned.
+			authEventHandler.OutletKnown = func(ctx context.Context, tenantID, outletID uuid.UUID) bool {
+				ok, err := ormClient.Outlet.Query().Where(entoutlet.ID(outletID), entoutlet.TenantID(tenantID)).Exist(ctx)
+				return err == nil && ok
+			}
 			if err := authEventHandler.SubscribeToAuthEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}

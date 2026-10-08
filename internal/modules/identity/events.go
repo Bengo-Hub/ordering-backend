@@ -14,6 +14,26 @@ import (
 type EventHandler struct {
 	service *Service
 	logger  *zap.Logger
+	// OutletKnown reports whether ordering mirrors an outlet (only ordering use cases are
+	// mirrored). Nil admits every user, the behaviour before relevance gating.
+	OutletKnown func(ctx context.Context, tenantID, outletID uuid.UUID) bool
+}
+
+// orderingServiceRoles are role names only ordering uses: online store customers and the
+// online order desk. Generic staff names prove nothing in a tenant that runs several products.
+var orderingServiceRoles = map[string]bool{"customer": true, "order_desk": true, "online_orders": true}
+
+// relevant reports whether an auth.user event concerns ordering (shared UserRelevance). Users
+// already here keep their updates; anyone skipped is still provisioned on first sign-in.
+func (h *EventHandler) relevant(ctx context.Context, evt *sharedevents.Event, authUserID uuid.UUID) bool {
+	if h.OutletKnown == nil {
+		return true
+	}
+	if u, err := h.service.repo.FindUserByAuthServiceID(ctx, authUserID); err == nil && u != nil {
+		return true
+	}
+	r := sharedevents.UserRelevance{ServiceRoles: orderingServiceRoles, OutletKnown: h.OutletKnown}
+	return r.Relevant(ctx, evt.TenantID, evt.Payload)
 }
 
 // NewEventHandler creates a new event handler.
@@ -41,6 +61,10 @@ func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, evt *sharedeve
 	tenantID := evt.TenantID.String()
 	if evt.TenantID == uuid.Nil {
 		return fmt.Errorf("identity: tenant_id required in event")
+	}
+	if !h.relevant(ctx, evt, authServiceUserID) {
+		h.logger.Debug("skipping user outside ordering", zap.String("user_id", userID))
+		return nil
 	}
 
 	// Convert roles []interface{} → []string
@@ -95,6 +119,9 @@ func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, evt *sharedeve
 			zap.Error(err))
 		tenantID := evt.TenantID.String()
 		if evt.TenantID != uuid.Nil {
+			if !h.relevant(ctx, evt, authServiceUserID) {
+				return nil
+			}
 			authUserData := map[string]interface{}{
 				"id":        userID,
 				"email":     strFromPayload(evt.Payload, "email"),
