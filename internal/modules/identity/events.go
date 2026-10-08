@@ -17,6 +17,9 @@ type EventHandler struct {
 	// OutletKnown reports whether ordering mirrors an outlet (only ordering use cases are
 	// mirrored). Nil admits every user, the behaviour before relevance gating.
 	OutletKnown func(ctx context.Context, tenantID, outletID uuid.UUID) bool
+	// ProductActive reports whether the tenant has ordering switched on in its subscription.
+	// Nil admits every tenant.
+	ProductActive func(ctx context.Context, tenantID string) bool
 }
 
 // orderingServiceRoles are role names only ordering uses: online store customers and the
@@ -31,6 +34,9 @@ func (h *EventHandler) relevant(ctx context.Context, evt *sharedevents.Event, au
 	}
 	if u, err := h.service.repo.FindUserByAuthServiceID(ctx, authUserID); err == nil && u != nil {
 		return true
+	}
+	if h.ProductActive != nil && !h.ProductActive(ctx, evt.TenantID.String()) {
+		return false
 	}
 	r := sharedevents.UserRelevance{ServiceRoles: orderingServiceRoles, OutletKnown: h.OutletKnown}
 	return r.Relevant(ctx, evt.TenantID, evt.Payload)

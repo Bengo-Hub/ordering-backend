@@ -20,6 +20,9 @@ type Entitlements struct {
 	Status       string   `json:"status"`
 	BillingMode  string   `json:"billing_mode"`
 	IsDemoBypass bool     `json:"is_demo_bypass"`
+	// ActiveProducts lists the product codes the tenant has switched on. Exempt tenants
+	// never get it; ConsumerHasActiveProduct lets them through by billing mode.
+	ActiveProducts []string `json:"active_products"`
 }
 
 type cachedEntitlements struct {
@@ -80,6 +83,32 @@ func (c *Client) ConsumerHasFeature(ctx context.Context, tenantID, featureCode s
 	}
 	for _, f := range e.Features {
 		if f == featureCode {
+			return true
+		}
+	}
+	return false
+}
+
+// ConsumerHasActiveProduct reports whether the tenant has productCode switched on, the same
+// check logistics-api makes. Exempt and PAYG tenants pass, and it fails open when the client
+// is not wired, subscriptions-api is unreachable, or the tenant predates per-product lines
+// (ActiveProducts empty). A false result means skip, never retry.
+func (c *Client) ConsumerHasActiveProduct(ctx context.Context, tenantID, productCode string) bool {
+	if c == nil || tenantID == "" || productCode == "" {
+		return true
+	}
+	e := c.cachedEntitlements(ctx, tenantID)
+	if e == nil {
+		return true
+	}
+	if e.BillingMode == "exempt" || e.BillingMode == "service_charge" {
+		return true
+	}
+	if len(e.ActiveProducts) == 0 {
+		return true
+	}
+	for _, p := range e.ActiveProducts {
+		if p == productCode {
 			return true
 		}
 	}
