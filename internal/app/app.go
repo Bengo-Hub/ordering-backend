@@ -425,6 +425,9 @@ func New(ctx context.Context) (*App, error) {
 				ok, err := ormClient.Outlet.Query().Where(entoutlet.ID(outletID), entoutlet.TenantID(tenantID)).Exist(ctx)
 				return err == nil && ok
 			}
+			authEventHandler.ProductActive = func(ctx context.Context, tenantID string) bool {
+				return subscriptionsClient.ConsumerHasActiveProduct(ctx, tenantID, "ordering")
+			}
 			if err := authEventHandler.SubscribeToAuthEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}
