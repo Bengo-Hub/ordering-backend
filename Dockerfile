@@ -10,7 +10,8 @@ COPY . .
 # Build all binaries: api, migrate, and seed
 RUN GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-backend ./cmd/api && \
     GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-migrate ./cmd/migrate && \
-    GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-seed ./cmd/seed
+    GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-seed ./cmd/seed && \
+    GOTOOLCHAIN=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/ordering-prune-users ./cmd/prune-users
 
 FROM alpine:3.20
 # rclone: powers pluggable backup-destination mirroring off the local PVC
@@ -21,6 +22,7 @@ WORKDIR /app
 COPY --from=builder /bin/ordering-backend /usr/local/bin/ordering-backend
 COPY --from=builder /bin/ordering-migrate /usr/local/bin/ordering-migrate
 COPY --from=builder /bin/ordering-seed /usr/local/bin/ordering-seed
+COPY --from=builder /bin/ordering-prune-users /usr/local/bin/ordering-prune-users
 COPY internal/ent/migrate/migrations ./internal/ent/migrate/migrations
 # Media directory is optional (populated at runtime via PVC mount)
 RUN mkdir -p ./media
