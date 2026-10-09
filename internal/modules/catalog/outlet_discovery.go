@@ -3,7 +3,6 @@ package catalog
 import (
 	"context"
 	"fmt"
-	"math"
 	"sort"
 	"strings"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/promocode"
@@ -27,13 +25,13 @@ type OutletListParams struct {
 	Lat *float64
 	Lng *float64
 	// Filters
-	Category       string   // filter by use_case
-	Offers         bool     // only outlets with active promo codes
-	MinRating      *float64 // minimum average rating
-	MaxDeliveryFee *float64 // maximum delivery fee
-	MaxDeliveryTime *int    // maximum estimated delivery time in minutes
-	Pickup         bool     // only outlets that support pickup
-	Query          string   // text search on outlet name
+	Category        string   // filter by use_case
+	Offers          bool     // only outlets with active promo codes
+	MinRating       *float64 // minimum average rating
+	MaxDeliveryFee  *float64 // maximum delivery fee
+	MaxDeliveryTime *int     // maximum estimated delivery time in minutes
+	Pickup          bool     // only outlets that support pickup
+	Query           string   // text search on outlet name
 	// Pagination
 	Page  int
 	Limit int
@@ -58,6 +56,9 @@ type OutletWithMeta struct {
 	UseCase       string    `json:"use_case,omitempty"`
 	PromoBadge    string    `json:"promo_badge,omitempty"`
 	PromoText     string    `json:"promo_text,omitempty"`
+	// Deliverable is set when the customer's pin is known: false means this outlet does
+	// not deliver there.
+	Deliverable *bool `json:"deliverable,omitempty"`
 }
 
 // ListOutletsDiscovery returns outlets enriched with rating, delivery, distance,
@@ -100,32 +101,9 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 		ratingMap[r.OutletID] = r
 	}
 
-	// 3. Batch-load delivery zones for fee/time (pick cheapest zone per outlet)
-	zones, err := s.db.DeliveryZone.Query().
-		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true)).
-		All(ctx)
-	if err != nil {
-		s.logger.Warn("failed to load delivery zones", zap.Error(err))
-	}
-	// Map outlet_id -> best zone (lowest fee); nil outlet_id = applies to all
-	type zoneInfo struct {
-		Fee  float64
-		Time int
-	}
-	zoneMap := make(map[uuid.UUID]zoneInfo)
-	var globalZone *zoneInfo
-	for _, z := range zones {
-		zi := zoneInfo{Fee: z.DeliveryFee, Time: z.EstimatedTimeMinutes}
-		if z.OutletID == nil {
-			if globalZone == nil || zi.Fee < globalZone.Fee {
-				globalZone = &zi
-			}
-		} else {
-			if existing, ok := zoneMap[*z.OutletID]; !ok || zi.Fee < existing.Fee {
-				zoneMap[*z.OutletID] = zi
-			}
-		}
-	}
+	// 3. Delivery fee, ETA and distance come from logistics: a quote per outlet for the
+	// customer's pin, or the tenant's cheapest area fee when no pin is known yet.
+	deliveryByOutlet := s.deliveryForOutlets(ctx, tenantID, outlets, params.Lat, params.Lng)
 
 	// 4. Batch-load active promo codes to determine has_offers
 	now := time.Now()
@@ -207,18 +185,13 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 			meta.TotalRatings = r.TotalRatings
 		}
 
-		// Delivery fee & time
-		if zi, ok := zoneMap[o.ID]; ok {
-			meta.DeliveryFee = zi.Fee
-			meta.EstimatedTime = zi.Time
-		} else if globalZone != nil {
-			meta.DeliveryFee = globalZone.Fee
-			meta.EstimatedTime = globalZone.Time
-		}
-
-		// Distance
-		if params.Lat != nil && params.Lng != nil && o.Latitude != nil && o.Longitude != nil {
-			meta.Distance = haversineKm(*params.Lat, *params.Lng, *o.Latitude, *o.Longitude)
+		// Delivery fee, time and distance (from logistics)
+		if d, ok := deliveryByOutlet[o.ID]; ok {
+			meta.DeliveryFee = d.Fee
+			meta.EstimatedTime = d.EtaMinutes
+			meta.Distance = d.DistanceKm
+			deliverable := d.Deliverable
+			meta.Deliverable = &deliverable
 		}
 
 		// Offers
@@ -300,18 +273,6 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 	return results[start:end], total, nil
 }
 
-// haversineKm calculates the distance between two geographic coordinates in km.
-func haversineKm(lat1, lng1, lat2, lng2 float64) float64 {
-	const R = 6371.0 // Earth radius in km
-	dLat := (lat2 - lat1) * math.Pi / 180
-	dLng := (lng2 - lng1) * math.Pi / 180
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Cos(lat1*math.Pi/180)*math.Cos(lat2*math.Pi/180)*
-			math.Sin(dLng/2)*math.Sin(dLng/2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	return R * c
-}
-
 // IsOutletOpen checks whether an outlet is currently open based on its opening_hours JSON.
 // Expected formats:
 //
@@ -372,8 +333,8 @@ func isWithinPeriod(period map[string]any, currentMinutes int) bool {
 
 // TimeSlot represents a deliverable time window.
 type TimeSlot struct {
-	Start     string `json:"start"`      // HH:MM
-	End       string `json:"end"`        // HH:MM
+	Start     string `json:"start"` // HH:MM
+	End       string `json:"end"`   // HH:MM
 	Available bool   `json:"available"`
 }
 

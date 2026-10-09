@@ -2,35 +2,12 @@ package ordering
 
 import (
 	"context"
-	"encoding/json"
-	"math"
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
-
-// haversineDistance calculates the distance in km between two lat/lng points
-// using the Haversine formula.
-func haversineDistance(lat1, lng1, lat2, lng2 float64) float64 {
-	const earthRadiusKm = 6371.0
-
-	dLat := degreesToRadians(lat2 - lat1)
-	dLng := degreesToRadians(lng2 - lng1)
-
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Cos(degreesToRadians(lat1))*math.Cos(degreesToRadians(lat2))*
-			math.Sin(dLng/2)*math.Sin(dLng/2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-
-	return earthRadiusKm * c
-}
-
-// degreesToRadians converts degrees to radians.
-func degreesToRadians(degrees float64) float64 {
-	return degrees * math.Pi / 180
-}
 
 // CartService provides shopping cart business logic.
 type CartService struct {
@@ -384,87 +361,6 @@ func (s *CartService) recalculateCartTotals(ctx context.Context, cart *Cart) err
 	cart.ExpiresAt = &expiresAt
 
 	return s.repo.UpdateCart(ctx, cart)
-}
-
-// loadDeliveryFeeConfig loads the tenant's configurable delivery fee rates.
-func (s *CartService) loadDeliveryFeeConfig(ctx context.Context, tenantID uuid.UUID) (baseFee, perKm, freeMin float64) {
-	featuresMap, err := s.repo.GetTenantFeatures(ctx, tenantID)
-	if err != nil {
-		return DeliveryFeeBase, DeliveryFeePerKm, FreeDeliveryMinimum
-	}
-	feeRaw, ok := featuresMap["fee_config"]
-	if !ok {
-		return DeliveryFeeBase, DeliveryFeePerKm, FreeDeliveryMinimum
-	}
-	b, err := json.Marshal(feeRaw)
-	if err != nil {
-		return DeliveryFeeBase, DeliveryFeePerKm, FreeDeliveryMinimum
-	}
-	var cfg FeeConfig
-	if err := json.Unmarshal(b, &cfg); err != nil {
-		return DeliveryFeeBase, DeliveryFeePerKm, FreeDeliveryMinimum
-	}
-	base := cfg.DeliveryFeeBase
-	if base <= 0 {
-		base = DeliveryFeeBase
-	}
-	perKmRate := cfg.DeliveryFeePerKm
-	if perKmRate <= 0 {
-		perKmRate = DeliveryFeePerKm
-	}
-	freeMinimum := cfg.FreeDeliveryMinimum
-	if freeMinimum <= 0 {
-		freeMinimum = FreeDeliveryMinimum
-	}
-	return base, perKmRate, freeMinimum
-}
-
-// CalculateDeliveryFee calculates the delivery fee for a given delivery location.
-// Priority: 1) Zone with polygon match → use zone fee. 2) Zone without polygon (fallback) → use zone fee.
-// 3) No zone match → auto-calculate: base fee + per-km rate using Haversine distance.
-// Base fee and per-km rate are configurable per-tenant via TenantSetting.features["fee_config"].
-func (s *CartService) CalculateDeliveryFee(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, lat, lng float64) (float64, error) {
-	baseFee, perKmRate, _ := s.loadDeliveryFeeConfig(ctx, tenantID)
-
-	// Check for configured delivery zones with polygon match
-	zones, err := s.repo.ListActiveDeliveryZones(ctx, tenantID, outletID)
-	if err != nil {
-		s.logger.Warn("failed to query delivery zones, falling back to distance-based fee", zap.Error(err))
-	}
-
-	// Priority 1: zone whose geo-fence polygon actually contains the delivery point
-	for _, zone := range zones {
-		if zone.ZonePolygon != nil && zone.DeliveryFee > 0 && pointInZonePolygon(lat, lng, zone.ZonePolygon) {
-			return zone.DeliveryFee, nil
-		}
-	}
-
-	// Priority 2: fallback zone (no polygon) with explicit fee
-	for _, zone := range zones {
-		if zone.ZonePolygon == nil && zone.DeliveryFee > 0 {
-			return zone.DeliveryFee, nil
-		}
-	}
-
-	// Priority 3: auto-calculate from distance (base + per-km)
-	if outletID == nil {
-		return baseFee, nil
-	}
-
-	outlet, err := s.catalogSvc.GetOutlet(ctx, tenantID, *outletID)
-	if err != nil {
-		s.logger.Warn("failed to get outlet for distance calculation, using base fee", zap.Error(err))
-		return baseFee, nil
-	}
-
-	if outlet.Latitude == nil || outlet.Longitude == nil {
-		return baseFee, nil
-	}
-
-	distanceKm := haversineDistance(*outlet.Latitude, *outlet.Longitude, lat, lng)
-	fee := baseFee + (perKmRate * distanceKm)
-
-	return math.Round(fee*100) / 100, nil
 }
 
 // ExpireOldCarts marks old carts as expired.

@@ -2,6 +2,7 @@ package sla
 
 import (
 	"context"
+	entsql "entgo.io/ent/dialect/sql"
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
@@ -212,74 +213,106 @@ func (r *EntRepository) CancelMetricsByOrder(ctx context.Context, tenantID uuid.
 	return err
 }
 
+// GetMetricStats summarises SLA metrics in one grouped SQL aggregate (served by the
+// (tenant_id, measured_at) index), so the cost stays flat as metrics accumulate.
 func (r *EntRepository) GetMetricStats(ctx context.Context, tenantID uuid.UUID, from, to time.Time) (*SLASummary, error) {
-	metrics, err := r.client.SLAMetric.Query().
+	var rows []slaStatRow
+	err := r.client.SLAMetric.Query().
 		Where(
 			slametric.TenantID(tenantID),
 			slametric.MeasuredAtGTE(from),
 			slametric.MeasuredAtLTE(to),
 			slametric.StatusIn(slametric.StatusMet, slametric.StatusBreached),
 		).
-		All(ctx)
+		GroupBy(slametric.FieldMetricType, slametric.FieldStatus).
+		Aggregate(
+			func(s *entsql.Selector) string { return "COUNT(*) AS cnt" },
+			func(s *entsql.Selector) string {
+				return "COALESCE(SUM(" + s.C(slametric.FieldActualSeconds) + "), 0) AS sum_secs"
+			},
+			func(s *entsql.Selector) string {
+				return "COUNT(" + s.C(slametric.FieldActualSeconds) + ") AS with_secs"
+			},
+			func(s *entsql.Selector) string {
+				return "COALESCE(SUM(" + s.C(slametric.FieldBreachPercentage) + "), 0) AS sum_breach"
+			},
+			func(s *entsql.Selector) string {
+				return "COUNT(" + s.C(slametric.FieldBreachPercentage) + ") AS with_breach"
+			},
+		).
+		Scan(ctx, &rows)
 	if err != nil {
 		return nil, err
 	}
+	return summarizeSLA(tenantID, from, to, rows), nil
+}
 
+// slaStatRow is one (metric type, status) group of the SLA aggregate.
+type slaStatRow struct {
+	MetricType string  `json:"metric_type"`
+	Status     string  `json:"status"`
+	Count      int     `json:"cnt"`
+	SumSecs    float64 `json:"sum_secs"`
+	WithSecs   int     `json:"with_secs"`
+	SumBreach  float64 `json:"sum_breach"`
+	WithBreach int     `json:"with_breach"`
+}
+
+// summarizeSLA folds grouped rows into the summary. Averages divide by the rows that
+// actually carry a value.
+func summarizeSLA(tenantID uuid.UUID, from, to time.Time, rows []slaStatRow) *SLASummary {
 	summary := &SLASummary{
-		TenantID:    tenantID,
-		Period:      from.Format("2006-01-02") + " to " + to.Format("2006-01-02"),
-		ByType:      make(map[MetricType]TypeSummary),
+		TenantID: tenantID,
+		Period:   from.Format("2006-01-02") + " to " + to.Format("2006-01-02"),
+		ByType:   make(map[MetricType]TypeSummary),
 	}
-
-	byType := make(map[MetricType]*TypeSummary)
-	var totalBreachPct float64
-	var breachCount int
-
-	for _, m := range metrics {
-		summary.TotalMetrics++
-		mt := MetricType(m.MetricType)
-
-		ts, ok := byType[mt]
+	type acc struct {
+		TypeSummary
+		sumSecs  float64
+		withSecs int
+	}
+	byType := map[MetricType]*acc{}
+	var sumBreach float64
+	var withBreach int
+	for _, row := range rows {
+		mt := MetricType(row.MetricType)
+		a, ok := byType[mt]
 		if !ok {
-			ts = &TypeSummary{}
-			byType[mt] = ts
+			a = &acc{}
+			byType[mt] = a
 		}
-		ts.Total++
-
-		if m.Status == slametric.StatusMet {
-			summary.MetMetrics++
-			ts.Met++
-		} else if m.Status == slametric.StatusBreached {
-			summary.BreachedMetrics++
-			ts.Breached++
-			if m.BreachPercentage != nil {
-				totalBreachPct += *m.BreachPercentage
-				breachCount++
-			}
-		}
-
-		if m.ActualSeconds != nil {
-			ts.AverageSeconds += *m.ActualSeconds
+		a.Total += row.Count
+		a.sumSecs += row.SumSecs
+		a.withSecs += row.WithSecs
+		summary.TotalMetrics += row.Count
+		switch row.Status {
+		case string(slametric.StatusMet):
+			a.Met += row.Count
+			summary.MetMetrics += row.Count
+		case string(slametric.StatusBreached):
+			a.Breached += row.Count
+			summary.BreachedMetrics += row.Count
+			sumBreach += row.SumBreach
+			withBreach += row.WithBreach
 		}
 	}
-
-	// Calculate compliance rates
 	if summary.TotalMetrics > 0 {
 		summary.ComplianceRate = float64(summary.MetMetrics) / float64(summary.TotalMetrics) * 100
 	}
-	if breachCount > 0 {
-		summary.AverageBreachPct = totalBreachPct / float64(breachCount)
+	if withBreach > 0 {
+		summary.AverageBreachPct = sumBreach / float64(withBreach)
 	}
-
-	for mt, ts := range byType {
+	for mt, a := range byType {
+		ts := a.TypeSummary
 		if ts.Total > 0 {
 			ts.ComplianceRate = float64(ts.Met) / float64(ts.Total) * 100
-			ts.AverageSeconds = ts.AverageSeconds / ts.Total
 		}
-		summary.ByType[mt] = *ts
+		if a.withSecs > 0 {
+			ts.AverageSeconds = int(a.sumSecs / float64(a.withSecs))
+		}
+		summary.ByType[mt] = ts
 	}
-
-	return summary, nil
+	return summary
 }
 
 func (r *EntRepository) GetBreachedMetrics(ctx context.Context, tenantID uuid.UUID, limit int) ([]*SLAMetric, error) {

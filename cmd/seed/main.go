@@ -18,6 +18,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingpermission"
 	"github.com/bengobox/ordering-backend/internal/ent/orderingrole"
+	"github.com/bengobox/ordering-backend/internal/ent/permission"
 	"github.com/bengobox/ordering-backend/internal/ent/ratelimitconfig"
 	"github.com/bengobox/ordering-backend/internal/ent/rolepermission"
 	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
@@ -123,6 +124,10 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID, tena
 		return err
 	}
 
+	if err = removeRetiredPermissions(ctx, tx); err != nil {
+		return err
+	}
+
 	permMap, err := seedPermissions(ctx, tx)
 	if err != nil {
 		return err
@@ -154,6 +159,55 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID, tena
 		return err
 	}
 
+	return nil
+}
+
+// retiredPermissionPrefix covers permissions for features ordering no longer owns.
+// Delivery zones moved to logistics-api (logistics.zones.* and logistics.pricing.*).
+const retiredPermissionPrefix = "ordering.delivery_zones."
+
+// retiredPermissionModule is the same feature in the legacy Permission table.
+const retiredPermissionModule = "delivery_zones"
+
+// removeRetiredPermissions deletes retired permission rows and their role grants from
+// both RBAC tables. Idempotent.
+func removeRetiredPermissions(ctx context.Context, tx *ent.Tx) error {
+	ids, err := tx.OrderingPermission.Query().
+		Where(orderingpermission.PermissionCodeHasPrefix(retiredPermissionPrefix)).
+		IDs(ctx)
+	if err != nil {
+		return fmt.Errorf("find retired ordering permissions: %w", err)
+	}
+	if len(ids) > 0 {
+		if _, err := tx.RolePermission.Delete().Where(rolepermission.PermissionIDIn(ids...)).Exec(ctx); err != nil {
+			return fmt.Errorf("drop retired role grants: %w", err)
+		}
+		if _, err := tx.OrderingPermission.Delete().Where(orderingpermission.IDIn(ids...)).Exec(ctx); err != nil {
+			return fmt.Errorf("drop retired ordering permissions: %w", err)
+		}
+	}
+	legacy, err := tx.Permission.Query().Where(permission.Module(retiredPermissionModule)).All(ctx)
+	if err != nil {
+		return fmt.Errorf("find retired permissions: %w", err)
+	}
+	for _, p := range legacy {
+		// Clear the role links first so the delete never trips a join-table constraint.
+		roles, rerr := p.QueryRoles().All(ctx)
+		if rerr != nil {
+			return fmt.Errorf("roles of %s: %w", p.Name, rerr)
+		}
+		for _, r := range roles {
+			if err := tx.Role.UpdateOne(r).RemoveLegacyPermissionIDs(p.ID).Exec(ctx); err != nil {
+				return fmt.Errorf("unlink %s: %w", p.Name, err)
+			}
+		}
+		if err := tx.Permission.DeleteOne(p).Exec(ctx); err != nil {
+			return fmt.Errorf("drop %s: %w", p.Name, err)
+		}
+	}
+	if n := len(ids) + len(legacy); n > 0 {
+		log.Printf("removed %d retired delivery_zones permissions", n)
+	}
 	return nil
 }
 
@@ -210,17 +264,6 @@ func seedPermissions(ctx context.Context, tx *ent.Tx) (map[string]uuid.UUID, err
 		{"ordering.promotions.delete_own", "Delete own promotions", "promotions", "Remove own promo codes"},
 		{"ordering.promotions.manage", "Manage promotions", "promotions", "Full promotions management"},
 		{"ordering.promotions.manage_own", "Manage own promotions", "promotions", "Manage own promotions"},
-
-		// --- Delivery zones ---
-		{"ordering.delivery_zones.add", "Add delivery zones", "delivery_zones", "Create delivery zones"},
-		{"ordering.delivery_zones.view", "View delivery zones", "delivery_zones", "View delivery zones"},
-		{"ordering.delivery_zones.view_own", "View own delivery zones", "delivery_zones", "View own delivery zones"},
-		{"ordering.delivery_zones.change", "Change delivery zones", "delivery_zones", "Edit delivery zones"},
-		{"ordering.delivery_zones.change_own", "Change own delivery zones", "delivery_zones", "Edit own delivery zones"},
-		{"ordering.delivery_zones.delete", "Delete delivery zones", "delivery_zones", "Remove delivery zones"},
-		{"ordering.delivery_zones.delete_own", "Delete own delivery zones", "delivery_zones", "Remove own delivery zones"},
-		{"ordering.delivery_zones.manage", "Manage delivery zones", "delivery_zones", "Full delivery zone management"},
-		{"ordering.delivery_zones.manage_own", "Manage own delivery zones", "delivery_zones", "Manage own delivery zones"},
 
 		// --- Analytics ---
 		{"ordering.analytics.add", "Add analytics reports", "analytics", "Create analytics reports"},
@@ -384,11 +427,6 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 			"ordering.promotions.change",
 			"ordering.promotions.delete",
 			"ordering.promotions.manage",
-			"ordering.delivery_zones.add",
-			"ordering.delivery_zones.view",
-			"ordering.delivery_zones.change",
-			"ordering.delivery_zones.delete",
-			"ordering.delivery_zones.manage",
 			"ordering.config.view",
 			"ordering.config.manage",
 			"ordering.users.add",
@@ -418,11 +456,6 @@ func seedRolePermissions(ctx context.Context, tx *ent.Tx, permMap map[string]uui
 			"ordering.promotions.change",
 			"ordering.promotions.delete",
 			"ordering.promotions.manage",
-			"ordering.delivery_zones.add",
-			"ordering.delivery_zones.view",
-			"ordering.delivery_zones.change",
-			"ordering.delivery_zones.delete",
-			"ordering.delivery_zones.manage",
 			"ordering.config.view",
 			"ordering.config.manage",
 			"ordering.users.add",
@@ -746,17 +779,6 @@ func seedOrderingPermissions(ctx context.Context, tx *ent.Tx) (map[string]uuid.U
 			{"manage", "Manage promotions", "Full promotions management"},
 			{"manage_own", "Manage own promotions", "Manage own promotions"},
 		}},
-		{"delivery_zones", "delivery_zones", []struct{ code, name, desc string }{
-			{"add", "Add delivery zones", "Create delivery zones"},
-			{"view", "View delivery zones", "View delivery zones"},
-			{"view_own", "View own delivery zones", "View own delivery zones"},
-			{"change", "Change delivery zones", "Edit delivery zones"},
-			{"change_own", "Change own delivery zones", "Edit own delivery zones"},
-			{"delete", "Delete delivery zones", "Remove delivery zones"},
-			{"delete_own", "Delete own delivery zones", "Remove own delivery zones"},
-			{"manage", "Manage delivery zones", "Full delivery zone management"},
-			{"manage_own", "Manage own delivery zones", "Manage own delivery zones"},
-		}},
 		{"delivery_windows", "delivery_windows", []struct{ code, name, desc string }{
 			{"add", "Add delivery windows", "Create delivery windows"},
 			{"view", "View delivery windows", "View delivery windows"},
@@ -880,7 +902,7 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 		return perms
 	}
 
-	allModules := []string{"orders", "catalog", "outlets", "promotions", "delivery_zones", "delivery_windows", "loyalty", "analytics", "config", "users"}
+	allModules := []string{"orders", "catalog", "outlets", "promotions", "delivery_windows", "loyalty", "analytics", "config", "users"}
 
 	roles := []roleSpec{
 		{
@@ -894,7 +916,7 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 			name: "Store Manager",
 			desc: "Manages a store/outlet including orders, catalog, and staff",
 			perms: append(
-				allPerms("orders", "catalog", "outlets", "promotions", "delivery_zones", "delivery_windows", "loyalty"),
+				allPerms("orders", "catalog", "outlets", "promotions", "delivery_windows", "loyalty"),
 				[]string{
 					"ordering.analytics.view", "ordering.analytics.view_own",
 					"ordering.users.view", "ordering.users.view_own", "ordering.users.change_own",
@@ -929,7 +951,6 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 			desc: "Manages delivery zones, windows, and order dispatch",
 			perms: []string{
 				"ordering.orders.view", "ordering.orders.change",
-				"ordering.delivery_zones.view", "ordering.delivery_zones.change", "ordering.delivery_zones.manage",
 				"ordering.delivery_windows.view", "ordering.delivery_windows.change", "ordering.delivery_windows.manage",
 				"ordering.outlets.view",
 				"ordering.users.view_own", "ordering.users.change_own",
@@ -944,7 +965,6 @@ func seedOrderingRoles(ctx context.Context, tx *ent.Tx, tenantID uuid.UUID, perm
 				"ordering.catalog.view",
 				"ordering.outlets.view",
 				"ordering.promotions.view",
-				"ordering.delivery_zones.view",
 				"ordering.delivery_windows.view",
 				"ordering.loyalty.view",
 				"ordering.analytics.view",
@@ -1167,4 +1187,3 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 	log.Printf("  + Seeded %d service configs", len(configs))
 	return nil
 }
-

@@ -245,12 +245,16 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		}
 	}
 
-	// Calculate full fee breakdown (service fee, packaging fee, small order fee, etc.)
-	fees, feeErr := s.feeSvc.CalculateFees(ctx, req.TenantID, cart, fulfillmentType, discountTotal, loyaltyDiscount)
-	if feeErr != nil {
-		s.logger.Error("failed to calculate fees", zap.Error(feeErr))
-		return nil, feeErr
+	// Delivery is priced by logistics for the saved address's pin; ordering's own fees on top.
+	var dropLat, dropLng *float64
+	if deliveryAddress != nil {
+		dropLat, dropLng = deliveryAddress.Latitude, deliveryAddress.Longitude
 	}
+	delivery, dErr := s.priceDelivery(ctx, req.TenantID, cart.OutletID, fulfillmentType, dropLat, dropLng, cart.Subtotal)
+	if dErr != nil {
+		return nil, dErr
+	}
+	fees := s.feeSvc.CalculateFees(ctx, req.TenantID, cart.Subtotal, cart.TaxTotal, delivery, discountTotal+loyaltyDiscount)
 	grandTotal := fees.GrandTotal
 	deliveryFee := fees.DeliveryFee
 
@@ -317,7 +321,10 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		IdempotencyKey:        req.IdempotencyKey,
 		PlacedAt:              &now,
 		DeliveryAddress:       deliveryAddress,
+		DeliveryLatitude:      deliveryPin(fulfillmentType, dropLat),
+		DeliveryLongitude:     deliveryPin(fulfillmentType, dropLng),
 		ReservationID:         reservationID,
+		Metadata:              withDeliveryQuote(nil, delivery, ""),
 	}
 
 	// Hand-over code: the rider's proof of delivery, or the code shown at the counter to collect.
@@ -429,22 +436,12 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		subtotal += it.TotalPrice
 	}
 
-	deliveryFee := 0.0
-	if fulfillmentType == FulfillmentTypePickup {
-		// Pickup orders have no delivery fee
-		deliveryFee = 0
-	} else if req.DeliveryLat != nil && req.DeliveryLng != nil {
-		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
-		switch {
-		case zoneErr == nil:
-			deliveryFee = fee
-		case zoneErr == ErrDeliveryNotServiceable:
-			return nil, ErrDeliveryNotServiceable
-		default:
-			s.logger.Warn("delivery fee calculation failed, using default", zap.Error(zoneErr))
-			deliveryFee = DeliveryFeeBase
-		}
+	// Delivery is priced by logistics-api's quote for the pin (areas, geofence, distance rate).
+	delivery, dErr := s.priceDelivery(ctx, req.TenantID, req.OutletID, fulfillmentType, req.DeliveryLat, req.DeliveryLng, subtotal)
+	if dErr != nil {
+		return nil, dErr
 	}
+	deliveryFee := delivery.Fee
 	// Promo codes were accepted by this (items-based) checkout but never applied: the storefront
 	// showed the discount and the order charged the full price. Validate the code against the same
 	// promo service the cart checkout uses.
@@ -461,7 +458,8 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 			discountTotal = subtotal
 		}
 	}
-	grandTotal := subtotal - discountTotal + deliveryFee
+	fees := s.feeSvc.CalculateFees(ctx, req.TenantID, subtotal, 0, delivery, discountTotal)
+	grandTotal := fees.GrandTotal
 
 	// Reserve stock via inventory service (fail fast if stock unavailable)
 	var reservationID *uuid.UUID
@@ -516,13 +514,16 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		DiscountTotal:       discountTotal,
 		TaxTotal:            0,
 		DeliveryFee:         deliveryFee,
+		PackagingFee:        fees.PackagingFee,
+		ServiceFee:          fees.ServiceFee,
+		SmallOrderFee:       fees.SmallOrderFee,
 		GrandTotal:          grandTotal,
 		LoyaltyPointsEarned: loyaltyPointsEarned,
 		Instructions:        instructions,
 		Channel:             req.Channel,
 		ReservationID:       reservationID,
 		PromoCodeID:         promoCodeID,
-		Metadata:            mergeMetadata(orderNotesMetadata(nil, req.OrderNotes, req.RequestUtensils), paymentMeta),
+		Metadata:            withDeliveryQuote(mergeMetadata(orderNotesMetadata(nil, req.OrderNotes, req.RequestUtensils), paymentMeta), delivery, req.DeliveryPlaceName),
 		// DeliveryAddressID was previously never set here even when the checkout request
 		// resolved a real saved address -- req.DeliveryLat/Lng were used only transiently
 		// for the delivery-fee calc above and then discarded, so the order's own dropoff
@@ -532,6 +533,9 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		// silently got nothing. See CreateAddressRequestDTO/CustomerAddress for the
 		// actual lat/lng source of truth this now lets those reads resolve.
 		DeliveryAddressID: req.DeliveryAddressID,
+		// The pin the delivery was priced for, saved address or a freshly picked location.
+		DeliveryLatitude:  deliveryPin(fulfillmentType, req.DeliveryLat),
+		DeliveryLongitude: deliveryPin(fulfillmentType, req.DeliveryLng),
 		PlacedAt:          &now,
 		CreatedAt:         now,
 		UpdatedAt:         now,
@@ -933,22 +937,13 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		subtotal += it.TotalPrice
 	}
 
-	deliveryFee := 0.0
-	if fulfillmentType == FulfillmentTypePickup {
-		deliveryFee = 0
-	} else if req.DeliveryLat != nil && req.DeliveryLng != nil {
-		fee, _, zoneErr := s.CalculateDeliveryFee(ctx, req.TenantID, &req.OutletID, *req.DeliveryLat, *req.DeliveryLng)
-		switch {
-		case zoneErr == nil:
-			deliveryFee = fee
-		case zoneErr == ErrDeliveryNotServiceable:
-			return nil, ErrDeliveryNotServiceable
-		default:
-			s.logger.Warn("guest delivery fee calculation failed, using default", zap.Error(zoneErr))
-			deliveryFee = DeliveryFeeBase
-		}
+	delivery, dErr := s.priceDelivery(ctx, req.TenantID, req.OutletID, fulfillmentType, req.DeliveryLat, req.DeliveryLng, subtotal)
+	if dErr != nil {
+		return nil, dErr
 	}
-	grandTotal := subtotal + deliveryFee
+	deliveryFee := delivery.Fee
+	fees := s.feeSvc.CalculateFees(ctx, req.TenantID, subtotal, 0, delivery, 0)
+	grandTotal := fees.GrandTotal
 
 	// Generate order number
 	orderNumber, err := s.repo.GenerateOrderNumber(ctx, req.TenantID, req.OutletID)
@@ -1005,6 +1000,9 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		DiscountTotal:   0,
 		TaxTotal:        0,
 		DeliveryFee:     deliveryFee,
+		PackagingFee:    fees.PackagingFee,
+		ServiceFee:      fees.ServiceFee,
+		SmallOrderFee:   fees.SmallOrderFee,
 		GrandTotal:      grandTotal,
 		// Guest orders have no CustomerID/CustomerAddress row, so DeliveryAddressID can never
 		// resolve dropoff coordinates the way authenticated checkout does — persist the raw
@@ -1029,7 +1027,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 			"sessionId":    req.SessionID,
 		}, req.OrderNotes, req.RequestUtensils),
 	}
-	order.Metadata = mergeMetadata(order.Metadata, paymentMeta)
+	order.Metadata = withDeliveryQuote(mergeMetadata(order.Metadata, paymentMeta), delivery, req.DeliveryPlaceName)
 
 	// Hand-over code: the rider's proof of delivery, or the code shown at the counter to collect.
 	if needsHandoverCode(fulfillmentType, inputLineMetadata(orderItems)) {
@@ -1905,90 +1903,6 @@ func (s *OrderService) publishOrderRefunded(ctx context.Context, order *Order, r
 	}
 }
 
-// CalculateDeliveryFee determines the delivery fee by matching a coordinate against
-// active DeliveryZone polygons. Returns the fee and estimated time, or an error if
-// the location is not serviceable.
-func (s *OrderService) CalculateDeliveryFee(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, lat, lng float64) (float64, int, error) {
-	zones, err := s.repo.ListActiveDeliveryZones(ctx, tenantID, outletID)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	for _, zone := range zones {
-		if zone.ZonePolygon == nil {
-			continue
-		}
-		if pointInZonePolygon(lat, lng, zone.ZonePolygon) {
-			return zone.DeliveryFee, zone.EstimatedTimeMinutes, nil
-		}
-	}
-
-	// No zone matched — fall back to constants if no zones are configured
-	if len(zones) == 0 {
-		return DeliveryFeeBase, 30, nil
-	}
-
-	return 0, 0, ErrDeliveryNotServiceable
-}
-
-// pointInZonePolygon checks if a lat/lng point falls within a GeoJSON polygon.
-// The polygon is expected to be in GeoJSON format with "coordinates" as [][][]float64
-// (the first ring is the outer boundary). Uses the ray-casting algorithm.
-func pointInZonePolygon(lat, lng float64, polygon map[string]interface{}) bool {
-	coords, ok := polygon["coordinates"]
-	if !ok {
-		return false
-	}
-
-	// GeoJSON Polygon: coordinates is [][][]float64 (array of rings, each ring is array of [lng, lat])
-	rings, ok := coords.([]interface{})
-	if !ok || len(rings) == 0 {
-		return false
-	}
-
-	// Use the outer ring (first ring)
-	outerRing, ok := rings[0].([]interface{})
-	if !ok || len(outerRing) < 3 {
-		return false
-	}
-
-	// Extract points
-	type point struct{ x, y float64 }
-	points := make([]point, 0, len(outerRing))
-	for _, p := range outerRing {
-		pair, ok := p.([]interface{})
-		if !ok || len(pair) < 2 {
-			continue
-		}
-		pLng, ok1 := toFloat64(pair[0])
-		pLat, ok2 := toFloat64(pair[1])
-		if !ok1 || !ok2 {
-			continue
-		}
-		points = append(points, point{pLng, pLat})
-	}
-
-	if len(points) < 3 {
-		return false
-	}
-
-	// Ray-casting algorithm
-	inside := false
-	n := len(points)
-	for i, j := 0, n-1; i < n; j, i = i, i+1 {
-		yi, xi := points[i].y, points[i].x
-		yj, xj := points[j].y, points[j].x
-
-		if ((yi > lat) != (yj > lat)) &&
-			(lng < (xj-xi)*(lat-yi)/(yj-yi)+xi) {
-			inside = !inside
-		}
-	}
-
-	return inside
-}
-
-// toFloat64 converts a JSON number to float64.
 func toFloat64(v interface{}) (float64, bool) {
 	switch n := v.(type) {
 	case float64:
@@ -2639,7 +2553,7 @@ func (s *OrderService) releaseOrderReservation(ctx context.Context, order *Order
 	// Same tenant injection as consumeOrderReservation: callers include NATS consumers and the
 	// payment poller, whose contexts carry no tenant.
 	ctx = httpware.WithTenantSlug(httpware.WithTenantID(ctx, order.TenantID.String()), tenant.Slug)
-	if releaseErr :=s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, reason); releaseErr != nil {
+	if releaseErr := s.inventoryClient.ReleaseReservation(ctx, tenant.Slug, *order.ReservationID, reason); releaseErr != nil {
 		s.logger.Warn("failed to release inventory reservation",
 			zap.Error(releaseErr),
 			zap.String("reservationID", order.ReservationID.String()),
@@ -2973,6 +2887,7 @@ func (s *OrderService) publishOrderReady(ctx context.Context, order *Order) {
 		FulfillmentType: string(order.FulfillmentType),
 		PODCode:         deliveryCode(order),
 	}
+	data.DeliveryZoneID, data.DeliveryZoneName, data.DistanceKm = deliveryZoneOf(order.Metadata)
 	// Line items let the rider check the bag at the counter (name + quantity only).
 	if len(order.Items) == 0 {
 		if items, lErr := s.repo.ListOrderItems(ctx, order.ID); lErr == nil {

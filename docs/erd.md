@@ -135,10 +135,23 @@ pending → authorized → paid → completed
 
 ---
 
-## Delivery Zones & Availability
+## Delivery pricing (owned by logistics-api)
 
-| Table | Key Columns | Description |
-|-------|-------------|-------------|
+Ordering keeps no delivery zones. Since 2026-10-10 every delivery is priced by logistics-api's
+quote (`POST /api/v1/s2s/zones/{tenant}/quote`, contract in logistics-api `docs/delivery-zones.md`).
+The retired `delivery_zones` table was backed up to `delivery_zones_bk_20261009` and is dropped by
+`cmd/migrate` once that backup exists.
+
+What ordering stores per order:
+
+| Where | Content |
+|-------|---------|
+| `orders.delivery_fee` | Fee charged (quote fee after ordering's free-minimum or delivery discount) |
+| `orders.delivery_latitude`, `orders.delivery_longitude` | The pin that was priced, for every delivery order |
+| `orders.metadata.delivery_quote` | `zone_id`, `zone_name`, `method` (zone or per_km), `quoted_fee`, `charged_fee`, `distance_km`, `distance_type`, `eta_minutes`, `policy_version`, `place_name`, `free_reason` |
+| `service_configs` key `fee_config` | Ordering-owned fees only: service %, packaging, small order fee and threshold, delivery discount %, free delivery minimum. All default to 0 (off) |
+
+-------|-------------|-------------|
 | `delivery_zones` | `id`, `tenant_id`, `outlet_id`, `name`, `zone_polygon` (GeoJSON), `delivery_fee`, `minimum_order`, `estimated_time_minutes`, `is_active`, `created_at`, `updated_at` | Geographic delivery service areas per outlet. |
 | `zone_schedules` | `id`, `zone_id`, `day_of_week`, `time_start`, `time_end`, `is_available` | Time-based zone availability. |
 | `availability_checks` | `id`, `tenant_id`, `latitude`, `longitude`, `zone_id`, `is_serviceable`, `checked_at`, `user_id`, `session_id` | Audit log of delivery availability checks. |

@@ -293,6 +293,9 @@ This document provides detailed integration information for all external service
 
 ### Logistics Service
 
+**Delivery pricing (2026-10-10).** Logistics-api is the only source of delivery areas, geofencing and delivery fees. Ordering calls `POST /api/v1/s2s/zones/{tenant}/quote` (X-API-Key) from `internal/platform/logistics/quote.go`, cached in Redis per tenant, outlet and pin (about 11 m) for two minutes, and `GET /api/v1/s2s/zones/{tenant}/coverage` for outlet listings. The storefront calls logistics directly for the public coverage, quote preview and place search (`/zones/coverage`, `/zones/quote`, `/routing/geocode/search|reverse`). Ordering never computes distances or point-in-zone checks itself.
+
+
 **Integration Type**: REST API + Events (NATS) + WebSockets/SSE
 
 **Use Cases**:

@@ -27,7 +27,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/documentsequence"
 	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
@@ -88,8 +87,6 @@ type Client struct {
 	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
-	// DeliveryZone is the client for interacting with the DeliveryZone builders.
-	DeliveryZone *DeliveryZoneClient
 	// DocumentSequence is the client for interacting with the DocumentSequence builders.
 	DocumentSequence *DocumentSequenceClient
 	// GoogleBusinessConnection is the client for interacting with the GoogleBusinessConnection builders.
@@ -174,7 +171,6 @@ func (c *Client) init() {
 	c.DataExportJob = NewDataExportJobClient(c.config)
 	c.DataSubjectRequest = NewDataSubjectRequestClient(c.config)
 	c.DeliveryWindow = NewDeliveryWindowClient(c.config)
-	c.DeliveryZone = NewDeliveryZoneClient(c.config)
 	c.DocumentSequence = NewDocumentSequenceClient(c.config)
 	c.GoogleBusinessConnection = NewGoogleBusinessConnectionClient(c.config)
 	c.GroupOrder = NewGroupOrderClient(c.config)
@@ -309,7 +305,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DataExportJob:            NewDataExportJobClient(cfg),
 		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
-		DeliveryZone:             NewDeliveryZoneClient(cfg),
 		DocumentSequence:         NewDocumentSequenceClient(cfg),
 		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
 		GroupOrder:               NewGroupOrderClient(cfg),
@@ -371,7 +366,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DataExportJob:            NewDataExportJobClient(cfg),
 		DataSubjectRequest:       NewDataSubjectRequestClient(cfg),
 		DeliveryWindow:           NewDeliveryWindowClient(cfg),
-		DeliveryZone:             NewDeliveryZoneClient(cfg),
 		DocumentSequence:         NewDocumentSequenceClient(cfg),
 		GoogleBusinessConnection: NewGoogleBusinessConnectionClient(cfg),
 		GroupOrder:               NewGroupOrderClient(cfg),
@@ -434,14 +428,13 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AuditLog, c.Backup, c.BackupSetting, c.Cart, c.CartItem, c.CatalogOverride,
 		c.CustomerAddress, c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest,
-		c.DeliveryWindow, c.DeliveryZone, c.DocumentSequence,
-		c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
-		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
-		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
-		c.UserRoleAssignment,
+		c.DeliveryWindow, c.DocumentSequence, c.GoogleBusinessConnection, c.GroupOrder,
+		c.GroupParticipant, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
+		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
+		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
+		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
+		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Use(hooks...)
 	}
@@ -453,14 +446,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AuditLog, c.Backup, c.BackupSetting, c.Cart, c.CartItem, c.CatalogOverride,
 		c.CustomerAddress, c.DataDeletionJob, c.DataExportJob, c.DataSubjectRequest,
-		c.DeliveryWindow, c.DeliveryZone, c.DocumentSequence,
-		c.GoogleBusinessConnection, c.GroupOrder, c.GroupParticipant, c.LoyaltyAccount,
-		c.LoyaltyTransaction, c.Order, c.OrderAssignment, c.OrderEvent, c.OrderItem,
-		c.OrderingPermission, c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating,
-		c.Permission, c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role,
-		c.RolePermission, c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting,
-		c.TenantSyncEvent, c.User, c.UserFavorite, c.UserPreference, c.UserProfile,
-		c.UserRoleAssignment,
+		c.DeliveryWindow, c.DocumentSequence, c.GoogleBusinessConnection, c.GroupOrder,
+		c.GroupParticipant, c.LoyaltyAccount, c.LoyaltyTransaction, c.Order,
+		c.OrderAssignment, c.OrderEvent, c.OrderItem, c.OrderingPermission,
+		c.OrderingRole, c.OutboxEvent, c.Outlet, c.OutletRating, c.Permission,
+		c.PromoCode, c.PromoRedemption, c.RateLimitConfig, c.Role, c.RolePermission,
+		c.SLAMetric, c.ServiceConfig, c.Tenant, c.TenantSetting, c.TenantSyncEvent,
+		c.User, c.UserFavorite, c.UserPreference, c.UserProfile, c.UserRoleAssignment,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -491,8 +483,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DataSubjectRequest.mutate(ctx, m)
 	case *DeliveryWindowMutation:
 		return c.DeliveryWindow.mutate(ctx, m)
-	case *DeliveryZoneMutation:
-		return c.DeliveryZone.mutate(ctx, m)
 	case *DocumentSequenceMutation:
 		return c.DocumentSequence.mutate(ctx, m)
 	case *GoogleBusinessConnectionMutation:
@@ -2116,139 +2106,6 @@ func (c *DeliveryWindowClient) mutate(ctx context.Context, m *DeliveryWindowMuta
 		return (&DeliveryWindowDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DeliveryWindow mutation op: %q", m.Op())
-	}
-}
-
-// DeliveryZoneClient is a client for the DeliveryZone schema.
-type DeliveryZoneClient struct {
-	config
-}
-
-// NewDeliveryZoneClient returns a client for the DeliveryZone from the given config.
-func NewDeliveryZoneClient(c config) *DeliveryZoneClient {
-	return &DeliveryZoneClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `deliveryzone.Hooks(f(g(h())))`.
-func (c *DeliveryZoneClient) Use(hooks ...Hook) {
-	c.hooks.DeliveryZone = append(c.hooks.DeliveryZone, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `deliveryzone.Intercept(f(g(h())))`.
-func (c *DeliveryZoneClient) Intercept(interceptors ...Interceptor) {
-	c.inters.DeliveryZone = append(c.inters.DeliveryZone, interceptors...)
-}
-
-// Create returns a builder for creating a DeliveryZone entity.
-func (c *DeliveryZoneClient) Create() *DeliveryZoneCreate {
-	mutation := newDeliveryZoneMutation(c.config, OpCreate)
-	return &DeliveryZoneCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of DeliveryZone entities.
-func (c *DeliveryZoneClient) CreateBulk(builders ...*DeliveryZoneCreate) *DeliveryZoneCreateBulk {
-	return &DeliveryZoneCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *DeliveryZoneClient) MapCreateBulk(slice any, setFunc func(*DeliveryZoneCreate, int)) *DeliveryZoneCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &DeliveryZoneCreateBulk{err: fmt.Errorf("calling to DeliveryZoneClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*DeliveryZoneCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &DeliveryZoneCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for DeliveryZone.
-func (c *DeliveryZoneClient) Update() *DeliveryZoneUpdate {
-	mutation := newDeliveryZoneMutation(c.config, OpUpdate)
-	return &DeliveryZoneUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *DeliveryZoneClient) UpdateOne(_m *DeliveryZone) *DeliveryZoneUpdateOne {
-	mutation := newDeliveryZoneMutation(c.config, OpUpdateOne, withDeliveryZone(_m))
-	return &DeliveryZoneUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *DeliveryZoneClient) UpdateOneID(id uuid.UUID) *DeliveryZoneUpdateOne {
-	mutation := newDeliveryZoneMutation(c.config, OpUpdateOne, withDeliveryZoneID(id))
-	return &DeliveryZoneUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for DeliveryZone.
-func (c *DeliveryZoneClient) Delete() *DeliveryZoneDelete {
-	mutation := newDeliveryZoneMutation(c.config, OpDelete)
-	return &DeliveryZoneDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *DeliveryZoneClient) DeleteOne(_m *DeliveryZone) *DeliveryZoneDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *DeliveryZoneClient) DeleteOneID(id uuid.UUID) *DeliveryZoneDeleteOne {
-	builder := c.Delete().Where(deliveryzone.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &DeliveryZoneDeleteOne{builder}
-}
-
-// Query returns a query builder for DeliveryZone.
-func (c *DeliveryZoneClient) Query() *DeliveryZoneQuery {
-	return &DeliveryZoneQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeDeliveryZone},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a DeliveryZone entity by its id.
-func (c *DeliveryZoneClient) Get(ctx context.Context, id uuid.UUID) (*DeliveryZone, error) {
-	return c.Query().Where(deliveryzone.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *DeliveryZoneClient) GetX(ctx context.Context, id uuid.UUID) *DeliveryZone {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *DeliveryZoneClient) Hooks() []Hook {
-	return c.hooks.DeliveryZone
-}
-
-// Interceptors returns the client interceptors.
-func (c *DeliveryZoneClient) Interceptors() []Interceptor {
-	return c.inters.DeliveryZone
-}
-
-func (c *DeliveryZoneClient) mutate(ctx context.Context, m *DeliveryZoneMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&DeliveryZoneCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&DeliveryZoneUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&DeliveryZoneUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&DeliveryZoneDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown DeliveryZone mutation op: %q", m.Op())
 	}
 }
 
@@ -7132,23 +6989,23 @@ type (
 	hooks struct {
 		AuditLog, Backup, BackupSetting, Cart, CartItem, CatalogOverride,
 		CustomerAddress, DataDeletionJob, DataExportJob, DataSubjectRequest,
-		DeliveryWindow, DeliveryZone, DocumentSequence, GoogleBusinessConnection,
-		GroupOrder, GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order,
-		OrderAssignment, OrderEvent, OrderItem, OrderingPermission, OrderingRole,
-		OutboxEvent, Outlet, OutletRating, Permission, PromoCode, PromoRedemption,
-		RateLimitConfig, Role, RolePermission, SLAMetric, ServiceConfig, Tenant,
-		TenantSetting, TenantSyncEvent, User, UserFavorite, UserPreference,
-		UserProfile, UserRoleAssignment []ent.Hook
+		DeliveryWindow, DocumentSequence, GoogleBusinessConnection, GroupOrder,
+		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
+		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
+		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
+		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
+		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
+		UserRoleAssignment []ent.Hook
 	}
 	inters struct {
 		AuditLog, Backup, BackupSetting, Cart, CartItem, CatalogOverride,
 		CustomerAddress, DataDeletionJob, DataExportJob, DataSubjectRequest,
-		DeliveryWindow, DeliveryZone, DocumentSequence, GoogleBusinessConnection,
-		GroupOrder, GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order,
-		OrderAssignment, OrderEvent, OrderItem, OrderingPermission, OrderingRole,
-		OutboxEvent, Outlet, OutletRating, Permission, PromoCode, PromoRedemption,
-		RateLimitConfig, Role, RolePermission, SLAMetric, ServiceConfig, Tenant,
-		TenantSetting, TenantSyncEvent, User, UserFavorite, UserPreference,
-		UserProfile, UserRoleAssignment []ent.Interceptor
+		DeliveryWindow, DocumentSequence, GoogleBusinessConnection, GroupOrder,
+		GroupParticipant, LoyaltyAccount, LoyaltyTransaction, Order, OrderAssignment,
+		OrderEvent, OrderItem, OrderingPermission, OrderingRole, OutboxEvent, Outlet,
+		OutletRating, Permission, PromoCode, PromoRedemption, RateLimitConfig, Role,
+		RolePermission, SLAMetric, ServiceConfig, Tenant, TenantSetting,
+		TenantSyncEvent, User, UserFavorite, UserPreference, UserProfile,
+		UserRoleAssignment []ent.Interceptor
 	}
 )

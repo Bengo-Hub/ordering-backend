@@ -374,21 +374,6 @@ type LoyaltyTransaction struct {
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// DeliveryZone represents a delivery zone with its fee configuration.
-type DeliveryZone struct {
-	ID                   uuid.UUID              `json:"id"`
-	TenantID             uuid.UUID              `json:"tenantId"`
-	OutletID             *uuid.UUID             `json:"outletId,omitempty"`
-	Name                 string                 `json:"name"`
-	Slug                 string                 `json:"slug,omitempty"`
-	ZonePolygon          map[string]interface{} `json:"zonePolygon,omitempty"`
-	DeliveryFee          float64                `json:"deliveryFee"`
-	MinimumOrder         float64                `json:"minimumOrder"`
-	EstimatedTimeMinutes int                    `json:"estimatedTimeMinutes"`
-	IsActive             bool                   `json:"isActive"`
-	SortOrder            int                    `json:"sortOrder"`
-}
-
 // OutletRatingData represents the materialized rating aggregate for an outlet.
 type OutletRatingData struct {
 	ID            uuid.UUID `json:"id"`
@@ -465,13 +450,6 @@ const LoyaltyPointsPerHundred = 1 // 1 point per KES 100
 
 // LoyaltyPointValue is the value of each loyalty point in the default currency.
 const LoyaltyPointValue = 0.1 // 1 point = 0.1 KES
-
-// Delivery fee constants
-const (
-	DeliveryFeeBase     = 100.0  // KES base delivery fee
-	DeliveryFeePerKm    = 30.0   // KES per km
-	FreeDeliveryMinimum = 2000.0 // KES - free delivery for orders above this
-)
 
 // Scheduled order constants
 const (
@@ -569,6 +547,8 @@ type CreateOrderFromItemsRequest struct {
 	DeliveryAddressID *uuid.UUID
 	DeliveryLat       *float64
 	DeliveryLng       *float64
+	// DeliveryPlaceName labels the pin (e.g. "Alupe Market"); stored with the quote.
+	DeliveryPlaceName string
 	DeliveryNotes     string
 	PaymentMethod     string // "mpesa" | "cod"
 	PromoCode         string
@@ -605,25 +585,26 @@ type CreateOrderItemInput struct {
 
 // GuestCheckoutRequest represents a request for guest checkout (no auth required).
 type GuestCheckoutRequest struct {
-	TenantID        uuid.UUID
-	OutletID        uuid.UUID
-	SessionID       string
-	ContactEmail    string
-	ContactPhone    string
-	ContactName     string
-	Items           []CreateOrderItemInput // items from frontend local cart
-	DeliveryAddress string
-	DeliveryLat     *float64
-	DeliveryLng     *float64
-	DeliveryNotes   string
-	PaymentMethod   string
-	Instructions    string
-	Channel         OrderChannel
-	FulfillmentType FulfillmentType
-	ScheduledFor    *time.Time
-	OrderNotes      string
-	RequestUtensils bool
-	MpesaCode       string
+	TenantID          uuid.UUID
+	OutletID          uuid.UUID
+	SessionID         string
+	ContactEmail      string
+	ContactPhone      string
+	ContactName       string
+	Items             []CreateOrderItemInput // items from frontend local cart
+	DeliveryAddress   string
+	DeliveryLat       *float64
+	DeliveryLng       *float64
+	DeliveryPlaceName string
+	DeliveryNotes     string
+	PaymentMethod     string
+	Instructions      string
+	Channel           OrderChannel
+	FulfillmentType   FulfillmentType
+	ScheduledFor      *time.Time
+	OrderNotes        string
+	RequestUtensils   bool
+	MpesaCode         string
 }
 
 // RefundOrderRequest represents a request to refund an order.
@@ -664,6 +645,18 @@ type AnalyticsSummary struct {
 	RevenueByCurrency map[string]float64 `json:"revenueByCurrency"`
 	TopSellingItems   []ItemSalesSummary `json:"topSellingItems"`
 	Trend             []DailyMetric      `json:"trend"`
+	// DeliveryByArea groups paid delivery orders by the area that priced them.
+	DeliveryByArea []DeliveryAreaSummary `json:"deliveryByArea"`
+}
+
+// DeliveryAreaSummary is delivery volume and fee income for one delivery area (from the
+// logistics quote stored on each order).
+type DeliveryAreaSummary struct {
+	Area          string  `json:"area"`
+	Method        string  `json:"method"` // zone | per_km | "" (orders before quotes were stored)
+	Orders        int     `json:"orders"`
+	DeliveryFees  float64 `json:"deliveryFees"`
+	AvgDistanceKm float64 `json:"avgDistanceKm"`
 }
 
 // ItemSalesSummary represents sales metrics for a single item.

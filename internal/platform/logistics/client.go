@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
+	sharedcache "github.com/Bengo-Hub/cache"
 	serviceclient "github.com/Bengo-Hub/shared-service-client"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/config"
@@ -18,6 +19,8 @@ type Client struct {
 	apiKey        string
 	serviceClient *serviceclient.Client
 	logger        *zap.Logger
+	// cache holds delivery quotes and coverage (optional).
+	cache *sharedcache.Aside
 }
 
 // NewClient creates a new logistics service client.
@@ -51,17 +54,17 @@ const (
 type TaskStatus string
 
 const (
-	TaskStatusPending         TaskStatus = "pending"
-	TaskStatusAssigned        TaskStatus = "assigned"
-	TaskStatusAccepted        TaskStatus = "accepted"
-	TaskStatusEnRoutePickup   TaskStatus = "en_route_pickup"
-	TaskStatusArrivedPickup   TaskStatus = "arrived_pickup"
-	TaskStatusPickedUp        TaskStatus = "picked_up"
-	TaskStatusEnRouteDropoff  TaskStatus = "en_route_dropoff"
-	TaskStatusArrivedDropoff  TaskStatus = "arrived_dropoff"
-	TaskStatusCompleted       TaskStatus = "completed"
-	TaskStatusCancelled       TaskStatus = "cancelled"
-	TaskStatusFailed          TaskStatus = "failed"
+	TaskStatusPending        TaskStatus = "pending"
+	TaskStatusAssigned       TaskStatus = "assigned"
+	TaskStatusAccepted       TaskStatus = "accepted"
+	TaskStatusEnRoutePickup  TaskStatus = "en_route_pickup"
+	TaskStatusArrivedPickup  TaskStatus = "arrived_pickup"
+	TaskStatusPickedUp       TaskStatus = "picked_up"
+	TaskStatusEnRouteDropoff TaskStatus = "en_route_dropoff"
+	TaskStatusArrivedDropoff TaskStatus = "arrived_dropoff"
+	TaskStatusCompleted      TaskStatus = "completed"
+	TaskStatusCancelled      TaskStatus = "cancelled"
+	TaskStatusFailed         TaskStatus = "failed"
 )
 
 // TaskPriorityToInt maps string priority levels to int values expected by logistics-api.

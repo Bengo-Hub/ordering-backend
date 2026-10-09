@@ -164,6 +164,9 @@ type authAPIOutletResponse struct {
 	IsHQ    bool   `json:"is_hq"`
 	Status  string `json:"status"`
 	Address string `json:"address"`
+	// Map pin, served by auth-api from the outlet's metadata.
+	Latitude  *float64 `json:"latitude"`
+	Longitude *float64 `json:"longitude"`
 }
 
 // BootstrapOutlets fetches all active outlets for tenantSlug from auth-api and
@@ -237,6 +240,9 @@ func (s *Syncer) BootstrapOutlets(ctx context.Context, tenantSlug string, tenant
 			if o.Address != "" {
 				create = create.SetAddress(o.Address)
 			}
+			if o.Latitude != nil && o.Longitude != nil {
+				create = create.SetLatitude(*o.Latitude).SetLongitude(*o.Longitude)
+			}
 			if _, createErr := create.Save(ctx); createErr != nil {
 				log.Printf("  [outlet-bootstrap] create %s (%s): %v", o.Name, o.ID, createErr)
 				continue
@@ -249,6 +255,9 @@ func (s *Syncer) BootstrapOutlets(ctx context.Context, tenantSlug string, tenant
 			}
 			if o.Address != "" {
 				upd = upd.SetAddress(o.Address)
+			}
+			if o.Latitude != nil && o.Longitude != nil {
+				upd = upd.SetLatitude(*o.Latitude).SetLongitude(*o.Longitude)
 			}
 			if _, updErr := upd.Save(ctx); updErr != nil {
 				log.Printf("  [outlet-bootstrap] update %s (%s): %v", o.Name, o.ID, updErr)

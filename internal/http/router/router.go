@@ -29,7 +29,6 @@ import (
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
-	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	ordermw "github.com/bengobox/ordering-backend/internal/http/middleware"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
@@ -62,7 +61,6 @@ func New(
 	slaHandler *slahandler.Handler,
 	analyticsHandler *analyticshandler.Handler,
 	complianceHandler *compliancehandler.Handler,
-	zonesHandler *zoneshandler.Handler,
 	authenticator *identityhandler.Authenticator,
 	authMiddleware *authclient.AuthMiddleware,
 	rateLimiter *ratelimit.Limiter,
@@ -339,11 +337,6 @@ func New(
 						}
 						if groupOrderHandler != nil {
 							groupOrderHandler.Register(ord, authenticator)
-						}
-
-						// Register delivery zones
-						if zonesHandler != nil {
-							zonesHandler.Register(ord, authenticator)
 						}
 
 						// Register payment routes

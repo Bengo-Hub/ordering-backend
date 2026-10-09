@@ -23,7 +23,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/documentsequence"
 	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
@@ -126,7 +125,6 @@ func checkColumn(t, c string) error {
 			dataexportjob.Table:            dataexportjob.ValidColumn,
 			datasubjectrequest.Table:       datasubjectrequest.ValidColumn,
 			deliverywindow.Table:           deliverywindow.ValidColumn,
-			deliveryzone.Table:             deliveryzone.ValidColumn,
 			documentsequence.Table:         documentsequence.ValidColumn,
 			googlebusinessconnection.Table: googlebusinessconnection.ValidColumn,
 			grouporder.Table:               grouporder.ValidColumn,
