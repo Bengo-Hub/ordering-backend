@@ -534,51 +534,6 @@ var (
 			},
 		},
 	}
-	// DeliveryZonesColumns holds the columns for the "delivery_zones" table.
-	DeliveryZonesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "tenant_id", Type: field.TypeUUID},
-		{Name: "outlet_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "slug", Type: field.TypeString, Nullable: true},
-		{Name: "zone_polygon", Type: field.TypeJSON, Nullable: true},
-		{Name: "delivery_fee", Type: field.TypeFloat64, Default: 0},
-		{Name: "minimum_order", Type: field.TypeFloat64, Default: 0},
-		{Name: "estimated_time_minutes", Type: field.TypeInt, Default: 30},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
-		{Name: "sort_order", Type: field.TypeInt, Default: 0},
-		{Name: "metadata", Type: field.TypeJSON},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-	}
-	// DeliveryZonesTable holds the schema information for the "delivery_zones" table.
-	DeliveryZonesTable = &schema.Table{
-		Name:       "delivery_zones",
-		Columns:    DeliveryZonesColumns,
-		PrimaryKey: []*schema.Column{DeliveryZonesColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "deliveryzone_tenant_id",
-				Unique:  false,
-				Columns: []*schema.Column{DeliveryZonesColumns[1]},
-			},
-			{
-				Name:    "deliveryzone_tenant_id_outlet_id",
-				Unique:  false,
-				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[2]},
-			},
-			{
-				Name:    "deliveryzone_tenant_id_is_active",
-				Unique:  false,
-				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[9]},
-			},
-			{
-				Name:    "deliveryzone_tenant_id_slug",
-				Unique:  true,
-				Columns: []*schema.Column{DeliveryZonesColumns[1], DeliveryZonesColumns[4]},
-			},
-		},
-	}
 	// DocumentSequencesColumns holds the columns for the "document_sequences" table.
 	DocumentSequencesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -2007,7 +1962,6 @@ var (
 		DataExportJobsTable,
 		DataSubjectRequestsTable,
 		DeliveryWindowsTable,
-		DeliveryZonesTable,
 		DocumentSequencesTable,
 		GoogleBusinessConnectionsTable,
 		GroupOrdersTable,

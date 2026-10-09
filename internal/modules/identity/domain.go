@@ -48,8 +48,6 @@ const (
 	PermissionAnalyticsExport     Permission = "ordering.analytics.manage"
 	PermissionSupportView         Permission = "ordering.orders.view_own"
 	PermissionSupportManage       Permission = "ordering.orders.manage"
-	PermissionZonesView           Permission = "ordering.delivery_zones.view"
-	PermissionZonesManage         Permission = "ordering.delivery_zones.manage"
 	PermissionRidersOnboard       Permission = "ordering.users.add"
 	PermissionStaffInvite         Permission = "ordering.users.add"
 	PermissionAdminManage         Permission = "ordering.config.manage"
@@ -138,7 +136,7 @@ func DefaultPermissions(role Role) []Permission {
 	case RoleManager:
 		// Mirrors seedOrderingRoles "manager" grants in cmd/seed/main.go.
 		return []Permission{
-			// orders, catalog, outlets, promotions, delivery_zones, delivery_windows, loyalty (all actions)
+			// orders, catalog, outlets, promotions, delivery_windows, loyalty (all actions)
 			Permission("ordering.orders.add"), Permission("ordering.orders.view"), Permission("ordering.orders.view_own"),
 			Permission("ordering.orders.change"), Permission("ordering.orders.change_own"), Permission("ordering.orders.delete"),
 			Permission("ordering.orders.delete_own"), Permission("ordering.orders.manage"), Permission("ordering.orders.manage_own"),
@@ -151,9 +149,6 @@ func DefaultPermissions(role Role) []Permission {
 			Permission("ordering.promotions.add"), Permission("ordering.promotions.view"), Permission("ordering.promotions.view_own"),
 			Permission("ordering.promotions.change"), Permission("ordering.promotions.change_own"), Permission("ordering.promotions.delete"),
 			Permission("ordering.promotions.delete_own"), Permission("ordering.promotions.manage"), Permission("ordering.promotions.manage_own"),
-			Permission("ordering.delivery_zones.add"), Permission("ordering.delivery_zones.view"), Permission("ordering.delivery_zones.view_own"),
-			Permission("ordering.delivery_zones.change"), Permission("ordering.delivery_zones.change_own"), Permission("ordering.delivery_zones.delete"),
-			Permission("ordering.delivery_zones.delete_own"), Permission("ordering.delivery_zones.manage"), Permission("ordering.delivery_zones.manage_own"),
 			Permission("ordering.delivery_windows.add"), Permission("ordering.delivery_windows.view"), Permission("ordering.delivery_windows.view_own"),
 			Permission("ordering.delivery_windows.change"), Permission("ordering.delivery_windows.change_own"), Permission("ordering.delivery_windows.delete"),
 			Permission("ordering.delivery_windows.delete_own"), Permission("ordering.delivery_windows.manage"), Permission("ordering.delivery_windows.manage_own"),
@@ -185,7 +180,6 @@ func DefaultPermissions(role Role) []Permission {
 		// Mirrors seedOrderingRoles "delivery_coordinator" grants in cmd/seed/main.go.
 		return []Permission{
 			Permission("ordering.orders.view"), Permission("ordering.orders.change"),
-			Permission("ordering.delivery_zones.view"), Permission("ordering.delivery_zones.change"), Permission("ordering.delivery_zones.manage"),
 			Permission("ordering.delivery_windows.view"), Permission("ordering.delivery_windows.change"), Permission("ordering.delivery_windows.manage"),
 			Permission("ordering.outlets.view"),
 			Permission("ordering.users.view_own"), Permission("ordering.users.change_own"),
@@ -197,7 +191,6 @@ func DefaultPermissions(role Role) []Permission {
 			Permission("ordering.catalog.view"),
 			Permission("ordering.outlets.view"),
 			Permission("ordering.promotions.view"),
-			Permission("ordering.delivery_zones.view"),
 			Permission("ordering.delivery_windows.view"),
 			Permission("ordering.loyalty.view"),
 			Permission("ordering.analytics.view"),

@@ -23,7 +23,6 @@ import (
 	entdataexportjob "github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	entdatasubjectrequest "github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	entdeliverywindow "github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
-	entdeliveryzone "github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	entgooglebusinessconnection "github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	entgrouporder "github.com/bengobox/ordering-backend/internal/ent/grouporder"
 	entgroupparticipant "github.com/bengobox/ordering-backend/internal/ent/groupparticipant"
@@ -345,9 +344,6 @@ func (c *PurgeConsumer) purgeTenant(ctx context.Context, tenantID uuid.UUID) err
 		}},
 		{"outlet_ratings", func() (int, error) {
 			return tx.OutletRating.Delete().Where(entoutletrating.TenantID(tenantID)).Exec(ctx)
-		}},
-		{"delivery_zones", func() (int, error) {
-			return tx.DeliveryZone.Delete().Where(entdeliveryzone.TenantID(tenantID)).Exec(ctx)
 		}},
 		{"customer_addresses", func() (int, error) {
 			return tx.CustomerAddress.Delete().Where(entcustomeraddress.TenantID(tenantID)).Exec(ctx)

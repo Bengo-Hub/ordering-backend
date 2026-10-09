@@ -531,8 +531,6 @@ definitions:
     - ordering.analytics.manage
     - ordering.orders.view_own
     - ordering.orders.manage
-    - ordering.delivery_zones.view
-    - ordering.delivery_zones.manage
     - ordering.users.add
     - ordering.users.add
     - ordering.config.manage
@@ -568,8 +566,6 @@ definitions:
     - ""
     - ""
     - ""
-    - ""
-    - ""
     x-enum-varnames:
     - PermissionOrdersView
     - PermissionOrdersManage
@@ -592,8 +588,6 @@ definitions:
     - PermissionAnalyticsExport
     - PermissionSupportView
     - PermissionSupportManage
-    - PermissionZonesView
-    - PermissionZonesManage
     - PermissionRidersOnboard
     - PermissionStaffInvite
     - PermissionAdminManage
@@ -775,6 +769,64 @@ definitions:
       priority:
         type: string
     type: object
+  logistics.DeliveryQuote:
+    properties:
+      below_min_order:
+        type: boolean
+      breakdown:
+        $ref: '#/definitions/logistics.QuoteBreakdown'
+      cache_seconds:
+        type: integer
+      currency:
+        type: string
+      distance_km:
+        type: number
+      distance_type:
+        type: string
+      eta_minutes:
+        type: integer
+      fee:
+        type: number
+      free:
+        type: boolean
+      method:
+        description: zone | per_km
+        type: string
+      min_order:
+        type: number
+      nearest_area:
+        $ref: '#/definitions/logistics.ZoneRef'
+      nearest_area_km:
+        type: number
+      policy_version:
+        type: string
+      reason:
+        type: string
+      serviceable:
+        type: boolean
+      zone:
+        $ref: '#/definitions/logistics.ZoneRef'
+    type: object
+  logistics.QuoteBreakdown:
+    properties:
+      base_fee:
+        type: number
+      min_fee:
+        type: number
+      per_km_rate:
+        type: number
+      raw:
+        type: number
+      rounding:
+        type: number
+    type: object
+  logistics.ZoneRef:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   marketplace.ListTenantsResponse:
     properties:
       data:
@@ -811,6 +863,12 @@ definitions:
     properties:
       cancelledOrders:
         type: integer
+      deliveryByArea:
+        description: DeliveryByArea groups paid delivery orders by the area that priced
+          them.
+        items:
+          $ref: '#/definitions/ordering.DeliveryAreaSummary'
+        type: array
       ordersByStatus:
         additionalProperties:
           type: integer
@@ -1000,12 +1058,31 @@ definitions:
       revenue:
         type: number
     type: object
+  ordering.DeliveryAreaSummary:
+    properties:
+      area:
+        type: string
+      avgDistanceKm:
+        type: number
+      deliveryFees:
+        type: number
+      method:
+        description: zone | per_km | "" (orders before quotes were stored)
+        type: string
+      orders:
+        type: integer
+    type: object
   ordering.FeeBreakdown:
     properties:
       delivery_discount:
         type: number
       delivery_fee:
         type: number
+      delivery_quote:
+        allOf:
+        - $ref: '#/definitions/logistics.DeliveryQuote'
+        description: DeliveryQuote is the logistics quote the delivery fee came from
+          (delivery only).
       discount:
         type: number
       grand_total:
@@ -1503,7 +1580,16 @@ definitions:
         type: string
       deliveryAddressId:
         type: string
+      deliveryLat:
+        description: |-
+          DeliveryLat/Lng is a pin picked on the map at checkout. A saved address
+          (deliveryAddressId) wins when both are sent.
+        type: number
+      deliveryLng:
+        type: number
       deliveryNotes:
+        type: string
+      deliveryPlaceName:
         type: string
       fulfillmentType:
         type: string
@@ -1577,6 +1663,8 @@ definitions:
         type: number
       deliveryNotes:
         type: string
+      deliveryPlaceName:
+        type: string
       fulfillmentType:
         type: string
       items:
@@ -1610,6 +1698,8 @@ definitions:
       deliveryLng:
         type: number
       deliveryNotes:
+        type: string
+      deliveryPlaceName:
         type: string
       fulfillmentType:
         type: string
@@ -3901,6 +3991,14 @@ paths:
         in: query
         name: fulfillment_type
         type: string
+      - description: Delivery pin latitude
+        in: query
+        name: lat
+        type: number
+      - description: Delivery pin longitude
+        in: query
+        name: lng
+        type: number
       produces:
       - application/json
       responses:
@@ -3918,6 +4016,10 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "422":
+          description: Not deliverable or below the area minimum
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get fee breakdown

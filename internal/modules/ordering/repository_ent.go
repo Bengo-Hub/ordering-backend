@@ -14,14 +14,13 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/cart"
 	"github.com/bengobox/ordering-backend/internal/ent/cartitem"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/order"
 	"github.com/bengobox/ordering-backend/internal/ent/orderassignment"
 	"github.com/bengobox/ordering-backend/internal/ent/orderevent"
 	"github.com/bengobox/ordering-backend/internal/ent/orderitem"
 	"github.com/bengobox/ordering-backend/internal/ent/outletrating"
 	"github.com/bengobox/ordering-backend/internal/ent/predicate"
-	tenantpredicate "github.com/bengobox/ordering-backend/internal/ent/tenant"
+	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	"github.com/bengobox/ordering-backend/internal/modules/documents"
 	"github.com/google/uuid"
 )
@@ -1294,54 +1293,28 @@ func (r *EntRepository) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenan
 	}, nil
 }
 
-// GetTenantFeatures returns the features JSON map from the TenantSetting for the given tenant.
-func (r *EntRepository) GetTenantFeatures(ctx context.Context, tenantID uuid.UUID) (map[string]interface{}, error) {
-	t, err := r.client.Tenant.Query().
-		Where(tenantpredicate.ID(tenantID)).
-		WithSettings().
-		Only(ctx)
+// GetServiceConfigValue returns the tenant's value for a service config key, or the
+// platform default (tenant_id IS NULL) when the tenant has none.
+func (r *EntRepository) GetServiceConfigValue(ctx context.Context, tenantID uuid.UUID, key string) (string, bool, error) {
+	rows, err := r.client.ServiceConfig.Query().
+		Where(serviceconfig.ConfigKey(key), serviceconfig.Or(serviceconfig.TenantID(tenantID), serviceconfig.TenantIDIsNil())).
+		All(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("get tenant features: %w", err)
+		return "", false, fmt.Errorf("get service config %s: %w", key, err)
 	}
-	if t.Edges.Settings == nil {
-		return map[string]interface{}{}, nil
-	}
-	return t.Edges.Settings.Features, nil
-}
-
-// ListActiveDeliveryZones returns active delivery zones for a tenant (and optionally a specific outlet).
-func (r *EntRepository) ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error) {
-	query := r.client.DeliveryZone.Query().
-		Where(deliveryzone.TenantID(tenantID), deliveryzone.IsActive(true)).
-		Order(ent.Asc(deliveryzone.FieldSortOrder))
-
-	if outletID != nil {
-		query = query.Where(deliveryzone.OutletID(*outletID))
-	}
-
-	zones, err := query.All(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("list active delivery zones: %w", err)
-	}
-
-	result := make([]DeliveryZone, len(zones))
-	for i, z := range zones {
-		result[i] = DeliveryZone{
-			ID:                   z.ID,
-			TenantID:             z.TenantID,
-			OutletID:             z.OutletID,
-			Name:                 z.Name,
-			Slug:                 z.Slug,
-			ZonePolygon:          z.ZonePolygon,
-			DeliveryFee:          z.DeliveryFee,
-			MinimumOrder:         z.MinimumOrder,
-			EstimatedTimeMinutes: z.EstimatedTimeMinutes,
-			IsActive:             z.IsActive,
-			SortOrder:            z.SortOrder,
+	var platform *ent.ServiceConfig
+	for _, row := range rows {
+		if row.TenantID != nil && *row.TenantID == tenantID {
+			return row.ConfigValue, true, nil
+		}
+		if row.TenantID == nil {
+			platform = row
 		}
 	}
-
-	return result, nil
+	if platform != nil {
+		return platform.ConfigValue, true, nil
+	}
+	return "", false, nil
 }
 
 // --- OutletRating Methods ---

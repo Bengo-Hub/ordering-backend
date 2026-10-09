@@ -156,6 +156,8 @@ func (s *BranchSubscriber) handleUpsert(ctx context.Context, evt *sharedevents.E
 		return fmt.Errorf("missing tenant_id in outlet event")
 	}
 
+	lat, lng, hasPin := eventOutletPin(evt.Payload)
+
 	// slug is derived from code so it satisfies the (tenant_id, slug) unique index.
 	slug := strings.ToLower(strings.ReplaceAll(code, " ", "-"))
 	if slug == "" {
@@ -178,6 +180,9 @@ func (s *BranchSubscriber) handleUpsert(ctx context.Context, evt *sharedevents.E
 		if address != "" {
 			create = create.SetAddress(address)
 		}
+		if hasPin {
+			create = create.SetLatitude(lat).SetLongitude(lng)
+		}
 		if _, createErr := create.Save(ctx); createErr != nil {
 			return fmt.Errorf("create outlet projection: %w", createErr)
 		}
@@ -194,6 +199,9 @@ func (s *BranchSubscriber) handleUpsert(ctx context.Context, evt *sharedevents.E
 	}
 	if address != "" {
 		upd = upd.SetAddress(address)
+	}
+	if hasPin {
+		upd = upd.SetLatitude(lat).SetLongitude(lng)
 	}
 	if _, updErr := upd.Save(ctx); updErr != nil {
 		return fmt.Errorf("update outlet projection: %w", updErr)
@@ -223,4 +231,24 @@ func (s *BranchSubscriber) handleArchive(ctx context.Context, evt *sharedevents.
 		s.logger.Info("outlet archived from auth event", zap.String("outlet_id", outletIDStr))
 	}
 	return nil // n==0 means outlet was never synced — safe to ignore
+}
+
+// eventOutletPin reads the outlet's map pin from an auth.outlet.* payload: top-level
+// latitude/longitude, or inside metadata for events from before auth sent them.
+func eventOutletPin(payload map[string]any) (lat, lng float64, ok bool) {
+	read := func(m map[string]any) (float64, float64, bool) {
+		la, ok1 := m["latitude"].(float64)
+		lo, ok2 := m["longitude"].(float64)
+		if !ok1 || !ok2 || (la == 0 && lo == 0) {
+			return 0, 0, false
+		}
+		return la, lo, true
+	}
+	if la, lo, found := read(payload); found {
+		return la, lo, true
+	}
+	if md, isMap := payload["metadata"].(map[string]any); isMap {
+		return read(md)
+	}
+	return 0, 0, false
 }

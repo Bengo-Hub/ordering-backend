@@ -31,6 +31,8 @@ type ProxyService struct {
 	inventoryClient *inventory.Client
 	cache           *sharedcache.Aside
 	logger          *zap.Logger
+	// delivery prices deliveries for outlet listings (logistics-api).
+	delivery DeliveryInfoSource
 }
 
 // NewProxyService creates a new proxy catalog service.

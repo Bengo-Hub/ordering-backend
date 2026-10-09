@@ -108,7 +108,46 @@ LIMIT $4`, tenantID, dateFrom, dateTo, topSellingLimit)
 		return nil, err
 	}
 
-	return buildAnalyticsSummary(dateFrom, dateTo, byStatus, daily, top), nil
+	summary := buildAnalyticsSummary(dateFrom, dateTo, byStatus, daily, top)
+	areas, err := r.deliveryByArea(ctx, tenantID, dateFrom, dateTo)
+	if err != nil {
+		return nil, err
+	}
+	summary.DeliveryByArea = areas
+	return summary, nil
+}
+
+// deliveryByArea groups the range's revenue-counted delivery orders by the area in their
+// stored delivery quote, in SQL, over the (tenant_id, created_at) range.
+func (r *EntRepository) deliveryByArea(ctx context.Context, tenantID uuid.UUID, dateFrom, dateTo time.Time) ([]DeliveryAreaSummary, error) {
+	rows, err := r.db.QueryContext(ctx, `
+SELECT coalesce(metadata->'delivery_quote'->>'zone_name',
+                CASE WHEN metadata->'delivery_quote'->>'method' = 'per_km' THEN 'Distance rate' ELSE 'Not recorded' END),
+       coalesce(metadata->'delivery_quote'->>'method', ''),
+       count(*),
+       coalesce(sum(delivery_fee), 0),
+       coalesce(avg((metadata->'delivery_quote'->>'distance_km')::numeric)
+                FILTER (WHERE metadata->'delivery_quote'->>'distance_km' ~ '^[0-9.]+$'), 0)
+FROM orders
+WHERE tenant_id = $1 AND created_at >= $2 AND created_at <= $3
+  AND fulfillment_type IN ('delivery', 'scheduled')
+  AND `+revenueCondition+`
+GROUP BY 1, 2
+ORDER BY 3 DESC
+LIMIT 100`, tenantID, dateFrom, dateTo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []DeliveryAreaSummary{}
+	for rows.Next() {
+		var a DeliveryAreaSummary
+		if err := rows.Scan(&a.Area, &a.Method, &a.Orders, &a.DeliveryFees, &a.AvgDistanceKm); err != nil {
+			return nil, err
+		}
+		out = append(out, a)
+	}
+	return out, rows.Err()
 }
 
 // buildAnalyticsSummary assembles the grouped rows into the summary: totals, per status and per
@@ -120,6 +159,7 @@ func buildAnalyticsSummary(dateFrom, dateTo time.Time, byStatus []statusCurrency
 		RevenueByCurrency: map[string]float64{},
 		TopSellingItems:   top,
 		Trend:             []DailyMetric{},
+		DeliveryByArea:    []DeliveryAreaSummary{},
 	}
 	if summary.TopSellingItems == nil {
 		summary.TopSellingItems = []ItemSalesSummary{}

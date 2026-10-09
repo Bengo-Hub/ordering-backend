@@ -34,8 +34,6 @@ type Tx struct {
 	DataSubjectRequest *DataSubjectRequestClient
 	// DeliveryWindow is the client for interacting with the DeliveryWindow builders.
 	DeliveryWindow *DeliveryWindowClient
-	// DeliveryZone is the client for interacting with the DeliveryZone builders.
-	DeliveryZone *DeliveryZoneClient
 	// DocumentSequence is the client for interacting with the DocumentSequence builders.
 	DocumentSequence *DocumentSequenceClient
 	// GoogleBusinessConnection is the client for interacting with the GoogleBusinessConnection builders.
@@ -240,7 +238,6 @@ func (tx *Tx) init() {
 	tx.DataExportJob = NewDataExportJobClient(tx.config)
 	tx.DataSubjectRequest = NewDataSubjectRequestClient(tx.config)
 	tx.DeliveryWindow = NewDeliveryWindowClient(tx.config)
-	tx.DeliveryZone = NewDeliveryZoneClient(tx.config)
 	tx.DocumentSequence = NewDocumentSequenceClient(tx.config)
 	tx.GoogleBusinessConnection = NewGoogleBusinessConnectionClient(tx.config)
 	tx.GroupOrder = NewGroupOrderClient(tx.config)

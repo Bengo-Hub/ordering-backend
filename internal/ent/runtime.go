@@ -16,7 +16,6 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/dataexportjob"
 	"github.com/bengobox/ordering-backend/internal/ent/datasubjectrequest"
 	"github.com/bengobox/ordering-backend/internal/ent/deliverywindow"
-	"github.com/bengobox/ordering-backend/internal/ent/deliveryzone"
 	"github.com/bengobox/ordering-backend/internal/ent/documentsequence"
 	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
 	"github.com/bengobox/ordering-backend/internal/ent/grouporder"
@@ -467,50 +466,6 @@ func init() {
 	deliverywindowDescID := deliverywindowFields[0].Descriptor()
 	// deliverywindow.DefaultID holds the default value on creation for the id field.
 	deliverywindow.DefaultID = deliverywindowDescID.Default.(func() uuid.UUID)
-	deliveryzoneFields := schema.DeliveryZone{}.Fields()
-	_ = deliveryzoneFields
-	// deliveryzoneDescName is the schema descriptor for name field.
-	deliveryzoneDescName := deliveryzoneFields[3].Descriptor()
-	// deliveryzone.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	deliveryzone.NameValidator = deliveryzoneDescName.Validators[0].(func(string) error)
-	// deliveryzoneDescDeliveryFee is the schema descriptor for delivery_fee field.
-	deliveryzoneDescDeliveryFee := deliveryzoneFields[6].Descriptor()
-	// deliveryzone.DefaultDeliveryFee holds the default value on creation for the delivery_fee field.
-	deliveryzone.DefaultDeliveryFee = deliveryzoneDescDeliveryFee.Default.(float64)
-	// deliveryzoneDescMinimumOrder is the schema descriptor for minimum_order field.
-	deliveryzoneDescMinimumOrder := deliveryzoneFields[7].Descriptor()
-	// deliveryzone.DefaultMinimumOrder holds the default value on creation for the minimum_order field.
-	deliveryzone.DefaultMinimumOrder = deliveryzoneDescMinimumOrder.Default.(float64)
-	// deliveryzoneDescEstimatedTimeMinutes is the schema descriptor for estimated_time_minutes field.
-	deliveryzoneDescEstimatedTimeMinutes := deliveryzoneFields[8].Descriptor()
-	// deliveryzone.DefaultEstimatedTimeMinutes holds the default value on creation for the estimated_time_minutes field.
-	deliveryzone.DefaultEstimatedTimeMinutes = deliveryzoneDescEstimatedTimeMinutes.Default.(int)
-	// deliveryzoneDescIsActive is the schema descriptor for is_active field.
-	deliveryzoneDescIsActive := deliveryzoneFields[9].Descriptor()
-	// deliveryzone.DefaultIsActive holds the default value on creation for the is_active field.
-	deliveryzone.DefaultIsActive = deliveryzoneDescIsActive.Default.(bool)
-	// deliveryzoneDescSortOrder is the schema descriptor for sort_order field.
-	deliveryzoneDescSortOrder := deliveryzoneFields[10].Descriptor()
-	// deliveryzone.DefaultSortOrder holds the default value on creation for the sort_order field.
-	deliveryzone.DefaultSortOrder = deliveryzoneDescSortOrder.Default.(int)
-	// deliveryzoneDescMetadata is the schema descriptor for metadata field.
-	deliveryzoneDescMetadata := deliveryzoneFields[11].Descriptor()
-	// deliveryzone.DefaultMetadata holds the default value on creation for the metadata field.
-	deliveryzone.DefaultMetadata = deliveryzoneDescMetadata.Default.(map[string]interface{})
-	// deliveryzoneDescCreatedAt is the schema descriptor for created_at field.
-	deliveryzoneDescCreatedAt := deliveryzoneFields[12].Descriptor()
-	// deliveryzone.DefaultCreatedAt holds the default value on creation for the created_at field.
-	deliveryzone.DefaultCreatedAt = deliveryzoneDescCreatedAt.Default.(func() time.Time)
-	// deliveryzoneDescUpdatedAt is the schema descriptor for updated_at field.
-	deliveryzoneDescUpdatedAt := deliveryzoneFields[13].Descriptor()
-	// deliveryzone.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	deliveryzone.DefaultUpdatedAt = deliveryzoneDescUpdatedAt.Default.(func() time.Time)
-	// deliveryzone.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	deliveryzone.UpdateDefaultUpdatedAt = deliveryzoneDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// deliveryzoneDescID is the schema descriptor for id field.
-	deliveryzoneDescID := deliveryzoneFields[0].Descriptor()
-	// deliveryzone.DefaultID holds the default value on creation for the id field.
-	deliveryzone.DefaultID = deliveryzoneDescID.Default.(func() uuid.UUID)
 	documentsequenceFields := schema.DocumentSequence{}.Fields()
 	_ = documentsequenceFields
 	// documentsequenceDescDocType is the schema descriptor for doc_type field.

@@ -100,5 +100,16 @@ func main() {
 		log.Printf("warning: drop legacy global order_number index: %v", err)
 	}
 
+	// Delivery zones now live in logistics-api. Drop ordering's retired copy, but only once
+	// its backup exists, so the rows can never be lost by an early deploy.
+	var backedUp bool
+	if err := db.QueryRowContext(ctx, `SELECT to_regclass('public.delivery_zones_bk_20261009') IS NOT NULL`).Scan(&backedUp); err != nil {
+		log.Printf("warning: check delivery_zones backup: %v", err)
+	} else if backedUp {
+		if _, err := db.ExecContext(ctx, `DROP TABLE IF EXISTS delivery_zones`); err != nil {
+			log.Printf("warning: drop retired delivery_zones: %v", err)
+		}
+	}
+
 	log.Println("database migrations applied successfully")
 }

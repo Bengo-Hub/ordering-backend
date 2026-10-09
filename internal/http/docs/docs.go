@@ -2456,6 +2456,18 @@ const docTemplate = `{
                         "description": "Fulfillment type (delivery, pickup)",
                         "name": "fulfillment_type",
                         "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Delivery pin latitude",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Delivery pin longitude",
+                        "name": "lng",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2479,6 +2491,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Not deliverable or below the area minimum",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -6067,8 +6085,6 @@ const docTemplate = `{
                 "ordering.analytics.manage",
                 "ordering.orders.view_own",
                 "ordering.orders.manage",
-                "ordering.delivery_zones.view",
-                "ordering.delivery_zones.manage",
                 "ordering.users.add",
                 "ordering.users.add",
                 "ordering.config.manage",
@@ -6092,8 +6108,6 @@ const docTemplate = `{
                 "payments projection — same as orders view",
                 "",
                 "logistics projection — same as orders view",
-                "",
-                "",
                 "",
                 "",
                 "",
@@ -6130,8 +6144,6 @@ const docTemplate = `{
                 "PermissionAnalyticsExport",
                 "PermissionSupportView",
                 "PermissionSupportManage",
-                "PermissionZonesView",
-                "PermissionZonesManage",
                 "PermissionRidersOnboard",
                 "PermissionStaffInvite",
                 "PermissionAdminManage",
@@ -6389,6 +6401,94 @@ const docTemplate = `{
                 }
             }
         },
+        "logistics.DeliveryQuote": {
+            "type": "object",
+            "properties": {
+                "below_min_order": {
+                    "type": "boolean"
+                },
+                "breakdown": {
+                    "$ref": "#/definitions/logistics.QuoteBreakdown"
+                },
+                "cache_seconds": {
+                    "type": "integer"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "distance_km": {
+                    "type": "number"
+                },
+                "distance_type": {
+                    "type": "string"
+                },
+                "eta_minutes": {
+                    "type": "integer"
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "free": {
+                    "type": "boolean"
+                },
+                "method": {
+                    "description": "zone | per_km",
+                    "type": "string"
+                },
+                "min_order": {
+                    "type": "number"
+                },
+                "nearest_area": {
+                    "$ref": "#/definitions/logistics.ZoneRef"
+                },
+                "nearest_area_km": {
+                    "type": "number"
+                },
+                "policy_version": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "serviceable": {
+                    "type": "boolean"
+                },
+                "zone": {
+                    "$ref": "#/definitions/logistics.ZoneRef"
+                }
+            }
+        },
+        "logistics.QuoteBreakdown": {
+            "type": "object",
+            "properties": {
+                "base_fee": {
+                    "type": "number"
+                },
+                "min_fee": {
+                    "type": "number"
+                },
+                "per_km_rate": {
+                    "type": "number"
+                },
+                "raw": {
+                    "type": "number"
+                },
+                "rounding": {
+                    "type": "number"
+                }
+            }
+        },
+        "logistics.ZoneRef": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "marketplace.ListTenantsResponse": {
             "type": "object",
             "properties": {
@@ -6443,6 +6543,13 @@ const docTemplate = `{
             "properties": {
                 "cancelledOrders": {
                     "type": "integer"
+                },
+                "deliveryByArea": {
+                    "description": "DeliveryByArea groups paid delivery orders by the area that priced them.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ordering.DeliveryAreaSummary"
+                    }
                 },
                 "ordersByStatus": {
                     "type": "object",
@@ -6727,6 +6834,27 @@ const docTemplate = `{
                 }
             }
         },
+        "ordering.DeliveryAreaSummary": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "avgDistanceKm": {
+                    "type": "number"
+                },
+                "deliveryFees": {
+                    "type": "number"
+                },
+                "method": {
+                    "description": "zone | per_km | \"\" (orders before quotes were stored)",
+                    "type": "string"
+                },
+                "orders": {
+                    "type": "integer"
+                }
+            }
+        },
         "ordering.FeeBreakdown": {
             "type": "object",
             "properties": {
@@ -6735,6 +6863,14 @@ const docTemplate = `{
                 },
                 "delivery_fee": {
                     "type": "number"
+                },
+                "delivery_quote": {
+                    "description": "DeliveryQuote is the logistics quote the delivery fee came from (delivery only).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/logistics.DeliveryQuote"
+                        }
+                    ]
                 },
                 "discount": {
                     "type": "number"
@@ -7443,7 +7579,17 @@ const docTemplate = `{
                 "deliveryAddressId": {
                     "type": "string"
                 },
+                "deliveryLat": {
+                    "description": "DeliveryLat/Lng is a pin picked on the map at checkout. A saved address\n(deliveryAddressId) wins when both are sent.",
+                    "type": "number"
+                },
+                "deliveryLng": {
+                    "type": "number"
+                },
                 "deliveryNotes": {
+                    "type": "string"
+                },
+                "deliveryPlaceName": {
                     "type": "string"
                 },
                 "fulfillmentType": {
@@ -7551,6 +7697,9 @@ const docTemplate = `{
                 "deliveryNotes": {
                     "type": "string"
                 },
+                "deliveryPlaceName": {
+                    "type": "string"
+                },
                 "fulfillmentType": {
                     "type": "string"
                 },
@@ -7600,6 +7749,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "deliveryNotes": {
+                    "type": "string"
+                },
+                "deliveryPlaceName": {
                     "type": "string"
                 },
                 "fulfillmentType": {

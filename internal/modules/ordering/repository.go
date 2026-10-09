@@ -140,9 +140,6 @@ type Repository interface {
 	CreateLoyaltyTransaction(ctx context.Context, tx *LoyaltyTransaction) error
 	ListLoyaltyTransactions(ctx context.Context, accountID uuid.UUID, limit, offset int) ([]LoyaltyTransaction, int, error)
 
-	// DeliveryZone operations
-	ListActiveDeliveryZones(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]DeliveryZone, error)
-
 	// User lookup (for event enrichment — email, name, phone)
 	FindUserByID(ctx context.Context, userID uuid.UUID) (*UserContactInfo, error)
 
@@ -177,7 +174,9 @@ type Repository interface {
 	GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 
 	// Tenant feature configuration (from TenantSetting.features JSON)
-	GetTenantFeatures(ctx context.Context, tenantID uuid.UUID) (map[string]interface{}, error)
+	// GetServiceConfigValue returns the tenant's value for a service config key, falling back
+	// to the platform default row. found is false when neither exists.
+	GetServiceConfigValue(ctx context.Context, tenantID uuid.UUID, key string) (value string, found bool, err error)
 
 	// LatestLogisticsTaskID returns the logistics task of the order's most recent delivery
 	// assignment (uuid.Nil when the order has none), for service-key calls to logistics-api.

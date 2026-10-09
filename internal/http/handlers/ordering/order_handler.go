@@ -1,10 +1,10 @@
 package orderinghandler
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"crypto/subtle"
 	"net/http"
 	"strings"
 	"time"
@@ -163,22 +163,27 @@ type SetBookingDepositRequest struct {
 // CheckoutRequestDTO represents a checkout request.
 // Supports two modes: cart-based (cartId) or items-based (outletId + items).
 type CheckoutRequestDTO struct {
-	CartID                string         `json:"cartId"`
-	OutletID              string         `json:"outletId,omitempty"`
-	Items                 []OrderItemDTO `json:"items,omitempty"`
-	DeliveryAddressID     *string        `json:"deliveryAddressId,omitempty"`
-	DeliveryAddress       string         `json:"deliveryAddress,omitempty"`
-	DeliveryNotes         string         `json:"deliveryNotes,omitempty"`
-	PromoCode             string         `json:"promoCode,omitempty"`
-	LoyaltyPointsRedeemed int            `json:"loyaltyPointsRedeemed,omitempty"`
-	Instructions          string         `json:"instructions,omitempty"`
-	Channel               string         `json:"channel,omitempty"`
-	IdempotencyKey        string         `json:"idempotencyKey,omitempty"`
-	FulfillmentType       string         `json:"fulfillmentType,omitempty"`
-	ScheduledAt           string         `json:"scheduledAt,omitempty"`
-	PaymentMethod         string         `json:"paymentMethod,omitempty"` // "mpesa" | "cod"
-	OrderNotes            string         `json:"orderNotes,omitempty"`
-	RequestUtensils       bool           `json:"requestUtensils,omitempty"`
+	CartID            string         `json:"cartId"`
+	OutletID          string         `json:"outletId,omitempty"`
+	Items             []OrderItemDTO `json:"items,omitempty"`
+	DeliveryAddressID *string        `json:"deliveryAddressId,omitempty"`
+	DeliveryAddress   string         `json:"deliveryAddress,omitempty"`
+	// DeliveryLat/Lng is a pin picked on the map at checkout. A saved address
+	// (deliveryAddressId) wins when both are sent.
+	DeliveryLat           *float64 `json:"deliveryLat,omitempty"`
+	DeliveryLng           *float64 `json:"deliveryLng,omitempty"`
+	DeliveryPlaceName     string   `json:"deliveryPlaceName,omitempty"`
+	DeliveryNotes         string   `json:"deliveryNotes,omitempty"`
+	PromoCode             string   `json:"promoCode,omitempty"`
+	LoyaltyPointsRedeemed int      `json:"loyaltyPointsRedeemed,omitempty"`
+	Instructions          string   `json:"instructions,omitempty"`
+	Channel               string   `json:"channel,omitempty"`
+	IdempotencyKey        string   `json:"idempotencyKey,omitempty"`
+	FulfillmentType       string   `json:"fulfillmentType,omitempty"`
+	ScheduledAt           string   `json:"scheduledAt,omitempty"`
+	PaymentMethod         string   `json:"paymentMethod,omitempty"` // "mpesa" | "cod"
+	OrderNotes            string   `json:"orderNotes,omitempty"`
+	RequestUtensils       bool     `json:"requestUtensils,omitempty"`
 	// MpesaCode is the confirmation code of the customer's M-Pesa payment to the business
 	// Till/Paybill when paymentMethod is "mpesa_manual".
 	MpesaCode string `json:"mpesaCode,omitempty"`
@@ -203,39 +208,41 @@ type RateOrderRequest struct {
 
 // GuestCheckoutRequestDTO is the request body for POST /checkout/guest (guest checkout, no auth).
 type GuestCheckoutRequestDTO struct {
-	OutletID        string         `json:"outletId"`
-	SessionID       string         `json:"sessionId"`
-	ContactEmail    string         `json:"contactEmail"`
-	ContactPhone    string         `json:"contactPhone"`
-	ContactName     string         `json:"contactName"`
-	Items           []OrderItemDTO `json:"items"`
-	FulfillmentType string         `json:"fulfillmentType,omitempty"`
-	DeliveryAddress string         `json:"deliveryAddress"`
-	DeliveryLat     *float64       `json:"deliveryLat,omitempty"`
-	DeliveryLng     *float64       `json:"deliveryLng,omitempty"`
-	DeliveryNotes   string         `json:"deliveryNotes,omitempty"`
-	PaymentMethod   string         `json:"paymentMethod"` // "mpesa" | "cod"
-	Instructions    string         `json:"instructions,omitempty"`
-	Channel         string         `json:"channel,omitempty"`
-	IdempotencyKey  string         `json:"idempotencyKey,omitempty"`
-	ScheduledAt     string         `json:"scheduledAt,omitempty"`
-	OrderNotes      string         `json:"orderNotes,omitempty"`
-	RequestUtensils bool           `json:"requestUtensils,omitempty"`
-	MpesaCode       string         `json:"mpesaCode,omitempty"`
+	OutletID          string         `json:"outletId"`
+	SessionID         string         `json:"sessionId"`
+	ContactEmail      string         `json:"contactEmail"`
+	ContactPhone      string         `json:"contactPhone"`
+	ContactName       string         `json:"contactName"`
+	Items             []OrderItemDTO `json:"items"`
+	FulfillmentType   string         `json:"fulfillmentType,omitempty"`
+	DeliveryAddress   string         `json:"deliveryAddress"`
+	DeliveryLat       *float64       `json:"deliveryLat,omitempty"`
+	DeliveryLng       *float64       `json:"deliveryLng,omitempty"`
+	DeliveryPlaceName string         `json:"deliveryPlaceName,omitempty"`
+	DeliveryNotes     string         `json:"deliveryNotes,omitempty"`
+	PaymentMethod     string         `json:"paymentMethod"` // "mpesa" | "cod"
+	Instructions      string         `json:"instructions,omitempty"`
+	Channel           string         `json:"channel,omitempty"`
+	IdempotencyKey    string         `json:"idempotencyKey,omitempty"`
+	ScheduledAt       string         `json:"scheduledAt,omitempty"`
+	OrderNotes        string         `json:"orderNotes,omitempty"`
+	RequestUtensils   bool           `json:"requestUtensils,omitempty"`
+	MpesaCode         string         `json:"mpesaCode,omitempty"`
 }
 
 // CreateOrderRequestDTO is the request body for POST /orders (create order from items, frontend contract).
 type CreateOrderRequestDTO struct {
-	OutletID        string         `json:"outletId"`
-	Items           []OrderItemDTO `json:"items"`
-	DeliveryAddress string         `json:"deliveryAddress"`
-	DeliveryLat     *float64       `json:"deliveryLat,omitempty"`
-	DeliveryLng     *float64       `json:"deliveryLng,omitempty"`
-	DeliveryNotes   string         `json:"deliveryNotes,omitempty"`
-	PaymentMethod   string         `json:"paymentMethod"` // "mpesa" | "cod"
-	PromoCode       string         `json:"promoCode,omitempty"`
-	FulfillmentType string         `json:"fulfillmentType,omitempty"`
-	ScheduledAt     string         `json:"scheduledAt,omitempty"`
+	OutletID          string         `json:"outletId"`
+	Items             []OrderItemDTO `json:"items"`
+	DeliveryAddress   string         `json:"deliveryAddress"`
+	DeliveryLat       *float64       `json:"deliveryLat,omitempty"`
+	DeliveryLng       *float64       `json:"deliveryLng,omitempty"`
+	DeliveryPlaceName string         `json:"deliveryPlaceName,omitempty"`
+	DeliveryNotes     string         `json:"deliveryNotes,omitempty"`
+	PaymentMethod     string         `json:"paymentMethod"` // "mpesa" | "cod"
+	PromoCode         string         `json:"promoCode,omitempty"`
+	FulfillmentType   string         `json:"fulfillmentType,omitempty"`
+	ScheduledAt       string         `json:"scheduledAt,omitempty"`
 }
 
 // OrderItemDTO is a single item in CreateOrderRequestDTO.
@@ -503,8 +510,8 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 	case errors.Is(err, ordering.ErrUnauthorized):
 		handlers.RespondError(w, http.StatusForbidden, err.Error())
 
-	case errors.Is(err, ordering.ErrDeliveryNotServiceable):
-		handlers.RespondError(w, http.StatusUnprocessableEntity, "We don't deliver to this location yet.")
+	case isDeliveryPricingError(err):
+		respondDeliveryError(w, err)
 
 	default:
 		h.log.Error("internal error", zap.Error(err))
@@ -626,7 +633,8 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		// Resolve delivery address: prefer explicit address string, fall back to
 		// looking up the addressId via the repo if only an ID was provided.
 		deliveryAddress := req.DeliveryAddress
-		var deliveryLat, deliveryLng *float64
+		// A picked pin is used unless a saved address with coordinates replaces it below.
+		deliveryLat, deliveryLng := req.DeliveryLat, req.DeliveryLng
 		var deliveryAddressID *uuid.UUID
 		if req.DeliveryAddressID != nil && *req.DeliveryAddressID != "" {
 			addrID, parseErr := uuid.Parse(*req.DeliveryAddressID)
@@ -640,8 +648,9 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 							deliveryAddress += ", " + addr.AddressLine2
 						}
 					}
-					deliveryLat = addr.Latitude
-					deliveryLng = addr.Longitude
+					if addr.Latitude != nil && addr.Longitude != nil {
+						deliveryLat, deliveryLng = addr.Latitude, addr.Longitude
+					}
 				}
 			}
 		}
@@ -660,6 +669,7 @@ func (h *OrderHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 			DeliveryAddressID: deliveryAddressID,
 			DeliveryLat:       deliveryLat,
 			DeliveryLng:       deliveryLng,
+			DeliveryPlaceName: req.DeliveryPlaceName,
 			DeliveryNotes:     req.DeliveryNotes,
 			PromoCode:         req.PromoCode,
 			Channel:           channel,
@@ -866,19 +876,20 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	order, err := h.orderService.CreateOrderFromItems(r.Context(), ordering.CreateOrderFromItemsRequest{
-		TenantID:        tenantID,
-		OutletID:        outletID,
-		UserID:          user.ID,
-		Items:           items,
-		DeliveryAddress: req.DeliveryAddress,
-		DeliveryLat:     req.DeliveryLat,
-		DeliveryLng:     req.DeliveryLng,
-		DeliveryNotes:   req.DeliveryNotes,
-		PaymentMethod:   req.PaymentMethod,
-		PromoCode:       req.PromoCode,
-		Channel:         channel,
-		FulfillmentType: fulfillmentType,
-		ScheduledFor:    scheduledFor,
+		TenantID:          tenantID,
+		OutletID:          outletID,
+		UserID:            user.ID,
+		Items:             items,
+		DeliveryAddress:   req.DeliveryAddress,
+		DeliveryLat:       req.DeliveryLat,
+		DeliveryLng:       req.DeliveryLng,
+		DeliveryPlaceName: req.DeliveryPlaceName,
+		DeliveryNotes:     req.DeliveryNotes,
+		PaymentMethod:     req.PaymentMethod,
+		PromoCode:         req.PromoCode,
+		Channel:           channel,
+		FulfillmentType:   fulfillmentType,
+		ScheduledFor:      scheduledFor,
 	})
 	if err != nil {
 		h.handleError(w, err)
@@ -1884,25 +1895,26 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	order, err := h.orderService.GuestCheckout(r.Context(), ordering.GuestCheckoutRequest{
-		TenantID:        tenantID,
-		OutletID:        outletID,
-		SessionID:       req.SessionID,
-		ContactEmail:    req.ContactEmail,
-		ContactPhone:    req.ContactPhone,
-		ContactName:     req.ContactName,
-		Items:           items,
-		DeliveryAddress: req.DeliveryAddress,
-		DeliveryLat:     req.DeliveryLat,
-		DeliveryLng:     req.DeliveryLng,
-		DeliveryNotes:   req.DeliveryNotes,
-		PaymentMethod:   req.PaymentMethod,
-		Instructions:    req.Instructions,
-		Channel:         parseOrderChannel(req.Channel),
-		FulfillmentType: ordering.FulfillmentType(req.FulfillmentType),
-		ScheduledFor:    scheduledFor,
-		OrderNotes:      req.OrderNotes,
-		RequestUtensils: req.RequestUtensils,
-		MpesaCode:       req.MpesaCode,
+		TenantID:          tenantID,
+		OutletID:          outletID,
+		SessionID:         req.SessionID,
+		ContactEmail:      req.ContactEmail,
+		ContactPhone:      req.ContactPhone,
+		ContactName:       req.ContactName,
+		Items:             items,
+		DeliveryAddress:   req.DeliveryAddress,
+		DeliveryLat:       req.DeliveryLat,
+		DeliveryLng:       req.DeliveryLng,
+		DeliveryPlaceName: req.DeliveryPlaceName,
+		DeliveryNotes:     req.DeliveryNotes,
+		PaymentMethod:     req.PaymentMethod,
+		Instructions:      req.Instructions,
+		Channel:           parseOrderChannel(req.Channel),
+		FulfillmentType:   ordering.FulfillmentType(req.FulfillmentType),
+		ScheduledFor:      scheduledFor,
+		OrderNotes:        req.OrderNotes,
+		RequestUtensils:   req.RequestUtensils,
+		MpesaCode:         req.MpesaCode,
 	})
 	if err != nil {
 		h.handleError(w, err)

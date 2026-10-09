@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -529,7 +530,10 @@ func (h *CartHandler) GetCartSummary(w http.ResponseWriter, r *http.Request) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param outlet_id query string true "Outlet ID"
 // @Param fulfillment_type query string false "Fulfillment type (delivery, pickup)" default(delivery)
+// @Param lat query number false "Delivery pin latitude"
+// @Param lng query number false "Delivery pin longitude"
 // @Success 200 {object} ordering.FeeBreakdown
+// @Failure 422 {object} handlers.ErrorResponse "Not deliverable or below the area minimum"
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 401 {object} handlers.ErrorResponse
 // @Failure 404 {object} handlers.ErrorResponse
@@ -574,14 +578,19 @@ func (h *CartHandler) GetFeeBreakdown(w http.ResponseWriter, r *http.Request) {
 		fulfillmentType = ordering.FulfillmentTypeDelivery
 	}
 
-	// Use cart-level discount and zero loyalty discount for the preview breakdown
-	fees, err := h.feeService.CalculateFees(r.Context(), tenantID, existingCart, fulfillmentType, existingCart.DiscountTotal, 0)
-	if err != nil {
-		h.log.Error("failed to calculate fee breakdown", zap.Error(err))
-		handlers.RespondError(w, http.StatusInternalServerError, "failed to calculate fees")
-		return
+	// Delivery is priced for the customer's pin (lat/lng) by logistics; without a pin the
+	// preview shows ordering's fees only and delivery_fee stays 0 until a location is chosen.
+	var delivery ordering.DeliveryPrice
+	lat, latErr := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
+	lng, lngErr := strconv.ParseFloat(r.URL.Query().Get("lng"), 64)
+	if latErr == nil && lngErr == nil {
+		delivery, err = h.feeService.PriceDelivery(r.Context(), tenantID, outletID, fulfillmentType, &lat, &lng, existingCart.Subtotal)
+		if err != nil {
+			respondDeliveryError(w, err)
+			return
+		}
 	}
-
+	fees := h.feeService.CalculateFees(r.Context(), tenantID, existingCart.Subtotal, existingCart.TaxTotal, delivery, existingCart.DiscountTotal)
 	handlers.RespondJSON(w, http.StatusOK, fees)
 }
 

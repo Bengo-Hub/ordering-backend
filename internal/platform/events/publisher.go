@@ -218,6 +218,12 @@ func (p *Publisher) PublishOrderStatusChanged(ctx context.Context, tenantID uuid
 
 // OrderReadyData represents data for order.ready event.
 type OrderReadyData struct {
+	// Delivery area and trip distance from the checkout quote, so logistics tags the task
+	// without re-resolving the pin.
+	DeliveryZoneID   string  `json:"delivery_zone_id,omitempty"`
+	DeliveryZoneName string  `json:"delivery_zone_name,omitempty"`
+	DistanceKm       float64 `json:"distance_km,omitempty"`
+
 	OrderID         uuid.UUID                `json:"order_id"`
 	OrderNumber     string                   `json:"order_number"`
 	OutletID        uuid.UUID                `json:"outlet_id"`
@@ -291,6 +297,13 @@ func (p *Publisher) PublishOrderReady(ctx context.Context, tenantID uuid.UUID, d
 	}
 	if data.FulfillmentType != "" {
 		eventData["fulfillment_type"] = data.FulfillmentType
+	}
+	if data.DeliveryZoneID != "" {
+		eventData["delivery_zone_id"] = data.DeliveryZoneID
+		eventData["delivery_zone_name"] = data.DeliveryZoneName
+	}
+	if data.DistanceKm > 0 {
+		eventData["distance_km"] = data.DistanceKm
 	}
 
 	// Carry the tenant slug (envelope + payload) — the fulfilment consumer needs it for

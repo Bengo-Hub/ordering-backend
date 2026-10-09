@@ -37,7 +37,6 @@ import (
 	paymentshandler "github.com/bengobox/ordering-backend/internal/http/handlers/payments"
 	promobannerhandler "github.com/bengobox/ordering-backend/internal/http/handlers/promobanner"
 	slahandler "github.com/bengobox/ordering-backend/internal/http/handlers/sla"
-	zoneshandler "github.com/bengobox/ordering-backend/internal/http/handlers/zones"
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
@@ -368,6 +367,10 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize fulfilment module
 	logisticsClient := logistics.NewClient(cfg.Logistics, log)
+	logisticsClient.SetCache(cacheSvc)
+	// Delivery fees come only from logistics-api's quote (areas, geofence, distance rate).
+	feeSvc.SetDeliveryQuoter(logisticsClient)
+	catalogProxySvc.SetDeliverySource(logisticsClient)
 	orderSvc.SetLogisticsClient(logisticsClient)
 	fulfilmentRepo := fulfilment.NewEntRepository(ormClient)
 	taskSvc := fulfilment.NewTaskService(fulfilmentRepo, logisticsClient, log)
@@ -551,7 +554,6 @@ func New(ctx context.Context) (*App, error) {
 	log.Info("app: audit logger initialized")
 
 	mediaHandler := handlers.NewMediaHandler(log, cfg)
-	zonesHandler := zoneshandler.New(log, ormClient)
 
 	// Initialize RBAC module
 	rbacRepo := rbac.NewEntRepository(ormClient)
@@ -574,7 +576,7 @@ func New(ctx context.Context) (*App, error) {
 		RetentionDays: cfg.Backup.RetentionDays,
 	}, log).WithRedis(redisClient).Start(ctx)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, zonesHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
+	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
