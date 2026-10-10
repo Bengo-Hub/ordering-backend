@@ -234,6 +234,9 @@ func (Order) Indexes() []ent.Index {
 		index.Fields("tenant_id", "payment_status"),
 		// Composite index for common filtering patterns
 		index.Fields("tenant_id", "status", "created_at"),
+		// Date-range analytics (summary, trend, top items, delivery by area) filter on
+		// tenant and created_at and exclude statuses, which the status-led index cannot serve.
+		index.Fields("tenant_id", "created_at"),
 		index.Fields("tenant_id", "outlet_id", "status"),
 		index.Fields("tenant_id", "customer_id", "status"),
 		// Order numbers are generated per-tenant/day (YYYYMMDD-NNNN), so uniqueness must be scoped

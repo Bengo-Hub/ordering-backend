@@ -10,7 +10,7 @@ replace github.com/Bengo-Hub/shared-auth-client => github.com/Bengo-Hub/auth-cli
 require (
 	ariga.io/atlas v0.32.1-0.20250325101103-175b25e1c1b9
 	entgo.io/ent v0.14.5
-	github.com/Bengo-Hub/cache v0.5.5
+	github.com/Bengo-Hub/cache v0.5.8
 	github.com/Bengo-Hub/httpware v0.6.0
 	github.com/Bengo-Hub/pagination v0.3.0
 	github.com/Bengo-Hub/shared-auth-client v0.4.1

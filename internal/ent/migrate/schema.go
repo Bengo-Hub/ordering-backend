@@ -862,6 +862,11 @@ var (
 				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[5], OrdersColumns[46]},
 			},
 			{
+				Name:    "order_tenant_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[46]},
+			},
+			{
 				Name:    "order_tenant_id_outlet_id_status",
 				Unique:  false,
 				Columns: []*schema.Column{OrdersColumns[1], OrdersColumns[49], OrdersColumns[5]},

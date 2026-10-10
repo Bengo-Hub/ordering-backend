@@ -1,4 +1,4 @@
-h1:4PCG5F8mTkhzjbfiDA0mP6Ct1MX/lNazm8Uvo+1MhAo=
+h1:gTWcd6pClI/XmVWQ8TcB//vuc+Hlt7HuLA/f1J1XMUo=
 00000000000000_placeholder.sql h1:eAvsggBsq1ssn/mrZysNWxXQEDwl2gD4K3Hjqr4EKxM=
 20260324210144_initial_schema.sql h1:9lcTtD9yAENqk9VVGJ9DlurXhqs0rxcNYwVSQrB45vc=
 20260330120000_add_payment_method_to_orders.sql h1:P9MOt4ruS1+lGgcvZz/BDrdE3a+s9GNPwtodOxpKhmo=
@@ -16,3 +16,4 @@ h1:4PCG5F8mTkhzjbfiDA0mP6Ct1MX/lNazm8Uvo+1MhAo=
 20260926042000_add_order_metadata_gin_index.sql h1:trIOyEwMZwL8fboDacsV/utM2GZ18qnIonNDpIggpYE=
 20261006090000_add_order_job_partial_indexes.sql h1:huAQdY+XSBBHaiNjLUaQesXxiDHwTQqXYkWXNEsa9N4=
 20261010090000_drop_delivery_zones.sql h1:Clwxt10ryR8zwWUKZ3EJ+h3te3x08F5ChUPi6zrvC8k=
+20261010113719_add_order_tenant_created_index.sql h1:GubhjUBTCzUDJYDFSF6X563tvbOFxwepNLWqQmrC3Vg=
