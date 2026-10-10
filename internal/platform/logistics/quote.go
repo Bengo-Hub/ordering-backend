@@ -120,16 +120,19 @@ func quoteTTL(seconds int) time.Duration {
 
 // Coverage is the public summary of where a tenant delivers.
 type Coverage struct {
-	Zones []struct {
-		ID       string  `json:"id"`
-		Name     string  `json:"name"`
-		ZoneType string  `json:"zone_type"`
-		Fee      float64 `json:"fee"`
-		Free     bool    `json:"free"`
-	} `json:"zones"`
-	MinFee   float64 `json:"min_fee"`
-	HasFree  bool    `json:"has_free_zone"`
-	Currency string  `json:"currency"`
+	Zones    []CoverageZone `json:"zones"`
+	MinFee   float64        `json:"min_fee"`
+	HasFree  bool           `json:"has_free_zone"`
+	Currency string         `json:"currency"`
+}
+
+// CoverageZone is one delivery area in a coverage summary.
+type CoverageZone struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	ZoneType string  `json:"zone_type"`
+	Fee      float64 `json:"fee"`
+	Free     bool    `json:"free"`
 }
 
 // Coverage returns the tenant's delivery coverage summary (cached 5 minutes).

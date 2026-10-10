@@ -190,8 +190,7 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 			meta.DeliveryFee = d.Fee
 			meta.EstimatedTime = d.EtaMinutes
 			meta.Distance = d.DistanceKm
-			deliverable := d.Deliverable
-			meta.Deliverable = &deliverable
+			meta.Deliverable = d.Deliverable
 		}
 
 		// Offers
