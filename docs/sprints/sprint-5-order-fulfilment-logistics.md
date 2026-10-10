@@ -9,6 +9,8 @@
 
 Sprint 5 focuses on integrating with the logistics service for delivery task creation, task status updates, and live driver tracking. **IMPORTANT**: All rider, driver, fleet, and delivery task data is owned by `logistics-service`. Ordering-backend stores only `rider_id` references and consumes logistics-service APIs.
 
+**Update 2026-10-10, delivery pricing:** delivery areas, geofencing and delivery fees are also owned by logistics-service. Checkout prices every delivery through `FeeService.PriceDelivery`, which calls the logistics S2S quote (cached per tenant, outlet and pin for the quote's own lifetime via the shared cache's `GetOrSetTTL`). The quote snapshot is stored in `orders.metadata.delivery_quote` and `ordering.order.ready` carries `delivery_zone_id`, `delivery_zone_name` and `distance_km`, which logistics records on the task (rider earnings by real distance, zone-aware dispatch). See logistics-api `docs/delivery-zones.md`.
+
 ---
 
 ## Objectives
