@@ -13,6 +13,7 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
+	enttenant "github.com/bengobox/ordering-backend/internal/ent/tenant"
 )
 
 const authStream = "auth"
@@ -154,6 +155,15 @@ func (s *BranchSubscriber) handleUpsert(ctx context.Context, evt *sharedevents.E
 	}
 	if evt.TenantID == uuid.Nil {
 		return fmt.Errorf("missing tenant_id in outlet event")
+	}
+	// Outlets of tenants ordering does not serve have no tenant row to hang off (the insert
+	// failed the foreign key and was redelivered five times). Skip them; BootstrapOutlets
+	// pulls a tenant's outlets when the tenant itself syncs.
+	if ok, terr := s.orm.Tenant.Query().Where(enttenant.ID(evt.TenantID)).Exist(ctx); terr != nil {
+		return fmt.Errorf("check tenant: %w", terr)
+	} else if !ok {
+		s.logger.Debug("skipping outlet: tenant not synced into ordering", zap.String("outlet_id", outletIDStr))
+		return nil
 	}
 
 	lat, lng, hasPin := eventOutletPin(evt.Payload)
