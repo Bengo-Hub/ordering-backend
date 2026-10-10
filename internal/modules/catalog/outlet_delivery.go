@@ -22,10 +22,12 @@ type DeliveryInfoSource interface {
 func (s *ProxyService) SetDeliverySource(d DeliveryInfoSource) { s.delivery = d }
 
 type outletDelivery struct {
-	Fee         float64
-	EtaMinutes  int
-	DistanceKm  float64
-	Deliverable bool
+	Fee        float64
+	EtaMinutes int
+	DistanceKm float64
+	// Deliverable is known only when the customer's pin is; without it Fee is the
+	// cheapest area fee ("from"), not a quote.
+	Deliverable *bool
 }
 
 // maxQuoteFanout bounds concurrent quote calls for one listing.
@@ -49,7 +51,7 @@ func (s *ProxyService) deliveryForOutlets(ctx context.Context, tenantID uuid.UUI
 			return out
 		}
 		for _, o := range outlets {
-			out[o.ID] = outletDelivery{Fee: cov.MinFee, Deliverable: true}
+			out[o.ID] = outletDelivery{Fee: cov.MinFee}
 		}
 		return out
 	}
@@ -71,7 +73,8 @@ func (s *ProxyService) deliveryForOutlets(ctx context.Context, tenantID uuid.UUI
 				return
 			}
 			mu.Lock()
-			out[oid] = outletDelivery{Fee: q.Fee, EtaMinutes: q.EtaMinutes, DistanceKm: q.DistanceKm, Deliverable: q.Serviceable}
+			serviceable := q.Serviceable
+			out[oid] = outletDelivery{Fee: q.Fee, EtaMinutes: q.EtaMinutes, DistanceKm: q.DistanceKm, Deliverable: &serviceable}
 			mu.Unlock()
 		}()
 	}
