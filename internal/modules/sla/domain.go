@@ -119,6 +119,9 @@ type TypeSummary struct {
 	Breached       int     `json:"breached"`
 	ComplianceRate float64 `json:"compliance_rate"`
 	AverageSeconds int     `json:"average_seconds"`
+	// Median and 90th percentile time; the typical and the slow-but-common case.
+	P50Seconds int `json:"p50_seconds"`
+	P90Seconds int `json:"p90_seconds"`
 }
 
 // SLAViolation represents an SLA violation alert.

@@ -244,7 +244,52 @@ func (r *EntRepository) GetMetricStats(ctx context.Context, tenantID uuid.UUID, 
 	if err != nil {
 		return nil, err
 	}
-	return summarizeSLA(tenantID, from, to, rows), nil
+	summary := summarizeSLA(tenantID, from, to, rows)
+
+	// Percentiles per metric type, in the same index-served range.
+	var pct []slaPercentileRow
+	err = r.client.SLAMetric.Query().
+		Where(
+			slametric.TenantID(tenantID),
+			slametric.MeasuredAtGTE(from),
+			slametric.MeasuredAtLTE(to),
+			slametric.StatusIn(slametric.StatusMet, slametric.StatusBreached),
+			slametric.ActualSecondsNotNil(),
+		).
+		GroupBy(slametric.FieldMetricType).
+		Aggregate(
+			func(s *entsql.Selector) string {
+				return "COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY " + s.C(slametric.FieldActualSeconds) + "), 0) AS p50"
+			},
+			func(s *entsql.Selector) string {
+				return "COALESCE(percentile_cont(0.9) WITHIN GROUP (ORDER BY " + s.C(slametric.FieldActualSeconds) + "), 0) AS p90"
+			},
+		).
+		Scan(ctx, &pct)
+	if err != nil {
+		return nil, err
+	}
+	applyPercentiles(summary, pct)
+	return summary, nil
+}
+
+// slaPercentileRow is the median and 90th percentile time of one metric type.
+type slaPercentileRow struct {
+	MetricType string  `json:"metric_type"`
+	P50        float64 `json:"p50"`
+	P90        float64 `json:"p90"`
+}
+
+func applyPercentiles(s *SLASummary, rows []slaPercentileRow) {
+	for _, row := range rows {
+		mt := MetricType(row.MetricType)
+		ts, ok := s.ByType[mt]
+		if !ok {
+			continue
+		}
+		ts.P50Seconds, ts.P90Seconds = int(row.P50), int(row.P90)
+		s.ByType[mt] = ts
+	}
 }
 
 // slaStatRow is one (metric type, status) group of the SLA aggregate.

@@ -88,19 +88,34 @@ func (c *Client) Quote(ctx context.Context, tenantID uuid.UUID, req QuoteRequest
 		}
 		return &q, nil
 	}
-	var q *DeliveryQuote
-	var err error
-	if c.cache == nil {
-		q, err = fetch(ctx)
-	} else {
-		q, err = sharedcache.GetOrSet(ctx, c.cache, key, 2*time.Minute, fetch)
-	}
+	// Kept for as long as logistics says the quote stays valid (its quote_cache_seconds).
+	q, err := sharedcache.GetOrSetTTL(ctx, c.cache, key, func(ctx context.Context) (*DeliveryQuote, time.Duration, error) {
+		q, err := fetch(ctx)
+		if err != nil {
+			return nil, 0, err
+		}
+		return q, quoteTTL(q.CacheSeconds), nil
+	})
 	if err != nil {
 		return nil, err
 	}
 	out := *q
 	out.BelowMinOrder = req.OrderTotal > 0 && out.MinOrder > 0 && req.OrderTotal < out.MinOrder
 	return &out, nil
+}
+
+// quoteTTL turns the quote's cache_seconds into a Redis TTL, bounded to 10 seconds to
+// 30 minutes; 0 means do not cache.
+func quoteTTL(seconds int) time.Duration {
+	switch {
+	case seconds <= 0:
+		return 0
+	case seconds < 10:
+		return 10 * time.Second
+	case seconds > 1800:
+		return 30 * time.Minute
+	}
+	return time.Duration(seconds) * time.Second
 }
 
 // Coverage is the public summary of where a tenant delivers.
