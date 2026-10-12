@@ -237,6 +237,11 @@ func trackingFromLogistics(assignment *OrderAssignment, lt *logistics.TrackingIn
 	return tracking
 }
 
+// ListRiders returns the tenant's active riders from logistics, for the staff rider picker.
+func (s *TaskService) ListRiders(ctx context.Context, tenantID uuid.UUID) ([]logistics.Rider, error) {
+	return s.logisticsClient.ListActiveRiders(ctx, tenantID)
+}
+
 // AssignRider assigns a fleet member (rider) to the delivery task for an order.
 // If no task exists yet, ErrAssignmentNotFound is returned — caller should create the task first.
 func (s *TaskService) AssignRider(ctx context.Context, tenantSlug string, tenantID, orderID uuid.UUID, fleetMemberID string) (*OrderAssignment, error) {

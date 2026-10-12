@@ -170,38 +170,6 @@ type TrackingInfo struct {
 	LastUpdatedAt time.Time      `json:"last_updated_at"`
 }
 
-// FleetMemberResponse represents a fleet member/rider from logistics service.
-type FleetMemberResponse struct {
-	ID          uuid.UUID              `json:"id"`
-	TenantID    uuid.UUID              `json:"tenant_id"`
-	FleetID     uuid.UUID              `json:"fleet_id"`
-	UserID      uuid.UUID              `json:"user_id"`
-	DriverCode  string                 `json:"driver_code,omitempty"`
-	Status      string                 `json:"status"`
-	VehicleID   *uuid.UUID             `json:"vehicle_id,omitempty"`
-	JoinedAt    *time.Time             `json:"joined_at,omitempty"`
-	SuspendedAt *time.Time             `json:"suspended_at,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-}
-
-// ProofOfDeliveryResponse represents proof of delivery from logistics.
-type ProofOfDeliveryResponse struct {
-	TaskID            uuid.UUID              `json:"task_id"`
-	Type              string                 `json:"type"` // signature, photo, otp, pin
-	SignatureURL      string                 `json:"signature_url,omitempty"`
-	PhotoURLs         []string               `json:"photo_urls,omitempty"`
-	OTPVerified       bool                   `json:"otp_verified,omitempty"`
-	RecipientName     string                 `json:"recipient_name,omitempty"`
-	RecipientRelation string                 `json:"recipient_relation,omitempty"`
-	RiderNotes        string                 `json:"rider_notes,omitempty"`
-	DeliveryLatitude  float64                `json:"delivery_latitude,omitempty"`
-	DeliveryLongitude float64                `json:"delivery_longitude,omitempty"`
-	DeliveredAt       time.Time              `json:"delivered_at"`
-	Metadata          map[string]interface{} `json:"metadata,omitempty"`
-}
-
 // APIError represents an error response from the logistics API.
 type APIError struct {
 	Code    string `json:"code"`
@@ -263,27 +231,6 @@ func (c *Client) CreateTask(ctx context.Context, tenantID uuid.UUID, req CreateT
 	return &result, nil
 }
 
-// GetTask retrieves a task by ID.
-func (c *Client) GetTask(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*TaskResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s", tenantSlug, taskID.String())
-
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
-	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
-	}
-
-	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
-	}
-
-	var result TaskResponse
-	if err := resp.DecodeJSON(&result); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
-	}
-
-	return &result, nil
-}
-
 // GetTracking reads the live tracking view of a task through logistics-api's service-to-service
 // route (tenant by UUID, INTERNAL_SERVICE_KEY). The tenant user route /{slug}/tasks/{id}/tracking
 // needs a signed-in dispatcher or rider and refuses this service's key.
@@ -303,48 +250,6 @@ func (c *Client) GetTracking(ctx context.Context, tenantID uuid.UUID, taskID uui
 	}
 
 	var result TrackingInfo
-	if err := resp.DecodeJSON(&result); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
-	}
-
-	return &result, nil
-}
-
-// GetFleetMember retrieves fleet member/rider details.
-func (c *Client) GetFleetMember(ctx context.Context, tenantSlug string, memberID string) (*FleetMemberResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/fleet-members/%s", tenantSlug, memberID)
-
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
-	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
-	}
-
-	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
-	}
-
-	var result FleetMemberResponse
-	if err := resp.DecodeJSON(&result); err != nil {
-		return nil, fmt.Errorf("decode response: %w", err)
-	}
-
-	return &result, nil
-}
-
-// GetProofOfDelivery retrieves proof of delivery for a completed task.
-func (c *Client) GetProofOfDelivery(ctx context.Context, tenantSlug string, taskID uuid.UUID) (*ProofOfDeliveryResponse, error) {
-	path := fmt.Sprintf("/api/v1/%s/tasks/%s/proof-of-delivery", tenantSlug, taskID.String())
-
-	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
-	if err != nil {
-		return nil, fmt.Errorf("execute request: %w", err)
-	}
-
-	if !resp.IsSuccess() {
-		return nil, c.parseError(resp)
-	}
-
-	var result ProofOfDeliveryResponse
 	if err := resp.DecodeJSON(&result); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
@@ -374,6 +279,37 @@ func (c *Client) AssignTask(ctx context.Context, tenantID uuid.UUID, taskID uuid
 		return c.parseError(resp)
 	}
 	return nil
+}
+
+// Rider is logistics-api's slim S2S rider view: no KYC or documents.
+type Rider struct {
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Phone      string `json:"phone,omitempty"`
+	Employment string `json:"employment"`
+}
+
+// ListActiveRiders lists the tenant's active riders through logistics-api's service-to-service
+// route, so the staff rider picker needs no logistics fleet permission of its own.
+func (c *Client) ListActiveRiders(ctx context.Context, tenantID uuid.UUID) ([]Rider, error) {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/riders", tenantID.String())
+
+	resp, err := c.serviceClient.Get(ctx, path, c.headers(""))
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return nil, c.parseError(resp)
+	}
+
+	var result struct {
+		Data []Rider `json:"data"`
+	}
+	if err := resp.DecodeJSON(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+	return result.Data, nil
 }
 
 // RateRiderRequest is the request to rate a rider on a completed task.

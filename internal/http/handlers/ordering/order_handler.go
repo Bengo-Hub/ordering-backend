@@ -144,6 +144,14 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 		adminRouter.Delete("/{orderId}", h.DeleteOrder)
 	})
 
+	// Riders the staff queue can assign. Same permission as assigning a rider; logistics answers
+	// over S2S, so staff need no logistics fleet access (which would also expose KYC data).
+	r.Route("/admin/riders", func(adminRiders chi.Router) {
+		adminRiders.Use(auth.RequireAuth)
+		adminRiders.Use(auth.RequirePermissions(identity.PermissionOrdersManage))
+		adminRiders.Get("/", h.AdminListRiders)
+	})
+
 	// Admin outlet storefront settings (ordering-owned; not projected from upstream).
 	r.Route("/admin/outlets", func(adminOutlets chi.Router) {
 		adminOutlets.Use(auth.RequireAuth)
@@ -2078,6 +2086,37 @@ func (h *OrderHandler) PayWithWallet(w http.ResponseWriter, r *http.Request) {
 		"payment_status": order.PaymentStatus,
 		"order_status":   order.Status,
 	})
+}
+
+// AdminListRiders lists the tenant's active riders for the staff rider picker.
+// @Summary List assignable riders
+// @Description The tenant's active riders from logistics (name, phone, employment type), for assigning delivery orders.
+// @Tags Admin Orders
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 502 {object} handlers.ErrorResponse
+// @Failure 503 {object} handlers.ErrorResponse
+// @Router /admin/riders [get]
+func (h *OrderHandler) AdminListRiders(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	if h.taskService == nil {
+		handlers.RespondError(w, http.StatusServiceUnavailable, "logistics service unavailable")
+		return
+	}
+	riders, err := h.taskService.ListRiders(r.Context(), tenantID)
+	if err != nil {
+		h.log.Warn("list riders from logistics", zap.Error(err), zap.String("tenant_id", tenantID.String()))
+		handlers.RespondError(w, http.StatusBadGateway, "could not load riders")
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{"data": riders})
 }
 
 // AssignRiderRequest is the request body for PUT /admin/orders/{orderId}/rider.
