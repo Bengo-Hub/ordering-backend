@@ -5,8 +5,10 @@ APP_NAME := food-delivery-backend
 run:
 	go run ./cmd/api
 
+# --parseInternal only: the committed docs use short definition names (handlers.ErrorResponse).
+# --parseDependency renames every definition to its full module path and rewrites the whole file.
 swagger:
-	go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/api/main.go -o internal/http/docs --parseDependency --parseInternal
+	go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/api/main.go -o internal/http/docs --parseInternal
 
 test:
 	go test ./...
