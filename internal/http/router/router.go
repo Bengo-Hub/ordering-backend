@@ -35,6 +35,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/security"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 	"github.com/bengobox/ordering-backend/internal/platform/subscriptions"
+	"github.com/google/uuid"
 )
 
 // New constructs the chi router with global middleware and base routes.
@@ -199,6 +200,24 @@ func New(
 			v1.Route("/{tenant}", func(tenant chi.Router) {
 				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
 				tenant.Use(httpware.TenantV2(tenantCfg))
+
+				// A token minted for one organisation must not act inside another: TenantV2 would
+				// otherwise silently scope the request to the token's tenant, so an admin of tenant A
+				// reaching /{B}/admin would pass role checks. Platform owners may cross tenants.
+				tenant.Use(func(next http.Handler) http.Handler {
+					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						if claims, ok := authclient.ClaimsFromContext(r.Context()); ok && !claims.IsPlatformOwner && !claims.IsSuperuser() {
+							urlSlug := chi.URLParam(r, "tenant")
+							if _, isUUID := uuid.Parse(urlSlug); isUUID != nil && urlSlug != "" {
+								if cs := claims.GetTenantSlug(); cs != "" && !strings.EqualFold(cs, urlSlug) {
+									http.Error(w, `{"error":"tenant_mismatch","message":"this session belongs to a different organisation"}`, http.StatusForbidden)
+									return
+								}
+							}
+						}
+						next.ServeHTTP(w, r)
+					})
+				})
 
 				// Optional outlet context — extracts X-Outlet-ID if present
 				tenant.Use(ordermw.OutletContext)
