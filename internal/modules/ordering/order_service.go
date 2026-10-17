@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Bengo-Hub/httpware/money"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
@@ -634,7 +636,7 @@ func (s *OrderService) orderHasBooking(ctx context.Context, order *Order) bool {
 
 // applyBookingDeposit returns the amount payable NOW. For a booking cart (event ticket / service
 // appointment) at an outlet with a configured deposit % > 0, that is the deposit
-// (round2(grand_total * pct/100)); the remaining balance is collected at the appointment. The
+// (money.Round2(grand_total * pct/100)); the remaining balance is collected at the appointment. The
 // deposit/balance/full-amount and percent are stamped into order.metadata (and persisted) so the
 // storefront can show the split and downstream systems can reconcile. Any error or non-booking /
 // zero-deposit case falls through to the full grand total, so deposits never block a checkout.
@@ -652,11 +654,11 @@ func (s *OrderService) applyBookingDeposit(ctx context.Context, order *Order) fl
 	if pct <= 0 || pct >= 100 {
 		return full // 0 = pay in full; >=100 is effectively full up front
 	}
-	deposit := round2(full * float64(pct) / 100.0)
+	deposit := money.Round2(full * float64(pct) / 100.0)
 	if deposit <= 0 || deposit >= full {
 		return full
 	}
-	balance := round2(full - deposit)
+	balance := money.Round2(full - deposit)
 	if order.Metadata == nil {
 		order.Metadata = map[string]interface{}{}
 	}
@@ -841,20 +843,20 @@ func buildOrderLineItems(order *Order) []LineItem {
 		subtotal += order.DiscountTotal
 	}
 	if subtotal > 0 {
-		items = append(items, LineItem{Label: "Subtotal", Amount: round2(subtotal), Currency: currency})
+		items = append(items, LineItem{Label: "Subtotal", Amount: money.Round2(subtotal), Currency: currency})
 	}
 
 	if order.DeliveryFee > 0 {
-		items = append(items, LineItem{Label: "Delivery Fee", Amount: round2(order.DeliveryFee), Currency: currency})
+		items = append(items, LineItem{Label: "Delivery Fee", Amount: money.Round2(order.DeliveryFee), Currency: currency})
 	}
 	if order.PackagingFee > 0 {
-		items = append(items, LineItem{Label: "Packaging Fee", Amount: round2(order.PackagingFee), Currency: currency})
+		items = append(items, LineItem{Label: "Packaging Fee", Amount: money.Round2(order.PackagingFee), Currency: currency})
 	}
 	if order.TaxTotal > 0 {
-		items = append(items, LineItem{Label: "Tax", Amount: round2(order.TaxTotal), Currency: currency})
+		items = append(items, LineItem{Label: "Tax", Amount: money.Round2(order.TaxTotal), Currency: currency})
 	}
 	if order.DiscountTotal > 0 {
-		items = append(items, LineItem{Label: "Discount", Amount: -round2(order.DiscountTotal), Currency: currency})
+		items = append(items, LineItem{Label: "Discount", Amount: -money.Round2(order.DiscountTotal), Currency: currency})
 	}
 
 	return items

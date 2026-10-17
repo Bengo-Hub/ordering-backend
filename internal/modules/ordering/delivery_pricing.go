@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/Bengo-Hub/httpware/money"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
@@ -167,7 +169,7 @@ func applyDeliveryFees(q *logistics.DeliveryQuote, cfg FeeConfig, itemsTotal flo
 	case cfg.FreeDeliveryMinimum > 0 && itemsTotal >= cfg.FreeDeliveryMinimum:
 		p.Fee, p.FreeReason = 0, "minimum"
 	case cfg.DeliveryDiscountPct > 0:
-		p.Fee = math.Round(q.Fee*(1-math.Min(cfg.DeliveryDiscountPct, 1))*100) / 100
+		p.Fee = money.Round2(q.Fee * (1 - math.Min(cfg.DeliveryDiscountPct, 1)))
 	}
 	return p, nil
 }

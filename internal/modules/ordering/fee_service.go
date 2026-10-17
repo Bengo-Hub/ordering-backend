@@ -3,7 +3,8 @@ package ordering
 import (
 	"context"
 	"encoding/json"
-	"math"
+
+	"github.com/Bengo-Hub/httpware/money"
 
 	"github.com/google/uuid"
 
@@ -98,10 +99,10 @@ func computeFees(cfg FeeConfig, itemTotal, taxTotal float64, delivery DeliveryPr
 	if cfg.SmallOrderThreshold > 0 && subtotal < cfg.SmallOrderThreshold {
 		smallOrderFee = cfg.SmallOrderFee
 	}
-	serviceFee := round2(subtotal * cfg.ServiceFeePercent)
+	serviceFee := money.Round2(subtotal * cfg.ServiceFeePercent)
 	var deliveryDiscount float64
 	if delivery.Quote != nil && delivery.Quote.Fee > delivery.Fee {
-		deliveryDiscount = round2(delivery.Quote.Fee - delivery.Fee)
+		deliveryDiscount = money.Round2(delivery.Quote.Fee - delivery.Fee)
 	}
 	return &FeeBreakdown{
 		ItemTotal:        itemTotal,
@@ -113,12 +114,7 @@ func computeFees(cfg FeeConfig, itemTotal, taxTotal float64, delivery DeliveryPr
 		DeliveryFee:      delivery.Fee,
 		DeliveryDiscount: deliveryDiscount,
 		TaxTotal:         taxTotal,
-		GrandTotal:       round2(subtotal + smallOrderFee + serviceFee + delivery.Fee + taxTotal),
+		GrandTotal:       money.Round2(subtotal + smallOrderFee + serviceFee + delivery.Fee + taxTotal),
 		DeliveryQuote:    delivery.Quote,
 	}
-}
-
-// round2 rounds a float64 to 2 decimal places.
-func round2(v float64) float64 {
-	return math.Round(v*100) / 100
 }
