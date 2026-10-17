@@ -35,7 +35,6 @@ type Config struct {
 	POS           POSConfig           `envconfig:""`
 	Superset      SupersetConfig      `envconfig:""`
 	Security      SecurityConfig      `envconfig:""`
-	Media         MediaConfig         `envconfig:""`
 	Google        GoogleConfig        `envconfig:""`
 	Backup        BackupConfig        `envconfig:""`
 }
@@ -66,15 +65,6 @@ type GoogleConfig struct {
 	// The key is read directly in the googlebusiness module (GOOGLE_TOKEN_ENCRYPTION_KEY);
 	// this field is informational so it appears in config dumps.
 	TokenEncryptionKey string `envconfig:"GOOGLE_TOKEN_ENCRYPTION_KEY"`
-}
-
-// MediaConfig configures local media storage for menu item images and uploads.
-// Production: set MEDIA_ROOT to a persistent volume path (e.g. /media). Local: ./media or empty to disable.
-type MediaConfig struct {
-	// Root is the filesystem path for uploaded and local media (menu images, avatars). Empty disables local file serving.
-	Root string `envconfig:"MEDIA_ROOT" default:"./media"`
-	// URLBase is the base URL for serving media (e.g. https://orderingapi.codevertexafrica.com/media). Empty means relative /media.
-	URLBase string `envconfig:"MEDIA_URL_BASE"`
 }
 
 type AppConfig struct {
@@ -306,9 +296,6 @@ func Load() (*Config, error) {
 	}
 	if err := envconfig.Process(namespace, &cfg.Security); err != nil {
 		return nil, fmt.Errorf("config: failed to load security config: %w", err)
-	}
-	if err := envconfig.Process(namespace, &cfg.Media); err != nil {
-		return nil, fmt.Errorf("config: failed to load media config: %w", err)
 	}
 	if err := envconfig.Process(namespace, &cfg.Google); err != nil {
 		return nil, fmt.Errorf("config: failed to load google config: %w", err)

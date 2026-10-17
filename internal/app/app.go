@@ -17,12 +17,13 @@ import (
 	"go.uber.org/zap"
 
 	sharedcache "github.com/Bengo-Hub/cache"
+	"github.com/Bengo-Hub/httpware/objectstore"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	eventslib "github.com/Bengo-Hub/shared-events"
 	"github.com/bengobox/ordering-backend/internal/config"
 	"github.com/bengobox/ordering-backend/internal/ent"
-	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
 	"github.com/bengobox/ordering-backend/internal/ent/migrate"
+	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
 	handlers "github.com/bengobox/ordering-backend/internal/http/handlers"
 	analyticshandler "github.com/bengobox/ordering-backend/internal/http/handlers/analytics"
 	cataloghandler "github.com/bengobox/ordering-backend/internal/http/handlers/catalog"
@@ -255,7 +256,16 @@ func New(ctx context.Context) (*App, error) {
 	inventoryClient := inventory.NewClient(cfg.Inventory, log)
 
 	// Initialize catalog module (proxy model: inventory-api + local overrides)
+	// Shared platform object storage (httpware/objectstore): menu override and outlet pictures under
+	// ordering/<tenant>/<type>/...; local development keeps files under MEDIA_ROOT.
+	handlers.RegisterMediaTypes()
+	mediaStore, err := objectstore.New("ordering", objectstore.FromEnv())
+	if err != nil {
+		return nil, fmt.Errorf("object storage: %w", err)
+	}
+
 	catalogProxySvc := catalog.NewProxyService(ormClient, inventoryClient, cacheSvc, log)
+	catalogProxySvc.SetMedia(mediaStore)
 	catalogHandler := cataloghandler.New(log, catalogProxySvc, ormClient)
 
 	// Initialize subscriptions client (for subscription enforcement on order creation)
@@ -553,7 +563,7 @@ func New(ctx context.Context) (*App, error) {
 	auditLogger := audit.New(ormClient, log)
 	log.Info("app: audit logger initialized")
 
-	mediaHandler := handlers.NewMediaHandler(log, cfg)
+	mediaHandler := handlers.NewMediaHandler(log, mediaStore)
 
 	// Initialize RBAC module
 	rbacRepo := rbac.NewEntRepository(ormClient)
@@ -576,7 +586,7 @@ func New(ctx context.Context) (*App, error) {
 		RetentionDays: cfg.Backup.RetentionDays,
 	}, log).WithRedis(redisClient).Start(ctx)
 
-	router := httprouter.New(log, healthHandler, cfg.Media.Root, configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
+	router := httprouter.New(log, healthHandler, mediaStore.MediaHandler(), configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler)
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),

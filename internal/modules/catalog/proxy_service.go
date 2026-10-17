@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	sharedcache "github.com/Bengo-Hub/cache"
+	"github.com/Bengo-Hub/httpware/objectstore"
 	"math"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
 	"github.com/bengobox/ordering-backend/internal/ent/outlet"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
 	"github.com/bengobox/ordering-backend/internal/ent/userfavorite"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
 )
@@ -33,6 +35,29 @@ type ProxyService struct {
 	logger          *zap.Logger
 	// delivery prices deliveries for outlet listings (logistics-api).
 	delivery DeliveryInfoSource
+	// media is the shared object storage (nil: stored values are returned as they are).
+	media *objectstore.Store
+}
+
+// SetMedia wires the shared object storage that holds override images (keys) and resolves stored
+// image values to links.
+func (s *ProxyService) SetMedia(m *objectstore.Store) { s.media = m }
+
+// releaseOverrideImage deletes a replaced override image once no other override of the tenant
+// shows it (only ordering's own files; inventory links and external URLs are never deleted).
+func (s *ProxyService) releaseOverrideImage(ctx context.Context, tenantID uuid.UUID, old, current string) {
+	if old == "" || old == current || !s.media.Owned(old) {
+		return
+	}
+	key := s.media.Normalize(old)
+	used, err := s.db.CatalogOverride.Query().
+		Where(catalogoverride.TenantID(tenantID), catalogoverride.ImageURLOverride(key)).Exist(ctx)
+	if err != nil || used {
+		return
+	}
+	if err := s.media.Delete(ctx, key); err != nil {
+		s.logger.Warn("replaced override image not deleted from storage", zap.String("key", key), zap.Error(err))
+	}
 }
 
 // NewProxyService creates a new proxy catalog service.
@@ -130,6 +155,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		}
 		override := overrideMap[inv.SKU] // nil when no override exists — mergeItem handles it
 		item := mergeItem(inv, override, favSet)
+		item.ImageURL = s.media.URL(item.ImageURL) // an override image is a key; inventory's are links
 
 		// Apply filters
 		if filter.ItemType != "" && !strings.EqualFold(item.Type, filter.ItemType) {
@@ -307,6 +333,7 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 	}
 
 	item := mergeItem(*invItem, override, favSet)
+	item.ImageURL = s.media.URL(item.ImageURL)
 	return &item, nil
 }
 
@@ -516,10 +543,14 @@ func (s *ProxyService) UpsertOverride(ctx context.Context, req OverrideUpsertReq
 			builder.SetServiceFeePercent(*req.ServiceFeePercent)
 		}
 		if req.ImageURLOverride != "" {
-			builder.SetImageURLOverride(req.ImageURLOverride)
+			builder.SetImageURLOverride(s.media.Normalize(req.ImageURLOverride))
 		}
 
-		return builder.Save(ctx)
+		saved, err := builder.Save(ctx)
+		if err == nil {
+			s.releaseOverrideImage(ctx, req.TenantID, existing.ImageURLOverride, saved.ImageURLOverride)
+		}
+		return saved, err
 	}
 
 	// Create
@@ -554,20 +585,28 @@ func (s *ProxyService) UpsertOverride(ctx context.Context, req OverrideUpsertReq
 		builder.SetServiceFeePercent(*req.ServiceFeePercent)
 	}
 	if req.ImageURLOverride != "" {
-		builder.SetImageURLOverride(req.ImageURLOverride)
+		builder.SetImageURLOverride(s.media.Normalize(req.ImageURLOverride))
 	}
 
 	return builder.Save(ctx)
 }
 
-// DeleteOverride removes a CatalogOverride entry by SKU.
+// DeleteOverride removes a CatalogOverride entry by SKU (every outlet's), and frees the override
+// images no remaining override uses.
 func (s *ProxyService) DeleteOverride(ctx context.Context, tenantID uuid.UUID, sku string) error {
-	_, err := s.db.CatalogOverride.Delete().
-		Where(
-			catalogoverride.TenantID(tenantID),
-			catalogoverride.InventorySku(sku),
-		).Exec(ctx)
-	return err
+	where := []predicate.CatalogOverride{catalogoverride.TenantID(tenantID), catalogoverride.InventorySku(sku)}
+	images, err := s.db.CatalogOverride.Query().Where(append(where, catalogoverride.ImageURLOverrideNEQ(""))...).
+		Select(catalogoverride.FieldImageURLOverride).Strings(ctx)
+	if err != nil {
+		return err
+	}
+	if _, err := s.db.CatalogOverride.Delete().Where(where...).Exec(ctx); err != nil {
+		return err
+	}
+	for _, img := range images {
+		s.releaseOverrideImage(ctx, tenantID, img, "")
+	}
+	return nil
 }
 
 // ---------- Favorites ----------
@@ -619,6 +658,7 @@ func (s *ProxyService) listOutletsFromDB(ctx context.Context, tenantID uuid.UUID
 	result := make([]OutletSummary, len(outlets))
 	for i, o := range outlets {
 		result[i] = entOutletToSummary(o)
+		result[i].ImageURL = s.media.URL(o.ImageURL)
 	}
 	return result, nil
 }
@@ -656,6 +696,7 @@ func (s *ProxyService) GetOutlet(ctx context.Context, tenantID, outletID uuid.UU
 		return nil, err
 	}
 	summary := entOutletToSummary(o)
+	summary.ImageURL = s.media.URL(o.ImageURL)
 	return &summary, nil
 }
 

@@ -164,7 +164,7 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 			ID:       o.ID,
 			Name:     o.Name,
 			Slug:     o.Slug,
-			ImageURL: o.ImageURL,
+			ImageURL: s.media.URL(o.ImageURL),
 			Address:  o.Address,
 			UseCase:  o.UseCase,
 		}

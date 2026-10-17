@@ -39,11 +39,12 @@ import (
 )
 
 // New constructs the chi router with global middleware and base routes.
-// mediaRoot: if non-empty, serves static files at /media/* for menu images and uploads (local dev or persistent volume).
+// mediaFiles, when set, is objectstore's /media handler (local files in development, redirects to
+// the media domain for keys with object storage).
 func New(
 	log *zap.Logger,
 	healthHandler *handlers.HealthHandler,
-	mediaRoot string,
+	mediaFiles http.Handler,
 	configHandler *confighandler.Handler,
 	identityHandler *identityhandler.Handler,
 	catalogHandler *cataloghandler.Handler,
@@ -131,14 +132,14 @@ func New(
 	r.Get("/metrics", healthHandler.Metrics)
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
 
-	if mediaHandler != nil {
-		r.Post("/api/v1/media/upload", mediaHandler.Upload)
+	// Image upload: a signed-in user of a tenant only (it was open to anonymous callers before).
+	if mediaHandler != nil && authMiddleware != nil {
+		r.With(authMiddleware.RequireAuth).Post("/api/v1/media/upload", mediaHandler.Upload)
 	}
 
-	// Local media storage: menu images and uploads (ORDERING_MEDIA_ROOT). Production: use persistent volume mount.
-	if mediaRoot != "" {
-		// No directory listings; immutable caching for fingerprinted uploads (see httpware.StaticMedia).
-		r.Handle("/media/*", http.StripPrefix("/media", httpware.StaticMedia(mediaRoot, httpware.MediaOptions{})))
+	// /media: files of local development; with object storage, keys redirect to the media domain.
+	if mediaFiles != nil {
+		r.Handle("/media/*", http.StripPrefix("/media", mediaFiles))
 	}
 
 	// Redirect root path to Swagger documentation

@@ -3874,6 +3874,38 @@ paths:
       summary: Get tracking info
       tags:
       - Delivery
+  /api/v1/media/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: JPEG or PNG, up to 5 MB
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: menu-images (default) or images
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Upload an image
+      tags:
+      - Media
   /api/v1/webhooks/logistics:
     post:
       consumes:

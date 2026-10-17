@@ -82,14 +82,19 @@ This document provides detailed integration information for all external service
 
 ## Media storage (menu images and uploads)
 
-**Local development**
-- `ORDERING_MEDIA_ROOT` defaults to `./media`. Create `./media/menu` and place or symlink menu images for local file serving at `GET /media/*`.
-- Seed script stores menu item `image_url` as paths (e.g. `/images/menu/espresso.jpg`) for frontend use; cafe-website serves these from its own `public/images/menu`.
+Since 2026-10-17 images live on the shared platform object storage (Cloudflare R2 through
+`httpware/objectstore`, see `devops-k8s/docs/object-storage.md`); there is no media volume.
 
-**Production (Kubernetes)**
-- Set `ORDERING_MEDIA_ROOT=/media` and mount a PVC at `/media` (see devops-k8s `persistence` in ordering-backend values).
-- Init container creates `.../menu`, `.../products`, etc., and sets permissions to 775; app runs as UID 1000 with `fsGroup: 1000` so the process can read/write the volume.
-- Uploaded menu images or assets can be stored under `/media/menu` and referenced by full URL (e.g. `https://orderingapi.codevertexafrica.com/media/menu/xyz.jpg`) or set `ORDERING_MEDIA_URL_BASE` for absolute URLs in API responses.
+- `POST /api/v1/media/upload?type=` (signed-in tenant user only; it used to accept anonymous
+  uploads): `menu-images` (default, up to 5 MB) or `images` (outlet and banner pictures). JPEG or
+  PNG, checked from the bytes and re-encoded. Stored under `ordering/<tenant>/<type>/...` in the
+  public bucket; the answer carries the public link (`url`) and the `key`.
+- Catalogue image overrides store the key (a link sent back is normalised); reads give the public
+  link. Inventory item images arrive as full links and pass through.
+- Replacing or deleting an override frees its old image once no other override of the tenant uses it.
+- Local development: leave `OBJECT_STORAGE_ENDPOINT` empty and set `MEDIA_ROOT` / `MEDIA_URL_BASE`;
+  files are kept under `MEDIA_ROOT` and served at `GET /media/*`.
+- Seed script stores menu item `image_url` as paths (e.g. `/images/menu/espresso.jpg`) for frontend use; cafe-website serves these from its own `public/images/menu`.
 
 **Ingress**
 - Ensure ingress allows `proxy-body-size` and routing for `/media/*` so uploads and static media are served correctly.
