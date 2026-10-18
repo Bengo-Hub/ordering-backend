@@ -154,11 +154,29 @@ type OrderCreatedData struct {
 	PODCode string `json:"pod_code"`
 	// CollectionCode is the 6-digit code a pickup customer shows at the counter; empty otherwise.
 	CollectionCode string `json:"collection_code,omitempty"`
+	// Delivery is what the order confirmation tells the customer about the delivery: where, what
+	// it costs and how that was worked out. Nil for pickup and dine-in orders.
+	Delivery *DeliveryNotice `json:"delivery,omitempty"`
+}
+
+// DeliveryNotice is the delivery part of the order confirmation. A distance-priced delivery
+// (outside the named areas) carries NeedsConfirmation so the email asks the customer to check
+// the area, distance and fee.
+type DeliveryNotice struct {
+	Address           string  `json:"address,omitempty"`
+	Fee               float64 `json:"fee"`
+	Free              bool    `json:"free"`
+	Area              string  `json:"area,omitempty"`
+	Method            string  `json:"method,omitempty"` // zone | per_km
+	DistanceKm        float64 `json:"distance_km,omitempty"`
+	DistanceType      string  `json:"distance_type,omitempty"`
+	EtaMinutes        int     `json:"eta_minutes,omitempty"`
+	NeedsConfirmation bool    `json:"needs_confirmation,omitempty"`
 }
 
 // PublishOrderCreated publishes an order.created event.
 func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID, data OrderCreatedData) error {
-	event := NewEvent("ordering.order.created", data.OrderID, tenantID, map[string]interface{}{
+	payload := map[string]interface{}{
 		"order_id":        data.OrderID.String(),
 		"order_number":    data.OrderNumber,
 		"customer_id":     data.CustomerID.String(),
@@ -176,7 +194,20 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, tenantID uuid.UUID,
 			"recipient_email": data.CustomerEmail,
 			"recipient_phone": data.CustomerPhone,
 		},
-	})
+	}
+	if d := data.Delivery; d != nil {
+		// Flat keys, like the rest of the payload, so the notification templates read them directly.
+		payload["delivery_address"] = d.Address
+		payload["delivery_fee"] = d.Fee
+		payload["delivery_free"] = d.Free
+		payload["delivery_area"] = d.Area
+		payload["delivery_method"] = d.Method
+		payload["delivery_distance_km"] = d.DistanceKm
+		payload["delivery_distance_type"] = d.DistanceType
+		payload["delivery_eta_minutes"] = d.EtaMinutes
+		payload["delivery_needs_confirmation"] = d.NeedsConfirmation
+	}
+	event := NewEvent("ordering.order.created", data.OrderID, tenantID, payload)
 
 	return p.Publish(ctx, "ordering.order.created", event)
 }

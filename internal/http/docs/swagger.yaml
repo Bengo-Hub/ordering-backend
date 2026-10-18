@@ -789,6 +789,14 @@ definitions:
         type: number
       free:
         type: boolean
+      furthest_area:
+        allOf:
+        - $ref: '#/definitions/logistics.ZoneRef'
+        description: |-
+          FurthestArea and FurthestAreaKm say how far from the outlet deliveries reach; OutletKm is
+          how far this pin is (straight line). Sent for pins outside every area.
+      furthest_area_km:
+        type: number
       method:
         description: zone | per_km
         type: string
@@ -797,6 +805,13 @@ definitions:
       nearest_area:
         $ref: '#/definitions/logistics.ZoneRef'
       nearest_area_km:
+        type: number
+      needs_confirmation:
+        description: |-
+          NeedsConfirmation marks a distance-priced delivery the customer confirms from the
+          details in their order confirmation (tenant policy).
+        type: boolean
+      outlet_km:
         type: number
       policy_version:
         type: string

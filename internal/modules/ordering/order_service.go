@@ -2063,6 +2063,30 @@ func (s *OrderService) publishOrderConfirmed(ctx context.Context, order *Order) 
 	s.publishOutletHandoff(ctx, order, false)
 }
 
+// deliveryAddressText is the drop-off address as one line (empty unless the order is delivered):
+// the saved address with its rider notes, or for a guest the address they typed at checkout.
+func (s *OrderService) deliveryAddressText(ctx context.Context, order *Order) string {
+	if order == nil || !isDeliveryFulfilment(order.FulfillmentType) {
+		return ""
+	}
+	if order.DeliveryAddress == nil && order.DeliveryAddressID != nil {
+		if addr, aErr := s.repo.GetAddress(ctx, order.TenantID, *order.DeliveryAddressID); aErr == nil {
+			order.DeliveryAddress = addr
+		}
+	}
+	if order.DeliveryAddress == nil {
+		// Guest delivery: GuestCheckout stores the typed address (plus rider notes) here.
+		return strings.TrimSpace(order.Instructions)
+	}
+	text := strings.TrimSpace(strings.Join([]string{
+		order.DeliveryAddress.AddressLine1, order.DeliveryAddress.AddressLine2, order.DeliveryAddress.City,
+	}, " "))
+	if order.DeliveryAddress.Instructions != "" {
+		text += " (" + order.DeliveryAddress.Instructions + ")"
+	}
+	return text
+}
+
 // publishOutletHandoff builds the outlet payload and publishes it as ordering.order.confirmed, or,
 // when awaitingAcceptance, as ordering.order.awaiting_acceptance (the outlet must accept first).
 func (s *OrderService) publishOutletHandoff(ctx context.Context, order *Order, awaitingAcceptance bool) {
@@ -2080,25 +2104,7 @@ func (s *OrderService) publishOutletHandoff(ctx context.Context, order *Order, a
 		items = append(items, outletLinePayload(it))
 	}
 
-	deliveryAddress := ""
-	if isDeliveryFulfilment(order.FulfillmentType) {
-		if order.DeliveryAddress == nil && order.DeliveryAddressID != nil {
-			if addr, aErr := s.repo.GetAddress(ctx, order.TenantID, *order.DeliveryAddressID); aErr == nil {
-				order.DeliveryAddress = addr
-			}
-		}
-		if order.DeliveryAddress != nil {
-			deliveryAddress = strings.TrimSpace(strings.Join([]string{
-				order.DeliveryAddress.AddressLine1, order.DeliveryAddress.AddressLine2, order.DeliveryAddress.City,
-			}, " "))
-			if order.DeliveryAddress.Instructions != "" {
-				deliveryAddress += " (" + order.DeliveryAddress.Instructions + ")"
-			}
-		} else {
-			// Guest delivery: GuestCheckout stores the typed address (plus rider notes) here.
-			deliveryAddress = strings.TrimSpace(order.Instructions)
-		}
-	}
+	deliveryAddress := s.deliveryAddressText(ctx, order)
 
 	tenantSlug := httpware.GetTenantSlug(ctx)
 	if tenantSlug == "" {
@@ -2687,6 +2693,7 @@ func (s *OrderService) publishOrderCreated(ctx context.Context, order *Order, it
 		ItemCount:      itemCount,
 		PODCode:        deliveryCode(order),
 		CollectionCode: collectionCode(order),
+		Delivery:       deliveryNoticeOf(order, s.deliveryAddressText(ctx, order)),
 	}
 
 	if err := s.eventPublisher.PublishOrderCreated(ctx, order.TenantID, data); err != nil {

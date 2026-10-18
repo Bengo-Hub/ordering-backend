@@ -148,7 +148,7 @@ What ordering stores per order:
 |-------|---------|
 | `orders.delivery_fee` | Fee charged (quote fee after ordering's free-minimum or delivery discount) |
 | `orders.delivery_latitude`, `orders.delivery_longitude` | The pin that was priced, for every delivery order |
-| `orders.metadata.delivery_quote` | `zone_id`, `zone_name`, `method` (zone or per_km), `quoted_fee`, `charged_fee`, `distance_km`, `distance_type`, `eta_minutes`, `policy_version`, `place_name`, `free_reason` |
+| `orders.metadata.delivery_quote` | `zone_id`, `zone_name`, `method` (zone or per_km), `quoted_fee`, `charged_fee`, `distance_km`, `distance_type`, `eta_minutes`, `policy_version`, `place_name`, `free_reason`, `needs_confirmation` (a distance-priced fee the customer is asked to check) |
 | `service_configs` key `fee_config` | Ordering-owned fees only: service %, packaging, small order fee and threshold, delivery discount %, free delivery minimum. All default to 0 (off) |
 
 -------|-------------|-------------|

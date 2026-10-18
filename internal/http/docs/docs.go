@@ -6535,6 +6535,17 @@ const docTemplate = `{
                 "free": {
                     "type": "boolean"
                 },
+                "furthest_area": {
+                    "description": "FurthestArea and FurthestAreaKm say how far from the outlet deliveries reach; OutletKm is\nhow far this pin is (straight line). Sent for pins outside every area.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/logistics.ZoneRef"
+                        }
+                    ]
+                },
+                "furthest_area_km": {
+                    "type": "number"
+                },
                 "method": {
                     "description": "zone | per_km",
                     "type": "string"
@@ -6546,6 +6557,13 @@ const docTemplate = `{
                     "$ref": "#/definitions/logistics.ZoneRef"
                 },
                 "nearest_area_km": {
+                    "type": "number"
+                },
+                "needs_confirmation": {
+                    "description": "NeedsConfirmation marks a distance-priced delivery the customer confirms from the\ndetails in their order confirmation (tenant policy).",
+                    "type": "boolean"
+                },
+                "outlet_km": {
                     "type": "number"
                 },
                 "policy_version": {

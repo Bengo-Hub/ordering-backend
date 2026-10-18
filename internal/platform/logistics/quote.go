@@ -41,7 +41,15 @@ type DeliveryQuote struct {
 	Zone          *ZoneRef        `json:"zone,omitempty"`
 	NearestArea   *ZoneRef        `json:"nearest_area,omitempty"`
 	NearestAreaKm float64         `json:"nearest_area_km,omitempty"`
-	DistanceKm    float64         `json:"distance_km"`
+	// FurthestArea and FurthestAreaKm say how far from the outlet deliveries reach; OutletKm is
+	// how far this pin is (straight line). Sent for pins outside every area.
+	FurthestArea   *ZoneRef `json:"furthest_area,omitempty"`
+	FurthestAreaKm float64  `json:"furthest_area_km,omitempty"`
+	OutletKm       float64  `json:"outlet_km,omitempty"`
+	// NeedsConfirmation marks a distance-priced delivery the customer confirms from the
+	// details in their order confirmation (tenant policy).
+	NeedsConfirmation bool    `json:"needs_confirmation,omitempty"`
+	DistanceKm        float64 `json:"distance_km"`
 	DistanceType  string          `json:"distance_type,omitempty"`
 	EtaMinutes    int             `json:"eta_minutes,omitempty"`
 	MinOrder      float64         `json:"min_order"`
