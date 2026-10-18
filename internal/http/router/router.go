@@ -75,8 +75,6 @@ func New(
 	serviceConfigHandler *confighandler.ServiceConfigHandler,
 	useCaseHandler *confighandler.UseCaseHandler,
 	googleBusinessHandler *googlebusinesshandler.Handler,
-	backupsHandler *handlers.BackupsHandler,
-	backupDestHandler *handlers.BackupDestinationHandler,
 	encryptionKeyHandler *confighandler.EncryptionKeyHandler,
 	bannerHandler *promobannerhandler.Handler,
 	marketplaceHandler *marketplacehandler.Handler,
@@ -434,16 +432,6 @@ func New(
 							})
 						}
 
-						// PLATFORM-default backup destination (rclone) management (platform-owner
-						// ONLY). Mounts /admin/backups/destination GET/PUT/POST(test). Secret
-						// params are encrypted at rest and masked in responses. Same
-						// RequirePlatformOwner gate as encryption-key / service-config.
-						if backupDestHandler != nil && authenticator != nil {
-							ord.Route("/admin", func(adminBkp chi.Router) {
-								adminBkp.Use(authenticator.RequirePlatformOwner)
-								backupDestHandler.RegisterPlatformRoutes(adminBkp)
-							})
-						}
 						// Tenant-scoped config (fee-config save path). GET stays read-only;
 						// PUT requires config.manage (admin/superuser bypass so tenant admins can save).
 						ord.Route("/settings/service-config", func(settingsCfg chi.Router) {
@@ -457,19 +445,6 @@ func New(
 					if useCaseHandler != nil && authenticator != nil {
 						ord.With(authenticator.RequirePermissions(identity.Permission("ordering.config.view"))).
 							Get("/admin/use-case", useCaseHandler.GetUseCaseConfig)
-					}
-
-					// Tenant-scoped backups (this tenant's data only) — admin/config-gated.
-					// The per-tenant backup-destination override mounts alongside under the
-					// SAME permission gate (/backups/destination GET/PUT/POST(test)).
-					if backupsHandler != nil && authenticator != nil {
-						ord.Group(func(bg chi.Router) {
-							bg.Use(authenticator.RequirePermissions(identity.Permission("ordering.config.view")))
-							backupsHandler.Register(bg)
-							if backupDestHandler != nil {
-								backupDestHandler.RegisterRoutes(bg)
-							}
-						})
 					}
 
 					// Google Business Profile integration (admin connect/reviews + public callback).

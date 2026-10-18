@@ -42,7 +42,6 @@ import (
 	httprouter "github.com/bengobox/ordering-backend/internal/http/router"
 	"github.com/bengobox/ordering-backend/internal/modules/analytics"
 	"github.com/bengobox/ordering-backend/internal/modules/audit"
-	backupmod "github.com/bengobox/ordering-backend/internal/modules/backup"
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
 	"github.com/bengobox/ordering-backend/internal/modules/compliance"
 	"github.com/bengobox/ordering-backend/internal/modules/fulfilment"
@@ -580,23 +579,10 @@ func New(ctx context.Context) (*App, error) {
 	rbacSvc := rbac.NewService(rbacRepo, log, tenantSyncer)
 	rbacHandler := handlers.NewRBACHandler(log, rbacSvc, rbacRepo, identityRepo)
 
-	// Pluggable backup destination (OneDrive/GDrive/S3/WebDAV/SFTP/SMB) — encrypted
-	// at rest with a SECRET_KEY-derived key. The handler owns the destination Store;
-	// its Uploader is attached to the backup service so every PVC backup is
-	// additionally mirrored best-effort.
-	backupDestHandler := handlers.NewBackupDestinationHandler(ormClient, log)
+	// Tenant backups are made from the SSO client area (auth-api collects this service's
+	// /api/v1/s2s/tenant-export); the platform pg_dumpall covers disaster recovery.
 
-	// Tenant-scoped backups + daily 02:00 auto-backup scheduler + retention churn.
-	backupSvc := backupmod.NewService(sqlDB, ormClient, cfg.Backup.Dir, log).
-		WithMirrorer(backupDestHandler.Uploader())
-	backupsHandler := handlers.NewBackupsHandler(log, backupSvc, cfg.Backup.RetentionDays)
-	backupmod.NewScheduler(backupSvc, backupmod.SchedulerConfig{
-		Enabled:       cfg.Backup.ScheduleEnabled,
-		Hour:          cfg.Backup.ScheduleHour,
-		RetentionDays: cfg.Backup.RetentionDays,
-	}, log).WithRedis(redisClient).Start(ctx)
-
-	router := httprouter.New(log, healthHandler, mediaStore.MediaHandler(), configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, backupsHandler, backupDestHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler,
+	router := httprouter.New(log, healthHandler, mediaStore.MediaHandler(), configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler,
 		tenantExportHandler(sqlDB, cfg.Auth.AuthServiceAPIKey))
 
 	httpServer := &http.Server{
