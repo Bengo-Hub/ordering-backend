@@ -80,6 +80,7 @@ func New(
 	encryptionKeyHandler *confighandler.EncryptionKeyHandler,
 	bannerHandler *promobannerhandler.Handler,
 	marketplaceHandler *marketplacehandler.Handler,
+	tenantExport http.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -130,6 +131,11 @@ func New(
 	// System endpoints (no tenant, no auth)
 	r.Get("/healthz", healthHandler.Liveness)
 	r.Get("/metrics", healthHandler.Metrics)
+	// Tenant export for auth-api's SSO tenant backups; the handler checks INTERNAL_SERVICE_KEY
+	// itself (httpware/tenantexport, Options.InternalKey).
+	if tenantExport != nil {
+		r.Get("/api/v1/s2s/tenant-export", tenantExport.ServeHTTP)
+	}
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
 
 	// Image upload: a signed-in user of a tenant only (it was open to anonymous callers before).
