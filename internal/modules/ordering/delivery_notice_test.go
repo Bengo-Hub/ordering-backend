@@ -57,8 +57,8 @@ func TestDeliveryNoticeIsNilForOrdersThatAreNotDelivered(t *testing.T) {
 }
 
 func TestNotServiceableMessageSaysHowFarDeliveriesGo(t *testing.T) {
-	far := &DeliveryNotServiceableError{Reason: "outside_delivery_area", NearestArea: "Malaba", NearestAreaKm: 31, DeliveryReachKm: 28.4, OutletKm: 62.2}
-	if got := far.Error(); got != "we do not deliver to this location yet (we deliver up to 28 km from the outlet and this is 62 km away)" {
+	far := &DeliveryNotServiceableError{Reason: "outside_delivery_area", NearestArea: "Malaba", NearestAreaKm: 31, Direction: "south", OutletKm: 62.2, RouteArea: "Malaba", RouteOffKm: 49.6}
+	if got := far.Error(); got != "we do not deliver to this location yet (it is 62 km south of the outlet and 50 km away from our nearest delivery route, towards Malaba)" {
 		t.Fatalf("far message = %q", got)
 	}
 	near := &DeliveryNotServiceableError{Reason: "outside_delivery_area", NearestArea: "Malaba", NearestAreaKm: 6.1}

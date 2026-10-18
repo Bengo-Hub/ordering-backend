@@ -6517,6 +6517,9 @@
                 "currency": {
                     "type": "string"
                 },
+                "direction": {
+                    "type": "string"
+                },
                 "distance_km": {
                     "type": "number"
                 },
@@ -6531,17 +6534,6 @@
                 },
                 "free": {
                     "type": "boolean"
-                },
-                "furthest_area": {
-                    "description": "FurthestArea and FurthestAreaKm say how far from the outlet deliveries reach; OutletKm is\nhow far this pin is (straight line). Sent for pins outside every area.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/logistics.ZoneRef"
-                        }
-                    ]
-                },
-                "furthest_area_km": {
-                    "type": "number"
                 },
                 "method": {
                     "description": "zone | per_km",
@@ -6568,6 +6560,20 @@
                 },
                 "reason": {
                     "type": "string"
+                },
+                "route_area": {
+                    "description": "For a pin outside every area: the delivery area whose route from the outlet passes\nclosest, how far that route goes, how far the pin is off it, the pin's compass\ndirection from the outlet and its straight-line distance (OutletKm).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/logistics.ZoneRef"
+                        }
+                    ]
+                },
+                "route_off_km": {
+                    "type": "number"
+                },
+                "route_reach_km": {
+                    "type": "number"
                 },
                 "serviceable": {
                     "type": "boolean"

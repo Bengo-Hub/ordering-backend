@@ -33,15 +33,17 @@ type DeliveryNotServiceableError struct {
 	Reason        string  `json:"reason"`
 	NearestArea   string  `json:"nearest_area,omitempty"`
 	NearestAreaKm float64 `json:"nearest_area_km,omitempty"`
-	// DeliveryReachKm is how far from the outlet deliveries go and OutletKm how far this pin
-	// is, so the customer sees how far out of range it is.
-	DeliveryReachKm float64 `json:"delivery_reach_km,omitempty"`
-	OutletKm        float64 `json:"outlet_km,omitempty"`
+	// Where the pin sits against our delivery routes: its compass direction and distance
+	// from the outlet, the nearest route (towards RouteArea) and how far off it the pin is.
+	Direction  string  `json:"direction,omitempty"`
+	OutletKm   float64 `json:"outlet_km,omitempty"`
+	RouteArea  string  `json:"route_area,omitempty"`
+	RouteOffKm float64 `json:"route_off_km,omitempty"`
 }
 
 func (e *DeliveryNotServiceableError) Error() string {
-	if e.DeliveryReachKm > 0 && e.OutletKm > e.DeliveryReachKm {
-		return fmt.Sprintf("we do not deliver to this location yet (we deliver up to %.0f km from the outlet and this is %.0f km away)", e.DeliveryReachKm, e.OutletKm)
+	if e.RouteArea != "" && e.RouteOffKm > 0 && e.OutletKm > 0 {
+		return fmt.Sprintf("we do not deliver to this location yet (it is %.0f km %s of the outlet and %.0f km away from our nearest delivery route, towards %s)", e.OutletKm, e.Direction, e.RouteOffKm, e.RouteArea)
 	}
 	if e.NearestArea != "" {
 		return fmt.Sprintf("we do not deliver to this location yet (nearest area: %s, %.1f km away)", e.NearestArea, e.NearestAreaKm)
@@ -159,9 +161,12 @@ func (s *OrderService) priceDelivery(ctx context.Context, tenantID, outletID uui
 // applyDeliveryFees turns a quote into the charged fee. Pure, for tests.
 func applyDeliveryFees(q *logistics.DeliveryQuote, cfg FeeConfig, itemsTotal float64) (DeliveryPrice, error) {
 	if !q.Serviceable {
-		e := &DeliveryNotServiceableError{Reason: q.Reason, NearestAreaKm: q.NearestAreaKm, DeliveryReachKm: q.FurthestAreaKm, OutletKm: q.OutletKm}
+		e := &DeliveryNotServiceableError{Reason: q.Reason, NearestAreaKm: q.NearestAreaKm, Direction: q.Direction, OutletKm: q.OutletKm, RouteOffKm: q.RouteOffKm}
 		if q.NearestArea != nil {
 			e.NearestArea = q.NearestArea.Name
+		}
+		if q.RouteArea != nil {
+			e.RouteArea = q.RouteArea.Name
 		}
 		return DeliveryPrice{}, e
 	}

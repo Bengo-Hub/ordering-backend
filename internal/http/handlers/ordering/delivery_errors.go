@@ -21,9 +21,11 @@ func respondDeliveryError(w http.ResponseWriter, err error) bool {
 			"reason":          notServiceable.Reason,
 			"nearest_area":    notServiceable.NearestArea,
 			"nearest_area_km": notServiceable.NearestAreaKm,
-			// How far deliveries go and how far this pin is, so checkout can say how far out of range it is.
-			"delivery_reach_km": notServiceable.DeliveryReachKm,
-			"outlet_km":         notServiceable.OutletKm,
+			// Where the pin sits against the delivery routes, so checkout can say how far out of range it is.
+			"direction":    notServiceable.Direction,
+			"outlet_km":    notServiceable.OutletKm,
+			"route_area":   notServiceable.RouteArea,
+			"route_off_km": notServiceable.RouteOffKm,
 		})
 	case errors.As(err, &belowMin):
 		handlers.RespondJSON(w, http.StatusUnprocessableEntity, map[string]any{

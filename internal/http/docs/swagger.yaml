@@ -779,6 +779,8 @@ definitions:
         type: integer
       currency:
         type: string
+      direction:
+        type: string
       distance_km:
         type: number
       distance_type:
@@ -789,14 +791,6 @@ definitions:
         type: number
       free:
         type: boolean
-      furthest_area:
-        allOf:
-        - $ref: '#/definitions/logistics.ZoneRef'
-        description: |-
-          FurthestArea and FurthestAreaKm say how far from the outlet deliveries reach; OutletKm is
-          how far this pin is (straight line). Sent for pins outside every area.
-      furthest_area_km:
-        type: number
       method:
         description: zone | per_km
         type: string
@@ -817,6 +811,17 @@ definitions:
         type: string
       reason:
         type: string
+      route_area:
+        allOf:
+        - $ref: '#/definitions/logistics.ZoneRef'
+        description: |-
+          For a pin outside every area: the delivery area whose route from the outlet passes
+          closest, how far that route goes, how far the pin is off it, the pin's compass
+          direction from the outlet and its straight-line distance (OutletKm).
+      route_off_km:
+        type: number
+      route_reach_km:
+        type: number
       serviceable:
         type: boolean
       zone:
