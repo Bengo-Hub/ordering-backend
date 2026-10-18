@@ -147,12 +147,12 @@ func (s *OrderService) checkSubscription(ctx context.Context, tenantID uuid.UUID
 	return nil
 }
 
-// checkOrderLimit enforces the tenant's metered max_orders_per_day cap. It reports one
-// "orders" usage event to subscriptions-api, which atomically counts it and either allows
-// the order (within limit, or the merchant opted in to extra usage → overage accrues) or
-// returns a 402 that we surface as a *SubscriptionLimitError. Exempt tenants and infra
-// errors fail open (ReportUsage returns Allowed=true). subscriptions-api applies the demo
-// bypass server-side, so demo merchants are never blocked.
+// checkOrderLimit enforces the tenant's metered max_orders_per_day cap. It asks
+// subscriptions-api whether one more order is allowed (within limit, or the merchant opted in
+// to extra usage) without counting it; the order is counted from ordering.order.created. A 402
+// is surfaced as a *SubscriptionLimitError. Exempt tenants and infra errors fail open
+// (CheckUsage returns Allowed=true). subscriptions-api applies the demo bypass server-side, so
+// demo merchants are never blocked.
 func (s *OrderService) checkOrderLimit(ctx context.Context, tenantID uuid.UUID) error {
 	if s.subscriptionsClient == nil {
 		return nil
@@ -162,7 +162,7 @@ func (s *OrderService) checkOrderLimit(ctx context.Context, tenantID uuid.UUID) 
 			return nil
 		}
 	}
-	dec := s.subscriptionsClient.ReportUsage(ctx, tenantID, "orders", 1)
+	dec := s.subscriptionsClient.CheckUsage(ctx, tenantID, "orders", 1)
 	if !dec.Allowed {
 		return &SubscriptionLimitError{Body: dec.Body}
 	}

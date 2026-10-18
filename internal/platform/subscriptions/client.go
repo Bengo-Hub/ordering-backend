@@ -121,21 +121,22 @@ type UsageDecision struct {
 	Body map[string]any
 }
 
-// ReportUsage records a metered usage event (e.g. metric="orders") and returns the limit
-// decision. subscriptions-api atomically increments the tenant's counter and either allows
-// the event (within limit or opted-in overage) or returns 402 with the structured limit body.
-// Fails OPEN (Allowed=true) on any network/parse error so subscriptions-api downtime never
-// blocks customer checkouts. Tenant is resolved by subscriptions-api from X-Tenant-ID.
-func (c *Client) ReportUsage(ctx context.Context, tenantID uuid.UUID, metric string, value float64) UsageDecision {
+// CheckUsage asks subscriptions-api whether one more unit of a metered metric (e.g.
+// metric="orders") is allowed, WITHOUT counting it: the order is counted once when
+// subscriptions-api consumes ordering.order.created (deduplicated per event), the same pattern
+// as pos-api. Reporting here as well counted every order twice against the limit, and counted
+// checkouts that later failed. Returns 402 with the structured limit body when the tenant is at
+// its limit without opted-in overage. Fails OPEN (Allowed=true) on any network/parse error so
+// subscriptions-api downtime never blocks customer checkouts. Tenant from X-Tenant-ID.
+func (c *Client) CheckUsage(ctx context.Context, tenantID uuid.UUID, metric string, value float64) UsageDecision {
 	if c.baseURL == "" || c.apiKey == "" {
 		return UsageDecision{Allowed: true}
 	}
 	payload, _ := json.Marshal(map[string]any{
-		"metric_type":  metric,
-		"service_name": "ordering-service",
-		"value":        value,
+		"metric_type": metric,
+		"value":       value,
 	})
-	url := fmt.Sprintf("%s/api/v1/usage/report", c.baseURL)
+	url := fmt.Sprintf("%s/api/v1/usage/check", c.baseURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return UsageDecision{Allowed: true}
