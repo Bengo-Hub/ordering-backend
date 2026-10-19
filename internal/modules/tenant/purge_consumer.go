@@ -13,8 +13,6 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	entauditlog "github.com/bengobox/ordering-backend/internal/ent/auditlog"
-	entbackup "github.com/bengobox/ordering-backend/internal/ent/backup"
-	entbackupsetting "github.com/bengobox/ordering-backend/internal/ent/backupsetting"
 	entcart "github.com/bengobox/ordering-backend/internal/ent/cart"
 	entcartitem "github.com/bengobox/ordering-backend/internal/ent/cartitem"
 	entcatalogoverride "github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
@@ -368,10 +366,6 @@ func (c *PurgeConsumer) purgeTenant(ctx context.Context, tenantID uuid.UUID) err
 		}},
 		{"google_business_connections", func() (int, error) {
 			return tx.GoogleBusinessConnection.Delete().Where(entgooglebusinessconnection.TenantID(tenantID)).Exec(ctx)
-		}},
-		{"backups", func() (int, error) { return tx.Backup.Delete().Where(entbackup.TenantID(tenantID)).Exec(ctx) }},
-		{"backup_settings", func() (int, error) {
-			return tx.BackupSetting.Delete().Where(entbackupsetting.TenantID(tenantID)).Exec(ctx)
 		}},
 		{"data_deletion_jobs", func() (int, error) {
 			return tx.DataDeletionJob.Delete().Where(entdatadeletionjob.TenantID(tenantID)).Exec(ctx)
