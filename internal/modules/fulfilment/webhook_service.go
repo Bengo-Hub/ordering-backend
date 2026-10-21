@@ -37,7 +37,7 @@ func NewWebhookService(
 // Events are not stored locally; assignment state is updated only. PoD and event history live in logistics-api.
 func (s *WebhookService) ProcessWebhook(ctx context.Context, payload []byte, signature, ipAddress string, headers map[string]string) error {
 	// Verify signature
-	if !s.verifier.VerifySignature(payload, signature) && s.webhookSecret != "" {
+	if !s.verifier.VerifySignature(payload, signature) {
 		s.logger.Warn("invalid webhook signature",
 			zap.String("ip", ipAddress))
 		return ErrInvalidSignature

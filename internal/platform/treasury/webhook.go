@@ -64,10 +64,22 @@ func NewWebhookVerifier(secret string) *WebhookVerifier {
 	return &WebhookVerifier{secret: secret}
 }
 
+// Configured reports whether a signing secret is set. Without one nothing can be verified.
+func (v *WebhookVerifier) Configured() bool { return v != nil && v.secret != "" }
+
 // Verify verifies the webhook signature.
 // The signature should be in the format: t=timestamp,v1=signature
 // The signature is computed as: HMAC-SHA256(timestamp.payload, secret)
+//
+// It fails closed: with no secret configured every signature is rejected (an HMAC keyed with an
+// empty secret is something anyone can compute), and an empty signature is rejected too.
 func (v *WebhookVerifier) Verify(payload []byte, signature string, tolerance time.Duration) error {
+	if !v.Configured() {
+		return fmt.Errorf("webhook secret is not configured")
+	}
+	if signature == "" {
+		return fmt.Errorf("missing signature")
+	}
 	// Parse signature header
 	timestamp, sig, err := parseSignature(signature)
 	if err != nil {

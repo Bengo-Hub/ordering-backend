@@ -72,15 +72,14 @@ func (s *WebhookService) ProcessWebhook(ctx context.Context, req ProcessWebhookR
 		}
 	}
 
-	// Verify signature
+	// Verify the signature. An unsigned request, a bad signature, or no configured secret is
+	// invalid: this route is public, so a missing signature must never count as valid.
 	signatureValid := true
-	if req.Signature != "" {
-		if err := s.verifier.Verify(req.Payload, req.Signature, 5*time.Minute); err != nil {
-			s.logger.Warn("invalid webhook signature",
-				zap.Error(err),
-				zap.String("external_id", webhookEvent.ID))
-			signatureValid = false
-		}
+	if err := s.verifier.Verify(req.Payload, req.Signature, 5*time.Minute); err != nil {
+		s.logger.Warn("invalid webhook signature",
+			zap.Error(err),
+			zap.String("external_id", webhookEvent.ID))
+		signatureValid = false
 	}
 
 	// Create event record

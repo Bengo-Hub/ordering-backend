@@ -21,9 +21,12 @@ func NewWebhookVerifier(secret string) *WebhookVerifier {
 }
 
 // VerifySignature verifies the HMAC-SHA256 signature of a webhook payload.
+//
+// It fails closed: with no secret configured, or an empty signature, nothing verifies. It used to
+// accept everything when no secret was set, which left the route open to anyone.
 func (v *WebhookVerifier) VerifySignature(payload []byte, signature string) bool {
-	if v.secret == "" {
-		return true // No secret configured, skip verification (development mode)
+	if v == nil || v.secret == "" || signature == "" {
+		return false
 	}
 
 	mac := hmac.New(sha256.New, []byte(v.secret))

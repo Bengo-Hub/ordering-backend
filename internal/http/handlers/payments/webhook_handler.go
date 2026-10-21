@@ -1,6 +1,7 @@
 package paymentshandler
 
 import (
+	"errors"
 	"io"
 	"net/http"
 
@@ -85,6 +86,10 @@ func (h *WebhookHandler) HandleTreasuryWebhook(w http.ResponseWriter, r *http.Re
 		Headers:   headers,
 		IPAddress: ipAddress,
 	})
+	if errors.Is(err, payments.ErrInvalidWebhookSignature) {
+		handlers.RespondError(w, http.StatusUnauthorized, "invalid signature")
+		return
+	}
 	if err != nil {
 		h.log.Error("failed to process webhook", zap.Error(err))
 		// Return 200 anyway to prevent retries for validation errors
