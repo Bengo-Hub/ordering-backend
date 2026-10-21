@@ -1,7 +1,6 @@
 package orderinghandler
 
 import (
-	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,19 +37,10 @@ func (h *OrderHandler) SetServiceKey(key string) {
 	h.serviceKey = key
 }
 
-// requireServiceKey admits a request only with the exact service key (constant-time compare). An
-// empty configured key refuses everything rather than admitting everyone.
+// requireServiceKey admits a request only with the exact service key. An empty configured key
+// refuses everything rather than admitting everyone.
 func requireServiceKey(expected string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			provided := r.Header.Get("X-API-Key")
-			if expected == "" || provided == "" || subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) != 1 {
-				handlers.RespondError(w, http.StatusUnauthorized, "invalid or missing service key")
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
+	return httpware.RequireServiceKey(expected)
 }
 
 // NewOrderHandler constructs an OrderHandler instance.
