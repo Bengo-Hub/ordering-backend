@@ -16,7 +16,7 @@ require (
 	github.com/Bengo-Hub/shared-auth-client v0.4.1
 	github.com/Bengo-Hub/shared-events v0.7.4
 	github.com/Bengo-Hub/shared-ratelimit v0.2.1
-	github.com/Bengo-Hub/shared-service-client v0.3.1
+	github.com/Bengo-Hub/shared-service-client v0.4.0
 	github.com/go-chi/chi/v5 v5.3.2
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
