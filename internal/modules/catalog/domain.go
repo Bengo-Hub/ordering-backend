@@ -183,6 +183,11 @@ type CatalogFilter struct {
 	// Sort is an opaque, whitelisted sort key for the storefront (not inventory-api's raw
 	// column name) — currently only "newest" is recognized. Empty means default order.
 	Sort string
+	// InventoryIDs keeps only these inventory items (deal cards resolving a promotion's
+	// item-scoped rule). CategoryIDs keeps only items whose category is one of these (a
+	// category-scoped rule). Both empty means no restriction.
+	InventoryIDs []uuid.UUID
+	CategoryIDs  []uuid.UUID
 }
 
 // OverrideUpsertRequest is the request payload for creating/updating a CatalogOverride.

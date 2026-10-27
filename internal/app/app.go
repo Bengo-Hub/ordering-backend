@@ -315,7 +315,9 @@ func New(ctx context.Context) (*App, error) {
 	// Platform marketplace directory (no tenant slug — the root landing page) — thin
 	// read-through proxy over auth-api's public tenant directory.
 	marketplaceClient := marketplace.NewClient(cfg.Auth.ServiceURL, cfg.Auth.AuthServiceAPIKey, log)
-	marketplaceHandler := marketplacehandler.New(log, marketplaceClient, cacheSvc)
+	// The deals feed reads every listed store's live promotions from pos-api in one call and
+	// resolves them to products through the same cached catalogue proxy the storefront uses.
+	marketplaceHandler := marketplacehandler.New(log, marketplaceClient, posDiscountsClient, catalogProxySvc, cacheSvc)
 	feeSvc := ordering.NewFeeService(orderingRepo, log)
 	addressSvc := ordering.NewAddressService(orderingRepo, log)
 	orderSvc := ordering.NewOrderService(orderingRepo, cartSvc, promoSvc, loyaltySvc, feeSvc, inventoryClient, subscriptionsClient, catalogProxySvc, log)

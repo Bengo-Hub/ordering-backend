@@ -191,6 +191,7 @@ func New(
 			// which make sense for a route with no single tenant in scope.
 			if marketplaceHandler != nil {
 				v1.Get("/marketplace/tenants", marketplaceHandler.ListTenants)
+				v1.Get("/marketplace/deals", marketplaceHandler.ListDeals)
 			}
 
 			// Tenant-scoped routes

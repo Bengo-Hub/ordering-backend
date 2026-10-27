@@ -59,11 +59,17 @@ func (c *Client) Enabled() bool { return c != nil && c.apiKey != "" }
 // for cross-service reuse (inventory-api's menu-engineering/variance reports already consume the
 // same endpoint the same way). Best-effort: on any failure this logs and returns an empty slice,
 // never an error, so a pos-api hiccup never breaks the storefront's "Top Deals" rail.
-func (c *Client) SalesBySKU(ctx context.Context, tenantID uuid.UUID, from, to string) []SKURow {
+//
+// limit > 0 asks pos-api for only the top rows by quantity sold (ranked in its SQL), so a
+// best-sellers rail does not download every SKU the shop has ever sold; 0 returns all rows.
+func (c *Client) SalesBySKU(ctx context.Context, tenantID uuid.UUID, from, to string, limit int) []SKURow {
 	if !c.Enabled() {
 		return nil
 	}
 	u := fmt.Sprintf("%s/api/v1/s2s/%s/pos/sales/by-sku?from=%s&to=%s", c.baseURL, tenantID.String(), from, to)
+	if limit > 0 {
+		u += fmt.Sprintf("&order=quantity&limit=%d", limit)
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		c.log.Warn("posreports: build request failed", zap.Error(err))

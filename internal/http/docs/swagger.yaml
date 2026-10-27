@@ -847,18 +847,91 @@ definitions:
       name:
         type: string
     type: object
+  marketplace.BannerTile:
+    properties:
+      banner:
+        $ref: '#/definitions/posdiscounts.StorefrontBannerUI'
+      end_at:
+        type: string
+      is_flash_sale:
+        type: boolean
+      name:
+        type: string
+      promo_id:
+        type: string
+      store:
+        $ref: '#/definitions/marketplace.StoreRef'
+    type: object
+  marketplace.DealCard:
+    properties:
+      item:
+        $ref: '#/definitions/marketplace.DealItem'
+      promotion:
+        $ref: '#/definitions/posdiscounts.Discount'
+      store:
+        $ref: '#/definitions/marketplace.StoreRef'
+    type: object
+  marketplace.DealItem:
+    properties:
+      available_quantity:
+        type: number
+      currency:
+        type: string
+      image_url:
+        type: string
+      inventory_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+    type: object
+  marketplace.DealsResponse:
+    properties:
+      banners:
+        items:
+          $ref: '#/definitions/marketplace.BannerTile'
+        type: array
+      deals:
+        items:
+          $ref: '#/definitions/marketplace.DealCard'
+        type: array
+    type: object
   marketplace.ListTenantsResponse:
     properties:
       data:
         items:
           $ref: '#/definitions/marketplace.TenantSummary'
         type: array
+      hasMore:
+        type: boolean
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  marketplace.StoreRef:
+    properties:
+      logo_url:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      use_case:
+        type: string
     type: object
   marketplace.TenantSummary:
     properties:
       brand_colors:
-        additionalProperties:
-          type: string
+        additionalProperties: {}
+        description: |-
+          BrandColors is free-form JSON on the tenant (hex strings in practice). Decoded loosely so
+          one tenant with a non-string value cannot fail the whole directory.
         type: object
       country:
         type: string
@@ -2218,6 +2291,17 @@ definitions:
         type: string
       id:
         type: string
+      is_flash_sale:
+        description: |-
+          IsFlashSale lets the storefront's "Top Deals" grid give flash-sale items distinct
+          countdown treatment (not just the separate banner carousel, which already reads its own
+          copy of this flag). Sourced from Promotion.metadata["banner"]["is_flash_sale"] via
+          UnmarshalJSON below rather than a top-level API field — metadata is a loosely-typed blob
+          pos-api's own discount-calc code also stores unrelated keys in, so this stays scoped to
+          just the one nested value the storefront needs.
+          Serialized as is_flash_sale for the storefront. It was `json:"-"` until 2026-10-27, so the
+          deal cards never received it and their flash-sale countdown could not show.
+        type: boolean
       name:
         type: string
       rule:
@@ -2236,6 +2320,21 @@ definitions:
             type: string
         type: object
       start_at:
+        type: string
+    type: object
+  posdiscounts.StorefrontBannerUI:
+    properties:
+      banner_color:
+        type: string
+      banner_image_url:
+        type: string
+      banner_subtitle:
+        type: string
+      banner_title:
+        type: string
+      show_on_storefront:
+        type: boolean
+      text_color:
         type: string
     type: object
   posreports.SKURow:
@@ -2351,7 +2450,7 @@ paths:
       - Promotions
   /{tenant}/promotions/deals:
     get:
-      description: Active, in-window discounts for the ordering storefront's Top Deals
+      description: Active, in-window discounts for the ordering storefront's deals
         grid
       parameters:
       - description: Tenant slug
@@ -2368,13 +2467,13 @@ paths:
             items:
               $ref: '#/definitions/posdiscounts.Discount'
             type: array
-      summary: List storefront "Top Deals"
+      summary: List storefront deals
       tags:
       - Promotions
   /{tenant}/promotions/top-sellers:
     get:
-      description: Units sold per SKU over the trailing 90 days, for the storefront's
-        Top Deals rail
+      description: Top units sold per SKU over the trailing 90 days, for the storefront's
+        best-sellers rail
       parameters:
       - description: Tenant slug
         in: path
@@ -4820,10 +4919,23 @@ paths:
       summary: Get loyalty transactions
       tags:
       - Loyalty
+  /marketplace/deals:
+    get:
+      description: Products on live promotions across stores, and store banners
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/marketplace.DealsResponse'
+      summary: List marketplace deals
+      tags:
+      - Marketplace
   /marketplace/tenants:
     get:
-      description: Active, non-demo tenants ranked by subscription tier, for the platform
-        landing page
+      description: Active, non-demo tenants with a storefront, ranked by subscription
+        tier
       parameters:
       - description: Filter by tenant use_case
         in: query
@@ -4833,7 +4945,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: Page size (default 20, max 50)
+      - description: Page size (default 24, max 50)
         in: query
         name: limit
         type: integer

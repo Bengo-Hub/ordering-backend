@@ -6,6 +6,7 @@ import (
 	sharedcache "github.com/Bengo-Hub/cache"
 	"github.com/Bengo-Hub/httpware/objectstore"
 	"math"
+	"slices"
 	"strings"
 	"time"
 
@@ -198,6 +199,12 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		// its sub-categories (a "Wines" section lists Red/White/House Wine items). An exact-match
 		// check would drop every item that lives in a sub-section.
 		if filter.BrandID != nil && (item.BrandID == nil || *item.BrandID != *filter.BrandID) {
+			continue
+		}
+		if len(filter.InventoryIDs) > 0 && !slices.Contains(filter.InventoryIDs, item.InventoryID) {
+			continue
+		}
+		if len(filter.CategoryIDs) > 0 && (item.CategoryID == nil || !slices.Contains(filter.CategoryIDs, *item.CategoryID)) {
 			continue
 		}
 

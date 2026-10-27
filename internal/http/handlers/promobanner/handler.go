@@ -1,15 +1,16 @@
-// Package promobanner exposes the storefront-facing promotions banner endpoint. It is a thin
-// read-through proxy over pos-api's Promotion records (the platform's discount source of truth) —
-// this package owns NO discount data of its own.
+// Package promobanner exposes the storefront-facing promotions endpoints. They are thin
+// read-through proxies over pos-api's Promotion records and sales aggregates (the platform's
+// discount source of truth); this package owns NO discount data of its own.
 package promobanner
 
 import (
 	"context"
-	sharedcache "github.com/Bengo-Hub/cache"
 	"net/http"
 	"time"
 
+	sharedcache "github.com/Bengo-Hub/cache"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/bengobox/ordering-backend/internal/ent"
@@ -19,12 +20,19 @@ import (
 	"github.com/bengobox/ordering-backend/internal/platform/posreports"
 )
 
-// bannerCacheTTL is short — a public, anonymous, high-traffic endpoint should never hammer
-// pos-api on every storefront page load, but banner edits should still show up quickly.
-const bannerCacheTTL = 2 * time.Minute
+// cacheTTL is short: these are public, anonymous, high-traffic endpoints that must never hit
+// pos-api on every storefront page load, while promotion edits still show up quickly.
+const cacheTTL = 2 * time.Minute
 
-// Handler serves GET /{tenant}/promotions/banners (public, no auth — same class of route as
-// /config and /outlets).
+// topSellersWindowDays is the trailing sales window used to rank "best sellers" for the
+// storefront's best-sellers rail. 90 days is a "currently trending" horizon.
+const topSellersWindowDays = 90
+
+// topSellersLimit is how many best sellers the rail can use; pos-api ranks and cuts them in SQL.
+const topSellersLimit = 40
+
+// Handler serves GET /{tenant}/promotions/{banners,deals,top-sellers} (public, no auth: the same
+// class of route as /config and /outlets).
 type Handler struct {
 	log     *zap.Logger
 	db      *ent.Client
@@ -33,15 +41,15 @@ type Handler struct {
 	cache   *sharedcache.Aside
 }
 
-// New constructs the promotions banner handler. cache may be nil (caching then no-ops, every
-// request hits pos-api directly). reports may be nil (ListTopSellers then always returns empty).
+// New constructs the promotions handler. cache may be nil (every request then hits pos-api
+// directly). reports may be nil (ListTopSellers then always returns empty).
 func New(log *zap.Logger, db *ent.Client, client *posdiscounts.Client, reports *posreports.Client, c *sharedcache.Aside) *Handler {
 	return &Handler{log: log.Named("promobanner.Handler"), db: db, client: client, reports: reports, cache: c}
 }
 
 // ListBanners returns the active storefront-flagged promotions for the tenant in the URL,
-// optionally filtered by `?use_case=` (the browsed outlet's vertical — empty/omitted returns
-// every use_case-unscoped banner). Always 200s with a (possibly empty) array — a promotions
+// optionally filtered by `?use_case=` (the browsed outlet's vertical; empty returns every
+// use_case-unscoped banner). Always 200s with a (possibly empty) array: a promotions
 // integration hiccup must never break the storefront homepage.
 // @Summary List storefront promotion banners
 // @Description Active promotions flagged to appear on the ordering storefront homepage
@@ -57,50 +65,21 @@ func (h *Handler) ListBanners(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "tenant slug required")
 		return
 	}
-	ctx := r.Context()
-
-	t, err := h.db.Tenant.Query().Where(tenant.SlugEQ(slug)).Only(ctx)
-	if err != nil {
-		// A tenant that hasn't synced locally yet simply has no banners — not an error the
-		// customer-facing homepage should surface.
-		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Banner{})
-		return
-	}
-
-	useCase := r.URL.Query().Get("use_case")
 	if !h.client.Enabled() {
 		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Banner{})
 		return
 	}
-
-	cacheKey := "ordering:promo-banners:" + t.ID.String() + ":" + useCase
-	var banners []posdiscounts.Banner
-	if h.cache != nil {
-		var err error
-		banners, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, bannerCacheTTL, func(ctx context.Context) ([]posdiscounts.Banner, error) {
-			return h.client.ListBanners(ctx, t.ID, useCase), nil
-		})
-		if err != nil {
-			h.log.Warn("promobanner: cache/fetch failed, falling back to direct call", zap.Error(err))
-			banners = h.client.ListBanners(ctx, t.ID, useCase)
-		}
-	} else {
-		banners = h.client.ListBanners(ctx, t.ID, useCase)
-	}
-	if banners == nil {
-		banners = []posdiscounts.Banner{}
-	}
+	useCase := r.URL.Query().Get("use_case")
+	banners := cachedBySlug(r.Context(), h, "ordering:promo-banners:"+slug+":"+useCase, slug, func(ctx context.Context, tenantID uuid.UUID) []posdiscounts.Banner {
+		return h.client.ListBanners(ctx, tenantID, useCase)
+	})
 	handlers.RespondJSON(w, http.StatusOK, banners)
 }
 
-// dealsCacheTTL matches bannerCacheTTL — same class of public, high-traffic, edit-should-show-up
-// -quickly endpoint.
-const dealsCacheTTL = bannerCacheTTL
-
-// ListDeals returns active, currently-in-window discounts for the tenant's "Top Deals" storefront
-// grid. Always 200s with a (possibly empty) array, same posture as ListBanners.
-// @Summary List storefront "Top Deals"
-// @Description Active, in-window discounts for the ordering storefront's Top Deals grid
+// ListDeals returns active, currently-in-window discounts for the tenant's deals grid. Always
+// 200s with a (possibly empty) array, same posture as ListBanners.
+// @Summary List storefront deals
+// @Description Active, in-window discounts for the ordering storefront's deals grid
 // @Tags Promotions
 // @Produce json
 // @Param tenant path string true "Tenant slug"
@@ -112,56 +91,20 @@ func (h *Handler) ListDeals(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "tenant slug required")
 		return
 	}
-	ctx := r.Context()
-
-	t, err := h.db.Tenant.Query().Where(tenant.SlugEQ(slug)).Only(ctx)
-	if err != nil {
-		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Discount{})
-		return
-	}
-
 	if !h.client.Enabled() {
 		handlers.RespondJSON(w, http.StatusOK, []posdiscounts.Discount{})
 		return
 	}
-
-	cacheKey := "ordering:promo-deals:" + t.ID.String()
-	var deals []posdiscounts.Discount
-	if h.cache != nil {
-		var err error
-		deals, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, dealsCacheTTL, func(ctx context.Context) ([]posdiscounts.Discount, error) {
-			return h.client.ListDeals(ctx, t.ID), nil
-		})
-		if err != nil {
-			h.log.Warn("promobanner: deals cache/fetch failed, falling back to direct call", zap.Error(err))
-			deals = h.client.ListDeals(ctx, t.ID)
-		}
-	} else {
-		deals = h.client.ListDeals(ctx, t.ID)
-	}
-	if deals == nil {
-		deals = []posdiscounts.Discount{}
-	}
+	deals := cachedBySlug(r.Context(), h, "ordering:promo-deals:"+slug, slug, h.client.ListDeals)
 	handlers.RespondJSON(w, http.StatusOK, deals)
 }
 
-// topSellersCacheTTL matches bannerCacheTTL — a public, high-traffic endpoint should never
-// hammer pos-api's order-scanning aggregate on every storefront page load.
-const topSellersCacheTTL = bannerCacheTTL
-
-// topSellersWindowDays is the trailing sales window used to rank "best sellers" for the
-// storefront's real "Top Deals" rail (redefined 2026-09-14 to mean best-sellers, not discounts —
-// see FlashSaleStrip for the discount-driven rail). 90 days is a reasonable "currently trending"
-// horizon; easy to change later, it's the only place this constant lives.
-const topSellersWindowDays = 90
-
-// ListTopSellers returns units-sold-per-SKU for the tenant's real completed sales over the
-// trailing topSellersWindowDays — the storefront merges this against its already-loaded catalog
-// items client-side (same "fetch a bounded item page + cross-reference a pos-api aggregate"
-// pattern ListDeals's caller already uses for discount matching) to build a genuine best-sellers
-// rail. Always 200s with a (possibly empty) array, same posture as ListBanners/ListDeals.
+// ListTopSellers returns units sold per SKU from the tenant's real completed sales over the
+// trailing topSellersWindowDays, best first and at most topSellersLimit rows (ranked by pos-api).
+// The storefront matches them against its loaded catalog items to build a real best-sellers rail.
+// Always 200s with a (possibly empty) array.
 // @Summary List real best-selling SKUs
-// @Description Units sold per SKU over the trailing 90 days, for the storefront's Top Deals rail
+// @Description Top units sold per SKU over the trailing 90 days, for the storefront's best-sellers rail
 // @Tags Promotions
 // @Produce json
 // @Param tenant path string true "Tenant slug"
@@ -173,39 +116,45 @@ func (h *Handler) ListTopSellers(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "tenant slug required")
 		return
 	}
-	ctx := r.Context()
-
-	t, err := h.db.Tenant.Query().Where(tenant.SlugEQ(slug)).Only(ctx)
-	if err != nil {
-		handlers.RespondJSON(w, http.StatusOK, []posreports.SKURow{})
-		return
-	}
-
 	if h.reports == nil || !h.reports.Enabled() {
 		handlers.RespondJSON(w, http.StatusOK, []posreports.SKURow{})
 		return
 	}
-
-	now := time.Now()
-	from := now.AddDate(0, 0, -topSellersWindowDays).Format("2006-01-02")
-	to := now.Format("2006-01-02")
-
-	cacheKey := "ordering:promo-top-sellers:" + t.ID.String()
-	var rows []posreports.SKURow
-	if h.cache != nil {
-		var err error
-		rows, err = sharedcache.GetOrSet(ctx, h.cache, cacheKey, topSellersCacheTTL, func(ctx context.Context) ([]posreports.SKURow, error) {
-			return h.reports.SalesBySKU(ctx, t.ID, from, to), nil
-		})
-		if err != nil {
-			h.log.Warn("promobanner: top-sellers cache/fetch failed, falling back to direct call", zap.Error(err))
-			rows = h.reports.SalesBySKU(ctx, t.ID, from, to)
-		}
-	} else {
-		rows = h.reports.SalesBySKU(ctx, t.ID, from, to)
-	}
-	if rows == nil {
-		rows = []posreports.SKURow{}
-	}
+	rows := cachedBySlug(r.Context(), h, "ordering:promo-top-sellers:"+slug, slug, func(ctx context.Context, tenantID uuid.UUID) []posreports.SKURow {
+		now := time.Now()
+		from := now.AddDate(0, 0, -topSellersWindowDays).Format("2006-01-02")
+		return h.reports.SalesBySKU(ctx, tenantID, from, now.Format("2006-01-02"), topSellersLimit)
+	})
 	handlers.RespondJSON(w, http.StatusOK, rows)
+}
+
+// cachedBySlug serves a per-tenant promotions read from the cache keyed by slug, so a hit costs
+// neither a tenant lookup nor a pos-api call. On a miss it resolves the slug to the local tenant
+// (one that has not synced yet simply has nothing to show) and runs fetch. Never returns nil, so
+// the JSON is [] not null.
+func cachedBySlug[T any](ctx context.Context, h *Handler, key, slug string, fetch func(context.Context, uuid.UUID) []T) []T {
+	load := func(ctx context.Context) ([]T, error) {
+		t, err := h.db.Tenant.Query().Where(tenant.SlugEQ(slug)).Only(ctx)
+		if err != nil {
+			return []T{}, nil
+		}
+		out := fetch(ctx, t.ID)
+		if out == nil {
+			out = []T{}
+		}
+		return out, nil
+	}
+	if h.cache == nil {
+		out, _ := load(ctx)
+		return out
+	}
+	out, err := sharedcache.GetOrSet(ctx, h.cache, key, cacheTTL, load)
+	if err != nil {
+		h.log.Warn("promobanner: cache read failed, loading directly", zap.String("key", key), zap.Error(err))
+		out, _ = load(ctx)
+	}
+	if out == nil {
+		out = []T{}
+	}
+	return out
 }

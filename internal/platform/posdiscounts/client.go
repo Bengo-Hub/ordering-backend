@@ -70,7 +70,9 @@ type Discount struct {
 	// UnmarshalJSON below rather than a top-level API field — metadata is a loosely-typed blob
 	// pos-api's own discount-calc code also stores unrelated keys in, so this stays scoped to
 	// just the one nested value the storefront needs.
-	IsFlashSale bool `json:"-"`
+	// Serialized as is_flash_sale for the storefront. It was `json:"-"` until 2026-10-27, so the
+	// deal cards never received it and their flash-sale countdown could not show.
+	IsFlashSale bool `json:"is_flash_sale"`
 }
 
 // UnmarshalJSON decodes the standard Discount fields, then best-effort extracts
@@ -156,6 +158,89 @@ func (c *Client) ListBanners(ctx context.Context, tenantID uuid.UUID, useCase st
 		return nil
 	}
 	return out
+}
+
+// StorefrontPromotion is one live, storefront-flagged promotion of some tenant, from pos-api's
+// cross-tenant GET /api/v1/s2s/storefront/discounts.
+type StorefrontPromotion struct {
+	Discount
+	TenantID string             `json:"tenant_id"`
+	Banner   StorefrontBannerUI `json:"banner"`
+}
+
+// StorefrontBannerUI is the presentation part of metadata.banner a marketplace tile needs.
+type StorefrontBannerUI struct {
+	ShowOnStorefront bool   `json:"show_on_storefront"`
+	Title            string `json:"banner_title,omitempty"`
+	Subtitle         string `json:"banner_subtitle,omitempty"`
+	ImageURL         string `json:"banner_image_url,omitempty"`
+	BannerColor      string `json:"banner_color,omitempty"`
+	TextColor        string `json:"text_color,omitempty"`
+}
+
+// UnmarshalJSON decodes the discount part through Discount's own decoder (an embedded type's
+// UnmarshalJSON would otherwise take over the whole value and drop tenant_id), then tenant_id
+// and metadata.banner.
+func (p *StorefrontPromotion) UnmarshalJSON(data []byte) error {
+	if err := json.Unmarshal(data, &p.Discount); err != nil {
+		return err
+	}
+	var extra struct {
+		TenantID string `json:"tenant_id"`
+		Metadata struct {
+			Banner StorefrontBannerUI `json:"banner"`
+		} `json:"metadata"`
+	}
+	if err := json.Unmarshal(data, &extra); err != nil {
+		return err
+	}
+	p.TenantID = extra.TenantID
+	p.Banner = extra.Metadata.Banner
+	return nil
+}
+
+// MarshalJSON writes the flat storefront shape (discount fields plus tenant_id and banner);
+// without it the embedded Discount would be the only thing serialized.
+func (p StorefrontPromotion) MarshalJSON() ([]byte, error) {
+	type flat struct {
+		Discount
+		TenantID string             `json:"tenant_id"`
+		Banner   StorefrontBannerUI `json:"banner"`
+	}
+	return json.Marshal(flat{Discount: p.Discount, TenantID: p.TenantID, Banner: p.Banner})
+}
+
+// ListStorefront returns the live storefront promotions (banners and flash sales) of many tenants
+// in one pos-api call, soonest ending first. Best-effort like ListDeals: failures give nil.
+func (c *Client) ListStorefront(ctx context.Context, tenantIDs []string) []StorefrontPromotion {
+	if !c.Enabled() || len(tenantIDs) == 0 {
+		return nil
+	}
+	u := fmt.Sprintf("%s/api/v1/s2s/storefront/discounts?tenant_ids=%s", c.baseURL, url.QueryEscape(strings.Join(tenantIDs, ",")))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		c.log.Warn("posdiscounts: build storefront request failed", zap.Error(err))
+		return nil
+	}
+	req.Header.Set("X-API-Key", c.apiKey)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		c.log.Warn("posdiscounts: storefront request failed", zap.Error(err))
+		return nil
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		c.log.Warn("posdiscounts: storefront unexpected status", zap.Int("status", resp.StatusCode))
+		return nil
+	}
+	var envelope struct {
+		Data []StorefrontPromotion `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&envelope); err != nil {
+		c.log.Warn("posdiscounts: storefront decode failed", zap.Error(err))
+		return nil
+	}
+	return envelope.Data
 }
 
 // ListDeals returns active, currently-in-window discounts for a "Top Deals" storefront grid.

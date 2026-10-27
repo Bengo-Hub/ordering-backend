@@ -3655,9 +3655,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/marketplace/deals": {
+            "get": {
+                "description": "Products on live promotions across stores, and store banners",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "List marketplace deals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/marketplace.DealsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/marketplace/tenants": {
             "get": {
-                "description": "Active, non-demo tenants ranked by subscription tier, for the platform landing page",
+                "description": "Active, non-demo tenants with a storefront, ranked by subscription tier",
                 "produces": [
                     "application/json"
                 ],
@@ -3680,7 +3700,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page size (default 20, max 50)",
+                        "description": "Page size (default 24, max 50)",
                         "name": "limit",
                         "in": "query"
                     }
@@ -5382,14 +5402,14 @@ const docTemplate = `{
         },
         "/{tenant}/promotions/deals": {
             "get": {
-                "description": "Active, in-window discounts for the ordering storefront's Top Deals grid",
+                "description": "Active, in-window discounts for the ordering storefront's deals grid",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Promotions"
                 ],
-                "summary": "List storefront \"Top Deals\"",
+                "summary": "List storefront deals",
                 "parameters": [
                     {
                         "type": "string",
@@ -5414,7 +5434,7 @@ const docTemplate = `{
         },
         "/{tenant}/promotions/top-sellers": {
             "get": {
-                "description": "Units sold per SKU over the trailing 90 days, for the storefront's Top Deals rail",
+                "description": "Top units sold per SKU over the trailing 90 days, for the storefront's best-sellers rail",
                 "produces": [
                     "application/json"
                 ],
@@ -6617,6 +6637,86 @@ const docTemplate = `{
                 }
             }
         },
+        "marketplace.BannerTile": {
+            "type": "object",
+            "properties": {
+                "banner": {
+                    "$ref": "#/definitions/posdiscounts.StorefrontBannerUI"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "is_flash_sale": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "promo_id": {
+                    "type": "string"
+                },
+                "store": {
+                    "$ref": "#/definitions/marketplace.StoreRef"
+                }
+            }
+        },
+        "marketplace.DealCard": {
+            "type": "object",
+            "properties": {
+                "item": {
+                    "$ref": "#/definitions/marketplace.DealItem"
+                },
+                "promotion": {
+                    "$ref": "#/definitions/posdiscounts.Discount"
+                },
+                "store": {
+                    "$ref": "#/definitions/marketplace.StoreRef"
+                }
+            }
+        },
+        "marketplace.DealItem": {
+            "type": "object",
+            "properties": {
+                "available_quantity": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "inventory_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "marketplace.DealsResponse": {
+            "type": "object",
+            "properties": {
+                "banners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.BannerTile"
+                    }
+                },
+                "deals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.DealCard"
+                    }
+                }
+            }
+        },
         "marketplace.ListTenantsResponse": {
             "type": "object",
             "properties": {
@@ -6625,6 +6725,35 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/marketplace.TenantSummary"
                     }
+                },
+                "hasMore": {
+                    "type": "boolean"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "marketplace.StoreRef": {
+            "type": "object",
+            "properties": {
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "use_case": {
+                    "type": "string"
                 }
             }
         },
@@ -6632,10 +6761,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "brand_colors": {
+                    "description": "BrandColors is free-form JSON on the tenant (hex strings in practice). Decoded loosely so\none tenant with a non-string value cannot fail the whole directory.",
                     "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                    "additionalProperties": {}
                 },
                 "country": {
                     "type": "string"
@@ -8625,6 +8753,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "is_flash_sale": {
+                    "description": "IsFlashSale lets the storefront's \"Top Deals\" grid give flash-sale items distinct\ncountdown treatment (not just the separate banner carousel, which already reads its own\ncopy of this flag). Sourced from Promotion.metadata[\"banner\"][\"is_flash_sale\"] via\nUnmarshalJSON below rather than a top-level API field — metadata is a loosely-typed blob\npos-api's own discount-calc code also stores unrelated keys in, so this stays scoped to\njust the one nested value the storefront needs.\nSerialized as is_flash_sale for the storefront. It was ` + "`" + `json:\"-\"` + "`" + ` until 2026-10-27, so the\ndeal cards never received it and their flash-sale countdown could not show.",
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -8652,6 +8784,29 @@ const docTemplate = `{
                     }
                 },
                 "start_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "posdiscounts.StorefrontBannerUI": {
+            "type": "object",
+            "properties": {
+                "banner_color": {
+                    "type": "string"
+                },
+                "banner_image_url": {
+                    "type": "string"
+                },
+                "banner_subtitle": {
+                    "type": "string"
+                },
+                "banner_title": {
+                    "type": "string"
+                },
+                "show_on_storefront": {
+                    "type": "boolean"
+                },
+                "text_color": {
                     "type": "string"
                 }
             }

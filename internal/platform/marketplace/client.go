@@ -19,15 +19,32 @@ import (
 // TenantSummary is one tenant row from auth-api's GET /api/v1/tenants/marketplace — only the
 // public/safe fields a marketplace listing card needs.
 type TenantSummary struct {
-	ID               string            `json:"id"`
-	Slug             string            `json:"slug"`
-	Name             string            `json:"name"`
-	LogoURL          string            `json:"logo_url,omitempty"`
-	BrandColors      map[string]string `json:"brand_colors,omitempty"`
-	UseCase          string            `json:"use_case,omitempty"`
-	UseCases         []string          `json:"use_cases,omitempty"`
-	SubscriptionPlan string            `json:"subscription_plan,omitempty"`
-	Country          string            `json:"country,omitempty"`
+	ID      string `json:"id"`
+	Slug    string `json:"slug"`
+	Name    string `json:"name"`
+	LogoURL string `json:"logo_url,omitempty"`
+	// BrandColors is free-form JSON on the tenant (hex strings in practice). Decoded loosely so
+	// one tenant with a non-string value cannot fail the whole directory.
+	BrandColors      map[string]any `json:"brand_colors,omitempty"`
+	UseCase          string         `json:"use_case,omitempty"`
+	UseCases         []string       `json:"use_cases,omitempty"`
+	SubscriptionPlan string         `json:"subscription_plan,omitempty"`
+	Country          string         `json:"country,omitempty"`
+}
+
+// Query narrows the directory. UseCase keeps one vertical; UseCases keeps tenants with any of
+// them (auth-api matches both in SQL, so Total counts exactly the matching tenants).
+type Query struct {
+	UseCase  string
+	UseCases []string
+	Page     int
+	Limit    int
+}
+
+// Page is one page of the directory with the full match count.
+type Page struct {
+	Data  []TenantSummary `json:"data"`
+	Total int             `json:"total"`
 }
 
 // Client calls auth-api's public marketplace tenant-directory endpoint.
@@ -51,66 +68,49 @@ func NewClient(baseURL, apiKey string, log *zap.Logger) *Client {
 	}
 }
 
-// ListTenants fetches marketplace-visible tenants (active, non-demo), optionally filtered by
-// use_case, paginated. Best-effort: on any failure it logs and returns an empty slice, never an
-// error — a directory-service hiccup must never break the marketplace landing page (it should
-// degrade to an empty/skeleton state, not a 500).
-func (c *Client) ListTenants(ctx context.Context, useCase string, page, limit int) []TenantSummary {
+// ListTenants fetches one page of marketplace-visible tenants (active, non-demo, ranked by plan
+// tier by auth-api). An error means the directory could not be read; callers decide how to
+// degrade (the landing page shows an empty state rather than a 500).
+func (c *Client) ListTenants(ctx context.Context, q Query) (Page, error) {
 	if c.baseURL == "" {
-		return nil
+		return Page{Data: []TenantSummary{}}, nil
 	}
-	q := url.Values{}
-	if useCase = strings.TrimSpace(useCase); useCase != "" {
-		q.Set("use_case", useCase)
+	v := url.Values{}
+	if uc := strings.TrimSpace(q.UseCase); uc != "" {
+		v.Set("use_case", uc)
 	}
-	if page > 0 {
-		q.Set("page", strconv.Itoa(page))
+	if len(q.UseCases) > 0 {
+		v.Set("use_cases", strings.Join(q.UseCases, ","))
 	}
-	if limit > 0 {
-		q.Set("limit", strconv.Itoa(limit))
+	if q.Page > 0 {
+		v.Set("page", strconv.Itoa(q.Page))
 	}
-	u := fmt.Sprintf("%s/api/v1/tenants/marketplace", c.baseURL)
-	if enc := q.Encode(); enc != "" {
-		u += "?" + enc
+	if q.Limit > 0 {
+		v.Set("limit", strconv.Itoa(q.Limit))
 	}
+	u := fmt.Sprintf("%s/api/v1/tenants/marketplace?%s", c.baseURL, v.Encode())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		c.log.Warn("marketplace: build request failed", zap.Error(err))
-		return nil
+		return Page{}, fmt.Errorf("marketplace: build request: %w", err)
 	}
 	if c.apiKey != "" {
 		req.Header.Set("X-API-Key", c.apiKey)
 	}
-
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Warn("marketplace: request failed", zap.Error(err))
-		return nil
+		return Page{}, fmt.Errorf("marketplace: request: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		c.log.Warn("marketplace: unexpected status", zap.Int("status", resp.StatusCode))
-		return nil
+		return Page{}, fmt.Errorf("marketplace: auth-api answered %d", resp.StatusCode)
 	}
-
-	// Accept either a bare array or a {data: [...]} envelope — mirrors the tolerant decoding
-	// already used elsewhere in this codebase for cross-service list endpoints.
-	var raw json.RawMessage
-	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
-		c.log.Warn("marketplace: decode failed", zap.Error(err))
-		return nil
+	var page Page
+	if err := json.NewDecoder(resp.Body).Decode(&page); err != nil {
+		return Page{}, fmt.Errorf("marketplace: decode: %w", err)
 	}
-	var direct []TenantSummary
-	if err := json.Unmarshal(raw, &direct); err == nil {
-		return direct
+	if page.Data == nil {
+		page.Data = []TenantSummary{}
 	}
-	var enveloped struct {
-		Data []TenantSummary `json:"data"`
-	}
-	if err := json.Unmarshal(raw, &enveloped); err == nil {
-		return enveloped.Data
-	}
-	c.log.Warn("marketplace: response did not match array or {data:[]} envelope")
-	return nil
+	return page, nil
 }
