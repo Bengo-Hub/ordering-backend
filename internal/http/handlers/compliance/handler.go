@@ -30,9 +30,9 @@ func NewHandler(logger *zap.Logger, complianceSvc *compliance.Service) *Handler 
 	}
 }
 
-// Register registers the compliance routes.
+// Register registers the compliance routes on the tenant router (already under /api/v1/{tenant}).
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
-	r.Route("/{tenant}/compliance", func(cr chi.Router) {
+	r.Route("/compliance", func(cr chi.Router) {
 		cr.Use(auth.RequireAuth)
 
 		// Data Subject Requests

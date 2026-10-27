@@ -31,9 +31,9 @@ func NewHandler(logger *zap.Logger, analyticsSvc *analytics.Service) *Handler {
 	}
 }
 
-// Register registers the analytics routes.
+// Register registers the analytics routes on the tenant router (already under /api/v1/{tenant}).
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
-	r.Route("/{tenant}/analytics", func(ar chi.Router) {
+	r.Route("/analytics", func(ar chi.Router) {
 		ar.Use(auth.RequireAuth)
 		ar.Use(authclient.RequirePlan("PROFESSIONAL"))
 		ar.Use(subscriptions.RequireFeature("advanced_analytics"))

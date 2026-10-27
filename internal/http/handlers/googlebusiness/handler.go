@@ -35,9 +35,10 @@ func NewHandler(logger *zap.Logger, svc *googlebusiness.Service) *Handler {
 }
 
 // Register mounts the admin (auth-protected) and public callback routes.
-// The public callback + review-url paths are exempted from auth in router.go.
+// The public callback + review-url paths are exempted from auth in router.go. r is the tenant
+// router (already under /api/v1/{tenant}), so paths here carry no tenant segment of their own.
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
-	r.Route("/{tenant}/admin/integrations/google", func(g chi.Router) {
+	r.Route("/admin/integrations/google", func(g chi.Router) {
 		g.Use(auth.RequirePermissions(identity.PermissionAdminManage)) // ordering.config.manage
 		g.Get("/status", h.Status)
 		g.Get("/connect", h.Connect)
@@ -49,7 +50,7 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	})
 
 	// PUBLIC: Google redirects the operator's browser here after consent.
-	r.Get("/{tenant}/integrations/google/callback", h.Callback)
+	r.Get("/integrations/google/callback", h.Callback)
 }
 
 // notConfigured returns true (and writes a 503) when OAuth env is unset.
