@@ -471,13 +471,26 @@ without a browser ever calling pos-api directly.
 |---|---|---|---|
 | `GET /{tenant}/promotions/banners?use_case=` | `GET /api/v1/s2s/{tenant}/discounts/banners` | `internal/platform/posdiscounts` | Hero marketing banner carousel |
 | `GET /{tenant}/promotions/deals` | `GET /api/v1/s2s/{tenant}/discounts?status=active` | `internal/platform/posdiscounts` | Flash Sales rail (discount-driven; falls back to any item with a discount price set when nothing is flagged `is_flash_sale`) |
-| `GET /{tenant}/promotions/top-sellers` | `GET /api/v1/s2s/{tenant}/pos/sales/by-sku?from=&to=` | `internal/platform/posreports` (new, 2026-09-14) | Top Deals rail (real best-sellers by units sold, trailing 90 days — inventory-api's menu-engineering/variance reports already consume the same pos-api endpoint the same way) |
+| `GET /{tenant}/promotions/top-sellers` | `GET /api/v1/s2s/{tenant}/pos/sales/by-sku?from=&to=&order=quantity&limit=40` | `internal/platform/posreports` (new, 2026-09-14) | Best-sellers rail (real units sold, trailing 90 days, the top 40 ranked in pos-api's SQL since 2026-10-27; before, every SKU ever sold was downloaded) |
+| `GET /marketplace/deals` (2026-10-27, no tenant) | `GET /api/v1/s2s/storefront/discounts?tenant_ids=` | `internal/platform/posdiscounts` `ListStorefront` | Platform marketplace page: products on live promotions across the listed stores (soonest ending first, at most 12, at most 4 per store, interleaved) plus up to 4 store banners. One pos-api call for all stores, then one cached catalogue read per store with a deal (`CatalogFilter.InventoryIDs` / `CategoryIDs`). Each card carries the item price and the rule; the storefront prices it with the same `applyDeal` it uses on tenant pages. Empty when no store runs a promotion. |
 
-All three: `X-API-Key: {INTERNAL_SERVICE_KEY}` header, best-effort (return an empty array on any
+All of them: `X-API-Key: {INTERNAL_SERVICE_KEY}` header, best-effort (return an empty array on any
 pos-api failure — a promotions/reporting hiccup must never break the storefront homepage), and
-cached 2 minutes via `internal/platform/cache` (`promobanner.Handler`, one struct backing all
-three routes). `GET /{tenant}/catalog/brands` (`ProxyService.ListBrands`) is the equivalent proxy
+cached 2 minutes (`promobanner.Handler` and `marketplace.Handler`). Since 2026-10-27 the
+per-tenant reads are cached by slug, so a cache hit costs neither a tenant lookup nor a pos-api
+call. Deal JSON now carries `is_flash_sale` (it was `json:"-"` before, so the deal-card countdown
+never showed). `GET /{tenant}/catalog/brands` (`ProxyService.ListBrands`) is the equivalent proxy
 over inventory-api's `ItemBrand` master data, for the Top Brands row — no pos-api involved there.
+
+`GET /marketplace/tenants` reads auth-api's `GET /api/v1/tenants/marketplace` with
+`use_cases=` set to the storefront verticals, so auth-api filters and paginates in SQL and the
+response carries a real `total` and `hasMore` (before, ordering pulled a pool of 200 and filtered
+it in Go). Cached 60 seconds per page.
+
+Analytics (`/{tenant}/analytics/*`), compliance (`/{tenant}/compliance/*`) and Google Business
+(`/{tenant}/admin/integrations/google/*` and the OAuth callback) were mounted with the tenant
+twice (`/api/v1/{t}/{t}/...`) until 2026-10-27, so the admin pages calling them got 404s.
+`internal/http/router/tenant_routes_test.go` guards the paths.
 
 ---
 
