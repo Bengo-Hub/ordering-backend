@@ -183,11 +183,12 @@ type CatalogFilter struct {
 	// Sort is an opaque, whitelisted sort key for the storefront (not inventory-api's raw
 	// column name) — currently only "newest" is recognized. Empty means default order.
 	Sort string
-	// InventoryIDs keeps only these inventory items (deal cards resolving a promotion's
-	// item-scoped rule). CategoryIDs keeps only items whose category is one of these (a
-	// category-scoped rule). Both empty means no restriction.
-	InventoryIDs []uuid.UUID
-	CategoryIDs  []uuid.UUID
+	// SKUs keeps only these items and CategoryNames only items in these categories, both
+	// compared without case. They mirror how pos-api matches a promotion rule (item scope by
+	// SKU, category scope by category name), so deal cards resolve exactly the products the
+	// discount applies to at the till and at checkout. Both empty means no restriction.
+	SKUs          []string
+	CategoryNames []string
 }
 
 // OverrideUpsertRequest is the request payload for creating/updating a CatalogOverride.

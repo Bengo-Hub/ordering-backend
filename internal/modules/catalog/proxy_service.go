@@ -201,10 +201,10 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		if filter.BrandID != nil && (item.BrandID == nil || *item.BrandID != *filter.BrandID) {
 			continue
 		}
-		if len(filter.InventoryIDs) > 0 && !slices.Contains(filter.InventoryIDs, item.InventoryID) {
+		if len(filter.SKUs) > 0 && !containsFold(filter.SKUs, item.InventorySKU) {
 			continue
 		}
-		if len(filter.CategoryIDs) > 0 && (item.CategoryID == nil || !slices.Contains(filter.CategoryIDs, *item.CategoryID)) {
+		if len(filter.CategoryNames) > 0 && !containsFold(filter.CategoryNames, item.CategoryName) {
 			continue
 		}
 
@@ -215,6 +215,12 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	// customer can actually see.
 	pageItems, total := pageOf(merged, offset, limit)
 	return pageItems, total, nil
+}
+
+// containsFold reports whether list holds v, ignoring case and surrounding spaces.
+func containsFold(list []string, v string) bool {
+	v = strings.TrimSpace(v)
+	return v != "" && slices.ContainsFunc(list, func(s string) bool { return strings.EqualFold(strings.TrimSpace(s), v) })
 }
 
 // pageOf slices one page out of an already-filtered result and returns it with the full

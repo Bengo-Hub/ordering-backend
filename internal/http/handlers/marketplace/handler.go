@@ -304,27 +304,23 @@ func (h *Handler) storeDeals(ctx context.Context, st marketplace.TenantSummary, 
 	if err != nil {
 		return nil
 	}
-	var itemIDs, categoryIDs []uuid.UUID
+	// pos-api matches an item rule by SKU and a category rule by category name (no case), so the
+	// cards are resolved the same way: exactly the products the discount applies to at checkout.
+	var skus, categories []string
 	for _, p := range promos {
-		for _, raw := range p.Rule.ScopeIDs {
-			id, err := uuid.Parse(raw)
-			if err != nil {
-				continue
-			}
-			if p.Rule.ScopeType == "item" {
-				itemIDs = append(itemIDs, id)
-			} else {
-				categoryIDs = append(categoryIDs, id)
-			}
+		if p.Rule.ScopeType == "item" {
+			skus = append(skus, p.Rule.ScopeIDs...)
+		} else {
+			categories = append(categories, p.Rule.ScopeIDs...)
 		}
 	}
 	available := true
 	var items []catalog.MergedCatalogItem
 	for _, f := range []catalog.CatalogFilter{
-		{InventoryIDs: itemIDs, IsAvailable: &available, Limit: 50},
-		{CategoryIDs: categoryIDs, IsAvailable: &available, Limit: 50},
+		{SKUs: skus, IsAvailable: &available, Limit: 50},
+		{CategoryNames: categories, IsAvailable: &available, Limit: 50},
 	} {
-		if len(f.InventoryIDs) == 0 && len(f.CategoryIDs) == 0 {
+		if len(f.SKUs) == 0 && len(f.CategoryNames) == 0 {
 			continue
 		}
 		got, _, err := h.catalog.ListItems(ctx, st.Slug, tenantID, f)
@@ -345,13 +341,11 @@ func (h *Handler) storeDeals(ctx context.Context, st marketplace.TenantSummary, 
 			if used[it.InventoryID] || it.BasePrice <= 0 {
 				continue
 			}
-			match := false
+			key := it.CategoryName
 			if p.Rule.ScopeType == "item" {
-				match = slices.Contains(p.Rule.ScopeIDs, it.InventoryID.String())
-			} else if it.CategoryID != nil {
-				match = slices.Contains(p.Rule.ScopeIDs, it.CategoryID.String())
+				key = it.InventorySKU
 			}
-			if !match {
+			if !slices.ContainsFunc(p.Rule.ScopeIDs, func(s string) bool { return strings.EqualFold(strings.TrimSpace(s), strings.TrimSpace(key)) }) {
 				continue
 			}
 			used[it.InventoryID] = true

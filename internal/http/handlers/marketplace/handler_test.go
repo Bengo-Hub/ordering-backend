@@ -43,10 +43,13 @@ func (f *fakeCatalog) ListItems(_ context.Context, slug string, _ uuid.UUID, flt
 		if flt.IsAvailable != nil && it.IsAvailable != *flt.IsAvailable {
 			continue
 		}
-		if len(flt.InventoryIDs) > 0 && !slices.Contains(flt.InventoryIDs, it.InventoryID) {
+		fold := func(list []string, v string) bool {
+			return slices.ContainsFunc(list, func(s string) bool { return strings.EqualFold(s, v) })
+		}
+		if len(flt.SKUs) > 0 && !fold(flt.SKUs, it.InventorySKU) {
 			continue
 		}
-		if len(flt.CategoryIDs) > 0 && (it.CategoryID == nil || !slices.Contains(flt.CategoryIDs, *it.CategoryID)) {
+		if len(flt.CategoryNames) > 0 && !fold(flt.CategoryNames, it.CategoryName) {
 			continue
 		}
 		out = append(out, it)
@@ -100,26 +103,25 @@ func TestListTenantsSendsEligibleUseCasesAndPages(t *testing.T) {
 
 func TestListDealsResolvesAndMixesStores(t *testing.T) {
 	shopA, shopB := uuid.NewString(), uuid.NewString()
-	pan, charger, tote, sold := uuid.New(), uuid.New(), uuid.New(), uuid.New()
-	bags := uuid.New()
 	dir := &fakeDir{page: marketplace.Page{Data: []marketplace.TenantSummary{
 		{ID: shopA, Slug: "alpha", Name: "Alpha", UseCase: "retail"},
 		{ID: shopB, Slug: "boi", Name: "BOI", UseCases: []string{"retail"}},
 	}, Total: 2}}
+	// Rules carry SKUs and category names, exactly as pos-api stores and matches them.
 	promos := &fakePromos{list: []posdiscounts.StorefrontPromotion{
-		promo(shopA, "a-items", "item", []string{pan.String(), sold.String()}, "percentage", true),
-		promo(shopB, "b-cat", "category", []string{bags.String()}, "fixed_amount", false),
-		promo(shopB, "b-bogo", "item", []string{charger.String()}, "bogo", false),
-		promo(uuid.NewString(), "stranger", "item", []string{pan.String()}, "percentage", true),
+		promo(shopA, "a-items", "item", []string{"acm-00077", "ACM-SOLD"}, "percentage", true),
+		promo(shopB, "b-cat", "category", []string{"bags"}, "fixed_amount", false),
+		promo(shopB, "b-bogo", "item", []string{"BOI-CHG"}, "bogo", false),
+		promo(uuid.NewString(), "stranger", "item", []string{"ACM-00077"}, "percentage", true),
 	}}
 	cat := &fakeCatalog{items: map[string][]catalog.MergedCatalogItem{
 		"alpha": {
-			{InventoryID: pan, Name: "Pan", BasePrice: 3999, IsAvailable: true},
-			{InventoryID: sold, Name: "Sold out", BasePrice: 100, IsAvailable: false},
+			{InventoryID: uuid.New(), InventorySKU: "ACM-00077", Name: "Pan", BasePrice: 3999, IsAvailable: true},
+			{InventoryID: uuid.New(), InventorySKU: "ACM-SOLD", Name: "Sold out", BasePrice: 100, IsAvailable: false},
 		},
 		"boi": {
-			{InventoryID: tote, Name: "Tote", BasePrice: 1200, IsAvailable: true, CategoryID: &bags},
-			{InventoryID: charger, Name: "Charger", BasePrice: 1400, IsAvailable: true},
+			{InventoryID: uuid.New(), InventorySKU: "BOI-TOTE", Name: "Tote", BasePrice: 1200, IsAvailable: true, CategoryName: "Bags"},
+			{InventoryID: uuid.New(), InventorySKU: "BOI-CHG", Name: "Charger", BasePrice: 1400, IsAvailable: true},
 		},
 	}}
 	h := New(zap.NewNop(), dir, promos, cat, nil)
