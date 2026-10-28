@@ -65,6 +65,10 @@ type MergedCatalogItem struct {
 	Condition    string           `json:"condition,omitempty"`    // NEW | REFURBISHED | USED | OPEN_BOX
 	HasVariants  bool             `json:"hasVariants,omitempty"`
 	Variants     []CatalogVariant `json:"variants,omitempty"`
+	// PriceFrom/PriceTo span the active, priced variants ("From KSh x" on a card, "KSh x - KSh y"
+	// on the product page). Nil for a product without variants.
+	PriceFrom *float64 `json:"priceFrom,omitempty"`
+	PriceTo   *float64 `json:"priceTo,omitempty"`
 	// Variant is set when this item was looked up by a variant SKU: InventorySKU, InventoryID,
 	// Name, BasePrice and availability then describe that variant (a child inventory item) and
 	// ParentSKU names the display product it belongs to.
@@ -188,9 +192,15 @@ type CatalogFilter struct {
 	Offset      int
 	ItemType    string   // e.g. "SERVICE", "GOODS", "RECIPE" — empty means all
 	Tags        []string // items must have ALL of these tags
-	// Sort is an opaque, whitelisted sort key for the storefront (not inventory-api's raw
-	// column name) — currently only "newest" is recognized. Empty means default order.
+	// Sort is a whitelisted storefront sort key (not inventory-api's raw column name): "newest"
+	// (applied by inventory-api), "price_asc", "price_desc" and "name" (applied over the merged
+	// set, see listing.go). Empty or unknown keeps the default order.
 	Sort string
+	// MinPrice/MaxPrice bound the list price (lowest variant price for a product with variants).
+	MinPrice *float64
+	MaxPrice *float64
+	// WithFacets asks ListItemsPage for brand, category, variant attribute and price facets.
+	WithFacets bool
 	// SKUs keeps only these items and CategoryNames only items in these categories, both
 	// compared without case. They mirror how pos-api matches a promotion rule (item scope by
 	// SKU, category scope by category name), so deal cards resolve exactly the products the
@@ -232,4 +242,6 @@ type ListResponse struct {
 	Total int         `json:"total"`
 	Limit int         `json:"limit"`
 	Page  int         `json:"page"`
+	// Facets is set on the public item listing when the request asked for them (facets=1).
+	Facets *CatalogFacets `json:"facets,omitempty"`
 }

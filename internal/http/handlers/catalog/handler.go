@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -125,12 +126,14 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		Search:   r.URL.Query().Get("search"),
 		Section:  r.URL.Query().Get("section"),
 		ItemType: strings.ToUpper(r.URL.Query().Get("item_type")),
-		// Only "newest" is recognized today (powers the storefront's New Arrivals
-		// section) — any other value is silently ignored, same "unknown sort keeps
-		// default order" posture as inventory-api's own ?sort= whitelist.
-		Sort:   r.URL.Query().Get("sort"),
-		Limit:  limit,
-		Offset: offset,
+		// newest, price_asc, price_desc or name (catalog/listing.go); any other value keeps
+		// the default order, same posture as inventory-api's own ?sort= whitelist.
+		Sort:       r.URL.Query().Get("sort"),
+		MinPrice:   parsePriceParam(r.URL.Query().Get("min_price")),
+		MaxPrice:   parsePriceParam(r.URL.Query().Get("max_price")),
+		WithFacets: r.URL.Query().Get("facets") == "1" || r.URL.Query().Get("facets") == "true",
+		Limit:      limit,
+		Offset:     offset,
 	}
 
 	if tagsParam := r.URL.Query().Get("tags"); tagsParam != "" {
@@ -179,7 +182,7 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, total, err := h.service.ListItems(r.Context(), tenantSlug, tenantID, filter)
+	result, err := h.service.ListItemsPage(r.Context(), tenantSlug, tenantID, filter)
 	if err != nil {
 		h.log.Error("list items failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
@@ -187,11 +190,21 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
-		Data:  items,
-		Total: total,
-		Limit: limit,
-		Page:  page,
+		Data:   result.Items,
+		Total:  result.Total,
+		Limit:  limit,
+		Page:   page,
+		Facets: result.Facets,
 	})
+}
+
+// parsePriceParam reads a non-negative price query value; anything else means no bound.
+func parsePriceParam(raw string) *float64 {
+	v, err := strconv.ParseFloat(strings.TrimSpace(raw), 64)
+	if err != nil || v < 0 || math.IsNaN(v) || math.IsInf(v, 0) {
+		return nil
+	}
+	return &v
 }
 
 // GetPublicItem retrieves a single catalog item by SKU (no auth required).

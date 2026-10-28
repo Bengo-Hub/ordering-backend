@@ -76,6 +76,17 @@ func NewProxyService(db *ent.Client, inventoryClient *inventory.Client, cacheSvc
 // ListItems fetches items from inventory-api, merges with local overrides,
 // and attaches favorite status if userID is provided.
 func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantID uuid.UUID, filter CatalogFilter) ([]MergedCatalogItem, int, error) {
+	page, err := s.ListItemsPage(ctx, tenantSlug, tenantID, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+	return page.Items, page.Total, nil
+}
+
+// ListItemsPage is ListItems plus the price range filter, the locally applied sort keys and,
+// when filter.WithFacets is set, the facets of the matching set (counted before the price
+// range is applied, so the slider always spans the whole selection).
+func (s *ProxyService) ListItemsPage(ctx context.Context, tenantSlug string, tenantID uuid.UUID, filter CatalogFilter) (CatalogPage, error) {
 	// 1. Fetch the full candidate set (type/category/brand/sort applied server-side), then merge,
 	// filter and only THEN paginate. Most storefront filters (not_for_sale, sellable category,
 	// availability, featured, search, tags, section) can only be evaluated after merging with
@@ -88,9 +99,9 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		limit = 20
 	}
 	offset := max(filter.Offset, 0)
-	invItems, err := s.inventoryCatalog(ctx, tenantSlug, filter.ItemType, filter.CategoryID, filter.Sort, filter.BrandID)
+	invItems, err := s.inventoryCatalog(ctx, tenantSlug, filter.ItemType, filter.CategoryID, inventorySort(filter.Sort), filter.BrandID)
 	if err != nil {
-		return nil, 0, fmt.Errorf("catalog: list inventory items: %w", err)
+		return CatalogPage{}, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
 
 	// 2. Load overrides for this tenant, scoped to a real outlet — NEVER unscoped. A historical
@@ -102,7 +113,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	// outlets (or the single one the caller asked for) instead.
 	realOutletIDs, err := s.tenantOutletIDs(ctx, tenantID)
 	if err != nil {
-		return nil, 0, fmt.Errorf("catalog: load outlets: %w", err)
+		return CatalogPage{}, fmt.Errorf("catalog: load outlets: %w", err)
 	}
 	overrideQuery := s.db.CatalogOverride.Query().
 		Where(catalogoverride.TenantID(tenantID))
@@ -113,7 +124,7 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 	}
 	overrides, err := overrideQuery.All(ctx)
 	if err != nil {
-		return nil, 0, fmt.Errorf("catalog: load overrides: %w", err)
+		return CatalogPage{}, fmt.Errorf("catalog: load overrides: %w", err)
 	}
 	overrideMap := make(map[string]*ent.CatalogOverride, len(overrides))
 	for _, o := range overrides {
@@ -211,10 +222,17 @@ func (s *ProxyService) ListItems(ctx context.Context, tenantSlug string, tenantI
 		merged = append(merged, item)
 	}
 
+	var facets *CatalogFacets
+	if filter.WithFacets {
+		facets = buildFacets(merged)
+	}
+	merged = filterByPrice(merged, filter.MinPrice, filter.MaxPrice)
+	sortItems(merged, filter.Sort)
+
 	// Paginate the filtered result so every page is full and the total counts only what a
 	// customer can actually see.
 	pageItems, total := pageOf(merged, offset, limit)
-	return pageItems, total, nil
+	return CatalogPage{Items: pageItems, Total: total, Facets: facets}, nil
 }
 
 // containsFold reports whether list holds v, ignoring case and surrounding spaces.
@@ -444,6 +462,7 @@ func resolveVariantItem(parent MergedCatalogItem, inv inventory.ItemResponse, pa
 
 	item.Variant = &v
 	item.ParentSKU = inv.SKU
+	item.PriceFrom, item.PriceTo = nil, nil // one variant has one price
 	item.InventorySKU = v.SKU
 	if v.ID != uuid.Nil {
 		item.InventoryID = v.ID
@@ -1076,6 +1095,7 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 	}
 
 	_, item.IsFavorite = favSet[inv.SKU]
+	setPriceRange(&item)
 
 	return item
 }

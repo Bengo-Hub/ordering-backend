@@ -514,6 +514,22 @@ or its parent's SKU. Promo codes go through pos-api's apply call, which takes on
 code scoped to the parent SKU does not cover its variants; scope such codes to the variant SKUs or
 the category instead.
 
+#### Storefront listing: sort, price range and facets (2026-10-28)
+
+`GET /{tenant}/catalog/items` merges the whole cached inventory candidate set with the live
+overrides before it pages (see `ProxyService.ListItemsPage`), so sorting and filtering happen on
+that merged set and every page is consistent across the catalogue:
+- `sort`: `newest` is forwarded to inventory-api; `price_asc`, `price_desc` and `name` are applied
+  locally. The candidate cache is shared by every key but `newest`.
+- `min_price` / `max_price`: bound the list price, which is the lowest active variant price for a
+  product with variants, else its own price.
+- `facets=1`: adds `facets {priceMin, priceMax, brands[], categories[], attributes{axis: []}}`, each
+  entry `{id?, name, count}`, counted over the matching set before the price range so the slider
+  spans the whole selection. Free (price 0) products do not move the price bounds.
+- Items with variants carry `priceFrom` and `priceTo` ("From KSh x" on cards, a range on the
+  product page). A variant lookup clears them, since one variant has one price.
+Best-selling order still comes from pos-api sales (`/s2s` reports) and is ranked by the storefront.
+
 ---
 
 ## External Third-Party Integrations
