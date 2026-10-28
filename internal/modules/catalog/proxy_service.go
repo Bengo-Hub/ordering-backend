@@ -428,23 +428,16 @@ func VariantDisplayName(parentName string, v CatalogVariant) string {
 	return parentName + ", " + name
 }
 
-// allowsBackorder reports whether the parent item lets a variant be ordered at zero stock
-// (metadata.allow_backorder = true).
-func allowsBackorder(metadata map[string]any) bool {
-	v, _ := metadata["allow_backorder"].(bool)
-	return v
-}
-
 // resolveVariantItem turns the merged parent item into the merged view of one of its variants.
 // The variant is a child inventory item, so its SKU and item id replace the parent's and every
 // stock reservation or deduction keyed by them hits the child's own stock.
 //
 // Price: the child's own override price, else the variant price from inventory, else the parent
 // price. Availability: the parent must be orderable (active, its override not switched off), the
-// variant active, the child's own override (when one exists) available, and the variant's live
-// on-hand quantity above zero unless the parent allows backorders. Inventory reports on_hand per
-// variant, so a sold-out size or colour shows as unavailable on its own while its siblings stay
-// orderable.
+// variant active and the child's own override (when one exists) available. Stock never gates the
+// sale: availability is staff-owned platform wide (auto_hide_on_stock_out, default off), so a
+// sold-out child is hidden only through its own override, which the stock events switch off when
+// the tenant opted in. on_hand is passed through for the "only N left" badge.
 func resolveVariantItem(parent MergedCatalogItem, inv inventory.ItemResponse, parentOverride *ent.CatalogOverride, idx int, variantOverride *ent.CatalogOverride) MergedCatalogItem {
 	item := parent
 	v := parent.Variants[idx]
@@ -479,9 +472,6 @@ func resolveVariantItem(parent MergedCatalogItem, inv inventory.ItemResponse, pa
 	available := inv.IsActive && !inv.NotForSale && v.IsActive &&
 		(parentOverride == nil || parentOverride.IsAvailable)
 	if variantOverride != nil && !variantOverride.IsAvailable {
-		available = false
-	}
-	if v.OnHand != nil && *v.OnHand <= 0 && !allowsBackorder(inv.Metadata) {
 		available = false
 	}
 

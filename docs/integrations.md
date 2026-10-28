@@ -502,8 +502,9 @@ checkout accept a variant SKU: `ProxyService.GetItem` finds the parent in the ca
 returns the variant's own SKU, item id, name ("T-shirt, Red / M"), price (its own override, then
 the inventory price, then the parent price), image and stock, plus `variant` and `parentSku`. A
 variant is orderable when the parent is, the variant is active, its own catalogue override (keyed
-by the child SKU and kept fresh by the stock events) is not switched off, and its on-hand stock is
-above zero, unless the parent's metadata sets `allow_backorder`. Checkout and add to cart accept the
+by the child SKU and kept fresh by the stock events) is not switched off. On-hand stock never
+gates the sale, matching the platform's manual availability rule (`auto_hide_on_stock_out`,
+default off); it only feeds the "only N left" badge. Checkout and add to cart accept the
 variant SKU, or the parent SKU with a `variant_id` (line metadata or the cart's `variantId`), and
 reject an unknown, mismatched or unavailable variant with 400 "variant is not available". The
 server stamps `variant_id`, `variant_sku`, `variant_name`, `variant_attributes` and `parent_sku` on

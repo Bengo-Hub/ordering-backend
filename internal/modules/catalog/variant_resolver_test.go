@@ -95,17 +95,17 @@ func TestResolveVariantItem(t *testing.T) {
 		}
 	})
 
-	t.Run("zero stock unless backorder", func(t *testing.T) {
+	t.Run("zero stock stays orderable (manual availability)", func(t *testing.T) {
 		soldOut := inv
 		soldOut.Variants = append([]inventory.ItemVariantResponse(nil), inv.Variants...)
 		soldOut.Variants[0].OnHand = f64(0)
 		p := mergeItem(soldOut, parentOverride, nil)
-		if resolveVariantItem(p, soldOut, parentOverride, 0, nil).IsAvailable {
-			t.Fatal("sold-out variant must be unavailable")
+		item := resolveVariantItem(p, soldOut, parentOverride, 0, nil)
+		if !item.IsAvailable {
+			t.Fatal("stock must not gate a variant; only its override can switch it off")
 		}
-		soldOut.Metadata = map[string]any{"allow_backorder": true}
-		if !resolveVariantItem(p, soldOut, parentOverride, 0, nil).IsAvailable {
-			t.Fatal("allow_backorder must keep a sold-out variant orderable")
+		if item.AvailableQuantity != nil {
+			t.Fatal("zero on-hand must not surface as a \"0 left\" badge")
 		}
 	})
 
