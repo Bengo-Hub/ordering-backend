@@ -343,6 +343,26 @@ type AdminOrderItemSummary struct {
 	Quantity     int     `json:"quantity"`
 	UnitPrice    float64 `json:"unitPrice"`
 	TotalPrice   float64 `json:"totalPrice"`
+	// Metadata carries only what the order list shows under the line: the variant and modifier
+	// snapshots (see lineDisplayMetadata). Nil for a plain line, keeping the list payload lean.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// lineDisplayKeys are the order line metadata keys staff need to prepare the line correctly.
+var lineDisplayKeys = []string{"variant_name", "variant_attributes", "modifiers"}
+
+// lineDisplayMetadata copies the variant and modifier snapshots out of a line's metadata.
+func lineDisplayMetadata(meta map[string]interface{}) map[string]interface{} {
+	var out map[string]interface{}
+	for _, k := range lineDisplayKeys {
+		if v, ok := meta[k]; ok && v != nil {
+			if out == nil {
+				out = make(map[string]interface{}, len(lineDisplayKeys))
+			}
+			out[k] = v
+		}
+	}
+	return out
 }
 
 // AdminOrderSummary is a lightweight order representation for admin list views.
@@ -396,6 +416,7 @@ func toAdminOrderSummary(o ordering.Order) AdminOrderSummary {
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
 			TotalPrice:   it.TotalPrice,
+			Metadata:     lineDisplayMetadata(it.Metadata),
 		})
 	}
 
