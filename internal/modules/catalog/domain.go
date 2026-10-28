@@ -18,6 +18,9 @@ type CatalogVariant struct {
 	Attributes map[string]string `json:"attributes,omitempty"`
 	Barcode    string            `json:"barcode,omitempty"`
 	IsActive   bool              `json:"isActive"`
+	// OnHand is the variant's own stock from inventory (nil when not reported).
+	OnHand   *float64 `json:"onHand,omitempty"`
+	ImageURL string   `json:"imageUrl,omitempty"`
 }
 
 // CatalogModifierOption is one selectable option within a CatalogModifierGroup
@@ -62,6 +65,11 @@ type MergedCatalogItem struct {
 	Condition    string           `json:"condition,omitempty"`    // NEW | REFURBISHED | USED | OPEN_BOX
 	HasVariants  bool             `json:"hasVariants,omitempty"`
 	Variants     []CatalogVariant `json:"variants,omitempty"`
+	// Variant is set when this item was looked up by a variant SKU: InventorySKU, InventoryID,
+	// Name, BasePrice and availability then describe that variant (a child inventory item) and
+	// ParentSKU names the display product it belongs to.
+	Variant   *CatalogVariant `json:"variant,omitempty"`
+	ParentSKU string          `json:"parentSku,omitempty"`
 	// ModifierGroups: this item's selectable modifiers (checkboxes/radios shown in the
 	// add-to-cart modal), passed through unchanged from inventory-api.
 	ModifierGroups []CatalogModifierGroup `json:"modifierGroups,omitempty"`

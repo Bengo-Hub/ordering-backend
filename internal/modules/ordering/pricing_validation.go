@@ -3,6 +3,7 @@ package ordering
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -50,12 +51,16 @@ func (s *OrderService) validateAndPriceItems(ctx context.Context, tenantSlug str
 		if it.InventorySKU == "" {
 			continue
 		}
-		item, err := s.catalogSvc.GetItem(ctx, tenantSlug, tenantID, it.InventorySKU, nil)
-		if err != nil || item == nil {
+		variantID, variantSKU := requestedVariant(it.Metadata)
+		item, err := resolveCatalogLine(ctx, s.catalogSvc, tenantSlug, tenantID, it.InventorySKU, variantID, variantSKU)
+		if err != nil {
 			s.logger.Warn("price validation: item lookup failed",
 				zap.String("sku", it.InventorySKU), zap.Error(err))
-			return nil, ErrCatalogItemUnavailable
+			return nil, err
 		}
+		// A variant line carries the variant's SKU from here on, even when the client sent the
+		// parent SKU plus a variant id: stock is reserved and deducted by this SKU.
+		out[i].InventorySKU = item.InventorySKU
 
 		validatedModifiers := make([]CartItemModifier, 0, len(it.Modifiers))
 		modifierTotal := 0.0
@@ -132,7 +137,102 @@ func withCatalogSnapshot(metadata map[string]interface{}, item *catalog.MergedCa
 			out["duration_minutes"] = d
 		}
 	}
+	// Variant facts always come from the catalog: client values are dropped first so a line that
+	// did not resolve to a variant cannot carry a made-up one.
+	for _, k := range variantMetadataKeys {
+		delete(out, k)
+	}
+	if v := item.Variant; v != nil {
+		out[metaVariantID] = v.ID.String()
+		out[metaVariantSKU] = v.SKU
+		out[metaVariantName] = item.Name
+		attrs := make(map[string]interface{}, len(v.Attributes))
+		for k, val := range v.Attributes {
+			attrs[k] = val
+		}
+		out[metaVariantAttributes] = attrs
+		out[metaParentSKU] = item.ParentSKU
+	}
 	return out
+}
+
+// Per-line metadata keys stamped for a variant line (server side, from the catalog).
+const (
+	metaVariantID         = "variant_id"
+	metaVariantSKU        = "variant_sku"
+	metaVariantName       = "variant_name"
+	metaVariantAttributes = "variant_attributes"
+	metaParentSKU         = "parent_sku"
+)
+
+var variantMetadataKeys = []string{metaVariantID, metaVariantSKU, metaVariantName, metaVariantAttributes, metaParentSKU}
+
+// requestedVariant reads the variant a client asked for on a line (variant_id and/or
+// variant_sku in the line metadata). Both are only hints used to find the variant; the stamped
+// values always come from the catalog.
+func requestedVariant(metadata map[string]interface{}) (*uuid.UUID, string) {
+	if metadata == nil {
+		return nil, ""
+	}
+	var id *uuid.UUID
+	if raw, _ := metadata[metaVariantID].(string); raw != "" {
+		if parsed, err := uuid.Parse(raw); err == nil {
+			id = &parsed
+		}
+	}
+	sku, _ := metadata[metaVariantSKU].(string)
+	return id, strings.TrimSpace(sku)
+}
+
+// variantIDFromMetadata returns the server-stamped variant id of a line (the child inventory
+// item id), or nil for a plain item line.
+func variantIDFromMetadata(metadata map[string]interface{}) *uuid.UUID {
+	raw, _ := metadata[metaVariantID].(string)
+	if raw == "" {
+		return nil
+	}
+	id, err := uuid.Parse(raw)
+	if err != nil {
+		return nil
+	}
+	return &id
+}
+
+// resolveCatalogLine resolves a cart or checkout line to its catalog item. The line SKU may be a
+// plain item, a variant SKU, or the parent SKU together with a requested variant (id or SKU); the
+// last case is re-resolved by the variant's own SKU. A requested variant that does not exist,
+// does not match the resolved one, or is not orderable fails with ErrVariantUnavailable; any
+// other lookup failure is ErrCatalogItemUnavailable.
+func resolveCatalogLine(ctx context.Context, lookup catalogLookup, tenantSlug string, tenantID uuid.UUID, sku string, variantID *uuid.UUID, variantSKU string) (*catalog.MergedCatalogItem, error) {
+	item, err := lookup.GetItem(ctx, tenantSlug, tenantID, sku, nil)
+	if err != nil || item == nil {
+		return nil, ErrCatalogItemUnavailable
+	}
+	if item.Variant == nil && (variantID != nil || variantSKU != "") {
+		var target string
+		for _, v := range item.Variants {
+			if (variantID != nil && v.ID == *variantID) || (variantSKU != "" && strings.EqualFold(strings.TrimSpace(v.SKU), variantSKU)) {
+				target = v.SKU
+				break
+			}
+		}
+		if target == "" {
+			return nil, ErrVariantUnavailable
+		}
+		item, err = lookup.GetItem(ctx, tenantSlug, tenantID, target, nil)
+		if err != nil || item == nil || item.Variant == nil {
+			return nil, ErrVariantUnavailable
+		}
+	}
+	if item.Variant != nil {
+		if variantID != nil && *variantID != item.Variant.ID {
+			return nil, ErrVariantUnavailable
+		}
+		if !item.IsAvailable {
+			return nil, ErrVariantUnavailable
+		}
+	}
+	return item, nil
 }
 
 // reserveDealRedemption calls pos-api's S2S reserve endpoint for one matched deal. Best-effort:
@@ -178,8 +278,10 @@ func applyActiveDealDiscount(item *catalog.MergedCatalogItem, deals []posdiscoun
 		matches := false
 		switch rule.ScopeType {
 		case "item":
+			// A variant line matches a rule on its own SKU or on its parent's SKU, so a deal set up
+			// on "T-shirt" covers every size and colour.
 			for _, id := range rule.ScopeIDs {
-				if id == item.InventorySKU || id == item.InventoryID.String() {
+				if id == item.InventorySKU || id == item.InventoryID.String() || (item.ParentSKU != "" && id == item.ParentSKU) {
 					matches = true
 					break
 				}

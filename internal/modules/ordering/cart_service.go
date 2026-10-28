@@ -2,6 +2,7 @@ package ordering
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/bengobox/ordering-backend/internal/modules/catalog"
@@ -9,10 +10,26 @@ import (
 	"go.uber.org/zap"
 )
 
+// catalogLookup is the one catalog call checkout and the cart need: resolve a SKU (item or
+// variant) to its merged, server-priced catalog view. catalog.ProxyService implements it; tests
+// use a stub.
+type catalogLookup interface {
+	GetItem(ctx context.Context, tenantSlug string, tenantID uuid.UUID, sku string, userID *uuid.UUID) (*catalog.MergedCatalogItem, error)
+}
+
+// asCatalogLookup keeps a nil *catalog.ProxyService a nil interface, so the "catalog not wired"
+// checks keep working.
+func asCatalogLookup(p *catalog.ProxyService) catalogLookup {
+	if p == nil {
+		return nil
+	}
+	return p
+}
+
 // CartService provides shopping cart business logic.
 type CartService struct {
 	repo       Repository
-	catalogSvc *catalog.ProxyService
+	catalogSvc catalogLookup
 	logger     *zap.Logger
 }
 
@@ -20,7 +37,7 @@ type CartService struct {
 func NewCartService(repo Repository, catalogSvc *catalog.ProxyService, logger *zap.Logger) *CartService {
 	return &CartService{
 		repo:       repo,
-		catalogSvc: catalogSvc,
+		catalogSvc: asCatalogLookup(catalogSvc),
 		logger:     logger,
 	}
 }
@@ -120,28 +137,48 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		return nil, ErrCatalogItemUnavailable
 	}
 
-	// Get catalog item to validate availability and price via proxy service
-	catalogItem, err := s.catalogSvc.GetItem(ctx, tenantInfo.Slug, req.TenantID, req.InventorySKU, nil)
+	// Resolve the line the same way checkout does (pricing_validation.go): the SKU may be an
+	// item, a variant SKU, or the parent SKU plus a variant id, and price, name and availability
+	// come from the resolved item or variant.
+	catalogItem, err := resolveCatalogLine(ctx, s.catalogSvc, tenantInfo.Slug, req.TenantID, req.InventorySKU, req.VariantID, "")
 	if err != nil {
-		return nil, ErrCatalogItemUnavailable
+		return nil, err
 	}
 
 	if !catalogItem.IsAvailable {
 		return nil, ErrCatalogItemUnavailable
 	}
 
+	sku := catalogItem.InventorySKU
+	var variantID *uuid.UUID
+	if catalogItem.Variant != nil {
+		id := catalogItem.Variant.ID
+		variantID = &id
+	}
+
 	// Calculate unit price
 	unitPrice := catalogItem.BasePrice
 
-	// Calculate modifier total from selected modifiers
+	// Modifier prices are server side too: each selection must match a real option on the item
+	// and carries that option's price, never the client's number. Unknown options are dropped.
+	modifiers := make([]CartItemModifier, 0, len(req.Modifiers))
 	var modifierTotal float64
 	for _, m := range req.Modifiers {
-		modifierTotal += m.PriceAdjustment
+		option := findModifierOption(catalogItem.ModifierGroups, m.GroupID, m.OptionID)
+		if option == nil {
+			s.logger.Warn("cart: unknown modifier option, dropping",
+				zap.String("sku", sku), zap.String("optionId", m.OptionID.String()))
+			continue
+		}
+		m.OptionName = option.Name
+		m.PriceAdjustment = option.PriceAdjustment
+		modifiers = append(modifiers, m)
+		modifierTotal += option.PriceAdjustment
 	}
 
 	// Check if item already exists in cart (only merge if no modifiers or same modifiers)
-	existingItem, err := s.repo.GetCartItemBySKU(ctx, cart.ID, req.InventorySKU, req.VariantID)
-	hasModifiers := len(req.Modifiers) > 0
+	existingItem, err := s.repo.GetCartItemBySKU(ctx, cart.ID, sku, variantID)
+	hasModifiers := len(modifiers) > 0
 	if err == nil && existingItem != nil && !hasModifiers && len(existingItem.Modifiers) == 0 {
 		// Update quantity (only merge items without modifiers)
 		existingItem.Quantity += req.Quantity
@@ -172,14 +209,23 @@ func (s *CartService) AddItem(ctx context.Context, req AddItemRequest) (*Cart, e
 		if catalogItem.CategoryName != "" {
 			meta["category"] = catalogItem.CategoryName
 		}
+		// Variant snapshot (variant_id, variant_sku, variant_name, variant_attributes, parent_sku),
+		// the same keys checkout stamps, so a cart-based order hands them to the outlet too.
+		if catalogItem.Variant != nil {
+			for k, v := range withCatalogSnapshot(nil, catalogItem) {
+				if slices.Contains(variantMetadataKeys, k) {
+					meta[k] = v
+				}
+			}
+		}
 		item := &CartItem{
 			CartID:        cart.ID,
-			InventorySKU:  req.InventorySKU,
-			VariantID:     req.VariantID,
+			InventorySKU:  sku,
+			VariantID:     variantID,
 			NameSnapshot:  catalogItem.Name,
 			Quantity:      req.Quantity,
 			UnitPrice:     unitPrice,
-			Modifiers:     req.Modifiers,
+			Modifiers:     modifiers,
 			ModifierTotal: modifierTotal,
 			TotalPrice:    (unitPrice + modifierTotal) * float64(req.Quantity),
 			Notes:         req.Notes,

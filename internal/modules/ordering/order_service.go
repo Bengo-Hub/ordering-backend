@@ -59,7 +59,7 @@ type OrderService struct {
 	subscriptionsClient *subscriptions.Client
 	logisticsClient     *logistics.Client
 	crmClient           *marketflow.Client
-	catalogSvc          *catalog.ProxyService
+	catalogSvc          catalogLookup
 	logger              *zap.Logger
 }
 
@@ -83,7 +83,7 @@ func NewOrderService(
 		feeSvc:              feeSvc,
 		inventoryClient:     inventoryClient,
 		subscriptionsClient: subscriptionsClient,
-		catalogSvc:          catalogSvc,
+		catalogSvc:          asCatalogLookup(catalogSvc),
 		stateMachine:        NewOrderStateMachine(),
 		logger:              logger,
 	}
@@ -558,6 +558,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		orderItem := &OrderItem{
 			OrderID:      order.ID,
 			InventorySKU: it.InventorySKU,
+			VariantID:    variantIDFromMetadata(it.Metadata), // stamped from the catalog in validateAndPriceItems
 			NameSnapshot: it.Name,
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
@@ -593,6 +594,12 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 
 // cartItemsFromInputs adapts items-based checkout lines to the CartItem shape the promo service
 // validates against (scope matching by SKU, minimum spend by line totals).
+//
+// A variant line goes out with the variant SKU, which is the stock SKU pos-api also sees at the
+// till. pos-api's apply call takes a single SKU per line, so a promo code scoped to the parent
+// SKU does not match a variant line there; scope the code to the variant SKUs or to the category
+// (the category snapshot is sent with every line). Storefront deals, priced by
+// applyActiveDealDiscount, match the parent SKU as well.
 func cartItemsFromInputs(items []CreateOrderItemInput) []CartItem {
 	out := make([]CartItem, 0, len(items))
 	for _, it := range items {
@@ -1047,6 +1054,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		orderItem := &OrderItem{
 			OrderID:      order.ID,
 			InventorySKU: it.InventorySKU,
+			VariantID:    variantIDFromMetadata(it.Metadata), // stamped from the catalog in validateAndPriceItems
 			NameSnapshot: it.Name,
 			Quantity:     it.Quantity,
 			UnitPrice:    it.UnitPrice,
@@ -2150,10 +2158,13 @@ func (s *OrderService) publishOutletHandoff(ctx context.Context, order *Order, a
 }
 
 // outletLineMetadataKeys are the per-line metadata keys the outlet acts on: booking fields for
-// service/ticket lines and the catalog snapshot stamped at checkout.
+// service/ticket lines and the catalog snapshot stamped at checkout. For a variant line the
+// line sku is the variant SKU and the name its display name ("T-shirt, Red / M"); the variant_*
+// keys and parent_sku let pos-api tickets and the KDS show the size and colour and group by product.
 var outletLineMetadataKeys = []string{
 	"is_service", "is_ticket", "appointment_date", "appointment_time", "staff_id",
 	"duration_minutes", "inventory_item_id", "item_type", "deposit_percent",
+	metaVariantID, metaVariantSKU, metaVariantName, metaVariantAttributes, metaParentSKU,
 }
 
 // outletLinePayload renders one order line for the outlet hand-off event.

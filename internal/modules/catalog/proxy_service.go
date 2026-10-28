@@ -291,13 +291,9 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 		return nil, fmt.Errorf("catalog: list inventory items: %w", err)
 	}
 
-	var invItem *inventory.ItemResponse
-	for i := range invItems {
-		if invItems[i].SKU == sku {
-			invItem = &invItems[i]
-			break
-		}
-	}
+	// A variant SKU (a child inventory item served under its parent) is found through the parent's
+	// variants list in the same cached catalog, so no extra inventory call is made per lookup.
+	invItem, variantIdx := findCatalogEntry(invItems, sku)
 	if invItem == nil {
 		return nil, ErrItemNotFound
 	}
@@ -321,15 +317,25 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 	if err != nil {
 		return nil, fmt.Errorf("catalog: load outlets: %w", err)
 	}
-	overrideQuery := s.db.CatalogOverride.Query().
-		Where(
-			catalogoverride.TenantID(tenantID),
-			catalogoverride.InventorySku(sku),
-		)
-	if len(overrideOutletIDs) > 0 {
-		overrideQuery = overrideQuery.Where(catalogoverride.OutletIDIn(overrideOutletIDs...))
+	loadOverride := func(overrideSKU string) *ent.CatalogOverride {
+		overrideQuery := s.db.CatalogOverride.Query().
+			Where(
+				catalogoverride.TenantID(tenantID),
+				catalogoverride.InventorySku(overrideSKU),
+			)
+		if len(overrideOutletIDs) > 0 {
+			overrideQuery = overrideQuery.Where(catalogoverride.OutletIDIn(overrideOutletIDs...))
+		}
+		o, _ := overrideQuery.First(ctx)
+		return o
 	}
-	override, _ := overrideQuery.First(ctx)
+	override := loadOverride(invItem.SKU)
+	// The variant's own override row (created by inventory.item.created for the child item and
+	// kept fresh by the stock events, all keyed by the child SKU) is honoured for the variant.
+	var variantOverride *ent.CatalogOverride
+	if variantIdx >= 0 {
+		variantOverride = loadOverride(invItem.Variants[variantIdx].SKU)
+	}
 
 	// Load favorite
 	favSet := make(map[string]struct{})
@@ -346,8 +352,158 @@ func (s *ProxyService) GetItem(ctx context.Context, tenantSlug string, tenantID 
 	}
 
 	item := mergeItem(*invItem, override, favSet)
+	if variantIdx >= 0 {
+		item = resolveVariantItem(item, *invItem, override, variantIdx, variantOverride)
+		_, item.IsFavorite = favSet[sku]
+	}
 	item.ImageURL = s.media.URL(item.ImageURL)
 	return &item, nil
+}
+
+// findCatalogEntry finds the catalog row for sku. A direct item match returns (item, -1). When no
+// item has that SKU, the parent whose variants list holds it is returned with the variant's index.
+// Variant SKUs compare without case or surrounding spaces, since storefront links and scanned codes
+// do not always keep the exact casing.
+func findCatalogEntry(items []inventory.ItemResponse, sku string) (*inventory.ItemResponse, int) {
+	for i := range items {
+		if items[i].SKU == sku {
+			return &items[i], -1
+		}
+	}
+	want := strings.TrimSpace(sku)
+	if want == "" {
+		return nil, -1
+	}
+	for i := range items {
+		for j := range items[i].Variants {
+			if strings.EqualFold(strings.TrimSpace(items[i].Variants[j].SKU), want) {
+				return &items[i], j
+			}
+		}
+	}
+	return nil, -1
+}
+
+// variantAttributeOrder puts colour before size so names read "T-shirt, Red / M". Other
+// attributes follow in alphabetical order so the name is stable between requests.
+var variantAttributeOrder = map[string]int{"colour": 0, "color": 0, "size": 1}
+
+// VariantDisplayName builds the customer-facing name of a variant: the parent name followed by
+// the attribute values ("T-shirt, Red / M"). Without attributes it falls back to the variant's
+// own name, prefixed with the parent name unless it already starts with it.
+func VariantDisplayName(parentName string, v CatalogVariant) string {
+	keys := make([]string, 0, len(v.Attributes))
+	for k, val := range v.Attributes {
+		if strings.TrimSpace(val) != "" {
+			keys = append(keys, k)
+		}
+	}
+	if len(keys) > 0 {
+		slices.SortFunc(keys, func(a, b string) int {
+			ra, oka := variantAttributeOrder[strings.ToLower(a)]
+			rb, okb := variantAttributeOrder[strings.ToLower(b)]
+			switch {
+			case oka && okb && ra != rb:
+				return ra - rb
+			case oka && !okb:
+				return -1
+			case !oka && okb:
+				return 1
+			}
+			return strings.Compare(a, b)
+		})
+		values := make([]string, 0, len(keys))
+		for _, k := range keys {
+			values = append(values, strings.TrimSpace(v.Attributes[k]))
+		}
+		return parentName + ", " + strings.Join(values, " / ")
+	}
+	name := strings.TrimSpace(v.Name)
+	switch {
+	case name == "":
+		return parentName
+	case parentName == "" || strings.HasPrefix(strings.ToLower(name), strings.ToLower(parentName)):
+		return name
+	}
+	return parentName + ", " + name
+}
+
+// allowsBackorder reports whether the parent item lets a variant be ordered at zero stock
+// (metadata.allow_backorder = true).
+func allowsBackorder(metadata map[string]any) bool {
+	v, _ := metadata["allow_backorder"].(bool)
+	return v
+}
+
+// resolveVariantItem turns the merged parent item into the merged view of one of its variants.
+// The variant is a child inventory item, so its SKU and item id replace the parent's and every
+// stock reservation or deduction keyed by them hits the child's own stock.
+//
+// Price: the child's own override price, else the variant price from inventory, else the parent
+// price. Availability: the parent must be orderable (active, its override not switched off), the
+// variant active, the child's own override (when one exists) available, and the variant's live
+// on-hand quantity above zero unless the parent allows backorders. Inventory reports on_hand per
+// variant, so a sold-out size or colour shows as unavailable on its own while its siblings stay
+// orderable.
+func resolveVariantItem(parent MergedCatalogItem, inv inventory.ItemResponse, parentOverride *ent.CatalogOverride, idx int, variantOverride *ent.CatalogOverride) MergedCatalogItem {
+	item := parent
+	v := parent.Variants[idx]
+
+	item.Variant = &v
+	item.ParentSKU = inv.SKU
+	item.InventorySKU = v.SKU
+	if v.ID != uuid.Nil {
+		item.InventoryID = v.ID
+	}
+	item.Name = VariantDisplayName(inv.Name, v)
+	if v.ImageURL != "" {
+		item.ImageURL = v.ImageURL
+	}
+	if variantOverride != nil && variantOverride.ImageURLOverride != "" {
+		item.ImageURL = variantOverride.ImageURLOverride
+	}
+
+	price := v.Price
+	if variantOverride != nil && variantOverride.BasePrice > 0 {
+		price = math.Ceil(variantOverride.BasePrice)
+	}
+	if price <= 0 {
+		price = parent.BasePrice
+	}
+	item.BasePrice = price
+	// The parent's costing and tax amounts were computed for the parent's price, not this one.
+	item.CostPrice, item.SuggestedPrice, item.SellingPrice, item.FoodCostPct = nil, nil, nil, nil
+	item.FoodCostStatus = ""
+	item.NetPrice, item.TaxAmount = nil, nil
+
+	available := inv.IsActive && !inv.NotForSale && v.IsActive &&
+		(parentOverride == nil || parentOverride.IsAvailable)
+	if variantOverride != nil && !variantOverride.IsAvailable {
+		available = false
+	}
+	if v.OnHand != nil && *v.OnHand <= 0 && !allowsBackorder(inv.Metadata) {
+		available = false
+	}
+
+	qty := v.OnHand
+	if qty == nil && variantOverride != nil {
+		qty = variantOverride.AvailableQuantity
+	}
+	if qty != nil && *qty <= 0 {
+		qty = nil // same display rule as mergeItem: no "0 left" on an item that is not hidden
+	}
+	item.AvailableQuantity = qty
+
+	item.IsComplimentary = false
+	if price == 0 {
+		if variantOverride != nil && variantOverride.IsAvailable && available {
+			item.IsComplimentary = true
+		} else {
+			available = false
+		}
+	}
+	item.IsAvailable = available
+	return item
 }
 
 // ---------- Categories ----------
@@ -807,14 +963,20 @@ func mergeItem(inv inventory.ItemResponse, override *ent.CatalogOverride, favSet
 	if len(inv.Variants) > 0 {
 		item.Variants = make([]CatalogVariant, 0, len(inv.Variants))
 		for _, v := range inv.Variants {
+			price := v.Price
+			if price > 0 {
+				price = math.Ceil(price) // same whole-number rounding as BasePrice below
+			}
 			item.Variants = append(item.Variants, CatalogVariant{
 				ID:         v.ID,
 				SKU:        v.SKU,
 				Name:       v.Name,
-				Price:      v.Price,
+				Price:      price,
 				Attributes: v.Attributes,
 				Barcode:    v.Barcode,
 				IsActive:   v.IsActive,
+				OnHand:     v.OnHand,
+				ImageURL:   v.ImageURL,
 			})
 		}
 		item.HasVariants = true

@@ -91,6 +91,10 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 // boolean is_available remains owned by the stock.out/stock.in cascade and item.updated. Rows
 // are only updated where they already exist — a stock.updated for an item with no catalog
 // override yet is a no-op (creation happens via inventory.item.created).
+//
+// Variants need nothing extra here: a variant is a child inventory item with its own SKU, so its
+// stock events and its override row are keyed by that child SKU, and GetItem (resolveVariantItem)
+// reads the child's override when it serves the variant.
 func (h *StockEventHandler) handleStockUpdated(ctx context.Context, evt *sharedevents.Event) error {
 	tenantID := evt.TenantID
 	if tenantID == uuid.Nil {

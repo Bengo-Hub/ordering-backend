@@ -438,6 +438,10 @@ type ItemVariantResponse struct {
 	Attributes map[string]string `json:"attributes,omitempty"`
 	Barcode    string            `json:"barcode,omitempty"`
 	IsActive   bool              `json:"is_active"`
+	// OnHand is the variant's own stock (a variant is a child inventory item with its own SKU and
+	// balance). Nil when inventory did not report it.
+	OnHand   *float64 `json:"on_hand,omitempty"`
+	ImageURL string   `json:"image_url,omitempty"`
 }
 
 // ItemModifierOptionResponse mirrors inventory-api's items.ItemModifierOption.

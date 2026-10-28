@@ -492,6 +492,27 @@ Analytics (`/{tenant}/analytics/*`), compliance (`/{tenant}/compliance/*`) and G
 twice (`/api/v1/{t}/{t}/...`) until 2026-10-27, so the admin pages calling them got 404s.
 `internal/http/router/tenant_routes_test.go` guards the paths.
 
+#### Variants (2026-10-28)
+
+A variant (size, colour and so on) is its own inventory item with its own SKU, barcode, price and
+stock, listed under its parent in the `variants` array that inventory-api returns with
+`include=variants`. Each variant now also carries `onHand` and `imageUrl`, and its price is rounded
+up to a whole number like every other storefront price. `GET /{tenant}/catalog/items/{sku}` and
+checkout accept a variant SKU: `ProxyService.GetItem` finds the parent in the cached catalogue and
+returns the variant's own SKU, item id, name ("T-shirt, Red / M"), price (its own override, then
+the inventory price, then the parent price), image and stock, plus `variant` and `parentSku`. A
+variant is orderable when the parent is, the variant is active, its own catalogue override (keyed
+by the child SKU and kept fresh by the stock events) is not switched off, and its on-hand stock is
+above zero, unless the parent's metadata sets `allow_backorder`. Checkout and add to cart accept the
+variant SKU, or the parent SKU with a `variant_id` (line metadata or the cart's `variantId`), and
+reject an unknown, mismatched or unavailable variant with 400 "variant is not available". The
+server stamps `variant_id`, `variant_sku`, `variant_name`, `variant_attributes` and `parent_sku` on
+the line, sets the order item's `variantId`, and passes those keys to pos-api in the outlet
+hand-off, where the line `sku` is the variant SKU. Storefront deals match a variant on its own SKU
+or its parent's SKU. Promo codes go through pos-api's apply call, which takes one SKU per line, so a
+code scoped to the parent SKU does not cover its variants; scope such codes to the variant SKUs or
+the category instead.
+
 ---
 
 ## External Third-Party Integrations
