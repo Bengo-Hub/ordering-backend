@@ -132,6 +132,8 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		MinPrice:   parsePriceParam(r.URL.Query().Get("min_price")),
 		MaxPrice:   parsePriceParam(r.URL.Query().Get("max_price")),
 		WithFacets: r.URL.Query().Get("facets") == "1" || r.URL.Query().Get("facets") == "true",
+		// attrs=size:M,colour:Red (variant values; see catalog.ParseAttributeFilter)
+		Attributes: catalog.ParseAttributeFilter(r.URL.Query().Get("attrs")),
 		Limit:      limit,
 		Offset:     offset,
 	}

@@ -89,6 +89,53 @@ func filterByPrice(items []MergedCatalogItem, minPrice, maxPrice *float64) []Mer
 	})
 }
 
+// ParseAttributeFilter reads "size:M,colour:Red" into {"size": "m", "colour": "red"} (axis and
+// value lower-cased, blanks dropped). Several values for one axis are not supported: the last wins.
+func ParseAttributeFilter(raw string) map[string]string {
+	out := map[string]string{}
+	for _, part := range strings.Split(raw, ",") {
+		axis, value, ok := strings.Cut(part, ":")
+		axis, value = strings.ToLower(strings.TrimSpace(axis)), strings.ToLower(strings.TrimSpace(value))
+		if ok && axis != "" && value != "" {
+			out[axis] = value
+		}
+	}
+	return out
+}
+
+// filterByAttributes keeps products with at least one active variant carrying every requested
+// value (compared without case). Products without variants drop out when a filter is set.
+func filterByAttributes(items []MergedCatalogItem, want map[string]string) []MergedCatalogItem {
+	if len(want) == 0 {
+		return items
+	}
+	return slices.DeleteFunc(items, func(it MergedCatalogItem) bool {
+		for _, v := range it.Variants {
+			if !v.IsActive {
+				continue
+			}
+			match := true
+			for axis, value := range want {
+				got := ""
+				for k, val := range v.Attributes {
+					if strings.EqualFold(strings.TrimSpace(k), axis) {
+						got = val
+						break
+					}
+				}
+				if !strings.EqualFold(strings.TrimSpace(got), value) {
+					match = false
+					break
+				}
+			}
+			if match {
+				return false
+			}
+		}
+		return true
+	})
+}
+
 // sortItems orders the merged set in place for the locally applied sort keys. Ties fall back to
 // the name so pages stay stable between requests. Unknown keys keep inventory's order.
 func sortItems(items []MergedCatalogItem, sort string) {

@@ -227,6 +227,7 @@ func (s *ProxyService) ListItemsPage(ctx context.Context, tenantSlug string, ten
 		facets = buildFacets(merged)
 	}
 	merged = filterByPrice(merged, filter.MinPrice, filter.MaxPrice)
+	merged = filterByAttributes(merged, filter.Attributes)
 	sortItems(merged, filter.Sort)
 
 	// Paginate the filtered result so every page is full and the total counts only what a

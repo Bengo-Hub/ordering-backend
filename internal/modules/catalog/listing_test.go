@@ -75,6 +75,23 @@ func TestFilterByPriceUsesFromPrice(t *testing.T) {
 	}
 }
 
+func TestAttributeFilter(t *testing.T) {
+	want := ParseAttributeFilter(" Size : m , colour:RED, bad, :x")
+	if len(want) != 2 || want["size"] != "m" || want["colour"] != "red" {
+		t.Fatalf("parsed %v", want)
+	}
+	got := names(filterByAttributes(listingFixture(), want))
+	if len(got) != 1 || got[0] != "T-shirt" {
+		t.Fatalf("size M in red = %v, want the T-shirt", got)
+	}
+	if n := len(filterByAttributes(listingFixture(), map[string]string{"colour": "blue"})); n != 0 {
+		t.Fatalf("blue exists only on an inactive variant, kept %d", n)
+	}
+	if n := len(filterByAttributes(listingFixture(), nil)); n != 4 {
+		t.Fatalf("no filter kept %d of 4", n)
+	}
+}
+
 func TestBuildFacets(t *testing.T) {
 	f := buildFacets(listingFixture())
 	if f.PriceMin != 400 || f.PriceMax != 2500 {

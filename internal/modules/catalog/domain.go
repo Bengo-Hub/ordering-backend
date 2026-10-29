@@ -201,6 +201,9 @@ type CatalogFilter struct {
 	MaxPrice *float64
 	// WithFacets asks ListItemsPage for brand, category, variant attribute and price facets.
 	WithFacets bool
+	// Attributes keeps products with an active variant carrying every value, e.g. {"size": "m"}
+	// (lower case; see ParseAttributeFilter).
+	Attributes map[string]string
 	// SKUs keeps only these items and CategoryNames only items in these categories, both
 	// compared without case. They mirror how pos-api matches a promotion rule (item scope by
 	// SKU, category scope by category name), so deal cards resolve exactly the products the

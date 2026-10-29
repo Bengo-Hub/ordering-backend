@@ -523,6 +523,8 @@ that merged set and every page is consistent across the catalogue:
   locally. The candidate cache is shared by every key but `newest`.
 - `min_price` / `max_price`: bound the list price, which is the lowest active variant price for a
   product with variants, else its own price.
+- `attrs=size:M,colour:Red`: keeps products with an active variant carrying every value (no case);
+  products without variants drop out while it is set. Facets are counted before it.
 - `facets=1`: adds `facets {priceMin, priceMax, brands[], categories[], attributes{axis: []}}`, each
   entry `{id?, name, count}`, counted over the matching set before the price range so the slider
   spans the whole selection. Free (price 0) products do not move the price bounds.
