@@ -92,5 +92,7 @@ func (Outlet) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "slug").Unique(),
 		index.Fields("status"),
+		// Storefront outlet discovery filters a tenant's active outlets by use case.
+		index.Fields("tenant_id", "status", "use_case"),
 	}
 }

@@ -103,5 +103,7 @@ func (PromoCode) Indexes() []ent.Index {
 			Unique(),
 		index.Fields("is_active"),
 		index.Fields("starts_at", "ends_at"),
+		// Outlet listings load a tenant's live codes for the offer badges.
+		index.Fields("tenant_id", "is_active"),
 	}
 }

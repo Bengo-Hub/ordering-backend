@@ -2,6 +2,8 @@ package catalog
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -10,6 +12,8 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/platform/logistics"
+
+	sharedcache "github.com/Bengo-Hub/cache"
 )
 
 // DeliveryInfoSource is logistics-api's delivery pricing as seen by the catalog.
@@ -28,6 +32,33 @@ type outletDelivery struct {
 	// Deliverable is known only when the customer's pin is; without it Fee is the
 	// cheapest area fee ("from"), not a quote.
 	Deliverable *bool
+	// AtOutlet: the pin is at the outlet itself (logistics reason "at_outlet", inside the
+	// pickup-only radius). Not a refusal: the customer orders and collects at the counter, so
+	// Deliverable stays unknown.
+	AtOutlet bool
+}
+
+// quoteCacheTTL keeps an outlet's quote for a rounded pin, so browsing pages and rails do not
+// re-ask logistics for the same place.
+const quoteCacheTTL = 5 * time.Minute
+
+// quoteCacheKey rounds the pin to 3 decimals (about 110 m), close enough that the zone and fee
+// do not change between neighbouring pins.
+func quoteCacheKey(tenantID, outletID uuid.UUID, lat, lng float64) string {
+	r := func(v float64) float64 { return math.Round(v*1000) / 1000 }
+	return fmt.Sprintf("ordering:quote:%s:%s:%.3f:%.3f", tenantID, outletID, r(lat), r(lng))
+}
+
+// listingDelivery turns a logistics quote into the listing's delivery details.
+func listingDelivery(q *logistics.DeliveryQuote) outletDelivery {
+	d := outletDelivery{Fee: q.Fee, EtaMinutes: q.EtaMinutes, DistanceKm: q.DistanceKm}
+	if q.Reason == "at_outlet" {
+		d.AtOutlet = true
+		return d
+	}
+	serviceable := q.Serviceable
+	d.Deliverable = &serviceable
+	return d
 }
 
 // maxQuoteFanout bounds concurrent quote calls for one listing.
@@ -68,16 +99,27 @@ func (s *ProxyService) deliveryForOutlets(ctx context.Context, tenantID uuid.UUI
 		go func() {
 			defer wg.Done()
 			defer func() { <-sem }()
-			q, err := s.delivery.Quote(qctx, tenantID, logistics.QuoteRequest{Lat: *lat, Lng: *lng, OutletID: &oid})
+			q, err := s.quoteCached(qctx, tenantID, oid, *lat, *lng)
 			if err != nil {
 				return
 			}
 			mu.Lock()
-			serviceable := q.Serviceable
-			out[oid] = outletDelivery{Fee: q.Fee, EtaMinutes: q.EtaMinutes, DistanceKm: q.DistanceKm, Deliverable: &serviceable}
+			out[oid] = listingDelivery(q)
 			mu.Unlock()
 		}()
 	}
 	wg.Wait()
 	return out
+}
+
+// quoteCached asks logistics for the outlet's quote to the pin, cached per rounded pin.
+// Failures are not cached.
+func (s *ProxyService) quoteCached(ctx context.Context, tenantID, outletID uuid.UUID, lat, lng float64) (*logistics.DeliveryQuote, error) {
+	fetch := func(ctx context.Context) (*logistics.DeliveryQuote, error) {
+		return s.delivery.Quote(ctx, tenantID, logistics.QuoteRequest{Lat: lat, Lng: lng, OutletID: &outletID})
+	}
+	if s.cache == nil {
+		return fetch(ctx)
+	}
+	return sharedcache.GetOrSet(ctx, s.cache, quoteCacheKey(tenantID, outletID, lat, lng), quoteCacheTTL, fetch)
 }

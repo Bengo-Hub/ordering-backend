@@ -69,3 +69,33 @@ func TestDeliveryForOutlets(t *testing.T) {
 		t.Fatal("without logistics the listing has no delivery details")
 	}
 }
+// A pin inside the outlet's pickup-only radius is "at the outlet", not "does not deliver".
+func TestListingDeliveryAtOutlet(t *testing.T) {
+	d := listingDelivery(&logistics.DeliveryQuote{Serviceable: false, Reason: "at_outlet"})
+	if !d.AtOutlet || d.Deliverable != nil {
+		t.Fatalf("at_outlet = %v, deliverable = %v; want true, unknown", d.AtOutlet, d.Deliverable)
+	}
+
+	d = listingDelivery(&logistics.DeliveryQuote{Serviceable: false, Reason: "outside_delivery_area"})
+	if d.AtOutlet || d.Deliverable == nil || *d.Deliverable {
+		t.Fatalf("outside area: at_outlet = %v, deliverable = %v; want false, false", d.AtOutlet, d.Deliverable)
+	}
+
+	d = listingDelivery(&logistics.DeliveryQuote{Serviceable: true, Fee: 150, EtaMinutes: 30})
+	if d.Deliverable == nil || !*d.Deliverable || d.Fee != 150 {
+		t.Fatalf("serviceable: %+v", d)
+	}
+}
+
+// Neighbouring pins share a cache entry; different outlets never do.
+func TestQuoteCacheKeyRoundsPin(t *testing.T) {
+	tenant, outlet := uuid.New(), uuid.New()
+	a := quoteCacheKey(tenant, outlet, 0.45457, 34.12471)
+	b := quoteCacheKey(tenant, outlet, 0.45461, 34.12468)
+	if a != b {
+		t.Fatalf("keys differ for pins 5 m apart: %s vs %s", a, b)
+	}
+	if a == quoteCacheKey(tenant, uuid.New(), 0.45457, 34.12471) {
+		t.Fatal("two outlets share a cache key")
+	}
+}

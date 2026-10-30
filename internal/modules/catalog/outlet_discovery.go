@@ -59,6 +59,8 @@ type OutletWithMeta struct {
 	// Deliverable is set when the customer's pin is known: false means this outlet does
 	// not deliver there.
 	Deliverable *bool `json:"deliverable,omitempty"`
+	// AtOutlet: the customer's pin is at this outlet (pickup at the counter, not a refusal).
+	AtOutlet bool `json:"at_outlet,omitempty"`
 }
 
 // ListOutletsDiscovery returns outlets enriched with rating, delivery, distance,
@@ -191,6 +193,7 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 			meta.EstimatedTime = d.EtaMinutes
 			meta.Distance = d.DistanceKm
 			meta.Deliverable = d.Deliverable
+			meta.AtOutlet = d.AtOutlet
 		}
 
 		// Offers

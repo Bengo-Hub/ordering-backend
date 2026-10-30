@@ -1227,6 +1227,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{OutletsColumns[15]},
 			},
+			{
+				Name:    "outlet_tenant_id_status_use_case",
+				Unique:  false,
+				Columns: []*schema.Column{OutletsColumns[18], OutletsColumns[15], OutletsColumns[12]},
+			},
 		},
 	}
 	// OutletRatingsColumns holds the columns for the "outlet_ratings" table.
@@ -1323,6 +1328,11 @@ var (
 				Name:    "promocode_starts_at_ends_at",
 				Unique:  false,
 				Columns: []*schema.Column{PromoCodesColumns[15], PromoCodesColumns[16]},
+			},
+			{
+				Name:    "promocode_tenant_id_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{PromoCodesColumns[1], PromoCodesColumns[13]},
 			},
 		},
 	}
