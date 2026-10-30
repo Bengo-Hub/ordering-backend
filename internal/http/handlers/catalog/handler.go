@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -48,6 +49,7 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 		catalogRouter.Get("/categories", h.ListPublicCategories)
 		catalogRouter.Get("/brands", h.ListPublicBrands)
 		catalogRouter.Get("/items", h.ListPublicItems)
+		catalogRouter.Get("/items/by-category", h.ListPublicItemsByCategory)
 		catalogRouter.Get("/items/{sku}", h.GetPublicItem)
 
 		catalogRouter.Get("/items/{sku}/images", h.GetItemImages)
@@ -120,6 +122,105 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filter, limit, page := publicItemsFilter(r, tenantID)
+
+	result, err := h.service.ListItemsPage(r.Context(), tenantSlug, tenantID, filter)
+	if err != nil {
+		h.log.Error("list items failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
+		Data:   result.Items,
+		Total:  result.Total,
+		Limit:  limit,
+		Page:   page,
+		Facets: result.Facets,
+	})
+}
+
+// maxCategoryRows caps one by-category request (the retail home shows a handful of rows).
+const maxCategoryRows = 8
+
+// ListPublicItemsByCategory returns a few items for each requested category in one call, so the
+// storefront's category rows load with one request instead of one per row. Each row is the same
+// listing the item list returns for that category_id (sub-categories, availability and
+// favourites included), cut to `limit`. Unknown or empty categories come back as empty lists.
+// @Summary List items for several categories at once
+// @Tags Catalog
+// @Produce json
+// @Param tenant path string true "Tenant slug"
+// @Param category_ids query string true "Comma-separated category ids (at most 8)"
+// @Param limit query int false "Items per category (default 20)"
+// @Success 200 {object} map[string][]catalog.MergedCatalogItem
+// @Router /{tenant}/catalog/items/by-category [get]
+func (h *Handler) ListPublicItemsByCategory(w http.ResponseWriter, r *http.Request) {
+	tenantID, tenantSlug, err := h.resolveTenant(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	var ids []uuid.UUID
+	for _, raw := range strings.Split(r.URL.Query().Get("category_ids"), ",") {
+		if id, err := uuid.Parse(strings.TrimSpace(raw)); err == nil {
+			ids = append(ids, id)
+		}
+		if len(ids) == maxCategoryRows {
+			break
+		}
+	}
+	if len(ids) == 0 {
+		handlers.RespondError(w, http.StatusBadRequest, "category_ids required")
+		return
+	}
+	base, _, _ := publicItemsFilter(r, tenantID)
+	base.Offset = 0
+
+	rows := make(map[string][]catalog.MergedCatalogItem, len(ids))
+	var (
+		mu       sync.Mutex
+		wg       sync.WaitGroup
+		firstErr error
+	)
+	sem := make(chan struct{}, 4)
+	for _, id := range ids {
+		f := base
+		f.CategoryID = &id
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			page, err := h.service.ListItemsPage(r.Context(), tenantSlug, tenantID, f)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil {
+				if firstErr == nil {
+					firstErr = err
+				}
+				return
+			}
+			items := page.Items
+			if items == nil {
+				items = []catalog.MergedCatalogItem{}
+			}
+			rows[id.String()] = items
+		}()
+	}
+	wg.Wait()
+	if firstErr != nil {
+		h.log.Error("list items by category failed", zap.Error(firstErr))
+		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{"data": rows})
+}
+
+// publicItemsFilter builds the storefront listing filter from the query string (shared by the
+// item list and the per-category rows, so both apply the same availability, outlet and
+// favourite rules).
+func publicItemsFilter(r *http.Request, tenantID uuid.UUID) (catalog.CatalogFilter, int, int) {
 	limit, offset, page := getPagination(r)
 	filter := catalog.CatalogFilter{
 		TenantID: tenantID,
@@ -184,20 +285,7 @@ func (h *Handler) ListPublicItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result, err := h.service.ListItemsPage(r.Context(), tenantSlug, tenantID, filter)
-	if err != nil {
-		h.log.Error("list items failed", zap.Error(err))
-		handlers.RespondError(w, http.StatusInternalServerError, "internal server error")
-		return
-	}
-
-	handlers.RespondJSON(w, http.StatusOK, catalog.ListResponse{
-		Data:   result.Items,
-		Total:  result.Total,
-		Limit:  limit,
-		Page:   page,
-		Facets: result.Facets,
-	})
+	return filter, limit, page
 }
 
 // parsePriceParam reads a non-negative price query value; anything else means no bound.
