@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/Bengo-Hub/httpware/money"
 
@@ -39,9 +40,20 @@ type DeliveryNotServiceableError struct {
 	OutletKm   float64 `json:"outlet_km,omitempty"`
 	RouteArea  string  `json:"route_area,omitempty"`
 	RouteOffKm float64 `json:"route_off_km,omitempty"`
+	// Outlet names the outlet a pin at the outlet itself (reason at_outlet) is standing in.
+	Outlet string `json:"outlet,omitempty"`
 }
 
+// reasonAtOutlet is logistics' refusal for a pin at the outlet itself: the customer collects.
+const reasonAtOutlet = "at_outlet"
+
 func (e *DeliveryNotServiceableError) Error() string {
+	if e.Reason == reasonAtOutlet {
+		if e.Outlet != "" {
+			return fmt.Sprintf("you are at %s, so there is nothing to deliver: choose pickup to collect your order", e.Outlet)
+		}
+		return "you are at the outlet, so there is nothing to deliver: choose pickup to collect your order"
+	}
 	if e.RouteArea != "" && e.RouteOffKm > 0 && e.OutletKm > 0 {
 		return fmt.Sprintf("we do not deliver to this location yet (it is %.0f km %s of the outlet and %.0f km away from our nearest delivery route, towards %s)", e.OutletKm, e.Direction, e.RouteOffKm, e.RouteArea)
 	}
@@ -168,6 +180,9 @@ func applyDeliveryFees(q *logistics.DeliveryQuote, cfg FeeConfig, itemsTotal flo
 		if q.RouteArea != nil {
 			e.RouteArea = q.RouteArea.Name
 		}
+		if q.Outlet != nil {
+			e.Outlet = q.Outlet.Name
+		}
 		return DeliveryPrice{}, e
 	}
 	if q.MinOrder > 0 && itemsTotal < q.MinOrder {
@@ -211,6 +226,22 @@ func deliveryPin(ft FulfillmentType, v *float64) *float64 {
 		return nil
 	}
 	return v
+}
+
+// orderInstructions joins the drop-off address (delivery orders only) and the customer's notes,
+// one per line. A pickup has no drop-off, so a map location the storefront still sends never
+// reaches the counter as an address.
+func orderInstructions(ft FulfillmentType, address string, notes ...string) string {
+	var parts []string
+	if isDeliveryFulfilment(ft) {
+		notes = append([]string{address}, notes...)
+	}
+	for _, n := range notes {
+		if n = strings.TrimSpace(n); n != "" {
+			parts = append(parts, n)
+		}
+	}
+	return strings.Join(parts, "\n")
 }
 
 // metaDeliveryQuote is the order metadata key holding the delivery price snapshot.

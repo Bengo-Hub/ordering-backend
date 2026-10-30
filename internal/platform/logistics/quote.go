@@ -57,6 +57,8 @@ type DeliveryQuote struct {
 	EtaMinutes    int             `json:"eta_minutes,omitempty"`
 	MinOrder      float64         `json:"min_order"`
 	BelowMinOrder bool            `json:"below_min_order,omitempty"`
+	// Outlet is the outlet the quote was measured from (reason at_outlet names it).
+	Outlet        *ZoneRef        `json:"outlet,omitempty"`
 	Breakdown     *QuoteBreakdown `json:"breakdown,omitempty"`
 	PolicyVersion string          `json:"policy_version"`
 	CacheSeconds  int             `json:"cache_seconds"`

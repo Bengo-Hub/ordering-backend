@@ -185,3 +185,35 @@ func TestDeliveryZoneOfAndWithDeliveryQuote(t *testing.T) {
 		t.Fatal("deliveryPin wrong")
 	}
 }
+
+// A customer standing in the outlet is told to pick up, naming the outlet.
+func TestPriceDeliveryAtOutletAsksForPickup(t *testing.T) {
+	at := &logistics.DeliveryQuote{Serviceable: false, Reason: "at_outlet", OutletKm: 0.02, Outlet: &logistics.ZoneRef{Name: "Urban Loft Cafe Busia"}}
+	_, err := newFeeSvc("", &fakeQuoter{q: at}).PriceDelivery(context.Background(), uuid.New(), uuid.Nil, FulfillmentTypeDelivery, f64(0.4545662), f64(34.1272854), 250)
+	var ns *DeliveryNotServiceableError
+	if !errors.As(err, &ns) || ns.Reason != "at_outlet" || ns.Outlet != "Urban Loft Cafe Busia" {
+		t.Fatalf("at outlet: %v", err)
+	}
+	if want := "you are at Urban Loft Cafe Busia, so there is nothing to deliver: choose pickup to collect your order"; err.Error() != want {
+		t.Fatalf("message = %q", err.Error())
+	}
+}
+
+// Pickup orders never keep a drop-off pin or address, whatever the storefront sends.
+func TestPickupKeepsNoDropOff(t *testing.T) {
+	if deliveryPin(FulfillmentTypePickup, f64(0.45)) != nil {
+		t.Fatal("pickup kept the pin")
+	}
+	if p := deliveryPin(FulfillmentTypeDelivery, f64(0.45)); p == nil || *p != 0.45 {
+		t.Fatal("delivery lost the pin")
+	}
+	if got := orderInstructions(FulfillmentTypePickup, "Busia Town", "", " no onions "); got != "no onions" {
+		t.Fatalf("pickup instructions = %q", got)
+	}
+	if got := orderInstructions(FulfillmentTypeDelivery, "Busia Town", "gate 2", "no onions"); got != "Busia Town\ngate 2\nno onions" {
+		t.Fatalf("delivery instructions = %q", got)
+	}
+	if got := orderInstructions(FulfillmentTypeDelivery, "", "gate 2"); got != "gate 2" {
+		t.Fatalf("no leading blank line: %q", got)
+	}
+}

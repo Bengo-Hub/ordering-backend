@@ -26,6 +26,8 @@ func respondDeliveryError(w http.ResponseWriter, err error) bool {
 			"outlet_km":    notServiceable.OutletKm,
 			"route_area":   notServiceable.RouteArea,
 			"route_off_km": notServiceable.RouteOffKm,
+			// reason at_outlet: the customer is at this outlet and should choose pickup.
+			"outlet": notServiceable.Outlet,
 		})
 	case errors.As(err, &belowMin):
 		handlers.RespondJSON(w, http.StatusUnprocessableEntity, map[string]any{

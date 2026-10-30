@@ -484,10 +484,7 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 	if s.loyaltyEarnEnabled(ctx) {
 		loyaltyPointsEarned = s.loyaltySvc.CalculatePointsForAmount(grandTotal)
 	}
-	instructions := req.DeliveryAddress
-	if req.DeliveryNotes != "" {
-		instructions = instructions + "\n" + req.DeliveryNotes
-	}
+	instructions := orderInstructions(fulfillmentType, req.DeliveryAddress, req.DeliveryNotes)
 
 	paymentMethod, paymentStatus, paymentMeta, pmErr := resolvePaymentMethod(req.PaymentMethod, req.MpesaCode)
 	if pmErr != nil {
@@ -961,14 +958,7 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		return nil, err
 	}
 
-	// Build instructions with delivery info and contact details
-	instructions := req.DeliveryAddress
-	if req.DeliveryNotes != "" {
-		instructions = instructions + "\n" + req.DeliveryNotes
-	}
-	if req.Instructions != "" {
-		instructions = instructions + "\n" + req.Instructions
-	}
+	instructions := orderInstructions(fulfillmentType, req.DeliveryAddress, req.DeliveryNotes, req.Instructions)
 
 	// Reserve stock via inventory service
 	var reservationID *uuid.UUID
@@ -1017,8 +1007,9 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 		// resolve dropoff coordinates the way authenticated checkout does — persist the raw
 		// lat/lng the client sent (already used transiently above for the delivery-fee zone
 		// calc) so publishOrderReady can still hand the rider real coordinates instead of none.
-		DeliveryLatitude:      req.DeliveryLat,
-		DeliveryLongitude:     req.DeliveryLng,
+		// Pickup orders keep none (deliveryPin), like the signed-in checkout paths.
+		DeliveryLatitude:      deliveryPin(fulfillmentType, req.DeliveryLat),
+		DeliveryLongitude:     deliveryPin(fulfillmentType, req.DeliveryLng),
 		LoyaltyPointsEarned:   0,
 		LoyaltyPointsRedeemed: 0,
 		Instructions:          instructions,
