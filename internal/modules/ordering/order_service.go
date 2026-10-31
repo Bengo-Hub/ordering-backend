@@ -256,7 +256,10 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 	if dErr != nil {
 		return nil, dErr
 	}
-	fees := s.feeSvc.CalculateFees(ctx, req.TenantID, cart.Subtotal, cart.TaxTotal, delivery, discountTotal+loyaltyDiscount)
+	// The discount comes off the taxable value before VAT, so the order's VAT is on what the
+	// customer actually pays.
+	orderTax := cart.VATAfterDiscount(discountTotal + loyaltyDiscount)
+	fees := s.feeSvc.CalculateFees(ctx, req.TenantID, cart.Subtotal, orderTax, delivery, discountTotal+loyaltyDiscount)
 	grandTotal := fees.GrandTotal
 	deliveryFee := fees.DeliveryFee
 
@@ -308,7 +311,7 @@ func (s *OrderService) Checkout(ctx context.Context, req CheckoutRequest) (*Orde
 		Currency:              cart.Currency,
 		Subtotal:              cart.Subtotal,
 		DiscountTotal:         discountTotal,
-		TaxTotal:              cart.TaxTotal,
+		TaxTotal:              orderTax,
 		DeliveryFee:           deliveryFee,
 		PackagingFee:          fees.PackagingFee,
 		ServiceFee:            fees.ServiceFee,

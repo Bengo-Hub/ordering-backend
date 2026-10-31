@@ -590,7 +590,7 @@ func (h *CartHandler) GetFeeBreakdown(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fees := h.feeService.CalculateFees(r.Context(), tenantID, existingCart.Subtotal, existingCart.TaxTotal, delivery, existingCart.DiscountTotal)
+	fees := h.feeService.CalculateFees(r.Context(), tenantID, existingCart.Subtotal, existingCart.VATAfterDiscount(existingCart.DiscountTotal), delivery, existingCart.DiscountTotal)
 	handlers.RespondJSON(w, http.StatusOK, fees)
 }
 

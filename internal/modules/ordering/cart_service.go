@@ -374,29 +374,10 @@ func (s *CartService) recalculateCartTotals(ctx context.Context, cart *Cart) err
 		return err
 	}
 
-	// Subtotal is net-of-tax; TaxTotal is the VAT portion. For tax-inclusive items the tax is
-	// computed backwards from the line total (net = total/(1+rate)); for exclusive items it is
-	// added on top. Grand total = Subtotal + TaxTotal (see GetCartSummary), so both cases reconcile
-	// to the displayed gross price. Rates/flags are snapshotted from the catalog (inventory→treasury).
-	var subtotal, taxTotal float64
-	for _, item := range items {
-		// TotalPrice already includes modifiers: (unitPrice + modifierTotal) * quantity
-		lineTotal := item.TotalPrice
-		rate, _ := item.Metadata["tax_rate"].(float64)
-		inclusive, _ := item.Metadata["tax_inclusive"].(bool)
-		if rate > 0 {
-			if inclusive {
-				net := lineTotal / (1 + rate/100)
-				subtotal += net
-				taxTotal += lineTotal - net
-			} else {
-				subtotal += lineTotal
-				taxTotal += lineTotal * rate / 100
-			}
-		} else {
-			subtotal += lineTotal
-		}
-	}
+	// Subtotal is net of tax; TaxTotal is the VAT, rounded on each line by the shared calculator
+	// (cartTotals). Grand total = Subtotal + TaxTotal (see GetCartSummary), so inclusive and
+	// exclusive lines both reconcile to the displayed gross price.
+	subtotal, taxTotal := cartTotals(items)
 
 	cart.Subtotal = subtotal
 	cart.TaxTotal = taxTotal
