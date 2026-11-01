@@ -43,15 +43,19 @@ func NewPaymentMethodHandler(log *zap.Logger, service *payments.PaymentMethodSer
 // Register mounts payment method routes on the supplied router.
 func (h *PaymentMethodHandler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/payment-methods", func(methodRouter chi.Router) {
-		methodRouter.Use(auth.RequireAuth)
+		// The checkout list is open to guests (gateways only); a signed-in customer also gets
+		// their wallet and saved cards.
+		methodRouter.With(auth.OptionalAuth).Get("/", h.ListPaymentMethods)
 
-		methodRouter.Post("/", h.CreatePaymentMethod)
-		methodRouter.Get("/", h.ListPaymentMethods)
-		methodRouter.Get("/default", h.GetDefaultPaymentMethod)
-		methodRouter.Get("/{methodId}", h.GetPaymentMethod)
-		methodRouter.Put("/{methodId}", h.UpdatePaymentMethod)
-		methodRouter.Put("/{methodId}/default", h.SetDefaultPaymentMethod)
-		methodRouter.Delete("/{methodId}", h.DeletePaymentMethod)
+		methodRouter.Group(func(authed chi.Router) {
+			authed.Use(auth.RequireAuth)
+			authed.Post("/", h.CreatePaymentMethod)
+			authed.Get("/default", h.GetDefaultPaymentMethod)
+			authed.Get("/{methodId}", h.GetPaymentMethod)
+			authed.Put("/{methodId}", h.UpdatePaymentMethod)
+			authed.Put("/{methodId}/default", h.SetDefaultPaymentMethod)
+			authed.Delete("/{methodId}", h.DeletePaymentMethod)
+		})
 	})
 }
 
@@ -155,6 +159,26 @@ func getUserFromContext(r *http.Request) (*identity.User, uuid.UUID, error) {
 	return user, tenantID, nil
 }
 
+// checkoutCaller resolves the store being checked out (the tenant in the URL) and the signed-in
+// customer, nil for a guest. A signed-in customer of another tenant gets this store's options.
+func checkoutCaller(r *http.Request) (*identity.User, uuid.UUID, error) {
+	user, tenantID, err := getUserFromContext(r)
+	if id := httpware.GetTenantID(r.Context()); id != "" {
+		urlTenant, perr := uuid.Parse(id)
+		if perr != nil {
+			return nil, uuid.Nil, perr
+		}
+		if err != nil || tenantID != urlTenant {
+			if u, ok := identity.UserFromContext(r.Context()); ok {
+				return u, urlTenant, nil
+			}
+			return nil, urlTenant, nil
+		}
+		return user, urlTenant, nil
+	}
+	return user, tenantID, err
+}
+
 func (h *PaymentMethodHandler) handleError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, payments.ErrPaymentMethodNotFound):
@@ -239,9 +263,9 @@ func (h *PaymentMethodHandler) CreatePaymentMethod(w http.ResponseWriter, r *htt
 // @Router /payment-methods [get]
 func (h *PaymentMethodHandler) ListPaymentMethods(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, tenantID, err := getUserFromContext(r)
+	user, tenantID, err := checkoutCaller(r)
 	if err != nil {
-		handlers.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
 

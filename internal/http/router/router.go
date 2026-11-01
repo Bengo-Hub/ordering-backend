@@ -261,6 +261,10 @@ func New(
 							// endpoints live under /admin/integrations/google and DO require auth.
 							isPublicGoogle := strings.Contains(path, "/integrations/google/callback") ||
 								strings.Contains(path, "/integrations/google/review-url")
+							// The checkout's payment options (GET /payment-methods only; saved-card
+							// routes below it stay signed in). The route signs in optionally.
+							isPublicPaymentOptions := r.Method == http.MethodGet &&
+								strings.HasSuffix(strings.TrimSuffix(path, "/"), "/payment-methods")
 							if strings.Contains(path, "/webhooks/") ||
 								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
 								strings.Contains(path, "/promotions/banners") ||
@@ -271,6 +275,7 @@ func New(
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/orders/guest") ||
 								isPublicGoogle ||
+								isPublicPaymentOptions ||
 								strings.Contains(path, "/zones") ||
 								strings.Contains(path, "/ratings") ||
 								// Service-to-service routes carry no user JWT; they are guarded by the
