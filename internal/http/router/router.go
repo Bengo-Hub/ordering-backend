@@ -196,6 +196,66 @@ func New(
 
 			// Tenant-scoped routes
 			v1.Route("/{tenant}", func(tenant chi.Router) {
+				// The URL names the tenant on every /{tenant} route. Client tenant headers are dropped
+				// so a stale X-Tenant-ID (the storefront keeps the last tenant in localStorage) can
+				// never scope a request to another tenant than the one in the path.
+				tenant.Use(func(next http.Handler) http.Handler {
+					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						r.Header.Del(httpware.HeaderTenantID)
+						r.Header.Del(httpware.HeaderTenantSlug)
+						next.ServeHTTP(w, r)
+					})
+				})
+
+				// Apply auth-service middleware first. Skip only for truly public routes (not /auth/me or
+				// /auth/logout). It stores the JWT claims in context: RequirePermissions needs them, and so
+				// do TenantV2 and the mismatch check below, which refuse a token used for another tenant
+				// only when they can see its claims.
+				if authMiddleware != nil {
+					tenant.Use(func(next http.Handler) http.Handler {
+						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+							path := r.URL.Path
+							// Skip auth for public routes: webhooks, tenant config, outlets,
+							// catalog GET (public browsing), guest cart, guest checkout, and delivery zones.
+							// Do NOT skip /auth/ -- GET /auth/me and POST /auth/logout require a valid JWT.
+							// Do NOT skip catalog mutations (POST/PUT/DELETE) -- they need claims for permission checks.
+							isPublicCatalog := strings.Contains(path, "/catalog") &&
+								!strings.Contains(path, "/catalog/admin") &&
+								r.Method == http.MethodGet
+							// Public Google endpoints: the OAuth callback (Google redirects here,
+							// state-signed) and the review-url deep-link lookup. Admin Google
+							// endpoints live under /admin/integrations/google and DO require auth.
+							isPublicGoogle := strings.Contains(path, "/integrations/google/callback") ||
+								strings.Contains(path, "/integrations/google/review-url")
+							// The checkout's payment options (GET /payment-methods only; saved-card
+							// routes below it stay signed in). The route signs in optionally.
+							isPublicPaymentOptions := r.Method == http.MethodGet &&
+								strings.HasSuffix(strings.TrimSuffix(path, "/"), "/payment-methods")
+							if strings.Contains(path, "/webhooks/") ||
+								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
+								strings.Contains(path, "/promotions/banners") ||
+								strings.Contains(path, "/promotions/deals") ||
+								strings.Contains(path, "/promotions/top-sellers") ||
+								strings.Contains(path, "/cart/guest") ||
+								strings.Contains(path, "/cart/fee-breakdown") ||
+								strings.Contains(path, "/checkout/guest") ||
+								strings.Contains(path, "/orders/guest") ||
+								isPublicGoogle ||
+								isPublicPaymentOptions ||
+								strings.Contains(path, "/zones") ||
+								strings.Contains(path, "/ratings") ||
+								// Service-to-service routes carry no user JWT; they are guarded by the
+								// internal service key on the route itself (OrderHandler /s2s/orders).
+								strings.Contains(path, "/s2s/") ||
+								isPublicCatalog {
+								next.ServeHTTP(w, r)
+								return
+							}
+							authMiddleware.RequireAuth(next).ServeHTTP(w, r)
+						})
+					})
+				}
+
 				// Apply TenantV2 middleware to extract tenant from URL + JWT + headers
 				tenant.Use(httpware.TenantV2(tenantCfg))
 
@@ -243,52 +303,7 @@ func New(
 					})
 				}
 
-				// Apply auth-service middleware. Skip only for truly public routes (not /auth/me or /auth/logout).
-				// This middleware stores JWT claims in context -- required for RequirePermissions checks.
 				if authMiddleware != nil {
-					tenant.Use(func(next http.Handler) http.Handler {
-						return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-							path := r.URL.Path
-							// Skip auth for public routes: webhooks, tenant config, outlets,
-							// catalog GET (public browsing), guest cart, guest checkout, and delivery zones.
-							// Do NOT skip /auth/ -- GET /auth/me and POST /auth/logout require a valid JWT.
-							// Do NOT skip catalog mutations (POST/PUT/DELETE) -- they need claims for permission checks.
-							isPublicCatalog := strings.Contains(path, "/catalog") &&
-								!strings.Contains(path, "/catalog/admin") &&
-								r.Method == http.MethodGet
-							// Public Google endpoints: the OAuth callback (Google redirects here,
-							// state-signed) and the review-url deep-link lookup. Admin Google
-							// endpoints live under /admin/integrations/google and DO require auth.
-							isPublicGoogle := strings.Contains(path, "/integrations/google/callback") ||
-								strings.Contains(path, "/integrations/google/review-url")
-							// The checkout's payment options (GET /payment-methods only; saved-card
-							// routes below it stay signed in). The route signs in optionally.
-							isPublicPaymentOptions := r.Method == http.MethodGet &&
-								strings.HasSuffix(strings.TrimSuffix(path, "/"), "/payment-methods")
-							if strings.Contains(path, "/webhooks/") ||
-								strings.Contains(path, "/config") || strings.Contains(path, "/outlets") ||
-								strings.Contains(path, "/promotions/banners") ||
-								strings.Contains(path, "/promotions/deals") ||
-								strings.Contains(path, "/promotions/top-sellers") ||
-								strings.Contains(path, "/cart/guest") ||
-								strings.Contains(path, "/cart/fee-breakdown") ||
-								strings.Contains(path, "/checkout/guest") ||
-								strings.Contains(path, "/orders/guest") ||
-								isPublicGoogle ||
-								isPublicPaymentOptions ||
-								strings.Contains(path, "/zones") ||
-								strings.Contains(path, "/ratings") ||
-								// Service-to-service routes carry no user JWT; they are guarded by the
-								// internal service key on the route itself (OrderHandler /s2s/orders).
-								strings.Contains(path, "/s2s/") ||
-								isPublicCatalog {
-								next.ServeHTTP(w, r)
-								return
-							}
-							authMiddleware.RequireAuth(next).ServeHTTP(w, r)
-						})
-					})
-
 					// Layer 2: Subscription gate — enforces status, grace period, and 402 on hard expiry.
 					tenant.Use(subscriptions.SubscriptionGate())
 				}
