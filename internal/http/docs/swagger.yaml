@@ -38,6 +38,206 @@ definitions:
     - DashboardModuleCustomers
     - DashboardModuleOperations
     - DashboardModuleSubscription
+  catalog.CatalogModifierGroup:
+    properties:
+      id:
+        type: string
+      is_required:
+        type: boolean
+      max_selections:
+        type: integer
+      min_selections:
+        type: integer
+      name:
+        type: string
+      options:
+        items:
+          $ref: '#/definitions/catalog.CatalogModifierOption'
+        type: array
+    type: object
+  catalog.CatalogModifierOption:
+    properties:
+      id:
+        type: string
+      is_default:
+        type: boolean
+      name:
+        type: string
+      price_adjustment:
+        type: number
+      sku:
+        type: string
+    type: object
+  catalog.CatalogVariant:
+    properties:
+      attributes:
+        additionalProperties:
+          type: string
+        type: object
+      barcode:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      onHand:
+        description: OnHand is the variant's own stock from inventory (nil when not
+          reported).
+        type: number
+      price:
+        type: number
+      sku:
+        type: string
+    type: object
+  catalog.MergedCatalogItem:
+    properties:
+      availableQuantity:
+        description: |-
+          AvailableQuantity is the quantity-aware availability projection (STK-5): the last
+          on-hand/producible quantity seen from inventory stock events. Nil = unknown (no stock
+          event observed yet). Lets the storefront show real stock levels ("3 left") rather than
+          only a sold-out boolean. is_available remains the authoritative orderable gate.
+        type: number
+      basePrice:
+        description: Override fields (from CatalogOverride)
+        type: number
+      brandCode:
+        type: string
+      brandId:
+        type: string
+      brandName:
+        type: string
+      categoryId:
+        type: string
+      categoryName:
+        type: string
+      condition:
+        description: NEW | REFURBISHED | USED | OPEN_BOX
+        type: string
+      costPrice:
+        description: Recipe-costing fields (sourced from inventory, added 2026-06-01)
+        type: number
+      createdAt:
+        description: Timestamps (from override)
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      displaySection:
+        type: string
+      eventEndAt:
+        type: string
+      eventStartAt:
+        type: string
+      eventVenue:
+        type: string
+      foodCostPct:
+        type: number
+      foodCostStatus:
+        description: '"OK - healthy" | "OK - above target FC%" | "LOSS"'
+        type: string
+      hasVariants:
+        type: boolean
+      imageUrl:
+        type: string
+      inventoryId:
+        type: string
+      isActive:
+        type: boolean
+      isAvailable:
+        type: boolean
+      isComplimentary:
+        description: |-
+          IsComplimentary marks a no-charge accompaniment: price 0 but explicitly enabled via override,
+          shown as "Free" and not billed, while its recipe/BOM stock is still deducted on sale.
+        type: boolean
+      isFavorite:
+        description: Computed fields
+        type: boolean
+      isFeatured:
+        type: boolean
+      leadTimeMinutes:
+        type: integer
+      manufacturer:
+        description: retail/pharmacy
+        type: string
+      metadata:
+        additionalProperties: {}
+        type: object
+      model:
+        description: retail only
+        type: string
+      modifierGroups:
+        description: |-
+          ModifierGroups: this item's selectable modifiers (checkboxes/radios shown in the
+          add-to-cart modal), passed through unchanged from inventory-api.
+        items:
+          $ref: '#/definitions/catalog.CatalogModifierGroup'
+        type: array
+      name:
+        type: string
+      netPrice:
+        type: number
+      packagingFee:
+        type: number
+      parentSku:
+        type: string
+      priceFrom:
+        description: |-
+          PriceFrom/PriceTo span the active, priced variants ("From KSh x" on a card, "KSh x - KSh y"
+          on the product page). Nil for a product without variants.
+        type: number
+      priceTo:
+        type: number
+      sellingPrice:
+        type: number
+      serviceFeePercent:
+        type: number
+      sku:
+        description: Inventory fields
+        type: string
+      suggestedPrice:
+        type: number
+      tags:
+        items:
+          type: string
+        type: array
+      taxAmount:
+        type: number
+      taxCodeId:
+        description: Tax — enriched by inventory-api from treasury-api (source of
+          truth)
+        type: string
+      taxInclusive:
+        type: boolean
+      taxRate:
+        type: number
+      totalCapacity:
+        description: Event fields (SERVICE type only) — sourced from inventory
+        type: integer
+      type:
+        type: string
+      updatedAt:
+        type: string
+      variant:
+        allOf:
+        - $ref: '#/definitions/catalog.CatalogVariant'
+        description: |-
+          Variant is set when this item was looked up by a variant SKU: InventorySKU, InventoryID,
+          Name, BasePrice and availability then describe that variant (a child inventory item) and
+          ParentSKU names the display product it belongs to.
+      variants:
+        items:
+          $ref: '#/definitions/catalog.CatalogVariant'
+        type: array
+    type: object
   compliance.CreateDataSubjectRequestRequest:
     properties:
       description:
@@ -805,6 +1005,11 @@ definitions:
           NeedsConfirmation marks a distance-priced delivery the customer confirms from the
           details in their order confirmation (tenant policy).
         type: boolean
+      outlet:
+        allOf:
+        - $ref: '#/definitions/logistics.ZoneRef'
+        description: Outlet is the outlet the quote was measured from (reason at_outlet
+          names it).
       outlet_km:
         type: number
       policy_version:
@@ -1991,24 +2196,6 @@ definitions:
           send real items yet; when Items is non-empty it's ignored (recomputed from Items instead).
         type: number
     type: object
-  paymentshandler.AvailableGatewayResponse:
-    properties:
-      gateway_type:
-        type: string
-      name:
-        type: string
-      supports_stk_push:
-        type: boolean
-      transaction_fee_type:
-        type: string
-    type: object
-  paymentshandler.AvailableGatewaysResponse:
-    properties:
-      gateways:
-        items:
-          $ref: '#/definitions/paymentshandler.AvailableGatewayResponse'
-        type: array
-    type: object
   paymentshandler.CreatePaymentIntentRequest:
     properties:
       amount:
@@ -2226,18 +2413,6 @@ definitions:
       status:
         type: string
     type: object
-  paymentshandler.SelectGatewayRequest:
-    properties:
-      is_primary:
-        type: boolean
-    type: object
-  paymentshandler.SelectedGatewaysResponse:
-    properties:
-      selected:
-        items:
-          $ref: '#/definitions/treasury.SelectedGateway'
-        type: array
-    type: object
   paymentshandler.UpdatePaymentMethodRequest:
     properties:
       label:
@@ -2248,11 +2423,6 @@ definitions:
       balance:
         type: number
       currency:
-        type: string
-    type: object
-  paymentshandler.gatewayActionResponse:
-    properties:
-      message:
         type: string
     type: object
   posdiscounts.Banner:
@@ -2348,29 +2518,6 @@ definitions:
       sku:
         type: string
     type: object
-  treasury.SelectedGateway:
-    properties:
-      created_at:
-        type: string
-      gateway_type:
-        type: string
-      id:
-        type: string
-      is_active:
-        type: boolean
-      is_primary:
-        type: boolean
-      name:
-        type: string
-      status:
-        type: string
-      total_transactions:
-        type: integer
-      transaction_fee_type:
-        type: string
-      updated_at:
-        type: string
-    type: object
 info:
   contact: {}
   description: HTTP API for the Codevertex ordering service - online delivery/shipping
@@ -2422,6 +2569,37 @@ paths:
       summary: List tenant users
       tags:
       - RBAC
+  /{tenant}/catalog/items/by-category:
+    get:
+      parameters:
+      - description: Tenant slug
+        in: path
+        name: tenant
+        required: true
+        type: string
+      - description: Comma-separated category ids (at most 8)
+        in: query
+        name: category_ids
+        required: true
+        type: string
+      - description: Items per category (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/catalog.MergedCatalogItem'
+              type: array
+            type: object
+      summary: List items for several categories at once
+      tags:
+      - Catalog
   /{tenant}/promotions/banners:
     get:
       description: Active promotions flagged to appear on the ordering storefront
@@ -5329,6 +5507,45 @@ paths:
       summary: Get guest order
       tags:
       - Orders
+  /orders/guest/{orderId}/cancel:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Guest checkout session ID
+        in: query
+        name: session_id
+        required: true
+        type: string
+      - description: Reason
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/orderinghandler.CancelOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ordering.Order'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Cancel a guest order
+      tags:
+      - Orders
   /orders/guest/{orderId}/payment/retry:
     post:
       parameters:
@@ -5556,97 +5773,6 @@ paths:
       summary: Get payment
       tags:
       - Payments
-  /payments/gateways/available:
-    get:
-      description: Gateway types the tenant could enable, proxied from treasury-api.
-      parameters:
-      - description: Tenant slug or ID
-        in: path
-        name: tenant
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/paymentshandler.AvailableGatewaysResponse'
-      summary: List available payment gateways
-      tags:
-      - Payment Gateways
-  /payments/gateways/select/{gatewayType}:
-    delete:
-      parameters:
-      - description: Tenant slug or ID
-        in: path
-        name: tenant
-        required: true
-        type: string
-      - description: Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)
-        in: path
-        name: gatewayType
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/paymentshandler.gatewayActionResponse'
-      summary: Deactivate (disable) a payment gateway
-      tags:
-      - Payment Gateways
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Tenant slug or ID
-        in: path
-        name: tenant
-        required: true
-        type: string
-      - description: Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)
-        in: path
-        name: gatewayType
-        required: true
-        type: string
-      - description: Select gateway request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/paymentshandler.SelectGatewayRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/paymentshandler.gatewayActionResponse'
-      summary: Select (enable) a payment gateway
-      tags:
-      - Payment Gateways
-  /payments/gateways/selected:
-    get:
-      description: Gateways the tenant has selected/configured, proxied from treasury-api.
-      parameters:
-      - description: Tenant slug or ID
-        in: path
-        name: tenant
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/paymentshandler.SelectedGatewaysResponse'
-      summary: List selected payment gateways
-      tags:
-      - Payment Gateways
   /payments/intents:
     post:
       consumes:

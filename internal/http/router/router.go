@@ -382,9 +382,7 @@ func New(
 						}
 						if paymentMethodHandler != nil {
 							paymentMethodHandler.Register(ord, authenticator)
-							// Tenant gateway-management proxy routes (/payments/gateways/*)
-							// that proxy to treasury-api's S2S gateway routes.
-							paymentMethodHandler.RegisterGateways(ord, authenticator)
+							// Gateway setup lives in treasury-ui; ordering keeps no proxy for it.
 						}
 					}
 

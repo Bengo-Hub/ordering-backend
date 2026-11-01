@@ -3925,6 +3925,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/guest/{orderId}/cancel": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Cancel a guest order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Guest checkout session ID",
+                        "name": "session_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Reason",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orderinghandler.CancelOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ordering.Order"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/orders/guest/{orderId}/payment/retry": {
             "post": {
                 "produces": [
@@ -4581,144 +4640,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/payments/gateways/available": {
-            "get": {
-                "description": "Gateway types the tenant could enable, proxied from treasury-api.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment Gateways"
-                ],
-                "summary": "List available payment gateways",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant slug or ID",
-                        "name": "tenant",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/paymentshandler.AvailableGatewaysResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/payments/gateways/select/{gatewayType}": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment Gateways"
-                ],
-                "summary": "Select (enable) a payment gateway",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant slug or ID",
-                        "name": "tenant",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
-                        "name": "gatewayType",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Select gateway request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/paymentshandler.SelectGatewayRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/paymentshandler.gatewayActionResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment Gateways"
-                ],
-                "summary": "Deactivate (disable) a payment gateway",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant slug or ID",
-                        "name": "tenant",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gateway type (e.g. paystack, mpesa_paybill, cod, wallet)",
-                        "name": "gatewayType",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/paymentshandler.gatewayActionResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/payments/gateways/selected": {
-            "get": {
-                "description": "Gateways the tenant has selected/configured, proxied from treasury-api.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment Gateways"
-                ],
-                "summary": "List selected payment gateways",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant slug or ID",
-                        "name": "tenant",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/paymentshandler.SelectedGatewaysResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/payments/intents": {
             "post": {
                 "consumes": [
@@ -5362,6 +5283,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/{tenant}/catalog/items/by-category": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "List items for several categories at once",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tenant slug",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated category ids (at most 8)",
+                        "name": "category_ids",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per category (default 20)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/catalog.MergedCatalogItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/{tenant}/promotions/banners": {
             "get": {
                 "description": "Active promotions flagged to appear on the ordering storefront homepage",
@@ -5519,6 +5487,279 @@ const docTemplate = `{
                 "DashboardModuleOperations",
                 "DashboardModuleSubscription"
             ]
+        },
+        "catalog.CatalogModifierGroup": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_required": {
+                    "type": "boolean"
+                },
+                "max_selections": {
+                    "type": "integer"
+                },
+                "min_selections": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.CatalogModifierOption"
+                    }
+                }
+            }
+        },
+        "catalog.CatalogModifierOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price_adjustment": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "catalog.CatalogVariant": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "barcode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "onHand": {
+                    "description": "OnHand is the variant's own stock from inventory (nil when not reported).",
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "catalog.MergedCatalogItem": {
+            "type": "object",
+            "properties": {
+                "availableQuantity": {
+                    "description": "AvailableQuantity is the quantity-aware availability projection (STK-5): the last\non-hand/producible quantity seen from inventory stock events. Nil = unknown (no stock\nevent observed yet). Lets the storefront show real stock levels (\"3 left\") rather than\nonly a sold-out boolean. is_available remains the authoritative orderable gate.",
+                    "type": "number"
+                },
+                "basePrice": {
+                    "description": "Override fields (from CatalogOverride)",
+                    "type": "number"
+                },
+                "brandCode": {
+                    "type": "string"
+                },
+                "brandId": {
+                    "type": "string"
+                },
+                "brandName": {
+                    "type": "string"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "categoryName": {
+                    "type": "string"
+                },
+                "condition": {
+                    "description": "NEW | REFURBISHED | USED | OPEN_BOX",
+                    "type": "string"
+                },
+                "costPrice": {
+                    "description": "Recipe-costing fields (sourced from inventory, added 2026-06-01)",
+                    "type": "number"
+                },
+                "createdAt": {
+                    "description": "Timestamps (from override)",
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "displaySection": {
+                    "type": "string"
+                },
+                "eventEndAt": {
+                    "type": "string"
+                },
+                "eventStartAt": {
+                    "type": "string"
+                },
+                "eventVenue": {
+                    "type": "string"
+                },
+                "foodCostPct": {
+                    "type": "number"
+                },
+                "foodCostStatus": {
+                    "description": "\"OK - healthy\" | \"OK - above target FC%\" | \"LOSS\"",
+                    "type": "string"
+                },
+                "hasVariants": {
+                    "type": "boolean"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "inventoryId": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isAvailable": {
+                    "type": "boolean"
+                },
+                "isComplimentary": {
+                    "description": "IsComplimentary marks a no-charge accompaniment: price 0 but explicitly enabled via override,\nshown as \"Free\" and not billed, while its recipe/BOM stock is still deducted on sale.",
+                    "type": "boolean"
+                },
+                "isFavorite": {
+                    "description": "Computed fields",
+                    "type": "boolean"
+                },
+                "isFeatured": {
+                    "type": "boolean"
+                },
+                "leadTimeMinutes": {
+                    "type": "integer"
+                },
+                "manufacturer": {
+                    "description": "retail/pharmacy",
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "model": {
+                    "description": "retail only",
+                    "type": "string"
+                },
+                "modifierGroups": {
+                    "description": "ModifierGroups: this item's selectable modifiers (checkboxes/radios shown in the\nadd-to-cart modal), passed through unchanged from inventory-api.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.CatalogModifierGroup"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "netPrice": {
+                    "type": "number"
+                },
+                "packagingFee": {
+                    "type": "number"
+                },
+                "parentSku": {
+                    "type": "string"
+                },
+                "priceFrom": {
+                    "description": "PriceFrom/PriceTo span the active, priced variants (\"From KSh x\" on a card, \"KSh x - KSh y\"\non the product page). Nil for a product without variants.",
+                    "type": "number"
+                },
+                "priceTo": {
+                    "type": "number"
+                },
+                "sellingPrice": {
+                    "type": "number"
+                },
+                "serviceFeePercent": {
+                    "type": "number"
+                },
+                "sku": {
+                    "description": "Inventory fields",
+                    "type": "string"
+                },
+                "suggestedPrice": {
+                    "type": "number"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "taxAmount": {
+                    "type": "number"
+                },
+                "taxCodeId": {
+                    "description": "Tax — enriched by inventory-api from treasury-api (source of truth)",
+                    "type": "string"
+                },
+                "taxInclusive": {
+                    "type": "boolean"
+                },
+                "taxRate": {
+                    "type": "number"
+                },
+                "totalCapacity": {
+                    "description": "Event fields (SERVICE type only) — sourced from inventory",
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "variant": {
+                    "description": "Variant is set when this item was looked up by a variant SKU: InventorySKU, InventoryID,\nName, BasePrice and availability then describe that variant (a child inventory item) and\nParentSKU names the display product it belongs to.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.CatalogVariant"
+                        }
+                    ]
+                },
+                "variants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/catalog.CatalogVariant"
+                    }
+                }
+            }
         },
         "compliance.CreateDataSubjectRequestRequest": {
             "type": "object",
@@ -6574,6 +6815,14 @@ const docTemplate = `{
                 "needs_confirmation": {
                     "description": "NeedsConfirmation marks a distance-priced delivery the customer confirms from the\ndetails in their order confirmation (tenant policy).",
                     "type": "boolean"
+                },
+                "outlet": {
+                    "description": "Outlet is the outlet the quote was measured from (reason at_outlet names it).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/logistics.ZoneRef"
+                        }
+                    ]
                 },
                 "outlet_km": {
                     "type": "number"
@@ -8302,34 +8551,6 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.AvailableGatewayResponse": {
-            "type": "object",
-            "properties": {
-                "gateway_type": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "supports_stk_push": {
-                    "type": "boolean"
-                },
-                "transaction_fee_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "paymentshandler.AvailableGatewaysResponse": {
-            "type": "object",
-            "properties": {
-                "gateways": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/paymentshandler.AvailableGatewayResponse"
-                    }
-                }
-            }
-        },
         "paymentshandler.CreatePaymentIntentRequest": {
             "type": "object",
             "properties": {
@@ -8656,25 +8877,6 @@ const docTemplate = `{
                 }
             }
         },
-        "paymentshandler.SelectGatewayRequest": {
-            "type": "object",
-            "properties": {
-                "is_primary": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "paymentshandler.SelectedGatewaysResponse": {
-            "type": "object",
-            "properties": {
-                "selected": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/treasury.SelectedGateway"
-                    }
-                }
-            }
-        },
         "paymentshandler.UpdatePaymentMethodRequest": {
             "type": "object",
             "properties": {
@@ -8690,14 +8892,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "currency": {
-                    "type": "string"
-                }
-            }
-        },
-        "paymentshandler.gatewayActionResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
                     "type": "string"
                 }
             }
@@ -8824,41 +9018,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "sku": {
-                    "type": "string"
-                }
-            }
-        },
-        "treasury.SelectedGateway": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "gateway_type": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "is_primary": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "total_transactions": {
-                    "type": "integer"
-                },
-                "transaction_fee_type": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

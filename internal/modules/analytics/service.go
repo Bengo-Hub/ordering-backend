@@ -79,7 +79,8 @@ func (s *Service) GetDashboardEmbed(ctx context.Context, module DashboardModule,
 
 // ListAvailableDashboards returns a list of available dashboards for the tenant.
 func (s *Service) ListAvailableDashboards(ctx context.Context, tenantID uuid.UUID) ([]DashboardInfo, error) {
-	var dashboards []DashboardInfo
+	// Start non-nil so an unconfigured Superset answers {"data": []} rather than {"data": null}.
+	dashboards := []DashboardInfo{}
 
 	// Return configured dashboards with descriptions
 	moduleDescriptions := map[DashboardModule]string{
