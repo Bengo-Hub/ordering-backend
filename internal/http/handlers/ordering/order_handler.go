@@ -64,6 +64,8 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 	r.Post("/orders/guest/{orderId}/rate", h.RateOrderGuest)
 	// Public payment retry from the order page while the retry window is open.
 	r.Post("/orders/guest/{orderId}/payment/retry", h.RetryGuestOrderPayment)
+	// Guest cancel from the order page, before the outlet starts it. Needs the checkout session.
+	r.Post("/orders/guest/{orderId}/cancel", h.CancelGuestOrder)
 
 	// Customer order routes
 	r.Route("/orders", func(orderRouter chi.Router) {
@@ -1157,6 +1159,67 @@ func (h *OrderHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// CancelGuestOrder lets a guest call off their order from the order page, under the same rule as a
+// signed-in customer (only until the outlet starts it). Cancelling is destructive, so unlike the
+// order read the checkout session must be supplied and match the order.
+// @Summary Cancel a guest order
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param orderId path string true "Order ID"
+// @Param session_id query string true "Guest checkout session ID"
+// @Param payload body CancelOrderRequest true "Reason"
+// @Success 200 {object} ordering.Order
+// @Failure 403 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
+// @Router /orders/guest/{orderId}/cancel [post]
+func (h *OrderHandler) CancelGuestOrder(w http.ResponseWriter, r *http.Request) {
+	tenantID, err := getTenantID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	orderID, err := uuid.Parse(chi.URLParam(r, "orderId"))
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid order ID")
+		return
+	}
+	existingOrder, err := h.orderService.GetOrder(r.Context(), tenantID, orderID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+	if !guestSessionOwns(existingOrder, r.URL.Query().Get("session_id")) {
+		handlers.RespondError(w, http.StatusForbidden, "access denied")
+		return
+	}
+	if !ordering.CustomerMayCancel(existingOrder.Status) {
+		handlers.RespondError(w, http.StatusConflict, "the outlet has already started this order; contact them to cancel it")
+		return
+	}
+	var req CancelOrderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	order, err := h.orderService.CancelOrder(r.Context(), tenantID, orderID, req.Reason, nil, "customer", getClientIP(r))
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, order)
+}
+
+// guestSessionOwns reports whether a guest checkout session placed the order: the session must be
+// given and equal the one stamped at checkout. Signed-in customers' orders never match.
+func guestSessionOwns(order *ordering.Order, sessionID string) bool {
+	if order == nil || sessionID == "" || order.CustomerID != nil || order.Metadata == nil {
+		return false
+	}
+	stamped, _ := order.Metadata["sessionId"].(string)
+	return stamped != "" && stamped == sessionID
 }
 
 // RateOrder submits a 1-5 star rating for a delivered or completed order.
