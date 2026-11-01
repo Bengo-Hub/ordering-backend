@@ -472,20 +472,23 @@ type OrderCompletedData struct {
 	TotalAmount   float64   `json:"total_amount"`
 	Currency      string    `json:"currency"`
 	CompletedAt   time.Time `json:"completed_at"`
+	// GoogleReviewURL is the tenant's "Review us on Google" link, "" when not set.
+	GoogleReviewURL string `json:"google_review_url,omitempty"`
 }
 
 // PublishOrderCompleted publishes an order.completed event.
 func (p *Publisher) PublishOrderCompleted(ctx context.Context, tenantID uuid.UUID, data OrderCompletedData) error {
 	event := NewEvent("ordering.order.completed", data.OrderID, tenantID, map[string]interface{}{
-		"order_id":       data.OrderID.String(),
-		"order_number":   data.OrderNumber,
-		"customer_id":    data.CustomerID.String(),
-		"customer_email": data.CustomerEmail,
-		"customer_name":  data.CustomerName,
-		"customer_phone": data.CustomerPhone,
-		"total_amount":   data.TotalAmount,
-		"currency":       data.Currency,
-		"completed_at":   data.CompletedAt.Format(time.RFC3339),
+		"order_id":          data.OrderID.String(),
+		"order_number":      data.OrderNumber,
+		"customer_id":       data.CustomerID.String(),
+		"customer_email":    data.CustomerEmail,
+		"customer_name":     data.CustomerName,
+		"customer_phone":    data.CustomerPhone,
+		"total_amount":      data.TotalAmount,
+		"currency":          data.Currency,
+		"completed_at":      data.CompletedAt.Format(time.RFC3339),
+		"google_review_url": data.GoogleReviewURL,
 		"notification": map[string]interface{}{
 			"target":          "customer",
 			"recipient_email": data.CustomerEmail,
@@ -509,20 +512,23 @@ type OrderDeliveredData struct {
 	TotalAmount   float64   `json:"total_amount"`
 	Currency      string    `json:"currency"`
 	DeliveredAt   time.Time `json:"delivered_at"`
+	// GoogleReviewURL is the tenant's "Review us on Google" link, "" when not set.
+	GoogleReviewURL string `json:"google_review_url,omitempty"`
 }
 
 // PublishOrderDelivered publishes an ordering.order.delivered event.
 func (p *Publisher) PublishOrderDelivered(ctx context.Context, tenantID uuid.UUID, data OrderDeliveredData) error {
 	event := NewEvent("ordering.order.delivered", data.OrderID, tenantID, map[string]interface{}{
-		"order_id":       data.OrderID.String(),
-		"order_number":   data.OrderNumber,
-		"customer_id":    data.CustomerID.String(),
-		"customer_email": data.CustomerEmail,
-		"customer_name":  data.CustomerName,
-		"customer_phone": data.CustomerPhone,
-		"total_amount":   data.TotalAmount,
-		"currency":       data.Currency,
-		"delivered_at":   data.DeliveredAt.Format(time.RFC3339),
+		"order_id":          data.OrderID.String(),
+		"order_number":      data.OrderNumber,
+		"customer_id":       data.CustomerID.String(),
+		"customer_email":    data.CustomerEmail,
+		"customer_name":     data.CustomerName,
+		"customer_phone":    data.CustomerPhone,
+		"total_amount":      data.TotalAmount,
+		"currency":          data.Currency,
+		"delivered_at":      data.DeliveredAt.Format(time.RFC3339),
+		"google_review_url": data.GoogleReviewURL,
 		"notification": map[string]interface{}{
 			"target":          "customer",
 			"recipient_email": data.CustomerEmail,

@@ -60,6 +60,7 @@ type OrderService struct {
 	logisticsClient     *logistics.Client
 	crmClient           *marketflow.Client
 	catalogSvc          catalogLookup
+	reviewURLLookup     func(ctx context.Context, tenantID uuid.UUID) string
 	logger              *zap.Logger
 }
 
@@ -107,6 +108,20 @@ func (s *OrderService) SetLogisticsClient(client *logistics.Client) {
 
 // SetCrmClient sets the MarketFlow CRM client used to upsert the buyer as the single source of
 // truth and link the order via crm_contact_id.
+// SetReviewURLLookup sets how the service reads a tenant's Google review link, which
+// the order-completed and order-delivered events carry for the customer message.
+func (s *OrderService) SetReviewURLLookup(fn func(ctx context.Context, tenantID uuid.UUID) string) {
+	s.reviewURLLookup = fn
+}
+
+// googleReviewURL returns the tenant's Google review link, or "" when none is set.
+func (s *OrderService) googleReviewURL(ctx context.Context, tenantID uuid.UUID) string {
+	if s.reviewURLLookup == nil {
+		return ""
+	}
+	return s.reviewURLLookup(ctx, tenantID)
+}
+
 func (s *OrderService) SetCrmClient(client *marketflow.Client) {
 	s.crmClient = client
 }
@@ -2989,15 +3004,16 @@ func (s *OrderService) publishOrderCompleted(ctx context.Context, order *Order) 
 
 	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderCompletedData{
-		OrderID:       order.ID,
-		OrderNumber:   order.OrderNumber,
-		CustomerID:    customerIDValue(order.CustomerID),
-		CustomerEmail: ci.Email,
-		CustomerName:  ci.Name,
-		CustomerPhone: ci.Phone,
-		TotalAmount:   order.GrandTotal,
-		Currency:      order.Currency,
-		CompletedAt:   time.Now(),
+		OrderID:         order.ID,
+		OrderNumber:     order.OrderNumber,
+		CustomerID:      customerIDValue(order.CustomerID),
+		CustomerEmail:   ci.Email,
+		CustomerName:    ci.Name,
+		CustomerPhone:   ci.Phone,
+		TotalAmount:     order.GrandTotal,
+		Currency:        order.Currency,
+		CompletedAt:     time.Now(),
+		GoogleReviewURL: s.googleReviewURL(ctx, order.TenantID),
 	}
 
 	if err := s.eventPublisher.PublishOrderCompleted(ctx, order.TenantID, data); err != nil {
@@ -3018,15 +3034,16 @@ func (s *OrderService) publishOrderDelivered(ctx context.Context, order *Order) 
 
 	ci := s.orderContactInfo(ctx, order)
 	data := events.OrderDeliveredData{
-		OrderID:       order.ID,
-		OrderNumber:   order.OrderNumber,
-		CustomerID:    customerIDValue(order.CustomerID),
-		CustomerEmail: ci.Email,
-		CustomerName:  ci.Name,
-		CustomerPhone: ci.Phone,
-		TotalAmount:   order.GrandTotal,
-		Currency:      order.Currency,
-		DeliveredAt:   time.Now(),
+		OrderID:         order.ID,
+		OrderNumber:     order.OrderNumber,
+		CustomerID:      customerIDValue(order.CustomerID),
+		CustomerEmail:   ci.Email,
+		CustomerName:    ci.Name,
+		CustomerPhone:   ci.Phone,
+		TotalAmount:     order.GrandTotal,
+		Currency:        order.Currency,
+		DeliveredAt:     time.Now(),
+		GoogleReviewURL: s.googleReviewURL(ctx, order.TenantID),
 	}
 
 	if err := s.eventPublisher.PublishOrderDelivered(ctx, order.TenantID, data); err != nil {

@@ -174,18 +174,33 @@ func (c *Client) ListAccountsLocations(ctx context.Context) (string, []Location,
 	return account, locations, nil
 }
 
-// ListReviews lists reviews for a location.
+// ReviewPage is one page of a location's reviews plus Google's totals for the location.
+type ReviewPage struct {
+	Reviews          []Review `json:"reviews"`
+	AverageRating    float64  `json:"averageRating"`
+	TotalReviewCount int      `json:"totalReviewCount"`
+	NextPageToken    string   `json:"nextPageToken"`
+}
+
+// ListReviews lists one page (up to 50) of reviews for a location, newest first.
 // GET https://mybusiness.googleapis.com/v4/{location=accounts/*/locations/*}/reviews
 // location must be the fully-qualified "accounts/{aid}/locations/{lid}" resource name.
-func (c *Client) ListReviews(ctx context.Context, location string) ([]Review, error) {
-	endpoint := fmt.Sprintf("%s/%s/reviews", myBusinessV4Base, strings.Trim(location, "/"))
-	var out struct {
-		Reviews []Review `json:"reviews"`
+func (c *Client) ListReviews(ctx context.Context, location, pageToken string) (ReviewPage, error) {
+	q := url.Values{}
+	q.Set("pageSize", "50")
+	q.Set("orderBy", "updateTime desc")
+	if pageToken != "" {
+		q.Set("pageToken", pageToken)
 	}
+	endpoint := fmt.Sprintf("%s/%s/reviews?%s", myBusinessV4Base, strings.Trim(location, "/"), q.Encode())
+	var out ReviewPage
 	if err := c.doJSON(ctx, http.MethodGet, endpoint, nil, &out); err != nil {
-		return nil, err
+		return ReviewPage{}, err
 	}
-	return out.Reviews, nil
+	if out.Reviews == nil {
+		out.Reviews = []Review{}
+	}
+	return out, nil
 }
 
 // ReplyToReview posts (or updates) the owner reply on a review.

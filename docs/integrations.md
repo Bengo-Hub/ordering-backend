@@ -556,6 +556,44 @@ Best-selling order still comes from pos-api sales (`/s2s` reports) and is ranked
 
 **Integration**: Handled via treasury-api, not directly
 
+### Google Business Profile (reviews)
+
+**Purpose**: Ask customers for a Google review after an order, and let the business read and
+answer its Google reviews from the staff dashboard (`/{tenant}/dashboard/staff/integrations`).
+
+**Review link (works without Google approval)**: the business pastes the review link from its
+Business Profile ("Ask for reviews") or its Place ID. `PUT /{tenant}/admin/integrations/google/review-link`
+with `{"value": "..."}` stores it in the tenant service-config key `google_review_url`. A Place ID
+becomes `https://search.google.com/local/writereview?placeid=<PLACE_ID>`; only https links on
+Google hosts are accepted. `DELETE` on the same path removes it. The customer sees "Review us on
+Google" on the order page once the order is delivered or completed (`GET /{tenant}/integrations/google/review-url`,
+public), and `ordering.order.completed` / `ordering.order.delivered` carry it as `google_review_url`
+for the order email. There is no platform-wide default link.
+
+**OAuth connection (needs the platform's Google OAuth client)**: connect, pick a location, list
+reviews (50 a page, `page_token` for more) and reply. Picking a location rewrites the review link
+from the location's Place ID. Tokens are stored AES-256-GCM encrypted (`encrypted_tokens`) under the
+key from `KeyProvider` and refreshed when they expire; when Google refuses the refresh token the
+status becomes `reconnect`. The integration is tenant-wide; the outlet header is ignored. Every
+admin route needs `ordering.config.manage` and works on the URL tenant only. The callback tenant
+comes from the signed state, and on the older tenant callback path it must match the URL tenant.
+
+**Configuration** (platform, env from the `ordering-backend-secrets` Secret):
+
+| Env | Value |
+|---|---|
+| `GOOGLE_OAUTH_CLIENT_ID` | OAuth client ID (Web application) |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | OAuth client secret |
+| `GOOGLE_OAUTH_REDIRECT_URL` | `https://orderingapi.codevertexafrica.com/api/v1/integrations/google/callback` |
+| `GOOGLE_FRONTEND_INTEGRATIONS_URL` | optional, default `https://ordering.codevertexafrica.com/{tenant}/dashboard/staff/integrations` |
+
+All three OAuth values must be set or the connect path stays off (`configured: false`) and the
+page offers the review link only. In Google Cloud the project needs the OAuth consent screen with
+the `https://www.googleapis.com/auth/business.manage` scope, the redirect URI above, and these APIs
+enabled: My Business Account Management API, My Business Business Information API and the
+Google My Business API (v4, reviews). Google grants Business Profile API access per project after
+an access request; until then the API calls fail with quota 0 and only the review link works.
+
 ### Self-Hosted Routing (Valhalla + TileServer-GL)
 
 **Purpose**: Geocoding, distance matrix, route ETA, map tile rendering

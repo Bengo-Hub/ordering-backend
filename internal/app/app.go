@@ -350,6 +350,11 @@ func New(ctx context.Context) (*App, error) {
 	// when MARKETFLOW_API_URL is unset; ordering then creates orders without a crm_contact_id.
 	crmClient := marketflow.NewClient(cfg.Marketflow.ServiceURL, cfg.Marketflow.APIKey, log)
 	orderSvc.SetCrmClient(crmClient)
+	// The order-completed and order-delivered events carry the tenant's Google review
+	// link so the customer message can offer "Review us on Google".
+	orderSvc.SetReviewURLLookup(func(ctx context.Context, tenantID uuid.UUID) string {
+		return googlebusiness.LookupReviewURL(ctx, ormClient, tenantID)
+	})
 	if crmClient.Enabled() {
 		log.Info("app: marketflow CRM client enabled", zap.String("url", cfg.Marketflow.ServiceURL))
 	}

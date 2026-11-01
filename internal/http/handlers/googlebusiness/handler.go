@@ -1,7 +1,14 @@
 // Package googlebusiness exposes the admin + public HTTP endpoints for the Google
-// Business Profile integration. Every endpoint is safe when OAuth is unconfigured:
-// it returns HTTP 503 {"error":"...","message":"Google integration not configured"}
-// instead of panicking.
+// Business Profile integration.
+//
+// Two ways to collect reviews live here. The review link (a pasted Google review link or
+// Place ID) always works. The OAuth connection (locations, reviews, replies) needs the
+// platform's Google OAuth client; until that is set those endpoints answer 503
+// "Google integration not configured" instead of failing.
+//
+// The integration is tenant-wide. The staff dashboard sends X-Outlet-ID when an outlet
+// is picked in the filter, but the review link is one per tenant, so the outlet header
+// is ignored here and every call works on the tenant-wide connection.
 package googlebusiness
 
 import (
@@ -20,6 +27,9 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/identity"
 )
 
+// maxReplyLength is Google's limit for an owner reply.
+const maxReplyLength = 4096
+
 // Handler wires the GBP service to chi routes.
 type Handler struct {
 	logger *zap.Logger
@@ -34,9 +44,10 @@ func NewHandler(logger *zap.Logger, svc *googlebusiness.Service) *Handler {
 	}
 }
 
-// Register mounts the admin (auth-protected) and public callback routes.
-// The public callback + review-url paths are exempted from auth in router.go. r is the tenant
-// router (already under /api/v1/{tenant}), so paths here carry no tenant segment of their own.
+// Register mounts the admin (auth-protected) routes and the tenant callback. r is the
+// tenant router (already under /api/v1/{tenant}), so paths here carry no tenant segment.
+// The public callback path is exempted from auth in router.go. The tenant-less callback
+// (RegisterPublicCallback) is the one to register with Google.
 func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 	r.Route("/admin/integrations/google", func(g chi.Router) {
 		g.Use(auth.RequirePermissions(identity.PermissionAdminManage)) // ordering.config.manage
@@ -47,9 +58,18 @@ func (h *Handler) Register(r chi.Router, auth *identityhandler.Authenticator) {
 		g.Put("/location", h.SelectLocation)
 		g.Get("/reviews", h.ListReviews)
 		g.Post("/reviews/{reviewId}/reply", h.Reply)
+		g.Put("/review-link", h.SetReviewLink)
+		g.Delete("/review-link", h.ClearReviewLink)
 	})
 
-	// PUBLIC: Google redirects the operator's browser here after consent.
+	// PUBLIC: older consents may still redirect here. The URL tenant must match the state.
+	r.Get("/integrations/google/callback", h.Callback)
+}
+
+// RegisterPublicCallback mounts GET /integrations/google/callback outside the tenant
+// router (on /api/v1). Google needs one fixed redirect URI for every tenant; the signed
+// state says which tenant the consent belongs to.
+func (h *Handler) RegisterPublicCallback(r chi.Router) {
 	r.Get("/integrations/google/callback", h.Callback)
 }
 
@@ -62,7 +82,9 @@ func (h *Handler) notConfigured(w http.ResponseWriter) bool {
 	return false
 }
 
-// tenantUUID resolves the tenant UUID from request context (TenantV2 / JIT sync).
+// tenantUUID resolves the tenant UUID from request context (TenantV2 / JIT sync). On
+// tenant routes that context is always the URL tenant: router.go refuses a token minted
+// for another tenant, and only platform owners may act inside any tenant.
 func tenantUUID(r *http.Request) (uuid.UUID, error) {
 	idStr := httpware.GetTenantID(r.Context())
 	if idStr == "" {
@@ -71,19 +93,7 @@ func tenantUUID(r *http.Request) (uuid.UUID, error) {
 	return uuid.Parse(idStr)
 }
 
-// outletPtr returns the optional outlet UUID from context (X-Outlet-ID), or nil.
-func outletPtr(r *http.Request) *uuid.UUID {
-	idStr := httpware.GetOutletID(r.Context())
-	if idStr == "" {
-		return nil
-	}
-	if id, err := uuid.Parse(idStr); err == nil {
-		return &id
-	}
-	return nil
-}
-
-// Status reports configured/connected status.
+// Status reports configured/connected status and the customer review link.
 // @Summary Google Business Profile status
 // @Tags Integrations
 // @Produce json
@@ -91,17 +101,12 @@ func outletPtr(r *http.Request) *uuid.UUID {
 // @Success 200 {object} googlebusiness.StatusResult
 // @Router /api/v1/{tenant}/admin/integrations/google/status [get]
 func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
-	// Status is always answerable: when unconfigured it reports configured:false (200).
 	tid, err := tenantUUID(r)
 	if err != nil {
-		// Still return a useful, non-crashing payload.
-		handlers.RespondJSON(w, http.StatusOK, googlebusiness.StatusResult{
-			Configured: h.svc != nil && h.svc.IsConfigured(),
-			Status:     "disconnected",
-		})
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
-	res, err := h.svc.GetStatus(r.Context(), tid, outletPtr(r))
+	res, err := h.svc.GetStatus(r.Context(), tid, nil)
 	if err != nil {
 		h.logger.Error("google status failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "failed to read status")
@@ -128,29 +133,29 @@ func (h *Handler) Connect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slug := httpware.GetTenantSlug(r.Context())
-	authURL, err := h.svc.Connect(tid, slug, outletPtr(r))
+	if slug == "" {
+		slug = chi.URLParam(r, "tenant")
+	}
+	authURL, err := h.svc.Connect(tid, slug, nil)
 	if err != nil {
-		if errors.Is(err, googlebusiness.ErrNotConfigured) {
-			handlers.RespondError(w, http.StatusServiceUnavailable, "Google integration not configured")
-			return
-		}
-		h.logger.Error("google connect failed", zap.Error(err))
-		handlers.RespondError(w, http.StatusInternalServerError, "failed to build auth url")
+		h.respondServiceErr(w, err, "failed to build auth url")
 		return
 	}
 	handlers.RespondJSON(w, http.StatusOK, map[string]string{"auth_url": authURL})
 }
 
-// Callback handles Google's OAuth redirect (PUBLIC).
+// Callback handles Google's OAuth redirect (PUBLIC). It is served both at
+// /api/v1/integrations/google/callback and, for older consents, under a tenant.
 // @Summary Google Business Profile OAuth callback
 // @Tags Integrations
-// @Param tenant path string true "Tenant slug or ID"
 // @Param code query string false "Authorization code"
 // @Param state query string false "Signed state"
 // @Success 302
-// @Router /api/v1/{tenant}/integrations/google/callback [get]
+// @Router /api/v1/integrations/google/callback [get]
 func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
-	slug := httpware.GetTenantSlug(r.Context())
+	state := r.URL.Query().Get("state")
+	// Only used to pick the page to land on; the tenant itself comes from the verified state.
+	slug := googlebusiness.StateSlug(state)
 
 	if h.svc == nil || !h.svc.IsConfigured() {
 		http.Redirect(w, r, h.redirectFor(slug, "not_configured"), http.StatusFound)
@@ -164,13 +169,20 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := r.URL.Query().Get("code")
-	state := r.URL.Query().Get("state")
 	if code == "" || state == "" {
 		http.Redirect(w, r, h.redirectFor(slug, "invalid_request"), http.StatusFound)
 		return
 	}
 
-	if _, err := h.svc.HandleCallback(r.Context(), state, code); err != nil {
+	// On the tenant route the URL tenant must be the state's tenant.
+	var expected *uuid.UUID
+	if chi.URLParam(r, "tenant") != "" {
+		if tid, err := tenantUUID(r); err == nil {
+			expected = &tid
+		}
+	}
+
+	if _, err := h.svc.HandleCallback(r.Context(), state, code, expected); err != nil {
 		h.logger.Error("google callback failed", zap.Error(err))
 		http.Redirect(w, r, h.redirectFor(slug, "error"), http.StatusFound)
 		return
@@ -180,10 +192,13 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) redirectFor(slug, status string) string {
+	if h.svc == nil {
+		return "/"
+	}
 	return h.svc.FrontendRedirect(slug, status)
 }
 
-// Disconnect clears stored tokens.
+// Disconnect clears stored tokens. The review link stays.
 // @Summary Disconnect Google Business Profile
 // @Tags Integrations
 // @Produce json
@@ -196,7 +211,7 @@ func (h *Handler) Disconnect(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
-	if err := h.svc.Disconnect(r.Context(), tid, outletPtr(r)); err != nil {
+	if err := h.svc.Disconnect(r.Context(), tid, nil); err != nil {
 		h.logger.Error("google disconnect failed", zap.Error(err))
 		handlers.RespondError(w, http.StatusInternalServerError, "failed to disconnect")
 		return
@@ -221,10 +236,13 @@ func (h *Handler) ListLocations(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
-	locs, err := h.svc.ListLocations(r.Context(), tid, outletPtr(r))
+	locs, err := h.svc.ListLocations(r.Context(), tid, nil)
 	if err != nil {
 		h.respondServiceErr(w, err, "failed to list locations")
 		return
+	}
+	if locs == nil {
+		locs = []googlebusiness.Location{}
 	}
 	handlers.RespondJSON(w, http.StatusOK, map[string]any{"data": locs, "total": len(locs)})
 }
@@ -234,9 +252,11 @@ type selectLocationRequest struct {
 	LocationName string `json:"location_name"`
 	PlaceID      string `json:"place_id"`
 	DisplayName  string `json:"display_name"`
+	// NewReviewURI is Google's own review link for the location, used when it has no Place ID.
+	NewReviewURI string `json:"new_review_uri"`
 }
 
-// SelectLocation persists the chosen location + place_id and writes the review URL.
+// SelectLocation persists the chosen location + place_id and writes the review link.
 // @Summary Select Google Business location
 // @Tags Integrations
 // @Accept json
@@ -264,18 +284,19 @@ func (h *Handler) SelectLocation(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "location_name is required")
 		return
 	}
-	if err := h.svc.SelectLocation(r.Context(), tid, outletPtr(r), req.LocationName, req.PlaceID, req.DisplayName); err != nil {
+	if err := h.svc.SelectLocation(r.Context(), tid, nil, req.LocationName, req.PlaceID, req.DisplayName, req.NewReviewURI); err != nil {
 		h.respondServiceErr(w, err, "failed to select location")
 		return
 	}
 	handlers.RespondJSON(w, http.StatusOK, map[string]string{"status": "connected"})
 }
 
-// ListReviews returns the location's reviews.
+// ListReviews returns one page of the location's reviews.
 // @Summary List Google reviews
 // @Tags Integrations
 // @Produce json
 // @Param tenant path string true "Tenant slug or ID"
+// @Param page_token query string false "Next page token from the previous page"
 // @Success 200 {object} map[string]interface{}
 // @Failure 503 {object} handlers.ErrorResponse
 // @Router /api/v1/{tenant}/admin/integrations/google/reviews [get]
@@ -288,12 +309,17 @@ func (h *Handler) ListReviews(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
-	reviews, err := h.svc.GetReviews(r.Context(), tid, outletPtr(r))
+	page, err := h.svc.GetReviews(r.Context(), tid, nil, r.URL.Query().Get("page_token"))
 	if err != nil {
 		h.respondServiceErr(w, err, "failed to list reviews")
 		return
 	}
-	handlers.RespondJSON(w, http.StatusOK, map[string]any{"data": reviews, "total": len(reviews)})
+	handlers.RespondJSON(w, http.StatusOK, map[string]any{
+		"data":            page.Reviews,
+		"total":           page.TotalReviewCount,
+		"average_rating":  page.AverageRating,
+		"next_page_token": page.NextPageToken,
+	})
 }
 
 // replyRequest is the body for replying to a review.
@@ -335,19 +361,93 @@ func (h *Handler) Reply(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "comment is required")
 		return
 	}
-	if err := h.svc.Reply(r.Context(), tid, outletPtr(r), reviewID, req.Comment); err != nil {
+	if len(req.Comment) > maxReplyLength {
+		handlers.RespondError(w, http.StatusBadRequest, "reply is too long (4096 characters at most)")
+		return
+	}
+	if err := h.svc.Reply(r.Context(), tid, nil, reviewID, req.Comment); err != nil {
 		h.respondServiceErr(w, err, "failed to reply to review")
 		return
 	}
 	handlers.RespondJSON(w, http.StatusOK, map[string]string{"status": "replied"})
 }
 
-// respondServiceErr maps service errors to HTTP responses (503 when unconfigured).
-func (h *Handler) respondServiceErr(w http.ResponseWriter, err error, fallback string) {
-	if errors.Is(err, googlebusiness.ErrNotConfigured) {
-		handlers.RespondError(w, http.StatusServiceUnavailable, "Google integration not configured")
+// reviewLinkRequest is the body for saving the review link.
+type reviewLinkRequest struct {
+	// Value is a Google review link or a Place ID.
+	Value string `json:"value"`
+}
+
+// SetReviewLink saves a pasted Google review link or Place ID. Works without OAuth.
+// @Summary Save the Google review link
+// @Tags Integrations
+// @Accept json
+// @Produce json
+// @Param tenant path string true "Tenant slug or ID"
+// @Param request body reviewLinkRequest true "Review link or Place ID"
+// @Success 200 {object} googlebusiness.ReviewLink
+// @Failure 400 {object} handlers.ErrorResponse
+// @Router /api/v1/{tenant}/admin/integrations/google/review-link [put]
+func (h *Handler) SetReviewLink(w http.ResponseWriter, r *http.Request) {
+	tid, err := tenantUUID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
 		return
 	}
-	h.logger.Error(fallback, zap.Error(err))
-	handlers.RespondError(w, http.StatusBadGateway, fallback)
+	var req reviewLinkRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	link, err := h.svc.SetReviewLink(r.Context(), tid, req.Value)
+	if err != nil {
+		if errors.Is(err, googlebusiness.ErrInvalidReviewLink) {
+			handlers.RespondError(w, http.StatusBadRequest, "Enter a Google review link or a Place ID")
+			return
+		}
+		h.logger.Error("save google review link failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "failed to save the review link")
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, link)
+}
+
+// ClearReviewLink removes the review link, which hides the customer button.
+// @Summary Remove the Google review link
+// @Tags Integrations
+// @Produce json
+// @Param tenant path string true "Tenant slug or ID"
+// @Success 200 {object} map[string]string
+// @Router /api/v1/{tenant}/admin/integrations/google/review-link [delete]
+func (h *Handler) ClearReviewLink(w http.ResponseWriter, r *http.Request) {
+	tid, err := tenantUUID(r)
+	if err != nil {
+		handlers.RespondError(w, http.StatusBadRequest, "invalid tenant")
+		return
+	}
+	if err := h.svc.ClearReviewLink(r.Context(), tid); err != nil {
+		h.logger.Error("clear google review link failed", zap.Error(err))
+		handlers.RespondError(w, http.StatusInternalServerError, "failed to remove the review link")
+		return
+	}
+	handlers.RespondJSON(w, http.StatusOK, map[string]string{"status": "removed"})
+}
+
+// respondServiceErr maps service errors to HTTP responses.
+func (h *Handler) respondServiceErr(w http.ResponseWriter, err error, fallback string) {
+	switch {
+	case errors.Is(err, googlebusiness.ErrNotConfigured):
+		handlers.RespondError(w, http.StatusServiceUnavailable, "Google integration not configured")
+	case errors.Is(err, googlebusiness.ErrNotConnected):
+		handlers.RespondError(w, http.StatusConflict, "Connect your Google Business Profile first")
+	case errors.Is(err, googlebusiness.ErrNoLocation):
+		handlers.RespondError(w, http.StatusConflict, "Choose your business location first")
+	case errors.Is(err, googlebusiness.ErrReconnect):
+		handlers.RespondError(w, http.StatusConflict, "Google access has expired. Connect again")
+	case errors.Is(err, googlebusiness.ErrForeignReview):
+		handlers.RespondError(w, http.StatusBadRequest, "That review is not on your chosen location")
+	default:
+		h.logger.Error(fallback, zap.Error(err))
+		handlers.RespondError(w, http.StatusBadGateway, fallback)
+	}
 }

@@ -46,11 +46,13 @@ type GoogleConfig struct {
 	// Business Profile / My Business APIs enabled).
 	OAuthClientID     string `envconfig:"GOOGLE_OAUTH_CLIENT_ID"`
 	OAuthClientSecret string `envconfig:"GOOGLE_OAUTH_CLIENT_SECRET"`
-	// OAuthRedirectURL must exactly match a redirect URI registered on the OAuth client,
-	// e.g. https://orderingapi.codevertexafrica.com/api/v1/{tenant}/integrations/google/callback
+	// OAuthRedirectURL must exactly match a redirect URI registered on the OAuth client.
+	// Use the tenant-less callback so one URI serves every tenant:
+	// https://orderingapi.codevertexafrica.com/api/v1/integrations/google/callback
 	OAuthRedirectURL string `envconfig:"GOOGLE_OAUTH_REDIRECT_URL"`
-	// FrontendIntegrationsURL is where the callback redirects after storing tokens.
-	FrontendIntegrationsURL string `envconfig:"GOOGLE_FRONTEND_INTEGRATIONS_URL" default:"https://ordering.codevertexafrica.com/admin/integrations"`
+	// FrontendIntegrationsURL is where the callback sends the browser afterwards.
+	// "{tenant}" is replaced with the tenant slug from the signed state.
+	FrontendIntegrationsURL string `envconfig:"GOOGLE_FRONTEND_INTEGRATIONS_URL" default:"https://ordering.codevertexafrica.com/{tenant}/dashboard/staff/integrations"`
 	// TokenEncryptionKey documents the env var used to encrypt OAuth tokens at rest.
 	// The key is read directly in the googlebusiness module (GOOGLE_TOKEN_ENCRYPTION_KEY);
 	// this field is informational so it appears in config dumps.

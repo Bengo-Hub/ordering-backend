@@ -15,6 +15,10 @@ import (
 // Handlers translate this into an HTTP 503 "Google integration not configured".
 var ErrNotConfigured = errors.New("google integration not configured")
 
+// errInvalidGrant marks a token request Google refused for good (revoked or expired
+// refresh token). Retrying cannot help; the business has to connect again.
+var errInvalidGrant = errors.New("invalid_grant")
+
 // Google OAuth + token endpoints (Google Identity OAuth 2.0).
 //   - https://developers.google.com/identity/protocols/oauth2/web-server
 const (
@@ -156,6 +160,9 @@ func (c OAuthConfig) doTokenRequest(ctx context.Context, form url.Values, fallba
 		}
 		if msg == "" {
 			msg = resp.Status
+		}
+		if tr.Error == "invalid_grant" {
+			return nil, fmt.Errorf("google token endpoint: %s: %w", msg, errInvalidGrant)
 		}
 		return nil, fmt.Errorf("google token endpoint: %s", msg)
 	}

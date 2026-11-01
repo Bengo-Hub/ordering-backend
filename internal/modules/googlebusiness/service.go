@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,23 +18,45 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/googlebusinessconnection"
-	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 )
-
-// googleReviewURLConfigKey mirrors the service-config key read by the public
-// "Review us on Google" deep-link endpoint (handlers/config/service_config_handler.go).
-const googleReviewURLConfigKey = "google_review_url"
 
 // stateTTL bounds how long a signed OAuth state remains valid.
 const stateTTL = 15 * time.Minute
 
-// Status is the connection status surfaced to the admin UI.
+// Errors the handlers turn into a 409 with a plain message for the staff page.
+var (
+	ErrNotConnected = errors.New("google business profile is not connected")
+	ErrNoLocation   = errors.New("choose a google business location first")
+	// ErrReconnect means Google refused the stored refresh token (revoked access or a
+	// changed password), so the business has to connect again.
+	ErrReconnect = errors.New("google access expired, connect again")
+	// ErrForeignReview is returned when a reply names a review outside the chosen location.
+	ErrForeignReview = errors.New("review does not belong to the chosen location")
+)
+
+// Connection statuses stored on GoogleBusinessConnection.status.
+const (
+	statusDisconnected  = "disconnected"
+	statusNeedsLocation = "needs_location"
+	statusConnected     = "connected"
+	statusReconnect     = "reconnect"
+)
+
+// StatusResult is the connection status surfaced to the staff integrations page.
 type StatusResult struct {
-	Configured   bool   `json:"configured"`
-	Connected    bool   `json:"connected"`
+	// Configured is true when the platform has set the Google OAuth client.
+	Configured bool `json:"configured"`
+	// Connected is true when a location is chosen and reviews can be read.
+	Connected bool `json:"connected"`
+	// Linked is true when Google tokens are stored, with or without a chosen location.
+	Linked bool `json:"linked"`
+	// Status is disconnected, needs_location, connected or reconnect.
 	Status       string `json:"status"`
+	LocationID   string `json:"location_id"`
 	LocationName string `json:"location_name"`
 	PlaceID      string `json:"place_id"`
+	// ReviewLink is the link customers get, set by hand or by the connected location.
+	ReviewLink ReviewLink `json:"review_link"`
 }
 
 // Service orchestrates the GBP connection lifecycle for a tenant.
@@ -40,12 +64,13 @@ type Service struct {
 	client      *ent.Client
 	oauth       OAuthConfig
 	logger      *zap.Logger
-	frontendURL string       // where the callback redirects after storing tokens
+	frontendURL string       // where the callback sends the browser; {tenant} becomes the slug
 	keys        *KeyProvider // resolves AES keys (DB-first) for token encryption at rest
 }
 
 // NewService constructs the GBP service. It never fails: when OAuth env is unset the
-// service simply reports IsConfigured()==false and every method returns ErrNotConfigured.
+// service simply reports IsConfigured()==false and the OAuth methods return ErrNotConfigured.
+// The pasted review link works either way.
 //
 // keys carries the credential-encryption KeyProvider. When nil, a provider bound to the
 // same ent client is created so token encrypt/decrypt still works.
@@ -69,17 +94,39 @@ func (s *Service) Keys() *KeyProvider { return s.keys }
 // IsConfigured reports whether the OAuth client credentials are present.
 func (s *Service) IsConfigured() bool { return s.oauth.IsConfigured() }
 
-// FrontendRedirect returns the post-callback redirect URL for a tenant (slug-aware).
+// slugPattern limits the slug placed into the post-callback redirect, so a tampered
+// state can never turn the redirect into a link to another site.
+var slugPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,62}$`)
+
+// FrontendRedirect returns where the browser goes after the OAuth callback. A
+// "{tenant}" placeholder in the configured URL is replaced with the tenant slug, so one
+// setting serves every tenant's staff integrations page.
 func (s *Service) FrontendRedirect(tenantSlug, status string) string {
 	base := s.frontendURL
 	if base == "" {
 		base = "/"
 	}
+	slug := strings.ToLower(strings.TrimSpace(tenantSlug))
+	if !slugPattern.MatchString(slug) {
+		slug = ""
+	}
+	if strings.Contains(base, "{tenant}") {
+		if slug == "" {
+			// Without a slug the tenant page is unknown; land on the app root.
+			if u, err := url.Parse(strings.ReplaceAll(base, "{tenant}", "x")); err == nil && u.Host != "" {
+				base = u.Scheme + "://" + u.Host + "/"
+			} else {
+				base = "/"
+			}
+		} else {
+			base = strings.ReplaceAll(base, "{tenant}", slug)
+		}
+	}
 	sep := "?"
 	if strings.Contains(base, "?") {
 		sep = "&"
 	}
-	return fmt.Sprintf("%s%sintegration=google&status=%s", base, sep, status)
+	return fmt.Sprintf("%s%sintegration=google&status=%s", base, sep, url.QueryEscape(status))
 }
 
 // ---- OAuth state signing ----------------------------------------------------
@@ -136,6 +183,25 @@ func (s *Service) VerifyState(state string) (statePayload, error) {
 	return p, nil
 }
 
+// StateSlug reads the tenant slug from a state string WITHOUT trusting it. It is used
+// only to pick the redirect page when the callback fails before the state is verified;
+// FrontendRedirect still restricts it to a plain slug.
+func StateSlug(state string) string {
+	body, _, ok := strings.Cut(state, ".")
+	if !ok {
+		return ""
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(body)
+	if err != nil {
+		return ""
+	}
+	var p statePayload
+	if json.Unmarshal(raw, &p) != nil {
+		return ""
+	}
+	return p.Slug
+}
+
 func (s *Service) signBytes(b []byte) string {
 	key, _ := s.keys.PrimaryKey(context.Background())
 	mac := hmac.New(sha256.New, key)
@@ -159,7 +225,11 @@ func (s *Service) Connect(tenantID uuid.UUID, slug string, outletID *uuid.UUID) 
 
 // HandleCallback exchanges the code, stores encrypted tokens, and best-effort
 // auto-discovers the account + first location + placeId.
-func (s *Service) HandleCallback(ctx context.Context, state, code string) (statePayload, error) {
+//
+// The tenant comes only from the signed state. When the callback arrives on a tenant URL,
+// expectedTenant is that tenant and must match the state, so a consent started for one
+// tenant can never store tokens on another.
+func (s *Service) HandleCallback(ctx context.Context, state, code string, expectedTenant *uuid.UUID) (statePayload, error) {
 	if !s.IsConfigured() {
 		return statePayload{}, ErrNotConfigured
 	}
@@ -170,6 +240,9 @@ func (s *Service) HandleCallback(ctx context.Context, state, code string) (state
 	tenantID, err := uuid.Parse(p.TenantID)
 	if err != nil {
 		return p, fmt.Errorf("invalid tenant in state: %w", err)
+	}
+	if expectedTenant != nil && *expectedTenant != uuid.Nil && *expectedTenant != tenantID {
+		return p, errors.New("state belongs to another tenant")
 	}
 	var outletID *uuid.UUID
 	if p.OutletID != "" {
@@ -189,30 +262,29 @@ func (s *Service) HandleCallback(ctx context.Context, state, code string) (state
 	}
 
 	// Best-effort discovery of account + first location. Failures here do NOT fail the
-	// connection — the operator can pick a location later via SelectLocation.
+	// connection; the business can pick a location afterwards.
 	gclient := NewClient(token.AccessToken)
 	account, locations, derr := gclient.ListAccountsLocations(ctx)
 	if derr != nil {
 		s.logger.Warn("google location discovery failed (non-fatal)", zap.Error(derr))
-		_, _ = conn.Update().SetStatus("needs_location").Save(ctx)
+		_, _ = conn.Update().SetStatus(keptStatus(conn)).Save(ctx)
 		return p, nil
 	}
 
-	upd := conn.Update().SetStatus("needs_location")
+	upd := conn.Update().SetStatus(keptStatus(conn))
 	if account != "" {
 		upd = upd.SetAccountID(account)
 	}
 	if len(locations) == 1 {
 		loc := locations[0]
-		fullName := joinLocationName(account, loc.Name)
-		upd = upd.SetLocationID(fullName).SetLocationName(loc.Title).SetStatus("connected")
-		if loc.Metadata.PlaceID != "" {
-			upd = upd.SetPlaceID(loc.Metadata.PlaceID)
+		upd = upd.SetLocationID(joinLocationName(account, loc.Name)).
+			SetLocationName(loc.Title).
+			SetPlaceID(loc.Metadata.PlaceID).
+			SetStatus(statusConnected)
+		if _, serr := upd.Save(ctx); serr != nil {
+			return p, serr
 		}
-		if saved, serr := upd.Save(ctx); serr == nil && loc.Metadata.PlaceID != "" {
-			_ = s.writeReviewURL(ctx, tenantID, loc.Metadata.PlaceID)
-			_ = saved
-		}
+		s.storeLocationReviewURL(ctx, tenantID, loc.Metadata.PlaceID, loc.Metadata.NewReviewURI)
 		return p, nil
 	}
 	if _, serr := upd.Save(ctx); serr != nil {
@@ -221,16 +293,30 @@ func (s *Service) HandleCallback(ctx context.Context, state, code string) (state
 	return p, nil
 }
 
-// GetStatus returns the configured/connected status for a tenant connection.
+// keptStatus is the status after a (re)connect: a connection that already had a location
+// stays connected to it, otherwise the business still has to pick one.
+func keptStatus(conn *ent.GoogleBusinessConnection) string {
+	if conn.LocationID != "" {
+		return statusConnected
+	}
+	return statusNeedsLocation
+}
+
+// GetStatus returns the configured/connected status and the review link for a tenant.
 func (s *Service) GetStatus(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) (StatusResult, error) {
-	res := StatusResult{Configured: s.IsConfigured()}
+	res := StatusResult{Configured: s.IsConfigured(), Status: statusDisconnected}
+	res.ReviewLink = s.GetReviewLink(ctx, tenantID)
 	conn, err := s.findConnection(ctx, tenantID, outletID)
-	if err != nil || conn == nil {
-		res.Status = "disconnected"
+	if err != nil {
+		return res, err
+	}
+	if conn == nil {
 		return res, nil
 	}
-	res.Connected = conn.Status == "connected"
 	res.Status = conn.Status
+	res.Linked = conn.EncryptedTokens != "" && conn.Status != statusDisconnected
+	res.Connected = res.Linked && conn.Status == statusConnected && conn.LocationID != ""
+	res.LocationID = conn.LocationID
 	res.LocationName = conn.LocationName
 	res.PlaceID = conn.PlaceID
 	return res, nil
@@ -260,50 +346,71 @@ func (s *Service) ListLocations(ctx context.Context, tenantID uuid.UUID, outletI
 	return gclient.ListLocations(ctx, account)
 }
 
-// SelectLocation stores the chosen location + placeId and writes the public review URL.
-func (s *Service) SelectLocation(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, locationName, placeID, displayName string) error {
+// SelectLocation stores the chosen location and writes the customer review link from
+// its Place ID (or Google's own new-review link when the location has no Place ID).
+func (s *Service) SelectLocation(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, locationName, placeID, displayName, newReviewURI string) error {
 	if !s.IsConfigured() {
 		return ErrNotConfigured
 	}
 	conn, err := s.findConnection(ctx, tenantID, outletID)
-	if err != nil || conn == nil {
-		return errors.New("not connected")
+	if err != nil {
+		return err
+	}
+	if conn == nil || conn.EncryptedTokens == "" || conn.Status == statusDisconnected {
+		return ErrNotConnected
 	}
 	full := joinLocationName(conn.AccountID, locationName)
-	upd := conn.Update().SetLocationID(full).SetStatus("connected")
-	if placeID != "" {
-		upd = upd.SetPlaceID(placeID)
+	if full == "" {
+		return ErrNoLocation
 	}
-	if displayName != "" {
-		upd = upd.SetLocationName(displayName)
-	}
+	upd := conn.Update().
+		SetLocationID(full).
+		SetStatus(statusConnected).
+		SetPlaceID(strings.TrimSpace(placeID)).
+		SetLocationName(strings.TrimSpace(displayName))
 	if _, err := upd.Save(ctx); err != nil {
 		return err
 	}
-	if placeID != "" {
-		if err := s.writeReviewURL(ctx, tenantID, placeID); err != nil {
-			s.logger.Warn("failed to write google_review_url service config", zap.Error(err))
-		}
-	}
+	s.storeLocationReviewURL(ctx, tenantID, strings.TrimSpace(placeID), newReviewURI)
 	return nil
 }
 
-// GetReviews returns the location's reviews.
-func (s *Service) GetReviews(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) ([]Review, error) {
+// storeLocationReviewURL writes the review link for a connected location. Failures are
+// logged, not returned: the connection itself is already saved.
+func (s *Service) storeLocationReviewURL(ctx context.Context, tenantID uuid.UUID, placeID, newReviewURI string) {
+	reviewURL := ""
+	if placeID != "" && placeIDPattern.MatchString(placeID) {
+		reviewURL = WriteReviewURL(placeID)
+	} else if newReviewURI != "" {
+		if u, _, err := NormalizeReviewLink(newReviewURI); err == nil {
+			reviewURL = u
+		}
+	}
+	if reviewURL == "" {
+		return
+	}
+	if err := saveReviewURL(ctx, s.client, tenantID, reviewURL, reviewURLFromGoogle); err != nil {
+		s.logger.Warn("failed to save google review link", zap.Error(err))
+	}
+}
+
+// GetReviews returns one page of the chosen location's reviews.
+func (s *Service) GetReviews(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, pageToken string) (ReviewPage, error) {
 	if !s.IsConfigured() {
-		return nil, ErrNotConfigured
+		return ReviewPage{}, ErrNotConfigured
 	}
 	conn, token, err := s.validToken(ctx, tenantID, outletID)
 	if err != nil {
-		return nil, err
+		return ReviewPage{}, err
 	}
 	if conn.LocationID == "" {
-		return nil, errors.New("no location selected")
+		return ReviewPage{}, ErrNoLocation
 	}
-	return NewClient(token.AccessToken).ListReviews(ctx, conn.LocationID)
+	return NewClient(token.AccessToken).ListReviews(ctx, conn.LocationID, pageToken)
 }
 
-// Reply posts an owner reply to a review. reviewID may be a bare id or full resource name.
+// Reply posts an owner reply to a review. reviewID may be a bare id or a full resource
+// name, but it must belong to the location this tenant chose.
 func (s *Service) Reply(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID, reviewID, comment string) error {
 	if !s.IsConfigured() {
 		return ErrNotConfigured
@@ -312,26 +419,49 @@ func (s *Service) Reply(ctx context.Context, tenantID uuid.UUID, outletID *uuid.
 	if err != nil {
 		return err
 	}
-	reviewName := reviewID
-	if !strings.Contains(reviewID, "/") {
-		if conn.LocationID == "" {
-			return errors.New("no location selected")
-		}
-		reviewName = fmt.Sprintf("%s/reviews/%s", strings.Trim(conn.LocationID, "/"), reviewID)
+	reviewName, err := reviewResourceName(conn.LocationID, reviewID)
+	if err != nil {
+		return err
 	}
 	return NewClient(token.AccessToken).ReplyToReview(ctx, reviewName, comment)
 }
 
-// Disconnect clears the stored tokens and marks the connection disconnected.
+// reviewResourceName builds the full review name under the chosen location and refuses
+// any name that points at a different location.
+func reviewResourceName(locationID, reviewID string) (string, error) {
+	loc := strings.Trim(locationID, "/")
+	if loc == "" {
+		return "", ErrNoLocation
+	}
+	id := strings.Trim(reviewID, "/")
+	if id == "" {
+		return "", ErrForeignReview
+	}
+	if !strings.Contains(id, "/") {
+		return loc + "/reviews/" + id, nil
+	}
+	prefix := loc + "/reviews/"
+	if !strings.HasPrefix(id, prefix) || strings.Contains(strings.TrimPrefix(id, prefix), "/") {
+		return "", ErrForeignReview
+	}
+	return id, nil
+}
+
+// Disconnect clears the stored tokens and the chosen location. The review link stays,
+// so customers keep getting the button after a disconnect.
 func (s *Service) Disconnect(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) error {
 	conn, err := s.findConnection(ctx, tenantID, outletID)
 	if err != nil || conn == nil {
-		return nil // already disconnected — idempotent
+		return err // nil when already disconnected
 	}
 	_, err = conn.Update().
 		SetEncryptedTokens("").
 		ClearTokenExpiry().
-		SetStatus("disconnected").
+		SetAccountID("").
+		SetLocationID("").
+		SetLocationName("").
+		SetPlaceID("").
+		SetStatus(statusDisconnected).
 		Save(ctx)
 	return err
 }
@@ -342,8 +472,14 @@ func (s *Service) Disconnect(ctx context.Context, tenantID uuid.UUID, outletID *
 // (persisting the re-encrypted token), and returns both.
 func (s *Service) validToken(ctx context.Context, tenantID uuid.UUID, outletID *uuid.UUID) (*ent.GoogleBusinessConnection, *Token, error) {
 	conn, err := s.findConnection(ctx, tenantID, outletID)
-	if err != nil || conn == nil {
-		return nil, nil, errors.New("not connected")
+	if err != nil {
+		return nil, nil, err
+	}
+	if conn == nil || conn.EncryptedTokens == "" || conn.Status == statusDisconnected {
+		return nil, nil, ErrNotConnected
+	}
+	if conn.Status == statusReconnect {
+		return nil, nil, ErrReconnect
 	}
 	token, err := s.decodeToken(ctx, conn.EncryptedTokens)
 	if err != nil {
@@ -352,9 +488,17 @@ func (s *Service) validToken(ctx context.Context, tenantID uuid.UUID, outletID *
 	if token.Valid() {
 		return conn, token, nil
 	}
-	// Refresh transparently.
+	if token.RefreshToken == "" {
+		_, _ = conn.Update().SetStatus(statusReconnect).Save(ctx)
+		return nil, nil, ErrReconnect
+	}
 	refreshed, err := s.oauth.Refresh(ctx, token.RefreshToken)
 	if err != nil {
+		if errors.Is(err, errInvalidGrant) {
+			// Google will not refresh this token again; ask the business to reconnect.
+			_, _ = conn.Update().SetStatus(statusReconnect).Save(ctx)
+			return nil, nil, ErrReconnect
+		}
 		return nil, nil, fmt.Errorf("refresh token: %w", err)
 	}
 	saved, err := s.upsertTokens(ctx, tenantID, outletID, refreshed)
@@ -366,7 +510,7 @@ func (s *Service) validToken(ctx context.Context, tenantID uuid.UUID, outletID *
 
 func (s *Service) decodeToken(ctx context.Context, encrypted string) (*Token, error) {
 	if encrypted == "" {
-		return nil, errors.New("no stored token")
+		return nil, ErrNotConnected
 	}
 	plain, err := s.keys.Decrypt(ctx, encrypted)
 	if err != nil {
@@ -396,6 +540,10 @@ func (s *Service) upsertTokens(ctx context.Context, tenantID uuid.UUID, outletID
 	}
 	if conn != nil {
 		upd := conn.Update().SetEncryptedTokens(enc)
+		if conn.Status == statusDisconnected || conn.Status == statusReconnect {
+			// A fresh consent; the callback settles the final status after discovery.
+			upd = upd.SetStatus(keptStatus(conn)).SetConnectedAt(time.Now())
+		}
 		if !token.Expiry.IsZero() {
 			upd = upd.SetTokenExpiry(token.Expiry)
 		}
@@ -405,7 +553,7 @@ func (s *Service) upsertTokens(ctx context.Context, tenantID uuid.UUID, outletID
 	create := s.client.GoogleBusinessConnection.Create().
 		SetTenantID(tenantID).
 		SetEncryptedTokens(enc).
-		SetStatus("needs_location").
+		SetStatus(statusNeedsLocation).
 		SetConnectedAt(time.Now())
 	if outletID != nil {
 		create = create.SetOutletID(*outletID)
@@ -430,34 +578,6 @@ func (s *Service) findConnection(ctx context.Context, tenantID uuid.UUID, outlet
 		return nil, nil
 	}
 	return conn, err
-}
-
-// writeReviewURL upserts the tenant's google_review_url service-config key so Phase 1's
-// public deep link auto-populates from the selected placeId.
-func (s *Service) writeReviewURL(ctx context.Context, tenantID uuid.UUID, placeID string) error {
-	reviewURL := fmt.Sprintf("https://search.google.com/local/writereview?placeid=%s", placeID)
-
-	existing, err := s.client.ServiceConfig.Query().
-		Where(
-			serviceconfig.ConfigKey(googleReviewURLConfigKey),
-			serviceconfig.TenantID(tenantID),
-		).
-		First(ctx)
-	if err == nil {
-		_, uerr := existing.Update().SetConfigValue(reviewURL).Save(ctx)
-		return uerr
-	}
-	if !ent.IsNotFound(err) {
-		return err
-	}
-	_, cerr := s.client.ServiceConfig.Create().
-		SetTenantID(tenantID).
-		SetConfigKey(googleReviewURLConfigKey).
-		SetConfigValue(reviewURL).
-		SetConfigType("string").
-		SetDescription("Auto-generated Google review deep link from connected Business Profile").
-		Save(ctx)
-	return cerr
 }
 
 // joinLocationName combines an account resource name with a (possibly relative)

@@ -194,6 +194,14 @@ func New(
 				v1.Get("/marketplace/deals", marketplaceHandler.ListDeals)
 			}
 
+			// Google Business Profile OAuth callback (public). Google needs one fixed redirect
+			// URI for every tenant, so this sits outside /{tenant}; the signed state names the
+			// tenant. Register https://<ordering api host>/api/v1/integrations/google/callback
+			// on the Google OAuth client and as GOOGLE_OAUTH_REDIRECT_URL.
+			if googleBusinessHandler != nil {
+				googleBusinessHandler.RegisterPublicCallback(v1)
+			}
+
 			// Tenant-scoped routes
 			v1.Route("/{tenant}", func(tenant chi.Router) {
 				// The URL names the tenant on every /{tenant} route. Client tenant headers are dropped
