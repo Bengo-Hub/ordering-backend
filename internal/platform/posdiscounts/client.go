@@ -243,15 +243,17 @@ func (c *Client) ListStorefront(ctx context.Context, tenantIDs []string) []Store
 	return envelope.Data
 }
 
-// ListDeals returns active, currently-in-window discounts for a "Top Deals" storefront grid.
+// ListDeals returns the discounts running right now for a "Top Deals" storefront grid.
 // Best-effort, same posture as ListBanners: any failure returns an empty slice, never an error.
-// S2SListDiscounts filters by DB status only (no time-window check, unlike the banners endpoint),
-// so the in-window filter (start_at <= now <= end_at) is applied here.
+// live=1 has pos-api apply each promotion's full schedule (dates, days of the week, daily window
+// and meal period, in the outlet's local time) with the same check the till uses, so a
+// Sunday-only deal is not shown on a Tuesday. The schedule is pos-api's to judge; nothing is
+// re-filtered here.
 func (c *Client) ListDeals(ctx context.Context, tenantID uuid.UUID) []Discount {
 	if !c.Enabled() {
 		return nil
 	}
-	u := fmt.Sprintf("%s/api/v1/s2s/%s/discounts?status=active", c.baseURL, tenantID.String())
+	u := fmt.Sprintf("%s/api/v1/s2s/%s/discounts?status=active&live=1", c.baseURL, tenantID.String())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		c.log.Warn("posdiscounts: build deals request failed", zap.Error(err))
@@ -276,18 +278,7 @@ func (c *Client) ListDeals(ctx context.Context, tenantID uuid.UUID) []Discount {
 		c.log.Warn("posdiscounts: deals decode failed", zap.Error(err))
 		return nil
 	}
-	now := time.Now()
-	out := make([]Discount, 0, len(envelope.Data))
-	for _, d := range envelope.Data {
-		if d.StartAt.After(now) {
-			continue
-		}
-		if d.EndAt != nil && d.EndAt.Before(now) {
-			continue
-		}
-		out = append(out, d)
-	}
-	return out
+	return envelope.Data
 }
 
 // ApplyLine is one cart line sent to ApplyDiscount — mirrors pos-api's applyPromoLineInput.
