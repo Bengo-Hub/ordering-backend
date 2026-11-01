@@ -116,15 +116,9 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := PublicConfigResponse{
-		Name:      t.Name,
-		ShortName: t.Slug,
-	}
+	resp := PublicConfigResponse{Name: t.Name}
 	if resp.Name == "" {
 		resp.Name = t.Slug
-	}
-	if resp.ShortName == "" {
-		resp.ShortName = resp.Name
 	}
 
 	// Enrich with branding from Redis-cached auth-api tenant data.
@@ -173,5 +167,14 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	defaultShortName(&resp)
 	handlers.RespondJSON(w, http.StatusOK, resp)
+}
+
+// defaultShortName fills short_name from the display name once auth-api's branding is applied.
+// The storefront shows short_name as its headline, so it is never the URL slug.
+func defaultShortName(resp *PublicConfigResponse) {
+	if resp.ShortName == "" {
+		resp.ShortName = resp.Name
+	}
 }
