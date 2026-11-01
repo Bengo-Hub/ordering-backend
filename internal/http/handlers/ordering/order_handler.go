@@ -1602,6 +1602,21 @@ func (h *OrderHandler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// A delivery order leaves the outlet and reaches the customer only through logistics (the
+	// rider's pickup and proof of delivery), never by staff setting the status.
+	switch newStatus {
+	case ordering.OrderStatusOutForDelivery, ordering.OrderStatusDelivered, ordering.OrderStatusCompleted:
+		existing, gErr := h.orderService.GetOrder(r.Context(), tenantID, orderID)
+		if gErr != nil {
+			h.handleError(w, gErr)
+			return
+		}
+		if ordering.IsDeliveryFulfilment(existing.FulfillmentType) && existing.Status != ordering.OrderStatusDelivered {
+			handlers.RespondError(w, http.StatusConflict, "a delivery order is delivered through logistics: assign a rider, and the rider's proof of delivery completes it")
+			return
+		}
+	}
+
 	order, err := h.orderService.UpdateOrderStatus(r.Context(), tenantID, orderID, newStatus, actorID, actorType, getClientIP(r))
 	if err != nil {
 		h.handleError(w, err)
