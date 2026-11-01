@@ -128,6 +128,10 @@ func runSeed(ctx context.Context, client *ent.Client, tenantUUID uuid.UUID, tena
 		return err
 	}
 
+	if err = removeRetiredServiceConfigs(ctx, tx); err != nil {
+		return err
+	}
+
 	permMap, err := seedPermissions(ctx, tx)
 	if err != nil {
 		return err
@@ -1121,6 +1125,28 @@ func seedRateLimitConfigs(ctx context.Context, tx *ent.Tx) error {
 	return nil
 }
 
+// retiredServiceConfigKeys were seeded once but no code ever read them (limits, loyalty rates and
+// delivery radius live elsewhere), so they showed as settings that did nothing.
+var retiredServiceConfigKeys = []string{
+	"ordering.max_order_amount", "ordering.min_order_amount", "ordering.default_currency",
+	"ordering.order_expiry_minutes", "ordering.max_cart_items", "ordering.loyalty_points_per_unit",
+	"ordering.loyalty_redemption_rate", "ordering.catalog_sync_interval_minutes",
+	"ordering.default_delivery_radius_km", "ordering.max_delivery_radius_km",
+	"ordering.enable_guest_checkout", "ordering.enable_promo_stacking",
+}
+
+// removeRetiredServiceConfigs deletes the retired keys, platform defaults and tenant values alike.
+func removeRetiredServiceConfigs(ctx context.Context, tx *ent.Tx) error {
+	n, err := tx.ServiceConfig.Delete().Where(serviceconfig.ConfigKeyIn(retiredServiceConfigKeys...)).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("drop retired service configs: %w", err)
+	}
+	if n > 0 {
+		log.Printf("  - Removed %d retired service config rows", n)
+	}
+	return nil
+}
+
 // seedServiceConfigs seeds service-level configuration entries.
 func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 	type svcConfig struct {
@@ -1131,20 +1157,11 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 		isSecret   bool
 	}
 
+	// Only settings code reads; the staff dashboard's Configuration tab lists every row, so a key
+	// nothing reads would look like a working switch. Delivery radius and fees are logistics'.
 	configs := []svcConfig{
-		{"ordering.max_order_amount", "500000", "int", "Maximum order amount in cents", false},
-		{"ordering.min_order_amount", "500", "int", "Minimum order amount in cents", false},
-		{"ordering.default_currency", "KES", "string", "Default currency for orders", false},
-		{"ordering.order_expiry_minutes", "30", "int", "Minutes before an unpaid order expires", false},
-		{"ordering.max_cart_items", "50", "int", "Maximum number of items in a cart", false},
-		{"ordering.loyalty_points_per_unit", "1", "int", "Loyalty points earned per currency unit spent", false},
-		{"ordering.loyalty_redemption_rate", "0.01", "float", "Currency value per loyalty point", false},
-		{"ordering.catalog_sync_interval_minutes", "15", "int", "Interval for syncing catalog from inventory-api", false},
-		{"ordering.default_delivery_radius_km", "10", "float", "Default delivery radius in kilometers", false},
-		{"ordering.max_delivery_radius_km", "50", "float", "Maximum delivery radius in kilometers", false},
-		{"ordering.enable_guest_checkout", "true", "bool", "Allow checkout without authentication", false},
-		{"ordering.enable_promo_stacking", "false", "bool", "Allow multiple promo codes per order", false},
 		{"orders.auto_accept", "false", "bool", "Accept orders automatically once paid (or placed with pay-on-delivery). Off: staff accept every order in the POS queue before the kitchen gets it", false},
+		{"orders.payment_retry_window_minutes", "30", "int", "Minutes an unpaid online-payment order keeps its stock and lets the customer retry payment before it is cancelled (5 to 1440)", false},
 	}
 
 	for _, c := range configs {
