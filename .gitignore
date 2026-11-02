@@ -36,3 +36,7 @@ config/certs/*.key
 *-key.pem
 KubeSecrets/
 kubeSecrets/
+
+/ordering-backend
+
+__pycache__/
