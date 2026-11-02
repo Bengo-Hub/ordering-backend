@@ -520,6 +520,7 @@ func (h *OrderHandler) handleError(w http.ResponseWriter, err error) {
 		errors.Is(err, ordering.ErrVariantUnavailable),
 		errors.Is(err, ordering.ErrMpesaCodeRequired),
 		errors.Is(err, ordering.ErrMpesaCodeInvalid),
+		errors.Is(err, ordering.ErrPayLaterNotAccepted),
 		errors.Is(err, ordering.ErrNotManualPayment):
 		handlers.RespondError(w, http.StatusBadRequest, err.Error())
 

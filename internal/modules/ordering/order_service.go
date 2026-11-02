@@ -509,6 +509,10 @@ func (s *OrderService) CreateOrderFromItems(ctx context.Context, req CreateOrder
 		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, pmErr
 	}
+	if plErr := s.ensurePayLaterAccepted(ctx, req.TenantID, paymentMethod); plErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, plErr
+	}
 	if dupErr := s.ensureMpesaCodeUnused(ctx, req.TenantID, paymentMeta); dupErr != nil {
 		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, dupErr
@@ -994,6 +998,10 @@ func (s *OrderService) GuestCheckout(ctx context.Context, req GuestCheckoutReque
 	if pmErr != nil {
 		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
 		return nil, pmErr
+	}
+	if plErr := s.ensurePayLaterAccepted(ctx, req.TenantID, paymentMethod); plErr != nil {
+		s.releaseReservationOnError(ctx, req.TenantID, reservationID)
+		return nil, plErr
 	}
 	if dupErr := s.ensureMpesaCodeUnused(ctx, req.TenantID, paymentMeta); dupErr != nil {
 		s.releaseReservationOnError(ctx, req.TenantID, reservationID)

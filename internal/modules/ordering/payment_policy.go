@@ -41,7 +41,39 @@ var (
 	ErrMpesaCodeUsed      = errors.New("this M-Pesa code has already been used for another order")
 	ErrNotManualPayment   = errors.New("order was not paid by manual M-Pesa")
 	ErrPaymentAlreadyPaid = errors.New("order is already paid")
+	// ErrPayLaterNotAccepted: the business has not switched on payment on delivery / at the
+	// counter, so the customer must pay now.
+	ErrPayLaterNotAccepted = errors.New("this business does not take payment on delivery or at the counter; please pay now")
 )
+
+// ensurePayLaterAccepted refuses a pay-on-delivery / pay-at-the-counter order when the business
+// has not enabled the "cod" gateway in treasury. Checkout already hides the option; this keeps a
+// direct API call from placing such an order anyway. A treasury outage lets the order through
+// (logged), the same way checkout keeps working when treasury cannot be reached.
+func (s *OrderService) ensurePayLaterAccepted(ctx context.Context, tenantID uuid.UUID, method PaymentMethod) error {
+	if method != PaymentMethodCOD || s.treasuryClient == nil {
+		return nil
+	}
+	gateways, err := s.treasuryClient.ListEnabledGateways(ctx, tenantID)
+	if err != nil {
+		s.logger.Warn("could not check whether the business takes payment on delivery; allowing", zap.String("tenant_id", tenantID.String()), zap.Error(err))
+		return nil
+	}
+	if payLaterEnabled(gateways) {
+		return nil
+	}
+	return ErrPayLaterNotAccepted
+}
+
+// payLaterEnabled reports whether treasury lists the "cod" gateway for the tenant.
+func payLaterEnabled(gateways []treasury.EnabledGateway) bool {
+	for _, g := range gateways {
+		if strings.EqualFold(strings.TrimSpace(string(g)), "cod") {
+			return true
+		}
+	}
+	return false
+}
 
 var mpesaCodePattern = regexp.MustCompile(`^[A-Z0-9]{10}$`)
 
