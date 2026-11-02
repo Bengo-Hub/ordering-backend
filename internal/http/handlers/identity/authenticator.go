@@ -106,6 +106,13 @@ func (a *Authenticator) RequireAuth(next http.Handler) http.Handler {
 				if tenantSlug == "" {
 					tenantSlug = authClaims.GetTenantSlug()
 				}
+				// A member of this very tenant whose token leaves ordering out is not provisioned
+				// (user_services claim). A customer signed in from another tenant, shopping at this
+				// storefront, is not judged by their own tenant's services.
+				if authClaims.GetTenantSlug() == tenantSlug && !authClaims.AllowsUserService("ordering") {
+					handlers.RespondError(w, http.StatusForbidden, "ordering is not among your services in this organisation")
+					return
+				}
 				authUserData := map[string]interface{}{"roles": authClaims.Roles, "permissions": authClaims.Permissions}
 				if authClaims.Email != "" {
 					authUserData["email"] = authClaims.Email

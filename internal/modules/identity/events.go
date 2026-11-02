@@ -38,8 +38,33 @@ func (h *EventHandler) relevant(ctx context.Context, evt *sharedevents.Event, au
 	if h.ProductActive != nil && !h.ProductActive(ctx, evt.TenantID.String()) {
 		return false
 	}
-	r := sharedevents.UserRelevance{ServiceRoles: orderingServiceRoles, OutletKnown: h.OutletKnown}
-	return r.Relevant(ctx, evt.TenantID, evt.Payload)
+	return h.relevance().Relevant(ctx, evt.TenantID, evt.Payload)
+}
+
+// relevance is ordering's reading of an auth.user event: auth-api's services list when the event
+// has one, else the role and outlet rules.
+func (h *EventHandler) relevance() sharedevents.UserRelevance {
+	return sharedevents.UserRelevance{Service: "ordering", ServiceRoles: orderingServiceRoles, OutletKnown: h.OutletKnown}
+}
+
+// revoked removes the local copy of the user when the event's services list leaves ordering out
+// and the copy belongs to the event's tenant (a customer row made while shopping at another
+// tenant's storefront is kept). Reports whether the event was handled that way; events without
+// the list never are. Removal is the account-deletion one (HardDeleteUser): identity, addresses,
+// carts and loyalty go; orders stay with the customer link cleared.
+func (h *EventHandler) revoked(ctx context.Context, evt *sharedevents.Event, authServiceUserID uuid.UUID) (bool, error) {
+	if !h.relevance().Revoked(evt.Payload) {
+		return false, nil
+	}
+	u, err := h.service.repo.FindUserByAuthServiceID(ctx, authServiceUserID)
+	if err != nil || u == nil || u.TenantID != evt.TenantID.String() {
+		return true, nil // never provisioned here, or the copy belongs to another tenant
+	}
+	if _, err := h.service.HardDeleteUser(ctx, authServiceUserID); err != nil {
+		return true, fmt.Errorf("identity: remove user outside ordering: %w", err)
+	}
+	h.logger.Info("user removed: not an ordering member", zap.String("user_id", authServiceUserID.String()))
+	return true, nil
 }
 
 // NewEventHandler creates a new event handler.
@@ -67,6 +92,9 @@ func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, evt *sharedeve
 	tenantID := evt.TenantID.String()
 	if evt.TenantID == uuid.Nil {
 		return fmt.Errorf("identity: tenant_id required in event")
+	}
+	if handled, err := h.revoked(ctx, evt, authServiceUserID); handled {
+		return err
 	}
 	if !h.relevant(ctx, evt, authServiceUserID) {
 		h.logger.Debug("skipping user outside ordering", zap.String("user_id", userID))
@@ -115,6 +143,10 @@ func (h *EventHandler) HandleAuthUserUpdated(ctx context.Context, evt *sharedeve
 	authServiceUserID, err := uuid.Parse(userID)
 	if err != nil {
 		return fmt.Errorf("identity: invalid user_id in event: %w", err)
+	}
+
+	if handled, err := h.revoked(ctx, evt, authServiceUserID); handled {
+		return err
 	}
 
 	// Find user by auth_service_user_id

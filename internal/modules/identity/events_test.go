@@ -329,3 +329,49 @@ func TestEventHandler_EventEnvelopeParsing(t *testing.T) {
 		})
 	}
 }
+
+// auth-api's services list on auth.user events decides whether ordering keeps the member: a list
+// without ordering removes this tenant's copy; an event without a list syncs as before.
+func TestEventHandler_ServicesListRemovesOrderingCopy(t *testing.T) {
+	tenantID, userID := uuid.New(), uuid.New()
+	repo := NewMemoryRepository()
+	service, err := NewService(repo, config.AuthConfig{
+		ServiceURL: "https://sso.codevertexafrica.com", Issuer: "https://auth.bengobox.local",
+		Audience: "urban-cafe", AccessTokenSecret: "test-secret-key-for-testing-only-min-32-chars",
+	}, zap.NewNop(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := NewEventHandler(service, zap.NewNop())
+	ctx := context.Background()
+
+	created := makeUserEvent("created", tenantID, map[string]interface{}{
+		"user_id": userID.String(), "email": "staff@example.com", "full_name": "Staff",
+		"services": []interface{}{"ordering", "pos"},
+	})
+	if err := h.HandleAuthUserCreated(ctx, created); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.FindUserByAuthServiceID(ctx, userID); err != nil {
+		t.Fatalf("a member whose services include ordering must be synced: %v", err)
+	}
+
+	// Another tenant's "not here" leaves this tenant's copy alone.
+	if err := h.HandleAuthUserUpdated(ctx, makeUserEvent("updated", uuid.New(), map[string]interface{}{
+		"user_id": userID.String(), "services": []interface{}{"pos"},
+	})); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.FindUserByAuthServiceID(ctx, userID); err != nil {
+		t.Fatal("a revoke from another tenant must not remove this tenant's copy")
+	}
+
+	if err := h.HandleAuthUserUpdated(ctx, makeUserEvent("updated", tenantID, map[string]interface{}{
+		"user_id": userID.String(), "services": []interface{}{"pos"},
+	})); err != nil {
+		t.Fatal(err)
+	}
+	if u, err := repo.FindUserByAuthServiceID(ctx, userID); err == nil && u != nil {
+		t.Fatal("a member whose services leave out ordering must be removed")
+	}
+}
