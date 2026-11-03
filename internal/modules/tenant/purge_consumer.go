@@ -73,7 +73,7 @@ const (
 // PurgeConsumer DELETES all of a tenant's ordering-backend data when subscriptions-api confirms a
 // platform-owner-approved dormancy purge (tenant.purge). This is IRREVERSIBLE, so the handler is
 // defensive: it acts only on a well-formed event whose payload is explicitly confirmed == true AND
-// reason == "dormancy", and it scopes every delete strictly by tenant_id (or by a tenant-owned
+// a known purge reason (shared-events IsTenantPurgeReason), and it scopes every delete strictly by tenant_id (or by a tenant-owned
 // parent row). All deletes run in a single transaction and are idempotent (re-delivery is a no-op).
 type PurgeConsumer struct {
 	orm *ent.Client
@@ -169,7 +169,7 @@ func (c *PurgeConsumer) handleMessage(ctx context.Context, msg *nats.Msg) {
 	// so a stray or future tenant.* event can never trigger irreversible deletion.
 	confirmed, _ := evt.Payload["confirmed"].(bool)
 	reason, _ := evt.Payload["reason"].(string)
-	if evt.EventType != "purge" || !confirmed || reason != "dormancy" {
+	if evt.EventType != "purge" || !confirmed || !sharedevents.IsTenantPurgeReason(reason) {
 		c.log.Info("tenant purge: event not a confirmed dormancy purge — skipping (acking)",
 			zap.String("tenant_id", evt.TenantID.String()),
 			zap.String("event_type", evt.EventType),
