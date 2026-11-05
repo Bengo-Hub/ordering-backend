@@ -44,6 +44,13 @@ var orderingAcceptedUseCases = func() map[string]bool {
 type BranchSubscriber struct {
 	orm    *ent.Client
 	logger *zap.Logger
+	// entitled says whether the tenant's plan covers ordering (SetEntitlementGate).
+	entitled func(ctx context.Context, tenantID string) bool
+}
+
+// SetEntitlementGate stops outlets being mirrored for a tenant whose plan has no ordering.
+func (s *BranchSubscriber) SetEntitlementGate(fn func(ctx context.Context, tenantID string) bool) {
+	s.entitled = fn
 }
 
 // NewBranchSubscriber creates a new BranchSubscriber.
@@ -99,6 +106,10 @@ func (s *BranchSubscriber) Start(nc *nats.Conn) error {
 				s.logger.Error("failed to unmarshal outlet event",
 					zap.String("subject", cfg.subject), zap.Error(err))
 				_ = msg.Nak()
+				return
+			}
+			if s.entitled != nil && cfg.subject != "auth.outlet.archived" && !s.entitled(context.Background(), evt.TenantID.String()) {
+				_ = msg.Ack()
 				return
 			}
 			// Bound the handler so a slow/hung downstream (e.g. auth-api S2S) can't

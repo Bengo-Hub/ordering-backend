@@ -12,6 +12,7 @@ import (
 
 	"github.com/bengobox/ordering-backend/internal/ent"
 	"github.com/bengobox/ordering-backend/internal/ent/catalogoverride"
+	entoutlet "github.com/bengobox/ordering-backend/internal/ent/outlet"
 )
 
 const (
@@ -137,10 +138,11 @@ func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *shar
 		return fmt.Errorf("no sku in event payload")
 	}
 
-	// Gate inventory→catalog sync: only tenants entitled to basic_inventory_access get
-	// inventory items projected into their ordering catalog. Fails open if no gate wired.
-	if h.hasFeature != nil && !h.hasFeature(ctx, tenantID.String(), "basic_inventory_access") {
-		h.logger.Debug("inventory.item.created: tenant lacks basic_inventory_access — skipping catalog sync",
+	// Gate inventory to catalog sync on the ordering service itself. basic_inventory_access could not
+	// do this: every POS plan holds it, so a tier 1 tenant with no store still synced. Fails open if
+	// no gate is wired.
+	if h.hasFeature != nil && !h.hasFeature(ctx, tenantID.String(), "ordering") {
+		h.logger.Debug("inventory.item.created: plan has no ordering, skipping catalog sync",
 			zap.String("tenant_id", tenantID.String()))
 		return nil
 	}
@@ -161,7 +163,7 @@ func (h *InventoryEventHandler) handleItemCreated(ctx context.Context, evt *shar
 	}
 
 	// Resolve default outlet for the tenant
-	outlets, err := h.db.Outlet.Query().All(ctx)
+	outlets, err := h.db.Outlet.Query().Where(entoutlet.TenantID(tenantID)).All(ctx)
 	if err != nil || len(outlets) == 0 {
 		h.logger.Warn("could not resolve default outlet, skipping catalog override creation",
 			zap.String("tenant_id", tenantID.String()))

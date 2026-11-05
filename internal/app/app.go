@@ -166,6 +166,14 @@ func New(ctx context.Context) (*App, error) {
 		log.Info("app: versioned migrations applied (POSTGRES_RUN_MIGRATIONS=true)")
 	}
 
+	// One plan check for this service: a tenant whose plan does not cover ordering gets no store, no
+	// projected catalog and no synced users or outlets. Outages fail open; no subscription does not.
+	entitlements := authclient.NewEntitlementClient(cfg.Subscriptions.ServiceURL, cfg.Subscriptions.APIKey)
+	orderingEntitled := func(ctx context.Context, tenantID string) bool {
+		return entitlements.UsesService(ctx, tenantID, "ordering")
+	}
+	subscriptions.SetGuestEntitlement(orderingEntitled)
+
 	identityRepo := identity.NewEntRepository(ormClient)
 	tenantSyncer := tenant.NewSyncer(ormClient, cfg.Auth.ServiceURL)
 	identitySvc, err := identity.NewService(identityRepo, cfg.Auth, log, tenantSyncer)
@@ -204,6 +212,7 @@ func New(ctx context.Context) (*App, error) {
 			// Outlet sync: auth.outlet.* JetStream events → local outlet projections.
 			// Replaces the legacy plain-NATS auth.tenant.branch.created subscription.
 			branchSub := tenant.NewBranchSubscriber(ormClient, log)
+			branchSub.SetEntitlementGate(orderingEntitled)
 			if err := branchSub.Start(natsConn); err != nil {
 				log.Error("failed to start outlet event subscriber", zap.Error(err))
 			}
@@ -454,9 +463,7 @@ func New(ctx context.Context) (*App, error) {
 				ok, err := ormClient.Outlet.Query().Where(entoutlet.ID(outletID), entoutlet.TenantID(tenantID)).Exist(ctx)
 				return err == nil && ok
 			}
-			authEventHandler.ProductActive = func(ctx context.Context, tenantID string) bool {
-				return subscriptionsClient.ConsumerHasActiveProduct(ctx, tenantID, "ordering")
-			}
+			authEventHandler.ProductActive = orderingEntitled
 			if err := authEventHandler.SubscribeToAuthEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}
@@ -477,13 +484,16 @@ func New(ctx context.Context) (*App, error) {
 
 			// Subscribe to inventory events for catalog projection sync
 			inventoryEventHandler := catalog.NewInventoryEventHandler(ormClient, log)
-			inventoryEventHandler.SetFeatureGate(consumerFeatureGate)
+			inventoryEventHandler.SetFeatureGate(func(ctx context.Context, tenantID, _ string) bool {
+				return orderingEntitled(ctx, tenantID)
+			})
 			if err := inventoryEventHandler.SubscribeToInventoryEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to inventory events for catalog sync", zap.Error(err))
 			}
 
 			// Subscribe to inventory stock-out and item-updated events
 			stockEventHandler := catalog.NewStockEventHandler(ormClient, log)
+			stockEventHandler.SetEntitlementGate(orderingEntitled)
 			if err := stockEventHandler.SubscribeToStockEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to stock events", zap.Error(err))
 			}

@@ -1,13 +1,48 @@
 package subscriptions
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync/atomic"
 	"time"
 
+	"github.com/Bengo-Hub/httpware"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 )
+
+// guestEntitlement answers whether a tenant's plan covers ordering (SetGuestEntitlement).
+var guestEntitlement atomic.Pointer[func(ctx context.Context, tenantID string) bool]
+
+// SetGuestEntitlement wires the plan check RequireGuestEntitlement uses.
+func SetGuestEntitlement(fn func(ctx context.Context, tenantID string) bool) {
+	guestEntitlement.Store(&fn)
+}
+
+// RequireGuestEntitlement closes the storefront to shoppers when the tenant's plan has no ordering.
+// RequireServiceAccess only reads a token's claims, so public routes pass through it. Signed-in and
+// service callers are left to that gate. The check caches per tenant, so shopper traffic stays cheap.
+func RequireGuestEntitlement() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fn := guestEntitlement.Load()
+			tenantID := httpware.GetTenantID(r.Context())
+			_, signedIn := authclient.ClaimsFromContext(r.Context())
+			if fn != nil && tenantID != "" && !signedIn && r.Header.Get("X-API-Key") == "" && !(*fn)(r.Context(), tenantID) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"code":    "service_not_in_plan",
+					"error":   "service_not_in_plan",
+					"message": "This store is not available.",
+				})
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 
 const (
 	gracePeriodDays = 7

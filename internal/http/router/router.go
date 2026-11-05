@@ -350,6 +350,7 @@ func New(
 				// about not gating an authenticated bootstrap call).
 				tenant.Group(func(ord chi.Router) {
 					ord.Use(authclient.RequireServiceAccess("ordering"))
+					ord.Use(subscriptions.RequireGuestEntitlement())
 					// Mutations-only annual support-fee gate for a perpetual/one-time-license
 					// tenant (e.g. boi-enterprises on POWERSUITE_DUKA_GOLD_ONE_TIME) whose support
 					// fee has gone unpaid past its 7-day grace window — independent axis from the

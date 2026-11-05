@@ -18,6 +18,13 @@ import (
 type StockEventHandler struct {
 	db     *ent.Client
 	logger *zap.Logger
+	// entitled says whether the tenant's plan covers ordering (SetEntitlementGate).
+	entitled func(ctx context.Context, tenantID string) bool
+}
+
+// SetEntitlementGate stops stock events reaching the catalog of a tenant whose plan has no ordering.
+func (h *StockEventHandler) SetEntitlementGate(fn func(ctx context.Context, tenantID string) bool) {
+	h.entitled = fn
 }
 
 // NewStockEventHandler creates a new stock event handler.
@@ -58,6 +65,10 @@ func (h *StockEventHandler) SubscribeToStockEvents(js nats.JetStreamContext) err
 				return
 			}
 			ctx := context.Background()
+			if h.entitled != nil && !h.entitled(ctx, evt.TenantID.String()) {
+				_ = msg.Ack() // the catalog is built from inventory when the tenant upgrades
+				return
+			}
 			if err := s.handler(ctx, evt); err != nil {
 				h.logger.Error("failed to handle stock event",
 					zap.String("subject", s.subject), zap.Error(err))
