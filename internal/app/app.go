@@ -288,6 +288,7 @@ func New(ctx context.Context) (*App, error) {
 
 	// Initialize subscriptions client (for subscription enforcement on order creation)
 	subscriptionsClient := subscriptions.NewClient(cfg.Subscriptions, log)
+	subscriptions.SetLiveLimitLookup(subscriptionsClient.LiveLimit)
 
 	// Initialize ordering module
 	orderingRepo := ordering.NewEntRepository(ormClient).WithDB(sqlDB)

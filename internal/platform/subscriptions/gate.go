@@ -126,10 +126,31 @@ func CheckLimit(r *http.Request, limitKey string, currentValue int) bool {
 		return true
 	}
 	limit := claims.GetLimit(limitKey)
-	if limit <= 0 { // 0 = absent/unlimited, -1 = explicit unlimited
+	if limit <= 0 || currentValue < limit { // 0 = absent/unlimited, -1 = explicit unlimited
 		return true
 	}
-	return currentValue < limit
+	// Ask the live plan before refusing: an upgrade since the token was issued must count.
+	if live, ok := liveLimit(r.Context(), claims.TenantID, limitKey); ok {
+		return live <= 0 || currentValue < live
+	}
+	return false
+}
+
+// liveLimitLookup answers the tenant's current plan limit (SetLiveLimitLookup).
+var liveLimitLookup atomic.Pointer[func(ctx context.Context, tenantID, limitKey string) (int, bool)]
+
+// SetLiveLimitLookup wires the live plan limit consulted before a token-based refusal. Tokens can be
+// hours old, so an upgrade would otherwise stay blocked until the next sign-in.
+func SetLiveLimitLookup(fn func(ctx context.Context, tenantID, limitKey string) (int, bool)) {
+	liveLimitLookup.Store(&fn)
+}
+
+func liveLimit(ctx context.Context, tenantID, limitKey string) (int, bool) {
+	fn := liveLimitLookup.Load()
+	if fn == nil || tenantID == "" {
+		return 0, false
+	}
+	return (*fn)(ctx, tenantID, limitKey)
 }
 
 // AssertLimit writes a structured 402 response if currentValue has reached or exceeded the

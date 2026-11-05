@@ -23,6 +23,8 @@ type Entitlements struct {
 	// ActiveProducts lists the product codes the tenant has switched on. Exempt tenants
 	// never get it; ConsumerHasActiveProduct lets them through by billing mode.
 	ActiveProducts []string `json:"active_products"`
+	// Limits is the plan's limits, read by LiveLimit.
+	Limits map[string]int `json:"limits"`
 }
 
 type cachedEntitlements struct {
@@ -113,6 +115,17 @@ func (c *Client) ConsumerHasActiveProduct(ctx context.Context, tenantID, product
 		}
 	}
 	return false
+}
+
+// LiveLimit is the tenant's current limit for limitKey, cached like the feature checks. ok is false
+// when it cannot be read or the plan does not set that key.
+func (c *Client) LiveLimit(ctx context.Context, tenantID, limitKey string) (int, bool) {
+	e := c.cachedEntitlements(ctx, tenantID)
+	if e == nil {
+		return 0, false
+	}
+	limit, ok := e.Limits[limitKey]
+	return limit, ok
 }
 
 func (c *Client) cachedEntitlements(ctx context.Context, tenantID string) *Entitlements {
