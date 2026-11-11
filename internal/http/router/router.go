@@ -78,6 +78,7 @@ func New(
 	bannerHandler *promobannerhandler.Handler,
 	marketplaceHandler *marketplacehandler.Handler,
 	tenantExport http.Handler,
+	crmLinks http.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -125,6 +126,11 @@ func New(
 	// itself (httpware/tenantexport, Options.InternalKey).
 	if tenantExport != nil {
 		r.Get("/api/v1/s2s/tenant-export", tenantExport.ServeHTTP)
+	}
+	// Erasure link check for marketflow: the handler is already behind the shared service key.
+	// A static prefix, so it wins over the /api/v1/{tenant} routes.
+	if crmLinks != nil {
+		r.Get("/api/v1/s2s/{tenant}/crm-links/{contactID}", crmLinks.ServeHTTP)
 	}
 	r.Get("/v1/docs/*", handlers.SwaggerUI)
 

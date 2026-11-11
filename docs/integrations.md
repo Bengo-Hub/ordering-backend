@@ -532,6 +532,8 @@ that merged set and every page is consistent across the catalogue:
   product page). A variant lookup clears them, since one variant has one price.
 Best-selling order still comes from pos-api sales (`/s2s` reports) and is ranked by the storefront.
 
+**Erasure link check.** When a person is erased in the identity service, marketflow asks every service whether it still links the CRM contact before it deletes it. Ordering answers `GET /api/v1/s2s/{tenant}/crm-links/{contactID}` with `{"referenced": true|false}`, sent with the shared `X-API-Key` (`INTERNAL_SERVICE_KEY`). `{tenant}` is the tenant UUID or slug. The answer is true when any order carries the contact id in `orders.crm_contact_id`, the only column here that holds one, in any tenant: CRM contact ids are random UUIDs minted by marketflow, so a match anywhere is the same person, and a tenant mismatch can only answer "referenced", which keeps the contact. Only the flag is returned, and logs carry ids only. A bad contact id answers 400, a tenant ordering does not hold (unknown slug, or a UUID with no local tenant row, as after a tenant id drift) 404, and a missing or wrong key 401. marketflow treats a 404 as "cannot answer" and keeps the contact.
+
 ---
 
 ## External Third-Party Integrations

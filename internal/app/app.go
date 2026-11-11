@@ -17,6 +17,7 @@ import (
 	"go.uber.org/zap"
 
 	sharedcache "github.com/Bengo-Hub/cache"
+	"github.com/Bengo-Hub/httpware"
 	"github.com/Bengo-Hub/httpware/objectstore"
 	"github.com/Bengo-Hub/httpware/tenantexport"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
@@ -601,7 +602,11 @@ func New(ctx context.Context) (*App, error) {
 	// /api/v1/s2s/tenant-export); the platform pg_dumpall covers disaster recovery.
 
 	router := httprouter.New(log, healthHandler, mediaStore.MediaHandler(), configHandler, identityHandler, catalogHandler, cartHandler, orderHandler, promoHandler, loyaltyHandler, addressHandler, groupOrderHandler, paymentHandler, paymentMethodHandler, paymentWebhookHandler, fulfilmentTaskHandler, fulfilmentWebhookHandler, notificationsHandler, slaHandler, analyticsHandler, complianceHandler, authenticator, authMiddleware, rateLimiter, auditLogger, cfg.Security, cfg.HTTP.AllowedOrigins, mediaHandler, rbacHandler, tenantSyncer, serviceConfigHandler, useCaseHandler, googleBusinessHandler, encryptionKeyHandler, bannerHandler, marketplaceHandler,
-		tenantExportHandler(sqlDB, cfg.Auth.AuthServiceAPIKey))
+		tenantExportHandler(sqlDB, cfg.Auth.AuthServiceAPIKey),
+		// marketflow's erasure check: does ordering still link this CRM contact? Shared service key;
+		// an empty key refuses every call.
+		httpware.RequireServiceKey(cfg.Auth.AuthServiceAPIKey)(
+			http.HandlerFunc(orderinghandler.NewCRMLinksHandler(orderinghandler.NewEntCRMLinkStore(ormClient), log).Referenced)))
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
