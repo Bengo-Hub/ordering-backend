@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	sharedevents "github.com/Bengo-Hub/shared-events"
@@ -20,6 +21,46 @@ type EventHandler struct {
 	// ProductActive reports whether the tenant has ordering switched on in its subscription.
 	// Nil admits every tenant.
 	ProductActive func(ctx context.Context, tenantID string) bool
+	// LinkGuestOrders attaches the tenant's guest orders placed with a verified email or phone
+	// to the new customer. Nil skips linking.
+	LinkGuestOrders func(ctx context.Context, tenantID, customerID uuid.UUID, email, phone string) (int, error)
+	// VerifiedPhone returns the auth user's verified phone, "" when there is none. Nil links by
+	// email only.
+	VerifiedPhone func(ctx context.Context, authUserID string) string
+}
+
+// linkGuestOrders gives a new customer their past guest orders at this tenant. Only proven
+// contacts match: the email when auth-api marks it verified, the phone when auth-api holds it
+// as verified. Best effort: a failure is logged and the sync still counts.
+func (h *EventHandler) linkGuestOrders(ctx context.Context, evt *sharedevents.Event, user *User, authUserID string) {
+	if h.LinkGuestOrders == nil || user == nil {
+		return
+	}
+	email := ""
+	if verified, _ := evt.Payload["email_verified"].(bool); verified {
+		email = strings.ToLower(strings.TrimSpace(strFromPayload(evt.Payload, "email")))
+		// Phone-only accounts carry a made-up address; it is nobody's real email.
+		if strings.HasSuffix(email, ".local") {
+			email = ""
+		}
+	}
+	phone := ""
+	if h.VerifiedPhone != nil {
+		phone = h.VerifiedPhone(ctx, authUserID)
+	}
+	if email == "" && phone == "" {
+		return
+	}
+	n, err := h.LinkGuestOrders(ctx, evt.TenantID, user.ID, email, phone)
+	if err != nil {
+		h.logger.Warn("link guest orders to new customer failed",
+			zap.String("user_id", authUserID), zap.String("tenant_id", evt.TenantID.String()), zap.Error(err))
+		return
+	}
+	if n > 0 {
+		h.logger.Info("guest orders linked to new customer",
+			zap.String("user_id", authUserID), zap.String("tenant_id", evt.TenantID.String()), zap.Int("orders", n))
+	}
 }
 
 // orderingServiceRoles are role names only ordering uses: online store customers and the
@@ -121,7 +162,7 @@ func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, evt *sharedeve
 		"metadata":  evt.Payload["metadata"],
 	}
 
-	_, err = h.service.SyncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, "")
+	user, err := h.service.SyncUserFromAuthService(ctx, authServiceUserID, tenantID, authUserData, "")
 	if err != nil {
 		h.logger.Error("Failed to sync user from auth.user.created event",
 			zap.String("user_id", userID),
@@ -129,6 +170,7 @@ func (h *EventHandler) HandleAuthUserCreated(ctx context.Context, evt *sharedeve
 			zap.Error(err))
 		return fmt.Errorf("identity: sync user from event: %w", err)
 	}
+	h.linkGuestOrders(ctx, evt, user, userID)
 
 	h.logger.Info("User synced from auth.user.created event",
 		zap.String("user_id", userID),

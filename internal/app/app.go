@@ -54,6 +54,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/modules/rbac"
 	"github.com/bengobox/ordering-backend/internal/modules/sla"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
+	"github.com/bengobox/ordering-backend/internal/platform/authaccount"
 	"github.com/bengobox/ordering-backend/internal/platform/database"
 	"github.com/bengobox/ordering-backend/internal/platform/events"
 	"github.com/bengobox/ordering-backend/internal/platform/inventory"
@@ -348,6 +349,10 @@ func New(ctx context.Context) (*App, error) {
 	// Create ordering handlers
 	cartHandler := orderinghandler.NewCartHandler(log, cartSvc, feeSvc)
 	orderHandler := orderinghandler.NewOrderHandler(log, orderSvc)
+	// auth-api account client: a guest's optional account after checkout, and the verified
+	// phone used to link past guest orders to a new customer.
+	accountClient := authaccount.NewClient(cfg.Auth.ServiceURL, cfg.Auth.AuthServiceAPIKey, cfg.Auth.SSOClientID, log)
+	orderHandler.SetGuestAccountClient(accountClient)
 	promoHandler := orderinghandler.NewPromoHandler(log, promoSvc, cartSvc)
 	loyaltyHandler := orderinghandler.NewLoyaltyHandler(log, loyaltySvc)
 	addressHandler := orderinghandler.NewAddressHandler(log, addressSvc)
@@ -466,6 +471,9 @@ func New(ctx context.Context) (*App, error) {
 				return err == nil && ok
 			}
 			authEventHandler.ProductActive = orderingEntitled
+			// A new customer gets their past guest orders at the tenant (verified email or phone).
+			authEventHandler.LinkGuestOrders = orderingRepo.LinkGuestOrders
+			authEventHandler.VerifiedPhone = accountClient.VerifiedPhone
 			if err := authEventHandler.SubscribeToAuthEvents(js); err != nil {
 				log.Warn("app: failed to subscribe to auth events", zap.Error(err))
 			}
@@ -583,6 +591,7 @@ func New(ctx context.Context) (*App, error) {
 	// record were separate calls (parallel requests across pods all passed) and whose tenant
 	// and user keys came from client-sent X-Tenant-ID / X-User-ID headers.
 	rateLimiter := ratelimit.NewLimiter(redisClient, log, "ordering")
+	orderHandler.SetRateLimiter(rateLimiter)
 	log.Info("app: rate limiter initialized",
 		zap.Bool("enabled", cfg.Security.RateLimitEnabled),
 		zap.Int("requests_per_min", cfg.Security.RateLimitRequestsPerMin))

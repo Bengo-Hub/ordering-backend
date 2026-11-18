@@ -28,6 +28,7 @@ import (
 	"github.com/bengobox/ordering-backend/internal/ent/user"
 	"github.com/bengobox/ordering-backend/internal/ent/userpreference"
 	"github.com/bengobox/ordering-backend/internal/ent/userprofile"
+	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 	"github.com/bengobox/ordering-backend/internal/modules/tenant"
 )
 
@@ -1162,6 +1163,7 @@ func seedServiceConfigs(ctx context.Context, tx *ent.Tx) error {
 	configs := []svcConfig{
 		{"orders.auto_accept", "false", "bool", "Accept orders automatically once paid (or placed with pay-on-delivery). Off: staff accept every order in the POS queue before the kitchen gets it", false},
 		{"orders.payment_retry_window_minutes", "30", "int", "Minutes an unpaid online-payment order keeps its stock and lets the customer retry payment before it is cancelled (5 to 1440)", false},
+		{ordering.ConfigKeyGuestPlaceholderNames, strings.Join(ordering.DefaultGuestPlaceholderNames, ","), "string", "Names a guest cannot check out under, comma separated (any one repeated letter is refused too). A tenant value replaces this list", false},
 	}
 
 	for _, c := range configs {

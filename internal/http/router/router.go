@@ -172,8 +172,10 @@ func New(
 				v1.Use(func(next http.Handler) http.Handler {
 					authNext, paymentNext := authLimit(next), paymentLimit(next)
 					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						// Stricter rate limiting for auth endpoints
-						if strings.HasPrefix(r.URL.Path, "/api/v1/") && strings.Contains(r.URL.Path, "/auth/") {
+						// Stricter rate limiting for auth endpoints, and for a guest's account
+						// request (it sends sign-up codes and takes a password).
+						if strings.HasPrefix(r.URL.Path, "/api/v1/") &&
+							(strings.Contains(r.URL.Path, "/auth/") || strings.HasSuffix(r.URL.Path, "/guest/account")) {
 							authNext.ServeHTTP(w, r)
 							return
 						}
@@ -254,6 +256,8 @@ func New(
 								strings.Contains(path, "/cart/fee-breakdown") ||
 								strings.Contains(path, "/checkout/guest") ||
 								strings.Contains(path, "/orders/guest") ||
+								// The guest's account request proves itself with the checkout session.
+								(r.Method == http.MethodPost && strings.HasSuffix(path, "/guest/account")) ||
 								isPublicGoogle ||
 								isPublicPaymentOptions ||
 								strings.Contains(path, "/zones") ||

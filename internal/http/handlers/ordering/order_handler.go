@@ -11,6 +11,7 @@ import (
 	httpware "github.com/Bengo-Hub/httpware"
 	"github.com/Bengo-Hub/pagination"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
+	ratelimit "github.com/Bengo-Hub/shared-ratelimit"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -30,6 +31,10 @@ type OrderHandler struct {
 	taskService  *fulfilment.TaskService
 	// serviceKey is the shared INTERNAL_SERVICE_KEY accepted on /s2s/orders routes.
 	serviceKey string
+	// accountClient creates customer accounts from guest orders (POST /guest/account).
+	accountClient GuestAccountClient
+	// limiter adds a per-order limit on POST /guest/account.
+	limiter *ratelimit.Limiter
 }
 
 // SetServiceKey sets the key other platform services present in X-API-Key on /s2s/orders.
@@ -66,6 +71,8 @@ func (h *OrderHandler) Register(r chi.Router, auth *identityhandler.Authenticato
 	r.Post("/orders/guest/{orderId}/payment/retry", h.RetryGuestOrderPayment)
 	// Guest cancel from the order page, before the outlet starts it. Needs the checkout session.
 	r.Post("/orders/guest/{orderId}/cancel", h.CancelGuestOrder)
+	// Guest turns the order into a customer account (email code, then password). Needs the session.
+	r.Post("/guest/account", h.CreateGuestAccount)
 
 	// Customer order routes
 	r.Route("/orders", func(orderRouter chi.Router) {
@@ -1964,6 +1971,13 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondError(w, http.StatusBadRequest, "contactEmail or contactPhone is required for guest checkout")
 		return
 	}
+
+	// The kitchen and rider ask for the customer by name, so a guest gives a real one.
+	if err := ordering.ValidateContactName(req.ContactName, h.orderService.GuestPlaceholderNames(r.Context(), tenantID)); err != nil {
+		respondFieldError(w, "contactName", "invalid_contact_name", err.Error())
+		return
+	}
+	req.ContactName = ordering.NormalizeContactName(req.ContactName)
 
 	if req.OutletID == "" {
 		handlers.RespondError(w, http.StatusBadRequest, "outletId is required")

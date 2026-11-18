@@ -118,6 +118,9 @@ type AuthConfig struct {
 	JWKSRefreshInterval time.Duration `envconfig:"AUTH_JWKS_REFRESH_INTERVAL" default:"300s"`
 	EnableAPIKeyAuth    bool          `envconfig:"AUTH_ENABLE_API_KEY_AUTH" default:"true"`
 	AuthServiceAPIKey   string        `envconfig:"INTERNAL_SERVICE_KEY"`
+	// SSOClientID is the storefront's SSO client. An account made from a guest order is
+	// registered under it, so auth-api gives it the client's self sign-up role (customer).
+	SSOClientID string `envconfig:"AUTH_SSO_CLIENT_ID" default:"ordering-ui"`
 
 	// Legacy config (deprecated - use auth-service instead)
 	AccessTokenSecret  string        `envconfig:"AUTH_ACCESS_TOKEN_SECRET" default:"dev-access-secret-change-me"`

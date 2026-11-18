@@ -235,6 +235,7 @@ func sanitizeRequestBody(body map[string]any) map[string]any {
 		"cvv":             true,
 		"cvc":             true,
 		"pin":             true,
+		"email_code":      true,
 		"ssn":             true,
 		"social_security": true,
 	}

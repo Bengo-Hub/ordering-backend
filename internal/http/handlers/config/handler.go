@@ -1,15 +1,20 @@
 package config
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	cache "github.com/Bengo-Hub/cache"
 	"github.com/bengobox/ordering-backend/internal/ent"
+	"github.com/bengobox/ordering-backend/internal/ent/predicate"
+	"github.com/bengobox/ordering-backend/internal/ent/serviceconfig"
 	"github.com/bengobox/ordering-backend/internal/ent/tenant"
 	"github.com/bengobox/ordering-backend/internal/http/handlers"
+	"github.com/bengobox/ordering-backend/internal/modules/ordering"
 )
 
 // Handler serves public tenant/brand config (no auth required).
@@ -56,6 +61,25 @@ type PublicConfigResponse struct {
 	AppShortName  string `json:"app_short_name,omitempty"`
 	AppIconURL    string `json:"app_icon_url,omitempty"`
 	AppThemeColor string `json:"app_theme_color,omitempty"`
+	// PlaceholderNames are the names a guest may not check out under ("customer", "test"),
+	// lower case. The storefront checks them inline; guest checkout checks them again.
+	PlaceholderNames []string `json:"placeholder_names,omitempty"`
+}
+
+// placeholderNames reads the tenant's orders.guest_placeholder_names, then the platform
+// default, then the built-in list.
+func (h *Handler) placeholderNames(ctx context.Context, tenantID uuid.UUID) []string {
+	for _, scope := range []predicate.ServiceConfig{serviceconfig.TenantID(tenantID), serviceconfig.TenantIDIsNil()} {
+		cfg, err := h.db.ServiceConfig.Query().
+			Where(serviceconfig.ConfigKey(ordering.ConfigKeyGuestPlaceholderNames), scope).
+			First(ctx)
+		if err == nil {
+			if names := ordering.ParsePlaceholderNames(cfg.ConfigValue); len(names) > 0 {
+				return names
+			}
+		}
+	}
+	return ordering.DefaultGuestPlaceholderNames
 }
 
 // serviceBrandingKey is this app's entry in tenant metadata service_branding.
@@ -166,6 +190,8 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	resp.PlaceholderNames = h.placeholderNames(ctx, t.ID)
 
 	defaultShortName(&resp)
 	handlers.RespondJSON(w, http.StatusOK, resp)
