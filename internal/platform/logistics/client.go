@@ -231,6 +231,28 @@ func (c *Client) CreateTask(ctx context.Context, tenantID uuid.UUID, req CreateT
 	return &result, nil
 }
 
+// SetTaskOutlet tells logistics-api the outlet of the task(s) for one order (external reference
+// "order:<id>"). logistics changes only tasks that have no outlet, so repeating it is harmless.
+// Returns how many tasks were updated.
+func (c *Client) SetTaskOutlet(ctx context.Context, tenantID uuid.UUID, externalRef string, outletID uuid.UUID) (int, error) {
+	path := fmt.Sprintf("/api/v1/s2s/dispatch/%s/tasks/outlet", tenantID.String())
+	body := map[string]string{"external_reference": externalRef, "outlet_id": outletID.String()}
+	resp, err := c.serviceClient.Post(ctx, path, body, c.headers(""))
+	if err != nil {
+		return 0, fmt.Errorf("execute request: %w", err)
+	}
+	if !resp.IsSuccess() {
+		return 0, c.parseError(resp)
+	}
+	var out struct {
+		Updated int `json:"updated"`
+	}
+	if err := resp.DecodeJSON(&out); err != nil {
+		return 0, fmt.Errorf("decode response: %w", err)
+	}
+	return out.Updated, nil
+}
+
 // GetTracking reads the live tracking view of a task through logistics-api's service-to-service
 // route (tenant by UUID, INTERNAL_SERVICE_KEY). The tenant user route /{slug}/tasks/{id}/tracking
 // needs a signed-in dispatcher or rider and refuses this service's key.

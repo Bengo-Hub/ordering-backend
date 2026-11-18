@@ -416,6 +416,13 @@ func New(ctx context.Context) (*App, error) {
 	orderSvc.SetLogisticsClient(logisticsClient)
 	fulfilmentRepo := fulfilment.NewEntRepository(ormClient)
 	taskSvc := fulfilment.NewTaskService(fulfilmentRepo, logisticsClient, log)
+	// Give logistics the outlet of tasks created before tasks carried one (idempotent).
+	go func() {
+		bctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		time.Sleep(30 * time.Second) // let logistics-api finish a rollout started alongside
+		fulfilment.BackfillTaskOutlets(bctx, sqlDB, logisticsClient, log)
+	}()
 	orderHandler.SetTaskService(taskSvc)
 	orderHandler.SetServiceKey(cfg.Auth.AuthServiceAPIKey)
 	fulfilmentWebhookSvc := fulfilment.NewWebhookService(fulfilmentRepo, cfg.Logistics.WebhookSecret, log)

@@ -2340,6 +2340,7 @@ func buildOrderInfoFromOrder(order *ordering.Order, tenantSlug string) fulfilmen
 		OrderNumber:   order.OrderNumber,
 		CustomerName:  order.CustomerName,
 		CustomerPhone: order.CustomerPhone,
+		OutletID:      order.OutletID,
 		Instructions:  order.Instructions,
 		ItemCount:     len(order.Items),
 		PODCode:       order.PODCode,

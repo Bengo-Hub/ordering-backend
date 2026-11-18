@@ -37,6 +37,8 @@ type OrderInfo struct {
 	DeliveryFee     float64
 	// CashOnDelivery is what the rider collects at the door (0 for prepaid orders).
 	CashOnDelivery float64
+	// OutletID is the outlet the order is prepared at; logistics scopes the task to it.
+	OutletID uuid.UUID
 }
 
 // CreateDeliveryTaskRequest represents a request to create a delivery task.
@@ -110,6 +112,10 @@ func (s *TaskService) CreateDeliveryTask(ctx context.Context, req CreateDelivery
 			// metadata so the rider app and the COD ledger can still read it.
 			"cash_on_delivery": req.OrderInfo.CashOnDelivery,
 		},
+	}
+	// Without it the task had no outlet and never showed on an outlet's dispatch board.
+	if req.OrderInfo.OutletID != uuid.Nil {
+		logisticsReq.Metadata["outlet_id"] = req.OrderInfo.OutletID.String()
 	}
 
 	taskResp, err := s.logisticsClient.CreateTask(ctx, req.OrderInfo.TenantID, logisticsReq)

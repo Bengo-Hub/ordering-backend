@@ -124,6 +124,7 @@ func (h *TaskHandler) CreateDeliveryTask(w http.ResponseWriter, r *http.Request)
 			orderInfo.OrderNumber = order.OrderNumber
 			orderInfo.CustomerName = order.CustomerName
 			orderInfo.CustomerPhone = order.CustomerPhone
+			orderInfo.OutletID = order.OutletID
 			orderInfo.Instructions = order.Instructions
 			orderInfo.DeliveryFee = order.DeliveryFee
 			orderInfo.ItemCount = len(order.Items)
