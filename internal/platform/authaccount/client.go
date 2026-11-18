@@ -124,6 +124,9 @@ func (c *Client) Register(ctx context.Context, in RegisterInput) error {
 		"client_id":   c.clientID,
 		"service_id":  "ordering",
 		"profile":     profile,
+		// The save-details card states that creating the account accepts the terms and privacy
+		// policy, next to the button; sending the password is that acceptance.
+		"terms_accepted": true,
 	})
 	if err != nil {
 		return err
