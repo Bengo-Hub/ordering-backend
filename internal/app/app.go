@@ -286,6 +286,7 @@ func New(ctx context.Context) (*App, error) {
 
 	catalogProxySvc := catalog.NewProxyService(ormClient, inventoryClient, cacheSvc, log)
 	catalogProxySvc.SetMedia(mediaStore)
+	catalogProxySvc.SetAuthURL(cfg.Auth.ServiceURL)
 	catalogHandler := cataloghandler.New(log, catalogProxySvc, ormClient)
 
 	// Initialize subscriptions client (for subscription enforcement on order creation)

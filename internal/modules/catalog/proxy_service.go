@@ -38,6 +38,9 @@ type ProxyService struct {
 	delivery DeliveryInfoSource
 	// media is the shared object storage (nil: stored values are returned as they are).
 	media *objectstore.Store
+	// authURL is auth-api's in-cluster base URL, for tenant details (opening hours, timezone)
+	// through the shared tenant cache. Empty: outlet hours only, default zone.
+	authURL string
 }
 
 // SetMedia wires the shared object storage that holds override images (keys) and resolves stored
@@ -818,13 +821,23 @@ func (s *ProxyService) ToggleFavorite(ctx context.Context, tenantID, userID uuid
 
 // ListOutlets returns all active outlets for a tenant (cached).
 func (s *ProxyService) ListOutlets(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
+	var (
+		outlets []OutletSummary
+		err     error
+	)
 	if s.cache != nil {
 		key := fmt.Sprintf("ordering:outlets:%s", tenantID)
-		return sharedcache.GetOrSet(ctx, s.cache, key, cacheTTLReference, func(ctx context.Context) ([]OutletSummary, error) {
+		outlets, err = sharedcache.GetOrSet(ctx, s.cache, key, cacheTTLReference, func(ctx context.Context) ([]OutletSummary, error) {
 			return s.listOutletsFromDB(ctx, tenantID)
 		})
+	} else {
+		outlets, err = s.listOutletsFromDB(ctx, tenantID)
 	}
-	return s.listOutletsFromDB(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	// The open flag is worked out now, not when the listing was cached.
+	return s.withOpenState(ctx, tenantID, outlets), nil
 }
 
 func (s *ProxyService) listOutletsFromDB(ctx context.Context, tenantID uuid.UUID) ([]OutletSummary, error) {
@@ -876,6 +889,7 @@ func (s *ProxyService) GetOutlet(ctx context.Context, tenantID, outletID uuid.UU
 	}
 	summary := entOutletToSummary(o)
 	summary.ImageURL = s.media.URL(o.ImageURL)
+	summary.IsOpen = s.OutletSchedule(ctx, tenantID, o.OpeningHours).IsOpenAt(time.Now())
 	return &summary, nil
 }
 
@@ -936,7 +950,6 @@ func entOutletToSummary(o *ent.Outlet) OutletSummary {
 		ImageURL:              o.ImageURL,
 		Status:                o.Status,
 		UseCase:               o.UseCase,
-		IsOpen:                IsOutletOpen(o.OpeningHours),
 		BookingDepositPercent: o.BookingDepositPercent,
 	}
 }

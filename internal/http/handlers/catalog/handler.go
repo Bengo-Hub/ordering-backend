@@ -771,11 +771,14 @@ func (h *Handler) GetOutletTimeSlots(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 
-	// Parse date (default: today). Use local timezone so weekday/today checks
-	// in GenerateTimeSlots are correct (time.Parse returns UTC by default).
-	date := time.Now()
+	// The outlet's schedule (its own hours, else the tenant's central hours from auth-api) and the
+	// tenant's timezone, so "today" and the weekday are the customer's, not the UTC server's.
+	schedule := h.service.OutletSchedule(r.Context(), tenantID, out.OpeningHours)
+
+	// Parse date (default: today in the tenant's zone).
+	date := time.Now().In(schedule.Loc)
 	if dateStr := q.Get("date"); dateStr != "" {
-		if parsed, pErr := time.ParseInLocation("2006-01-02", dateStr, time.Now().Location()); pErr == nil {
+		if parsed, pErr := time.ParseInLocation("2006-01-02", dateStr, schedule.Loc); pErr == nil {
 			date = parsed
 		}
 	}
@@ -794,7 +797,7 @@ func (h *Handler) GetOutletTimeSlots(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	slots := catalog.GenerateTimeSlots(out.OpeningHours, date, slotMinutes, leadMinutes)
+	slots := catalog.GenerateTimeSlots(schedule, date, slotMinutes, leadMinutes)
 	if slots == nil {
 		slots = []catalog.TimeSlot{}
 	}

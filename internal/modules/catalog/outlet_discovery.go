@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	sharedcache "github.com/Bengo-Hub/cache"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
@@ -159,7 +160,9 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 		}
 	}
 
-	// 5. Enrich each outlet
+	// 5. Enrich each outlet. Opening hours: the outlet's own, else the tenant's central hours,
+	// read in the tenant's timezone (resolved once for the whole listing).
+	schedule := s.tenantSchedule(ctx, tenantID)
 	var results []OutletWithMeta
 	for _, o := range outlets {
 		meta := OutletWithMeta{
@@ -179,7 +182,7 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 		}
 
 		// Open/closed status
-		meta.IsOpen = IsOutletOpen(o.OpeningHours)
+		meta.IsOpen = schedule.forOutlet(o.OpeningHours).IsOpenAt(now)
 
 		// Rating
 		if r, ok := ratingMap[o.ID]; ok {
@@ -275,64 +278,6 @@ func (s *ProxyService) ListOutletsDiscovery(ctx context.Context, tenantID uuid.U
 	return results[start:end], total, nil
 }
 
-// IsOutletOpen checks whether an outlet is currently open based on its opening_hours JSON.
-// Expected formats:
-//
-//	{ "monday": { "open": "08:00", "close": "22:00" }, ... }
-//	{ "monday": [{ "open": "08:00", "close": "14:00" }, { "open": "17:00", "close": "22:00" }], ... }
-//
-// Returns true if opening_hours is nil/empty (assume always open).
-func IsOutletOpen(openingHours map[string]any) bool {
-	if len(openingHours) == 0 {
-		return true // no schedule = always open
-	}
-
-	now := time.Now()
-	dayName := strings.ToLower(now.Weekday().String())
-	currentMinutes := now.Hour()*60 + now.Minute()
-
-	dayData, ok := openingHours[dayName]
-	if !ok {
-		return false // day not listed = closed
-	}
-
-	// Single period: { "open": "08:00", "close": "22:00" }
-	if m, ok := dayData.(map[string]any); ok {
-		return isWithinPeriod(m, currentMinutes)
-	}
-
-	// Multiple periods: [{ "open": "08:00", "close": "14:00" }, ...]
-	if arr, ok := dayData.([]any); ok {
-		for _, item := range arr {
-			if m, ok := item.(map[string]any); ok {
-				if isWithinPeriod(m, currentMinutes) {
-					return true
-				}
-			}
-		}
-	}
-
-	return false
-}
-
-func isWithinPeriod(period map[string]any, currentMinutes int) bool {
-	openStr, _ := period["open"].(string)
-	closeStr, _ := period["close"].(string)
-	if openStr == "" || closeStr == "" {
-		return false
-	}
-	openMin := parseTimeToMinutes(openStr)
-	closeMin := parseTimeToMinutes(closeStr)
-	if openMin < 0 || closeMin < 0 {
-		return false
-	}
-	// Handle overnight spans (e.g. open 22:00, close 02:00)
-	if closeMin < openMin {
-		return currentMinutes >= openMin || currentMinutes < closeMin
-	}
-	return currentMinutes >= openMin && currentMinutes < closeMin
-}
-
 // TimeSlot represents a deliverable time window.
 type TimeSlot struct {
 	Start     string `json:"start"` // HH:MM
@@ -340,74 +285,57 @@ type TimeSlot struct {
 	Available bool   `json:"available"`
 }
 
-// GenerateTimeSlots generates delivery time slots for a given outlet and date.
-// slotMinutes controls the slot duration (default 30). leadMinutes is the minimum
-// prep time from now (e.g. 45 min). Returns slots within the outlet's opening hours.
-func GenerateTimeSlots(openingHours map[string]any, date time.Time, slotMinutes, leadMinutes int) []TimeSlot {
+// noHoursSlotWindow is the slot window offered when neither the outlet nor the tenant has set
+// opening hours (the outlet counts as always open, but slots through the night make no sense).
+var noHoursSlotWindow = sharedcache.OpeningPeriod{Open: 8 * 60, Close: 22 * 60}
+
+// GenerateTimeSlots generates delivery time slots for an outlet on a calendar date, inside the
+// outlet's schedule (its own hours, else the tenant's) and read in the tenant's timezone.
+// slotMinutes controls the slot duration (default 30). leadMinutes is the minimum prep time from
+// now (default 45). A period that runs past midnight offers slots until midnight on the date.
+func GenerateTimeSlots(sc Schedule, date time.Time, slotMinutes, leadMinutes int) []TimeSlot {
+	return generateTimeSlotsAt(sc, date, slotMinutes, leadMinutes, time.Now())
+}
+
+func generateTimeSlotsAt(sc Schedule, date time.Time, slotMinutes, leadMinutes int, now time.Time) []TimeSlot {
 	if slotMinutes <= 0 {
 		slotMinutes = 30
 	}
 	if leadMinutes <= 0 {
 		leadMinutes = 45
 	}
+	loc := sc.Loc
+	if loc == nil {
+		loc = sharedcache.TimezoneLocation("")
+	}
 
-	// Normalize date to local timezone so weekday and today-check are correct
-	// (time.Parse("2006-01-02",...) returns UTC; time.Now() returns local)
-	loc := time.Now().Location()
+	// The calendar date as the customer means it, in the tenant's zone.
 	date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, loc)
-	dayName := strings.ToLower(date.Weekday().String())
-	now := time.Now()
+	now = now.In(loc)
 	isToday := date.Year() == now.Year() && date.YearDay() == now.YearDay()
 
-	// Earliest available minute for today (now + lead time)
+	// Earliest available minute for today (now + lead time), rounded up to a slot boundary.
 	earliestMinute := 0
 	if isToday {
 		earliestMinute = now.Hour()*60 + now.Minute() + leadMinutes
-		// Round up to next slot boundary
 		earliestMinute = ((earliestMinute + slotMinutes - 1) / slotMinutes) * slotMinutes
 	}
 
-	// Collect open periods for the day
-	type period struct{ open, close int }
-	var periods []period
-
-	if len(openingHours) == 0 {
-		// No hours defined = assume 8:00-22:00
-		periods = append(periods, period{8 * 60, 22 * 60})
-	} else {
-		dayData, ok := openingHours[dayName]
-		if !ok {
+	periods := []sharedcache.OpeningPeriod{noHoursSlotWindow}
+	if sc.Hours != nil {
+		periods = sc.Hours.PeriodsOn(date)
+		if len(periods) == 0 {
 			return nil // closed on this day
-		}
-
-		if m, ok := dayData.(map[string]any); ok {
-			openStr, _ := m["open"].(string)
-			closeStr, _ := m["close"].(string)
-			o := parseTimeToMinutes(openStr)
-			c := parseTimeToMinutes(closeStr)
-			if o >= 0 && c >= 0 {
-				periods = append(periods, period{o, c})
-			}
-		}
-
-		if arr, ok := dayData.([]any); ok {
-			for _, item := range arr {
-				if m, ok := item.(map[string]any); ok {
-					openStr, _ := m["open"].(string)
-					closeStr, _ := m["close"].(string)
-					o := parseTimeToMinutes(openStr)
-					c := parseTimeToMinutes(closeStr)
-					if o >= 0 && c >= 0 {
-						periods = append(periods, period{o, c})
-					}
-				}
-			}
 		}
 	}
 
 	var slots []TimeSlot
 	for _, p := range periods {
-		for start := p.open; start+slotMinutes <= p.close; start += slotMinutes {
+		closeAt := p.Close
+		if closeAt <= p.Open {
+			closeAt = 24 * 60 // runs past midnight: slots until the end of this date
+		}
+		for start := p.Open; start+slotMinutes <= closeAt; start += slotMinutes {
 			end := start + slotMinutes
 			available := start >= earliestMinute
 			slots = append(slots, TimeSlot{
@@ -424,22 +352,4 @@ func minutesToTime(m int) string {
 	h := m / 60
 	min := m % 60
 	return fmt.Sprintf("%02d:%02d", h, min)
-}
-
-func parseTimeToMinutes(t string) int {
-	parts := strings.Split(t, ":")
-	if len(parts) != 2 {
-		return -1
-	}
-	h, m := 0, 0
-	for _, c := range parts[0] {
-		h = h*10 + int(c-'0')
-	}
-	for _, c := range parts[1] {
-		m = m*10 + int(c-'0')
-	}
-	if h < 0 || h > 23 || m < 0 || m > 59 {
-		return -1
-	}
-	return h*60 + m
 }
