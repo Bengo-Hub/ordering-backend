@@ -223,14 +223,13 @@ func (h *LogisticsEventHandler) handleTaskPickedUp(ctx context.Context, evt *sha
 		return nil
 	}
 	h.stampDeliveryState(ctx, tenantID, orderID, evt, "picked_up")
-	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
+	// The rider has the food, so a kitchen that never marked it ready is caught up first.
+	order, err := h.orderingSvc.CatchUpDeliveryToReady(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("get order %s: %w", orderID, err)
 	}
 	if order.Status != ordering.OrderStatusReady {
-		// Already on its way (duplicate event) or the kitchen never marked it ready; the delivered
-		// event still closes it out through advanceToDelivered.
-		return nil
+		return nil // already on its way (duplicate event) or finished
 	}
 	if _, terr := h.orderingSvc.UpdateOrderStatus(ctx, tenantID, orderID,
 		ordering.OrderStatusOutForDelivery, nil, "system", ""); terr != nil {
@@ -240,11 +239,12 @@ func (h *LogisticsEventHandler) handleTaskPickedUp(ctx context.Context, evt *sha
 	return nil
 }
 
-// advanceToDelivered walks a delivery order to "delivered" from ready or out_for_delivery. The
-// transition itself (UpdateOrderStatus) settles cash on delivery with treasury, consumes the stock
-// reservation, awards loyalty and publishes ordering.order.delivered exactly once.
+// advanceToDelivered walks a delivery order to "delivered" from confirmed, preparing (caught up
+// to ready first), ready or out_for_delivery. The transition itself (UpdateOrderStatus) settles
+// cash on delivery with treasury, consumes the stock reservation, awards loyalty and publishes
+// ordering.order.delivered exactly once.
 func (h *LogisticsEventHandler) advanceToDelivered(ctx context.Context, tenantID, orderID uuid.UUID) error {
-	order, err := h.orderingRepo.GetOrder(ctx, tenantID, orderID)
+	order, err := h.orderingSvc.CatchUpDeliveryToReady(ctx, tenantID, orderID)
 	if err != nil {
 		return fmt.Errorf("get order %s: %w", orderID, err)
 	}

@@ -11,7 +11,7 @@ require (
 	ariga.io/atlas v0.32.1-0.20250325101103-175b25e1c1b9
 	entgo.io/ent v0.14.5
 	github.com/Bengo-Hub/cache v0.5.11
-	github.com/Bengo-Hub/httpware v0.20.0
+	github.com/Bengo-Hub/httpware v0.26.0
 	github.com/Bengo-Hub/pagination v0.3.0
 	github.com/Bengo-Hub/shared-auth-client v0.4.1
 	github.com/Bengo-Hub/shared-events v0.10.1
@@ -81,6 +81,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/nyaruka/phonenumbers v1.8.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect

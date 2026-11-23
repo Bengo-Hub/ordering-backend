@@ -9,6 +9,7 @@ import (
 	"time"
 
 	httpware "github.com/Bengo-Hub/httpware"
+	"github.com/Bengo-Hub/httpware/contact"
 	"github.com/Bengo-Hub/pagination"
 	authclient "github.com/Bengo-Hub/shared-auth-client"
 	ratelimit "github.com/Bengo-Hub/shared-ratelimit"
@@ -1978,6 +1979,18 @@ func (h *OrderHandler) GuestCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.ContactName = ordering.NormalizeContactName(req.ContactName)
+
+	// The phone is how the outlet, the rider and WhatsApp reach the customer, so it is stored in
+	// E.164 and must be a real number. A repeated country code ("+254 254 7...") is repaired; a
+	// number that is still invalid ("+2542547171061") is refused instead of stored.
+	if strings.TrimSpace(req.ContactPhone) != "" {
+		phone, perr := contact.NormalizePhone(req.ContactPhone, "")
+		if perr != nil {
+			respondFieldError(w, "contactPhone", "invalid_contact_phone", "Enter a valid phone number, for example +254 712 345 678")
+			return
+		}
+		req.ContactPhone = phone
+	}
 
 	if req.OutletID == "" {
 		handlers.RespondError(w, http.StatusBadRequest, "outletId is required")

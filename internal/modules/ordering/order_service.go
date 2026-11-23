@@ -1505,6 +1505,46 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, tenantID, orderID 
 	return order, nil
 }
 
+// needsDeliveryCatchUp reports whether a delivery order the rider already has (picked up or
+// delivered, as logistics reports) is still at a kitchen status because staff never marked it
+// ready. Such an order is caught up to ready before the rider's transition is applied.
+func needsDeliveryCatchUp(o *Order) bool {
+	if o == nil || !isDeliveryFulfilment(o.FulfillmentType) {
+		return false
+	}
+	return o.Status == OrderStatusConfirmed || o.Status == OrderStatusPreparing
+}
+
+// CatchUpDeliveryToReady moves a delivery order the rider already has from confirmed or preparing
+// to ready without publishing anything: the kitchen steps are history by then, and replaying them
+// would message the customer "preparing" and "ready" after the food left, and would ask logistics
+// for a second rider. The step is kept in the order history. Returns the order as it now stands.
+// Before this, logistics' picked-up and delivered events were skipped for such orders, so 000014
+// (delivered 2026-11-18) stayed "preparing" and the customer never got the delivered notice.
+func (s *OrderService) CatchUpDeliveryToReady(ctx context.Context, tenantID, orderID uuid.UUID) (*Order, error) {
+	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	if !needsDeliveryCatchUp(order) {
+		return order, nil
+	}
+	oldStatus := order.Status
+	applyTransition(order, OrderStatusReady, transitionEffects{}, time.Now())
+	applied, err := s.repo.UpdateOrderStatusAtomic(ctx, tenantID, orderID, oldStatus, order)
+	if err != nil {
+		return nil, err
+	}
+	if !applied {
+		return s.repo.GetOrder(ctx, tenantID, orderID)
+	}
+	s.createOrderEvent(ctx, order.ID, "status_caught_up", string(oldStatus), string(OrderStatusReady),
+		map[string]interface{}{"reason": "rider already has the order"}, nil, "system", "")
+	s.logger.Info("delivery order caught up to ready from rider progress",
+		zap.String("id", order.ID.String()), zap.String("from", string(oldStatus)))
+	return order, nil
+}
+
 // CancelOrder cancels an order with a reason.
 func (s *OrderService) CancelOrder(ctx context.Context, tenantID, orderID uuid.UUID, reason string, actorID *uuid.UUID, actorType, ipAddress string) (*Order, error) {
 	order, err := s.repo.GetOrder(ctx, tenantID, orderID)
